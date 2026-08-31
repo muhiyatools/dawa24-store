@@ -1,0 +1,134 @@
+package postgres
+
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5"
+
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+)
+
+// DefaultOrgInfoForUser returns the organization to make active at sign-in,
+// together with its type and status so the session can carry them and the shell
+// can route to the right dashboard without a query per request.
+func (r *Repository) DefaultOrgInfoForUser(ctx context.Context, userID int64) (int64, string, string, error) {
+	var orgID int64
+	var orgType, orgStatus string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT o.id, o.type, o.status
+			FROM org.organizations o
+			JOIN org.members m ON m.organization_id = o.id
+			WHERE m.user_id = $1 AND m.status = 'active'
+			ORDER BY m.id ASC
+			LIMIT 1;
+		`
+		err := tx.QueryRow(txCtx, query, userID).Scan(&orgID, &orgType, &orgStatus)
+		if err != nil && database.IsNotFound(err) {
+			orgID = 0
+			return nil
+		}
+		return err
+	})
+	return orgID, orgType, orgStatus, err
+}
+
+// UserBelongsToOrg checks whether a user has active membership in an organization.
+func (r *Repository) UserBelongsToOrg(ctx context.Context, userID int64, orgID int64) (bool, error) {
+	var belongs bool
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT EXISTS (SELECT 1 FROM org.members WHERE user_id = $1 AND organization_id = $2 AND status = 'active');`
+		return tx.QueryRow(txCtx, query, userID, orgID).Scan(&belongs)
+	})
+	return belongs, err
+}
+
+// ListUserOrganizations returns all organizations the user is a member of.
+func (r *Repository) ListUserOrganizations(ctx context.Context, userID int64) ([]*identity.UserOrgMembership, error) {
+	var list []*identity.UserOrgMembership
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT o.id, o.trade_name, o.type, o.status, m.role_key, (m.status = 'active') as is_active
+			FROM org.members m
+			JOIN org.organizations o ON o.id = m.organization_id
+			WHERE m.user_id = $1 AND m.status = 'active'
+			ORDER BY o.created_at ASC;
+		`
+		rows, err := tx.Query(txCtx, query, userID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var m identity.UserOrgMembership
+			if err := rows.Scan(&m.OrganizationID, &m.OrgName, &m.OrgType, &m.OrgStatus, &m.RoleKey, &m.IsActive); err != nil {
+				return err
+			}
+			list = append(list, &m)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// GetOrgPlanLimits retrieves the active subscription's concurrent session & device limits for an organization.
+func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
+	maxSessions = 3
+	maxDevices = 3
+	planName = i18n.TDefault("w4_mod.s_378_378")
+
+	err = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if orgID > 0 {
+			// 1. Try active subscription for this organization
+			querySub := `
+				SELECT COALESCE(p.max_login_sessions, 3), COALESCE(p.max_devices, 3), COALESCE(p.name->>'ar', 'باقة اشتراك')
+				FROM billing.subscriptions s
+				JOIN billing.plans p ON s.plan_id = p.id
+				WHERE s.organization_id = $1 AND s.status = 'active' AND s.expires_at > now()
+				ORDER BY s.expires_at DESC
+				LIMIT 1;
+			`
+			var sMax, dMax int
+			var pName string
+			if qErr := tx.QueryRow(txCtx, querySub, orgID).Scan(&sMax, &dMax, &pName); qErr == nil {
+				if sMax > 0 {
+					maxSessions = sMax
+				}
+				if dMax > 0 {
+					maxDevices = dMax
+				}
+				if pName != "" {
+					planName = pName
+				}
+				return nil
+			}
+		}
+
+		// 2. Fallback to system default plan
+		queryDef := `
+			SELECT COALESCE(max_login_sessions, 3), COALESCE(max_devices, 3), COALESCE(name->>'ar', 'الباقة الأساسية')
+			FROM billing.plans
+			WHERE is_default = true AND is_active = true
+			ORDER BY id ASC
+			LIMIT 1;
+		`
+		var sMax, dMax int
+		var pName string
+		if qErr := tx.QueryRow(txCtx, queryDef).Scan(&sMax, &dMax, &pName); qErr == nil {
+			if sMax > 0 {
+				maxSessions = sMax
+			}
+			if dMax > 0 {
+				maxDevices = dMax
+			}
+			if pName != "" {
+				planName = pName
+			}
+		}
+		return nil
+	})
+	return maxSessions, maxDevices, planName, err
+}

@@ -1,0 +1,333 @@
+package compare
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
+)
+
+// RenameFile updates the user-assigned supplier label for a file.
+func (s *Service) RenameFile(ctx context.Context, fileID int64, newSupplierName string) error {
+	newSupplierName = strings.TrimSpace(newSupplierName)
+	if newSupplierName == "" {
+		return apperr.Validation("file.supplier_name_required", "Supplier name cannot be empty.", nil)
+	}
+	return s.repo.RenameFile(ctx, fileID, newSupplierName)
+}
+
+// ArchiveFile manually archives a file.
+func (s *Service) ArchiveFile(ctx context.Context, fileID int64, reason string) error {
+	if reason == "" {
+		reason = i18n.T("ar", "err.manual_archive_reason")
+	}
+	return s.repo.ArchiveFile(ctx, fileID, reason)
+}
+
+// UnarchiveFile restores an archived file.
+func (s *Service) UnarchiveFile(ctx context.Context, fileID int64) error {
+	return s.repo.UnarchiveFile(ctx, fileID)
+}
+
+// DeleteFile soft-deletes a file.
+func (s *Service) DeleteFile(ctx context.Context, fileID int64) error {
+	return s.repo.DeleteFile(ctx, fileID)
+}
+
+// ListFiles lists files for the given tenant / user.
+func (s *Service) ListFiles(ctx context.Context, userID int64, orgID *int64, status *CompareFileStatus) ([]*CompareFile, error) {
+	return s.repo.ListFiles(ctx, userID, orgID, status)
+}
+
+// ListAllFiles lists all compare files across the system with optional search and status filter.
+func (s *Service) ListAllFiles(ctx context.Context, search string, status *CompareFileStatus) ([]*CompareFile, error) {
+	return s.repo.ListAllFiles(ctx, search, status)
+}
+
+// GetFile retrieves a file by ID.
+func (s *Service) GetFile(ctx context.Context, fileID int64) (*CompareFile, error) {
+	return s.repo.GetFileByID(ctx, fileID)
+}
+
+// GetFileByPublicID retrieves a file by public UUID.
+func (s *Service) GetFileByPublicID(ctx context.Context, publicID string) (*CompareFile, error) {
+	return s.repo.GetFileByPublicID(ctx, publicID)
+}
+
+// ListFileRows retrieves extracted rows for a compare file.
+func (s *Service) ListFileRows(ctx context.Context, fileID int64, limit, offset int) ([]*CompareFileRow, error) {
+	return s.repo.ListFileRows(ctx, fileID, limit, offset)
+}
+
+// SaveFileMapping validates and persists user-defined column mapping for a spreadsheet (Plan V5 Phase 2 §2.3.3).
+// After saving the mapping, it automatically processes the file to extract rows.
+func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config MappingConfig) error {
+	if config.NameCol == nil {
+		return apperr.Validation("mapping.name_required", i18n.T("ar", "err.name_col_required"), map[string]string{
+			"name_col": i18n.T("ar", "err.name_col_missing"),
+		})
+	}
+	if config.PriceCol == nil && config.DiscountCol == nil {
+		return apperr.Validation("mapping.price_or_discount_required", i18n.TDefault("w4_mod.w4str_165_165"), map[string]string{
+			"price_col": i18n.TDefault("w4_mod.s_374_374"),
+		})
+	}
+
+	file, err := s.repo.GetFileByID(ctx, fileID)
+	if err != nil {
+		return err
+	}
+
+	file.MappingConfig = config
+	file.Status = FileReady
+	if err := s.repo.UpdateFile(ctx, file); err != nil {
+		return err
+	}
+
+	// Automatically process the file after mapping is saved
+	return s.ProcessCompareFile(ctx, fileID)
+}
+
+// UploadAndProcessCompareFile uploads a spreadsheet, detects columns, extracts rows, and stores them in compare.file_rows immediately.
+func (s *Service) UploadAndProcessCompareFile(
+	ctx context.Context, userID int64, orgID *int64, supplierName, originalFilename, mimeType string,
+	sizeBytes int64, storageKey string, fileBytes []byte,
+) (*CompareFile, []string, error) {
+	file, archived, err := s.UploadCompareFile(ctx, userID, orgID, supplierName, originalFilename, mimeType, sizeBytes, storageKey)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if len(fileBytes) == 0 {
+		return file, archived, nil
+	}
+
+	// 1. Read all rows from file using universal spreadsheet reader
+	allRows, err := sheet.ReadRows(fileBytes, originalFilename)
+	if err != nil || len(allRows) == 0 {
+		file.Status = FileFailed
+		file.ErrorMessage = i18n.TDefault("w4_mod.s_375_375")
+		_ = s.repo.UpdateFile(ctx, file)
+		return file, archived, nil
+	}
+
+	// 2. Find best header row and detect columns
+	headerRowIdx, fieldMapping, _ := FindBestHeaderRow(allRows)
+	var config MappingConfig
+	colMapping := make(map[TargetField]*int)
+	for colIdx, field := range fieldMapping {
+		idx := colIdx
+		colMapping[field] = &idx
+	}
+	config.NameCol = colMapping[FieldProductName]
+	config.PriceCol = colMapping[FieldPrice]
+	config.DiscountCol = colMapping[FieldDiscount]
+	config.CodeCol = colMapping[FieldSKU]
+	if config.CodeCol == nil {
+		config.CodeCol = colMapping[FieldProductID]
+	}
+
+	// Heuristic fallbacks if columns were not auto-detected
+	headerRow := allRows[headerRowIdx]
+	if config.NameCol == nil && len(headerRow) > 0 {
+		idx := 0
+		if len(headerRow) > 1 {
+			idx = 1
+		}
+		config.NameCol = &idx
+	}
+	if config.PriceCol == nil && len(headerRow) > 2 {
+		idx := 2
+		config.PriceCol = &idx
+	}
+	if config.DiscountCol == nil && len(headerRow) > 3 {
+		idx := 3
+		config.DiscountCol = &idx
+	}
+	if config.CodeCol == nil && len(headerRow) > 0 {
+		idx := 0
+		config.CodeCol = &idx
+	}
+
+	file.MappingConfig = config
+
+	// 3. Extract and insert rows
+	var rows []*CompareFileRow
+	rowNum := 1
+	for i := headerRowIdx + 1; i < len(allRows); i++ {
+		record := allRows[i]
+		if len(record) == 0 {
+			continue
+		}
+		row := s.extractRowFromRecord(record, headerRow, file, rowNum)
+		if row != nil {
+			rows = append(rows, row)
+			rowNum++
+		}
+	}
+
+	if len(rows) > 0 {
+		_ = s.repo.DeleteFileRows(ctx, file.ID)
+		if insertErr := s.repo.InsertFileRows(ctx, rows); insertErr == nil {
+			file.RowCount = len(rows)
+			file.Status = FileReady
+			file.ErrorMessage = ""
+		} else {
+			s.log.ErrorContext(ctx, "failed to insert compare file rows", "error", insertErr, "file_id", file.ID)
+			file.Status = FileFailed
+			file.ErrorMessage = i18n.TDefault("w4_mod.s_376_376")
+		}
+	} else {
+		file.RowCount = 0
+		file.Status = FileUploaded
+		file.ErrorMessage = i18n.TDefault("w4_mod.s_377_377")
+	}
+
+	_ = s.repo.UpdateFile(ctx, file)
+	return file, archived, nil
+}
+
+// ProcessCompareFile downloads the uploaded spreadsheet from storage or local disk, parses it using the
+// saved column mapping, extracts rows, and inserts them into compare.file_rows.
+func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
+	file, err := s.repo.GetFileByID(ctx, fileID)
+	if err != nil {
+		return err
+	}
+
+	if file.MappingConfig.NameCol == nil {
+		return apperr.Validation("compare.no_mapping", "Column mapping not configured for this file.", nil)
+	}
+
+	var reader io.ReadCloser
+	// 1. Try object storage if available
+	if s.storage != nil && file.StorageKey != "" && !strings.HasPrefix(file.StorageKey, "/") && !strings.HasPrefix(file.StorageKey, "data/") {
+		r, _, err := s.storage.Get(ctx, file.StorageKey)
+		if err == nil {
+			reader = r
+		}
+	}
+
+	// 2. Try exact storage key on local disk
+	if reader == nil && file.StorageKey != "" {
+		cleanKey := strings.TrimPrefix(filepath.FromSlash(file.StorageKey), string(filepath.Separator))
+		candidates := []string{
+			file.StorageKey,
+			filepath.Join("data", cleanKey),
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
+			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
+			"data" + file.StorageKey,
+		}
+		for _, cand := range candidates {
+			if f, err := os.Open(cand); err == nil {
+				reader = f
+				break
+			}
+		}
+	}
+
+	// 3. Scan data/uploads/compare directory for matching files
+	if reader == nil {
+		entries, _ := os.ReadDir(filepath.Join("data", "uploads", "compare"))
+		for _, entry := range entries {
+			if !entry.IsDir() && (strings.Contains(entry.Name(), file.OriginalFilename) || strings.HasSuffix(entry.Name(), filepath.Ext(file.OriginalFilename))) {
+				if f, err := os.Open(filepath.Join("data", "uploads", "compare", entry.Name())); err == nil {
+					reader = f
+					break
+				}
+			}
+		}
+	}
+
+	// 4. If raw file is unavailable but rows were already extracted in DB, keep file ready without crashing
+	if reader == nil {
+		if existingRows, _ := s.repo.ListFileRows(ctx, fileID, 1000, 0); len(existingRows) > 0 {
+			file.RowCount = len(existingRows)
+			file.Status = FileReady
+			file.ErrorMessage = ""
+			_ = s.repo.UpdateFile(ctx, file)
+			return nil
+		}
+		return apperr.Internal(fmt.Errorf(i18n.TDefault("w4_mod.d_166"), fileID))
+	}
+	defer reader.Close()
+
+	// Parse the spreadsheet by content, not by extension. Suppliers send
+	// legacy BIFF .xls, HTML tables named .xls, and CSVs named .xlsx; the
+	// universal reader sniffs the real container, where excelize alone rejects
+	// everything that is not a true .xlsx.
+	var rows []*CompareFileRow
+	rows, err = s.parseSpreadsheet(reader, file)
+	if err != nil {
+		file.Status = FileFailed
+		file.ErrorMessage = err.Error()
+		_ = s.repo.UpdateFile(ctx, file)
+		return fmt.Errorf("parse spreadsheet: %w", err)
+	}
+
+	// Delete any existing rows for this file (re-process case)
+	if err := s.repo.DeleteFileRows(ctx, fileID); err != nil {
+		return fmt.Errorf("delete old rows: %w", err)
+	}
+
+	// Insert new extracted rows
+	if len(rows) > 0 {
+		if err := s.repo.InsertFileRows(ctx, rows); err != nil {
+			file.Status = FileFailed
+			file.ErrorMessage = fmt.Sprintf("Failed to insert file rows: %v", err)
+			_ = s.repo.UpdateFile(ctx, file)
+			return fmt.Errorf("insert rows: %w", err)
+		}
+	}
+
+	// Update file with row count and status
+	file.RowCount = len(rows)
+	file.Status = FileReady
+	file.ErrorMessage = ""
+	return s.repo.UpdateFile(ctx, file)
+}
+
+// parseSpreadsheet parses any supported workbook - .xlsx, legacy .xls, the XML
+// 2003 dialect, an HTML table, or a delimited text file - using the column
+// mapping saved for the file.
+func (s *Service) parseSpreadsheet(reader io.Reader, file *CompareFile) ([]*CompareFileRow, error) {
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, fmt.Errorf("read spreadsheet data: %w", err)
+	}
+
+	allRows, err := sheet.ReadRows(data, file.OriginalFilename)
+	if err != nil {
+		return nil, fmt.Errorf("read spreadsheet: %w", err)
+	}
+	if len(allRows) == 0 {
+		return nil, fmt.Errorf("empty sheet")
+	}
+
+	headerRowIdx, _, _ := FindBestHeaderRow(allRows)
+	headers := allRows[headerRowIdx]
+
+	var rows []*CompareFileRow
+	rowNumber := 1
+
+	for i := headerRowIdx + 1; i < len(allRows); i++ {
+		columns := allRows[i]
+		if len(columns) == 0 {
+			continue
+		}
+
+		row := s.extractRowFromRecord(columns, headers, file, rowNumber)
+		if row != nil {
+			rows = append(rows, row)
+			rowNumber++
+		}
+	}
+
+	return rows, nil
+}

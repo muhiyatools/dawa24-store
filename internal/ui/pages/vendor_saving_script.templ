@@ -1,0 +1,627 @@
+package pages
+
+templ VendorSavingScript() {
+		<script>
+			function openCreateModal() {
+				document.getElementById('modal-title').textContent = 'إضافة منتج توفير جديد';
+				document.getElementById('saving-product-form').action = '/vendor/saving-products';
+				document.getElementById('form-saving-id').value = '';
+				document.getElementById('form-name-product').value = '';
+				document.getElementById('form-sku').value = '';
+				document.getElementById('form-qty').value = '';
+				document.getElementById('form-price').value = '';
+				clearSelectedProduct();
+				const el = document.getElementById('saving-product-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
+				}
+			}
+
+			function openEditModalFromRow(id) {
+				const row = document.querySelector(`.saving-row[data-id="${id}"]`);
+				if (!row) return;
+
+				document.getElementById('modal-title').textContent = 'تعديل منتج التوفير وتعيين الربط';
+				document.getElementById('saving-product-form').action = `/vendor/saving-products/${id}/update`;
+				document.getElementById('form-saving-id').value = id;
+				document.getElementById('form-name-product').value = row.dataset.name || '';
+				document.getElementById('form-sku').value = row.dataset.sku || '';
+				document.getElementById('form-qty').value = row.dataset.qty || '';
+				document.getElementById('form-price').value = row.dataset.price || '';
+
+				const prodId = row.dataset.productId;
+				const prodName = row.dataset.productName;
+				if (prodId && prodId !== '') {
+					selectCatalogProduct(prodId, prodName);
+				} else {
+					clearSelectedProduct();
+				}
+
+				const el = document.getElementById('saving-product-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
+				}
+			}
+
+			function closeCreateModal() {
+				const el = document.getElementById('saving-product-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
+				}
+			}
+
+			function selectCatalogProduct(id, name) {
+				document.getElementById('form-product-id').value = id;
+				document.getElementById('selected-product-label').textContent = `${name}`;
+				document.getElementById('selected-product-box').style.display = 'flex';
+				document.getElementById('search-product-container').style.display = 'none';
+				document.getElementById('product-search-dropdown').style.display = 'none';
+				document.getElementById('product-search-input').value = '';
+			}
+
+			function clearSelectedProduct() {
+				document.getElementById('form-product-id').value = '';
+				document.getElementById('selected-product-label').textContent = '';
+				document.getElementById('selected-product-box').style.display = 'none';
+				document.getElementById('search-product-container').style.display = 'block';
+			}
+
+			let searchDebounce = null;
+			function searchCatalogProductsLive(query) {
+				clearTimeout(searchDebounce);
+				const dropdown = document.getElementById('product-search-dropdown');
+				if (!query || query.trim().length < 2) {
+					dropdown.style.display = 'none';
+					return;
+				}
+
+				searchDebounce = setTimeout(() => {
+					fetch('/vendor/saving-products/search-products?q=' + encodeURIComponent(query.trim()))
+						.then(r => r.json())
+						.then(items => {
+							if (!items || items.length === 0) {
+								dropdown.innerHTML = '<div >لم يتم العثور على نتائج بالكتالوج</div>';
+								dropdown.style.display = 'block';
+								return;
+							}
+
+							let html = '';
+							items.forEach(it => {
+								const skuText = it.sku ? ('<span >(' + it.sku + ')</span>') : '';
+								const safeName = (it.name || '').replace(/'/g, "\\'");
+								html += '<div  ' +
+									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
+									'onclick="selectCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
+									'<div><strong >' + it.name + '</strong>' + skuText + '</div>' +
+									'<span class="badge badge-emerald text-xs">اختيار</span></div>';
+							});
+							dropdown.innerHTML = html;
+							dropdown.style.display = 'block';
+						})
+						.catch(() => {
+							dropdown.style.display = 'none';
+						});
+				}, 200);
+			}
+
+			function confirmDeleteSavingProduct(id) {
+				if (confirm("هل أنت متأكد من حذف هذا المنتج من قائمة منتجات المساعدة؟")) {
+					const form = document.createElement('form');
+					form.method = 'POST';
+					form.action = '/vendor/saving-products/' + id + '/delete';
+					document.body.appendChild(form);
+					form.submit();
+				}
+			}
+
+			function openImportModal() {
+				document.getElementById('import-filename-preview').innerHTML = '';
+				document.getElementById('import-file-input').value = '';
+				const el = document.getElementById('saving-import-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
+				}
+			}
+
+			function closeImportModal() {
+				const el = document.getElementById('saving-import-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
+				}
+			}
+
+			function handleImportFileSelect(input) {
+				if (!input.files || !input.files[0]) return;
+				const f = input.files[0];
+				const size = (f.size / 1024 / 1024).toFixed(2);
+				document.getElementById('import-filename-preview').innerHTML = 'تم اختيار: ' + f.name + ' (' + size + ' MB)';
+
+				const panel = document.getElementById('vendor-import-columns-panel');
+				const loadingEl = document.getElementById('vendor-import-columns-loading');
+				const formGrid = document.getElementById('vendor-import-columns-grid');
+				const previewTableEl = document.getElementById('vendor-import-preview-table-container');
+
+				if (panel) panel.style.display = 'block';
+				if (loadingEl) loadingEl.style.display = 'block';
+				if (formGrid) formGrid.style.display = 'none';
+				if (previewTableEl) previewTableEl.innerHTML = '';
+
+				const formData = new FormData();
+				formData.append('file', f);
+
+				fetch('/vendor/saving-products/preview-columns', {
+					method: 'POST',
+					body: formData,
+				})
+				.then(r => r.json())
+				.then(data => {
+					if (loadingEl) loadingEl.style.display = 'none';
+					if (!data || !data.success || !data.headers || data.headers.length === 0) {
+						if (formGrid) formGrid.style.display = 'none';
+						alert(data.error || 'تعذر قراءة أعمدة الملف المرفوع. تأكد من سلامة ملف Excel.');
+						return;
+					}
+
+					if (formGrid) formGrid.style.display = 'grid';
+					renderImportColumnDropdowns('vendor', data.headers, data.detected);
+					renderImportSamplePreview('vendor', data.headers, data.sample_rows, data.detected);
+				})
+				.catch(err => {
+					if (loadingEl) loadingEl.style.display = 'none';
+					console.error('preview error', err);
+				});
+			}
+
+			function renderImportColumnDropdowns(prefix, headers, detected) {
+				const selects = [
+					{ id: prefix + '-col-name', selected: detected.name_col },
+					{ id: prefix + '-col-sku', selected: detected.sku_col },
+					{ id: prefix + '-col-qty', selected: detected.qty_col },
+					{ id: prefix + '-col-price', selected: detected.price_col }
+				];
+
+				selects.forEach(s => {
+					const el = document.getElementById(s.id);
+					if (!el) return;
+					el.innerHTML = '<option value="-1">-- غير محدد (تجاهل) --</option>';
+					headers.forEach((h, idx) => {
+						const colLetter = String.fromCharCode(65 + idx);
+						const opt = document.createElement('option');
+						opt.value = idx;
+						opt.textContent = `العمود ${colLetter}: [${h}]`;
+						if (idx === s.selected) {
+							opt.selected = true;
+						}
+						el.appendChild(opt);
+					});
+
+					el.onchange = function() {
+						const curDetected = {
+							name_col: parseInt(document.getElementById(prefix + '-col-name')?.value || -1),
+							sku_col: parseInt(document.getElementById(prefix + '-col-sku')?.value || -1),
+							qty_col: parseInt(document.getElementById(prefix + '-col-qty')?.value || -1),
+							price_col: parseInt(document.getElementById(prefix + '-col-price')?.value || -1)
+						};
+						if (window[prefix + '_last_sample_rows']) {
+							renderImportSamplePreview(prefix, headers, window[prefix + '_last_sample_rows'], curDetected);
+						}
+					};
+				});
+			}
+
+			function renderImportSamplePreview(prefix, headers, sampleRows, detected) {
+				window[prefix + '_last_sample_rows'] = sampleRows;
+				const container = document.getElementById(prefix + '-import-preview-table-container');
+				if (!container || !sampleRows || sampleRows.length === 0) return;
+
+				let html = '<div >';
+				html += '<div >';
+				html += '<span>معاينة أعمدة الملف والبيانات الحقيقية:</span>';
+				html += '<span class="meta-muted">أول ' + sampleRows.length + ' صفوف</span>';
+				html += '</div>';
+				html += '<div class="table-container m-0" ><table class="data-table m-0" ><thead><tr>';
+
+				headers.forEach((h, idx) => {
+					let tag = '';
+					if (idx === detected.name_col) tag = ' <span class="badge badge-emerald" >اسم الصنف </span>';
+					else if (idx === detected.sku_col) tag = ' <span class="badge badge-sky" >كود SKU </span>';
+					else if (idx === detected.qty_col) tag = ' <span class="badge badge-amber" >الكمية </span>';
+					else if (idx === detected.price_col) tag = ' <span class="badge badge-purple" >السعر </span>';
+					const colLetter = String.fromCharCode(65 + idx);
+					html += `<th >${colLetter}: ${h}${tag}</th>`;
+				});
+				html += '</tr></thead><tbody>';
+
+				sampleRows.forEach(row => {
+					html += '<tr>';
+					headers.forEach((_, idx) => {
+						const cellVal = (idx < row.length) ? row[idx] : '';
+						let cellStyle = 'padding:0.4rem 0.6rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
+						if (idx === detected.name_col) cellStyle += ' font-weight:700; color:var(--text);';
+						html += `<td >${cellVal}</td>`;
+					});
+					html += '</tr>';
+				});
+
+				html += '</tbody></table></div></div>';
+				container.innerHTML = html;
+			}
+
+			let vendorActiveSessionId = null;
+			let vendorStagedData = null;
+			let vendorCurrentTab = 'all';
+			let vendorPollInterval = null;
+
+			function startVendorAsyncImport() {
+				const input = document.getElementById('import-file-input');
+				if (!input.files || input.files.length === 0) {
+					alert("يرجى اختيار ملف Excel أو CSV أولاً.");
+					return;
+				}
+
+				const file = input.files[0];
+				const formData = new FormData();
+				formData.append('file', file);
+
+				const colName = document.getElementById('vendor-col-name')?.value || '';
+				const colSKU = document.getElementById('vendor-col-sku')?.value || '';
+				const colQty = document.getElementById('vendor-col-qty')?.value || '';
+				const colPrice = document.getElementById('vendor-col-price')?.value || '';
+				const strat = document.querySelector('input[name="vendor_match_strategy"]:checked')?.value || 'smart_auto';
+
+				formData.append('col_name', colName);
+				formData.append('col_sku', colSKU);
+				formData.append('col_qty', colQty);
+				formData.append('col_price', colPrice);
+				formData.append('match_strategy', strat);
+
+				// Switch UI to Step 2: Progress
+				showVendorImportStep('progress');
+				document.getElementById('vendor-progress-bar').style.width = '10%';
+				document.getElementById('vendor-progress-percent').textContent = '10%';
+				document.getElementById('vendor-progress-counter').textContent = '0 / ...';
+				document.getElementById('vendor-progress-phase').textContent = 'جاري رفع الملف وبدء المعالجة الذكية على السيرفر...';
+
+				fetch('/vendor/saving-products/import/start', {
+					method: 'POST',
+					body: formData,
+				})
+				.then(r => r.json())
+				.then(res => {
+					if (!res.success) {
+						alert(res.error || 'حدث خطأ أثناء بدء المعالجة.');
+						showVendorImportStep('config');
+						return;
+					}
+					vendorActiveSessionId = res.session_id;
+					pollVendorImportProgress(res.session_id);
+				})
+				.catch(err => {
+					console.error('start import error', err);
+					alert('حدث خطأ في الاتصال بالسيرفر أثناء بدء الاستيراد.');
+					showVendorImportStep('config');
+				});
+			}
+
+			function pollVendorImportProgress(sessionId) {
+				if (vendorPollInterval) clearInterval(vendorPollInterval);
+
+				vendorPollInterval = setInterval(() => {
+					fetch('/vendor/saving-products/import/session/' + sessionId + '/progress')
+					.then(r => r.json())
+					.then(sess => {
+						if (!sess || !sess.success) {
+							clearInterval(vendorPollInterval);
+							alert(sess.error || 'فشلت معالجة الجلسة.');
+							showVendorImportStep('config');
+							return;
+						}
+
+						if (sess.status === 'failed') {
+							clearInterval(vendorPollInterval);
+							alert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));
+							showVendorImportStep('config');
+							return;
+						}
+
+						// Update progress UI
+						const pct = Math.max(10, Math.min(100, sess.progress || 10));
+						document.getElementById('vendor-progress-bar').style.width = pct + '%';
+						document.getElementById('vendor-progress-percent').textContent = pct + '%';
+						document.getElementById('vendor-progress-counter').textContent = (sess.processed_rows || 0) + ' / ' + (sess.total_rows || 0) + ' صنف';
+						if (sess.progress_phase) {
+							document.getElementById('vendor-progress-phase').textContent = sess.progress_phase;
+						}
+
+						if (sess.status === 'ready') {
+							clearInterval(vendorPollInterval);
+							vendorStagedData = sess;
+							renderVendorStagedReview(sess);
+						}
+					})
+					.catch(err => {
+						console.error('poll progress error', err);
+					});
+				}, 450);
+			}
+
+			function showVendorImportStep(step) {
+				const configStep = document.getElementById('vendor-import-step-config');
+				const progressStep = document.getElementById('vendor-import-step-progress');
+				const reviewStep = document.getElementById('vendor-import-step-review');
+
+				const subtitle = document.getElementById('vendor-import-modal-subtitle');
+				const icon = document.getElementById('vendor-import-modal-icon');
+
+				const startBtn = document.getElementById('vendor-start-btn');
+				const commitBtn = document.getElementById('vendor-commit-btn');
+				const backBtn = document.getElementById('vendor-back-btn');
+				const cancelBtn = document.getElementById('vendor-cancel-btn');
+
+				configStep.style.display = (step === 'config') ? 'block' : 'none';
+				progressStep.style.display = (step === 'progress') ? 'block' : 'none';
+				reviewStep.style.display = (step === 'review') ? 'block' : 'none';
+
+				if (step === 'config') {
+					subtitle.textContent = 'الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة';
+					icon.textContent = '';
+					startBtn.style.display = 'inline-flex';
+					commitBtn.style.display = 'none';
+					backBtn.style.display = 'none';
+					cancelBtn.textContent = 'إلغاء';
+				} else if (step === 'progress') {
+					subtitle.textContent = 'الخطوة 2 من 3: المعالجة والمطابقة في الخلفية';
+					icon.textContent = '';
+					startBtn.style.display = 'none';
+					commitBtn.style.display = 'none';
+					backBtn.style.display = 'none';
+					cancelBtn.textContent = 'إلغاء المعالجة';
+				} else if (step === 'review') {
+					subtitle.textContent = 'الخطوة 3 من 3: مراجعة المسودة وتأكيد الحفظ النهائي';
+					icon.textContent = '';
+					startBtn.style.display = 'none';
+					commitBtn.style.display = 'inline-flex';
+					backBtn.style.display = 'inline-flex';
+					cancelBtn.textContent = 'تفريغ وإلغاء المسودة';
+				}
+			}
+
+			function renderVendorStagedReview(sess) {
+				showVendorImportStep('review');
+
+				document.getElementById('vendor-review-total-count').textContent = sess.total_rows || (sess.items ? sess.items.length : 0);
+				document.getElementById('vendor-review-matched-count').textContent = sess.matched_rows || 0;
+				document.getElementById('vendor-review-unlinked-count').textContent = sess.unlinked_rows || 0;
+				document.getElementById('vendor-review-total-qty').textContent = Number(sess.total_quantity || 0).toLocaleString();
+
+				document.getElementById('vendor-badge-all').textContent = sess.items ? sess.items.length : 0;
+				document.getElementById('vendor-badge-matched').textContent = sess.matched_rows || 0;
+				document.getElementById('vendor-badge-unlinked').textContent = sess.unlinked_rows || 0;
+
+				renderVendorReviewRows(sess.items || []);
+			}
+
+			function renderVendorReviewRows(items) {
+				const tbody = document.getElementById('vendor-review-table-body');
+				if (!tbody) return;
+
+				const searchVal = (document.getElementById('vendor-review-search')?.value || '').trim().toLowerCase();
+
+				let html = '';
+				let selectedCount = 0;
+
+				items.forEach((item, idx) => {
+					const isMatched = !!item.product_id;
+					if (vendorCurrentTab === 'matched' && !isMatched) return;
+					if (vendorCurrentTab === 'unlinked' && isMatched) return;
+
+					if (searchVal) {
+						const n = (item.name_product || '').toLowerCase();
+						const s = (item.sku || '').toLowerCase();
+						const m = (item.master_product_name || '').toLowerCase();
+						if (!n.includes(searchVal) && !s.includes(searchVal) && !m.includes(searchVal)) {
+							return;
+						}
+					}
+
+					if (item.included !== false) selectedCount++;
+
+					let matchBadge = '<span class="badge badge-amber font-size-10">غير مرتبط (جديد)</span>';
+					if (isMatched) {
+						if (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {
+							matchBadge = '<span class="badge badge-emerald font-size-10">كود SKU </span>';
+						} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {
+							matchBadge = '<span class="badge badge-emerald font-size-10">اسم متطابق </span>';
+						} else if (item.match_type === 'core_name') {
+							matchBadge = '<span class="badge badge-sky font-size-10">اسم مجرد </span>';
+						} else {
+							const conf = Math.round((item.confidence || 0) * 100);
+							matchBadge = '<span class="badge badge-purple font-size-10">تشابه ' + conf + '% </span>';
+						}
+					}
+
+					const masterDisplay = item.master_product_name ? 
+						('<strong >' + item.master_product_name + '</strong>' + (item.master_product_sku ? ' <code class="text-xs text-muted">(' + item.master_product_sku + ')</code>' : '')) : 
+						'<span >— صنف حر غير مقيد —</span>';
+
+					const checkedAttr = (item.included !== false) ? 'checked' : '';
+
+					html += '<tr class="rule-bottom">' +
+						'<td class="text-center">' +
+							'<input type="checkbox" class="vendor-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' onchange="updateVendorRowInclusion(' + idx + ', this.checked)" />' +
+						'</td>' +
+						'<td><strong class="text-body">' + (item.name_product || '') + '</strong></td>' +
+						'<td><code class="text-xs">' + (item.sku || '—') + '</code></td>' +
+						'<td>' + masterDisplay + '</td>' +
+						'<td class="text-center">' + matchBadge + '</td>' +
+						'<td class="text-center tabular-nums font-bold">' + (item.quantity || 0) + '</td>' +
+						'<td class="text-end tabular-nums font-bold" >' + (item.price || '0.00') + ' ج.م</td>' +
+						'</tr>';
+				});
+
+				if (!html) {
+					html = '<tr><td colspan="7" >لا توجد أصناف تطابق الفلتر الحالي.</td></tr>';
+				}
+
+				tbody.innerHTML = html;
+				document.getElementById('vendor-selected-count').textContent = selectedCount;
+			}
+
+			function updateVendorRowInclusion(idx, included) {
+				if (vendorStagedData && vendorStagedData.items && vendorStagedData.items[idx]) {
+					vendorStagedData.items[idx].included = included;
+				}
+				let count = 0;
+				if (vendorStagedData && vendorStagedData.items) {
+					vendorStagedData.items.forEach(it => { if (it.included !== false) count++; });
+				}
+				document.getElementById('vendor-selected-count').textContent = count;
+			}
+
+			function toggleAllVendorStagedRows(checked) {
+				if (vendorStagedData && vendorStagedData.items) {
+					vendorStagedData.items.forEach(it => { it.included = checked; });
+				}
+				const cbs = document.querySelectorAll('.vendor-staged-row-cb');
+				cbs.forEach(cb => cb.checked = checked);
+				document.getElementById('vendor-selected-count').textContent = checked && vendorStagedData && vendorStagedData.items ? vendorStagedData.items.length : 0;
+			}
+
+			function filterVendorReviewTable(tab) {
+				vendorCurrentTab = tab;
+				['all', 'matched', 'unlinked'].forEach(t => {
+					const btn = document.getElementById('vendor-tab-' + t);
+					if (btn) {
+						if (t === tab) {
+							btn.style.background = 'var(--surface-raised)';
+							btn.style.color = 'var(--accent)';
+						} else {
+							btn.style.background = 'transparent';
+							btn.style.color = 'var(--text-muted)';
+						}
+					}
+				});
+				if (vendorStagedData && vendorStagedData.items) {
+					renderVendorReviewRows(vendorStagedData.items);
+				}
+			}
+
+			function searchVendorReviewTable(val) {
+				if (vendorStagedData && vendorStagedData.items) {
+					renderVendorReviewRows(vendorStagedData.items);
+				}
+			}
+
+			function commitVendorStagedImport() {
+				if (!vendorActiveSessionId) return;
+
+				const btn = document.getElementById('vendor-commit-btn');
+				btn.disabled = true;
+				btn.textContent = '⏳ جاري الحفظ النهائي في قاعدة البيانات...';
+
+				fetch('/vendor/saving-products/import/session/' + vendorActiveSessionId + '/commit', {
+					method: 'POST',
+				})
+				.then(r => r.json())
+				.then(res => {
+					if (!res.success) {
+						alert(res.error || 'فشل حفظ الأصناف.');
+						btn.disabled = false;
+						btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات';
+						return;
+					}
+					alert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');
+					window.location.reload();
+				})
+				.catch(err => {
+					console.error('commit error', err);
+					alert('حدث خطأ في الاتصال أثناء تأكيد الحفظ.');
+					btn.disabled = false;
+					btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات';
+				});
+			}
+
+			function handleVendorImportCancelClick() {
+				if (vendorPollInterval) clearInterval(vendorPollInterval);
+
+				if (vendorActiveSessionId) {
+					fetch('/vendor/saving-products/import/session/' + vendorActiveSessionId + '/cancel', { method: 'POST' }).catch(() => {});
+					vendorActiveSessionId = null;
+					vendorStagedData = null;
+				}
+				closeImportModal();
+			}
+
+			function backToVendorImportConfig() {
+				if (vendorPollInterval) clearInterval(vendorPollInterval);
+				showVendorImportStep('config');
+			}
+
+			function openProvidersModal(productId, productName) {
+				document.getElementById('providers-modal-subtitle').textContent = 'الصنف: ' + productName;
+				document.getElementById('providers-modal-content').innerHTML = '<div >⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+				
+				const el = document.getElementById('providers-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
+				}
+
+				fetch('/vendor/saving-products/providers/' + productId)
+					.then(r => r.json())
+					.then(providers => {
+						if (!providers || providers.length === 0) {
+							document.getElementById('providers-modal-content').innerHTML = '<div >لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
+							return;
+						}
+
+						let html = '<table class="data-table" ><thead><tr ><th class="p-sm">المورد / المنظمة</th><th class="p-sm">العبوة / التنويعة</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th></tr></thead><tbody>';
+
+						providers.forEach(p => {
+							const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
+							const skuText = p.sku ? ('<code class="text-xs">' + p.sku + '</code>') : '';
+							const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
+							const publicPrice = p.public_price || p.cost_price || p.price;
+							const discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');
+							const netPrice = p.price_after_discount || p.price;
+
+							html += '<tr class="rule-bottom">' +
+								'<td class="p-sm"><strong class="text-primary">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
+								'<td class="p-sm"><div>' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
+								'<td class="p-sm text-center tabular-nums">' + publicPrice + ' ج.م</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
+								'<td class="p-sm text-center tabular-nums"><strong class="text-primary tabular-nums">' + netPrice + ' ج.م</strong></td>' +
+								'</tr>';
+						});
+
+						html += '</tbody></table>';
+						document.getElementById('providers-modal-content').innerHTML = html;
+					})
+					.catch(() => {
+						document.getElementById('providers-modal-content').innerHTML = '<div >حدث خطأ أثناء تحميل عروض الموردين.</div>';
+					});
+			}
+
+			function closeProvidersModal() {
+				const el = document.getElementById('providers-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
+				}
+			}
+
+			function filterSavingProductsTable(query) {
+				const term = (query || '').trim().toLowerCase();
+				const rows = document.querySelectorAll('.saving-row');
+				rows.forEach(row => {
+					const name = (row.dataset.name || '').toLowerCase();
+					const sku = (row.dataset.sku || '').toLowerCase();
+					const pName = (row.dataset.productName || '').toLowerCase();
+					if (term === '' || name.includes(term) || sku.includes(term) || pName.includes(term)) {
+						row.style.display = '';
+					} else {
+						row.style.display = 'none';
+					}
+				});
+			}
+		</script>
+}

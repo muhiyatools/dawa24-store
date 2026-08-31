@@ -1,0 +1,524 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorProductsModals(data VendorVariantsData, lang string) {
+			@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: "????? ?????? ???? ??? ???????", Size: "md"}) {
+				<form method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
+						<div class="stack-md">
+							
+							<div>
+								<label class="form-label fw-700 text-primary text-sm">
+									اسم العرض / التعبئة (عربي)
+								</label>
+								<input
+ type="text"
+ id="edit-form-name-ar"
+ name="name_ar"
+ required
+ class="form-input w-full-rounded"
+ 
+ />
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										سعر الجمهور (ج.م) <span class="text-danger">*</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										id="edit-form-price"
+										name="price"
+										required
+										class="form-input w-full-rounded"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										نسبة الخصم (%)
+									</label>
+									<input
+										type="number"
+										step="0.1"
+										min="0"
+										max="100"
+										id="edit-form-discount"
+										name="discount"
+										placeholder="0.0%"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm d-flex items-center gap-1">
+										<span>سعر التكلفة (ج.م)</span>
+										<span class="badge badge-slate text-xs">اختياري</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										min="0"
+										id="edit-form-cost"
+										name="cost_price"
+										placeholder="0.00 (إن وجد)"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm d-flex items-center gap-1">
+										<span>خصم التكلفة (%)</span>
+										<span class="badge badge-slate text-xs">اختياري</span>
+									</label>
+									<input
+										type="number"
+										step="0.1"
+										min="0"
+										max="100"
+										id="edit-form-cost-discount"
+										name="cost_discount_percentage"
+										placeholder="0.0%"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										تحديث الرصيد بالمخزن (عبوة)
+									</label>
+									<input
+ type="number"
+ id="edit-form-stock"
+ name="stock_qty"
+ placeholder="الكمية الحالية..."
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										الحد الأدنى للطلب
+									</label>
+									<input
+ type="number"
+ id="edit-form-min-qty"
+ name="min_order_qty"
+ min="1"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										رقم التشغيلة (Batch Number)
+									</label>
+									<input
+ type="text"
+ id="edit-form-batch"
+ name="batch_number"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										تاريخ الصلاحية
+									</label>
+									<input
+ type="date"
+ id="edit-form-expiry"
+ name="expiry_date"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										مخزن / فرع الشحن
+									</label>
+									<select name="branch_id" id="edit-form-branch" class="form-input w-full-rounded">
+										for _, b := range data.Branches {
+											<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+												{ b.Name }
+												if b.IsMain {
+													<span> (الفرع الرئيسي)</span>
+												}
+											</option>
+										}
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										حالة العرض
+									</label>
+									<select name="status" id="edit-form-status" class="form-input w-full-rounded">
+										<option value="active">نشط ومتاح للطلب</option>
+										<option value="inactive">معطل مؤقتاً</option>
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										قابل للتفاوض على السعر؟
+									</label>
+									<select name="is_negotiable" id="edit-form-negotiable" class="form-input" class="form-input w-full rounded-lg font-bold">
+										<option value="false">لا (سعر توريد ثابت)</option>
+										<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
+									</select>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" onclick="closeEditVariantModal()">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary font-bold px-6">
+								حفظ التعديلات
+							</button>
+						</div>
+					</form>
+			}
+
+			<!-- MODAL 3: Add Custom Variant Modal -->
+			@components.Modal(components.ModalProps{ID: "add-custom-variant-modal", Title: "????? ??? ?? ?????? ????? ?????", Size: "md"}) {
+				<form method="POST" action="/vendor/variants/new">
+						<div class="stack-md">
+							
+							<div>
+								<label class="form-label fw-700 text-primary text-sm">
+									اسم الصنف / العرض (عربي) <span class="text-danger">*</span>
+								</label>
+								<input
+ type="text"
+ name="name_ar"
+ required
+ placeholder="مثال: بانادول إكسترا 24 قرص"
+ class="form-input w-full-rounded"
+ 
+ />
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										كود SKU (اختياري)
+									</label>
+									<input
+ type="text"
+ name="sku"
+ placeholder="PAN-EXT-24"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										سعر الجمهور (ج.م) <span class="text-danger">*</span>
+									</label>
+									<input
+ type="number"
+ step="0.01"
+ name="price"
+ required
+ placeholder="0.00"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										نسبة الخصم (%)
+									</label>
+									<input
+										type="number"
+										step="0.1"
+										min="0"
+										max="100"
+										name="discount"
+										placeholder="0.0%"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										الرصيد المتاح (الكمية الافتتاحية)
+									</label>
+									<input
+										type="number"
+										name="stock_qty"
+										placeholder="50"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm d-flex items-center gap-1">
+										<span>سعر التكلفة (ج.م)</span>
+										<span class="badge badge-slate text-xs">اختياري</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										min="0"
+										name="cost_price"
+										placeholder="0.00 (إن وجد)"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm d-flex items-center gap-1">
+										<span>خصم التكلفة (%)</span>
+										<span class="badge badge-slate text-xs">اختياري</span>
+									</label>
+									<input
+										type="number"
+										step="0.1"
+										min="0"
+										max="100"
+										name="cost_discount_percentage"
+										placeholder="0.0%"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+							</div>
+
+							<div class="grid-2">
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										رقم التشغيلة (Batch Number)
+									</label>
+									<input
+ type="text"
+ name="batch_number"
+ placeholder="B12345"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+
+								<div>
+									<label class="form-label fw-700 text-primary text-sm">
+										تاريخ الصلاحية
+									</label>
+									<input
+ type="date"
+ name="expiry_date"
+ class="form-input w-full-rounded"
+ 
+ />
+								</div>
+							</div>
+
+							<div>
+								<label class="form-label fw-700 text-primary text-sm">
+									مخزن / فرع الشحن
+								</label>
+								<select name="branch_id" class="form-input w-full-rounded">
+									for _, b := range data.Branches {
+										<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+											{ b.Name }
+											if b.IsMain {
+												<span> (الفرع الرئيسي)</span>
+											}
+										</option>
+									}
+								</select>
+							</div>
+
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" onclick="closeAddCustomVariantModal()">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary font-bold px-6">
+								نشر الصنف في الكتالوج
+							</button>
+						</div>
+					</form>
+			}
+
+			<!-- Live JS Logic for all Modals and Autocomplete -->
+			<script>
+				function openAddFromCatalogModal() {
+					resetSelectedMasterProduct();
+					document.getElementById('cat-search-input').value = '';
+					const el = document.getElementById('add-from-catalog-modal');
+					if (el && typeof el.showModal === 'function') {
+						el.showModal();
+					}
+				}
+
+				function closeAddFromCatalogModal() {
+					const el = document.getElementById('add-from-catalog-modal');
+					if (el && typeof el.close === 'function') {
+						el.close();
+					}
+				}
+
+				function openAddCustomVariantModal() {
+					const el = document.getElementById('add-custom-variant-modal');
+					if (el && typeof el.showModal === 'function') {
+						el.showModal();
+					}
+				}
+
+				function closeAddCustomVariantModal() {
+					const el = document.getElementById('add-custom-variant-modal');
+					if (el && typeof el.close === 'function') {
+						el.close();
+					}
+				}
+
+				function openEditVariantModal(id) {
+					const row = document.querySelector(`.vendor-variant-row[data-id="${id}"]`);
+					if (!row) return;
+
+					document.getElementById('edit-variant-form').action = `/vendor/variants/${id}/update`;
+					document.getElementById('edit-form-name-ar').value = row.dataset.name || '';
+					document.getElementById('edit-form-price').value = row.dataset.price || '';
+					document.getElementById('edit-form-discount').value = row.dataset.discount || '';
+					if (document.getElementById('edit-form-cost')) {
+						document.getElementById('edit-form-cost').value = row.dataset.costPrice || '';
+					}
+					if (document.getElementById('edit-form-cost-discount')) {
+						document.getElementById('edit-form-cost-discount').value = (row.dataset.costDiscount && row.dataset.costDiscount !== '0.00') ? row.dataset.costDiscount : '';
+					}
+					document.getElementById('edit-form-stock').value = row.dataset.stock || '';
+					document.getElementById('edit-form-min-qty').value = row.dataset.minQty || '1';
+					document.getElementById('edit-form-batch').value = row.dataset.batch || '';
+					document.getElementById('edit-form-expiry').value = row.dataset.expiry || '';
+					
+					const branchSelect = document.getElementById('edit-form-branch');
+					if (branchSelect) {
+						if (row.dataset.branchId && row.dataset.branchId !== '' && row.dataset.branchId !== '0') {
+							branchSelect.value = row.dataset.branchId;
+						}
+						if (!branchSelect.value && branchSelect.options.length > 0) {
+							branchSelect.selectedIndex = 0;
+						}
+					}
+
+					const el = document.getElementById('edit-variant-modal');
+					if (el && typeof el.showModal === 'function') {
+						el.showModal();
+					}
+				}
+
+				function closeEditVariantModal() {
+					const el = document.getElementById('edit-variant-modal');
+					if (el && typeof el.close === 'function') {
+						el.close();
+					}
+				}
+
+				let catSearchDebounce = null;
+				function searchMasterCatalogLive(query) {
+					clearTimeout(catSearchDebounce);
+					const dropdown = document.getElementById('cat-search-dropdown');
+					if (!query || query.trim().length < 2) {
+						dropdown.style.display = 'none';
+						return;
+					}
+
+					catSearchDebounce = setTimeout(() => {
+						fetch('/vendor/catalog/search-json?q=' + encodeURIComponent(query.trim()))
+							.then(r => r.json())
+							.then(items => {
+								if (!items || items.length === 0) {
+									dropdown.innerHTML = '<div class="p-3 text-muted text-xs text-center">لم يتم العثور على أدوية مطابقة بالكتالوج</div>';
+									dropdown.style.display = 'block';
+									return;
+								}
+
+								let html = '';
+								items.forEach(it => {
+									const dosage = it.dosage_form ? ('<span class="badge badge-slate text-xs">' + it.dosage_form + '</span>') : '';
+									const priceBadge = it.price ? ('<span class="badge badge-sky text-xs">' + it.price + ' ج.م</span>') : '';
+									const safeName = (it.name_ar || it.name_en || '').replace(/'/g, "\\'");
+									const safeSci = (it.scientific_name || '').replace(/'/g, "\\'");
+									const safeSku = (it.sku || '').replace(/'/g, "\\'");
+									const safeUnit = (it.unit || '').replace(/'/g, "\\'");
+									
+									html += '<div class="p-3 border-b cursor-pointer flex-between items-center transition-colors" ' +
+										'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
+										'onclick="selectMasterProductForStaging(' + it.id + ', \'' + safeName + '\', \'' + safeSci + '\', \'' + (it.dosage_form || '') + '\', \'' + safeSku + '\', \'' + (it.price || '') + '\', \'' + safeUnit + '\')">' +
+										'<div>' +
+											'<div class="font-extrabold text-primary text-sm">' + (it.name_ar || it.name_en) + '</div>' +
+											'<div class="text-xs text-muted mt-0.5">' + (it.scientific_name || '') + '</div>' +
+										'</div>' +
+										'<div class="row-center-sm">' +
+											dosage + priceBadge +
+											'<span class="badge badge-emerald text-xs fw-800">اختيار</span>' +
+										'</div>' +
+									'</div>';
+								});
+								dropdown.innerHTML = html;
+								dropdown.style.display = 'block';
+							})
+							.catch(() => {
+								dropdown.style.display = 'none';
+							});
+					}, 200);
+				}
+
+				function selectMasterProductForStaging(id, name, scientific, dosage, sku, price, unit) {
+					document.getElementById('cat-select-product-id').value = id;
+					document.getElementById('cat-select-name-ar').value = name;
+					document.getElementById('cat-select-sku').value = sku;
+					document.getElementById('cat-select-unit').value = unit;
+
+					document.getElementById('cat-preview-name').textContent = name;
+					document.getElementById('cat-preview-scientific').textContent = scientific ? ('المادة الفعالة: ' + scientific) : '';
+					document.getElementById('cat-preview-dosage').textContent = dosage ? ('الشكل: ' + dosage) : 'شكل دوائي قياسي';
+					document.getElementById('cat-preview-sku').textContent = sku ? ('SKU: ' + sku) : '';
+					document.getElementById('cat-preview-price').textContent = price ? ('السعر بالكتالوج: ' + price + ' ج.م') : '';
+
+					if (price && price !== '') {
+						document.getElementById('cat-field-price').value = price;
+					}
+
+					document.getElementById('cat-search-dropdown').style.display = 'none';
+					document.getElementById('cat-selected-preview').style.display = 'block';
+					document.getElementById('cat-vendor-fields').style.display = 'flex';
+				}
+
+				function resetSelectedMasterProduct() {
+					document.getElementById('cat-select-product-id').value = '';
+					document.getElementById('cat-select-name-ar').value = '';
+					document.getElementById('cat-select-sku').value = '';
+					document.getElementById('cat-selected-preview').style.display = 'none';
+					document.getElementById('cat-vendor-fields').style.display = 'none';
+				}
+			</script>
+}

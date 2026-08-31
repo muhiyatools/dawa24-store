@@ -1,0 +1,437 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
+			<!-- ========================================== -->
+			<!-- TAB 3: Advanced Error Diagnostics          -->
+			<!-- ========================================== -->
+			<div x-show="activeTab === 'errors'" class="stack-lg" x-data="adminErrorsManager()" x-cloak>
+				
+				<!-- Diagnostics Header Strip & Metrics -->
+				<div class="dashboard-stat-grid mb-4">
+					<div class="card mb-0 p-5 border-s-4 border-s-accent">
+						<div class="text-xs font-bold text-muted">إجمالي الاستثناءات المسجلة</div>
+						<div class="text-2xl font-black text-primary mt-1 tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.Total) }
+						</div>
+						<div class="text-xs text-muted mt-0.5">سجل تشخيصي شامل</div>
+					</div>
+
+					<div class="card mb-0 p-5 border-s-4 border-s-danger">
+						<div class="text-xs font-bold text-muted">أخطاء حرجة (24 ساعة)</div>
+						<div class="text-2xl font-black text-danger mt-1 tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.Critical24h) }
+						</div>
+						<div class="text-xs text-muted mt-0.5">تتطلب تدخلاً فورياً</div>
+					</div>
+
+					<div class="card mb-0 p-5 border-s-4 border-s-warning">
+						<div class="text-xs font-bold text-muted">أخطاء قيد المتابعة</div>
+						<div class="text-2xl font-black text-warning mt-1 tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.Unresolved) }
+						</div>
+						<div class="text-xs text-muted mt-0.5">حالة New أو Investigating</div>
+					</div>
+
+					<div class="card mb-0 p-5 border-s-4 border-s-success">
+						<div class="text-xs font-bold text-muted">المستخدمين المتأثرين</div>
+						<div class="text-2xl font-black text-primary mt-1 tabular-nums">
+							{ fmt.Sprintf("%d", values.ErrorMetrics.AffectedUsers) }
+						</div>
+						<div class="text-xs text-muted mt-0.5">حسابات صادفت أخطاء</div>
+					</div>
+				</div>
+
+				<!-- Filter Strip -->
+				<div class="card mb-0 p-4">
+					<form method="GET" action="/admin/developers" class="d-flex gap-3 items-center flex-wrap m-0">
+						<input type="hidden" name="tab" value="errors"/>
+
+						<div class="flex-1 min-w-60">
+							<input
+								type="text"
+								name="err_q"
+								value={ values.ErrorSearch }
+								placeholder="بحث برسالة الخطأ، الكلاس، أو اسم المستخدم..."
+								class="form-input text-sm"
+							/>
+						</div>
+
+						<div class="min-w-36">
+							<select name="err_level" class="form-select text-sm">
+								<option value="">كافة المستويات</option>
+								<option value="CRITICAL" selected?={ values.ErrorLevelFilter == "CRITICAL" }>حرج (CRITICAL)</option>
+								<option value="ERROR" selected?={ values.ErrorLevelFilter == "ERROR" }>خطأ (ERROR)</option>
+								<option value="WARNING" selected?={ values.ErrorLevelFilter == "WARNING" }>تحذير (WARNING)</option>
+								<option value="EXCEPTION" selected?={ values.ErrorLevelFilter == "EXCEPTION" }>استثناء (EXCEPTION)</option>
+							</select>
+						</div>
+
+						<div class="min-w-36">
+							<select name="err_status" class="form-select text-sm">
+								<option value="">كافة الحالات</option>
+								<option value="NEW" selected?={ values.ErrorStatusFilter == "NEW" }>جديد (NEW)</option>
+								<option value="INVESTIGATING" selected?={ values.ErrorStatusFilter == "INVESTIGATING" }>قيد التحقيق</option>
+								<option value="RESOLVED" selected?={ values.ErrorStatusFilter == "RESOLVED" }>تم الحل (RESOLVED)</option>
+							</select>
+						</div>
+
+						<button type="submit" class="btn btn-primary btn-sm font-bold">
+							@components.IconSearch("icon-xs")
+							<span>تصفية</span>
+						</button>
+					</form>
+				</div>
+
+				<!-- Error Diagnostics Table -->
+				if len(values.ErrorLogs) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">@components.IconBug("icon-sm")</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أخطاء مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">النظام يعمل بكفاءة واستقرار تام. لم يتم تسجيل أي أخطاء أو استثناءات تطابق التصفية الحالية.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0 min-w-full text-xs">
+							<thead>
+								<tr class="bg-surface-sunken border-b">
+									<th class="w-16 text-center">المعرف</th>
+									<th class="w-28 text-start">التوقيت</th>
+									<th class="w-24 text-center">المستوى</th>
+									<th class="w-36 text-start">المستخدم / المنظمة</th>
+									<th class="text-start">رسالة الخطأ والاستثناء</th>
+									<th class="w-32 text-start">المسار / IP</th>
+									<th class="w-24 text-center">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, err := range values.ErrorLogs {
+									<tr class="rule-bottom">
+										<td class="text-center tabular-nums">
+											<strong class="text-muted">#{ fmt.Sprintf("%d", err.ID) }</strong>
+										</td>
+										<td class="text-start">
+											<div class="tabular-nums font-bold text-primary">{ err.CreatedAt.Format("2006-01-02") }</div>
+											<div class="tabular-nums text-xs text-muted">{ err.CreatedAt.Format("15:04:05") }</div>
+										</td>
+										<td class="text-center">
+											if err.ErrorLevel == "CRITICAL" || err.ErrorLevel == "FATAL" {
+												<span class="badge badge-danger font-black">{ err.ErrorLevel }</span>
+											} else if err.ErrorLevel == "WARNING" {
+												<span class="badge badge-amber font-bold">{ err.ErrorLevel }</span>
+											} else {
+												<span class="badge badge-sky font-bold">{ err.ErrorLevel }</span>
+											}
+										</td>
+										<td class="text-start">
+											if err.UserName != "" {
+												<div class="font-bold text-primary">{ err.UserName }</div>
+											} else {
+												<div class="text-muted">مستخدم غير مسجل (Guest)</div>
+											}
+											if err.OrganizationName != "" {
+												<div class="text-xs text-secondary">{ err.OrganizationName }</div>
+											}
+										</td>
+										<td class="text-start">
+											<div class="font-bold text-primary font-mono text-xs text-start truncate max-w-xs" dir="ltr">
+												{ err.ErrorMessage }
+											</div>
+											if err.ExceptionClass != "" {
+												<div class="text-xs text-accent font-mono text-start mt-0.5" dir="ltr">
+													{ err.ExceptionClass }
+												</div>
+											}
+										</td>
+										<td class="text-start">
+											<div class="font-mono text-xs text-start truncate max-w-32" dir="ltr">
+												<strong class="text-accent">{ err.HTTPMethod }</strong> { err.URLPath }
+											</div>
+											<div class="text-xs text-muted font-mono text-start" dir="ltr">
+												{ err.IPAddress }
+											</div>
+										</td>
+										<td class="text-center">
+											<button
+												type="button"
+												class="btn btn-secondary btn-sm text-xs font-bold text-accent"
+												@click={ fmt.Sprintf("openErrorDetails(%d)", err.ID) }
+											>
+												@components.IconEye("icon-xs")
+												<span>تشخيص</span>
+											</button>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+
+				<!-- Error Details Diagnostic Modal -->
+				@components.Modal(components.ModalProps{
+					ID:    "dev-error-modal",
+					Title: "سجل تشخيص الخطأ",
+					Size:  "lg",
+				}) {
+					<template x-if="selectedError">
+						<div class="d-flex flex-col gap-4 text-start">
+							<!-- Diagnostic Info Grid -->
+							<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
+								<div>
+									<div class="text-xs text-muted">المستخدم المتأثر:</div>
+									<div class="text-sm font-bold text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
+									<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
+								</div>
+								<div>
+									<div class="text-xs text-muted">المنظمة:</div>
+									<div class="font-bold text-primary" x-text="selectedError.organization_name || 'عام'"></div>
+								</div>
+								<div>
+									<div class="text-xs text-muted">المسار وعنوان IP:</div>
+									<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
+									<div class="text-xs text-muted font-mono text-start" dir="ltr" x-text="selectedError.ip_address"></div>
+								</div>
+								<div>
+									<div class="text-xs text-muted">التوقيت والمستوى:</div>
+									<div class="text-sm font-bold text-primary" x-text="selectedError.created_at"></div>
+									<span class="badge badge-rose" x-text="selectedError.error_level"></span>
+								</div>
+							</div>
+
+							<!-- Error Message Box -->
+							<div class="bg-surface-sunken text-danger p-4 rounded-lg font-mono text-sm text-start" dir="ltr">
+								<div class="text-muted text-xs mb-1">ERROR MESSAGE:</div>
+								<div x-text="selectedError.error_message"></div>
+							</div>
+
+							<!-- Stack Trace Viewer -->
+							<div>
+								<div class="text-xs font-bold text-secondary mb-1">
+									تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
+								</div>
+								<pre
+									class="bg-surface-sunken text-secondary p-4 rounded-lg font-mono text-xs max-h-64 overflow-auto text-start m-0"
+									dir="ltr"
+									x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
+								></pre>
+							</div>
+
+							<div class="d-flex justify-between items-center pt-3 border-t mt-2">
+								<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" class="d-flex gap-2 m-0">
+									<input type="hidden" name="status" value="RESOLVED"/>
+									<button type="submit" class="btn btn-primary btn-sm font-bold">
+										@components.IconCheck("icon-xs")
+										<span>وضع علامة تم الحل (Mark Resolved)</span>
+									</button>
+								</form>
+								<button type="button" class="btn btn-secondary" data-modal-close="dev-error-modal">إغلاق</button>
+							</div>
+						</div>
+					</template>
+				}
+
+				<!-- Embedded Error Log Data Scripts -->
+				for _, err := range values.ErrorLogs {
+					<script type="application/json" id={ fmt.Sprintf("err-data-%d", err.ID) }>
+						{
+							"id": { fmt.Sprintf("%d", err.ID) },
+							"user_name": { fmt.Sprintf("%q", err.UserName) },
+							"user_email": { fmt.Sprintf("%q", err.UserEmail) },
+							"organization_name": { fmt.Sprintf("%q", err.OrganizationName) },
+							"error_level": { fmt.Sprintf("%q", err.ErrorLevel) },
+							"error_message": { fmt.Sprintf("%q", err.ErrorMessage) },
+							"exception_class": { fmt.Sprintf("%q", err.ExceptionClass) },
+							"stack_trace": { fmt.Sprintf("%q", err.StackTrace) },
+							"http_method": { fmt.Sprintf("%q", err.HTTPMethod) },
+							"url_path": { fmt.Sprintf("%q", err.URLPath) },
+							"ip_address": { fmt.Sprintf("%q", err.IPAddress) },
+							"status": { fmt.Sprintf("%q", err.Status) },
+							"created_at": { fmt.Sprintf("%q", err.CreatedAt.Format("2006-01-02 15:04:05")) }
+						}
+					</script>
+				}
+
+			</div>
+
+			<!-- ========================================== -->
+			<!-- TAB 4: Audit Logs & Diffs (Moved here)     -->
+			<!-- ========================================== -->
+			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()" x-cloak>
+				
+				<div class="card mb-0">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div>
+							<h3 class="card-title m-0 text-lg font-black">
+								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.AuditEntries)) })
+							</h3>
+							<p class="text-xs text-secondary mt-0.5 mb-0">
+								سجل متزامن للعمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
+							</p>
+						</div>
+					</div>
+
+					if len(values.AuditEntries) == 0 {
+						<div class="p-8 text-center empty-state-glass">
+							<div class="text-4xl mb-3">@components.IconFileText("icon-sm")</div>
+							<h3 class="text-lg font-black text-primary mb-2">لا توجد عمليات مسجلة</h3>
+							<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.</p>
+						</div>
+					} else {
+						<div class="table-container m-0">
+							<table class="data-table m-0 min-w-full text-xs">
+								<thead>
+									<tr class="bg-surface-sunken border-b">
+										<th class="w-16 text-center">المعرف</th>
+										<th class="w-28 text-start">التوقيت</th>
+										<th class="w-36 text-start">المستخدم</th>
+										<th class="w-32 text-start">المنظمة</th>
+										<th class="w-36 text-start">القسم والإجراء</th>
+										<th class="text-start">العنوان والوصف</th>
+										<th class="w-20 text-center">الأهمية</th>
+										<th class="w-20 text-center">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, e := range values.AuditEntries {
+										<tr class="rule-bottom">
+											<td class="text-center tabular-nums">
+												<strong class="text-muted">#{ fmt.Sprintf("%d", e.ID) }</strong>
+											</td>
+											<td class="text-start">
+												<div class="tabular-nums font-bold text-primary">{ e.CreatedAt.Format("2006-01-02") }</div>
+												<div class="tabular-nums text-xs text-muted">{ e.CreatedAt.Format("15:04:05") }</div>
+											</td>
+											<td class="text-start">
+												<div class="font-bold text-primary">{ e.ActorName }</div>
+												if e.ActorEmail != "" {
+													<div class="text-xs text-muted font-mono text-start" dir="ltr">{ e.ActorEmail }</div>
+												}
+											</td>
+											<td class="text-start">
+												<div class="font-bold text-primary">{ e.OrganizationName }</div>
+											</td>
+											<td class="text-start">
+												<div class="d-flex flex-col gap-1">
+													<span class={ "badge", auditBadgeClass(e.Action) } class="font-bold text-xs self-start">
+														if e.ActionLabelAr != "" {
+															{ e.ActionLabelAr }
+														} else {
+															{ e.Action }
+														}
+													</span>
+													if e.Module != "" {
+														<span class="text-xs text-muted">القسم: { e.Module }</span>
+													} else {
+														<span class="text-xs text-muted">القسم: المنظومة العامة</span>
+													}
+												</div>
+											</td>
+											<td class="text-start">
+												<div class="font-bold text-primary">
+													if e.Title != "" {
+														{ e.Title }
+													} else if e.ActionLabelAr != "" {
+														{ e.ActionLabelAr }
+													} else {
+														{ e.Action }
+													}
+												</div>
+												<div class="text-xs text-secondary mt-0.5 leading-relaxed">
+													if e.Description != "" {
+														{ e.Description }
+													} else {
+														<span>عملية إدارية مسجلة بالنظام</span>
+													}
+												</div>
+											</td>
+											<td class="text-center">
+												if e.Severity != "" && e.Severity != "-" {
+													<span class={ "badge", severityBadgeClass(e.Severity) } class="text-xs font-bold">
+														{ e.Severity }
+													</span>
+												} else {
+													<span class="badge badge-slate text-xs font-bold">
+														عادي (Info)
+													</span>
+												}
+											</td>
+											<td class="text-center">
+												<button
+													type="button"
+													class="btn btn-secondary btn-sm text-xs font-bold text-accent"
+													@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
+												>
+													@components.IconEye("icon-xs")
+													<span>تفاصيل</span>
+												</button>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+				<!-- Audit Inspection Modal -->
+				@components.Modal(components.ModalProps{
+					ID:    "dev-audit-modal",
+					Title: "تفاصيل العملية والتدقيق",
+					Size:  "lg",
+				}) {
+					<template x-if="selected">
+						<div class="d-flex flex-col gap-4 text-start">
+							<div class="bg-surface-sunken p-4 rounded-xl border">
+								<div class="text-xs font-bold text-secondary mb-1">بيان العملية:</div>
+								<div class="text-sm text-primary font-bold" x-text="selected.description"></div>
+							</div>
+
+							<!-- Side-by-Side Diff -->
+							<div class="d-grid grid-cols-2 gap-4">
+								<div class="bg-surface-sunken border rounded-xl p-4">
+									<div class="font-bold text-xs text-primary mb-2">الحالة السابقة (Before)</div>
+									<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
+								</div>
+
+								<div class="bg-surface-sunken border rounded-xl p-4">
+									<div class="font-bold text-xs text-primary mb-2">الحالة الجديدة (After)</div>
+									<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
+								</div>
+							</div>
+
+							<div class="d-flex justify-end pt-3 border-t mt-2">
+								<button type="button" class="btn btn-secondary" data-modal-close="dev-audit-modal">إغلاق</button>
+							</div>
+						</div>
+					</template>
+				}
+
+				<!-- Embedded Audit JSON Data -->
+				for _, e := range values.AuditEntries {
+					<script type="application/json" id={ fmt.Sprintf("audit-data-%d", e.ID) }>
+						{
+							"id": { fmt.Sprintf("%d", e.ID) },
+							"actor_name": { fmt.Sprintf("%q", e.ActorName) },
+							"actor_email": { fmt.Sprintf("%q", e.ActorEmail) },
+							"organization_name": { fmt.Sprintf("%q", e.OrganizationName) },
+							"action": { fmt.Sprintf("%q", e.Action) },
+							"action_label_ar": { fmt.Sprintf("%q", e.ActionLabelAr) },
+							"module": { fmt.Sprintf("%q", e.Module) },
+							"title": { fmt.Sprintf("%q", e.Title) },
+							"description": { fmt.Sprintf("%q", e.Description) },
+							"severity": { fmt.Sprintf("%q", e.Severity) },
+							"before": { templ.JSONString(e.Before) },
+							"after": { templ.JSONString(e.After) }
+						}
+					</script>
+				}
+
+			</div>
+
+}

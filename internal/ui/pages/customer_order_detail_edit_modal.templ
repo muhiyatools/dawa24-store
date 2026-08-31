@@ -1,0 +1,136 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ CustomerOrderEditModal(order *commerce.Order, lang string) {
+			if order.Status == commerce.StatusPending {
+				@components.Modal(components.ModalProps{
+					ID:       "order-edit-modal",
+					Title:    fmt.Sprintf("تعديل أصناف وكميات الطلب #%s", order.OrderNumber),
+					Subtitle: "يمكنك تعديل كميات الأصناف أو إضافة صنف جديد يدوياً، وسيقوم النظام بتحديث الفاتورة فوراً",
+					Size:     "xl",
+					Icon:     "edit",
+				}) {
+					<!-- Form -->
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="order-edit-form" class="d-flex flex-col overflow-y-auto p-6 gap-4">
+						<!-- Table of lines -->
+						<div class="table-container m-0">
+							<table class="data-table m-0" id="edit-lines-table">
+								<thead>
+									<tr>
+										<th>الصنف الدوائي</th>
+										<th class="text-center">الكمية</th>
+										<th class="text-end">سعر الوحدة</th>
+										<th class="text-end">الخصم</th>
+										<th class="text-end">الإجمالي</th>
+										<th class="text-center"></th>
+									</tr>
+								</thead>
+								<tbody id="edit-lines-tbody">
+									for _, line := range getAllOrderLines(order) {
+										<tr
+											class="edit-line-row"
+											data-unit-price-minor={ fmt.Sprintf("%d", line.UnitPrice.Minor()) }
+											data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(line)) }
+											data-min-qty={ fmt.Sprintf("%d", minAllowedQty(line)) }
+											data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(line)) }
+										>
+											<td>
+												<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", line.ID) }/>
+												<input type="hidden" name="is_deleted[]" value="0" class="line-deleted-input"/>
+												<input type="text" name="product_name[]" value={ line.ProductName.Get(i18n.Lang(lang)) } required class="form-input text-xs w-full font-bold"/>
+												if line.AvailableStock > 0 {
+													<div class="text-xs text-emerald font-bold mt-1">
+														المتوفر: { fmt.Sprintf("%d", line.AvailableStock) } قطعة
+													</div>
+												}
+											</td>
+											<td>
+												<div class="d-flex items-center gap-1 justify-center">
+													<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="window.stepQty(this, -1)">−</button>
+													<input
+														type="number"
+														name="quantity[]"
+														value={ fmt.Sprintf("%d", line.Quantity) }
+														min={ fmt.Sprintf("%d", minAllowedQty(line)) }
+														if maxAllowedQty(line) < 99999 {
+															max={ fmt.Sprintf("%d", maxAllowedQty(line)) }
+														}
+														required
+														class="form-input text-xs tabular-nums text-center line-qty-input font-bold"
+													
+														oninput="window.recalcEditOrder()"
+													/>
+													<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="window.stepQty(this, 1)">+</button>
+												</div>
+											</td>
+											<td class="text-end">
+												<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input text-xs tabular-nums line-unit-price text-end font-bold" oninput="window.recalcEditOrder()"/>
+											</td>
+											<td class="text-end">
+												<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input text-xs tabular-nums line-disc-amount text-end" oninput="window.recalcEditOrder()"/>
+											</td>
+											<td class="text-end tabular-nums font-black text-brand text-xs">
+												<span class="line-total-cell">{ line.TotalPrice.String() }</span>
+											</td>
+											<td class="text-center">
+												<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف الصنف" onclick="window.deleteEditRow(this)">
+													@components.IconTrash("icon-sm")
+												</button>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+
+						<!-- Button to add new line row -->
+						<div class="d-flex justify-start">
+							<button type="button" class="btn btn-secondary btn-sm font-bold gap-1 border-dashed" onclick="window.addNewEditRow()">
+								<span>إضافة صنف جديد يدوياً للطلب</span>
+							</button>
+						</div>
+
+						<!-- Notes -->
+						<div>
+							<label class="form-label text-xs font-bold text-secondary mb-1">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label>
+							<input type="text" name="notes" placeholder="اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف..." class="form-input text-xs w-full"/>
+						</div>
+
+						<!-- Summary Box -->
+						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-3">
+							<div class="d-flex gap-4 flex-wrap text-xs">
+								<div>
+									<span class="text-secondary">إجمالي الأصناف:</span>
+									<strong id="edit-subtotal-val" class="tabular-nums text-primary ms-1">{ order.Subtotal.String() }</strong> ج.م
+								</div>
+								<div>
+									<span class="text-success">إجمالي الخصم:</span>
+									<strong id="edit-discount-val" class="tabular-nums text-success ms-1">-{ order.DiscountAmount.String() }</strong> ج.م
+								</div>
+							</div>
+							<div class="d-flex items-baseline gap-2">
+								<span class="font-extrabold text-xs text-primary">المبلغ الصافي الجديد:</span>
+								<span id="edit-grandtotal-val" class="tabular-nums text-xl font-black text-brand">{ order.TotalAmount.String() }</span>
+								<span class="text-xs text-secondary font-bold">ج.م</span>
+							</div>
+						</div>
+
+						<!-- Modal Footer Actions -->
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold text-xs" onclick="window.closeOrderEditModal()">إلغاء</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-4 gap-1">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وتحديث الطلب</span>
+							</button>
+						</div>
+					</form>
+				}
+			}
+}

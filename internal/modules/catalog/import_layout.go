@@ -2,20 +2,6 @@ package catalog
 
 import "sort"
 
-// Sheet layout analysis.
-//
-// A supplier catalogue is rarely one clean rectangle. The real distributor
-// export this was built against is 9,020 rows in which the column titles are
-// reprinted every 79 rows — 115 header rows and 115 blank separators — because
-// the ERP that produced it paginates for print. Files also arrive with a title
-// line above the header, with the table starting at row 12, and with two
-// differently-shaped sections stacked in one sheet.
-//
-// So the sheet is read as a sequence of blocks rather than as one table. Each
-// block is a run of data rows under one header, and each carries its own column
-// plan, which is what lets a file whose second section adds a price column be
-// read correctly instead of being forced through the first section's mapping.
-
 // SheetBlock is one contiguous run of data rows sharing a single header.
 type SheetBlock struct {
 	// Index is the block's position in the sheet, from zero.
@@ -348,59 +334,4 @@ func (l SheetLayout) applyColumnOverrides(o LayoutOverrides) SheetLayout {
 		out.Primary = out.Blocks[0].Plan
 	}
 	return out
-}
-
-// overridePlan returns a copy of plan with the admin's bindings applied.
-func overridePlan(plan ColumnPlan, columns map[string]int) ColumnPlan {
-	out := ColumnPlan{
-		Columns:    make(map[string]int, len(plan.Columns)),
-		Unmapped:   plan.Unmapped,
-		Positional: plan.Positional,
-	}
-	for field, col := range plan.Columns {
-		out.Columns[field] = col
-	}
-
-	for field, oneBased := range columns {
-		if oneBased == IgnoreColumn {
-			delete(out.Columns, field)
-			continue
-		}
-		if oneBased > 0 {
-			out.Columns[field] = oneBased - 1
-		}
-	}
-
-	// Bindings drive the report and the per-field labels, so they are rebuilt
-	// from the resolved columns rather than left describing the old mapping.
-	for _, b := range plan.Bindings {
-		if col, ok := out.Columns[b.Field]; ok && col == b.Index {
-			out.Bindings = append(out.Bindings, b)
-		}
-	}
-	for field, col := range out.Columns {
-		if hasBinding(out.Bindings, field) {
-			continue
-		}
-		out.Bindings = append(out.Bindings, ColumnBinding{
-			Field: field,
-			Label: FieldLabels[field],
-			Index: col,
-			// An admin's own binding is certain by definition; it is not a guess
-			// the report should ask them to double-check.
-			Score:  100,
-			Header: FieldLabels[field],
-		})
-	}
-	sort.Slice(out.Bindings, func(i, j int) bool { return out.Bindings[i].Index < out.Bindings[j].Index })
-	return out
-}
-
-func hasBinding(bindings []ColumnBinding, field string) bool {
-	for _, b := range bindings {
-		if b.Field == field {
-			return true
-		}
-	}
-	return false
 }

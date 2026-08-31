@@ -1,0 +1,959 @@
+package pages
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+templ SupplierProfile(lang, dir string, data SupplierProfileData) {
+	@layouts.PublicShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {
+		<div class="sp-container">
+			
+			<!-- Breadcrumbs -->
+			<nav>
+				<a href="/">الرئيسية</a>
+				<span>/</span>
+				<a href="/suppliers">دليل الموردين</a>
+				<span>/</span>
+				<span>{ data.Org.TradeName.Get(i18n.Lang(lang)) }</span>
+			</nav>
+
+			<!-- 1. Verified Supplier Flagship Header Banner -->
+			<div class="sp-hero-card">
+				<div class="sp-hero-identity">
+					<div class="sp-hero-logo">
+						@components.IconBuilding("icon-sm")
+					</div>
+					<div class="sp-hero-details">
+						<div class="sp-hero-title-row">
+							<h1 class="sp-hero-title">
+								{ data.Org.TradeName.Get(i18n.Lang(lang)) }
+							</h1>
+							<span class="badge badge-emerald text-xs fw-700">
+								@components.IconCheckCircle("icon-xs")
+								<span>موزع أدوية معتمد</span>
+							</span>
+						</div>
+
+						if data.Org.LegalName != "" && data.Org.LegalName != data.Org.TradeName.Get(i18n.Lang(lang)) {
+							<p class="sp-hero-legal-name">
+								{ data.Org.LegalName }
+							</p>
+						}
+
+						<!-- Credentials & Real Rating Strip -->
+						<div class="sp-hero-meta-row">
+							if data.ReviewCount > 0 {
+								<div class="row-center-xs">
+									@components.RatingStars(data.Rating, data.ReviewCount)
+								</div>
+							} else {
+								<span class="text-xs text-muted">(مورد معتمد موثق)</span>
+							}
+							if data.Org.CommercialRegister != "" {
+								<span>•</span>
+								<span class="tabular-nums">السجل التجاري: <strong class="text-primary">{ data.Org.CommercialRegister }</strong></span>
+							}
+							if data.Org.TaxNumber != "" {
+								<span>•</span>
+								<span class="tabular-nums">البطاقة الضريبية: <strong class="text-primary">{ data.Org.TaxNumber }</strong></span>
+							}
+						</div>
+					</div>
+				</div>
+
+				<!-- Right Action Buttons -->
+				<div class="sp-hero-actions">
+					<button
+						type="button"
+						class="btn btn-primary"
+						data-modal-open={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }
+					
+					>
+						@components.IconPlus("icon-xs")
+						<span>طلب عرض أسعار خاص</span>
+					</button>
+
+					<div class="row-center-sm">
+						<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+							@components.IconWhatsApp("icon-xs")
+							<span>واتساب</span>
+						</a>
+
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) }>
+							if data.IsFollowing {
+								<button type="submit" class="btn btn-secondary btn-sm">
+									@components.IconHeart("icon-xs")
+									<span>إلغاء المتابعة</span>
+								</button>
+							} else {
+								<button type="submit" class="btn btn-secondary btn-sm">
+									@components.IconHeart("icon-xs")
+									<span>متابعة</span>
+								</button>
+							}
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2. Operational & Coverage Live Command Strip -->
+			<div class="sp-ops-strip">
+				<!-- Working Hours -->
+				<div class="sp-ops-item">
+					<div class="sp-ops-icon">
+						⏱
+					</div>
+					<div class="sp-ops-content">
+						<div class="sp-ops-label">
+							if data.IsOpenNow {
+								<span class="badge badge-emerald text-xs fw-700">
+									<span></span>
+									<span>مفتوح الآن</span>
+								</span>
+							} else {
+								<span class="badge badge-slate text-xs fw-700">
+									<span></span>
+									<span>مغلق حالياً</span>
+								</span>
+							}
+						</div>
+						<div class="sp-ops-val tabular-nums">
+							{ data.WorkingHours }
+						</div>
+					</div>
+				</div>
+
+				<!-- Coverage Days & Cold Storage -->
+				<div class="sp-ops-item">
+					<div class="sp-ops-icon">
+						@components.IconTruck("icon-sm")
+					</div>
+					<div class="sp-ops-content">
+						<div class="sp-ops-label">أيام التغطية والتوصيل</div>
+						<div class="sp-ops-val">
+							{ data.CoverageDays }
+						</div>
+					</div>
+				</div>
+
+				<!-- Covered Areas -->
+				if len(data.CoverageAreas) > 0 {
+					<div class="sp-ops-item">
+						<div class="sp-ops-icon">
+							@components.IconMapPin("icon-sm")
+						</div>
+						<div class="sp-ops-content">
+							<div class="sp-ops-label">المناطق المشمولة</div>
+							<div class="sp-ops-val">
+								{ strings.Join(data.CoverageAreas, "، ") }
+							</div>
+						</div>
+					</div>
+				}
+
+				<!-- Minimum Order -->
+				<div class="sp-ops-item">
+					<div class="sp-ops-icon">
+						@components.IconCreditCard("icon-sm")
+					</div>
+					<div class="sp-ops-content">
+						<div class="sp-ops-label">الحد الأدنى للطلب</div>
+						<div class="sp-ops-val tabular-nums text-primary">
+							if data.Org.MinOrderPrice.Minor() > 0 {
+								{ data.Org.MinOrderPrice.String() } ج.م
+							} else {
+								<span class="text-emerald">بدون حد أدنى</span>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 3. Navigation Tabs -->
+			<div class="sp-tabs-nav">
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
+					@components.IconPackage("icon-xs")
+					<span>كتالوج الأصناف والتشغيلات ({ fmt.Sprintf("%d", data.TotalVariants) })</span>
+				</button>
+
+				if len(data.Sections) > 0 {
+					<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
+						<span>@components.IconSparkles("icon-sm")</span>
+						<span>نبذة وأقسام المنشأة ({ fmt.Sprintf("%d", len(data.Sections)) })</span>
+					</button>
+				}
+
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" onclick="switchProfileTab('policies')">
+					@components.IconShield("icon-xs")
+					<span>شروط وسياسات التوريد ({ fmt.Sprintf("%d", len(data.Policies)) })</span>
+				</button>
+
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" onclick="switchProfileTab('branches')">
+					@components.IconBuilding("icon-xs")
+					<span>فروع ومخازن التوزيع ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
+				</button>
+
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
+					@components.IconUser("icon-xs")
+					<span>تقييمات الصيادلة ({ fmt.Sprintf("%d", data.ReviewCount) })</span>
+				</button>
+			</div>
+
+			<!-- 4. Tab 1: Catalog & Batches Content -->
+			<div id="tab-content-catalog" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
+				
+				<!-- Catalog Controls Toolbar -->
+				<div class="sp-catalog-toolbar">
+					<form method="GET" class="sp-catalog-search">
+						<div>
+							<input
+								type="text"
+								name="q"
+								value={ data.SearchQuery }
+								placeholder="ابحث في أصناف وتشغيلات المورد بالاسم أو الباركود أو المادة الفعالة..."
+								class="form-input input-sm"
+							
+							/>
+							<div>
+								@components.IconSearch("icon-xs")
+							</div>
+						</div>
+						<button type="submit" class="btn btn-primary btn-sm fw-700">
+							بحث
+						</button>
+						if data.SearchQuery != "" {
+							<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", data.Org.ID)) } class="btn btn-secondary btn-sm">
+								إعادة تعيين
+							</a>
+						}
+					</form>
+
+					<div class="d-flex items-center gap-2">
+						<span class="badge badge-sky text-xs fw-700">
+							{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
+						</span>
+						<div>
+							<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" title="عرض الجدول التفصيلي">
+								جدول
+							</button>
+							<button type="button" id="cat-view-grid-btn" onclick="switchCatalogView('grid')" class="btn btn-sm btn-secondary" title="عرض البطاقات">
+								⊞ بطاقات
+							</button>
+						</div>
+					</div>
+				</div>
+
+				if len(data.Variants) == 0 {
+					<div class="card">
+						@components.IconPill("icon-lg")
+						<h3>لا توجد أصناف مطابقة للبحث</h3>
+						<p class="text-sm text-muted m-0">يقوم المورد بتحديث قائمة الأدوية والأسعار بانتظام.</p>
+					</div>
+				} else {
+					<!-- Table View (Swiss B2B High Density) -->
+					<div id="catalog-table-view" class="sp-catalog-table-wrap">
+						<table class="sp-table">
+							<thead>
+								<tr>
+									<th>الصنف الدوائي والمواصفات</th>
+									<th>التشغيلة والصلاحية</th>
+									<th>سعر الجمهور</th>
+									<th>نسبة الخصم</th>
+									<th>السعر بعد الخصم</th>
+									<th>حالة المخزون والتغطية</th>
+									<th class="text-center">طلب الصنف وإضافته للسلة</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, v := range data.Variants {
+									{{
+										availStock := data.GetAvailableStock(v)
+										isCovered := data.IsVariantCovered(v)
+										canAdd := data.CanAddToCart(v)
+										minOrderQty := data.GetMinOrderQty(v)
+									}}
+									<tr>
+										<!-- Product Identity & Image -->
+										<td>
+											<div class="sp-product-cell">
+												<div class="sp-product-thumb">
+													if img := data.GetProductImage(v); img != "" {
+														<img src={ img } alt={ v.Name.Get(i18n.Lang(lang)) } loading="lazy" />
+													} else {
+														<span>{ dosageFormIcon(data.GetDosageForm(v)) }</span>
+													}
+												</div>
+												<div class="sp-product-info">
+													<h4 class="sp-product-title">
+														<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) }>
+															if v.Name.Get(i18n.Lang(lang)) != "" {
+																{ v.Name.Get(i18n.Lang(lang)) }
+															} else {
+																{ fmt.Sprintf("تشغيلة رقم #%d", v.ID) }
+															}
+														</a>
+													</h4>
+													if sci := data.GetScientificName(v); sci != "" {
+														<span class="sp-product-scientific">{ sci }</span>
+													}
+													<div class="sp-badges-row">
+														if form := data.GetDosageForm(v); form != "" {
+															<span class="badge badge-slate">
+																{ form }
+															</span>
+														}
+														if conc := data.GetConcentration(v); conc != "" {
+															<span class="badge badge-secondary">
+																{ conc }
+															</span>
+														}
+														if v.Unit != "" {
+															<span class="badge badge-sky">
+																{ v.Unit }
+															</span>
+														}
+													</div>
+												</div>
+											</div>
+										</td>
+
+										<!-- Batch & Expiry -->
+										<td>
+											<div>
+												if v.BatchNumber != "" {
+													<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
+												}
+												if v.ExpiryDate != nil {
+													<div><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
+												}
+												if v.MinOrderQty > 1 {
+													<span class="badge badge-slate text-xs">حد أدنى: { fmt.Sprintf("%d", v.MinOrderQty) }</span>
+												}
+											</div>
+										</td>
+
+										<!-- 1. Retail Public Price (سعر الجمهور) -->
+										<td>
+											if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() {
+												<div class="tabular-nums">
+													{ p.PublicPrice().String() } <span>ج.م</span>
+												</div>
+											} else if v.Price.IsPositive() {
+												<div class="tabular-nums">
+													{ v.Price.String() } <span>ج.م</span>
+												</div>
+											} else {
+												<span class="text-xs text-muted">-</span>
+											}
+										</td>
+
+										<!-- 2. Discount Percentage (نسبة الخصم %) -->
+										<td>
+											{{
+												discPct := 0.0
+												if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() && v.Price.IsPositive() && v.Price.Minor() < p.PublicPrice().Minor() {
+													discPct = (1.0 - float64(v.Price.Minor())/float64(p.PublicPrice().Minor())) * 100.0
+												} else if v.Discount.IsPositive() {
+													discPct = float64(v.Discount.Minor()) / 100.0
+												}
+											}}
+											if discPct > 0 {
+												<span class="badge badge-emerald tabular-nums">
+													{ fmt.Sprintf("%.0f%%", discPct) }
+												</span>
+											} else {
+												<span class="text-xs text-muted">0%</span>
+											}
+										</td>
+
+										<!-- 3. Price After Discount (السعر بعد الخصم) -->
+										<td>
+											<div>
+												<div class="tabular-nums">
+													if v.Price.IsPositive() {
+														{ v.Price.String() } <span>ج.م</span>
+													} else {
+														<span class="text-sm text-muted">حسب الكمية</span>
+													}
+												</div>
+											</div>
+										</td>
+
+										<!-- 4. Stock & Coverage Status -->
+										<td>
+											<div>
+												if availStock > 0 {
+													<span class="badge badge-emerald text-xs font-bold tabular-nums">
+														متوفر ({ fmt.Sprintf("%d", availStock) } عبوة)
+													</span>
+												} else {
+													<span class="badge badge-rose text-xs font-bold">
+														نفد من المخزون
+													</span>
+												}
+												if !isCovered {
+													<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
+														خارج التغطية
+													</span>
+												} else {
+													<span class="text-xs text-muted text-xs">
+														مشمول بالتوصيل
+													</span>
+												}
+											</div>
+										</td>
+
+										<!-- 5. Order Action & Stepper -->
+										<td class="text-center">
+											if canAdd {
+												<form
+													action="/cart/add"
+													method="POST"
+													hx-post="/cart/add"
+													hx-swap="none"
+													x-data="{ added: false, loading: false }"
+													@submit="loading = true"
+													@htmx:after-request="loading = false; added = true; setTimeout(() => added = false, 2500)"
+													class="sp-stepper-form"
+												
+												>
+													<input type="hidden" name="return_to" value={ fmt.Sprintf("/suppliers/%d", data.Org.ID) } />
+													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.ID) } />
+													<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", data.Org.ID) } />
+													<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", data.Org.ID) } />
+													<input type="hidden" name="offer_price" value={ v.Price.String() } />
+													
+													<input
+														type="number"
+														name="quantity"
+														min={ fmt.Sprintf("%d", minOrderQty) }
+														max={ fmt.Sprintf("%d", availStock) }
+														value={ fmt.Sprintf("%d", minOrderQty) }
+														class="sp-stepper-input tabular-nums"
+														title={ fmt.Sprintf("الكمية المطلوبة (الحد الأقصى المتاح بالمخزن: %d)", availStock) }
+													/>
+													<button
+														type="submit"
+														:disabled="loading"
+														class="btn btn-primary btn-sm fw-700"
+													
+													>
+														<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
+														<span x-show="!loading && !added">+ إضافة للسلة</span>
+														<span x-show="loading">⏳ جارٍ الإضافة...</span>
+														<span x-show="added" class="text-emerald font-bold">تمت الإضافة!</span>
+													</button>
+													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
+														@components.IconArrowLeft("icon-xs")
+													</a>
+												</form>
+											} else {
+												<div class="row-center-xs">
+													if !isCovered {
+														<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
+															غير مغطى
+														</span>
+													} else if availStock <= 0 {
+														<span class="badge badge-slate text-xs font-bold">
+															غير متوفر
+														</span>
+													} else {
+														<span class="badge badge-slate text-xs font-bold">
+															غير متاح للطلب
+														</span>
+													}
+													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
+														@components.IconArrowLeft("icon-xs")
+													</a>
+												</div>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Compact Grid View (Hidden by Default) -->
+					<div id="catalog-grid-view">
+						for _, v := range data.Variants {
+							{{
+								availStock := data.GetAvailableStock(v)
+								isCovered := data.IsVariantCovered(v)
+								canAdd := data.CanAddToCart(v)
+								minOrderQty := data.GetMinOrderQty(v)
+							}}
+							<div class="card hover-lift">
+								<div>
+									<!-- Top Row: Thumbnail + Dosage Badge -->
+									<div>
+										<div class="sp-product-thumb">
+											if img := data.GetProductImage(v); img != "" {
+												<img src={ img } alt={ v.Name.Get(i18n.Lang(lang)) } loading="lazy" />
+											} else {
+												<span>{ dosageFormIcon(data.GetDosageForm(v)) }</span>
+											}
+										</div>
+										<div>
+											if form := data.GetDosageForm(v); form != "" {
+												<span class="badge badge-slate text-xs">{ form }</span>
+											}
+											if v.Unit != "" {
+												<span class="badge badge-secondary text-xs">{ v.Unit }</span>
+											}
+										</div>
+									</div>
+
+									<h4>
+										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) }>
+											if v.Name.Get(i18n.Lang(lang)) != "" {
+												{ v.Name.Get(i18n.Lang(lang)) }
+											} else {
+												{ fmt.Sprintf("تشغيلة رقم #%d", v.ID) }
+											}
+										</a>
+									</h4>
+
+									if sci := data.GetScientificName(v); sci != "" {
+										<div>{ sci }</div>
+									}
+
+									<!-- Batch & Expiry Tag -->
+									<div>
+										if v.BatchNumber != "" {
+											<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
+										}
+										if v.ExpiryDate != nil {
+											<div><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
+										}
+									</div>
+
+									<!-- Stock & Coverage Pills -->
+									<div>
+										if availStock > 0 {
+											<span class="badge badge-emerald text-xs font-bold tabular-nums">
+												متوفر ({ fmt.Sprintf("%d", availStock) })
+											</span>
+										} else {
+											<span class="badge badge-rose text-xs font-bold">
+												نفد المخزون
+											</span>
+										}
+										if !isCovered {
+											<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
+												خارج التغطية
+											</span>
+										}
+									</div>
+
+									<!-- Pricing Row -->
+									<div>
+										<span>سعر التوريد:</span>
+										<div class="tabular-nums">
+											if v.Price.IsPositive() {
+												{ v.Price.String() } <span>ج.م</span>
+											} else {
+												<span class="text-sm text-muted">حسب الكمية</span>
+											}
+										</div>
+									</div>
+								</div>
+
+								<!-- Action Form -->
+								<div>
+									if canAdd {
+										<form
+											action="/cart/add"
+											method="POST"
+											hx-post="/cart/add"
+											hx-swap="none"
+											x-data="{ added: false, loading: false }"
+											@submit="loading = true"
+											@htmx:after-request="loading = false; added = true; setTimeout(() => added = false, 2500)"
+										
+										>
+											<input type="hidden" name="return_to" value={ fmt.Sprintf("/suppliers/%d", data.Org.ID) } />
+											<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.ID) } />
+											<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", data.Org.ID) } />
+											<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", data.Org.ID) } />
+											<input type="hidden" name="offer_price" value={ v.Price.String() } />
+											<input
+												type="number"
+												name="quantity"
+												min={ fmt.Sprintf("%d", minOrderQty) }
+												max={ fmt.Sprintf("%d", availStock) }
+												value={ fmt.Sprintf("%d", minOrderQty) }
+												class="sp-stepper-input tabular-nums"
+											
+												title={ fmt.Sprintf("الكمية المطلوبة (المتاح بالمخزن: %d)", availStock) }
+											/>
+											<button
+												type="submit"
+												:disabled="loading"
+												class="btn btn-primary btn-sm fw-700"
+											
+											>
+												<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
+												<span x-show="!loading && !added">إضافة للسلة</span>
+												<span x-show="loading">⏳...</span>
+												<span x-show="added" class="text-emerald font-bold">أضيف!</span>
+											</button>
+										</form>
+									} else {
+										<div class="row-center-xs">
+											if !isCovered {
+												<span class="badge badge-rose text-xs font-bold w-full text-center py-2" title={ data.GetCoverageReason(v) }>
+													خارج نطاق التغطية
+												</span>
+											} else if availStock <= 0 {
+												<span class="badge badge-slate text-xs font-bold w-full text-center py-2">
+													نفد من المخزون
+												</span>
+											} else {
+												<span class="badge badge-slate text-xs font-bold w-full text-center py-2">
+													غير متاح للطلب
+												</span>
+											}
+										</div>
+									}
+								</div>
+							</div>
+						}
+					</div>
+
+					<!-- Pagination Bar -->
+					if data.TotalPages > 1 {
+						<div>
+							if data.CurrentPage > 1 {
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage-1)) } class="btn btn-secondary btn-sm">
+									@components.IconArrowRight("icon-xs")
+									<span>الصفحة السابقة</span>
+								</a>
+							}
+							<span class="tabular-nums">
+								صفحة { fmt.Sprintf("%d", data.CurrentPage) } من { fmt.Sprintf("%d", data.TotalPages) }
+							</span>
+							if data.CurrentPage < data.TotalPages {
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage+1)) } class="btn btn-secondary btn-sm">
+									<span>الصفحة التالية</span>
+									@components.IconArrowLeft("icon-xs")
+								</a>
+							}
+						</div>
+					}
+				}
+
+			</div>
+
+			<!-- 5. Tab 2: About & Highlights -->
+			if len(data.Sections) > 0 {
+				<div id="tab-content-sections" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "sections") }>
+					<div>
+						for _, s := range data.Sections {
+							if s.IsActive {
+								<div class="card hover-lift">
+									<div>
+										<div style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
+											{ sectionTypeIcon(s.SectionType) }
+										</div>
+										<h3>
+											{ s.Title.Get(i18n.Lang(lang)) }
+										</h3>
+									</div>
+									<div>
+										{ s.Description.Get(i18n.Lang(lang)) }
+									</div>
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm fw-700"
+										data-modal-open={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
+									
+									>
+										<span>عرض التفاصيل الكاملة ←</span>
+									</button>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			}
+
+			<!-- 6. Tab 3: Supply Policies -->
+			<div id="tab-content-policies" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "policies") }>
+				if len(data.Policies) == 0 {
+					<div class="card">
+						<div>
+							<div>
+								@components.IconShield("icon-sm")
+							</div>
+							<h3>
+								الشروط والسياسات القياسية المعتمدة
+							</h3>
+						</div>
+						<p>
+							تخضع كافة طلبيات التوريد الصادرة عبر المنصة لضوابط ومعايير هيئة الدواء المصرية، مع الالتزام بتوفير فواتير ضريبية إلكترونية معتمدة وضمان سلامة سلسلة التبريد وسرعة التوصيل خلال المواعيد المحددة.
+						</p>
+					</div>
+				} else {
+					<div>
+						for _, pol := range data.Policies {
+							<div class="card">
+								<div>
+									<div>
+										@components.IconShield("icon-xs")
+									</div>
+									<h4>
+										{ pol.Title }
+									</h4>
+								</div>
+								<p>
+									{ pol.Content }
+								</p>
+							</div>
+						}
+					</div>
+				}
+			</div>
+
+			<!-- 7. Tab 4: Branches & Warehouses -->
+			<div id="tab-content-branches" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "branches") }>
+				if len(data.Branches) == 0 {
+					<div class="card">
+						@components.IconBuilding("icon-lg")
+						<h3>المخزن الرئيسي للمورد</h3>
+						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
+					</div>
+				} else {
+					<div>
+						for _, b := range data.Branches {
+							<div class="card">
+								<div>
+									<div>
+										<div>
+											@components.IconBuilding("icon-sm")
+										</div>
+										<div>
+											<h4>
+												{ b.Name.Get(i18n.Lang(lang)) }
+											</h4>
+											if b.IsMain {
+												<span class="badge badge-primary text-xs">المخزن الرئيسي</span>
+											}
+										</div>
+									</div>
+									if b.HasColdStorage {
+										<span class="badge badge-sky text-xs">مبرد</span>
+									}
+								</div>
+
+								<div>
+									if b.Address != "" {
+										<div><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
+									}
+									if b.OperatingHours != "" {
+										<div><span class="text-muted">ساعات العمل:</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+									}
+									if b.Phone != "" {
+										<div><span class="text-muted">الهاتف:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
+									}
+									if b.ManagerName != "" {
+										<div><span class="text-muted">مسؤول الفرع:</span> <strong>{ b.ManagerName }</strong></div>
+									}
+								</div>
+							</div>
+						}
+					</div>
+				}
+			</div>
+
+			<!-- 8. Tab 5: Reviews -->
+			<div id="tab-content-reviews" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "reviews") }>
+				if len(data.Reviews) == 0 {
+					<div class="card">
+						<div>@components.IconStar("icon-sm")</div>
+						<h3>مورد معتمد موثق</h3>
+						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
+					</div>
+				} else {
+					<div>
+						for _, rv := range data.Reviews {
+							<div class="card">
+								<div>
+									<strong>صيدلية معتمدة</strong>
+									@components.RatingStars(float64(rv.Rating), 0)
+								</div>
+								<p>
+									{ rv.ReviewText }
+								</p>
+							</div>
+						}
+					</div>
+				}
+			</div>
+
+			<!-- Universal Quote Request Modal -->
+			@components.Modal(components.ModalProps{
+				ID:    fmt.Sprintf("quote-modal-%d", data.Org.ID),
+				Title: "??? ??? ??? ???? ?? ??????",
+				Size:  "md",
+			}) {
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="d-flex flex-col gap-4 m-0">
+						<div class="modal-body d-flex flex-col gap-3">
+							<div class="form-group mb-0">
+								<label class="form-label font-bold text-xs" for="q-product">اختر الصنف الدوائي (اختياري)</label>
+								<select id="q-product" name="product_id" class="form-select w-full">
+									<option value="">طلب عرض سعر عام لكافة الاحتياجات</option>
+									for _, p := range data.Products {
+										<option value={ fmt.Sprintf("%d", p.ID) }>
+											if p.Name["ar"] != "" {
+												{ p.Name["ar"] }
+											} else {
+												{ p.Name["en"] }
+											}
+										</option>
+									}
+								</select>
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label font-bold text-xs" for="q-qty">الكمية التقديرية المطلوبة (عبوة) *</label>
+								<input type="number" id="q-qty" name="quantity" required min="1" value="50" class="form-input tabular-nums w-full" />
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label font-bold text-xs" for="q-notes">ملاحظات وشروط التوريد المطلوبة</label>
+								<textarea id="q-notes" name="notes" rows="3" placeholder="حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة..." class="form-textarea w-full"></textarea>
+							</div>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" data-modal-close={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }>
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary font-bold">
+								@components.IconCheck("icon-xs")
+								<span>إرسال طلب عرض السعر</span>
+							</button>
+						</div>
+					</form>
+			}
+
+			<!-- Featured Section Modals -->
+			for _, s := range data.Sections {
+				@components.Modal(components.ModalProps{
+					ID:    fmt.Sprintf("supplier-sec-modal-%d", s.ID),
+					Title: s.Title.Get(i18n.Lang(lang)),
+					Size:  "md",
+				}) {
+					<div class="p-4 text-base leading-relaxed bg-surface-sunken rounded-xl border max-h-55vh overflow-y-auto">
+						{ s.Description.Get(i18n.Lang(lang)) }
+					</div>
+					<div class="modal-footer mt-4">
+						<form method="dialog">
+							<button type="submit" class="btn btn-secondary font-bold">?????</button>
+						</form>
+					</div>
+				}
+			}
+
+		</div>
+
+		<!-- Client Tab & View Switcher Script -->
+		<script>
+			function switchProfileTab(tabName, updateUrl) {
+				if (updateUrl === undefined) updateUrl = true;
+				const tabs = ['catalog', 'sections', 'policies', 'branches', 'reviews'];
+				if (!tabs.includes(tabName)) tabName = 'catalog';
+
+				tabs.forEach(t => {
+					const btn = document.getElementById('tab-btn-' + t);
+					const panel = document.getElementById('tab-content-' + t);
+					if (btn) {
+						if (t === tabName) {
+							btn.classList.add('active');
+						} else {
+							btn.classList.remove('active');
+						}
+					}
+					if (panel) {
+						if (t === tabName) {
+							panel.style.display = 'block';
+						} else {
+							panel.style.display = 'none';
+						}
+					}
+				});
+
+				try {
+					if (updateUrl) {
+						if (window.history && window.history.replaceState) {
+							window.history.replaceState(null, null, '#' + tabName);
+						} else {
+							window.location.hash = '#' + tabName;
+						}
+					}
+					sessionStorage.setItem('dawa24_active_tab_' + window.location.pathname, tabName);
+				} catch (e) {}
+			}
+
+			function restoreActiveProfileTab() {
+				let targetTab = '';
+				// 1. Priority to URL Hash (#policies)
+				if (window.location.hash) {
+					targetTab = window.location.hash.replace('#', '').trim();
+				}
+				// 2. Query param (?tab=policies)
+				if (!targetTab) {
+					try {
+						const params = new URLSearchParams(window.location.search);
+						targetTab = params.get('tab') || '';
+					} catch (e) {}
+				}
+				// 3. Session storage
+				if (!targetTab) {
+					try {
+						targetTab = sessionStorage.getItem('dawa24_active_tab_' + window.location.pathname) || '';
+					} catch (e) {}
+				}
+
+				if (targetTab && ['catalog', 'sections', 'policies', 'branches', 'reviews'].includes(targetTab)) {
+					switchProfileTab(targetTab, false);
+				}
+			}
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', restoreActiveProfileTab);
+			} else {
+				restoreActiveProfileTab();
+			}
+			window.addEventListener('hashchange', function() {
+				restoreActiveProfileTab();
+			});
+
+			function switchCatalogView(view) {
+				const tbl = document.getElementById('catalog-table-view');
+				const grd = document.getElementById('catalog-grid-view');
+				const tblBtn = document.getElementById('cat-view-table-btn');
+				const grdBtn = document.getElementById('cat-view-grid-btn');
+
+				if (view === 'grid') {
+					if (tbl) tbl.style.display = 'none';
+					if (grd) grd.style.display = 'grid';
+					if (tblBtn) { tblBtn.classList.remove('btn-primary'); tblBtn.classList.add('btn-secondary'); }
+					if (grdBtn) { grdBtn.classList.remove('btn-secondary'); grdBtn.classList.add('btn-primary'); }
+				} else {
+					if (tbl) tbl.style.display = 'block';
+					if (grd) grd.style.display = 'none';
+					if (tblBtn) { tblBtn.classList.remove('btn-secondary'); tblBtn.classList.add('btn-primary'); }
+					if (grdBtn) { grdBtn.classList.remove('btn-primary'); grdBtn.classList.add('btn-secondary'); }
+				}
+			}
+		</script>
+	}
+}

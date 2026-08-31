@@ -1,0 +1,247 @@
+package billing
+
+import (
+	"context"
+	"io"
+	"log/slog"
+	"testing"
+
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+)
+
+func (m *mockBillingRepo) UpdatePaymentMethod(_ context.Context, pm *UserPaymentMethod) error {
+	if existing, ok := m.methods[pm.ID]; ok && existing.UserID == pm.UserID {
+		m.methods[pm.ID] = pm
+		return nil
+	}
+	return apperr.NotFound("payment_method")
+}
+
+func (m *mockBillingRepo) SetDefaultPaymentMethod(_ context.Context, userID, id int64) error {
+	for _, pm := range m.methods {
+		if pm.UserID == userID {
+			pm.IsDefault = (pm.ID == id)
+		}
+	}
+	return nil
+}
+
+func (m *mockBillingRepo) DeletePaymentMethod(_ context.Context, _, id int64) error {
+	delete(m.methods, id)
+	return nil
+}
+
+func (m *mockBillingRepo) ListPlatformPaymentMethods(_ context.Context, onlyActive bool) ([]*PlatformPaymentMethod, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) GetPlatformPaymentMethod(_ context.Context, id string) (*PlatformPaymentMethod, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) SavePlatformPaymentMethod(_ context.Context, pm *PlatformPaymentMethod) error {
+	return nil
+}
+
+func (m *mockBillingRepo) TogglePlatformPaymentMethod(_ context.Context, id string, active bool) error {
+	return nil
+}
+
+func (m *mockBillingRepo) DeletePlatformPaymentMethod(_ context.Context, id string) error {
+	return nil
+}
+
+func (m *mockBillingRepo) AdminAdjustWallet(_ context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
+	return nil
+}
+
+func (m *mockBillingRepo) AdminListPayments(_ context.Context, limit, offset int) ([]*Payment, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListSubscriptions(_ context.Context, limit, offset int) ([]*Subscription, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) ListPaymentsByOrg(_ context.Context, orgID int64, limit, offset int) ([]*Payment, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListInvoices(_ context.Context, limit, offset int) ([]*Invoice, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListWallets(_ context.Context, limit, offset int) ([]*Wallet, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) EnsureAllOrgWallets(_ context.Context) error {
+	return nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedWallets(_ context.Context, _ WalletFilter) ([]*AdminWalletView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedTransactions(_ context.Context, _ TransactionFilter) ([]*AdminWalletTransactionView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedInvoices(_ context.Context, _ InvoiceFilter) ([]*AdminInvoiceView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedPayments(_ context.Context, _ PaymentFilter) ([]*AdminPaymentView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminPerformWalletAdjustment(_ context.Context, _ int64, _ money.Amount, _ TransactionType, _ string, _ int64) error {
+	return nil
+}
+
+func (m *mockBillingRepo) CreateDepositRequest(_ context.Context, _ *WalletDeposit) error {
+	return nil
+}
+
+func (m *mockBillingRepo) GetDepositRequestByID(_ context.Context, _ int64) (*WalletDeposit, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) UpdatePendingDepositRequest(_ context.Context, _ *WalletDeposit) error {
+	return nil
+}
+
+func (m *mockBillingRepo) ListDepositRequestsByUser(_ context.Context, _ int64, _, _ int) ([]*WalletDeposit, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedDeposits(_ context.Context, _ DepositFilter) ([]*AdminWalletDepositView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminApproveDepositRequest(_ context.Context, _ int64, _ int64) (*WalletDeposit, *WalletTransaction, error) {
+	return nil, nil, nil
+}
+
+func (m *mockBillingRepo) AdminRejectDepositRequest(_ context.Context, _ int64, _ int64, _ string) (*WalletDeposit, error) {
+	return nil, nil
+}
+
+func TestWalletDepositAndWithdraw(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockBillingRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := NewService(repo, logger)
+
+	// 1. Initial Deposit 500.00 EGP
+	tx1, err := svc.Deposit(ctx, 42, "EGP", money.MustParse("500.00"), "test", nil, "Initial balance")
+	if err != nil {
+		t.Fatalf("Deposit failed: %v", err)
+	}
+	if tx1.BalanceAfter != money.MustParse("500.00") {
+		t.Errorf("BalanceAfter = %v; want 500.00", tx1.BalanceAfter)
+	}
+
+	// 2. Withdraw 200.00 EGP
+	tx2, err := svc.Withdraw(ctx, 42, "EGP", money.MustParse("200.00"), "test", nil, "Payment")
+	if err != nil {
+		t.Fatalf("Withdraw failed: %v", err)
+	}
+	if tx2.BalanceAfter != money.MustParse("300.00") {
+		t.Errorf("BalanceAfter = %v; want 300.00", tx2.BalanceAfter)
+	}
+
+	// 3. Attempt to withdraw 400.00 EGP (exceeds balance 300.00 EGP) -> Should Fail
+	_, err = svc.Withdraw(ctx, 42, "EGP", money.MustParse("400.00"), "test", nil, "Overdraft")
+	if err == nil || apperr.KindOf(err) != apperr.KindValidation {
+		t.Errorf("expected validation error on overdraft, got: %v", err)
+	}
+
+	// 4. Test Invoice Creation
+	inv, err := svc.CreateInvoice(ctx, &Invoice{
+		OrganizationID: 8801,
+		Lines: []InvoiceLine{
+			{Description: "Panadol Extra 500mg (100 boxes)", Quantity: 100, UnitPrice: money.MustParse("50.00"), TotalPrice: money.MustParse("5000.00")},
+		},
+		TaxAmount: money.MustParse("700.00"),
+	})
+	if err != nil {
+		t.Fatalf("CreateInvoice failed: %v", err)
+	}
+	if inv.TotalAmount != money.MustParse("5700.00") {
+		t.Errorf("TotalAmount = %v; want 5700.00", inv.TotalAmount)
+	}
+
+	gotInv, err := svc.GetInvoice(ctx, inv.ID)
+	if err != nil {
+		t.Fatalf("GetInvoice failed: %v", err)
+	}
+	if gotInv.ID != inv.ID {
+		t.Errorf("got invoice id %d, want %d", gotInv.ID, inv.ID)
+	}
+
+	if err := svc.MarkInvoicePaid(ctx, inv.ID); err != nil {
+		t.Fatalf("MarkInvoicePaid failed: %v", err)
+	}
+
+	// 5. Test Subscription and Entitlements
+	repo.plans["pro"] = &Plan{
+		Slug:     "pro",
+		Features: map[string]string{"max_products": "1000", "ai_matching": "true"},
+	}
+	sub, err := svc.Subscribe(ctx, 42, nil, "pro", "month", nil)
+	if err != nil {
+		t.Fatalf("Subscribe failed: %v", err)
+	}
+	if sub.UserID != 42 {
+		t.Errorf("got user id %d, want 42", sub.UserID)
+	}
+
+	allowed, val, err := svc.CheckEntitlement(ctx, 42, "ai_matching")
+	if err != nil || !allowed || val != "true" {
+		t.Errorf("CheckEntitlement failed: allowed=%v, val=%s, err=%v", allowed, val, err)
+	}
+
+	// 6. Payment Methods
+	pm := &UserPaymentMethod{
+		UserID:            42,
+		Provider:          "Paymob",
+		AccountIdentifier: "tok_123",
+		IsDefault:         true,
+	}
+	if err := svc.AddPaymentMethod(ctx, pm); err != nil {
+		t.Fatalf("AddPaymentMethod failed: %v", err)
+	}
+	methods, err := svc.ListPaymentMethods(ctx, 42)
+	if err != nil || len(methods) != 1 {
+		t.Fatalf("ListPaymentMethods failed: %v", err)
+	}
+
+	// 7. Admin methods
+	adjMoney, _ := money.Parse("100.00")
+	if err := svc.AdminAdjustWallet(ctx, 1, adjMoney, "Bonus credit", 1); err != nil {
+		t.Fatalf("AdminAdjustWallet failed: %v", err)
+	}
+	_, _ = svc.AdminListPayments(ctx, 10, 0)
+	_, _ = svc.AdminListSubscriptions(ctx, 10, 0)
+}
+
+func TestCreatePlanValidation(t *testing.T) {
+	repo := newMockBillingRepo()
+	svc := NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ctx := context.Background()
+
+	if _, err := svc.CreatePlan(ctx, &Plan{}); err == nil {
+		t.Fatal("expected error for empty slug/name")
+	}
+
+	p, err := svc.CreatePlan(ctx, &Plan{Slug: "basic", Name: i18n.Text{"ar": "أساسية"}, PriceMonth: money.MustParse("100.00")})
+	if err != nil {
+		t.Fatalf("CreatePlan failed: %v", err)
+	}
+	if p.ID == 0 {
+		t.Fatal("expected plan id to be set")
+	}
+}

@@ -1,0 +1,294 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+	"time"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
+	<div class="table-container">
+		<table class="data-table">
+			<thead>
+				<tr>
+					<th>الصنف الدوائي المعتمد</th>
+					<th>المواصفات و SKU</th>
+					<th class="tabular-nums">سعر الجمهور والخصم</th>
+					<th class="tabular-nums">سعر التكلفة والخصم</th>
+					<th class="tabular-nums">صافي ربح الوحدة</th>
+					<th class="text-center">الرصيد المتاح</th>
+					<th>تاريخ الصلاحية</th>
+					<th>مخزن الشحن</th>
+					<th class="text-center">الإجراءات</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, v := range variants {
+					<tr
+						class="vendor-variant-row"
+						data-id={ fmt.Sprintf("%d", v.Variant.ID) }
+						data-name={ v.Variant.Name.Get(i18n.AR) }
+						data-price={ v.Variant.Price.String() }
+						data-discount={ v.Variant.Discount.String() }
+						data-cost-price={ formatCostPrice(v.Variant) }
+						data-cost-discount={ fmt.Sprintf("%.2f", v.Variant.CostDiscountPercentage) }
+						data-stock={ fmt.Sprintf("%d", v.Variant.StockQty) }
+						data-min-qty={ fmt.Sprintf("%d", v.Variant.MinOrderQty) }
+						data-batch={ v.Variant.BatchNumber }
+						data-expiry={ formatExpiryDate(v.Variant.ExpiryDate) }
+						data-branch-id={ branchIDStr(v.Variant.BranchID) }
+						id={ fmt.Sprintf("variant-row-%d", v.Variant.ID) }
+					>
+						<!-- Product Info & Avatar -->
+						<td>
+							<div class="d-flex items-center gap-3">
+								<div class="user-avatar-badge">
+									if v.MasterProduct != nil && v.MasterProduct.Image != "" {
+										<img src={ v.MasterProduct.Image } alt="Product" class="w-full h-full object-contain p-1" />
+									} else {
+										<div class="text-brand">
+											@components.IconPill("icon-sm")
+										</div>
+									}
+								</div>
+								<div class="d-flex flex-col min-w-0">
+									<div class="font-extrabold text-primary text-sm line-clamp-2">
+										if v.MasterProduct != nil {
+											{ v.MasterProduct.Name.Get(i18n.Lang(lang)) }
+										} else {
+											{ v.Variant.Name.Get(i18n.Lang(lang)) }
+										}
+									</div>
+									<div class="d-flex items-center gap-2 text-xs text-muted mt-1">
+										if v.MasterProduct != nil && v.MasterProduct.DosageForm != "" {
+											<span class="badge badge-slate text-xs">{ v.MasterProduct.DosageForm }</span>
+										}
+										if v.MasterProduct != nil && v.MasterProduct.ManufacturingCompanies != "" {
+											<span class="text-truncate max-w-140">{ v.MasterProduct.ManufacturingCompanies }</span>
+										}
+									</div>
+								</div>
+							</div>
+						</td>
+
+						<!-- Variant Name & SKU -->
+						<td>
+							<div class="text-xs font-bold text-primary">
+								{ v.Variant.Name.Get(i18n.Lang(lang)) }
+							</div>
+							if v.Variant.SKU != "" {
+								<div class="tabular-nums text-xs text-muted mt-1">
+									<code>SKU: { v.Variant.SKU }</code>
+								</div>
+							}
+							if v.Variant.BatchNumber != "" {
+								<div class="tabular-nums text-xs text-secondary mt-1">
+									تشغيلة: { v.Variant.BatchNumber }
+								</div>
+							}
+						</td>
+
+						<!-- Public Selling Price & Discount -->
+						<td>
+							<div class="tabular-nums font-black text-brand text-sm">
+								if v.Variant.Discount.IsPositive() {
+									{ v.Variant.Price.ApplyPercent(int64((100.0 - (float64(v.Variant.Discount.Minor())/100.0)) * 100)).String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								} else {
+									{ v.Variant.Price.String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								}
+							</div>
+							<div class="d-flex items-center gap-1 text-xs text-muted mt-1">
+								<span class="text-xs">الجمهور: { v.Variant.Price.String() }</span>
+								if v.Variant.Discount.IsPositive() {
+									<span class="badge badge-emerald text-xs font-bold">-{ v.Variant.Discount.String() }%</span>
+								}
+							</div>
+							if v.Variant.MinOrderQty > 1 {
+								<div class="text-xs text-muted mt-0.5">
+									أقل طلب: { fmt.Sprintf("%d", v.Variant.MinOrderQty) }
+								</div>
+							}
+						</td>
+
+						<!-- Cost Price & Cost Discount -->
+						<td>
+							if v.Variant.HasCostPrice() {
+								<div class="tabular-nums font-bold text-primary text-sm">
+									{ v.Variant.DiscountedCost().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								</div>
+								<div class="d-flex items-center gap-1 text-xs text-muted mt-1">
+									<span>الأصل: { v.Variant.CostPrice.String() }</span>
+									if v.Variant.CostDiscountPercentage > 0 {
+										<span class="badge badge-sky text-xs font-bold">-{ fmt.Sprintf("%.1f%%", v.Variant.CostDiscountPercentage) }</span>
+									}
+								</div>
+							} else {
+								<span class="badge badge-slate text-xs">غير محدد (ربح كامل)</span>
+							}
+						</td>
+
+						<!-- Net Profit & Margin -->
+						<td>
+							<div class="tabular-nums font-black text-success text-sm">
+								+{ v.Variant.UnitNetProfit().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+							</div>
+							<div class="text-xs text-brand font-bold mt-1">
+								هامش: { fmt.Sprintf("%.1f%%", v.Variant.ProfitMarginPercent()) }
+							</div>
+						</td>
+
+						<!-- Stock Quantity -->
+						<td class="text-center">
+							if v.StockQuantity > 10 {
+								<span class="badge badge-emerald tabular-nums font-extrabold text-xs">
+									{ fmt.Sprintf("%d عبوة", v.StockQuantity) }
+								</span>
+							} else if v.StockQuantity > 0 {
+								<span class="badge badge-amber tabular-nums font-extrabold text-xs">
+									{ fmt.Sprintf("%d متبقي", v.StockQuantity) }
+								</span>
+							} else {
+								<span class="badge badge-rose tabular-nums font-bold text-xs">
+									نفد الرصيد
+								</span>
+							}
+						</td>
+
+						<!-- Expiry Date -->
+						<td>
+							if v.Variant.ExpiryDate != nil {
+								<div class="tabular-nums font-bold text-secondary text-xs">
+									{ v.Variant.ExpiryDate.Format("2006-01-02") }
+								</div>
+							} else {
+								<span class="text-muted text-sm">-</span>
+							}
+						</td>
+
+						<!-- Shipping Branch / Warehouse -->
+						<td>
+							if v.BranchName != "" {
+								<span class="badge badge-sky font-bold text-xs">
+									{ v.BranchName }
+								</span>
+							} else {
+								<span class="text-secondary text-xs">المخزن الرئيسي</span>
+							}
+						</td>
+
+						<!-- Actions -->
+						<td class="text-center">
+							<div class="d-flex items-center justify-center gap-1">
+								<button
+									type="button"
+									class="btn btn-secondary btn-icon text-brand"
+									title="تعديل بيانات وسعر الصنف"
+									data-variant-id={ fmt.Sprintf("%d", v.Variant.ID) }
+									onclick="openEditVariantModal(this.getAttribute('data-variant-id'))"
+								>
+									@components.IconEdit("icon-xs")
+								</button>
+
+								if v.Variant.ProductID > 0 {
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.Variant.ProductID)) }
+										target="_blank"
+										class="btn btn-secondary btn-icon text-muted"
+										title="معاينة في المتجر"
+									>
+										@components.IconEye("icon-xs")
+									</a>
+								}
+
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/variants/%d/delete", v.Variant.ID)) } class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض من قائمة التوريد؟');">
+									<button
+										type="submit"
+										class="btn btn-secondary btn-icon text-danger"
+										title="حذف العرض"
+									>
+										@components.IconTrash("icon-xs")
+									</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+func vendorPaginationQuery(filter catalog.VendorVariantQuery) url.Values {
+	q := url.Values{}
+	if filter.Query != "" {
+		q.Set("q", filter.Query)
+	}
+	if filter.Status != "" {
+		q.Set("status", filter.Status)
+	}
+	if filter.Stock != "" {
+		q.Set("stock", string(filter.Stock))
+	}
+	if filter.Expiring {
+		q.Set("expiring", "1")
+	}
+	if filter.Sort != "" {
+		q.Set("sort", filter.Sort)
+	}
+	if filter.PerPage > 0 {
+		q.Set("limit", fmt.Sprintf("%d", filter.PerPage))
+	}
+	return q
+}
+
+func vendorFilterURL(filter catalog.VendorVariantQuery, stock catalog.StockFilter, expiring bool) string {
+	q := url.Values{}
+	if filter.Query != "" {
+		q.Set("q", filter.Query)
+	}
+	if filter.Status != "" {
+		q.Set("status", filter.Status)
+	}
+	if stock != "" {
+		q.Set("stock", string(stock))
+	}
+	if expiring {
+		q.Set("expiring", "1")
+	}
+	if filter.Sort != "" {
+		q.Set("sort", filter.Sort)
+	}
+	if filter.PerPage > 0 {
+		q.Set("limit", fmt.Sprintf("%d", filter.PerPage))
+	}
+	encoded := q.Encode()
+	if encoded == "" {
+		return "/vendor/products"
+	}
+	return "/vendor/products?" + encoded
+}
+
+func formatExpiryDate(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format("2006-01-02")
+}
+
+func formatCostPrice(v *catalog.ProductVariant) string {
+	if v == nil || v.CostPrice == nil || v.CostPrice.IsZero() {
+		return ""
+	}
+	return v.CostPrice.String()
+}
+
+func branchIDStr(id *int64) string {
+	if id != nil && *id > 0 {
+		return fmt.Sprintf("%d", *id)
+	}
+	return ""
+}

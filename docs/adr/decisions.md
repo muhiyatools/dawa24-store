@@ -325,3 +325,18 @@ Soft deletes, order transitions, currency representation, and data migration req
 2. **Order Transitions**: Validated by domain state machines and recorded to `order_status_history` in the same transaction.
 3. **Money in JSON**: Always formatted as a two-decimal JSON string via `money.Amount`.
 4. **ETL**: Built as resumable, chunked, idempotent operations with 2-way sum reconciliation down to the cent.
+
+---
+
+## ADR 0012 — Codebase Structural Bounds and Audience-Gated Architecture
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+As the platform expanded to support complex workflows (smart ordering, bulk catalog ingestion, multi-tenant RBAC, promotional bidding, and invoice adjudication), source files and templates accumulated high line counts and intertwined handler responsibilities. Monolithic templates (>1,000 lines) and oversized Go files (>400 lines) degrade maintainability, compile-time performance, and auditability.
+
+### Decision
+1. **Source File Line Bounds**: Enforce hard ceilings of $\le 400$ lines per Go file and $\le 1,000$ lines per Templ file across the entire repository.
+2. **Template Decomposition**: Split large views into modular subtemplates (`_table.templ`, `_modals.templ`, `_script.templ`, `_subpages.templ`) using declarative component composition (`@SubComponent(...)`).
+3. **Audience-Gated UI Partitioning**: Route handlers in `internal/ui` are structured by target audience (`admin_*.go`, `vendor_*.go`, `customer_*.go`, `shared_*.go`, `auth_*.go`), with strict AST regression tests in `test/route_audience_test.go` verifying that all endpoints are mounted within corresponding authenticated Chi middleware groups (`RequireCustomer`, `RequireVendor`, `RequireStaff`, `RequireApproved`).
+4. **Deadcode Ratchet Discipline**: Integrate `golang.org/x/tools/cmd/deadcode` into the automated testing harness (`test/deadcode_ratchet_test.go`) to prevent dead code accumulation beyond the measured baseline.

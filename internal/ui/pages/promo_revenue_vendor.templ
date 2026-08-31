@@ -1,0 +1,594 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+// VendorOffersPackagesPageWithData renders vendor's available packages with purchase data.
+templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequestsData) {
+	@layouts.VendorShell("باقات العروض والاشتراكات", "offers_packages", lang, dir) {
+		<div class="page-container py-6">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-2.5 mb-1.5">
+							<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+								@components.IconBoxes("icon-sm")
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">باقات العروض الترويجية المتاحة لمنشأتك</h1>
+								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث</p>
+							</div>
+						</div>
+					</div>
+					<div class="d-flex items-center gap-2.5">
+						<a href="/vendor/sponsorship-requests" class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm">
+							@components.IconShield("icon-xs")
+							<span>طلبات ورصيد الرعاية</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Packages Grid Cards -->
+			if len(data.Packages) > 0 {
+				<div class="d-grid grid-cols-1 md:grid-cols-3 gap-5">
+					for _, pkg := range data.Packages {
+						if pkg != nil {
+							<div class="glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 hover:shadow-md transition-all d-flex flex-col justify-between">
+								<div>
+									<!-- Card Top Header -->
+									<div class="flex-between items-start mb-4">
+										<div>
+											<h3 class="text-lg font-black text-primary m-0 leading-tight">
+												{ pkg.Name.Get(i18n.AR) }
+											</h3>
+											if pkg.TierLevel > 0 {
+												<span class="badge badge-amber font-extrabold text-xs shadow-2xs mt-1.5 d-inline-flex">
+													المستوى { fmt.Sprintf("%d", pkg.TierLevel) }
+												</span>
+											}
+										</div>
+										<div class="text-end">
+											<div class="text-2xl font-black text-brand tabular-nums">
+												{ pkg.Price.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
+											</div>
+											<div class="text-xs text-muted font-semibold mt-0.5">
+												لمدة { fmt.Sprintf("%d", pkg.DurationDays) } يوماً
+											</div>
+										</div>
+									</div>
+
+									<!-- Features List -->
+									<div class="border-t border-slate-100 pt-4 mb-6 d-flex flex-col gap-2.5 text-xs text-secondary font-medium">
+										<div class="d-flex items-center gap-2">
+											@components.IconCheckCircle("icon-xs text-emerald-500 flex-shrink-0")
+											<span><strong>{ fmt.Sprintf("%d", pkg.Credits) }</strong> رعاية ترويجية متاحة بالباقة</span>
+										</div>
+										<div class="d-flex items-center gap-2">
+											@components.IconCheckCircle("icon-xs text-emerald-500 flex-shrink-0")
+											<span>تثبيت العروض في صدارة نتائج البحث</span>
+										</div>
+										<div class="d-flex items-center gap-2">
+											@components.IconCheckCircle("icon-xs text-emerald-500 flex-shrink-0")
+											<span>وسم ممول معتمد وبارز بالكتالوج</span>
+										</div>
+										<div class="d-flex items-center gap-2">
+											@components.IconCheckCircle("icon-xs text-emerald-500 flex-shrink-0")
+											<span>إحصائيات تفاعلية للمشاهدات والنقرات</span>
+										</div>
+									</div>
+								</div>
+
+								<!-- Purchase Button -->
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-packages/%d/purchase", pkg.ID)) } class="m-0">
+									<button type="submit" class="btn btn-primary btn-sm w-full font-black justify-center gap-1.5 shadow-sm">
+										@components.IconCreditCard("icon-xs")
+										<span>شراء وتفعيل الباقة</span>
+									</button>
+								</form>
+							</div>
+						}
+					}
+				</div>
+			} else {
+				<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+					<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+						@components.IconBoxes("icon-md")
+					</div>
+					<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد باقات متاحة حالياً</h3>
+					<p class="text-xs text-secondary max-w-md mx-auto">
+						سيتم إتاحة باقات العروض الترويجية والرعاية قريباً.
+					</p>
+				</div>
+			}
+		</div>
+	}
+}
+
+// VendorOffersPackagesPage renders vendor's available packages (legacy compat).
+templ VendorOffersPackagesPage(lang, dir string) {
+	@layouts.VendorShell("باقات العروض والاشتراكات", "offers_packages", lang, dir) {
+		<div class="page-container py-6">
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
+				<h1 class="text-2xl font-black text-primary m-0">باقات العروض الترويجية المتاحة لمنشأتك</h1>
+				<p class="text-xs text-secondary m-0 mt-0.5 font-medium">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث</p>
+			</div>
+			<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+				<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+					@components.IconBoxes("icon-md")
+				</div>
+				<h3 class="text-base font-extrabold text-primary mb-1.5">باقات الموردين</h3>
+				<p class="text-xs text-secondary max-w-md mx-auto">
+					يمكنك ترقية باقتك للاستفادة من مميزات الرعاية وظهور عروضك في صدارة الكتالوج.
+				</p>
+			</div>
+		</div>
+	}
+}
+
+// VendorOffersPackagesSponsorshipsPage renders vendor sponsorships.
+templ VendorOffersPackagesSponsorshipsPage(lang, dir string) {
+	@layouts.VendorShell("الرعايات الرسمية للعروض", "offers_packages", lang, dir) {
+		<div class="page-container py-6">
+			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
+				<div>
+					<h1 class="text-xl font-black text-primary m-0">رعايات العروض الترويجية لمنشأتك</h1>
+					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">تثبيت عروضك المميزة بأعلى نتائج البحث لجذب مزيد من الصيدليات</p>
+				</div>
+				<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة للباقات</span>
+				</a>
+			</div>
+			<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+				<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+					@components.IconShield("icon-md")
+				</div>
+				<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد رعايات مفعلة</h3>
+				<p class="text-xs text-secondary max-w-md mx-auto">
+					تتيح الرعاية تثبيت عروضك المميزة بأعلى نتائج البحث لجذب طلبات توريد أكثر.
+				</p>
+			</div>
+		</div>
+	}
+}
+
+// VendorOffersPackagesPromotionsPage renders vendor campaigns.
+templ VendorOffersPackagesPromotionsPage(lang, dir string) {
+	@layouts.VendorShell("الحملات الترويجية الخاصة", "offers_packages", lang, dir) {
+		<div class="page-container py-6">
+			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
+				<div>
+					<h1 class="text-xl font-black text-primary m-0">الحملات الترويجية الموجهة</h1>
+					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">إنشاء حملات ترويجية موجهة لمدن محددة لتعزيز المبيعات</p>
+				</div>
+				<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة للباقات</span>
+				</a>
+			</div>
+			<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+				<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+					@components.IconMegaphone("icon-md")
+				</div>
+				<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد حملات جارية</h3>
+				<p class="text-xs text-secondary max-w-md mx-auto">
+					قم بإنشاء حملة ترويجية موجهة لمدن ومحافظات محددة لتعزيز المبيعات.
+				</p>
+			</div>
+		</div>
+	}
+}
+
+// VendorAdsPage renders vendor's ads with statistics and a creation form.
+templ VendorAdsPage(lang, dir string, ads []*promo.Ad) {
+	@layouts.VendorShell("الإعلانات والبنرات الترويجية", "ads", lang, dir) {
+		<div class="page-container py-6">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
+				<div class="d-flex items-center gap-2.5 mb-1.5">
+					<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+						@components.IconMegaphone("icon-sm")
+					</div>
+					<div>
+						<h1 class="text-2xl font-black text-primary m-0">إعلانات وبنرات المنشأة</h1>
+						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">أنشئ إعلاناً وبنراً ترويجياً بصورة أو فيديو ونص ثنائي اللغة. يتم مراجعة كل إعلان من قِبل الإدارة قبل نشره</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Create Ad Form Panel -->
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
+				<div class="d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+					@components.IconPlus("icon-xs text-brand")
+					<h3 class="text-sm font-black text-primary m-0">إنشاء إعلان وبنر جديد</h3>
+				</div>
+
+				<form method="POST" action="/vendor/ads/new" class="d-flex flex-col gap-4 m-0">
+					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان (عربي) *</label>
+							<input type="text" name="title_ar" class="form-input text-xs font-semibold" required placeholder="عنوان الإعلان بالعربية" />
+						</div>
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان (إنجليزي)</label>
+							<input type="text" name="title_en" class="form-input text-xs font-semibold" placeholder="Ad title in English" dir="ltr" />
+						</div>
+					</div>
+
+					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">النص الإعلاني (عربي)</label>
+							<textarea name="ad_text_ar" class="form-input text-xs" rows="2" placeholder="النص والرسالة الترويجية بالعربية"></textarea>
+						</div>
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">النص الإعلاني (إنجليزي)</label>
+							<textarea name="ad_text_en" class="form-input text-xs" rows="2" placeholder="Advertising message in English" dir="ltr"></textarea>
+						</div>
+					</div>
+
+					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رابط الوسائط (صورة / فيديو) *</label>
+							<input type="url" name="media_url" class="form-input text-xs font-mono" required placeholder="https://cdn.example.com/banner.jpg" dir="ltr" />
+						</div>
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نوع الوسائط *</label>
+							<select name="media_type" class="form-input text-xs font-semibold">
+								<option value="image">صورة ثابتة (Image Banner)</option>
+								<option value="video">مقطع فيديو ترويجي (Video Ad)</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">وجهة النقر (Target Type)</label>
+							<select name="click_target_type" class="form-input text-xs font-semibold">
+								<option value="vendor_page">صفحة بروفايل المورد</option>
+								<option value="offer">عرض ترويجي محدد</option>
+								<option value="external_url">رابط خارجي مخصص</option>
+							</select>
+						</div>
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">معرف الوجهة (ID أو الرابط)</label>
+							<input type="number" name="click_target_id" class="form-input text-xs tabular-nums" placeholder="معرف العرض (إن وجد)" />
+						</div>
+					</div>
+
+					<div class="pt-2">
+						<button type="submit" class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5">
+							@components.IconPlus("icon-xs")
+							<span>حفظ وإرسال الإعلان للمراجعة</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- Ads List with Statistics Table -->
+			<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+				<div class="p-4 border-b border-slate-100 flex-between items-center">
+					<div class="d-flex items-center gap-2">
+						@components.IconChart("icon-xs text-brand")
+						<h3 class="text-sm font-black text-primary m-0">إحصائيات وحالة الإعلانات المنشورة</h3>
+					</div>
+					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", len(ads)) }</span>
+				</div>
+
+				if len(ads) > 0 {
+					<div class="table-container m-0 overflow-x-auto">
+						<table class="data-table m-0 text-xs w-full">
+							<thead>
+								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+									<th class="py-3 text-start ps-4">عنوان الإعلان</th>
+									<th class="text-center py-3">نوع الوسائط</th>
+									<th class="text-center tabular-nums py-3">المشاهدات</th>
+									<th class="text-center tabular-nums py-3">النقرات</th>
+									<th class="text-center tabular-nums py-3">معدل CTR %</th>
+									<th class="text-center py-3">الحالة</th>
+									<th class="text-end py-3 pe-4">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-slate-100">
+								for _, ad := range ads {
+									if ad != nil {
+										<tr class="hover:bg-slate-50/50 transition-colors">
+											<td class="font-extrabold text-primary py-3 ps-4">{ ad.DisplayTitle(lang) }</td>
+											<td class="text-center py-3">
+												if ad.MediaType == "video" {
+													<span class="badge badge-sky text-xs font-bold">فيديو</span>
+												} else {
+													<span class="badge badge-slate text-xs font-bold">صورة</span>
+												}
+											</td>
+											<td class="text-center tabular-nums font-bold text-primary py-3">{ fmt.Sprintf("%d", ad.Impressions) }</td>
+											<td class="text-center tabular-nums font-bold text-brand py-3">{ fmt.Sprintf("%d", ad.Clicks) }</td>
+											<td class="text-center tabular-nums font-black text-emerald-600 py-3">{ fmt.Sprintf("%.1f%%", ad.CTR) }</td>
+											<td class="text-center py-3">
+												if ad.AdminStatus == "pending" {
+													<span class="badge badge-sky font-extrabold text-xs">قيد المراجعة</span>
+												} else if ad.AdminStatus == "approved" {
+													<span class="badge badge-emerald font-extrabold text-xs">معتمد ومباشر</span>
+												} else {
+													<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
+												}
+											</td>
+											<td class="text-end py-3 pe-4">
+												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ads/%d/edit", ad.ID)) } class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs">
+													@components.IconEdit("icon-2xs")
+													<span>تعديل</span>
+												</a>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				} else {
+					<div class="p-8 text-center">
+						<p class="text-xs text-muted m-0 font-medium">لم يتم إنشاء أي إعلانات حتى الآن. استخدم النموذج أعلاه لإنشاء بنرك الأول.</p>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+// VendorOffersLocationsPage renders vendor geographic coverage for offers.
+templ VendorOffersLocationsPage(lang, dir string) {
+	@layouts.VendorShell("نطاق التغطية الجغرافية للعروض", "offers", lang, dir) {
+		<div class="page-container py-6">
+			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
+				<div>
+					<h1 class="text-xl font-black text-primary m-0">التغطية الجغرافية لعروض المنشأة</h1>
+					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">حدد المحافظات والمدن التي تتاح فيها عروضك الترويجية</p>
+				</div>
+				<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+					@components.IconArrowRight("icon-xs")
+					<span>العودة للعروض</span>
+				</a>
+			</div>
+			<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+				<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+					@components.IconMapPin("icon-md")
+				</div>
+				<h3 class="text-base font-extrabold text-primary mb-1.5">التغطية الجغرافية</h3>
+				<p class="text-xs text-secondary max-w-md mx-auto">
+					حدد نطاق التوصيل والمحافظات المستهدفة لعروض المنشأة.
+				</p>
+			</div>
+		</div>
+	}
+}
+
+// VendorSponsorshipRequestsPage renders the vendor's sponsorship management page.
+templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsData) {
+	@layouts.VendorShell("طلبات الرعاية والباقات", "sponsorship_requests", lang, dir) {
+		<div class="page-container py-6">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-2.5 mb-1.5">
+							<div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs">
+								@components.IconShield("icon-sm")
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">طلبات الرعاية وباقات الترويج</h1>
+								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">اشترِ باقة رعاية للحصول على رصيد الرعايات، ثم قدّم طلبات رعاية لأصنافك أو عروضك لتثبيتها في صدارة الكتالوج</p>
+							</div>
+						</div>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+							@components.IconBoxes("icon-xs")
+							<span>استعراض الباقات</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Active Purchases & Credits Panel -->
+			if len(data.ActivePurchases) > 0 {
+				<div class="glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
+					<div class="d-flex items-center gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
+						@components.IconZap("icon-xs text-amber-500")
+						<h3 class="text-sm font-black text-primary m-0">رصيد الرعايات النشط والمتاح</h3>
+					</div>
+					<div class="d-grid grid-cols-1 md:grid-cols-3 gap-4">
+						for _, p := range data.ActivePurchases {
+							if p != nil {
+								<div class="bg-surface-sunken p-4 rounded-xl border border-slate-200/80 d-flex flex-col justify-between">
+									<div class="flex-between items-center mb-2">
+										<span class="font-extrabold text-sm text-primary">باقة #{ fmt.Sprintf("%d", p.PackageID) }</span>
+										<span class="badge badge-emerald font-black text-xs tabular-nums shadow-2xs">
+											{ fmt.Sprintf("%d / %d", p.CreditsRemaining, p.CreditsTotal) } رعاية
+										</span>
+									</div>
+									<div class="text-xs text-muted font-medium tabular-nums">
+										تنتهي في: <strong class="text-secondary font-bold">{ p.ExpiresAt.Format("2006-01-02") }</strong>
+									</div>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Available Packages Quick Grid -->
+			if len(data.Packages) > 0 {
+				<div class="glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
+					<div class="d-flex items-center gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
+						@components.IconBoxes("icon-xs text-brand")
+						<h3 class="text-sm font-black text-primary m-0">الباقات المتاحة للشراء الفوري</h3>
+					</div>
+					<div class="d-grid grid-cols-1 md:grid-cols-3 gap-4">
+						for _, pkg := range data.Packages {
+							if pkg != nil {
+								<div class="bg-surface-sunken p-4 rounded-xl border border-slate-200/80 d-flex flex-col justify-between">
+									<div>
+										<div class="flex-between items-start mb-2">
+											<div>
+												<h4 class="font-black text-sm text-primary m-0">{ pkg.Name.Get(i18n.AR) }</h4>
+												if pkg.TierLevel > 0 {
+													<span class="badge badge-amber font-extrabold text-2xs mt-1">
+														مستوى { fmt.Sprintf("%d", pkg.TierLevel) }
+													</span>
+												}
+											</div>
+											<div class="text-end">
+												<div class="font-black text-base text-brand tabular-nums">{ pkg.Price.String() } <span class="text-2xs font-bold text-secondary">ج.م</span></div>
+												<div class="text-2xs text-muted font-medium">{ fmt.Sprintf("%d", pkg.DurationDays) } يوماً</div>
+											</div>
+										</div>
+										<p class="text-xs text-secondary mb-3 font-medium">
+											{ fmt.Sprintf("%d", pkg.Credits) } رعاية متاحة · تثبيت بصدارة النتائج
+										</p>
+									</div>
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-packages/%d/purchase", pkg.ID)) } class="m-0">
+										<button type="submit" class="btn btn-primary btn-xs w-full font-black justify-center shadow-2xs">
+											شراء وتفعيل الباقة
+										</button>
+									</form>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Submit New Request Form Panel -->
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
+				<div class="d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+					@components.IconPlus("icon-xs text-brand")
+					<h3 class="text-sm font-black text-primary m-0">تقديم طلب رعاية جديد لأحد أصنافك</h3>
+				</div>
+
+				<form method="POST" action="/vendor/sponsorship-requests/new" class="d-flex flex-col gap-4 m-0">
+					<div class="d-grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نوع العنصر المراد رعايته *</label>
+							<select name="item_type" class="form-input text-xs font-semibold">
+								<option value="product">صنف دوائي (Product)</option>
+								<option value="offer">عرض ترويجي خاص (Offer)</option>
+							</select>
+						</div>
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">معرف العنصر (Item ID) *</label>
+							<input type="number" name="item_id" class="form-input text-xs tabular-nums font-bold" required min="1" placeholder="أدخل رقم المعرف من الكتالوج" />
+						</div>
+						<div>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الباقة المستخدمة للخصم من الرصيد *</label>
+							<select name="package_id" class="form-input text-xs font-semibold" required>
+								if len(data.ActivePurchases) > 0 {
+									for _, p := range data.ActivePurchases {
+										if p != nil {
+											<option value={ fmt.Sprintf("%d", p.PackageID) }>
+												باقة #{ fmt.Sprintf("%d", p.PackageID) } — ({ fmt.Sprintf("%d", p.CreditsRemaining) } رعاية متبقية)
+											</option>
+										}
+									}
+								} else {
+									<option value="" disabled selected>لا يوجد رصيد متاح — اشترِ باقة أولاً</option>
+								}
+							</select>
+						</div>
+					</div>
+
+					<div class="pt-2">
+						<button type="submit" class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5" disabled={ len(data.ActivePurchases) == 0 }>
+							@components.IconCheck("icon-xs")
+							<span>إرسال طلب الرعاية للمراجعة والاعتماد</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- Requests List Table Panel -->
+			<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+				<div class="p-4 border-b border-slate-100 flex-between items-center">
+					<div class="d-flex items-center gap-2">
+						@components.IconShield("icon-xs text-brand")
+						<h3 class="text-sm font-black text-primary m-0">سجل طلبات الرعاية المُقدّمة</h3>
+					</div>
+					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", len(data.Requests)) }</span>
+				</div>
+
+				if len(data.Requests) == 0 {
+					<div class="p-8 text-center">
+						<p class="text-xs text-muted m-0 font-medium">لم تقم بتقديم أي طلبات رعاية حتى الآن.</p>
+					</div>
+				} else {
+					<div class="table-container m-0 overflow-x-auto">
+						<table class="data-table m-0 text-xs w-full">
+							<thead>
+								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+									<th class="py-3 text-start ps-4">نوع العنصر</th>
+									<th class="py-3 text-start">معرف الصنف</th>
+									<th class="py-3 text-start">الباقة</th>
+									<th class="text-center py-3">حالة المراجعة</th>
+									<th class="text-center py-3">تاريخ المراجعة</th>
+									<th class="text-center py-3">تاريخ الانتهاء</th>
+									<th class="text-end py-3 pe-4">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-slate-100">
+								for _, req := range data.Requests {
+									if req != nil {
+										<tr class="hover:bg-slate-50/50 transition-colors">
+											<td class="py-3 ps-4">
+												if req.ItemType == "product" {
+													<span class="badge badge-sky text-xs font-semibold">صنف دوائي</span>
+												} else {
+													<span class="badge badge-emerald text-xs font-semibold">عرض ترويجي</span>
+												}
+											</td>
+											<td class="tabular-nums font-mono py-3 font-bold">{ fmt.Sprintf("#%d", req.ItemID) }</td>
+											<td class="tabular-nums font-bold py-3">{ fmt.Sprintf("#%d", req.PackageID) }</td>
+											<td class="text-center py-3">
+												if req.AdminStatus == "pending" {
+													<span class="badge badge-sky font-extrabold text-xs">قيد المراجعة</span>
+												} else if req.AdminStatus == "approved" {
+													<span class="badge badge-emerald font-extrabold text-xs">معتمد ومفعل</span>
+												} else if req.AdminStatus == "rejected" {
+													<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
+												}
+											</td>
+											<td class="text-center py-3">
+												if req.AdminStatus == "pending" {
+													<span class="text-muted text-xs">—</span>
+												} else {
+													<span class="text-xs tabular-nums text-secondary font-semibold">{ req.ReviewedAt.Format("2006-01-02") }</span>
+												}
+											</td>
+											<td class="text-center text-xs tabular-nums text-secondary font-semibold py-3">{ req.ExpiresAt.Format("2006-01-02") }</td>
+											<td class="text-end py-3 pe-4">
+												if req.AdminStatus == "pending" {
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-requests/%d/cancel", req.ID)) } class="m-0 d-inline-block">
+														<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 shadow-2xs gap-1" onclick="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
+															@components.IconClose("icon-2xs")
+															<span>إلغاء</span>
+														</button>
+													</form>
+												} else {
+													<span class="text-muted text-xs font-medium">—</span>
+												}
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}

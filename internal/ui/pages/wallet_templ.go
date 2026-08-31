@@ -102,7 +102,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\r\n\t\t\tactiveSection: 'transactions',\r\n\t\t\tisDepositModalOpen: false,\r\n\t\t\tisWithdrawModalOpen: false,\r\n\t\t\tisAddPaymentModalOpen: false,\r\n\t\t\tpaymentType: 'bank'\r\n\t\t}\"><!-- Compact Page Header --><div><div><h1>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\tactiveSection: 'transactions',\n\t\t\tisDepositModalOpen: false,\n\t\t\tisWithdrawModalOpen: false,\n\t\t\tisAddPaymentModalOpen: false,\n\t\t\tpaymentType: 'bank'\n\t\t}\"><!-- Compact Page Header --><div><div><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

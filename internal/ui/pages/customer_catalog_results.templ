@@ -1,0 +1,641 @@
+package pages
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+templ CustomerCatalogResults(data CatalogPageData, lang string) {
+	if len(data.Variants) == 0 {
+		<div class="glass-panel p-10 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+			<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+				@components.IconSearch("icon-md")
+			</div>
+			<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد عروض توريد مطابقة لمعايير البحث</h3>
+			<p class="text-xs text-secondary mb-4 max-w-md mx-auto">
+				لم نعثر على أصناف دوائية مطابقة للبحث أو الفلاتر المحددة. جرب استخدام كلمات بحث بديلة أو إزالة بعض الفلاتر.
+			</p>
+			<a href="/catalog" class="btn btn-secondary btn-sm font-bold shadow-xs">
+				عرض كافة الأصناف المتاحة
+			</a>
+		</div>
+	} else {
+		<!-- Mode Renderer -->
+		if data.ViewMode == "table" {
+			@CustomerCatalogTable(data.Variants, lang)
+		} else {
+			@CustomerCatalogGrid(data.Variants, lang)
+		}
+
+		<!-- Smart Pagination Bar -->
+		@CustomerCatalogPagination(data)
+	}
+}
+
+templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
+	<div class="product-grid-wrapper mb-6">
+		for _, v := range variants {
+			// is-sponsored draws the rail that marks a paid placement. The class
+			// is conditional rather than always-present-and-hidden so the rule
+			// never applies to an organic result.
+			<div
+				class={ "product-card-glass", "cursor-pointer", templ.KV("is-sponsored", v.IsSponsored) }
+				onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
+			>
+				<div>
+					<!-- Top Visual Media Box -->
+					<div class="product-card-media position-relative rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+						if v.ProductImage != "" {
+							<img src={ v.ProductImage } alt={ v.ProductNameAr } class="product-card-img w-full h-full object-contain p-2" loading="lazy" />
+						} else {
+							<div class="product-card-placeholder d-flex items-center justify-center w-full h-full text-slate-300">
+								@components.IconPill("icon-lg")
+							</div>
+						}
+
+						<!-- Floating Badges -->
+						<div class="product-card-badges-floating position-absolute top-2 start-2 d-flex flex-col gap-1 z-10">
+							if v.IsSponsored {
+								@components.SponsoredBadge(lang)
+							}
+							if v.DiscountPercent > 0 {
+								<span class="badge badge-emerald font-black text-xs shadow-xs">
+									خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
+								</span>
+							}
+							if v.DosageForm != "" {
+								<span class="badge badge-sky font-bold text-xs shadow-xs">
+									{ v.DosageForm }
+								</span>
+							}
+						</div>
+
+						<!-- Favorite Button -->
+						<div onclick="event.stopPropagation();" class="position-absolute top-2 end-2 z-10">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } class="m-0">
+								<button type="submit" class="btn btn-secondary btn-icon btn-xs shadow-xs" title="حفظ في المفضلة">
+									@components.IconHeart("icon-xs")
+								</button>
+							</form>
+						</div>
+					</div>
+
+					<!-- Product Title & Subtitle -->
+					<div class="mt-3 mb-2">
+						<h3 class="product-card-title text-sm font-black text-primary m-0 line-clamp-2 leading-snug">
+							if v.ProductNameAr != "" {
+								{ v.ProductNameAr }
+							} else {
+								{ v.ProductNameEn }
+							}
+						</h3>
+						if v.ProductNameEn != "" && v.ProductNameEn != v.ProductNameAr {
+							<div class="text-xs text-slate-400 font-semibold mt-0.5 text-truncate" dir="ltr">
+								{ v.ProductNameEn }
+							</div>
+						}
+					</div>
+
+					<!-- Manufacturer & Active Ingredient -->
+					if v.BrandName != "" || v.Manufacturer != "" {
+						<div class="product-card-brand-chip d-flex items-center gap-1.5 text-xs text-secondary mb-1">
+							@components.IconBuilding("icon-xs text-muted flex-shrink-0")
+							<span class="text-secondary font-medium">الشركة:</span>
+							<strong class="text-primary text-truncate">
+								if v.BrandName != "" {
+									{ v.BrandName }
+								} else {
+									{ v.Manufacturer }
+								}
+							</strong>
+						</div>
+					}
+
+					if v.ScientificName != "" {
+						<div class="text-xs text-secondary mb-2 text-truncate font-medium">
+							<span class="text-muted">المادة: </span>
+							<span class="font-bold text-primary">{ v.ScientificName }</span>
+						</div>
+					}
+
+					<!-- Supplier Info Box -->
+					<div class="product-card-supplier-row bg-slate-50/80 p-2 rounded-xl border border-slate-100 mb-2.5 flex-between">
+						<div class="d-flex items-center gap-1.5 text-truncate">
+							@components.IconTruck("icon-xs text-primary flex-shrink-0")
+							<div class="text-truncate">
+								<div class="text-xs font-extrabold text-primary text-truncate">
+									{ v.SupplierName }
+								</div>
+								if v.CityName != "" || v.BranchName != "" {
+									<div class="text-xs text-muted text-truncate">
+										if v.CityName != "" {
+											{ v.CityName }
+										} else {
+											{ v.BranchName }
+										}
+									</div>
+								}
+							</div>
+						</div>
+						<div class="d-flex items-center gap-1 flex-shrink-0">
+							if v.DistanceText != "" {
+								<span class="badge badge-sky text-xs font-mono" title="المسافة التقديرية عن فرعكم">
+									{ v.DistanceText }
+								</span>
+							}
+							if v.IsVerified {
+								<span class="badge badge-emerald text-xs font-bold" title="مورد معتمد">
+									معتمد
+								</span>
+							}
+						</div>
+					</div>
+
+					<!-- Stock & Expiry -->
+					<div class="product-card-stock-row flex-between text-xs mb-3 font-semibold">
+						<div>
+							if v.AvailableStock > 0 {
+								<span class="badge badge-emerald gap-1">
+									<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+									<span>متاح ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)</span>
+								</span>
+							} else {
+								<span class="badge badge-rose gap-1">
+									<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+									<span>غير متوفر</span>
+								</span>
+							}
+						</div>
+						if v.ExpiryDate != "" {
+							<div class="tabular-nums text-muted text-xs">
+								صلاحية: { v.ExpiryDate }
+							</div>
+						}
+					</div>
+				</div>
+
+				<!-- Pricing & Action Footer -->
+				<div class="product-card-pricing-footer border-t border-slate-100 pt-3 mt-auto">
+					<div class="product-card-price-row flex-between items-baseline mb-2.5">
+						<div>
+							<span class="text-xs text-secondary font-bold d-block">سعر التوريد:</span>
+							if v.OriginalPrice.IsPositive() && v.OriginalPrice.Minor() > v.Price.Minor() {
+								<span class="text-xs text-muted line-through tabular-nums font-semibold">
+									{ v.OriginalPrice.String() } ج.م
+								</span>
+							} else if v.PublicPrice.IsPositive() && v.PublicPrice.Minor() > v.Price.Minor() {
+								<span class="text-xs text-muted line-through tabular-nums font-semibold" title="سعر الجمهور">
+									{ v.PublicPrice.String() } ج.م
+								</span>
+							}
+						</div>
+						<div class="product-card-price-value text-base font-black text-brand tabular-nums">
+							if v.Price.IsPositive() {
+								{ v.Price.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
+							} else {
+								<span class="text-xs text-secondary font-bold">حسب الكمية</span>
+							}
+						</div>
+					</div>
+
+					if v.CanAddToCart {
+						<div onclick="event.stopPropagation();">
+							<form method="POST" action="/cart/add" class="product-card-actions-row d-flex items-center gap-1.5 m-0">
+								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
+								<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+								<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+								<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+								<input type="hidden" name="offer_price" value={ v.Price.String() } />
+								
+								<div class="cart-stepper-control d-flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+									<button type="button" class="cart-stepper-btn px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold border-0 cursor-pointer" onclick="stepCatalogQty(this, -1)">−</button>
+									<input
+										type="number"
+										name="qty"
+										value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+										min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+										max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
+										class="tabular-nums border-0 bg-transparent text-center font-extrabold text-xs px-1 w-9"
+									/>
+									<button type="button" class="cart-stepper-btn px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold border-0 cursor-pointer" onclick="stepCatalogQty(this, 1)">+</button>
+								</div>
+
+								<button type="submit" class="btn btn-primary btn-sm flex-1 font-extrabold justify-center gap-1 shadow-xs">
+									@components.IconPlus("icon-xs")
+									<span>أضف للسلة</span>
+								</button>
+							</form>
+
+							if v.IsNegotiable {
+								<button
+									type="button"
+									class="btn btn-secondary btn-xs w-full mt-1.5 font-bold justify-center text-amber-700 hover:text-amber-800 gap-1.5 shadow-2xs"
+									data-variant-id={ fmt.Sprintf("%d", v.VariantID) }
+									data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+									data-vendor-id={ fmt.Sprintf("%d", v.SupplierID) }
+									data-product-name={ v.ProductNameAr }
+									data-current-price={ v.Price.String() }
+									data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+									onclick="triggerNegotiationModal(this)"
+								>
+									@components.IconRefresh("icon-xs")
+									<span>تفاوض على السعر</span>
+								</button>
+							}
+						</div>
+					} else {
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-xs">
+							<span>تفاصيل الصنف والموردين</span>
+							@components.IconArrowLeft("icon-xs")
+						</a>
+					}
+				</div>
+			</div>
+		}
+	</div>
+}
+
+templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
+	<div class="glass-panel p-0 mb-6 overflow-hidden border border-slate-200/80 rounded-2xl shadow-xs">
+		<div class="table-container m-0 overflow-x-auto">
+			<table class="data-table m-0 text-xs w-full">
+				<thead>
+					<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+						<th class="w-12 text-center py-3"></th>
+						<th class="py-3 text-start">الصنف الدوائي والمادة الفعالة</th>
+						<th class="py-3 text-start">الشركة المصنعة</th>
+						<th class="py-3 text-start">المورد والفرع</th>
+						<th class="text-center py-3">المخزون والصلاحية</th>
+						<th class="text-center tabular-nums py-3">سعر الجمهور</th>
+						<th class="text-center py-3">نسبة الخصم</th>
+						<th class="tabular-nums text-end py-3">السعر بعد الخصم</th>
+						<th class="text-center w-52 py-3">الكمية والطلب</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-slate-100">
+					for _, v := range variants {
+						<tr class="hover:bg-slate-50/50 transition-colors">
+							<td class="text-center py-3">
+								<div class="w-9 h-9 rounded-lg bg-slate-100 overflow-hidden d-flex items-center justify-center mx-auto border border-slate-200/50">
+									if v.ProductImage != "" {
+										<img src={ v.ProductImage } alt={ v.ProductNameAr } class="w-full h-full object-contain p-0.5" loading="lazy" />
+									} else {
+										<span class="text-slate-300">
+											@components.IconPill("icon-xs")
+										</span>
+									}
+								</div>
+							</td>
+							<td class="py-3">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="text-inherit no-underline block">
+									<div class="font-extrabold text-primary text-xs hover:text-brand transition-colors">
+										if v.ProductNameAr != "" {
+											{ v.ProductNameAr }
+										} else {
+											{ v.ProductNameEn }
+										}
+									</div>
+									if v.ScientificName != "" {
+										<div class="text-xs text-muted mt-0.5 font-medium">
+											{ v.ScientificName }
+										</div>
+									}
+								</a>
+								if v.IsSponsored {
+									<div class="mt-1">
+										@components.SponsoredBadge(lang)
+									</div>
+								}
+							</td>
+							<td class="py-3">
+								<div class="font-bold text-primary">
+									if v.BrandName != "" {
+										{ v.BrandName }
+									} else if v.Manufacturer != "" {
+										{ v.Manufacturer }
+									} else {
+										<span class="text-muted">-</span>
+									}
+								</div>
+								if v.DosageForm != "" {
+									<span class="badge badge-slate text-xs mt-1 font-semibold">
+										{ v.DosageForm }
+									</span>
+								}
+							</td>
+							<td class="py-3">
+								<div class="font-bold text-primary d-flex items-center gap-1">
+									<span>{ v.SupplierName }</span>
+									if v.IsVerified {
+										<span class="badge badge-emerald text-xs font-bold">معتمد</span>
+									}
+								</div>
+								<div class="d-flex items-center gap-1 mt-1">
+									if v.BranchName != "" {
+										<span class="text-xs text-muted font-medium">
+											{ v.BranchName }
+										</span>
+									}
+									if v.DistanceText != "" {
+										<span class="badge badge-sky text-xs font-mono">
+											{ v.DistanceText }
+										</span>
+									}
+								</div>
+							</td>
+							<td class="text-center py-3">
+								if v.AvailableStock > 0 {
+									<span class="badge badge-emerald font-extrabold text-xs tabular-nums">
+										{ fmt.Sprintf("%d", v.AvailableStock) } عبوة
+									</span>
+								} else {
+									<span class="badge badge-rose font-extrabold text-xs">
+										نفد المخزون
+									</span>
+								}
+								if v.ExpiryDate != "" {
+									<div class="text-xs text-muted tabular-nums mt-0.5">
+										{ v.ExpiryDate }
+									</div>
+								}
+							</td>
+							<!-- سعر الجمهور -->
+							<td class="text-center tabular-nums font-bold text-primary py-3">
+								if v.PublicPrice.IsPositive() {
+									<div>
+										{ v.PublicPrice.String() } <span class="text-xs text-secondary font-medium">ج.م</span>
+									</div>
+								} else if v.OriginalPrice.IsPositive() {
+									<div>
+										{ v.OriginalPrice.String() } <span class="text-xs text-secondary font-medium">ج.م</span>
+									</div>
+								} else {
+									<div>
+										{ v.Price.String() } <span class="text-xs text-secondary font-medium">ج.م</span>
+									</div>
+								}
+							</td>
+							<!-- نسبة الخصم -->
+							<td class="text-center py-3">
+								if v.DiscountPercent > 0 {
+									<span class="badge badge-emerald tabular-nums font-black text-xs">
+										{ fmt.Sprintf("%d%%", v.DiscountPercent) }
+									</span>
+								} else {
+									<span class="text-muted text-xs font-medium">0%</span>
+								}
+							</td>
+							<!-- السعر بعد الخصم -->
+							<td class="tabular-nums text-end font-black text-brand text-sm py-3">
+								{ v.Price.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
+							</td>
+							<td class="text-center py-3">
+								if v.CanAddToCart {
+									<form method="POST" action="/cart/add" class="d-flex items-center justify-center gap-1.5 m-0">
+										<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
+										<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+										<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+										<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+										<input type="hidden" name="offer_price" value={ v.Price.String() } />
+										
+										<div class="cart-stepper-control d-flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+											<button type="button" class="cart-stepper-btn px-1.5 py-0.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold border-0 cursor-pointer text-xs" onclick="stepCatalogQty(this, -1)">−</button>
+											<input
+												type="number"
+												name="qty"
+												value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+												min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+												max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
+												class="tabular-nums border-0 bg-transparent text-center font-extrabold text-xs w-8"
+											/>
+											<button type="button" class="cart-stepper-btn px-1.5 py-0.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold border-0 cursor-pointer text-xs" onclick="stepCatalogQty(this, 1)">+</button>
+										</div>
+
+										<button type="submit" class="btn btn-primary btn-sm font-bold shadow-2xs gap-1 text-xs py-1 px-2.5">
+											@components.IconPlus("icon-2xs")
+											<span>للسلة</span>
+										</button>
+									</form>
+								} else {
+									<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-xs font-bold shadow-2xs">
+										التفاصيل
+									</a>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+
+templ CustomerCatalogPagination(data CatalogPageData) {
+	<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs flex-between flex-wrap gap-3">
+		
+		<!-- Results Summary -->
+		<div class="text-xs text-secondary font-medium">
+			if data.TotalItems > 0 {
+				<span>عرض <strong class="tabular-nums text-primary font-bold">{ strconv.Itoa(data.StartItem) } - { strconv.Itoa(data.EndItem) }</strong> من إجمالي <strong class="tabular-nums text-primary font-black">{ strconv.Itoa(data.TotalItems) }</strong> صنف دوائي</span>
+				<span class="ms-1.5 text-muted">(صفحة <span class="tabular-nums font-bold text-primary">{ strconv.Itoa(data.Page) }</span> من <span class="tabular-nums font-bold text-primary">{ strconv.Itoa(data.TotalPages) }</span>)</span>
+			} else {
+				<span>لا توجد أصناف للعرض</span>
+			}
+		</div>
+
+		<!-- Page Number Navigation Buttons -->
+		if data.TotalPages > 1 {
+			<div class="d-flex items-center gap-1.5">
+				<!-- Previous Button -->
+				if data.HasPrev {
+					<a
+						href={ templ.SafeURL(buildCatalogURL(data, data.PrevPage, data.PageSize, data.Sort, data.ViewMode)) }
+						class="btn btn-secondary btn-sm font-bold gap-1 text-xs shadow-2xs"
+					>
+						@components.IconArrowRight("icon-xs")
+						<span>السابق</span>
+					</a>
+				} else {
+					<button disabled class="btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed">
+						@components.IconArrowRight("icon-xs")
+						<span>السابق</span>
+					</button>
+				}
+
+				<!-- Page Number Links -->
+				<div class="d-flex items-center gap-1">
+					if data.Page > 3 {
+						<a href={ templ.SafeURL(buildCatalogURL(data, 1, data.PageSize, data.Sort, data.ViewMode)) } class="btn btn-secondary btn-xs tabular-nums font-bold w-8 h-8 p-0 justify-center">1</a>
+						if data.Page > 4 {
+							<span class="text-slate-400 px-1">…</span>
+						}
+					}
+
+					for p := max(1, data.Page-2); p <= min(data.TotalPages, data.Page+2); p++ {
+						if p == data.Page {
+							<span class="btn btn-primary btn-xs tabular-nums font-black w-8 h-8 p-0 justify-center shadow-xs">{ strconv.Itoa(p) }</span>
+						} else {
+							<a href={ templ.SafeURL(buildCatalogURL(data, p, data.PageSize, data.Sort, data.ViewMode)) } class="btn btn-secondary btn-xs tabular-nums font-bold w-8 h-8 p-0 justify-center">{ strconv.Itoa(p) }</a>
+						}
+					}
+
+					if data.Page < data.TotalPages-2 {
+						if data.Page < data.TotalPages-3 {
+							<span class="text-slate-400 px-1">…</span>
+						}
+						<a href={ templ.SafeURL(buildCatalogURL(data, data.TotalPages, data.PageSize, data.Sort, data.ViewMode)) } class="btn btn-secondary btn-xs tabular-nums font-bold w-8 h-8 p-0 justify-center">{ strconv.Itoa(data.TotalPages) }</a>
+					}
+				</div>
+
+				<!-- Next Button -->
+				if data.HasNext {
+					<a
+						href={ templ.SafeURL(buildCatalogURL(data, data.NextPage, data.PageSize, data.Sort, data.ViewMode)) }
+						class="btn btn-secondary btn-sm font-bold gap-1 text-xs shadow-2xs"
+					>
+						<span>التالي</span>
+						@components.IconArrowLeft("icon-xs")
+					</a>
+				} else {
+					<button disabled class="btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed">
+						<span>التالي</span>
+						@components.IconArrowLeft("icon-xs")
+					</button>
+				}
+			</div>
+		}
+
+	</div>
+}
+
+func resolveTargetID(variantID, productID int64) int64 {
+	if variantID > 0 {
+		return variantID
+	}
+	return productID
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+templ CustomerNegotiationModal() {
+	<!-- Price Negotiation Modal Dialog -->
+	@components.Modal(components.ModalProps{
+		ID:       "negotiation-modal",
+		Title:    "طلب تفاوض على سعر الصنف",
+		Subtitle: "إرسال عرض سعر خاص ومباشر للمورّد",
+		Size:     "md",
+		Icon:     "refresh",
+	}) {
+		<form method="POST" action="/customer/negotiate-order" id="negotiation-form" class="d-flex flex-col gap-4 m-0">
+			<input type="hidden" name="variant_id" id="neg-variant-id" />
+			<input type="hidden" name="vendor_org_id" id="neg-vendor-id" />
+
+			<div class="d-flex flex-col gap-3">
+				<div class="bg-surface-sunken p-3.5 rounded-xl border border-slate-200/80">
+					<div class="text-xs text-muted font-bold">الصنف الدوائي المختار:</div>
+					<div class="text-sm font-black text-primary mt-0.5" id="neg-product-name">-</div>
+					<div class="text-xs text-secondary mt-1 font-semibold">سعر التوريد الحالي المعلن: <strong id="neg-current-price" class="tabular-nums text-primary font-black">-</strong> ج.م</div>
+				</div>
+
+				<div class="d-grid grid-cols-2 gap-3">
+					<div>
+						<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
+							السعر المقترح للعبوة (ج.م) *
+						</label>
+						<input
+							type="number"
+							step="0.01"
+							min="0.01"
+							name="proposed_price"
+							id="neg-proposed-price"
+							required
+							placeholder="0.00"
+							class="form-input tabular-nums font-black text-sm w-full"
+						/>
+					</div>
+
+					<div>
+						<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
+							الكمية المطلوبة (عبوة) *
+						</label>
+						<input
+							type="number"
+							min="1"
+							name="qty"
+							id="neg-qty"
+							value="1"
+							required
+							class="form-input tabular-nums font-black text-sm w-full"
+						/>
+					</div>
+				</div>
+
+				<div>
+					<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
+						ملاحظات إضافية للمورّد (اختياري)
+					</label>
+					<textarea
+						name="notes"
+						rows="2"
+						placeholder="اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد..."
+						class="form-input text-xs w-full"
+					></textarea>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary font-bold text-xs" onclick="closeNegotiationModal()">
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary font-black text-xs px-4 shadow-sm">
+					إرسال طلب التفاوض للمورّد
+				</button>
+			</div>
+		</form>
+	}
+
+	<script>
+		function triggerNegotiationModal(btn) {
+			openNegotiationModal({
+				variant_id: btn.getAttribute('data-variant-id'),
+				product_id: btn.getAttribute('data-product-id'),
+				vendor_org_id: btn.getAttribute('data-vendor-id'),
+				name: btn.getAttribute('data-product-name'),
+				current_price: btn.getAttribute('data-current-price'),
+				min_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)
+			});
+		}
+		function openNegotiationModal(data) {
+			document.getElementById('neg-variant-id').value = data.variant_id || '';
+			document.getElementById('neg-vendor-id').value = data.vendor_org_id || '';
+			document.getElementById('neg-product-name').innerText = data.name || 'صنف دوائي';
+			document.getElementById('neg-current-price').innerText = data.current_price || '0.00';
+			document.getElementById('neg-qty').value = data.min_qty || 1;
+			document.getElementById('neg-proposed-price').value = data.current_price || '';
+			const m = document.getElementById('negotiation-modal');
+			if (m && typeof m.showModal === 'function') {
+				m.showModal();
+			}
+		}
+		function closeNegotiationModal() {
+			const m = document.getElementById('negotiation-modal');
+			if (m && typeof m.close === 'function') {
+				m.close();
+			}
+		}
+	</script>
+}
+

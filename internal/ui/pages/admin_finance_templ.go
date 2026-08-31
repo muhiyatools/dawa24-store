@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
-	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -119,7 +118,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalPaid.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 99, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 98, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -132,7 +131,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عملية دفع مسجلة", data.TotalPayments))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 102, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 101, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -153,7 +152,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalRevenue.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 112, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 111, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -166,7 +165,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d فاتورة ضريبية", data.TotalInvoices))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 115, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 114, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -187,7 +186,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalHeld.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 125, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 124, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -200,7 +199,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d محفظة نشطة في النظام", data.TotalWallets))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 128, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 127, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -221,7 +220,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalCommission.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 138, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 137, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -269,7 +268,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d قيد المراجعة", data.PendingDepositsCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 153, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 152, Col: 127}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -287,7 +286,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalDeposits))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 155, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 154, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -335,7 +334,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalInvoices))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 161, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 160, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -378,7 +377,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalPayments))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 166, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 165, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -421,7 +420,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalWallets))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 171, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 170, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -464,7 +463,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalTransactions))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 176, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 175, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -520,7 +519,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 199, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 198, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 				if templ_7745c5c3_Err != nil {
@@ -628,7 +627,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var29 string
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("DEP-%d", d.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 241, Col: 44}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 240, Col: 44}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 						if templ_7745c5c3_Err != nil {
@@ -641,7 +640,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var30 string
 						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 244, Col: 70}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 243, Col: 70}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 						if templ_7745c5c3_Err != nil {
@@ -654,7 +653,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var31 string
 						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserEmail)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 246, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 245, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 						if templ_7745c5c3_Err != nil {
@@ -672,7 +671,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var32 string
 							templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserPhone)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 248, Col: 40}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 247, Col: 40}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 							if templ_7745c5c3_Err != nil {
@@ -695,7 +694,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var33 string
 							templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(d.OrganizationName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 253, Col: 84}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 252, Col: 84}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 							if templ_7745c5c3_Err != nil {
@@ -713,7 +712,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var34 string
 						templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(d.Amount.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 259, Col: 36}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 258, Col: 36}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 						if templ_7745c5c3_Err != nil {
@@ -726,7 +725,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var35 string
 						templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(d.PaymentMethod)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 264, Col: 100}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 263, Col: 100}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 						if templ_7745c5c3_Err != nil {
@@ -739,7 +738,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var36 string
 						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(d.ReferenceNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 266, Col: 81}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 265, Col: 81}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 						if templ_7745c5c3_Err != nil {
@@ -757,7 +756,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var37 string
 							templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openReceiptModal('%s')", d.AttachmentURL))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 275, Col: 79}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 274, Col: 79}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 							if templ_7745c5c3_Err != nil {
@@ -788,7 +787,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var38 string
 						templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(d.CreatedAt.Format("2006-01-02 15:04"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 285, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 284, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 						if templ_7745c5c3_Err != nil {
@@ -816,7 +815,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var39 string
 								templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(d.ReviewerName)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 298, Col: 79}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 297, Col: 79}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 								if templ_7745c5c3_Err != nil {
@@ -839,7 +838,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var40 string
 								templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("TX-%d", *d.TransactionID))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 301, Col: 116}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 300, Col: 116}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 								if templ_7745c5c3_Err != nil {
@@ -863,7 +862,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var41 string
 								templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(d.RejectionReason)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 309, Col: 66}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 308, Col: 66}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 								if templ_7745c5c3_Err != nil {
@@ -886,7 +885,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								var templ_7745c5c3_Var42 string
 								templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(d.ReviewerName)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 313, Col: 79}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 312, Col: 79}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 								if templ_7745c5c3_Err != nil {
@@ -906,7 +905,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var43 string
 							templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserNotes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 318, Col: 30}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 317, Col: 30}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 							if templ_7745c5c3_Err != nil {
@@ -929,7 +928,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var44 templ.SafeURL
 							templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 326, Col: 115}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 325, Col: 115}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 							if templ_7745c5c3_Err != nil {
@@ -950,7 +949,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var45 string
 							templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openRejectModal(%d, '%s', '%s')", d.ID, d.Amount.String(), strings.ReplaceAll(d.UserName, "'", "\\'")))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 338, Col: 141}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 337, Col: 141}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 							if templ_7745c5c3_Err != nil {
@@ -1001,7 +1000,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var46 string
 				templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 368, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 367, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 				if templ_7745c5c3_Err != nil {
@@ -1089,7 +1088,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var47 templ.SafeURL
 						templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 406, Col: 80}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 405, Col: 80}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 						if templ_7745c5c3_Err != nil {
@@ -1102,7 +1101,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var48 string
 						templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(inv.InvoiceNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 407, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 406, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 						if templ_7745c5c3_Err != nil {
@@ -1115,7 +1114,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var49 string
 						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(inv.VendorName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 411, Col: 66}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 410, Col: 66}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 						if templ_7745c5c3_Err != nil {
@@ -1128,7 +1127,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var50 string
 						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", inv.OrganizationID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 412, Col: 97}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 411, Col: 97}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 						if templ_7745c5c3_Err != nil {
@@ -1141,7 +1140,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var51 string
 						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(inv.CustomerName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 415, Col: 72}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 414, Col: 72}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 						if templ_7745c5c3_Err != nil {
@@ -1159,7 +1158,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var52 string
 							templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *inv.CustomerOrgID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 417, Col: 100}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 416, Col: 100}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 							if templ_7745c5c3_Err != nil {
@@ -1182,7 +1181,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var53 string
 							templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(inv.OrderNumber)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 422, Col: 68}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 421, Col: 68}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 							if templ_7745c5c3_Err != nil {
@@ -1205,7 +1204,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var54 string
 						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", inv.TotalAmount.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 428, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 427, Col: 65}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 						if templ_7745c5c3_Err != nil {
@@ -1218,7 +1217,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var55 string
 						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(inv.PaymentMethod)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 430, Col: 72}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 429, Col: 72}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 						if templ_7745c5c3_Err != nil {
@@ -1256,7 +1255,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var56 string
 							templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(string(inv.Status))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 441, Col: 71}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 440, Col: 71}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 							if templ_7745c5c3_Err != nil {
@@ -1274,7 +1273,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var57 string
 						templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(inv.IssueDate.Format("2006-01-02"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 444, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 443, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 						if templ_7745c5c3_Err != nil {
@@ -1287,7 +1286,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var58 templ.SafeURL
 						templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 447, Col: 81}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 446, Col: 81}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 						if templ_7745c5c3_Err != nil {
@@ -1300,7 +1299,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var59 templ.SafeURL
 						templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/invoices/%d/print?autoprint=0", inv.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 450, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 449, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 						if templ_7745c5c3_Err != nil {
@@ -1333,7 +1332,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var60 string
 				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 475, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 474, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 				if templ_7745c5c3_Err != nil {
@@ -1406,7 +1405,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var61 string
 							templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(p.TransactionID)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 510, Col: 68}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 509, Col: 68}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 							if templ_7745c5c3_Err != nil {
@@ -1424,7 +1423,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var62 string
 							templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("PAY-%d", p.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 512, Col: 80}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 511, Col: 80}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 							if templ_7745c5c3_Err != nil {
@@ -1443,7 +1442,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var63 string
 							templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(p.ReferenceNumber)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 515, Col: 76}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 514, Col: 76}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 							if templ_7745c5c3_Err != nil {
@@ -1466,7 +1465,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var64 string
 							templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(p.OrderNumber)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 520, Col: 66}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 519, Col: 66}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 							if templ_7745c5c3_Err != nil {
@@ -1489,7 +1488,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var65 string
 						templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(p.UserName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 526, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 525, Col: 62}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 						if templ_7745c5c3_Err != nil {
@@ -1507,7 +1506,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var66 string
 							templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(p.OrganizationName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 528, Col: 71}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 527, Col: 71}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 							if templ_7745c5c3_Err != nil {
@@ -1525,7 +1524,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var67 string
 						templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", p.Amount.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 532, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 531, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 						if templ_7745c5c3_Err != nil {
@@ -1538,7 +1537,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var68 string
 						templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(p.Method)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 534, Col: 63}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 533, Col: 63}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 						if templ_7745c5c3_Err != nil {
@@ -1566,7 +1565,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var69 string
 							templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(string(p.Status))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 541, Col: 64}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 540, Col: 64}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 							if templ_7745c5c3_Err != nil {
@@ -1584,7 +1583,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var70 string
 						templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(p.CreatedAt.Format("2006-01-02 15:04"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 544, Col: 97}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 543, Col: 97}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 						if templ_7745c5c3_Err != nil {
@@ -1617,7 +1616,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var71 string
 				templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 565, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 564, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var71)
 				if templ_7745c5c3_Err != nil {
@@ -1675,7 +1674,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var72 string
 						templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("WLT-%d", w.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 599, Col: 100}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 598, Col: 100}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
 						if templ_7745c5c3_Err != nil {
@@ -1689,7 +1688,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var73 string
 							templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(w.OrganizationName)[0:1]))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 605, Col: 58}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 604, Col: 58}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 							if templ_7745c5c3_Err != nil {
@@ -1699,7 +1698,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var74 string
 							templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(w.UserName)[0:1]))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 607, Col: 50}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 606, Col: 50}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 							if templ_7745c5c3_Err != nil {
@@ -1718,7 +1717,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var75 string
 							templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(w.OrganizationName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 612, Col: 84}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 611, Col: 84}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 							if templ_7745c5c3_Err != nil {
@@ -1731,7 +1730,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var76 string
 							templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 613, Col: 79}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 612, Col: 79}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var76))
 							if templ_7745c5c3_Err != nil {
@@ -1744,7 +1743,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var77 string
 							templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserEmail)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 613, Col: 99}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 612, Col: 99}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 							if templ_7745c5c3_Err != nil {
@@ -1762,7 +1761,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var78 string
 							templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 615, Col: 76}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 614, Col: 76}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
 							if templ_7745c5c3_Err != nil {
@@ -1775,7 +1774,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var79 string
 							templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserEmail)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 616, Col: 66}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 615, Col: 66}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 							if templ_7745c5c3_Err != nil {
@@ -1794,7 +1793,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var80 string
 							templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(w.UserPhone)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 619, Col: 62}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 618, Col: 62}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
 							if templ_7745c5c3_Err != nil {
@@ -1832,7 +1831,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var81 string
 						templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s", w.Balance.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 634, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 633, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var81))
 						if templ_7745c5c3_Err != nil {
@@ -1845,7 +1844,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var82 string
 						templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(w.Currency)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 635, Col: 74}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 634, Col: 74}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var82))
 						if templ_7745c5c3_Err != nil {
@@ -1858,7 +1857,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var83 string
 						templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(w.Currency)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 637, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 636, Col: 65}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var83))
 						if templ_7745c5c3_Err != nil {
@@ -1871,7 +1870,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var84 templ.SafeURL
 						templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 639, Col: 104}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 638, Col: 104}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var84))
 						if templ_7745c5c3_Err != nil {
@@ -1884,7 +1883,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var85 string
 						templ_7745c5c3_Var85, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d حركة", w.TransactionsCount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 640, Col: 64}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 639, Col: 64}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var85))
 						if templ_7745c5c3_Err != nil {
@@ -1897,7 +1896,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var86 string
 						templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(w.CreatedAt.Format("2006-01-02"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 643, Col: 91}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 642, Col: 91}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
 						if templ_7745c5c3_Err != nil {
@@ -1927,7 +1926,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var88 templ.SafeURL
 						templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/finance?tab=transactions&wallet_id=%d", w.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 649, Col: 105}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 648, Col: 105}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 						if templ_7745c5c3_Err != nil {
@@ -1965,7 +1964,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var89 string
 					templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.SelectedWalletID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 675, Col: 96}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 674, Col: 96}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var89)
 					if templ_7745c5c3_Err != nil {
@@ -1983,7 +1982,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var90 string
 				templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 677, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 676, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var90)
 				if templ_7745c5c3_Err != nil {
@@ -2081,7 +2080,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var91 string
 					templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SelectedWalletID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 698, Col: 125}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 697, Col: 125}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var91))
 					if templ_7745c5c3_Err != nil {
@@ -2110,7 +2109,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var92 string
 						templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#TX-%d", tx.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 724, Col: 92}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 723, Col: 92}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 						if templ_7745c5c3_Err != nil {
@@ -2124,7 +2123,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var93 string
 							templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(tx.OrganizationName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 729, Col: 37}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 728, Col: 37}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 							if templ_7745c5c3_Err != nil {
@@ -2134,7 +2133,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var94 string
 							templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(tx.UserName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 731, Col: 29}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 730, Col: 29}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
 							if templ_7745c5c3_Err != nil {
@@ -2148,7 +2147,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var95 string
 						templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", tx.WalletID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 735, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 734, Col: 62}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var95))
 						if templ_7745c5c3_Err != nil {
@@ -2161,7 +2160,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var96 string
 						templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(tx.UserEmail)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 735, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 734, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var96))
 						if templ_7745c5c3_Err != nil {
@@ -2219,7 +2218,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var97 string
 							templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 757, Col: 63}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 756, Col: 63}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
 							if templ_7745c5c3_Err != nil {
@@ -2237,7 +2236,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var98 string
 							templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 759, Col: 61}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 758, Col: 61}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
 							if templ_7745c5c3_Err != nil {
@@ -2255,7 +2254,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var99 string
 						templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", tx.BalanceAfter.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 763, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 762, Col: 65}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
 						if templ_7745c5c3_Err != nil {
@@ -2269,7 +2268,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var100 string
 							templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Description)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 768, Col: 32}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 767, Col: 32}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
 							if templ_7745c5c3_Err != nil {
@@ -2293,7 +2292,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var101 string
 							templ_7745c5c3_Var101, templ_7745c5c3_Err = templ.JoinStringErrs(tx.ReferenceType)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 774, Col: 75}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 773, Col: 75}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var101))
 							if templ_7745c5c3_Err != nil {
@@ -2306,7 +2305,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 							var templ_7745c5c3_Var102 string
 							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%v", tx.ReferenceID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 774, Col: 114}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 773, Col: 114}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var102))
 							if templ_7745c5c3_Err != nil {
@@ -2324,7 +2323,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						var templ_7745c5c3_Var103 string
 						templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinStringErrs(tx.CreatedAt.Format("2006-01-02 15:04:05"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 777, Col: 101}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 776, Col: 101}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var103))
 						if templ_7745c5c3_Err != nil {
@@ -2365,7 +2364,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var104 string
 				templ_7745c5c3_Var104, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalRevenue.String()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 802, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 801, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var104))
 				if templ_7745c5c3_Err != nil {
@@ -2386,7 +2385,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var105 string
 				templ_7745c5c3_Var105, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalCommission.String()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 815, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 814, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var105))
 				if templ_7745c5c3_Err != nil {
@@ -2407,7 +2406,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var106 string
 				templ_7745c5c3_Var106, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", data.TotalHeld.String()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 828, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 827, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var106))
 				if templ_7745c5c3_Err != nil {
@@ -2515,572 +2514,6 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = layouts.AdminShell("الإدارة المالية والمحافظ والتحصيل", "finance", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-// Backward-compatible individual template pages
-func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var110 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var110 == nil {
-			templ_7745c5c3_Var110 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var111 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 294, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلبات العروض والمشتريات (")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var112 string
-			templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(orders)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 960, Col: 110}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 295, ")</h2><p class=\"subtitle\">متابعة اعتمادات عروض الأسعار والتوريد بين الصيدليات والموردين.</p></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(orders) == 0 {
-				templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض", Message: "لم يتم إنشاء طلبات عروض أسعار بعد."}).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 296, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الطلب</th><th>المنشأة</th><th>المبلغ الإجمالي</th><th>الحالة</th><th>التاريخ</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, o := range orders {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 297, "<tr><td class=\"tabular-nums\"><strong>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var113 string
-					templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 983, Col: 57}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var113))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 298, "</strong></td><td>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if o.OrganizationID != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 299, "منشأة #")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var114 string
-						templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *o.OrganizationID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 986, Col: 61}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var114))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 300, "عميل #")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var115 string
-						templ_7745c5c3_Var115, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", o.CustomerID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 988, Col: 54}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var115))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 301, "</td><td class=\"tabular-nums\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var116 string
-					templ_7745c5c3_Var116, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 991, Col: 83}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var116))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 302, "</td><td><span class=\"badge badge-sky\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var117 string
-					templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 992, Col: 61}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 303, "</span></td><td class=\"tabular-nums\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var118 string
-					templ_7745c5c3_Var118, templ_7745c5c3_Err = templ.JoinStringErrs(o.CreatedAt.Format("2006-01-02"))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 993, Col: 68}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var118))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 304, "</td><td class=\"text-end\"><a href=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var119 templ.SafeURL
-					templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/orders/offers/%d", o.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 995, Col: 79}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 305, "\" class=\"btn btn-secondary btn-sm\">عرض</a></td></tr>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 306, "</tbody></table></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 307, "</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = layouts.AdminShell("طلبات عروض الأسعار والمشتريات (Offer Orders)", "orders", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var111), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var120 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var120 == nil {
-			templ_7745c5c3_Var120 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var121 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 308, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلب ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var122 string
-			templ_7745c5c3_Var122, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1012, Col: 54}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var122))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 309, "</h2><p class=\"subtitle\">حالة: ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var123 string
-			templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1013, Col: 53}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var123))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 310, " | الإجمالي: ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var124 string
-			templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1013, Col: 125}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var124))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 311, "</p></div><a href=\"/admin/orders?tab=offers\" class=\"btn btn-secondary btn-sm\">العودة للطلبات</a></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = layouts.AdminShell(fmt.Sprintf("طلب عروض: %s", o.OrderNumber), "orders", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var121), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminEarningsOrderPage(revenue, commission money.Amount, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var125 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var125 == nil {
-			templ_7745c5c3_Var125 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminEarningsOffersPage(revenue, commission money.Amount, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var126 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var126 == nil {
-			templ_7745c5c3_Var126 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = AdminFinance(AdminFinanceData{ActiveTab: "earnings", TotalRevenue: revenue, TotalCommission: commission}, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminInvoicesPage(invoices []*billing.AdminInvoiceView, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var127 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var127 == nil {
-			templ_7745c5c3_Var127 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = AdminFinance(AdminFinanceData{ActiveTab: "invoices", Invoices: invoices}, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminPaymentsPage(payments []*billing.AdminPaymentView, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var128 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var128 == nil {
-			templ_7745c5c3_Var128 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = AdminFinance(AdminFinanceData{ActiveTab: "payments", Payments: payments}, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminWalletsPage(wallets []*billing.AdminWalletView, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var129 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var129 == nil {
-			templ_7745c5c3_Var129 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = AdminFinance(AdminFinanceData{ActiveTab: "wallets", Wallets: wallets}, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminPlansInfoPage(plans []*billing.Plan, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var130 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var130 == nil {
-			templ_7745c5c3_Var130 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = AdminPlans(lang, dir, plans).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var131 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var131 == nil {
-			templ_7745c5c3_Var131 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var132 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 312, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><h1 class=\"text-2xl font-black text-primary m-0 mb-4\">الاشتراكات النشطة</h1><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>المستخدم</th><th>الخطة</th><th>الحالة</th><th>تاريخ الانتهاء</th></tr></thead> <tbody>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, s := range subs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 313, "<tr><td>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var133 string
-				templ_7745c5c3_Var133, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1064, Col: 37}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var133))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 314, "</td><td>مستخدم #")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var134 string
-				templ_7745c5c3_Var134, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.UserID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1065, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var134))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 315, "</td><td>خطة #")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var135 string
-				templ_7745c5c3_Var135, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.PlanID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1066, Col: 49}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var135))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 316, "</td><td><span class=\"badge badge-emerald\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var136 string
-				templ_7745c5c3_Var136, templ_7745c5c3_Err = templ.JoinStringErrs(string(s.Status))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1067, Col: 64}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var136))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 317, "</span></td><td>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var137 string
-				templ_7745c5c3_Var137, templ_7745c5c3_Err = templ.JoinStringErrs(s.ExpiresAt.Format("2006-01-02"))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1068, Col: 46}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var137))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 318, "</td></tr>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 319, "</tbody></table></div></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var132), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

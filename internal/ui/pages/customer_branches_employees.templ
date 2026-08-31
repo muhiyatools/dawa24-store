@@ -1,0 +1,352 @@
+package pages
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []string) {
+			<!-- TAB 2: Branch Employees & RBAC Content -->
+			<div id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
+				
+				<!-- Employees Toolbar -->
+				<div>
+					<div>
+						<div>
+							<input
+								type="text"
+								id="cb-emp-search-input"
+								placeholder="ابحث باسم الموظف، البريد، أو الكود..."
+								class="form-input input-sm w-full"
+							
+								oninput="filterCustomerEmployees()"
+							/>
+							<div>
+								@components.IconSearch("icon-xs")
+							</div>
+						</div>
+
+						<select id="cb-emp-branch-filter" class="form-input input-sm" onchange="filterCustomerEmployees()">
+							<option value="">كل الفروع</option>
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) }>
+									if b.Name["ar"] != "" {
+										{ b.Name["ar"] }
+									} else {
+										{ b.Name["en"] }
+									}
+								</option>
+							}
+						</select>
+					</div>
+
+					<button type="button" class="btn btn-primary btn-sm fw-700" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
+						@components.IconPlus("icon-xs")
+						<span>إضافة مستخدم جديد للفرع</span>
+					</button>
+				</div>
+
+				if len(data.Employees) == 0 {
+					<div class="empty-state-glass p-8 text-center">
+						<div class="empty-state-icon-wrapper mx-auto mb-3">
+							@components.IconUser("icon-lg")
+						</div>
+						<h3 class="text-lg font-black text-primary mb-1">لم يتم تسجيل موظفين بعد</h3>
+						<p class="text-sm text-muted m-0">أضف موظفي وصيادلة الفروع وقم بتعيين أدوارهم وصلاحياتهم لإدارة الطلبيات والمخزون.</p>
+					</div>
+				} else {
+					<div class="table-container">
+						<table class="data-table" id="customer-employees-table">
+							<thead>
+								<tr>
+									<th>الموظف والبيانات الشخصية</th>
+									<th>الفرع المعين به</th>
+									<th>المسمى الوظيفي</th>
+									<th>الدور والصلاحيات</th>
+									<th>الحالة</th>
+									<th class="text-center">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, emp := range data.Employees {
+									if emp != nil && emp.Member != nil {
+										<tr data-emp-name={ strings.ToLower(emp.UserName + " " + emp.UserEmail + " " + emp.Member.EmployeeCode) } data-branch-id={ fmt.Sprintf("%d", func() int64 { if emp.Member.BranchID != nil { return *emp.Member.BranchID }; return 0 }()) }>
+											<!-- Personal Info -->
+											<td>
+												<div class="d-flex items-center gap-3">
+													<div>
+														if len(emp.UserName) >= 2 {
+															{ string([]rune(emp.UserName)[0:1]) }
+														} else {
+															<span>@components.IconUser("icon-sm")</span>
+														}
+													</div>
+													<div>
+														<div>
+															{ emp.UserName }
+														</div>
+														<div>
+															<span>{ emp.UserEmail }</span>
+															if emp.Member.EmployeeCode != "" {
+																<span class="badge badge-slate tabular-nums">{ emp.Member.EmployeeCode }</span>
+															}
+														</div>
+													</div>
+												</div>
+											</td>
+
+											<!-- Branch Assignment -->
+											<td>
+												if emp.Member.BranchID != nil && *emp.Member.BranchID > 0 {
+													<div class="inline-row-04">
+														<span class="badge badge-primary text-xs fw-700">
+															{ data.GetBranchName(emp.Member.BranchID) }
+														</span>
+														if emp.IsManager {
+															<span class="badge badge-emerald text-xs">مدير الفرع</span>
+														}
+													</div>
+												} else {
+													<span class="badge badge-slate text-xs text-muted">
+														غير معين بفرع
+													</span>
+												}
+											</td>
+
+											<!-- Job Title -->
+											<td>
+												if emp.Member.JobTitle != "" {
+													<span>{ emp.Member.JobTitle }</span>
+												} else {
+													<span class="text-xs text-muted">-</span>
+												}
+											</td>
+
+											<!-- Role & Permissions -->
+											<td>
+												<span class={ "badge text-xs fw-700", cbRoleBadgeClass(emp.Member.RoleKey) }>
+													{ cbRoleLabelArabic(emp.Member.RoleKey) }
+												</span>
+											</td>
+
+											<!-- Status -->
+											<td>
+												if emp.Member.IsActive {
+													<span class="badge badge-emerald text-xs fw-700">نشط</span>
+												} else {
+													<span class="badge badge-slate text-xs">معطل</span>
+												}
+											</td>
+
+											<!-- Actions -->
+											<td class="text-center">
+												<div>
+													<!-- Edit Button -->
+													<button
+														type="button"
+														class="btn btn-secondary btn-xs fw-700"
+														data-emp-id={ fmt.Sprintf("%d", emp.Member.ID) }
+														onclick="openEditEmployeeModalFromBtn(this)"
+														title="تعديل بيانات وصلاحيات الموظف"
+													>
+														<span>تعديل</span>
+													</button>
+
+													<!-- Toggle Status -->
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/status", emp.Member.ID)) } class="m-0">
+														<button type="submit" class="btn btn-secondary btn-xs" title="تبديل حالة التفعيل">
+															if emp.Member.IsActive {
+																<span>تعطيل</span>
+															} else {
+																<span>تفعيل</span>
+															}
+														</button>
+													</form>
+
+													<!-- Delete Button -->
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/delete", emp.Member.UserID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف وإلغاء ربطه بالفرع؟');">
+														<button type="submit" class="btn btn-secondary btn-xs" title="حذف وإلغاء الربط">
+															<span>حذف</span>
+														</button>
+													</form>
+												</div>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- MODALS -->
+
+			<!-- 1. Add Employee Modal -->
+			@components.Modal(components.ModalProps{
+				ID:    "add-employee-modal",
+				Title: "????? ?????? / ???? ???? ????????",
+				Size:  "md",
+			}) {
+				<form method="POST" action="/customer/employees/new" class="d-flex flex-col gap-4 m-0">
+						<div class="modal-body d-flex flex-col gap-3">
+							<div class="d-grid grid-cols-2 gap-3">
+								<div>
+									<label class="form-label font-bold text-xs">اسم الموظف بالكامل <span class="text-danger">*</span></label>
+									<input type="text" name="name" required placeholder="د. أحمد محمد" class="form-input w-full"/>
+								</div>
+								<div>
+									<label class="form-label font-bold text-xs">البريد الإلكتروني <span class="text-danger">*</span></label>
+									<input type="email" name="email" required placeholder="ahmed@pharmacy.com" class="form-input w-full"/>
+								</div>
+							</div>
+
+							<div class="d-grid grid-cols-2 gap-3">
+								<div>
+									<label class="form-label font-bold text-xs">رقم الهاتف للتواصل</label>
+									<input type="tel" name="phone" placeholder="01099887766" class="form-input tabular-nums w-full"/>
+								</div>
+								<div>
+									<label class="form-label font-bold text-xs">المسمى الوظيفي</label>
+									<input type="text" name="job_title" placeholder="صيدلي أول / مدير فرع" class="form-input w-full"/>
+								</div>
+							</div>
+
+							<div class="d-grid grid-cols-2 gap-3">
+								<div>
+									<label class="form-label font-bold text-xs">كود الموظف الداخلي</label>
+									<input type="text" name="employee_code" placeholder="EMP-01" class="form-input tabular-nums w-full"/>
+								</div>
+								<div>
+									<label class="form-label font-bold text-xs">كلمة المرور (اختياري)</label>
+									<input type="password" name="password" placeholder="اتركه فارغاً للتوليد التلقائي" class="form-input w-full"/>
+								</div>
+							</div>
+
+							<div class="d-grid grid-cols-2 gap-3">
+								<div>
+									<label class="form-label font-bold text-xs">الفرع التابع له الموظف <span class="text-danger">*</span></label>
+									<select id="add-emp-branch-select" name="branch_id" class="form-select w-full">
+										<option value="">-- عام (كافة الفروع) --</option>
+										for _, b := range data.Branches {
+											<option value={ fmt.Sprintf("%d", b.ID) }>
+												if b.Name["ar"] != "" {
+													{ b.Name["ar"] }
+												} else {
+													{ b.Name["en"] }
+												}
+											</option>
+										}
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label font-bold text-xs">الدور والصلاحيات (Role) <span class="text-danger">*</span></label>
+									<select name="role_key" required class="form-select w-full">
+										<option value="org_pharmacist">صيدلي مسؤول (طلب أدوية واستعراض)</option>
+										<option value="org_manager">مدير فرع (صلاحيات كاملة للفرع والمخزون)</option>
+										<option value="org_accountant">محاسب / مسؤول مشتريات (فواتير ومدفوعات)</option>
+										<option value="org_warehouse">أمين مخزن (استلام وجرد شحنات)</option>
+										<option value="org_employee">موظف صيدلية / فرع (تشغيل عام)</option>
+										<option value="org_owner">شريك / مالك المؤسسة (صلاحيات كاملة)</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" onclick="document.getElementById('add-employee-modal').close()">إلغاء</button>
+							<button type="submit" class="btn btn-primary font-bold">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وإضافة الموظف</span>
+							</button>
+						</div>
+					</form>
+			}
+
+			<!-- 3. Edit Employee Modals (for each employee) -->
+			for _, emp := range data.Employees {
+				if emp != nil && emp.Member != nil {
+					@components.Modal(components.ModalProps{
+						ID:    fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID),
+						Title: "????? ?????? ???????? ??????",
+						Size:  "md",
+					}) {
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)) } class="d-flex flex-col gap-4 m-0">
+								<div class="modal-body d-flex flex-col gap-3">
+									<div class="d-grid grid-cols-2 gap-3">
+										<div>
+											<label class="form-label font-bold text-xs">اسم الموظف</label>
+											<input type="text" value={ emp.UserName } disabled class="form-input w-full"/>
+										</div>
+										<div>
+											<label class="form-label font-bold text-xs">البريد الإلكتروني</label>
+											<input type="email" value={ emp.UserEmail } disabled class="form-input w-full"/>
+										</div>
+									</div>
+
+									<div class="d-grid grid-cols-2 gap-3">
+										<div>
+											<label class="form-label font-bold text-xs">المسمى الوظيفي</label>
+											<input type="text" name="job_title" value={ emp.Member.JobTitle } class="form-input w-full"/>
+										</div>
+										<div>
+											<label class="form-label font-bold text-xs">كود الموظف</label>
+											<input type="text" name="employee_code" value={ emp.Member.EmployeeCode } class="form-input tabular-nums w-full"/>
+										</div>
+									</div>
+
+									<div class="d-grid grid-cols-2 gap-3">
+										<div>
+											<label class="form-label font-bold text-xs">الفرع التابع له الموظف</label>
+											<select name="branch_id" class="form-select w-full">
+												<option value="">-- عام (كافة الفروع) --</option>
+												for _, b := range data.Branches {
+													<option value={ fmt.Sprintf("%d", b.ID) } selected?={ emp.Member.BranchID != nil && *emp.Member.BranchID == b.ID }>
+														if b.Name["ar"] != "" {
+															{ b.Name["ar"] }
+														} else {
+															{ b.Name["en"] }
+														}
+													</option>
+												}
+											</select>
+										</div>
+
+										<div>
+											<label class="form-label font-bold text-xs">الدور والصلاحيات</label>
+											<select name="role_key" required class="form-select w-full">
+												<option value="org_pharmacist" selected?={ emp.Member.RoleKey == "org_pharmacist" }>صيدلي مسؤول</option>
+												<option value="org_manager" selected?={ emp.Member.RoleKey == "org_manager" }>مدير فرع</option>
+												<option value="org_accountant" selected?={ emp.Member.RoleKey == "org_accountant" }>محاسب / مشتريات</option>
+												<option value="org_warehouse" selected?={ emp.Member.RoleKey == "org_warehouse" }>أمين مخزن</option>
+												<option value="org_employee" selected?={ emp.Member.RoleKey == "org_employee" }>موظف فرع</option>
+												<option value="org_owner" selected?={ emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "org_admin" }>شريك / مالك المؤسسة</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="bg-surface-sunken p-3 rounded-xl border">
+										<label class="d-flex items-center gap-2 cursor-pointer font-bold text-xs">
+											<input type="checkbox" name="is_active" value="true" checked?={ emp.Member.IsActive } class="form-checkbox"/>
+											<span>الموظف نشط ومصرح له بتسجيل الدخول والعمل على النظام</span>
+										</label>
+									</div>
+								</div>
+
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary font-bold" data-emp-id={ fmt.Sprintf("%d", emp.Member.ID) } onclick="closeEditEmployeeModal(this.dataset.empId)">إلغاء</button>
+									<button type="submit" class="btn btn-primary font-bold">
+										@components.IconCheck("icon-xs")
+										<span>حفظ التعديلات</span>
+									</button>
+								</div>
+							</form>
+					}
+				}
+			}
+
+		<!-- Tab & Filter Client Scripts -->
+}
