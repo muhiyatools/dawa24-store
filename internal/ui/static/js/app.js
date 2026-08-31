@@ -425,9 +425,7 @@ function initModalManager() {
   const originalShowModal = HTMLDialogElement.prototype.showModal;
   HTMLDialogElement.prototype.showModal = function() {
     if (openDialogCount === 0) {
-      scrollLockY = window.scrollY;
       document.body.classList.add('modal-open');
-      document.body.style.top = `-${scrollLockY}px`;
     }
     openDialogCount += 1;
 
@@ -448,8 +446,6 @@ function handleDialogClose(dialog) {
     openDialogCount -= 1;
     if (openDialogCount === 0) {
       document.body.classList.remove('modal-open');
-      document.body.style.top = '';
-      window.scrollTo(0, scrollLockY);
     }
   }
 

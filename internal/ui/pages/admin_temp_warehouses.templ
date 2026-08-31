@@ -603,7 +603,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					</div>
 
 					if !data.MineOnly && len(data.Uploaders) > 0 {
-						<select name="uploader" class="form-input text-sm h-10 rounded-lg min-w-52">
+						<select name="uploader" class="form-input text-sm h-10 rounded-lg min-w-56">
 							<option value="">كل المشرفين والبائعين</option>
 							for _, u := range data.Uploaders {
 								<option value={ fmt.Sprintf("%d", u.UserID) } selected?={ data.UploaderFilter == fmt.Sprintf("%d", u.UserID) }>
@@ -669,7 +669,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 									<th class="w-10 text-center">#</th>
 									<th class="min-w-60">اسم المورد / الملف</th>
 									if !data.MineOnly {
-										<th class="min-w-44">المشرف / المورد</th>
+										<th class="min-w-48">المشرف / المورد</th>
 									}
 									<th class="min-w-32">النوع</th>
 									<th class="min-w-28">عدد المنتجات</th>

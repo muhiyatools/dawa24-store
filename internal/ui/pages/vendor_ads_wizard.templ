@@ -115,7 +115,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 		<div
 			x-show="isOpen"
 			x-cloak
-			class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4 overflow-y-auto"
+			class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 d-flex items-center justify-center p-4 overflow-y-auto"
 			@keydown.escape.window="isOpen = false"
 		>
 			<div

@@ -73,7 +73,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"scroll-smooth\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"robots\" content=\"noindex, nofollow, noarchive\"><title>بوابة المندوب لتسليم الشحنات | Dawa24 Delivery Portal</title><link rel=\"stylesheet\" href=\"/static/css/modern.css\"><link rel=\"stylesheet\" href=\"/static/css/components.css\"><link rel=\"stylesheet\" href=\"/static/css/utilities.css\"><link rel=\"stylesheet\" href=\"/static/css/design-system.css\"><style>\n\t\t\t\t:root {\n\t\t\t\t\t--primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);\n\t\t\t\t}\n\t\t\t\tbody {\n\t\t\t\t\tbackground-color: #f8fafc;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t\tfont-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n\t\t\t\t\tmin-height: 100vh;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tflex-direction: column;\n\t\t\t\t}\n\t\t\t\t.courier-header {\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tborder-bottom: 1px solid #e2e8f0;\n\t\t\t\t\tpadding: 0.875rem 1.25rem;\n\t\t\t\t\tposition: sticky;\n\t\t\t\t\ttop: 0;\n\t\t\t\t\tz-index: 40;\n\t\t\t\t\tbackdrop-filter: blur(8px);\n\t\t\t\t}\n\t\t\t\t.courier-card {\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tborder: 1px solid #e2e8f0;\n\t\t\t\t\tborder-radius: 1rem;\n\t\t\t\t\tbox-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);\n\t\t\t\t\tpadding: 1.25rem;\n\t\t\t\t\tmargin-bottom: 1rem;\n\t\t\t\t}\n\t\t\t\t.pin-input {\n\t\t\t\t\tfont-size: 1.75rem;\n\t\t\t\t\tletter-spacing: 0.35em;\n\t\t\t\t\ttext-align: center;\n\t\t\t\t\tfont-weight: 900;\n\t\t\t\t\tfont-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;\n\t\t\t\t\tpadding: 0.75rem 1rem;\n\t\t\t\t\tborder: 2px solid #cbd5e1;\n\t\t\t\t\tborder-radius: 0.875rem;\n\t\t\t\t\ttransition: all 0.2s ease;\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tmax-width: 320px;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tdisplay: block;\n\t\t\t\t}\n\t\t\t\t.pin-input:focus {\n\t\t\t\t\tborder-color: #0284c7;\n\t\t\t\t\tbox-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);\n\t\t\t\t\toutline: none;\n\t\t\t\t}\n\t\t\t\t.amount-box {\n\t\t\t\t\tbackground: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);\n\t\t\t\t\tborder: 1px solid #bbf7d0;\n\t\t\t\t\tborder-radius: 0.875rem;\n\t\t\t\t\tpadding: 1rem 1.25rem;\n\t\t\t\t\ttext-align: center;\n\t\t\t\t}\n\t\t\t</style></head><body><!-- Top Clean Standalone Header --><header class=\"courier-header\"><div class=\"d-flex items-center justify-between max-w-xl mx-auto\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-8 h-8 rounded-lg bg-sky-600 text-white d-flex items-center justify-center font-black text-sm shadow-xs\">24</div><div class=\"stack-sm\"><div class=\"text-sm font-black text-primary leading-tight\">دواء 24 — بوابة المندوب</div><div class=\"text-2xs text-secondary font-medium\">نظام تسليم الشحنات والتحقق بالكود</div></div></div><div class=\"d-flex items-center gap-1 text-2xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"scroll-smooth\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"robots\" content=\"noindex, nofollow, noarchive\"><title>بوابة المندوب لتسليم الشحنات | Dawa24 Delivery Portal</title><link rel=\"stylesheet\" href=\"/static/css/modern.css\"><link rel=\"stylesheet\" href=\"/static/css/components.css\"><link rel=\"stylesheet\" href=\"/static/css/utilities.css\"><link rel=\"stylesheet\" href=\"/static/css/design-system.css\"><style>\n\t\t\t\t:root {\n\t\t\t\t\t--primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);\n\t\t\t\t}\n\t\t\t\tbody {\n\t\t\t\t\tbackground-color: #f8fafc;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t\tfont-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n\t\t\t\t\tmin-height: 100vh;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tflex-direction: column;\n\t\t\t\t}\n\t\t\t\t.courier-header {\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tborder-bottom: 1px solid #e2e8f0;\n\t\t\t\t\tpadding: 0.875rem 1.25rem;\n\t\t\t\t\tposition: sticky;\n\t\t\t\t\ttop: 0;\n\t\t\t\t\tz-index: 40;\n\t\t\t\t}\n\t\t\t\t.courier-card {\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tborder: 1px solid #e2e8f0;\n\t\t\t\t\tborder-radius: 1rem;\n\t\t\t\t\tbox-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);\n\t\t\t\t\tpadding: 1.25rem;\n\t\t\t\t\tmargin-bottom: 1rem;\n\t\t\t\t}\n\t\t\t\t.pin-input {\n\t\t\t\t\tfont-size: 1.75rem;\n\t\t\t\t\tletter-spacing: 0.35em;\n\t\t\t\t\ttext-align: center;\n\t\t\t\t\tfont-weight: 900;\n\t\t\t\t\tfont-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;\n\t\t\t\t\tpadding: 0.75rem 1rem;\n\t\t\t\t\tborder: 2px solid #cbd5e1;\n\t\t\t\t\tborder-radius: 0.875rem;\n\t\t\t\t\ttransition: all 0.2s ease;\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tmax-width: 320px;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tdisplay: block;\n\t\t\t\t}\n\t\t\t\t.pin-input:focus {\n\t\t\t\t\tborder-color: #0284c7;\n\t\t\t\t\tbox-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);\n\t\t\t\t\toutline: none;\n\t\t\t\t}\n\t\t\t\t.amount-box {\n\t\t\t\t\tbackground: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);\n\t\t\t\t\tborder: 1px solid #bbf7d0;\n\t\t\t\t\tborder-radius: 0.875rem;\n\t\t\t\t\tpadding: 1rem 1.25rem;\n\t\t\t\t\ttext-align: center;\n\t\t\t\t}\n\t\t\t</style></head><body><!-- Top Clean Standalone Header --><header class=\"courier-header\"><div class=\"d-flex items-center justify-between max-w-xl mx-auto\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-8 h-8 rounded-lg bg-sky-600 text-white d-flex items-center justify-center font-black text-sm shadow-xs\">24</div><div class=\"stack-sm\"><div class=\"text-sm font-black text-primary leading-tight\">دواء 24 — بوابة المندوب</div><div class=\"text-2xs text-secondary font-medium\">نظام تسليم الشحنات والتحقق بالكود</div></div></div><div class=\"d-flex items-center gap-1 text-2xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -101,7 +101,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ErrorMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 123, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 122, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.SuccessMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 136, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 135, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.TrackingQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 160, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 159, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -195,7 +195,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.ShipmentNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 186, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 185, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.TrackingNumber)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 188, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 187, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -283,7 +283,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 222, Col: 113}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 221, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -301,7 +301,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 228, Col: 111}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 227, Col: 111}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -320,7 +320,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchAddress)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 236, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 235, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -339,7 +339,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerManagerName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 247, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 246, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -363,7 +363,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var13 templ.SafeURL
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 256, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 255, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchPhone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 260, Col: 83}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 259, Col: 83}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -441,7 +441,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Shipment.Lines)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 294, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 293, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -459,7 +459,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(line.ProductName.Get(i18n.ParseLang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 301, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 300, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -477,7 +477,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(line.VariantName.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 303, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 302, Col: 98}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -495,7 +495,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 308, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 307, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -526,7 +526,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Shipment.TrackingNumber)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 332, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 331, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
@@ -539,7 +539,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Shipment.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 333, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 332, Col: 92}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
@@ -557,7 +557,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.TotalAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 364, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 363, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -601,7 +601,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.DeliveredAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 407, Col: 90}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 406, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {

@@ -445,7 +445,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 				return templ_7745c5c3_Err
 			}
 			if !data.MineOnly && len(data.Uploaders) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<select name=\"uploader\" class=\"form-input text-sm h-10 rounded-lg min-w-52\"><option value=\"\">كل المشرفين والبائعين</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<select name=\"uploader\" class=\"form-input text-sm h-10 rounded-lg min-w-56\"><option value=\"\">كل المشرفين والبائعين</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -632,7 +632,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					return templ_7745c5c3_Err
 				}
 				if !data.MineOnly {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<th class=\"min-w-44\">المشرف / المورد</th>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<th class=\"min-w-48\">المشرف / المورد</th>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

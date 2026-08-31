@@ -187,7 +187,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 														if f.Visibility == "public" {
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/visibility", f.ID)) } class="inline m-0">
 																<input type="hidden" name="visibility" value="private"/>
-																<button type="submit" class="badge badge-emerald text-xs font-bold cursor-pointer" title="ظاهر للجمهور — اضغط للإخفاء">عام ✓</button>
+																<button type="submit" class="badge badge-emerald text-xs font-bold cursor-pointer" title="ظاهر للجمهور — اضغط للإخفاء">عام (ظاهر)</button>
 															</form>
 														} else {
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/visibility", f.ID)) } class="inline m-0">

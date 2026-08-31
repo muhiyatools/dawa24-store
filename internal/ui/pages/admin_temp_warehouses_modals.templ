@@ -9,7 +9,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 	<!-- 5. Warehouse Items Modal -->
 	<div
 		x-show="itemsModal"
-		class="fixed inset-0 z-modal flex-center bg-black/75 backdrop-blur-sm p-5"
+		class="fixed inset-0 z-modal flex-center bg-black/75 p-5"
 		x-cloak
 		@keydown.escape.window="itemsModal = false"
 		@click.self="itemsModal = false"
@@ -156,7 +156,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 			<!-- 6. Upload Modal with 100 Files Bulk Support & Auto-Naming -->
 			<div
 				x-show="uploadModal"
-				class="fixed inset-0 z-modal flex-center bg-black/75 backdrop-blur-sm p-5"
+				class="fixed inset-0 z-modal flex-center bg-black/75 p-5"
 				x-cloak
 				@keydown.escape.window="if (!isBulkUploading) uploadModal = false"
 				@click.self="if (!isBulkUploading) uploadModal = false"
@@ -343,7 +343,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 			<!-- 7. Warehouse Column Mapping & Setup Wizard Modal -->
 			<div
 				x-show="mappingModal"
-				class="fixed inset-0 z-modal flex-center bg-black/80 backdrop-blur-sm p-5"
+				class="fixed inset-0 z-modal flex-center bg-black/80 p-5"
 				x-cloak
 				@keydown.escape.window="if(!mappingSubmitting) mappingModal = false"
 				@click.self="if(!mappingSubmitting) mappingModal = false"

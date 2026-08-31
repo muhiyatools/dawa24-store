@@ -1607,7 +1607,7 @@ dialog.modal[open] {
 	border-radius: var(--radius-xl);
 	background: var(--surface-raised);
 	cursor: pointer;
-	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 	text-align: start;
 	user-select: none;
 }
@@ -1631,7 +1631,7 @@ dialog.modal[open] {
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	transition: all 0.2s ease;
+	transition: background-color 0.18s ease, color 0.18s ease;
 }
 .type-card.active .type-icon, .type-card:hover .type-icon {
 	background: var(--accent);
@@ -1646,7 +1646,7 @@ dialog.modal[open] {
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	transition: all 0.2s ease;
+	transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 .type-card.active .type-check {
 	border-color: var(--accent);
@@ -3140,7 +3140,7 @@ body.modal-open {
 .thermal-bold    { font-weight: 700; }
 .thermal-divider { border-block-start: 1px dashed currentColor; margin-block: var(--space-2xs); }
 
-.modal-backdrop { position: fixed; inset: 0; background: var(--bg-overlay, rgba(15, 23, 42, 0.72)); }
+.modal-backdrop { position: fixed; inset: 0; background: var(--bg-overlay, rgba(15, 23, 42, 0.65)); contain: layout style; isolation: isolate; }
 }
 
 @layer utilities {
@@ -3297,7 +3297,7 @@ body.modal-open {
 .min-w-280 { min-inline-size: 17.5rem; }
 .mt-auto { margin-block-start: auto; }
 .ps-9 { padding-inline-start: 2.25rem; }
-.backdrop-blur-xs { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+.backdrop-blur-xs { /* zero-blur high-performance overlay */ }
 .duration-300 { transition-duration: 300ms; }
 
 /* Phase 7 Defined Component Classes */
@@ -3561,7 +3561,7 @@ body.modal-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--duration-fast, 120ms) ease;
+  transition: background-color var(--duration-fast, 120ms) ease, border-color var(--duration-fast, 120ms) ease, color var(--duration-fast, 120ms) ease;
 }
 
 .capsule-hdr-icon-btn:hover {
@@ -3583,7 +3583,6 @@ body.modal-open {
   border-radius: var(--radius-xl, 1rem);
   z-index: 9999;
   background: rgba(2, 132, 199, 0.96);
-  backdrop-filter: blur(12px);
   border: 2px dashed rgba(255, 255, 255, 0.85);
   display: flex;
   flex-direction: column;
@@ -3617,7 +3616,7 @@ body.modal-open {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  transition: all var(--duration-fast, 120ms) ease;
+  transition: background-color var(--duration-fast, 120ms) ease, border-color var(--duration-fast, 120ms) ease;
   text-align: right;
 }
 
@@ -3673,7 +3672,7 @@ body.modal-open {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all var(--duration-fast, 140ms) ease;
+  transition: background-color var(--duration-fast, 140ms) ease, border-color var(--duration-fast, 140ms) ease, color var(--duration-fast, 140ms) ease;
 }
 
 .capsule-chip-btn:hover {
@@ -3825,7 +3824,7 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 120ms ease;
+  transition: background-color 120ms ease, color 120ms ease;
   margin-bottom: 1px;
 }
 
@@ -3866,7 +3865,7 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 140ms ease;
+  transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
   margin-bottom: 1px;
 }
 
@@ -4047,7 +4046,7 @@ body.modal-open {
   font-weight: 600;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: all var(--duration-fast, 120ms) ease;
+  transition: background-color var(--duration-fast, 120ms) ease, color var(--duration-fast, 120ms) ease;
 }
 
 .category-filter-item:hover {
@@ -4394,7 +4393,7 @@ body.modal-open {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  transition: all var(--duration-fast, 0.15s) ease;
+  transition: background-color var(--duration-fast, 0.15s) ease, border-color var(--duration-fast, 0.15s) ease, box-shadow var(--duration-fast, 0.15s) ease;
 }
 
 .wallet-stat-card:hover {
@@ -4437,7 +4436,7 @@ body.modal-open {
   justify-content: space-between;
   gap: 1rem;
   box-shadow: var(--shadow-xs);
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .wallet-method-card:hover {
@@ -4588,7 +4587,7 @@ body.modal-open {
   padding: 2rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .compare-upload-zone:hover {
@@ -4620,7 +4619,7 @@ body.modal-open {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
   text-decoration: none;
 }
@@ -4659,7 +4658,7 @@ body.modal-open {
   flex-direction: column;
   gap: 0.75rem;
   box-shadow: var(--shadow-xs);
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .cb-branch-card:hover {
@@ -4751,8 +4750,7 @@ body.modal-open {
   gap: 0.35rem;
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-full, 9999px);
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.88);
   color: #fbbf24;
   font-size: var(--text-xs, 0.75rem);
   font-weight: 800;
@@ -4766,8 +4764,7 @@ body.modal-open {
   gap: 0.35rem;
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-full, 9999px);
-  background: rgba(16, 185, 129, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(16, 185, 129, 0.92);
   color: #ffffff;
   font-size: var(--text-xs, 0.75rem);
   font-weight: 800;
@@ -4842,8 +4839,7 @@ body.modal-open {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-full, 9999px);
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
   display: flex;
@@ -4851,7 +4847,7 @@ body.modal-open {
   justify-content: center;
   cursor: pointer;
   z-index: 3;
-  transition: all 150ms ease;
+  transition: transform 150ms ease, background-color 150ms ease, opacity 150ms ease;
   opacity: 0;
 }
 
@@ -4890,7 +4886,7 @@ body.modal-open {
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: all 200ms ease;
+  transition: width 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
 }
 
 .hero-ad-indicator-dot.active {

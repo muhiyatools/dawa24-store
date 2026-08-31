@@ -417,19 +417,35 @@ function initMapPickers() {
       });
     }
 
-    // Auto Invalidate Size for Modals and Tabs
+    // Auto Invalidate Size for Modals and Tabs with Debounce
     const modalParent = container.closest('dialog, .modal, .tab-pane');
     if (modalParent) {
+      let isInvalidating = false;
       const resizeObserver = new MutationObserver(() => {
-        if (getComputedStyle(modalParent).display !== 'none' || modalParent.hasAttribute('open') || modalParent.classList.contains('active')) {
-          setTimeout(() => map.invalidateSize(), 150);
-          setTimeout(() => map.invalidateSize(), 350);
+        if (isInvalidating) return;
+        const isOpen = modalParent.hasAttribute('open') || modalParent.classList.contains('active') || modalParent.offsetParent !== null;
+        if (isOpen) {
+          isInvalidating = true;
+          requestAnimationFrame(() => {
+            map.invalidateSize();
+            setTimeout(() => {
+              map.invalidateSize();
+              isInvalidating = false;
+            }, 250);
+          });
         }
       });
       resizeObserver.observe(modalParent, { attributes: true, attributeFilter: ['style', 'class', 'open'] });
     }
 
-    window.addEventListener('resize', () => map.invalidateSize());
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      if (resizeTimer) return;
+      resizeTimer = requestAnimationFrame(() => {
+        map.invalidateSize();
+        resizeTimer = null;
+      });
+    }, { passive: true });
 
     setTimeout(() => map.invalidateSize(), 150);
     setTimeout(() => map.invalidateSize(), 400);

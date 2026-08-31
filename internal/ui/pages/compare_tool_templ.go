@@ -365,7 +365,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedF
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"inline m-0\"><input type=\"hidden\" name=\"visibility\" value=\"private\"> <button type=\"submit\" class=\"badge badge-emerald text-xs font-bold cursor-pointer\" title=\"ظاهر للجمهور — اضغط للإخفاء\">عام ✓</button></form>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"inline m-0\"><input type=\"hidden\" name=\"visibility\" value=\"private\"> <button type=\"submit\" class=\"badge badge-emerald text-xs font-bold cursor-pointer\" title=\"ظاهر للجمهور — اضغط للإخفاء\">عام (ظاهر)</button></form>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

@@ -1464,7 +1464,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</div><!-- Details & JSON Diff Modal --><div x-show=\"isDetailsOpen\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-2xl max-w-2xl w-full bg-white relative mx-auto my-auto overflow-hidden\"><div class=\"flex-between items-center pb-3 mb-4 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</div><!-- Details & JSON Diff Modal --><div x-show=\"isDetailsOpen\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-2xl max-w-2xl w-full bg-white relative mx-auto my-auto overflow-hidden\"><div class=\"flex-between items-center pb-3 mb-4 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
