@@ -64,17 +64,17 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 	<div class="jobs-container">
 		
 		<!-- Header Banner -->
-		<div class="jobs-header">
-   <div class="stack-sm">
-    <div class="stack-sm">
-					<div class="stack-xs text-sm">
+		<div class="jobs-header-card">
+			<div>
+				<div class="d-flex items-center gap-2 mb-2">
+					<div class="user-avatar-badge">
 						@components.IconBriefcase("icon-sm")
 					</div>
 					<h1 class="page-title font-bold text-xl m-0">
 						شواغر وفرص العمل في القطاع الصيدلاني
 					</h1>
 				</div>
-    <p class="text-sm text-secondary m-0">
+				<p class="text-sm text-secondary m-0">
 					بوابة التوظيف المعتمدة للصيادلة، مدراء الفروع، مسؤولي المشتريات، وسلاسل الإمداد الطبي الموثقة في مصر.
 				</p>
 			</div>
@@ -93,37 +93,37 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 		<!-- Metrics Summary Strip -->
 		<div class="jobs-metrics-grid">
 			<div class="jobs-metric-card">
-				<div class="stack-xs text-sm">
+				<div class="jobs-metric-label">
 					إجمالي الشواغر النشطة
 				</div>
-				<div class="tabular-nums">
-					{ fmt.Sprintf("%d", data.TotalCount) } <span>وظيفة متاحة</span>
+				<div class="jobs-metric-val tabular-nums">
+					{ fmt.Sprintf("%d", data.TotalCount) } <span class="text-xs font-normal text-muted">وظيفة متاحة</span>
 				</div>
 			</div>
 
 			<div class="jobs-metric-card">
-				<div class="stack-xs text-sm">
+				<div class="jobs-metric-label">
 					القطاعات والتخصصات
 				</div>
-				<div class="stack-xs text-sm">
+				<div class="font-bold text-sm text-primary">
 					صيدليات • مخازن • توزيع
 				</div>
 			</div>
 
 			<div class="jobs-metric-card">
-				<div class="stack-xs text-sm">
+				<div class="jobs-metric-label">
 					متوسط الرواتب المعلنة
 				</div>
-				<div class="tabular-nums">
-					8,000 - 25,000 <span>ج.م</span>
+				<div class="jobs-metric-val tabular-nums">
+					8,000 - 25,000 <span class="text-xs font-normal text-muted">ج.م</span>
 				</div>
 			</div>
 
 			<div class="jobs-metric-card">
-				<div class="stack-xs text-sm">
+				<div class="jobs-metric-label">
 					ضمان الاعتماد
 				</div>
-    <div class="stack-sm">
+				<div>
 					<span class="badge badge-emerald text-xs fw-700">
 						@components.IconCheckCircle("icon-xs")
 						<span>100% جهات عمل معتمدة</span>
@@ -135,18 +135,17 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 		<!-- Instant Filter & Search Strip -->
 		<div class="jobs-filter-strip">
 			<!-- Search Input -->
-   <div class="stack-sm">
+			<div class="jobs-search-box">
+				<span class="jobs-search-icon">
+					@components.IconSearch("icon-xs")
+				</span>
 				<input
 					type="text"
 					id="jobs-search-input"
 					placeholder="ابحث بالمسمى الوظيفي، التخصص، أو جهة العمل..."
 					class="form-input input-sm w-full"
-				
 					oninput="filterJobsList()"
 				/>
-				<div class="stack-xs text-sm">
-					@components.IconSearch("icon-xs")
-				</div>
 			</div>
 
 			<!-- City Filter -->
@@ -164,22 +163,22 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 			</select>
 
 			<!-- Quick Type Filter Buttons -->
-   <div class="stack-sm">
-				<button type="button" class="btn btn-secondary btn-xs fw-700 job-type-pill active" onclick="setJobTypeFilter('', this)">الكل</button>
-				<button type="button" class="btn btn-secondary btn-xs fw-700 job-type-pill" onclick="setJobTypeFilter('دوام كامل', this)">دوام كامل</button>
-				<button type="button" class="btn btn-secondary btn-xs fw-700 job-type-pill" onclick="setJobTypeFilter('دوام جزئي', this)">دوام جزئي</button>
-				<button type="button" class="btn btn-secondary btn-xs fw-700 job-type-pill" onclick="setJobTypeFilter('شيفت', this)">شيفتات</button>
+			<div class="job-type-pills-group">
+				<button type="button" class="job-type-pill active" onclick="setJobTypeFilter('', this)">الكل</button>
+				<button type="button" class="job-type-pill" onclick="setJobTypeFilter('دوام كامل', this)">دوام كامل</button>
+				<button type="button" class="job-type-pill" onclick="setJobTypeFilter('دوام جزئي', this)">دوام جزئي</button>
+				<button type="button" class="job-type-pill" onclick="setJobTypeFilter('شيفت', this)">شيفتات</button>
 			</div>
 		</div>
 
 		<!-- Job Listings Grid -->
 		if len(data.Jobs) == 0 {
-			<div class="card">
-				<div class="stack-xs text-sm">
+			<div class="card text-center p-6">
+				<div class="mb-2 text-2xl text-muted">
 					@components.IconBriefcase("icon-md")
 				</div>
 				<h3 class="font-bold text-sm m-0">لا توجد فرص توظيف معلنة حالياً</h3>
-				<p class="text-sm text-muted m-0">لم يتم نشر أي شواغر وظيفية جديدة في الوقت الراهن. يرجى مراجعة القسم لاحقاً.</p>
+				<p class="text-sm text-muted m-0 mt-1">لم يتم نشر أي شواغر وظيفية جديدة في الوقت الراهن. يرجى مراجعة القسم لاحقاً.</p>
 			</div>
 		} else {
 			<div class="jobs-grid" id="jobs-cards-grid">
@@ -191,17 +190,17 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 							data-job-location={ item.Job.Location }
 							data-job-desc={ strings.ToLower(item.Job.Description + " " + item.Job.Requirements) }
 						>
-       <div class="stack-sm">
+							<div>
 								<!-- Header: Company Initials Avatar + Verification + Date -->
 								<div class="job-card-header">
-         <div class="stack-sm">
-										<div class="stack-xs text-sm">
+									<div class="job-card-company-lockup">
+										<div class="job-avatar-initial">
 											{ jobInitial(item.CompanyName) }
 										</div>
-          <div class="stack-sm">
-											<span class="job-card-company">{ item.CompanyName }</span>
-           <div class="stack-sm">
-												<span class="badge badge-emerald text-xs fw-700">
+										<div>
+											<span class="job-card-company-name">{ item.CompanyName }</span>
+											<div>
+												<span class="badge badge-emerald text-2xs fw-700">
 													@components.IconCheckCircle("icon-xs")
 													<span>معتمد</span>
 												</span>
@@ -242,9 +241,9 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 
 							<!-- Footer: Salary & Action CTA -->
 							<div class="job-card-footer">
-        <div class="stack-sm">
+								<div>
 									if !item.Job.SalaryMin.IsZero() || !item.Job.SalaryMax.IsZero() {
-										<div class="tabular-nums">
+										<div class="job-card-salary tabular-nums">
 											@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: item.Job.SalaryMin })
 											if !item.Job.SalaryMax.IsZero() {
 												<span> - </span>
@@ -252,14 +251,13 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 											}
 										</div>
 									} else {
-										<span>الراتب يحدد بالمقابلة</span>
+										<span class="text-xs text-muted font-bold">الراتب يحدد بالمقابلة</span>
 									}
 								</div>
 
 								<a
 									href={ templ.SafeURL(func() string { if data.IsCustomer { return fmt.Sprintf("/customer/jobs/%d", item.Job.ID) }; return fmt.Sprintf("/jobs/%d", item.Job.ID) }()) }
 									class="btn btn-primary btn-sm fw-700"
-								
 								>
 									<span>التفاصيل والتقديم</span>
 									@components.IconArrowLeft("icon-xs")
@@ -313,13 +311,13 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 	<div class="jobs-container">
 		
 		<!-- Back Button & Breadcrumbs -->
-  <div class="stack-sm">
+		<div class="d-flex items-center justify-between flex-wrap gap-3">
 			<a href={ templ.SafeURL(func() string { if data.IsCustomer { return "/customer/jobs" }; return "/jobs" }()) } class="btn btn-secondary btn-sm fw-700">
 				@components.IconArrowRight("icon-xs")
 				<span>العودة لكافة الوظائف والفرص</span>
 			</a>
 			
-   <div class="stack-sm">
+			<div class="text-xs text-muted">
 				<span>كود الشاغر: </span>
 				<span class="tabular-nums fw-700 text-primary">REF-JOB-{ fmt.Sprintf("%d", data.Job.ID) }</span>
 			</div>
@@ -329,12 +327,12 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 		<div class="job-detail-grid">
 			
 			<!-- Left Column: Details, Scope & Requirements -->
-   <div class="stack-sm">
+			<div class="d-flex flex-col gap-4">
 				
 				<!-- Hero Header Card -->
 				<div class="job-detail-card">
-     <div class="stack-sm">
-      <div class="stack-sm">
+					<div>
+						<div class="d-flex items-center justify-between flex-wrap gap-2 mb-2">
 							<div class="d-flex items-center gap-2">
 								<span class="badge badge-emerald text-xs fw-700">
 									@components.IconCheckCircle("icon-xs")
@@ -352,16 +350,16 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 							{ data.Job.Title.Get(i18n.ParseLang(lang)) }
 						</h1>
 
-      <div class="stack-sm">
-       <div class="stack-sm">
-								<div class="stack-xs text-sm">
+						<div class="d-flex items-center gap-4 flex-wrap mt-2 text-xs text-secondary">
+							<div class="d-flex items-center gap-2">
+								<div class="job-avatar-initial">
 									{ jobInitial(data.CompanyName) }
 								</div>
 								<strong class="text-primary">{ data.CompanyName }</strong>
 							</div>
 
 							if data.Job.Location != "" {
-        <div class="stack-sm">
+								<div class="d-flex items-center gap-1">
 									@components.IconLocation("icon-xs")
 									<span>{ data.Job.Location }</span>
 								</div>
@@ -392,11 +390,11 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 
 				<!-- Section: Job Description & Responsibilities -->
 				<div class="job-detail-card">
-					<h3 class="font-bold text-sm m-0">
+					<h3 class="font-bold text-sm m-0 d-flex items-center gap-2">
 						@components.IconFile("icon-xs")
 						<span>الوصف الوظيفي والمسؤوليات الأساسية</span>
 					</h3>
-					<div class="stack-xs text-sm">
+					<div class="text-sm text-secondary leading-relaxed">
 						{ data.Job.Description }
 					</div>
 				</div>
@@ -404,11 +402,11 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 				<!-- Section: Qualifications & Requirements -->
 				if data.Job.Requirements != "" {
 					<div class="job-detail-card">
-						<h3 class="font-bold text-sm m-0">
+						<h3 class="font-bold text-sm m-0 d-flex items-center gap-2">
 							@components.IconCheckCircle("icon-xs")
 							<span>المؤهلات والشروط المطلوبة</span>
 						</h3>
-						<div class="stack-xs text-sm">
+						<div class="text-sm text-secondary leading-relaxed">
 							{ data.Job.Requirements }
 						</div>
 					</div>
@@ -416,25 +414,25 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 
 				<!-- Section: Benefits & Work Environment -->
 				<div class="job-detail-card">
-					<h3 class="font-bold text-sm m-0">
+					<h3 class="font-bold text-sm m-0 d-flex items-center gap-2">
 						@components.IconSparkles("icon-xs")
 						<span>المزايا وبيئة العمل</span>
 					</h3>
-     <div class="stack-sm">
-      <div class="stack-sm">
-							<span>@components.IconCheck("icon-sm")</span>
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-secondary">
+						<div class="d-flex items-center gap-2">
+							<span class="text-emerald">@components.IconCheck("icon-sm")</span>
 							<span>تأمينات اجتماعية وطبية شاملة</span>
 						</div>
-      <div class="stack-sm">
-							<span>@components.IconCheck("icon-sm")</span>
+						<div class="d-flex items-center gap-2">
+							<span class="text-emerald">@components.IconCheck("icon-sm")</span>
 							<span>حوافز شهرية ومكافآت أداء</span>
 						</div>
-      <div class="stack-sm">
-							<span>@components.IconCheck("icon-sm")</span>
+						<div class="d-flex items-center gap-2">
+							<span class="text-emerald">@components.IconCheck("icon-sm")</span>
 							<span>إجازات سنوية ورسمية مدفوعة</span>
 						</div>
-      <div class="stack-sm">
-							<span>@components.IconCheck("icon-sm")</span>
+						<div class="d-flex items-center gap-2">
+							<span class="text-emerald">@components.IconCheck("icon-sm")</span>
 							<span>فرص ترقي وتطوير مهني مستمر</span>
 						</div>
 					</div>
@@ -443,24 +441,24 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 			</div>
 
 			<!-- Right Column: Sticky Application & Compensation Sidebar -->
-   <div class="stack-sm">
+			<div class="d-flex flex-col gap-4">
 				
 				<!-- Salary & Compensation Card -->
 				<div class="job-detail-card">
-					<div class="stack-xs text-sm">
+					<div class="text-xs text-muted font-bold">
 						الراتب والمخصصات المقترحة:
 					</div>
 					if !data.Job.SalaryMin.IsZero() || !data.Job.SalaryMax.IsZero() {
-						<div class="tabular-nums">
+						<div class="tabular-nums font-bold text-lg text-primary">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.Job.SalaryMin })
 							if !data.Job.SalaryMax.IsZero() {
 								<span> - </span>
 								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.Job.SalaryMax })
 							}
-							<span>/ شهرياً</span>
+							<span class="text-xs text-muted font-normal">/ شهرياً</span>
 						</div>
 					} else {
-						<div class="stack-xs text-sm">
+						<div class="font-bold text-sm text-primary">
 							يحدد بناءً على المقابلة والخبرة
 						</div>
 					}
@@ -468,81 +466,81 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 
 				<!-- Job Application Box -->
 				<div class="job-detail-card">
-					<h3 class="font-bold text-sm m-0">
+					<h3 class="font-bold text-base m-0 text-primary">
 						التقديم على هذه الفرصة
 					</h3>
 
 					if data.Submitted {
-      <div class="stack-sm">
-       <div class="stack-sm">
+						<div class="alert alert-success p-4 d-flex flex-col gap-2">
+							<div class="d-flex items-center gap-2 font-bold">
 								@components.IconCheckCircle("icon-md")
 								<strong>تم إرسال طلب التوظيف بنجاح!</strong>
 							</div>
-       <p class="text-sm text-secondary m-0">
+							<p class="text-xs text-secondary m-0">
 								تم استلام طلبك وإرفاق بياناتك بنجاح. سيقوم مسؤول التوظيف بمراجعة سيرتك الذاتية والتواصل معك في أقرب وقت.
 							</p>
 						</div>
 					} else if !data.IsLoggedIn {
-      <div class="stack-sm">
-							<div class="stack-xs text-sm">
+						<div class="p-4 bg-surface-sunken rounded-xl border text-center d-flex flex-col items-center gap-2">
+							<div class="user-avatar-badge">
 								@components.IconUser("icon-xs")
 							</div>
-							<h4 class="font-semibold text-sm m-0">
+							<h4 class="font-bold text-sm m-0 text-primary">
 								التقديم متاح لحسابات (باحث عن عمل)
 							</h4>
-       <p class="text-sm text-secondary m-0">
+							<p class="text-xs text-secondary m-0">
 								يرجى تسجيل الدخول بحساب باحث عن عمل لإرسال سيرتك الذاتية ومتابعة طلبك.
 							</p>
-       <div class="stack-sm">
-								<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/jobs/%d", data.Job.ID)) } class="btn btn-primary btn-sm fw-700">
+							<div class="d-flex flex-col gap-2 w-full mt-2">
+								<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/jobs/%d", data.Job.ID)) } class="btn btn-primary btn-sm fw-700 w-full">
 									<span>تسجيل الدخول كباحث عن عمل</span>
 								</a>
-								<a href="/auth/register" class="btn btn-secondary btn-sm">
+								<a href="/auth/register" class="btn btn-secondary btn-sm w-full">
 									<span>إنشاء حساب باحث عن عمل</span>
 								</a>
 							</div>
 						</div>
 					} else if !data.IsJobSeeker {
-      <div class="stack-sm">
-							<div class="stack-xs text-sm">@components.IconAlert("icon-sm")</div>
-							<h4 class="font-semibold text-sm m-0">
+						<div class="p-4 bg-surface-sunken rounded-xl border text-center d-flex flex-col items-center gap-2">
+							<div class="text-amber">@components.IconAlert("icon-sm")</div>
+							<h4 class="font-bold text-sm m-0 text-primary">
 								التقديم متاح فقط لحسابات (باحث عن عمل)
 							</h4>
-       <p class="text-sm text-secondary m-0">
+							<p class="text-xs text-secondary m-0">
 								أنت مسجل حالياً بحساب منشأة. للتقديم على الوظائف الشاغرة كصيدلي أو كادر طبي، يرجى استخدام حساب باحث عن عمل.
 							</p>
-							<a href="/auth/register" class="btn btn-secondary btn-sm">
+							<a href="/auth/register" class="btn btn-secondary btn-sm w-full mt-2">
 								<span>إنشاء حساب باحث عن عمل جديد</span>
 							</a>
 						</div>
 					} else {
-						<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/jobs/%d/apply", data.Job.ID)) } enctype="multipart/form-data">
-       <div class="stack-sm">
-								<label class="form-label label-sm-bold">الاسم الثلاثي / المهني <span class="text-danger">*</span></label>
+						<form class="d-flex flex-col gap-3 m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/jobs/%d/apply", data.Job.ID)) } enctype="multipart/form-data">
+							<div>
+								<label class="form-label text-xs font-bold mb-1">الاسم الثلاثي / المهني <span class="text-danger">*</span></label>
 								<input type="text" name="applicant_name" required value={ data.UserName } placeholder="د. أحمد محمود" class="form-input input-sm w-full"/>
 							</div>
 
-       <div class="stack-sm">
-								<label class="form-label label-sm-bold">البريد الإلكتروني <span class="text-danger">*</span></label>
+							<div>
+								<label class="form-label text-xs font-bold mb-1">البريد الإلكتروني <span class="text-danger">*</span></label>
 								<input type="email" name="applicant_email" required value={ data.UserEmail } placeholder="pharmacist@example.com" class="form-input input-sm tabular-nums w-full"/>
 							</div>
 
-       <div class="stack-sm">
-								<label class="form-label label-sm-bold">رقم الهاتف / الواتساب <span class="text-danger">*</span></label>
+							<div>
+								<label class="form-label text-xs font-bold mb-1">رقم الهاتف / الواتساب <span class="text-danger">*</span></label>
 								<input type="tel" name="applicant_phone" required value={ data.UserPhone } placeholder="01012345678" class="form-input input-sm tabular-nums w-full"/>
 							</div>
 
-       <div class="stack-sm">
-								<label class="form-label label-sm-bold">إرفاق السيرة الذاتية (CV / PDF) <span class="text-danger">*</span></label>
+							<div>
+								<label class="form-label text-xs font-bold mb-1">إرفاق السيرة الذاتية (CV / PDF) <span class="text-danger">*</span></label>
 								<input type="file" name="resume_file" accept=".pdf,.doc,.docx" required class="form-input input-sm w-full"/>
 							</div>
 
-       <div class="stack-sm">
-								<label class="form-label label-sm-bold">ملاحظات أو نبذة عن الخبرة (اختياري)</label>
+							<div>
+								<label class="form-label text-xs font-bold mb-1">ملاحظات أو نبذة عن الخبرة (اختياري)</label>
 								<textarea name="notes" rows="2" placeholder="أبرز الخبرات والمهارات..." class="form-input input-sm w-full"></textarea>
 							</div>
 
-							<button type="submit" class="btn btn-primary btn-sm fw-800">
+							<button type="submit" class="btn btn-primary btn-sm fw-800 w-full mt-1">
 								@components.IconCheck("icon-xs")
 								<span>إرسال طلب التوظيف الآن</span>
 							</button>
@@ -551,8 +549,8 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 				</div>
 
 				<!-- Safety & Verification Notice -->
-    <div class="stack-sm">
-					<div class="stack-xs text-sm">ضمان الأمان والنزاهة</div>
+				<div class="p-3 bg-surface-sunken rounded-lg border text-2xs text-muted leading-relaxed">
+					<strong class="text-primary d-block mb-1">ضمان الأمان والنزاهة:</strong>
 					تضمن منصة دواء24 التحقق من كافة جهات العمل المنشورة. لا تطلب أي جهة معتمدة رسوماً مقابل التقديم للوظائف.
 				</div>
 
@@ -579,9 +577,7 @@ templ JobsPage(data JobsPageData, lang string, dir string) {
 		}
 	} else {
 		@layouts.PublicShell(i18n.T(lang, "nav.jobs_and_careers"), lang, dir) {
-			<div class="stack-xs text-sm">
-				@JobsContent(data, lang, dir)
-			</div>
+			@JobsContent(data, lang, dir)
 		}
 	}
 }
@@ -602,9 +598,7 @@ templ JobDetail(data JobDetailData, lang string, dir string) {
 		}
 	} else {
 		@layouts.PublicShell(data.Job.Title.Get(i18n.ParseLang(lang)), lang, dir) {
-			<div class="stack-xs text-sm">
-				@JobDetailContent(data, lang, dir)
-			</div>
+			@JobDetailContent(data, lang, dir)
 		}
 	}
 }

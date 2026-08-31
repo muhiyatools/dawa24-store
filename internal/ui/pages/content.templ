@@ -9,99 +9,102 @@ import (
 // loaded directly from the platform_admin.policies database table.
 templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 	@layouts.PublicShell(title+" | دواء 24", lang, dir) {
-  <div class="stack-sm">
+		<div class="policy-page-container">
 			
 			<!-- Breadcrumbs -->
-   <div class="stack-sm">
+			<div class="sp-breadcrumbs">
 				<a href="/">الرئيسية</a>
 				<span>/</span>
 				<span>السياسات والضوابط القانونية</span>
 				<span>/</span>
-				<span>{ title }</span>
+				<span class="text-primary font-bold">{ title }</span>
 			</div>
 
-			<!-- Quick Policy Switcher Bar -->
-   <div class="stack-sm">
-				<a
-					href="/terms"
-					class={ "btn", templ.KV("btn-primary", slug == "terms"), templ.KV("btn-secondary", slug != "terms") }
-				
-				>
-					@components.IconFileText("icon-xs")
-					<span>الشروط والأحكام العامة</span>
-				</a>
-				<a
-					href="/privacy"
-					class={ "btn", templ.KV("btn-primary", slug == "privacy"), templ.KV("btn-secondary", slug != "privacy") }
-				
-				>
-					@components.IconShield("icon-xs")
-					<span>سياسة الخصوصية وسرية البيانات</span>
-				</a>
-			</div>
+			<div class="policy-grid">
+				<!-- Sidebar Navigation -->
+				<aside class="policy-nav-sidebar">
+					<span class="text-xs font-bold text-muted mb-1">الوثائق القانونية</span>
+					<a
+						href="/terms"
+						class={ "policy-nav-link", templ.KV("active", slug == "terms") }
+					>
+						@components.IconFileText("icon-xs")
+						<span>الشروط والأحكام العامة</span>
+					</a>
+					<a
+						href="/privacy"
+						class={ "policy-nav-link", templ.KV("active", slug == "privacy") }
+					>
+						@components.IconShield("icon-xs")
+						<span>سياسة الخصوصية وسرية البيانات</span>
+					</a>
+					<a
+						href="/refund"
+						class={ "policy-nav-link", templ.KV("active", slug == "refund") }
+					>
+						@components.IconRotateCcw("icon-xs")
+						<span>سياسة الإرجاع والاسترداد</span>
+					</a>
+					<a
+						href="/vendor_agreement"
+						class={ "policy-nav-link", templ.KV("active", slug == "vendor_agreement") }
+					>
+						@components.IconBuilding("icon-xs")
+						<span>اتفاقية انضمام الموردين</span>
+					</a>
+				</aside>
 
-			<!-- Main Policy Card -->
-			<div class="card">
-				
-				<!-- Document Header -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-      <div class="stack-sm">
-							<div class="b2b-icon-box">
-								if slug == "privacy" {
-									@components.IconShield("icon-sm")
-								} else {
-									@components.IconFileText("icon-sm")
-								}
-							</div>
+				<!-- Main Policy Content -->
+				<div class="policy-content-card">
+					<!-- Document Header -->
+					<div class="d-flex items-center justify-between flex-wrap gap-3 pb-3 border-bottom">
+						<div>
 							<h1 class="page-title font-bold text-xl m-0">
 								{ title }
 							</h1>
+							<p class="text-xs text-secondary m-0 mt-1">
+								الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24
+							</p>
 						</div>
-      <p class="text-sm text-secondary m-0">
-							الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24
-						</p>
-					</div>
 
-					<!-- Metadata Badges -->
-     <div class="stack-sm">
-						<span class="badge badge-emerald">
+						<span class="badge badge-emerald text-xs fw-700">
 							@components.IconCheck("icon-xs")
 							<span>سارية ومعتمدة رسمياً</span>
 						</span>
-						if version != "" || lastUpdated != "" {
-       <div class="stack-sm">
-								if version != "" {
-									<span>إصدار: { version }</span>
-								}
-								if version != "" && lastUpdated != "" {
-									<span>•</span>
-								}
-								if lastUpdated != "" {
-									<span>تاريخ التحديث: { lastUpdated }</span>
-								}
-							</div>
-						}
+					</div>
+
+					<!-- Metadata Badges -->
+					if version != "" || lastUpdated != "" {
+						<div class="policy-meta-bar">
+							if version != "" {
+								<span>إصدار الوثيقة: <strong class="text-primary">{ version }</strong></span>
+							}
+							if version != "" && lastUpdated != "" {
+								<span>•</span>
+							}
+							if lastUpdated != "" {
+								<span>تاريخ آخر تحديث: <strong class="tabular-nums text-primary">{ lastUpdated }</strong></span>
+							}
+						</div>
+					}
+
+					<!-- Document Body Content -->
+					<div class="policy-prose">
+						{ body }
+					</div>
+
+					<!-- Official Compliance Footer Strip -->
+					<div class="p-3 bg-surface-sunken rounded-lg border d-flex items-center justify-between flex-wrap gap-2 text-xs">
+						<div class="d-flex items-center gap-2 text-secondary">
+							@components.IconShield("icon-xs")
+							<span>كافة البنود والتعاملات خاضعة للضوابط واللوائح الصيدلانية والتجارية المصرية السارية.</span>
+						</div>
+						<a href="/contact" class="btn btn-secondary btn-sm">
+							@components.IconHelpCircle("icon-xs")
+							<span>استفسار قانوني</span>
+						</a>
 					</div>
 				</div>
-
-				<!-- Document Body Content -->
-				<div class="stack-xs text-sm">
-					{ body }
-				</div>
-
-				<!-- Official Compliance Footer Strip -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-						@components.IconShield("icon-xs")
-						<span>كافة البنود والتعاملات خاضعة للضوابط واللوائح الصيدلانية والتجارية المصرية السارية.</span>
-					</div>
-					<a href="/contact" class="btn btn-secondary btn-sm">
-						@components.IconHelpCircle("icon-xs")
-						<span>لديك استفسار قانوني؟ تواصل معنا</span>
-					</a>
-				</div>
-
 			</div>
 
 		</div>
@@ -111,10 +114,10 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 // CmsPage renders a database-driven content page from its bilingual title and body.
 templ CmsPage(lang, dir, title, body string) {
 	@layouts.PublicShell(title, lang, dir) {
-  <div class="stack-sm">
-			<div class="card">
-				<h1 class="page-title font-bold text-xl m-0">{ title }</h1>
-				<div class="stack-xs text-sm">{ body }</div>
+		<div class="policy-page-container">
+			<div class="policy-content-card">
+				<h1 class="page-title font-bold text-xl m-0 pb-3 border-bottom">{ title }</h1>
+				<div class="policy-prose mt-3">{ body }</div>
 			</div>
 		</div>
 	}

@@ -209,18 +209,14 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				<!-- Catalog Controls Toolbar -->
 				<div class="sp-catalog-toolbar">
 					<form method="GET" class="sp-catalog-search">
-      <div class="stack-sm">
+						<div class="input-group w-full">
 							<input
 								type="text"
 								name="q"
 								value={ data.SearchQuery }
 								placeholder="ابحث في أصناف وتشغيلات المورد بالاسم أو الباركود أو المادة الفعالة..."
 								class="form-input input-sm"
-							
 							/>
-							<div class="stack-xs text-sm">
-								@components.IconSearch("icon-xs")
-							</div>
 						</div>
 						<button type="submit" class="btn btn-primary btn-sm fw-700">
 							بحث
@@ -236,7 +232,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						<span class="badge badge-sky text-xs fw-700">
 							{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
 						</span>
-      <div class="stack-sm">
+						<div class="btn-group">
 							<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" title="عرض الجدول التفصيلي">
 								جدول
 							</button>
@@ -323,15 +319,15 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- Batch & Expiry -->
 										<td>
-           <div class="stack-sm">
+											<div class="d-flex flex-col gap-1 text-xs">
 												if v.BatchNumber != "" {
-													<div class="stack-sm"><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
+													<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
 												}
 												if v.ExpiryDate != nil {
-													<div class="stack-sm"><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
+													<div><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
 												}
 												if v.MinOrderQty > 1 {
-													<span class="badge badge-slate text-xs">حد أدنى: { fmt.Sprintf("%d", v.MinOrderQty) }</span>
+													<span class="badge badge-slate text-2xs">حد أدنى: { fmt.Sprintf("%d", v.MinOrderQty) }</span>
 												}
 											</div>
 										</td>
@@ -339,12 +335,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										<!-- 1. Retail Public Price (سعر الجمهور) -->
 										<td>
 											if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() {
-												<div class="tabular-nums">
-													{ p.PublicPrice().String() } <span>ج.م</span>
+												<div class="tabular-nums text-xs">
+													{ p.PublicPrice().String() } <span class="text-muted">ج.م</span>
 												</div>
 											} else if v.Price.IsPositive() {
-												<div class="tabular-nums">
-													{ v.Price.String() } <span>ج.م</span>
+												<div class="tabular-nums text-xs">
+													{ v.Price.String() } <span class="text-muted">ج.م</span>
 												</div>
 											} else {
 												<span class="text-xs text-muted">-</span>
@@ -372,35 +368,33 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- 3. Price After Discount (السعر بعد الخصم) -->
 										<td>
-           <div class="stack-sm">
-												<div class="tabular-nums">
-													if v.Price.IsPositive() {
-														{ v.Price.String() } <span>ج.م</span>
-													} else {
-														<span class="text-sm text-muted">حسب الكمية</span>
-													}
-												</div>
+											<div class="tabular-nums font-bold text-xs text-primary">
+												if v.Price.IsPositive() {
+													{ v.Price.String() } <span class="text-muted font-normal">ج.م</span>
+												} else {
+													<span class="text-xs text-muted">حسب الكمية</span>
+												}
 											</div>
 										</td>
 
 										<!-- 4. Stock & Coverage Status -->
 										<td>
-           <div class="stack-sm">
+											<div class="d-flex flex-col gap-1">
 												if availStock > 0 {
-													<span class="badge badge-emerald text-xs font-bold tabular-nums">
+													<span class="badge badge-emerald text-2xs font-bold tabular-nums">
 														متوفر ({ fmt.Sprintf("%d", availStock) } عبوة)
 													</span>
 												} else {
-													<span class="badge badge-rose text-xs font-bold">
+													<span class="badge badge-rose text-2xs font-bold">
 														نفد من المخزون
 													</span>
 												}
 												if !isCovered {
-													<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
+													<span class="badge badge-rose text-2xs font-bold" title={ data.GetCoverageReason(v) }>
 														خارج التغطية
 													</span>
 												} else {
-													<span class="text-xs text-muted text-xs">
+													<span class="text-2xs text-muted">
 														مشمول بالتوصيل
 													</span>
 												}
@@ -410,7 +404,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										<!-- 5. Order Action & Stepper -->
 										<td class="text-center">
 											if canAdd {
-												<form class="stack-md"
+												<form
 													action="/cart/add"
 													method="POST"
 													hx-post="/cart/add"
@@ -419,7 +413,6 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 													@submit="loading = true"
 													@htmx:after-request="loading = false; added = true; setTimeout(() => added = false, 2500)"
 													class="sp-stepper-form"
-												
 												>
 													<input type="hidden" name="return_to" value={ fmt.Sprintf("/suppliers/%d", data.Org.ID) } />
 													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
@@ -455,15 +448,15 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											} else {
 												<div class="row-center-xs">
 													if !isCovered {
-														<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
+														<span class="badge badge-rose text-2xs font-bold" title={ data.GetCoverageReason(v) }>
 															غير مغطى
 														</span>
 													} else if availStock <= 0 {
-														<span class="badge badge-slate text-xs font-bold">
+														<span class="badge badge-slate text-2xs font-bold">
 															غير متوفر
 														</span>
 													} else {
-														<span class="badge badge-slate text-xs font-bold">
+														<span class="badge badge-slate text-2xs font-bold">
 															غير متاح للطلب
 														</span>
 													}
@@ -480,7 +473,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</div>
 
 					<!-- Compact Grid View (Hidden by Default) -->
-					<div class="stack-sm" id="catalog-grid-view">
+					<div class="jobs-grid d-none" id="catalog-grid-view">
 						for _, v := range data.Variants {
 							{{
 								availStock := data.GetAvailableStock(v)
@@ -488,10 +481,10 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								canAdd := data.CanAddToCart(v)
 								minOrderQty := data.GetMinOrderQty(v)
 							}}
-							<div class="card hover-lift">
-        <div class="stack-sm">
+							<div class="card hover-lift p-4 d-flex flex-col justify-between gap-3">
+								<div class="d-flex flex-col gap-2">
 									<!-- Top Row: Thumbnail + Dosage Badge -->
-         <div class="stack-sm">
+									<div class="d-flex items-center justify-between gap-2">
 										<div class="sp-product-thumb">
 											if img := data.GetProductImage(v); img != "" {
 												<img src={ img } alt={ v.Name.Get(i18n.Lang(lang)) } loading="lazy" />
@@ -499,18 +492,18 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												<span>{ dosageFormIcon(data.GetDosageForm(v)) }</span>
 											}
 										</div>
-          <div class="stack-sm">
+										<div class="d-flex gap-1 flex-wrap">
 											if form := data.GetDosageForm(v); form != "" {
-												<span class="badge badge-slate text-xs">{ form }</span>
+												<span class="badge badge-slate text-2xs">{ form }</span>
 											}
 											if v.Unit != "" {
-												<span class="badge badge-secondary text-xs">{ v.Unit }</span>
+												<span class="badge badge-secondary text-2xs">{ v.Unit }</span>
 											}
 										</div>
 									</div>
 
-									<h4 class="font-semibold text-sm m-0">
-										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) }>
+									<h4 class="font-bold text-sm m-0">
+										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="text-primary text-decoration-none">
 											if v.Name.Get(i18n.Lang(lang)) != "" {
 												{ v.Name.Get(i18n.Lang(lang)) }
 											} else {
@@ -520,54 +513,54 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</h4>
 
 									if sci := data.GetScientificName(v); sci != "" {
-										<div class="stack-xs text-sm">{ sci }</div>
+										<div class="text-xs text-muted">{ sci }</div>
 									}
 
 									<!-- Batch & Expiry Tag -->
-         <div class="stack-sm">
+									<div class="d-flex flex-col gap-1 text-xs">
 										if v.BatchNumber != "" {
-											<div class="stack-sm"><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
+											<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
 										}
 										if v.ExpiryDate != nil {
-											<div class="stack-sm"><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
+											<div><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
 										}
 									</div>
 
 									<!-- Stock & Coverage Pills -->
-         <div class="stack-sm">
+									<div class="d-flex gap-1 flex-wrap">
 										if availStock > 0 {
-											<span class="badge badge-emerald text-xs font-bold tabular-nums">
+											<span class="badge badge-emerald text-2xs font-bold tabular-nums">
 												متوفر ({ fmt.Sprintf("%d", availStock) })
 											</span>
 										} else {
-											<span class="badge badge-rose text-xs font-bold">
+											<span class="badge badge-rose text-2xs font-bold">
 												نفد المخزون
 											</span>
 										}
 										if !isCovered {
-											<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
+											<span class="badge badge-rose text-2xs font-bold" title={ data.GetCoverageReason(v) }>
 												خارج التغطية
 											</span>
 										}
 									</div>
 
 									<!-- Pricing Row -->
-         <div class="stack-sm">
-										<span>سعر التوريد:</span>
-										<div class="tabular-nums">
+									<div class="d-flex items-center justify-between text-xs pt-1 border-top">
+										<span class="text-muted">سعر التوريد:</span>
+										<div class="tabular-nums font-bold text-sm text-primary">
 											if v.Price.IsPositive() {
-												{ v.Price.String() } <span>ج.م</span>
+												{ v.Price.String() } <span class="text-xs font-normal text-muted">ج.م</span>
 											} else {
-												<span class="text-sm text-muted">حسب الكمية</span>
+												<span class="text-xs text-muted font-normal">حسب الكمية</span>
 											}
 										</div>
 									</div>
 								</div>
 
 								<!-- Action Form -->
-        <div class="stack-sm">
+								<div>
 									if canAdd {
-										<form class="stack-md"
+										<form
 											action="/cart/add"
 											method="POST"
 											hx-post="/cart/add"
@@ -575,7 +568,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											x-data="{ added: false, loading: false }"
 											@submit="loading = true"
 											@htmx:after-request="loading = false; added = true; setTimeout(() => added = false, 2500)"
-										
+											class="d-flex items-center gap-2 m-0"
 										>
 											<input type="hidden" name="return_to" value={ fmt.Sprintf("/suppliers/%d", data.Org.ID) } />
 											<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
@@ -590,7 +583,6 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												max={ fmt.Sprintf("%d", availStock) }
 												value={ fmt.Sprintf("%d", minOrderQty) }
 												class="sp-stepper-input tabular-nums"
-											
 												title={ fmt.Sprintf("الكمية المطلوبة (المتاح بالمخزن: %d)", availStock) }
 											/>
 											<button
@@ -629,14 +621,14 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 					<!-- Pagination Bar -->
 					if data.TotalPages > 1 {
-      <div class="stack-sm">
+						<div class="d-flex items-center justify-center gap-2 mt-4">
 							if data.CurrentPage > 1 {
 								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage-1)) } class="btn btn-secondary btn-sm">
 									@components.IconArrowRight("icon-xs")
 									<span>الصفحة السابقة</span>
 								</a>
 							}
-							<span class="tabular-nums">
+							<span class="tabular-nums text-xs text-muted">
 								صفحة { fmt.Sprintf("%d", data.CurrentPage) } من { fmt.Sprintf("%d", data.TotalPages) }
 							</span>
 							if data.CurrentPage < data.TotalPages {
@@ -654,26 +646,25 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 5. Tab 2: About & Highlights -->
 			if len(data.Sections) > 0 {
 				<div id="tab-content-sections" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "sections") }>
-     <div class="stack-sm">
+					<div class="jobs-grid">
 						for _, s := range data.Sections {
 							if s.IsActive {
-								<div class="card hover-lift">
-         <div class="stack-sm">
-										<div class="stack-sm" style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
+								<div class="card hover-lift p-4 d-flex flex-col justify-between gap-3">
+									<div class="d-flex items-center gap-3">
+										<div style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
 											{ sectionTypeIcon(s.SectionType) }
 										</div>
 										<h3 class="font-bold text-sm m-0">
 											{ s.Title.Get(i18n.Lang(lang)) }
 										</h3>
 									</div>
-									<div class="stack-xs text-sm">
+									<div class="text-xs text-secondary leading-relaxed">
 										{ s.Description.Get(i18n.Lang(lang)) }
 									</div>
 									<button
 										type="button"
 										class="btn btn-secondary btn-sm fw-700"
 										data-modal-open={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-									
 									>
 										<span>عرض التفاصيل الكاملة ←</span>
 									</button>
@@ -687,32 +678,32 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 6. Tab 3: Supply Policies -->
 			<div id="tab-content-policies" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "policies") }>
 				if len(data.Policies) == 0 {
-					<div class="card">
-      <div class="stack-sm">
-							<div class="stack-xs text-sm">
+					<div class="card p-6 text-center">
+						<div class="d-flex items-center justify-center gap-2 mb-2">
+							<div class="user-avatar-badge">
 								@components.IconShield("icon-sm")
 							</div>
 							<h3 class="font-bold text-sm m-0">
 								الشروط والسياسات القياسية المعتمدة
 							</h3>
 						</div>
-      <p class="text-sm text-secondary m-0">
+						<p class="text-sm text-secondary m-0 max-w-lg mx-auto leading-relaxed">
 							تخضع كافة طلبيات التوريد الصادرة عبر المنصة لضوابط ومعايير هيئة الدواء المصرية، مع الالتزام بتوفير فواتير ضريبية إلكترونية معتمدة وضمان سلامة سلسلة التبريد وسرعة التوصيل خلال المواعيد المحددة.
 						</p>
 					</div>
 				} else {
-     <div class="stack-sm">
+					<div class="d-flex flex-col gap-3">
 						for _, pol := range data.Policies {
-							<div class="card">
-        <div class="stack-sm">
-									<div class="stack-xs text-sm">
+							<div class="card p-4">
+								<div class="d-flex items-center gap-2 mb-2">
+									<div class="text-primary">
 										@components.IconShield("icon-xs")
 									</div>
-									<h4 class="font-semibold text-sm m-0">
+									<h4 class="font-bold text-sm m-0">
 										{ pol.Title }
 									</h4>
 								</div>
-        <p class="text-sm text-secondary m-0">
+								<p class="text-sm text-secondary m-0 leading-relaxed">
 									{ pol.Content }
 								</p>
 							</div>
@@ -724,46 +715,46 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 7. Tab 4: Branches & Warehouses -->
 			<div id="tab-content-branches" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "branches") }>
 				if len(data.Branches) == 0 {
-					<div class="card">
+					<div class="card p-6 text-center">
 						@components.IconBuilding("icon-lg")
 						<h3 class="font-bold text-sm m-0">المخزن الرئيسي للمورد</h3>
 						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
 					</div>
 				} else {
-     <div class="stack-sm">
+					<div class="jobs-grid">
 						for _, b := range data.Branches {
-							<div class="card">
-        <div class="stack-sm">
-         <div class="stack-sm">
-										<div class="stack-xs text-sm">
+							<div class="card p-4 d-flex flex-col justify-between gap-3">
+								<div class="d-flex items-center justify-between gap-2 border-bottom pb-2">
+									<div class="d-flex items-center gap-2">
+										<div class="text-primary">
 											@components.IconBuilding("icon-sm")
 										</div>
-          <div class="stack-sm">
-											<h4 class="font-semibold text-sm m-0">
+										<div>
+											<h4 class="font-bold text-sm m-0">
 												{ b.Name.Get(i18n.Lang(lang)) }
 											</h4>
 											if b.IsMain {
-												<span class="badge badge-primary text-xs">المخزن الرئيسي</span>
+												<span class="badge badge-primary text-2xs">المخزن الرئيسي</span>
 											}
 										</div>
 									</div>
 									if b.HasColdStorage {
-										<span class="badge badge-sky text-xs">مبرد</span>
+										<span class="badge badge-sky text-2xs">مبرد</span>
 									}
 								</div>
 
-        <div class="stack-sm">
+								<div class="d-flex flex-col gap-1 text-xs">
 									if b.Address != "" {
-										<div class="stack-sm"><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
+										<div><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
 									}
 									if b.OperatingHours != "" {
-										<div class="stack-sm"><span class="text-muted">ساعات العمل:</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+										<div><span class="text-muted">ساعات العمل:</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 									}
 									if b.Phone != "" {
-										<div class="stack-sm"><span class="text-muted">الهاتف:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
+										<div><span class="text-muted">الهاتف:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
 									}
 									if b.ManagerName != "" {
-										<div class="stack-sm"><span class="text-muted">مسؤول الفرع:</span> <strong>{ b.ManagerName }</strong></div>
+										<div><span class="text-muted">مسؤول الفرع:</span> <strong>{ b.ManagerName }</strong></div>
 									}
 								</div>
 							</div>
@@ -775,20 +766,20 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 8. Tab 5: Reviews -->
 			<div id="tab-content-reviews" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
-					<div class="card">
-						<div class="stack-xs text-sm">@components.IconStar("icon-sm")</div>
+					<div class="card p-6 text-center">
+						<div class="mb-2 text-amber">@components.IconStar("icon-sm")</div>
 						<h3 class="font-bold text-sm m-0">مورد معتمد موثق</h3>
 						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
 					</div>
 				} else {
-     <div class="stack-sm">
+					<div class="d-flex flex-col gap-3">
 						for _, rv := range data.Reviews {
-							<div class="card">
-        <div class="stack-sm">
+							<div class="card p-4">
+								<div class="d-flex items-center justify-between gap-2 mb-2">
 									<strong>صيدلية معتمدة</strong>
 									@components.RatingStars(float64(rv.Rating), 0)
 								</div>
-        <p class="text-sm text-secondary m-0">
+								<p class="text-sm text-secondary m-0">
 									{ rv.ReviewText }
 								</p>
 							</div>

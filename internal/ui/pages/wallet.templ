@@ -35,7 +35,6 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 templ walletContent(data WalletViewData, lang, dir string) {
 	<div
 		class="page-container"
-	
 		x-data="{
 			activeSection: 'transactions',
 			isDepositModalOpen: false,
@@ -45,18 +44,18 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		}"
 	>
 		<!-- Compact Page Header -->
-  <div class="stack-sm">
-   <div class="stack-sm">
-				<h1 class="page-title font-bold text-xl m-0">
+		<div class="d-flex items-center justify-between flex-wrap gap-3 mb-4">
+			<div>
+				<h1 class="page-title font-bold text-xl m-0 d-flex items-center gap-2">
 					@components.IconWallet("icon-sm")
 					<span>المحفظة والرصيد المالي</span>
 				</h1>
-    <p class="text-sm text-secondary m-0">
+				<p class="text-xs text-secondary m-0 mt-1">
 					إدارة الرصيد المتاح، شحن المحفظة، وسجل العمليات المالية وطرق الدفع
 				</p>
 			</div>
 
-   <div class="stack-sm">
+			<div class="d-flex items-center gap-2">
 				<button
 					type="button"
 					class="btn btn-secondary btn-sm font-bold"
@@ -80,12 +79,12 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		<!-- Flash Notices -->
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				<div class="alert alert-danger">
+				<div class="alert alert-danger mb-4">
 					@components.IconAlert("icon-xs")
 					<span>{ data.NoticeMessage }</span>
 				</div>
 			} else {
-				<div class="alert alert-success">
+				<div class="alert alert-success mb-4">
 					@components.IconCheckCircle("icon-xs")
 					<span>{ data.NoticeMessage }</span>
 				</div>
@@ -93,62 +92,59 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		}
 
 		<!-- Financial Balance Bar -->
-		<div class="card p-5">
-   <div class="stack-sm">
-				<!-- Card 1: Available Balance -->
-    <div class="stack-sm">
-					<div class="stat-label text-sm text-secondary">الرصيد الفعلي المتاح</div>
-					<div class="tabular-nums">
-						{ walletBalance(data.Wallet) }
-					</div>
-     <div class="stack-sm">
-						جاهز لسداد الطلبيات والمسحوبات
-					</div>
+		<div class="wallet-stats-grid mb-4">
+			<!-- Card 1: Available Balance -->
+			<div class="wallet-stat-card">
+				<div class="wallet-stat-label">الرصيد الفعلي المتاح</div>
+				<div class="wallet-stat-val text-primary tabular-nums">
+					{ walletBalance(data.Wallet) }
 				</div>
-
-				<!-- Card 2: Total Deposits -->
-    <div class="stack-sm">
-					<div class="stat-label text-sm text-secondary">إجمالي الإيداعات</div>
-					<div class="tabular-nums">
-						{ computeTotalInflows(data.Transactions) }
-					</div>
-     <div class="stack-sm">
-						مجموع المبالغ المودعة
-					</div>
+				<div class="wallet-stat-note">
+					جاهز لسداد الطلبيات والمسحوبات
 				</div>
+			</div>
 
-				<!-- Card 3: Total Outflows -->
-    <div class="stack-sm">
-					<div class="stat-label text-sm text-secondary">إجمالي المدفوعات والمسحوبات</div>
-					<div class="tabular-nums">
-						{ computeTotalOutflows(data.Transactions) }
-					</div>
-     <div class="stack-sm">
-						سداد أوامر التوريد والمسحوبات
-					</div>
+			<!-- Card 2: Total Deposits -->
+			<div class="wallet-stat-card">
+				<div class="wallet-stat-label">إجمالي الإيداعات</div>
+				<div class="wallet-stat-val text-emerald tabular-nums">
+					{ computeTotalInflows(data.Transactions) }
 				</div>
+				<div class="wallet-stat-note">
+					مجموع المبالغ المودعة
+				</div>
+			</div>
 
-				<!-- Card 4: Operations Count -->
-    <div class="stack-sm">
-					<div class="stat-label text-sm text-secondary">إجمالي العمليات</div>
-					<div class="tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Transactions)) } عملية
-					</div>
-     <div class="stack-sm">
-						مسجلة في دفتر الأستاذ
-					</div>
+			<!-- Card 3: Total Outflows -->
+			<div class="wallet-stat-card">
+				<div class="wallet-stat-label">إجمالي المدفوعات والمسحوبات</div>
+				<div class="wallet-stat-val text-secondary tabular-nums">
+					{ computeTotalOutflows(data.Transactions) }
+				</div>
+				<div class="wallet-stat-note">
+					سداد أوامر التوريد والمسحوبات
+				</div>
+			</div>
+
+			<!-- Card 4: Operations Count -->
+			<div class="wallet-stat-card">
+				<div class="wallet-stat-label">إجمالي العمليات</div>
+				<div class="wallet-stat-val tabular-nums">
+					{ fmt.Sprintf("%d", len(data.Transactions)) } <span class="text-xs font-normal text-muted">عملية</span>
+				</div>
+				<div class="wallet-stat-note">
+					مسجلة في دفتر الأستاذ
 				</div>
 			</div>
 		</div>
 
 		<!-- Section Tabs Navigation -->
-  <div class="stack-sm">
+		<div class="sp-tabs-nav mb-4">
 			<button
 				type="button"
-				class="tab-btn"
+				class="sp-tab-btn"
 				:class="{ 'active': activeSection === 'transactions' }"
 				@click="activeSection = 'transactions'"
-			
 			>
 				@components.IconCreditCard("icon-xs")
 				<span>سجل المعاملات المالية ({ fmt.Sprintf("%d", len(data.Transactions)) })</span>
@@ -156,10 +152,9 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 			<button
 				type="button"
-				class="tab-btn"
+				class="sp-tab-btn"
 				:class="{ 'active': activeSection === 'payments' }"
 				@click="activeSection = 'payments'"
-			
 			>
 				@components.IconShield("icon-xs")
 				<span>طرق الدفع والحسابات ({ fmt.Sprintf("%d", len(data.PaymentMethods)) })</span>
@@ -167,10 +162,9 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 			<button
 				type="button"
-				class="tab-btn"
+				class="sp-tab-btn"
 				:class="{ 'active': activeSection === 'deposits' }"
 				@click="activeSection = 'deposits'"
-			
 			>
 				@components.IconPlus("icon-xs")
 				<span>طلبات شحن الرصيد ({ fmt.Sprintf("%d", len(data.DepositRequests)) })</span>
@@ -178,10 +172,10 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		</div>
 
 		<!-- Section 1: Transactions Table -->
-		<div class="stack-md" x-show="activeSection === 'transactions'">
+		<div x-show="activeSection === 'transactions'">
 			<div class="card p-0">
 				if len(data.Transactions) == 0 {
-     <div class="stack-sm">
+					<div class="p-6">
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا توجد حركات مالية مسجلة",
 							Message: "لم يتم تسجيل أي عمليات إيداع أو سحب في محفظتك حتى الآن.",
@@ -209,7 +203,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 										</td>
 										<td class="font-bold tabular-nums">
 											if tx.Type == billing.TxDeposit || tx.Type == billing.TxBonus || tx.Type == billing.TxRefund {
-												<span>+{ tx.Amount.String() } ج.م</span>
+												<span class="text-emerald">+{ tx.Amount.String() } ج.م</span>
 											} else {
 												<span>{ tx.Amount.String() } ج.م</span>
 											}
@@ -218,7 +212,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 											{ tx.BalanceAfter.String() } ج.م
 										</td>
 										<td>
-           <div class="stack-sm">
+											<div class="font-bold text-xs">
 												if tx.Description != "" {
 													{ tx.Description }
 												} else {
@@ -226,7 +220,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 												}
 											</div>
 											if tx.ReferenceType != "" {
-            <div class="stack-sm">
+												<div class="text-2xs text-muted">
 													مرجع: { tx.ReferenceType }
 												</div>
 											}
@@ -244,13 +238,13 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		</div>
 
 		<!-- Section 2: Saved Payment Methods -->
-		<div class="stack-md" x-show="activeSection === 'payments'">
-   <div class="stack-sm">
-    <div class="stack-sm">
+		<div class="d-flex flex-col gap-4" x-show="activeSection === 'payments'">
+			<div class="d-flex items-center justify-between flex-wrap gap-3">
+				<div>
 					<h2 class="card-title font-bold text-base m-0">
 						طرق الدفع والحسابات البنكية المعتمدة
 					</h2>
-     <p class="text-sm text-secondary m-0">
+					<p class="text-xs text-secondary m-0 mt-1">
 						الحسابات والبطاقات المستخدمة في سداد الفواتير وشحن المحفظة وسحب المستحقات
 					</p>
 				</div>
@@ -267,15 +261,15 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 			<!-- Saved Methods Grid -->
 			if len(data.PaymentMethods) == 0 {
-				<div class="card p-6">
-					<div class="stat-label text-sm text-secondary">@components.IconCreditCard("icon-sm")</div>
+				<div class="card p-6 text-center">
+					<div class="mb-2 text-2xl text-muted">@components.IconCreditCard("icon-sm")</div>
 					<h3 class="font-bold text-sm m-0">لم يتم حفظ أي وسيلة دفع</h3>
-     <p class="text-sm text-secondary m-0">
+					<p class="text-xs text-secondary m-0 mt-1 max-w-sm mx-auto">
 						أضف حسابك البنكي أو محفظتك لتسهيل تسوية العمليات المالية وسحب الرصيد
 					</p>
 					<button
 						type="button"
-						class="btn btn-outline-brand btn-sm font-bold"
+						class="btn btn-outline-brand btn-sm font-bold mt-3 mx-auto"
 						@click="isAddPaymentModalOpen = true"
 					>
 						@components.IconPlus("icon-xs")
@@ -283,11 +277,11 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					</button>
 				</div>
 			} else {
-    <div class="stack-sm">
+				<div class="wallet-methods-grid">
 					for _, pm := range data.PaymentMethods {
-						<div class="card p-4">
-       <div class="stack-sm">
-        <div class="stack-sm">
+						<div class="wallet-method-card">
+							<div class="wallet-method-identity">
+								<div class="wallet-method-icon">
 									if pm.Provider == "bank" {
 										@components.IconBank("icon-sm")
 									} else if pm.Provider == "instapay" {
@@ -298,22 +292,22 @@ templ walletContent(data WalletViewData, lang, dir string) {
 										@components.IconCreditCard("icon-sm")
 									}
 								</div>
-        <div class="stack-sm">
-									<div class="inline-row-wrap">
-										<span>
+								<div>
+									<div class="d-flex items-center gap-2">
+										<span class="font-bold text-xs">
 											{ paymentProviderTitle(pm.Provider) }
 										</span>
 										if pm.IsDefault {
-											<span class="badge badge-emerald text-xs font-bold">افتراضي</span>
+											<span class="badge badge-emerald text-2xs font-bold">افتراضي</span>
 										}
 									</div>
-         <div class="stack-sm">
+									<div class="text-xs text-muted tabular-nums">
 										{ pm.AccountIdentifier }
 									</div>
 								</div>
 							</div>
 
-       <div class="stack-sm">
+							<div>
 								<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", ternary(data.IsVendor, "/vendor/wallet", "/customer/wallet"), pm.ID)) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف وسيلة الدفع؟');">
 									<button type="submit" class="btn btn-icon btn-ghost btn-xs text-danger" title="حذف وسيلة الدفع">
 										@components.IconTrash("icon-xs")
@@ -326,36 +320,36 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			}
 
 			<!-- Official Platform Bank Details for Recharge -->
-			<div class="card p-5">
-    <div class="stack-sm">
+			<div class="card p-4">
+				<div class="d-flex items-center gap-2 mb-3 text-primary font-bold text-xs">
 					@components.IconInfo("icon-xs")
 					<span>الحسابات الرسمية المعتمدة للتحويل والإيداع</span>
 				</div>
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<div class="stat-label text-sm text-secondary">البنك التجاري الدولي (CIB)</div>
-						<div class="stat-label text-sm text-secondary">اسم الحساب: شركة دواء 24 للتجارة الإلكترونية</div>
-						<div class="stat-label text-sm text-secondary">EG1200100001234567890123</div>
+				<div class="wallet-official-grid">
+					<div class="wallet-official-card">
+						<div class="wallet-official-title">البنك التجاري الدولي (CIB)</div>
+						<div class="text-2xs text-secondary">اسم الحساب: شركة دواء 24 للتجارة الإلكترونية</div>
+						<div class="wallet-official-code tabular-nums">EG1200100001234567890123</div>
 					</div>
-     <div class="stack-sm">
-						<div class="stat-label text-sm text-secondary">إنستاباي (InstaPay)</div>
-						<div class="stat-label text-sm text-secondary">عنوان الدفع اللحظي:</div>
-						<div class="stat-label text-sm text-secondary">dawa24@instapay</div>
+					<div class="wallet-official-card">
+						<div class="wallet-official-title">إنستاباي (InstaPay)</div>
+						<div class="text-2xs text-secondary">عنوان الدفع اللحظي:</div>
+						<div class="wallet-official-code">dawa24@instapay</div>
 					</div>
-     <div class="stack-sm">
-						<div class="stat-label text-sm text-secondary">فودافون كاش (Vodafone Cash)</div>
-						<div class="stat-label text-sm text-secondary">رقم المحفظة المعتمد:</div>
-						<div class="stat-label text-sm text-secondary">01000000024</div>
+					<div class="wallet-official-card">
+						<div class="wallet-official-title">فودافون كاش (Vodafone Cash)</div>
+						<div class="text-2xs text-secondary">رقم المحفظة المعتمد:</div>
+						<div class="wallet-official-code tabular-nums">01000000024</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Section 3: Pending Deposit Requests -->
-		<div class="stack-md" x-show="activeSection === 'deposits'">
+		<div x-show="activeSection === 'deposits'">
 			<div class="card p-0">
 				if len(data.DepositRequests) == 0 {
-     <div class="stack-sm">
+					<div class="p-6">
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا توجد طلبات شحن معلقة",
 							Message: "كافة عمليات الإيداع السابقة تم اعتمادها وتسويتها بالكامل.",
