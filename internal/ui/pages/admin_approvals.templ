@@ -87,9 +87,9 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 			Title: "طلب مستند رسمي وتحديث تراخيص من منشأة",
 			Size:  "md",
 		}) {
-			<form method="POST" action="/admin/document-requests" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
-				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem; font-size:0.825rem; line-height:1.5; color:var(--text-secondary);">
-					<strong style="color:var(--text); display:block; margin-bottom:0.25rem;">ℹ️ آلية عمل طلب المستند:</strong>
+			<form method="POST" action="/admin/document-requests" class="d-flex flex-col gap-4 text-start">
+				<div class="bg-surface-sunken border rounded-xl p-4 text-xs leading-relaxed text-secondary">
+					<strong class="text-primary d-block mb-1">ℹ️ آلية عمل طلب المستند:</strong>
 					سيتم إرسال تنبيه إداري عاجل للمنشأة يظهر في لوحة تحكمها مع مهلة محددة (شهر). لا يتم إيقاف النشاط التجاري اليومي للمنشأة فوراً، ولكن يتم تذكيرهم برفع المستند لتجنب إيقاف الحساب بعد انتهاء المهلة.
 				</div>
 
@@ -162,17 +162,17 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 // TAB 1: Organization Registrations & Licenses
 // -------------------------------------------------------------
 templ AdminApprovalsOrgTab(data *AdminApprovalsData) {
-	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+	<div class="flex-between items-center mb-5 gap-4 flex-wrap">
 		<div>
 			<h3 class="text-lg fw-800 text-primary m-0">
 				طلبات تسجيل واعتماد المنشآت
 			</h3>
-			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
+			<p class="text-xs text-muted mt-1 mb-0">
 				فحص ومطابقة بيانات التراخيص والسجل التجاري للمنشآت المسجلة حديثاً.
 			</p>
 		</div>
 
-		<div style="display:flex; gap:0.4rem; align-items:center;">
+		<div class="row-center-sm">
 			<a href="/admin/approvals?tab=organizations" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "pending"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "pending") }>
 				<span>قيد الفحص (Pending)</span>
 			</a>
@@ -212,8 +212,8 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 					for _, o := range orgs {
 						<tr id={ fmt.Sprintf("org-row-%d", o.ID) }>
 							<td>
-								<div style="font-weight:800; color:var(--neutral-900); font-size:0.95rem;">{ o.LegalName }</div>
-								<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;">
+								<div class="font-extrabold text-primary text-sm">{ o.LegalName }</div>
+								<div class="text-xs text-muted mt-0.5">
 									if o.TradeName["ar"] != "" {
 										{ o.TradeName["ar"] }
 									} else {
@@ -229,30 +229,30 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 								}
 							</td>
 							<td>
-								<div style="font-size:0.85rem;"><span style="color:var(--neutral-500);">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
+								<div class="text-sm"><span class="text-muted">سجل:</span> <strong class="tabular-nums">{ o.CommercialRegister }</strong></div>
 								if o.TaxNumber != "" {
-									<div style="font-size:0.8rem; color:var(--neutral-600);"><span style="color:var(--neutral-500);">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
+									<div class="text-xs text-secondary"><span class="text-muted">ضريبة:</span> <span class="tabular-nums">{ o.TaxNumber }</span></div>
 								}
 							</td>
 							<td>
 								if o.PharmacistLicense != "" {
-									<span class="tabular-nums" style="font-weight:700; color:var(--primary-700); font-size:0.875rem;">{ o.PharmacistLicense }</span>
+									<span class="tabular-nums font-bold text-accent text-sm">{ o.PharmacistLicense }</span>
 								} else {
-									<span style="color:var(--neutral-400); font-size:0.8rem;">غير محدد</span>
+									<span class="text-muted text-xs">غير محدد</span>
 								}
 							</td>
 							<td>
 								if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
-									<div style="display:flex; flex-direction:column; gap:0.25rem;">
+									<div class="d-flex flex-col gap-1">
 										for _, doc := range orgDocs[o.ID] {
-											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem; font-weight:700; color:var(--primary-700); gap:0.35rem; padding:0.25rem 0.55rem;">
+											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-xs font-bold text-accent gap-1.5 px-2 py-1">
 												@components.IconFile("icon-xs")
 												<span>{ docTypeLabelAr(string(doc.DocumentType)) }</span>
 											</a>
 										}
 									</div>
 								} else {
-									<span style="font-size:0.775rem; color:var(--neutral-400);">لا يوجد ملف</span>
+									<span class="text-xs text-muted">لا يوجد ملف</span>
 								}
 							</td>
 							<td>
@@ -267,7 +267,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 								}
 							</td>
 							<td class="text-end">
-								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+								<div class="table-actions justify-end gap-1.5">
 									<button
 										type="button"
 										class="btn btn-secondary btn-sm"
@@ -294,38 +294,38 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 										Title: fmt.Sprintf("ملف بيانات التسجيل: %s", o.LegalName),
 										Size:  "lg",
 									}) {
-										<div style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-											<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); font-size:0.875rem;">
+										<div class="d-flex flex-col gap-5 text-start">
+											<div class="d-grid grid-2-col gap-4 bg-surface-sunken p-5 rounded-2xl border text-sm">
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم القانوني للمنشأة</span>
-													<strong style="color:var(--text); font-size:1rem;">{ o.LegalName }</strong>
+													<span class="text-muted d-block text-xs">الاسم القانوني للمنشأة</span>
+													<strong class="text-primary text-base">{ o.LegalName }</strong>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">نوع الحساب</span>
+													<span class="text-muted d-block text-xs">نوع الحساب</span>
 													<span class="badge badge-sky">{ orgTypeAr(string(o.Type)) }</span>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم التجاري (عربي)</span>
+													<span class="text-muted d-block text-xs">الاسم التجاري (عربي)</span>
 													<strong class="text-primary">{ o.TradeName["ar"] }</strong>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الاسم التجاري (إنجليزي)</span>
+													<span class="text-muted d-block text-xs">الاسم التجاري (إنجليزي)</span>
 													<span class="text-primary" dir="ltr">{ o.TradeName["en"] }</span>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">رقم السجل التجاري</span>
+													<span class="text-muted d-block text-xs">رقم السجل التجاري</span>
 													<strong class="tabular-nums text-primary">{ o.CommercialRegister }</strong>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الرقم الضريبي</span>
+													<span class="text-muted d-block text-xs">الرقم الضريبي</span>
 													<span class="tabular-nums text-primary">{ o.TaxNumber }</span>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">رقم ترخيص المؤسسة الصيدلية</span>
+													<span class="text-muted d-block text-xs">رقم ترخيص المؤسسة الصيدلية</span>
 													<strong class="tabular-nums text-accent">{ o.PharmacistLicense }</strong>
 												</div>
 												<div>
-													<span style="color:var(--text-muted); display:block; font-size:0.75rem;">الحالة الحالية</span>
+													<span class="text-muted d-block text-xs">الحالة الحالية</span>
 													if string(o.Status) == "approved" {
 														<span class="badge badge-emerald">معتمد ونشط</span>
 													} else if string(o.Status) == "rejected" {
@@ -336,7 +336,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												</div>
 											</div>
 
-											<div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+											<div class="flex-between items-center gap-3 border-t pt-4">
 												<button
 													type="button"
 													class="btn btn-secondary"
@@ -354,9 +354,9 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 										Title: fmt.Sprintf("تدقيق واعتماد ترخيص: %s", o.LegalName),
 										Size:  "md",
 									}) {
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
-											<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.875rem;">
-												<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.5rem;">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } class="d-flex flex-col gap-4 text-start">
+											<div class="bg-surface-sunken p-4 rounded-xl border text-sm">
+												<div class="d-grid grid-2-col gap-3 mb-2">
 													<div><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
 													<div><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
 													<div><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
@@ -364,11 +364,11 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												</div>
 												
 												<!-- Document Preview Strip -->
-												<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+												<div class="mt-3 pt-3 border-t">
 													if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
-														<div style="font-size:0.8rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">المستند المرفوع عند التسجيل:</div>
+														<div class="text-xs font-bold text-primary mb-1.5">المستند المرفوع عند التسجيل:</div>
 														for _, doc := range orgDocs[o.ID] {
-															<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent); margin-bottom:0.25rem;">
+															<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent mb-1">
 																@components.IconFile("icon-xs")
 																<span>معاينة المستند المرفوع ({ docTypeLabelAr(string(doc.DocumentType)) }) في نافذة جديدة ↗</span>
 															</a>
@@ -384,7 +384,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												<label class="form-label" for={ fmt.Sprintf("doc-type-select-%d", o.ID) }>
 													تصنيف فئة المستند المرفوع (لتوثيقه واعتماده تلقائياً في ملف المنشأة) *
 												</label>
-												<select id={ fmt.Sprintf("doc-type-select-%d", o.ID) } name="document_type" required class="form-select" style="font-weight:700; background:var(--surface-sunken); border-color:var(--accent);">
+												<select id={ fmt.Sprintf("doc-type-select-%d", o.ID) } name="document_type" required class="form-select font-bold bg-surface-sunken border-accent">
 													if string(o.Type) == "vendor" {
 														<option value="commercial_register" selected>السجل التجاري (Commercial Register)</option>
 														<option value="tax_card">البطاقة الضريبية (Tax Card)</option>
@@ -404,7 +404,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 														<option value="other">مستند رسمي آخر (Other)</option>
 													}
 												</select>
-												<span style="font-size:0.75rem; color:var(--text-muted); margin-top:3px; display:block;">
+												<span class="text-xs text-muted mt-1 d-block">
 													عند الاعتماد، سيتم حفظ المستند كـ "معتمد وموثق" تحت هذه الفئة وسيظهر فوراً في لوحة تحكم المنشأة.
 												</span>
 											</div>
@@ -460,12 +460,12 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 // TAB 2: Uploaded Documents Auditing
 // -------------------------------------------------------------
 templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
-	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+	<div class="flex-between items-center mb-5 gap-4 flex-wrap">
 		<div>
 			<h3 class="text-lg fw-800 text-primary m-0">
 				تدقيق واعتماد وثائق المنشآت المرفوعة
 			</h3>
-			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
+			<p class="text-xs text-muted mt-1 mb-0">
 				مراجعة كافة المستندات والملفات المرفوعة لاحقاً من الصيدليات والشركات وتوثيق فئاتها.
 			</p>
 		</div>
@@ -502,23 +502,23 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 								if doc.OrganizationID != nil && data.OrgNames[*doc.OrganizationID] != "" {
 									<strong class="text-primary">{ data.OrgNames[*doc.OrganizationID] }</strong>
 								} else {
-									<span style="color:var(--neutral-400);">منشأة عامة / مستخدم</span>
+									<span class="text-muted">منشأة عامة / مستخدم</span>
 								}
 							</td>
 							<td>
-								<div style="font-weight:600; font-size:0.85rem; max-width:220px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+								<div class="font-bold text-sm truncate max-w-xs">
 									if doc.OriginalName != "" {
 										{ doc.OriginalName }
 									} else {
 										مستند #{ fmt.Sprintf("%d", doc.ID) }
 									}
 								</div>
-								<div style="font-size:0.75rem; color:var(--neutral-400);">
+								<div class="text-xs text-muted">
 									{ format.Bytes(doc.SizeBytes) }
 								</div>
 							</td>
 							<td>
-								<span class="tabular-nums" style="font-size:0.825rem; color:var(--neutral-600);">
+								<span class="tabular-nums text-xs text-secondary">
 									{ format.Date(doc.CreatedAt, "ar") }
 								</span>
 							</td>
@@ -534,20 +534,19 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 							</td>
 							<td>
 								if doc.ReviewNotes != "" {
-									<span style="font-size:0.8rem; color:var(--neutral-700); max-width:200px; display:inline-block; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title={ doc.ReviewNotes }>
+									<span class="text-xs text-primary truncate max-w-xs d-inline-block" title={ doc.ReviewNotes }>
 										{ doc.ReviewNotes }
 									</span>
 								} else {
-									<span style="font-size:0.75rem; color:var(--neutral-400);">-</span>
+									<span class="text-xs text-muted">-</span>
 								}
 							</td>
 							<td class="text-end">
-								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+								<div class="table-actions justify-end gap-1.5">
 									<a
 										href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
 										target="_blank"
-										class="btn btn-secondary btn-sm"
-										style="gap:0.3rem;"
+										class="btn btn-secondary btn-sm gap-1"
 									>
 										@components.IconEye("icon-xs")
 										<span>معاينة الملف ↗</span>
@@ -568,13 +567,13 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 										Title: fmt.Sprintf("تدقيق وتصنيف المستند: %s", doc.OriginalName),
 										Size:  "md",
 									}) {
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/documents/%d/verify", doc.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
-											<div style="background:var(--surface-sunken); padding:0.9rem; border-radius:var(--radius-lg); border:1px solid var(--border); font-size:0.85rem;">
-												<div style="margin-bottom:0.4rem;">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/documents/%d/verify", doc.ID)) } class="d-flex flex-col gap-4 text-start">
+											<div class="bg-surface-sunken p-4 rounded-xl border text-sm">
+												<div class="mb-2">
 													<strong>الملف:</strong> { doc.OriginalName } ({ format.Bytes(doc.SizeBytes) })
 												</div>
 												<div>
-													<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent);">
+													<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent">
 														@components.IconFile("icon-xs")
 														<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span>
 													</a>
@@ -639,16 +638,13 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 // -------------------------------------------------------------
 // TAB 3: Requested Documents & Follow-up
 // -------------------------------------------------------------
-// -------------------------------------------------------------
-// TAB 3: Requested Documents & Follow-up
-// -------------------------------------------------------------
 templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
-	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+	<div class="flex-between items-center mb-5 gap-4 flex-wrap">
 		<div>
 			<h3 class="text-lg fw-800 text-primary m-0">
 				سجل المستندات المطلوبة ومتابعة المهل
 			</h3>
-			<p style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.2rem; margin-bottom:0;">
+			<p class="text-xs text-muted mt-1 mb-0">
 				متابعة المستندات الرسمية التي طلبتها الإدارة من الصيدليات والشركات مع تواريخ انتهاء المهل.
 			</p>
 		</div>
@@ -656,9 +652,8 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 		<div>
 			<button
 				type="button"
-				class="btn btn-primary btn-sm fw-800"
+				class="btn btn-primary btn-sm fw-800 gap-1.5"
 				data-modal-open="request-new-doc-modal"
-				style="gap:0.4rem;"
 			>
 				@components.IconPlus("icon-xs")
 				<span>طلب مستند جديد من منشأة</span>
@@ -672,7 +667,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 		Title: "طلب ترخيص أو مستند رسمي من منشأة",
 		Size:  "md",
 	}) {
-		<form method="POST" action="/admin/document-requests" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start; margin:0;">
+		<form method="POST" action="/admin/document-requests" class="d-flex flex-col gap-4 text-start m-0">
 			<div class="form-group m-0">
 				<label class="form-label" for="req-doc-org">
 					المنشأة المستهدفة (صيدلية أو مورد) *
@@ -716,8 +711,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 					name="title"
 					required
 					placeholder="مثال: مطلوب كارنيه النقابة للعام الحالي لاستكمال التوثيق"
-					class="form-control"
-					style="font-size:0.875rem;"
+					class="form-input text-sm"
 				/>
 			</div>
 
@@ -730,8 +724,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 					name="description"
 					rows="3"
 					placeholder="تفاصيل الشروط المطلوبة في الملف..."
-					class="form-control"
-					style="font-size:0.85rem;"
+					class="form-input text-sm"
 				></textarea>
 			</div>
 
@@ -747,8 +740,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 					min="1"
 					max="90"
 					required
-					class="form-control"
-					style="font-size:0.875rem; max-width:140px;"
+					class="form-input text-sm max-w-xs"
 				/>
 			</div>
 
@@ -760,7 +752,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 				>
 					إلغاء
 				</button>
-				<button type="submit" class="btn btn-primary fw-800" style="padding:0 1.5rem;">
+				<button type="submit" class="btn btn-primary fw-800 px-6">
 					إرسال الطلب للمنشأة
 				</button>
 			</div>
@@ -793,27 +785,27 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 							<td class="tabular-nums">#{ fmt.Sprintf("%d", req.ID) }</td>
 							<td>
 								<strong class="text-primary">{ req.OrgName }</strong>
-								<div style="font-size:0.75rem; color:var(--neutral-500);">معرف: #{ fmt.Sprintf("%d", req.OrganizationID) }</div>
+								<div class="text-xs text-muted">معرف: #{ fmt.Sprintf("%d", req.OrganizationID) }</div>
 							</td>
 							<td>
 								<span class="badge badge-sky">{ docTypeLabelAr(string(req.DocumentType)) }</span>
 							</td>
 							<td>
-								<div style="font-weight:700; font-size:0.875rem; color:var(--text);">{ req.Title }</div>
+								<div class="font-bold text-sm text-primary">{ req.Title }</div>
 								if req.Description != "" {
-									<div style="font-size:0.775rem; color:var(--neutral-500); margin-top:2px;">{ req.Description }</div>
+									<div class="text-xs text-muted mt-0.5">{ req.Description }</div>
 								}
 							</td>
 							<td>
-								<span class="tabular-nums" style="font-size:0.825rem; color:var(--neutral-600);">
+								<span class="tabular-nums text-xs text-secondary">
 									{ format.Date(req.CreatedAt, "ar") }
 								</span>
 							</td>
 							<td>
-								<div class="tabular-nums" style="font-size:0.825rem; font-weight:700;">
+								<div class="tabular-nums text-xs font-bold">
 									{ format.Date(req.DeadlineAt, "ar") }
 								</div>
-								<div style="margin-top:3px;">
+								<div class="mt-0.5">
 									if req.Status == attachments.DocReqFulfilled {
 										<span class="badge badge-emerald font-size-10">تم الاستيفاء </span>
 									} else if req.IsOverdue() {
@@ -840,13 +832,12 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 								}
 							</td>
 							<td class="text-end">
-								<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+								<div class="table-actions justify-end gap-1.5">
 									if req.SubmittedDocID != nil {
 										<a
 											href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", *req.SubmittedDocID)) }
 											target="_blank"
-											class="btn btn-primary btn-sm"
-											style="gap:0.25rem;"
+											class="btn btn-primary btn-sm gap-1"
 										>
 											@components.IconEye("icon-xs")
 											<span>معاينة المرفوع</span>
