@@ -162,7 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Theme Management System
 function initThemeSystem() {
-  const currentTheme = localStorage.getItem('dawa24-theme') || 'system';
+  // The URL parameter wins over the stored preference, and it has to be read
+  // here as well as in the inline script in base.templ. That script sets
+  // data-theme before first paint; this function runs a moment later and used
+  // to reset it from localStorage alone, silently undoing a ?theme= link.
+  //
+  // The visual regression harness varies theme through the URL, so every
+  // baseline it captured came out in the browser's default theme -- four of the
+  // eight were duplicates of the other four and the suite could not see a
+  // light-mode regression at all. A shared link carrying ?theme= was equally
+  // broken for real users, just less visibly.
+  //
+  // The URL value is deliberately not persisted: it styles this view, it does
+  // not change what the reader chose.
+  const urlTheme = new URLSearchParams(window.location.search).get('theme');
+  const stored = localStorage.getItem('dawa24-theme') || 'system';
+  const currentTheme = (urlTheme === 'light' || urlTheme === 'dark') ? urlTheme : stored;
   applyTheme(currentTheme, false);
 
   document.addEventListener('click', (e) => {
