@@ -34,6 +34,121 @@ function ensureLeaflet() {
   return leafletPromise;
 }
 
+/* --------------------------------------------------------------------------
+   Standalone helpers.
+
+   registration.js ships richer copies of these for the onboarding flow and,
+   when it is on the page, its definitions win (it loads after this file).
+   Everywhere else -- branch forms, admin cities, offer locations -- this file
+   is the only map code loaded, so it must be able to reverse-geocode and sync
+   the governorate dropdowns on its own.
+   -------------------------------------------------------------------------- */
+if (typeof window.DAWA_EGYPT_CITY_COORDS === 'undefined') {
+  window.DAWA_EGYPT_CITY_COORDS = [
+    { name: 'القاهرة', lat: 30.0444, lon: 31.2357 },
+    { name: 'الجيزة', lat: 30.0131, lon: 31.2089 },
+    { name: 'الإسكندرية', lat: 31.2001, lon: 29.9187 },
+    { name: 'الدقهلية', lat: 31.0379, lon: 31.3815 },
+    { name: 'البحر الأحمر', lat: 27.2579, lon: 33.8116 },
+    { name: 'البحيرة', lat: 31.0349, lon: 30.4682 },
+    { name: 'الفيوم', lat: 29.3084, lon: 30.8428 },
+    { name: 'الغربية', lat: 30.7865, lon: 31.0004 },
+    { name: 'الإسماعيلية', lat: 30.5965, lon: 32.2715 },
+    { name: 'المنوفية', lat: 30.5972, lon: 30.9876 },
+    { name: 'المنيا', lat: 28.1099, lon: 30.7503 },
+    { name: 'القليوبية', lat: 30.4591, lon: 31.1786 },
+    { name: 'الوادي الجديد', lat: 25.4514, lon: 30.5464 },
+    { name: 'السويس', lat: 29.9668, lon: 32.5498 },
+    { name: 'أسوان', lat: 24.0889, lon: 32.8998 },
+    { name: 'أسيوط', lat: 27.1809, lon: 31.1837 },
+    { name: 'بني سويف', lat: 29.0661, lon: 31.0994 },
+    { name: 'بورسعيد', lat: 31.2653, lon: 32.3019 },
+    { name: 'دمياط', lat: 31.4175, lon: 31.8144 },
+    { name: 'الشرقية', lat: 30.5765, lon: 31.5041 },
+    { name: 'جنوب سيناء', lat: 28.9712, lon: 33.6176 },
+    { name: 'كفر الشيخ', lat: 31.1107, lon: 30.9388 },
+    { name: 'مطروح', lat: 31.3543, lon: 27.2373 },
+    { name: 'الأقصر', lat: 25.6872, lon: 32.6396 },
+    { name: 'قنا', lat: 26.1551, lon: 32.7160 },
+    { name: 'شمال سيناء', lat: 31.1316, lon: 33.8033 },
+    { name: 'سوهاج', lat: 26.5569, lon: 31.6948 }
+  ];
+}
+
+if (typeof window.syncCityDropdownsWithCoordinates === 'undefined') {
+  window.syncCityDropdownsWithCoordinates = function (lat, lon) {
+    let closest = null;
+    let minDist = Infinity;
+    (window.DAWA_EGYPT_CITY_COORDS || []).forEach(function (c) {
+      const d = Math.hypot(lat - c.lat, lon - c.lon);
+      if (d < minDist) { minDist = d; closest = c; }
+    });
+
+    document.querySelectorAll('[data-city-selector], [data-map-city]').forEach(function (selectEl) {
+      if (!selectEl.options) return;
+      let bestOpt = null;
+      let minOptDist = Infinity;
+      for (let i = 0; i < selectEl.options.length; i++) {
+        const opt = selectEl.options[i];
+        if (!opt.value) continue;
+        let oLat = parseFloat(opt.dataset.lat);
+        let oLon = parseFloat(opt.dataset.lng || opt.dataset.lon);
+        if (isNaN(oLat) || isNaN(oLon)) {
+          const parts = String(opt.value).split(',').map(function (v) { return parseFloat(v.trim()); });
+          oLat = parts[0]; oLon = parts[1];
+        }
+        if (!isNaN(oLat) && !isNaN(oLon)) {
+          const d = Math.hypot(lat - oLat, lon - oLon);
+          if (d < minOptDist) { minOptDist = d; bestOpt = opt; }
+        }
+      }
+      if (bestOpt && minOptDist < 0.45) {
+        selectEl.value = bestOpt.value;
+        const cityId = bestOpt.dataset.cityId;
+        if (cityId) {
+          document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach(function (hi) {
+            hi.value = cityId;
+          });
+        }
+      }
+    });
+
+    return closest;
+  };
+}
+
+if (typeof window.fetchDetailedAddressFromCoords === 'undefined') {
+  let reverseGeocodeTimer = null;
+  window.fetchDetailedAddressFromCoords = function (lat, lon) {
+    const addressInput = document.getElementById('reg-address') ||
+      document.querySelector('input[name="address"], [data-map-address]');
+    if (!addressInput) return;
+    clearTimeout(reverseGeocodeTimer);
+    reverseGeocodeTimer = setTimeout(async function () {
+      try {
+        const resp = await fetch(
+          'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat +
+          '&lon=' + lon + '&zoom=18&addressdetails=1&accept-language=ar',
+          { headers: { 'Accept': 'application/json' } }
+        );
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (!data || !data.address) return;
+        const a = data.address;
+        const parts = [];
+        if (a.road || a.street) parts.push(a.road || a.street);
+        if (a.neighbourhood || a.suburb || a.quarter) parts.push(a.neighbourhood || a.suburb || a.quarter);
+        if (a.city || a.town || a.village || a.county) parts.push(a.city || a.town || a.village || a.county);
+        if (a.state) parts.push(a.state);
+        const fullAddr = parts.filter(Boolean).join('، ');
+        if (fullAddr && !addressInput.value.trim()) addressInput.value = fullAddr;
+      } catch (e) {
+        console.warn('reverse geocoding:', e);
+      }
+    }, 400);
+  };
+}
+
 // Universal Leaflet & Interactive Map Engine
 function initMapPickers() {
   const containers = document.querySelectorAll('[data-map-picker]');
@@ -162,10 +277,14 @@ function initMapPickers() {
       if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
 
       // Sync city selectors and hidden city ID
-      syncCityDropdownsWithCoordinates(fixedLat, fixedLon);
+      if (typeof window.syncCityDropdownsWithCoordinates === 'function') {
+        window.syncCityDropdownsWithCoordinates(fixedLat, fixedLon);
+      }
 
       // Auto-fetch detailed street/district address via Reverse Geocoding
-      fetchDetailedAddressFromCoords(fixedLat, fixedLon);
+      if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+        window.fetchDetailedAddressFromCoords(fixedLat, fixedLon);
+      }
     }
 
     container._updateCoords = updateCoordinates;
@@ -278,7 +397,9 @@ function initMapPickers() {
             const userLat = pos.coords.latitude;
             const userLon = pos.coords.longitude;
             updateCoordinates(userLat, userLon, 16);
-            const nearest = syncCityDropdownsWithCoordinates(userLat, userLon);
+            const nearest = (typeof window.syncCityDropdownsWithCoordinates === 'function')
+              ? window.syncCityDropdownsWithCoordinates(userLat, userLon)
+              : null;
             if (nearest) {
               showToast(`ØªÙ… ØªØ­Ø¯ÙŠØ¯ Ù…ÙˆÙ‚Ø¹Ùƒ Ø¨Ø¯Ù‚Ø© Ø¹Ø§Ù„ÙŠØ© ÙˆØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ø¥Ù„Ù‰: ${nearest.name} ðŸ“`, 'success');
             } else {

@@ -73,6 +73,12 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			<script defer src={ Asset("/static/vendor/htmx-1.9.10.min.js") }></script>
 			<script defer src={ Asset("/static/vendor/alpine-3.13.5.min.js") }></script>
 			<script defer src={ Asset("/static/js/app.js") }></script>
+			// maps.js defines ensureLeaflet + initMapPickers. It is ~9 KB and self
+			// -contained; Leaflet itself (the ~200 KB payload) is still fetched on
+			// demand by ensureLeaflet only when a map element is present. Loading
+			// this shim on every page is what makes the picker work everywhere it
+			// appears -- registration, branches, admin cities, offer locations.
+			<script defer src={ Asset("/static/js/maps.js") }></script>
 		</head>
 		<body>
 			{ children... }
