@@ -109,7 +109,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><!-- Quick Refresh Button --><a href=\"/admin/dashboard\" class=\"btn btn-secondary btn-sm fw-800\" class=\"btn-sm text-xs gap-1 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><!-- Quick Refresh Button --><a href=\"/admin/dashboard\" class=\"btn btn-secondary btn-sm fw-800 text-xs gap-1 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -125,7 +125,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"tabular-nums\" class=\"admin-kpi-value text-success\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"tabular-nums admin-kpi-value text-success\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -189,7 +189,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><div class=\"tabular-nums\" class=\"admin-kpi-value text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><div class=\"tabular-nums admin-kpi-value text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -236,7 +236,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div><div class=\"tabular-nums\" class=\"admin-kpi-value text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div><div class=\"tabular-nums admin-kpi-value text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -301,7 +301,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 				return templ_7745c5c3_Err
 			}
 			if stats.PendingApprovals > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/admin/approvals\" class=\"badge badge-amber font-bold text-xs\" class=\"rounded-md no-underline\">â\u008f³ ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/admin/approvals\" class=\"badge badge-amber font-bold text-xs rounded-md no-underline\">â\u008f³ ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -319,13 +319,13 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-emerald text-xs font-bold\" class=\"rounded-md\">Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹ØªÙ…Ø¯Ø©</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-emerald text-xs font-bold rounded-md\">Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹ØªÙ…Ø¯Ø©</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if stats.PendingDepositsCount > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<a href=\"/admin/finance?tab=deposits\" class=\"badge badge-sky font-bold text-xs\" class=\"rounded-md no-underline\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<a href=\"/admin/finance?tab=deposits\" class=\"badge badge-sky font-bold text-xs rounded-md no-underline\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -364,7 +364,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span> <span>Ø\u00adØ±ÙƒØ© Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ ÙˆØ£Ø\u00adØ¯Ø« Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯</span></h3><p class=\"text-xs text-secondary mt-0.5 m-0\">Ø±ØµØ¯ Ù…Ø¨Ø§Ø´Ø± Ù„ØªØ¯Ù\u0081Ù‚ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø´Ø±Ø§Ø¡ Ø¨ÙŠÙ† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</p></div><a href=\"/admin/orders\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1\"><span>Ø¹Ø±Ø¶ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span> <span>Ø\u00adØ±ÙƒØ© Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ ÙˆØ£Ø\u00adØ¯Ø« Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯</span></h3><p class=\"text-xs text-secondary mt-0.5 m-0\">Ø±ØµØ¯ Ù…Ø¨Ø§Ø´Ø± Ù„ØªØ¯Ù\u0081Ù‚ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø´Ø±Ø§Ø¡ Ø¨ÙŠÙ† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</p></div><a href=\"/admin/orders\" class=\"btn btn-secondary btn-xs fw-800 gap-1\"><span>Ø¹Ø±Ø¶ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -372,7 +372,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</a></div><!-- Mini Catalog Summary Strip --><div class=\"d-grid grid-cols-3 gap-2 mb-3\"><div class=\"bg-surface-sunken border rounded-lg p-2 text-center\"><div class=\"text-xs text-muted font-bold\">Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</div><div class=\"tabular-nums\" class=\"text-lg font-black text-primary mt-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</a></div><!-- Mini Catalog Summary Strip --><div class=\"d-grid grid-cols-3 gap-2 mb-3\"><div class=\"bg-surface-sunken border rounded-lg p-2 text-center\"><div class=\"text-xs text-muted font-bold\">Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</div><div class=\"tabular-nums text-lg font-black text-primary mt-0.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -385,7 +385,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div></div><div class=\"bg-surface-sunken border rounded-lg p-2 text-center\"><div class=\"text-xs text-muted font-bold\">Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ØªÙˆÙ\u0081ÙŠØ±</div><div class=\"tabular-nums\" class=\"text-lg font-black text-success mt-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div></div><div class=\"bg-surface-sunken border rounded-lg p-2 text-center\"><div class=\"text-xs text-muted font-bold\">Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ØªÙˆÙ\u0081ÙŠØ±</div><div class=\"tabular-nums text-lg font-black text-success mt-0.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -398,7 +398,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div><div class=\"bg-surface-sunken border rounded-lg p-2 text-center\"><div class=\"text-xs text-muted font-bold\">Ø§Ù„Ù\u0081Ø±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª</div><div class=\"tabular-nums\" class=\"text-lg font-black text-brand mt-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div><div class=\"bg-surface-sunken border rounded-lg p-2 text-center\"><div class=\"text-xs text-muted font-bold\">Ø§Ù„Ù\u0081Ø±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª</div><div class=\"tabular-nums text-lg font-black text-brand mt-0.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -421,7 +421,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"border rounded-xl overflow-hidden bg-surface-sunken\"><table class=\"data-table\" class=\"text-xs\"><thead><tr class=\"bg-surface-raised\"><th class=\"pad-sm\"># Ø§Ù„Ø·Ù„Ø¨</th><th class=\"pad-sm\">Ø§Ù„Ù…Ù†Ø´Ø£Ø© / Ø§Ù„Ø¹Ù…ÙŠÙ„</th><th class=\"pad-sm\">Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th><th class=\"pad-sm\">Ø§Ù„Ø\u00adØ§Ù„Ø©</th><th class=\"text-end pad-sm\">Ø§Ù„ØªØ§Ø±ÙŠØ®</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"border rounded-xl overflow-hidden bg-surface-sunken\"><table class=\"data-table text-xs\"><thead><tr class=\"bg-surface-raised\"><th class=\"pad-sm\"># Ø§Ù„Ø·Ù„Ø¨</th><th class=\"pad-sm\">Ø§Ù„Ù…Ù†Ø´Ø£Ø© / Ø§Ù„Ø¹Ù…ÙŠÙ„</th><th class=\"pad-sm\">Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th><th class=\"pad-sm\">Ø§Ù„Ø\u00adØ§Ù„Ø©</th><th class=\"text-end pad-sm\">Ø§Ù„ØªØ§Ø±ÙŠØ®</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -562,7 +562,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</span> <span>Ø\u00adØ±ÙƒØ© Ø§Ù„Ø²ÙˆØ§Ø± ÙˆØ¬Ø§Ù‡Ø²ÙŠØ© Ø§Ù„Ø¨Ù†ÙŠØ© Ø§Ù„ØªØ\u00adØªÙŠØ©</span></h3><p class=\"text-xs text-secondary mt-0.5 m-0\">ØªÙˆØ²ÙŠØ¹ Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ØªØµÙ\u0081Ø\u00ad ÙˆØ\u00adØ§Ù„Ø© Ø®ÙˆØ§Ø¯Ù… Ø§Ù„ØªØ´ØºÙŠÙ„ ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø\u00adØ§Ø¨ÙŠØ©</p></div><a href=\"/admin/analytics\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1\"><span>ØªÙ\u0081Ø§ØµÙŠÙ„ Ø§Ù„Ø²ÙˆØ§Ø±</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</span> <span>Ø\u00adØ±ÙƒØ© Ø§Ù„Ø²ÙˆØ§Ø± ÙˆØ¬Ø§Ù‡Ø²ÙŠØ© Ø§Ù„Ø¨Ù†ÙŠØ© Ø§Ù„ØªØ\u00adØªÙŠØ©</span></h3><p class=\"text-xs text-secondary mt-0.5 m-0\">ØªÙˆØ²ÙŠØ¹ Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ØªØµÙ\u0081Ø\u00ad ÙˆØ\u00adØ§Ù„Ø© Ø®ÙˆØ§Ø¯Ù… Ø§Ù„ØªØ´ØºÙŠÙ„ ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø\u00adØ§Ø¨ÙŠØ©</p></div><a href=\"/admin/analytics\" class=\"btn btn-secondary btn-xs fw-800 gap-1\"><span>ØªÙ\u0081Ø§ØµÙŠÙ„ Ø§Ù„Ø²ÙˆØ§Ø±</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -570,7 +570,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</a></div><!-- Visitor Counter & Devices Grid --><div class=\"d-grid grid-cols-2 gap-3 mb-3\"><div class=\"bg-surface-sunken border rounded-xl p-3\"><div class=\"label-strong\">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø²ÙˆØ§Ø± Ø§Ù„Ù…Ù†ØµØ©</div><div class=\"tabular-nums\" class=\"text-xl font-black text-brand mt-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</a></div><!-- Visitor Counter & Devices Grid --><div class=\"d-grid grid-cols-2 gap-3 mb-3\"><div class=\"bg-surface-sunken border rounded-xl p-3\"><div class=\"label-strong\">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø²ÙˆØ§Ø± Ø§Ù„Ù…Ù†ØµØ©</div><div class=\"tabular-nums text-xl font-black text-brand mt-0.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -715,7 +715,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</h3><p class=\"text-xs text-secondary mt-0.5 m-0\">Ù\u0081Ø\u00adØµ Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ© ÙˆÙ…Ø²Ø§ÙˆÙ„Ø© Ø§Ù„Ù…Ù‡Ù†Ø© Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</p></div><a href=\"/admin/approvals\" class=\"btn btn-primary btn-xs fw-800\" class=\"gap-1\"><span>Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</h3><p class=\"text-xs text-secondary mt-0.5 m-0\">Ù\u0081Ø\u00adØµ Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ© ÙˆÙ…Ø²Ø§ÙˆÙ„Ø© Ø§Ù„Ù…Ù‡Ù†Ø© Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</p></div><a href=\"/admin/approvals\" class=\"btn btn-primary btn-xs fw-800 gap-1\"><span>Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -782,7 +782,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div><div class=\"text-xs text-muted tabular-nums\" class=\"mt-0.5\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div><div class=\"text-xs text-muted tabular-nums mt-0.5\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -824,7 +824,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</div></div></div><a href=\"/admin/approvals\" class=\"btn btn-primary btn-xs fw-800\" class=\"rounded-md px-3 py-1.5\">Ù\u0081Ø\u00adØµ</a></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</div></div></div><a href=\"/admin/approvals\" class=\"btn btn-primary btn-xs fw-800 rounded-md px-3 py-1.5\">Ù\u0081Ø\u00adØµ</a></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -842,7 +842,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</span> <span>Ø£Ø\u00adØ¯Ø« Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„Ù…Ù†Ø¶Ù…Ø© Ù„Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©</span></h3><p class=\"text-xs text-secondary mt-0.5 m-0\">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø\u00adØ¯ÙŠØ«Ø§Ù‹ Ù\u0081ÙŠ Ø´Ø¨ÙƒØ© Ø¥Ù…Ø¯Ø§Ø¯ Ø¯ÙˆØ§Ø¡ 24</p></div><a href=\"/admin/organizations\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1\"><span>Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</span> <span>Ø£Ø\u00adØ¯Ø« Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„Ù…Ù†Ø¶Ù…Ø© Ù„Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©</span></h3><p class=\"text-xs text-secondary mt-0.5 m-0\">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø\u00adØ¯ÙŠØ«Ø§Ù‹ Ù\u0081ÙŠ Ø´Ø¨ÙƒØ© Ø¥Ù…Ø¯Ø§Ø¯ Ø¯ÙˆØ§Ø¡ 24</p></div><a href=\"/admin/organizations\" class=\"btn btn-secondary btn-xs fw-800 gap-1\"><span>Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -901,7 +901,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</div><div class=\"text-xs text-muted tabular-nums\" class=\"mt-0.5\">Ù…Ù†Ø´Ø£Ø© #")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</div><div class=\"text-xs text-muted tabular-nums mt-0.5\">Ù…Ù†Ø´Ø£Ø© #")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -970,7 +970,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div></div><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\r\n\t\t\t     4. EXECUTIVE QUICK ACTION SHORTCUTS\r\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"bg-surface-sunken border rounded-2xl p-4\"><div class=\"text-xs font-bold text-secondary mb-2\">Ø§Ù„ÙˆØµÙˆÙ„ Ø§Ù„Ø³Ø±ÙŠØ¹ Ù„Ù„Ø£Ù‚Ø³Ø§Ù… Ø§Ù„ØªÙ†Ù\u0081ÙŠØ°ÙŠØ©:</div><div class=\"d-flex gap-2 flex-wrap items-center\"><a href=\"/admin/finance\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div></div><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\r\n\t\t\t     4. EXECUTIVE QUICK ACTION SHORTCUTS\r\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"bg-surface-sunken border rounded-2xl p-4\"><div class=\"text-xs font-bold text-secondary mb-2\">Ø§Ù„ÙˆØµÙˆÙ„ Ø§Ù„Ø³Ø±ÙŠØ¹ Ù„Ù„Ø£Ù‚Ø³Ø§Ù… Ø§Ù„ØªÙ†Ù\u0081ÙŠØ°ÙŠØ©:</div><div class=\"d-flex gap-2 flex-wrap items-center\"><a href=\"/admin/finance\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -978,7 +978,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span>Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø\u00adØ§Ù\u0081Ø¸</span></a> <a href=\"/admin/approvals\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span>Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø\u00adØ§Ù\u0081Ø¸</span></a> <a href=\"/admin/approvals\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -986,7 +986,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<span>Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„ÙˆØ«Ø§Ø¦Ù‚</span></a> <a href=\"/admin/orders\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<span>Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„ÙˆØ«Ø§Ø¦Ù‚</span></a> <a href=\"/admin/orders\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -994,7 +994,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "<span>Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø\u00adÙ†Ø§Øª</span></a> <a href=\"/admin/products\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "<span>Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø\u00adÙ†Ø§Øª</span></a> <a href=\"/admin/products\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1002,7 +1002,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span>ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</span></a> <a href=\"/admin/plans\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<span>ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</span></a> <a href=\"/admin/plans\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1010,7 +1010,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<span>Ø¨Ø§Ù‚Ø§Øª ÙˆØ®Ø·Ø· Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ</span></a> <a href=\"/admin/users\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<span>Ø¨Ø§Ù‚Ø§Øª ÙˆØ®Ø·Ø· Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ</span></a> <a href=\"/admin/users\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1018,7 +1018,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<span>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„Ø\u00adØ³Ø§Ø¨Ø§Øª</span></a> <a href=\"/admin/settings\" class=\"btn btn-secondary btn-xs fw-800\" class=\"gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<span>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„Ø\u00adØ³Ø§Ø¨Ø§Øª</span></a> <a href=\"/admin/settings\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

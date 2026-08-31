@@ -224,9 +224,10 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 	h.renderPage(ctx, w, "render subscription page", pages.TenantSubscriptionPage(data, orgType, lang, dir))
 }
 
-// OnboardingPendingPage renders the approval gate for pending/rejected orgs.
+// OnboardingPendingPage renders the approval gate for pending/rejected/suspended/under_review orgs.
 func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	state := r.URL.Query().Get("state")
 	if actor, ok := authctx.From(ctx); ok {
 		if actor.IsStaff {
 			http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
@@ -236,9 +237,18 @@ func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request
 			http.Redirect(w, r, landingPathForActor(actor), http.StatusSeeOther)
 			return
 		}
+		if state == "" && actor.OrgStatus != "" {
+			state = actor.OrgStatus
+		}
+	}
+	if state == "" {
+		if r.URL.Query().Get("rejected") == "1" {
+			state = "rejected"
+		} else {
+			state = "pending"
+		}
 	}
 	lang, dir := h.localeAndDir(r)
-	rejected := r.URL.Query().Get("rejected") == "1" || r.URL.Query().Get("state") == "rejected"
 
-	h.renderPage(ctx, w, "render onboarding pending", pages.OnboardingPending(lang, dir, rejected))
+	h.renderPage(ctx, w, "render onboarding pending", pages.OnboardingPending(lang, dir, state))
 }
