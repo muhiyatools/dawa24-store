@@ -169,6 +169,12 @@ func (s *Service) DeleteFileRow(ctx context.Context, rowID int64) error {
 	return s.repo.DeleteFileRow(ctx, rowID)
 }
 
+// DeleteFileRowOwnedBy deletes a single row only when its parent file belongs to
+// ownerUserID. Used by the "my uploaded warehouses" screen.
+func (s *Service) DeleteFileRowOwnedBy(ctx context.Context, rowID, ownerUserID int64) error {
+	return s.repo.DeleteFileRowOwnedBy(ctx, rowID, ownerUserID)
+}
+
 // DeleteFileRows deletes all rows for a compare/warehouse file.
 func (s *Service) DeleteFileRows(ctx context.Context, fileID int64) error {
 	return s.repo.DeleteFileRows(ctx, fileID)

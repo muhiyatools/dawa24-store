@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -27,6 +28,20 @@ type AdminTempWarehouseItem struct {
 	CreatedBy        *int64
 	CreatedAt        time.Time
 	ArchivedAt       *time.Time
+	// UploaderName is the moderator / vendor user who uploaded this warehouse.
+	UploaderName string
+	// OrgName is the vendor organization name when this is a vendor compare-tool file.
+	OrgName string
+	// SourceType is "vendor" (compare-tool upload) or "moderator" (admin upload).
+	SourceType string
+	// Visibility is "public" or "private"; only meaningful for vendor uploads.
+	Visibility string
+}
+
+// AdminTempWarehouseUploader is one distinct uploader for the filter dropdown.
+type AdminTempWarehouseUploader struct {
+	UserID int64
+	Name   string
 }
 
 // AdminTempWarehousesData carries data for the temporary warehouses admin page.
@@ -41,6 +56,54 @@ type AdminTempWarehousesData struct {
 	Scope         string
 	NoticeMsg     string
 	NoticeType    string
+	// MineOnly renders the "مستودعاتي المرفوعة" variant: own uploads only,
+	// no cross-account scope tabs, no uploader filter.
+	MineOnly bool
+	// Base is the URL root for row mutations / JSON endpoints
+	// ("/admin/temporary-warehouses" or "/admin/my/temparte-warehouses").
+	Base string
+	// PageURL is the GET page + filter form action.
+	PageURL string
+	// UploaderFilter / SourceFilter hold the current filter selection.
+	UploaderFilter string
+	SourceFilter   string
+	Uploaders      []AdminTempWarehouseUploader
+}
+
+func tempWarehousesShellTitle(data *AdminTempWarehousesData) string {
+	if data.MineOnly {
+		return "مستودعاتي المرفوعة"
+	}
+	return "قوائم المستودعات المؤقتة"
+}
+
+func tempWarehousesNavKey(data *AdminTempWarehousesData) string {
+	if data.MineOnly {
+		return "my_temp_warehouses"
+	}
+	return "temp_warehouses"
+}
+
+// tempWarehouseFilterURL builds a status-pill link that carries the current
+// search / uploader / source filters.
+func tempWarehouseFilterURL(data *AdminTempWarehousesData, status string) string {
+	q := url.Values{}
+	if data.Query != "" {
+		q.Set("q", data.Query)
+	}
+	if data.SourceFilter != "" {
+		q.Set("type", data.SourceFilter)
+	}
+	if data.UploaderFilter != "" {
+		q.Set("uploader", data.UploaderFilter)
+	}
+	if status != "" {
+		q.Set("status", status)
+	}
+	if len(q) == 0 {
+		return data.PageURL
+	}
+	return data.PageURL + "?" + q.Encode()
 }
 
 // AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
@@ -77,7 +140,20 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\" x-data=\"{\n\t\t\t\tuploadModal: false,\n\t\t\t\titemsModal: false,\n\t\t\t\tmappingModal: false,\n\t\t\t\tmappingLoading: false,\n\t\t\t\tmappingSubmitting: false,\n\t\t\t\tmappingFile: { id: 0, supplier_name: '', original_filename: '', row_count: 0 },\n\t\t\t\tmappingHeaders: [],\n\t\t\t\tmappingPreview: [],\n\t\t\t\tmappingCode: 0,\n\t\t\t\tmappingName: 1,\n\t\t\t\tmappingPrice: 2,\n\t\t\t\tmappingDiscount: 3,\n\t\t\t\tmappingQueue: [],\n\t\t\t\tmappingStep: 1,\n\t\t\t\tmappingTotal: 1,\n\t\t\t\tautoLaunchSetup: true,\n\t\t\t\tselectedWarehouse: { id: 0, name: '', total: 0 },\n\t\t\t\tmodalItems: [],\n\t\t\t\tmodalPage: 1,\n\t\t\t\tmodalTotalPages: 1,\n\t\t\t\tmodalLoading: false,\n\t\t\t\tuploadStep: 1,\n\t\t\t\tfileHeaders: [],\n\t\t\t\tsampleRows: [],\n\t\t\t\tdetectedCode: 0,\n\t\t\t\tdetectedName: 1,\n\t\t\t\tdetectedPrice: 2,\n\t\t\t\tdetectedDiscount: 3,\n\t\t\t\tisDragging: false,\n\t\t\t\tisBulkUploading: false,\n\t\t\t\tuploadProgress: 0,\n\t\t\t\tuploadStatusText: '',\n\t\t\t\tselectedFiles: [],\n\t\t\t\tbulkUploadResults: null,\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst setupFile = urlParams.get('setup_file');\n\t\t\t\t\tconst setupQueue = urlParams.get('setup_queue');\n\t\t\t\t\tif (setupFile) {\n\t\t\t\t\t\tconst queue = setupQueue ? setupQueue.split(',').filter(x => x.trim().length > 0) : [];\n\t\t\t\t\t\tconst step = parseInt(urlParams.get('setup_step'), 10) || 1;\n\t\t\t\t\t\tconst total = parseInt(urlParams.get('setup_total'), 10) || (queue.length + 1);\n\t\t\t\t\t\tthis.openMapping(parseInt(setupFile, 10), queue, step, total);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync openItems(id, name, total) {\n\t\t\t\t\tthis.selectedWarehouse = { id: id, name: name, total: total };\n\t\t\t\t\tthis.modalPage = 1;\n\t\t\t\t\tthis.itemsModal = true;\n\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t},\n\t\t\t\tasync fetchItems() {\n\t\t\t\t\tthis.modalLoading = true;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tthis.modalItems = json.items || [];\n\t\t\t\t\t\t\tthis.modalTotalPages = json.total_pages || 1;\n\t\t\t\t\t\t\tthis.selectedWarehouse.total = json.total || 0;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Error fetching items:', e);\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.modalLoading = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync nextModalPage() {\n\t\t\t\t\tif (this.modalPage < this.modalTotalPages) {\n\t\t\t\t\t\tthis.modalPage++;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync prevModalPage() {\n\t\t\t\t\tif (this.modalPage > 1) {\n\t\t\t\t\t\tthis.modalPage--;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync deleteItem(rowId) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData\n\t\t\t\t\t\t});\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'حدث خطأ أثناء الحذف');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\talert('فشل الاتصال بالخادم');\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync openMapping(id, queue, step, total) {\n\t\t\t\t\tif (!id || id <= 0) return;\n\t\t\t\t\tthis.mappingLoading = true;\n\t\t\t\t\tthis.mappingModal = true;\n\t\t\t\t\tthis.mappingQueue = queue || [];\n\t\t\t\t\tthis.mappingStep = step || 1;\n\t\t\t\t\tthis.mappingTotal = total || (this.mappingQueue.length + 1);\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/' + id + '/mapping-json');\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tthis.mappingFile = {\n\t\t\t\t\t\t\t\tid: json.id,\n\t\t\t\t\t\t\t\tsupplier_name: json.supplier_name,\n\t\t\t\t\t\t\t\toriginal_filename: json.original_filename,\n\t\t\t\t\t\t\t\trow_count: json.row_count\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.mappingHeaders = json.headers || [];\n\t\t\t\t\t\t\tthis.mappingPreview = json.preview || [];\n\t\t\t\t\t\t\tthis.mappingCode = json.code_col >= 0 ? json.code_col : 0;\n\t\t\t\t\t\t\tthis.mappingName = json.name_col >= 0 ? json.name_col : 1;\n\t\t\t\t\t\t\tthis.mappingPrice = json.price_col >= 0 ? json.price_col : 2;\n\t\t\t\t\t\t\tthis.mappingDiscount = json.discount_col >= 0 ? json.discount_col : 3;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'تعذر تحميل بيانات أعمدة المستودع');\n\t\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Mapping load error:', e);\n\t\t\t\t\t\talert('فشل الاتصال بالخادم لتحميل تفاصيل الأعمدة');\n\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.mappingLoading = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync submitMapping(form) {\n\t\t\t\t\tif (!this.mappingFile || !this.mappingFile.id) return;\n\t\t\t\t\tthis.mappingSubmitting = true;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\t\tformData.append('supplier_name', this.mappingFile.supplier_name || '');\n\t\t\t\t\t\tformData.append('col_code', this.mappingCode);\n\t\t\t\t\t\tformData.append('col_name', this.mappingName);\n\t\t\t\t\t\tformData.append('col_price', this.mappingPrice);\n\t\t\t\t\t\tformData.append('col_discount', this.mappingDiscount);\n\t\t\t\t\t\tformData.append('setup_queue', this.mappingQueue.join(','));\n\t\t\t\t\t\tformData.append('step', this.mappingStep);\n\t\t\t\t\t\tformData.append('total', this.mappingTotal);\n\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/' + this.mappingFile.id + '/mapping', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t\t'Accept': 'application/json',\n\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tif (this.mappingQueue && this.mappingQueue.length > 0) {\n\t\t\t\t\t\t\t\tconst nextId = parseInt(this.mappingQueue[0], 10);\n\t\t\t\t\t\t\t\tconst nextQueue = this.mappingQueue.slice(1);\n\t\t\t\t\t\t\t\tawait this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'فشل حفظ وضبط الأعمدة');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Mapping submit error:', e);\n\t\t\t\t\t\talert('حدث خطأ أثناء حفظ الإعدادات');\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.mappingSubmitting = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync skipMapping() {\n\t\t\t\t\tif (this.mappingQueue && this.mappingQueue.length > 0) {\n\t\t\t\t\t\tconst nextId = parseInt(this.mappingQueue[0], 10);\n\t\t\t\t\t\tconst nextQueue = this.mappingQueue.slice(1);\n\t\t\t\t\t\tawait this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tskipAllMapping() {\n\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\twindow.location.reload();\n\t\t\t\t},\n\t\t\t\thandleFilesSelect(event) {\n\t\t\t\t\tconst files = Array.from(event.target.files || []);\n\t\t\t\t\tif (files.length === 0) return;\n\t\t\t\t\tthis.selectedFiles = files;\n\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\tif (files.length === 1) {\n\t\t\t\t\t\tthis.handleSingleFileHeaders(files[0]);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\thandleDrop(event) {\n\t\t\t\t\tthis.isDragging = false;\n\t\t\t\t\tif (event.dataTransfer && event.dataTransfer.files) {\n\t\t\t\t\t\tconst files = Array.from(event.dataTransfer.files).filter(f => \n\t\t\t\t\t\t\tf.name.endsWith('.xlsx') || f.name.endsWith('.xls') || f.name.endsWith('.csv') || f.name.endsWith('.txt')\n\t\t\t\t\t\t);\n\t\t\t\t\t\tif (files.length > 0) {\n\t\t\t\t\t\t\tthis.selectedFiles = files;\n\t\t\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\t\t\tif (files.length === 1) {\n\t\t\t\t\t\t\t\tthis.handleSingleFileHeaders(files[0]);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tremoveSelectedFile(idx) {\n\t\t\t\t\tthis.selectedFiles.splice(idx, 1);\n\t\t\t\t\tif (this.selectedFiles.length === 1) {\n\t\t\t\t\t\tthis.handleSingleFileHeaders(this.selectedFiles[0]);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tclearSelectedFiles() {\n\t\t\t\t\tthis.selectedFiles = [];\n\t\t\t\t\tthis.fileHeaders = [];\n\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\tif (this.$refs && this.$refs.fileInput) {\n\t\t\t\t\t\tthis.$refs.fileInput.value = '';\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tformatFileSize(bytes) {\n\t\t\t\t\tif (!bytes || bytes === 0) return '0 B';\n\t\t\t\t\tconst k = 1024;\n\t\t\t\t\tconst sizes = ['B', 'KB', 'MB', 'GB'];\n\t\t\t\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\n\t\t\t\t\treturn parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];\n\t\t\t\t},\n\t\t\t\ttotalSelectedSize() {\n\t\t\t\t\tconst totalBytes = this.selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);\n\t\t\t\t\treturn this.formatFileSize(totalBytes);\n\t\t\t\t},\n\t\t\t\tcleanName(filename) {\n\t\t\t\t\tif (!filename) return '';\n\t\t\t\t\tlet name = filename.replace(/\\.[^/.]+$/, '');\n\t\t\t\t\tname = name.replace(/[_\\-]/g, ' ').trim();\n\t\t\t\t\treturn name || filename;\n\t\t\t\t},\n\t\t\t\thandleSingleFileHeaders(file) {\n\t\t\t\t\tif (!file) return;\n\t\t\t\t\tconst reader = new FileReader();\n\t\t\t\t\treader.onload = (e) => {\n\t\t\t\t\t\tconst text = e.target.result;\n\t\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\t\tconst lines = text.split(/\\r?\\n/).filter(l => l.trim().length > 0);\n\t\t\t\t\t\t\tif (lines.length > 0) {\n\t\t\t\t\t\t\t\tthis.fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^['\\x22]|['\\x22]$/g, ''));\n\t\t\t\t\t\t\t\tthis.guessColumns();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tthis.fileHeaders = ['كود الصنف (SKU)', 'اسم المنتج / الصنف', 'سعر الجمهور', 'نسبة الخصم %', 'الكمية'];\n\t\t\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\treader.readAsText(file);\n\t\t\t\t\t} else {\n\t\t\t\t\t\treader.readAsArrayBuffer(file);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tguessColumns() {\n\t\t\t\t\tif (!this.fileHeaders || this.fileHeaders.length === 0) return;\n\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\tthis.fileHeaders.forEach((h, idx) => {\n\t\t\t\t\t\tconst norm = h.toLowerCase().replace(/[\\s_\\-]/g, '');\n\t\t\t\t\t\tif (norm.includes('كود') || norm.includes('code') || norm.includes('sku') || norm.includes('باركود') || norm.includes('barcode')) {\n\t\t\t\t\t\t\tthis.detectedCode = idx;\n\t\t\t\t\t\t} else if (norm.includes('اسم') || norm.includes('name') || norm.includes('صنف') || norm.includes('منتج')) {\n\t\t\t\t\t\t\tthis.detectedName = idx;\n\t\t\t\t\t\t} else if ((norm.includes('سعر') || norm.includes('price') || norm.includes('جمهور') || norm.includes('رسمي')) && !norm.includes('خصم') && !norm.includes('صافي')) {\n\t\t\t\t\t\t\tthis.detectedPrice = idx;\n\t\t\t\t\t\t} else if (norm.includes('خصم') || norm.includes('discount') || norm.includes('%') || norm.includes('نسبة')) {\n\t\t\t\t\t\t\tthis.detectedDiscount = idx;\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tasync submitBulkUpload(form) {\n\t\t\t\t\tif (this.selectedFiles.length === 0) {\n\t\t\t\t\t\talert('يرجى اختيار ملف أو أكثر أولاً');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tthis.isBulkUploading = true;\n\t\t\t\t\tthis.uploadProgress = 10;\n\t\t\t\t\tthis.uploadStatusText = 'جاري رفع ' + this.selectedFiles.length + ' ملف إلى الخادم...';\n\n\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\tif (this.selectedFiles.length === 1) {\n\t\t\t\t\t\tformData.append('supplier_name', form.supplier_name ? form.supplier_name.value : '');\n\t\t\t\t\t\tformData.append('col_code', this.detectedCode);\n\t\t\t\t\t\tformData.append('col_name', this.detectedName);\n\t\t\t\t\t\tformData.append('col_price', this.detectedPrice);\n\t\t\t\t\t\tformData.append('col_discount', this.detectedDiscount);\n\t\t\t\t\t} else if (form.supplier_name && form.supplier_name.value) {\n\t\t\t\t\t\tformData.append('supplier_name', form.supplier_name.value);\n\t\t\t\t\t}\n\n\t\t\t\t\tfor (let i = 0; i < this.selectedFiles.length; i++) {\n\t\t\t\t\t\tformData.append('files', this.selectedFiles[i]);\n\t\t\t\t\t}\n\n\t\t\t\t\ttry {\n\t\t\t\t\t\tthis.uploadProgress = 35;\n\t\t\t\t\t\tthis.uploadStatusText = 'جاري المعالجة المتوازية فائقة السرعة واستخراج أصناف المستودعات في قاعدة البيانات...';\n\n\t\t\t\t\t\tconst response = await fetch(form.action || '/admin/temporary-warehouses/upload', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t\t'Accept': 'application/json',\n\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tthis.uploadProgress = 85;\n\t\t\t\t\t\tconst result = await response.json();\n\t\t\t\t\t\tthis.uploadProgress = 100;\n\n\t\t\t\t\t\tif (result && result.success) {\n\t\t\t\t\t\t\tthis.bulkUploadResults = result;\n\t\t\t\t\t\t\tthis.uploadStatusText = result.message || 'تم الرفع والمعالجة بنجاح!';\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\tif (this.autoLaunchSetup && result.uploaded_ids && result.uploaded_ids.length > 0) {\n\t\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\t\tthis.isBulkUploading = false;\n\t\t\t\t\t\t\t\t\tthis.uploadModal = false;\n\t\t\t\t\t\t\t\t\tthis.clearSelectedFiles();\n\t\t\t\t\t\t\t\t\tconst firstId = parseInt(result.uploaded_ids[0], 10);\n\t\t\t\t\t\t\t\t\tconst queue = result.uploaded_ids.slice(1);\n\t\t\t\t\t\t\t\t\tthis.openMapping(firstId, queue, 1, result.uploaded_ids.length);\n\t\t\t\t\t\t\t\t}, 800);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}, 1500);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');\n\t\t\t\t\t\t\tthis.isBulkUploading = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(err) {\n\t\t\t\t\t\tconsole.error('Upload error:', err);\n\t\t\t\t\t\tthis.uploadStatusText = 'تم إرسال الملفات بنجاح، جاري تحديث الصفحة...';\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t}, 2000);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\" class=\"d-flex flex-col gap-6 max-w-7xl mx-auto mb-14\"><!-- 1. Header Banner & Top Action Tabs --><div class=\"card mb-0 bg-surface-raised border rounded-2xl p-7 shadow-xs\"><div class=\"flex-between items-start flex-wrap gap-6\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1.5\"><div class=\"w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\" data-base=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Base)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 105, Col: 24}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" x-data=\"{\n\t\t\t\tuploadModal: false,\n\t\t\t\titemsModal: false,\n\t\t\t\tmappingModal: false,\n\t\t\t\tmappingLoading: false,\n\t\t\t\tmappingSubmitting: false,\n\t\t\t\tmappingFile: { id: 0, supplier_name: '', original_filename: '', row_count: 0 },\n\t\t\t\tmappingHeaders: [],\n\t\t\t\tmappingPreview: [],\n\t\t\t\tmappingCode: 0,\n\t\t\t\tmappingName: 1,\n\t\t\t\tmappingPrice: 2,\n\t\t\t\tmappingDiscount: 3,\n\t\t\t\tmappingQueue: [],\n\t\t\t\tmappingStep: 1,\n\t\t\t\tmappingTotal: 1,\n\t\t\t\tautoLaunchSetup: true,\n\t\t\t\tselectedWarehouse: { id: 0, name: '', total: 0 },\n\t\t\t\tmodalItems: [],\n\t\t\t\tmodalPage: 1,\n\t\t\t\tmodalTotalPages: 1,\n\t\t\t\tmodalLoading: false,\n\t\t\t\tuploadStep: 1,\n\t\t\t\tfileHeaders: [],\n\t\t\t\tsampleRows: [],\n\t\t\t\tdetectedCode: 0,\n\t\t\t\tdetectedName: 1,\n\t\t\t\tdetectedPrice: 2,\n\t\t\t\tdetectedDiscount: 3,\n\t\t\t\tisDragging: false,\n\t\t\t\tisBulkUploading: false,\n\t\t\t\tuploadProgress: 0,\n\t\t\t\tuploadStatusText: '',\n\t\t\t\tselectedFiles: [],\n\t\t\t\tbulkUploadResults: null,\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst setupFile = urlParams.get('setup_file');\n\t\t\t\t\tconst setupQueue = urlParams.get('setup_queue');\n\t\t\t\t\tif (setupFile) {\n\t\t\t\t\t\tconst queue = setupQueue ? setupQueue.split(',').filter(x => x.trim().length > 0) : [];\n\t\t\t\t\t\tconst step = parseInt(urlParams.get('setup_step'), 10) || 1;\n\t\t\t\t\t\tconst total = parseInt(urlParams.get('setup_total'), 10) || (queue.length + 1);\n\t\t\t\t\t\tthis.openMapping(parseInt(setupFile, 10), queue, step, total);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync openItems(id, name, total) {\n\t\t\t\t\tthis.selectedWarehouse = { id: id, name: name, total: total };\n\t\t\t\t\tthis.modalPage = 1;\n\t\t\t\t\tthis.itemsModal = true;\n\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t},\n\t\t\t\tasync fetchItems() {\n\t\t\t\t\tthis.modalLoading = true;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch(this.$root.dataset.base + '/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tthis.modalItems = json.items || [];\n\t\t\t\t\t\t\tthis.modalTotalPages = json.total_pages || 1;\n\t\t\t\t\t\t\tthis.selectedWarehouse.total = json.total || 0;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Error fetching items:', e);\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.modalLoading = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync nextModalPage() {\n\t\t\t\t\tif (this.modalPage < this.modalTotalPages) {\n\t\t\t\t\t\tthis.modalPage++;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync prevModalPage() {\n\t\t\t\t\tif (this.modalPage > 1) {\n\t\t\t\t\t\tthis.modalPage--;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync deleteItem(rowId) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\t\tconst res = await fetch(this.$root.dataset.base + '/items/' + rowId + '/delete', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData\n\t\t\t\t\t\t});\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'حدث خطأ أثناء الحذف');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\talert('فشل الاتصال بالخادم');\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync openMapping(id, queue, step, total) {\n\t\t\t\t\tif (!id || id <= 0) return;\n\t\t\t\t\tthis.mappingLoading = true;\n\t\t\t\t\tthis.mappingModal = true;\n\t\t\t\t\tthis.mappingQueue = queue || [];\n\t\t\t\t\tthis.mappingStep = step || 1;\n\t\t\t\t\tthis.mappingTotal = total || (this.mappingQueue.length + 1);\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch(this.$root.dataset.base + '/' + id + '/mapping-json');\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tthis.mappingFile = {\n\t\t\t\t\t\t\t\tid: json.id,\n\t\t\t\t\t\t\t\tsupplier_name: json.supplier_name,\n\t\t\t\t\t\t\t\toriginal_filename: json.original_filename,\n\t\t\t\t\t\t\t\trow_count: json.row_count\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.mappingHeaders = json.headers || [];\n\t\t\t\t\t\t\tthis.mappingPreview = json.preview || [];\n\t\t\t\t\t\t\tthis.mappingCode = json.code_col >= 0 ? json.code_col : 0;\n\t\t\t\t\t\t\tthis.mappingName = json.name_col >= 0 ? json.name_col : 1;\n\t\t\t\t\t\t\tthis.mappingPrice = json.price_col >= 0 ? json.price_col : 2;\n\t\t\t\t\t\t\tthis.mappingDiscount = json.discount_col >= 0 ? json.discount_col : 3;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'تعذر تحميل بيانات أعمدة المستودع');\n\t\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Mapping load error:', e);\n\t\t\t\t\t\talert('فشل الاتصال بالخادم لتحميل تفاصيل الأعمدة');\n\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.mappingLoading = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync submitMapping(form) {\n\t\t\t\t\tif (!this.mappingFile || !this.mappingFile.id) return;\n\t\t\t\t\tthis.mappingSubmitting = true;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\t\tformData.append('supplier_name', this.mappingFile.supplier_name || '');\n\t\t\t\t\t\tformData.append('col_code', this.mappingCode);\n\t\t\t\t\t\tformData.append('col_name', this.mappingName);\n\t\t\t\t\t\tformData.append('col_price', this.mappingPrice);\n\t\t\t\t\t\tformData.append('col_discount', this.mappingDiscount);\n\t\t\t\t\t\tformData.append('setup_queue', this.mappingQueue.join(','));\n\t\t\t\t\t\tformData.append('step', this.mappingStep);\n\t\t\t\t\t\tformData.append('total', this.mappingTotal);\n\n\t\t\t\t\t\tconst res = await fetch(this.$root.dataset.base + '/' + this.mappingFile.id + '/mapping', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t\t'Accept': 'application/json',\n\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tif (this.mappingQueue && this.mappingQueue.length > 0) {\n\t\t\t\t\t\t\t\tconst nextId = parseInt(this.mappingQueue[0], 10);\n\t\t\t\t\t\t\t\tconst nextQueue = this.mappingQueue.slice(1);\n\t\t\t\t\t\t\t\tawait this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'فشل حفظ وضبط الأعمدة');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Mapping submit error:', e);\n\t\t\t\t\t\talert('حدث خطأ أثناء حفظ الإعدادات');\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.mappingSubmitting = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync skipMapping() {\n\t\t\t\t\tif (this.mappingQueue && this.mappingQueue.length > 0) {\n\t\t\t\t\t\tconst nextId = parseInt(this.mappingQueue[0], 10);\n\t\t\t\t\t\tconst nextQueue = this.mappingQueue.slice(1);\n\t\t\t\t\t\tawait this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tskipAllMapping() {\n\t\t\t\t\tthis.mappingModal = false;\n\t\t\t\t\twindow.location.reload();\n\t\t\t\t},\n\t\t\t\thandleFilesSelect(event) {\n\t\t\t\t\tconst files = Array.from(event.target.files || []);\n\t\t\t\t\tif (files.length === 0) return;\n\t\t\t\t\tthis.selectedFiles = files;\n\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\tif (files.length === 1) {\n\t\t\t\t\t\tthis.handleSingleFileHeaders(files[0]);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\thandleDrop(event) {\n\t\t\t\t\tthis.isDragging = false;\n\t\t\t\t\tif (event.dataTransfer && event.dataTransfer.files) {\n\t\t\t\t\t\tconst files = Array.from(event.dataTransfer.files).filter(f => \n\t\t\t\t\t\t\tf.name.endsWith('.xlsx') || f.name.endsWith('.xls') || f.name.endsWith('.csv') || f.name.endsWith('.txt')\n\t\t\t\t\t\t);\n\t\t\t\t\t\tif (files.length > 0) {\n\t\t\t\t\t\t\tthis.selectedFiles = files;\n\t\t\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\t\t\tif (files.length === 1) {\n\t\t\t\t\t\t\t\tthis.handleSingleFileHeaders(files[0]);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tremoveSelectedFile(idx) {\n\t\t\t\t\tthis.selectedFiles.splice(idx, 1);\n\t\t\t\t\tif (this.selectedFiles.length === 1) {\n\t\t\t\t\t\tthis.handleSingleFileHeaders(this.selectedFiles[0]);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tclearSelectedFiles() {\n\t\t\t\t\tthis.selectedFiles = [];\n\t\t\t\t\tthis.fileHeaders = [];\n\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\tif (this.$refs && this.$refs.fileInput) {\n\t\t\t\t\t\tthis.$refs.fileInput.value = '';\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tformatFileSize(bytes) {\n\t\t\t\t\tif (!bytes || bytes === 0) return '0 B';\n\t\t\t\t\tconst k = 1024;\n\t\t\t\t\tconst sizes = ['B', 'KB', 'MB', 'GB'];\n\t\t\t\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\n\t\t\t\t\treturn parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];\n\t\t\t\t},\n\t\t\t\ttotalSelectedSize() {\n\t\t\t\t\tconst totalBytes = this.selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);\n\t\t\t\t\treturn this.formatFileSize(totalBytes);\n\t\t\t\t},\n\t\t\t\tcleanName(filename) {\n\t\t\t\t\tif (!filename) return '';\n\t\t\t\t\tlet name = filename.replace(/\\.[^/.]+$/, '');\n\t\t\t\t\tname = name.replace(/[_\\-]/g, ' ').trim();\n\t\t\t\t\treturn name || filename;\n\t\t\t\t},\n\t\t\t\thandleSingleFileHeaders(file) {\n\t\t\t\t\tif (!file) return;\n\t\t\t\t\tconst reader = new FileReader();\n\t\t\t\t\treader.onload = (e) => {\n\t\t\t\t\t\tconst text = e.target.result;\n\t\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\t\tconst lines = text.split(/\\r?\\n/).filter(l => l.trim().length > 0);\n\t\t\t\t\t\t\tif (lines.length > 0) {\n\t\t\t\t\t\t\t\tthis.fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^['\\x22]|['\\x22]$/g, ''));\n\t\t\t\t\t\t\t\tthis.guessColumns();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tthis.fileHeaders = ['كود الصنف (SKU)', 'اسم المنتج / الصنف', 'سعر الجمهور', 'نسبة الخصم %', 'الكمية'];\n\t\t\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\treader.readAsText(file);\n\t\t\t\t\t} else {\n\t\t\t\t\t\treader.readAsArrayBuffer(file);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tguessColumns() {\n\t\t\t\t\tif (!this.fileHeaders || this.fileHeaders.length === 0) return;\n\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\tthis.fileHeaders.forEach((h, idx) => {\n\t\t\t\t\t\tconst norm = h.toLowerCase().replace(/[\\s_\\-]/g, '');\n\t\t\t\t\t\tif (norm.includes('كود') || norm.includes('code') || norm.includes('sku') || norm.includes('باركود') || norm.includes('barcode')) {\n\t\t\t\t\t\t\tthis.detectedCode = idx;\n\t\t\t\t\t\t} else if (norm.includes('اسم') || norm.includes('name') || norm.includes('صنف') || norm.includes('منتج')) {\n\t\t\t\t\t\t\tthis.detectedName = idx;\n\t\t\t\t\t\t} else if ((norm.includes('سعر') || norm.includes('price') || norm.includes('جمهور') || norm.includes('رسمي')) && !norm.includes('خصم') && !norm.includes('صافي')) {\n\t\t\t\t\t\t\tthis.detectedPrice = idx;\n\t\t\t\t\t\t} else if (norm.includes('خصم') || norm.includes('discount') || norm.includes('%') || norm.includes('نسبة')) {\n\t\t\t\t\t\t\tthis.detectedDiscount = idx;\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tasync submitBulkUpload(form) {\n\t\t\t\t\tif (this.selectedFiles.length === 0) {\n\t\t\t\t\t\talert('يرجى اختيار ملف أو أكثر أولاً');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tthis.isBulkUploading = true;\n\t\t\t\t\tthis.uploadProgress = 10;\n\t\t\t\t\tthis.uploadStatusText = 'جاري رفع ' + this.selectedFiles.length + ' ملف إلى الخادم...';\n\n\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\tif (this.selectedFiles.length === 1) {\n\t\t\t\t\t\tformData.append('supplier_name', form.supplier_name ? form.supplier_name.value : '');\n\t\t\t\t\t\tformData.append('col_code', this.detectedCode);\n\t\t\t\t\t\tformData.append('col_name', this.detectedName);\n\t\t\t\t\t\tformData.append('col_price', this.detectedPrice);\n\t\t\t\t\t\tformData.append('col_discount', this.detectedDiscount);\n\t\t\t\t\t} else if (form.supplier_name && form.supplier_name.value) {\n\t\t\t\t\t\tformData.append('supplier_name', form.supplier_name.value);\n\t\t\t\t\t}\n\n\t\t\t\t\tfor (let i = 0; i < this.selectedFiles.length; i++) {\n\t\t\t\t\t\tformData.append('files', this.selectedFiles[i]);\n\t\t\t\t\t}\n\n\t\t\t\t\ttry {\n\t\t\t\t\t\tthis.uploadProgress = 35;\n\t\t\t\t\t\tthis.uploadStatusText = 'جاري المعالجة المتوازية فائقة السرعة واستخراج أصناف المستودعات في قاعدة البيانات...';\n\n\t\t\t\t\t\tconst response = await fetch(form.action || (this.$root.dataset.base + '/upload'), {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t\t'Accept': 'application/json',\n\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tthis.uploadProgress = 85;\n\t\t\t\t\t\tconst result = await response.json();\n\t\t\t\t\t\tthis.uploadProgress = 100;\n\n\t\t\t\t\t\tif (result && result.success) {\n\t\t\t\t\t\t\tthis.bulkUploadResults = result;\n\t\t\t\t\t\t\tthis.uploadStatusText = result.message || 'تم الرفع والمعالجة بنجاح!';\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\tif (this.autoLaunchSetup && result.uploaded_ids && result.uploaded_ids.length > 0) {\n\t\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\t\tthis.isBulkUploading = false;\n\t\t\t\t\t\t\t\t\tthis.uploadModal = false;\n\t\t\t\t\t\t\t\t\tthis.clearSelectedFiles();\n\t\t\t\t\t\t\t\t\tconst firstId = parseInt(result.uploaded_ids[0], 10);\n\t\t\t\t\t\t\t\t\tconst queue = result.uploaded_ids.slice(1);\n\t\t\t\t\t\t\t\t\tthis.openMapping(firstId, queue, 1, result.uploaded_ids.length);\n\t\t\t\t\t\t\t\t}, 800);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t\t}, 1500);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');\n\t\t\t\t\t\t\tthis.isBulkUploading = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(err) {\n\t\t\t\t\t\tconsole.error('Upload error:', err);\n\t\t\t\t\t\tthis.uploadStatusText = 'تم إرسال الملفات بنجاح، جاري تحديث الصفحة...';\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t}, 2000);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\" class=\"d-flex flex-col gap-6 max-w-7xl mx-auto mb-14\"><!-- 1. Header Banner & Top Action Tabs --><div class=\"card mb-0 bg-surface-raised border rounded-2xl p-7 shadow-xs\"><div class=\"flex-between items-start flex-wrap gap-6\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1.5\"><div class=\"w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -85,308 +161,278 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">قوائم المستودعات التابعة لحسابي المشرف</h1><span class=\"text-xs font-bold text-accent uppercase\">Temporary Warehouses & Staged Supplier Catalogs</span></div></div><p class=\"text-sm text-secondary m-0 mt-1.5 leading-relaxed max-w-3xl\">تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.</p></div><!-- Top Navigation Scope Tabs + Upload Button --><div class=\"d-flex gap-2.5 items-center flex-wrap\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 = []any{"btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "my" || data.Scope == ""), templ.KV("btn-secondary", data.Scope != "my" && data.Scope != "")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/admin/user/temparte-warehouses?scope=my\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><span>مستودعاتي المرفوعة</span></a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 = []any{"btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "admins"), templ.KV("btn-secondary", data.Scope != "admins")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"/admin/user/temparte-warehouses?scope=admins\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"><span>مستودعات كافة المشرفين</span></a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 = []any{"btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "all"), templ.KV("btn-secondary", data.Scope != "all")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"/admin/user/temparte-warehouses?scope=all\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var7).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><span>جميع مستودعات العملاء والبائعين</span></a> <button type=\"button\" @click=\"uploadModal = true\" class=\"btn btn-primary btn-sm inline-flex items-center gap-1.5 font-black px-5 py-2.5 rounded-lg\"><span>رفع الملفات وسجل الأخطاء</span></button></div></div></div><!-- Notice Banner -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.NoticeMsg != "" {
-				var templ_7745c5c3_Var9 = []any{"alert rounded-2xl font-bold",
-					templ.KV("alert-success", data.NoticeType == "success"),
-					templ.KV("alert-danger", data.NoticeType == "error"),
-					templ.KV("alert-info", data.NoticeType != "success" && data.NoticeType != "error")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
+			if data.MineOnly {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "مستودعاتي المرفوعة")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"")
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "قوائم المستودعات المؤقتة")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var9).String())
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h1><span class=\"text-xs font-bold text-accent uppercase\">Temporary Warehouses & Staged Supplier Catalogs</span></div></div><p class=\"text-sm text-secondary m-0 mt-1.5 leading-relaxed max-w-3xl\">تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.</p></div><!-- Top Navigation Scope Tabs + Upload Button --><div class=\"d-flex gap-2.5 items-center flex-wrap\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !data.MineOnly {
+				var templ_7745c5c3_Var4 = []any{"btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.SourceFilter == ""), templ.KV("btn-secondary", data.SourceFilter != "")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var5 templ.SafeURL
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(data.PageURL + "?type="))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 499, Col: 53}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var4).String())
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" role=\"alert\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><span>كل المستودعات</span></a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
+				var templ_7745c5c3_Var7 = []any{"btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.SourceFilter == "moderator"), templ.KV("btn-secondary", data.SourceFilter != "moderator")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 467, Col: 21}
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var8 templ.SafeURL
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(data.PageURL + "?type=moderator"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 505, Col: 62}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var7).String())
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"><span>مستودعات المشرفين</span></a> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var10 = []any{"btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.SourceFilter == "vendor"), templ.KV("btn-secondary", data.SourceFilter != "vendor")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var11 templ.SafeURL
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(data.PageURL + "?type=vendor"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 511, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var12 string
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var10).String())
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><span>مستودعات البائعين (أداة المقارنة)</span></a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- 2. 4 Stat Metric Cards --><div class=\"d-grid grid-auto-fit-md gap-4\"><!-- Card 1: Total Items --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-accent leading-tight\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<button type=\"button\" @click=\"uploadModal = true\" class=\"btn btn-primary btn-sm inline-flex items-center gap-1.5 font-black px-5 py-2.5 rounded-lg\"><span>رفع الملفات وسجل الأخطاء</span></button></div></div></div><!-- Notice Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalRows))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 476, Col: 41}
+			if data.NoticeMsg != "" {
+				var templ_7745c5c3_Var13 = []any{"alert rounded-2xl font-bold",
+					templ.KV("alert-success", data.NoticeType == "success"),
+					templ.KV("alert-danger", data.NoticeType == "error"),
+					templ.KV("alert-info", data.NoticeType != "success" && data.NoticeType != "error")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var14 string
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var13).String())
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" role=\"alert\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 537, Col: 21}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">إجمالي الأصناف المرفوعة</div></div><!-- Card 2: Total Files --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-emerald leading-tight\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 486, Col: 42}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">إجمالي ملفات الموردين</div></div><!-- Card 3: Active Warehouses --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-emerald leading-tight\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ActiveCount))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 496, Col: 43}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">المستودعات النشطة</div></div><!-- Card 4: Archived Warehouses --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-muted leading-tight\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ArchivedCount))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 506, Col: 45}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">المستودعات المؤرشفة</div></div></div><!-- 3. Search & Status Tabs Bar --><div class=\"card mb-0 border rounded-2xl p-5 bg-surface-raised\"><form method=\"GET\" action=\"/admin/user/temparte-warehouses\" class=\"flex-between items-center flex-wrap gap-4 m-0\"><input type=\"hidden\" name=\"scope\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<!-- 2. 4 Stat Metric Cards --><div class=\"d-grid grid-auto-fit-md gap-4\"><!-- Card 1: Total Items --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-accent leading-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Scope)
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalRows))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 517, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 546, Col: 41}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><!-- Search Input --><div class=\"relative min-w-72 flex-1\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">إجمالي الأصناف المرفوعة</div></div><!-- Card 2: Total Files --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-emerald leading-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 524, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 556, Col: 42}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"form-input ps-9 text-sm h-10 w-full rounded-lg\" placeholder=\"بحث باسم المورد / المستودع...\"><div class=\"absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">إجمالي ملفات الموردين</div></div><!-- Card 3: Active Warehouses --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-emerald leading-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ActiveCount))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 566, Col: 43}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div><!-- Status Pill Tabs --><div class=\"d-flex items-center gap-2\"><div class=\"d-flex bg-surface-sunken border rounded-lg p-0.5 gap-0.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">المستودعات النشطة</div></div><!-- Card 4: Archived Warehouses --><div class=\"card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center\"><div class=\"tabular-nums text-4xl font-black text-muted leading-tight\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var18 = []any{"btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "ready"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "ready")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var18...)
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ArchivedCount))
 			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<a href=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var19 templ.SafeURL
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=ready", data.Scope, data.Query)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 537, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 576, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">المستودعات المؤرشفة</div></div></div><!-- 3. Search & Status Tabs Bar --><div class=\"card mb-0 border rounded-2xl p-5 bg-surface-raised\"><form method=\"GET\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var20 string
-			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var18).String())
+			var templ_7745c5c3_Var20 templ.SafeURL
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(data.PageURL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 586, Col: 59}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><span>النشطة</span></a> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var21 = []any{"btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "archived"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "archived")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var21...)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" class=\"flex-between items-center flex-wrap gap-4 m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<a href=\"")
+			if !data.MineOnly {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<input type=\"hidden\" name=\"type\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var21 string
+				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SourceFilter)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 588, Col: 64}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Search Input --><div class=\"relative min-w-60 flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var22 templ.SafeURL
-			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=archived", data.Scope, data.Query)))
+			var templ_7745c5c3_Var22 string
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 543, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 596, Col: 25}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var21).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\"><span>المؤرشفة</span></a> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var24 = []any{"btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == ""), templ.KV("btn-ghost text-secondary", data.StatusFilter != "")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var24...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<a href=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var25 templ.SafeURL
-			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s", data.Scope, data.Query)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 549, Col: 114}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var24).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"><span>الكل</span></a></div><button type=\"submit\" class=\"btn btn-primary btn-sm d-flex items-center gap-1.5 h-10 px-5 font-black rounded-lg\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"form-input ps-9 text-sm h-10 w-full rounded-lg\" placeholder=\"بحث باسم المورد / المستودع...\"><div class=\"absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -394,12 +440,181 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>بحث</span></button></div></form></div><!-- 4. Table Surface --><div class=\"card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !data.MineOnly && len(data.Uploaders) > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<select name=\"uploader\" class=\"form-input text-sm h-10 rounded-lg min-w-52\"><option value=\"\">كل المشرفين والبائعين</option> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, u := range data.Uploaders {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", u.UserID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 609, Col: 51}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if data.UploaderFilter == fmt.Sprintf("%d", u.UserID) {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " selected")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var24 string
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(u.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 610, Col: 17}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</option>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</select>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<!-- Status Pill Tabs --><div class=\"d-flex items-center gap-2\"><div class=\"d-flex bg-surface-sunken border rounded-lg p-0.5 gap-0.5\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var25 = []any{"btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "ready"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "ready")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var25...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 templ.SafeURL
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(tempWarehouseFilterURL(data, "ready")))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 620, Col: 67}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var27 string
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var25).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"><span>النشطة</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var28 = []any{"btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "archived"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "archived")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var28...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var29 templ.SafeURL
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(tempWarehouseFilterURL(data, "archived")))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 626, Col: 70}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var30 string
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var28).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"><span>المؤرشفة</span></a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var31 = []any{"btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == ""), templ.KV("btn-ghost text-secondary", data.StatusFilter != "")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var31...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var32 templ.SafeURL
+			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(tempWarehouseFilterURL(data, "")))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 632, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var33 string
+			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var31).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\"><span>الكل</span></a></div><button type=\"submit\" class=\"btn btn-primary btn-sm d-flex items-center gap-1.5 h-10 px-5 font-black rounded-lg\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>بحث</span></button></div></form></div><!-- 4. Table Surface --><div class=\"card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Items) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"text-center p-16\"><div class=\"w-14 h-14 rounded-full bg-surface-sunken text-muted flex-center mx-auto mb-4 text-2xl\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"text-center p-16\"><div class=\"w-14 h-14 rounded-full bg-surface-sunken text-muted flex-center mx-auto mb-4 text-2xl\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -407,182 +622,271 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div><h3 class=\"text-lg font-black text-primary mb-1.5\">لا توجد مستودعات مؤقتة مطابقة</h3><p class=\"text-sm text-secondary max-w-md mx-auto mb-6\">يمكنك رفع كشف أسعار ومستودع جديد بالنقر على زر الرفع أعلاه.</p><button type=\"button\" @click=\"uploadModal = true\" class=\"btn btn-primary btn-sm font-black rounded-lg\">رفع كشف مستودع جديد الآن</button></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><h3 class=\"text-lg font-black text-primary mb-1.5\">لا توجد مستودعات مؤقتة مطابقة</h3><p class=\"text-sm text-secondary max-w-md mx-auto mb-6\">يمكنك رفع كشف أسعار ومستودع جديد بالنقر على زر الرفع أعلاه.</p><button type=\"button\" @click=\"uploadModal = true\" class=\"btn btn-primary btn-sm font-black rounded-lg\">رفع كشف مستودع جديد الآن</button></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-10 text-center\">#</th><th class=\"min-w-60\">اسم المورد / الملف</th><th class=\"min-w-36\">عدد المنتجات</th><th class=\"min-w-40\">تاريخ الرفع</th><th class=\"min-w-64 text-center\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-10 text-center\">#</th><th class=\"min-w-60\">اسم المورد / الملف</th>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if !data.MineOnly {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<th class=\"min-w-44\">المشرف / المورد</th>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<th class=\"min-w-32\">النوع</th><th class=\"min-w-28\">عدد المنتجات</th><th class=\"min-w-40\">تاريخ الرفع</th><th class=\"min-w-64 text-center\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for idx, item := range data.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<tr><td class=\"tabular-nums text-muted text-sm text-center\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<tr><td class=\"tabular-nums text-muted text-sm text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var27 string
-					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
+					var templ_7745c5c3_Var34 string
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 597, Col: 37}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td><td><div class=\"font-black text-primary text-base\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var28 string
-					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(item.SupplierName)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 601, Col: 31}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"tabular-nums text-xs text-muted font-mono mt-0.5\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var29 string
-						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(item.OriginalFilename)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 605, Col: 36}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><td><span class=\"badge badge-sky font-black text-xs tabular-nums px-3 py-1.5 rounded-md\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var30 string
-					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", item.RowCount))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 611, Col: 53}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span></td><td class=\"tabular-nums text-xs text-muted whitespace-nowrap\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var31 string
-					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 03:04 PM"))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 615, Col: 57}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</td><td><div class=\"d-flex gap-1.5 justify-center items-center flex-wrap\"><!-- View Items Button --><button type=\"button\" @click=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var32 string
-					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 622, Col: 101}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"btn btn-secondary btn-sm font-black px-3 py-1.5 rounded-md text-accent text-xs\" title=\"عرض وفحص كافة أصناف هذا المستودع\"><span>الأصناف</span></button><!-- Column Mapping Button --><button type=\"button\" @click=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var33 string
-					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openMapping(%d, [], 1, 1)", item.ID))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 632, Col: 71}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-primary text-xs\" title=\"ضبط وتعديل وتأكيد تعيين أعمدة المستودع\"><span>ضبط الأعمدة</span></button><!-- Download XLSX --><a href=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var34 templ.SafeURL
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/export", item.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 641, Col: 96}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 684, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-emerald text-xs\" title=\"تنزيل كشف المستودع بصيغة Excel\"><span>XLSX</span></a><!-- Toggle Archive --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</td><td><div class=\"font-black text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var35 templ.SafeURL
-					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/toggle-archive", item.ID)))
+					var templ_7745c5c3_Var35 string
+					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(item.SupplierName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 649, Col: 125}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 688, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" class=\"inline m-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"tabular-nums text-xs text-muted font-mono mt-0.5\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var36 string
+						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(item.OriginalFilename)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 692, Col: 36}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</td>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if !data.MineOnly {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<td><div class=\"font-bold text-primary text-sm\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if item.UploaderName != "" {
+							var templ_7745c5c3_Var37 string
+							templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(item.UploaderName)
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 700, Col: 33}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "—")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if item.OrgName != "" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"text-xs text-muted mt-0.5\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var38 string
+							templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(item.OrgName)
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 706, Col: 66}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</td>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<td>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if item.SourceType == "vendor" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span class=\"badge badge-amber font-black text-xs px-2.5 py-1 rounded-md\">أداة المقارنة — بائع</span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if item.Visibility == "public" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div class=\"mt-1\"><span class=\"badge badge-emerald font-bold text-2xs px-2 py-0.5 rounded\">عام في السوق</span></div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<div class=\"mt-1\"><span class=\"badge badge-slate font-bold text-2xs px-2 py-0.5 rounded\">خاص</span></div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"badge badge-sky font-black text-xs px-2.5 py-1 rounded-md\">مستودع مشرف</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</td><td><span class=\"badge badge-sky font-black text-xs tabular-nums px-3 py-1.5 rounded-md\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var39 string
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", item.RowCount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 724, Col: 53}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</span></td><td class=\"tabular-nums text-xs text-muted whitespace-nowrap\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var40 string
+					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 03:04 PM"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 728, Col: 57}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</td><td><div class=\"d-flex gap-1.5 justify-center items-center flex-wrap\"><!-- View Items Button --><button type=\"button\" @click=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var41 string
+					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 735, Col: 101}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"btn btn-secondary btn-sm font-black px-3 py-1.5 rounded-md text-accent text-xs\" title=\"عرض وفحص كافة أصناف هذا المستودع\"><span>الأصناف</span></button><!-- Column Mapping Button --><button type=\"button\" @click=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var42 string
+					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openMapping(%d, [], 1, 1)", item.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 745, Col: 71}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-primary text-xs\" title=\"ضبط وتعديل وتأكيد تعيين أعمدة المستودع\"><span>ضبط الأعمدة</span></button><!-- Download XLSX --><a href=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var43 templ.SafeURL
+					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%d/export", data.Base, item.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 754, Col: 82}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-emerald text-xs\" title=\"تنزيل كشف المستودع بصيغة Excel\"><span>XLSX</span></a><!-- Toggle Archive --><form method=\"POST\" action=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var44 templ.SafeURL
+					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%d/toggle-archive", data.Base, item.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 762, Col: 111}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"inline m-0\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.Status == "archived" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<button type=\"submit\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs\" title=\"إعادة تفعيل المستودع بالخصومات\"><span>تفعيل</span></button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<button type=\"submit\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs\" title=\"إعادة تفعيل المستودع بالخصومات\"><span>تفعيل</span></button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<button type=\"submit\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs\" title=\"أرشفة المستودع\"><span>أرشفة</span></button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<button type=\"submit\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs\" title=\"أرشفة المستودع\"><span>أرشفة</span></button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</form><!-- Delete Warehouse --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</form><!-- Delete Warehouse --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var36 templ.SafeURL
-					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/delete", item.ID)))
+					var templ_7745c5c3_Var45 templ.SafeURL
+					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%d/delete", data.Base, item.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 662, Col: 117}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_temp_warehouses.templ`, Line: 775, Col: 103}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\" onsubmit=\"return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');\" class=\"inline m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-danger text-xs\" title=\"حذف المستودع بالكامل\"><span>حذف</span></button></form></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" onsubmit=\"return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');\" class=\"inline m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-danger text-xs\" title=\"حذف المستودع بالكامل\"><span>حذف</span></button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -590,13 +894,13 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("قوائم المستودعات التابعة لحسابي المشرف", "temp_warehouses", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell(tempWarehousesShellTitle(data), tempWarehousesNavKey(data), lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

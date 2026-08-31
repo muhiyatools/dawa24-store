@@ -160,6 +160,7 @@ func loadAdminCatalogA(e *engine) {
 	addKey(e, "admin.temp_wh.unarchived_success", "admin", "تم تفعيل المستودع وإتاحته بالخصومات بنجاح.", "Warehouse unarchived and enabled for discounts.", "Success notice")
 	addKey(e, "admin.temp_wh.manual_archive_reason", "admin", "أرشفة يدوية من لوحة المشرف", "Manual archive from admin portal", "Archive reason")
 	addKey(e, "admin.temp_wh.archived_success", "admin", "تم أرشفة المستودع بنجاح.", "Warehouse archived successfully.", "Success notice")
+	addKey(e, "admin.temp_wh.not_owner", "admin", "لا تملك صلاحية إدارة هذا المستودع لأنه ليس من رفعك.", "You cannot manage this warehouse because you did not upload it.", "Forbidden error")
 
 	// --- Categories & Reference ---
 	addKey(e, "admin.categories.service_unavailable", "catalog", "خدمة الكتالوج غير متاحة.", "Catalogue service is currently unavailable.", "Service error")

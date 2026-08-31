@@ -15,7 +15,7 @@ import (
 // uploaderLabelExpr builds a human label for a compare.files.user_id, falling
 // back through first/last name, the localized name JSON, then the email.
 const uploaderLabelExpr = `COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.first_name, u.last_name)), ''), ` +
-	`u.name->>'ar', u.name->>'en', u.email::text, 'مستخدم #' || f.user_id)`
+	`u.name->>'ar', u.name->>'en', u.email::text, '#' || f.user_id)`
 
 // adminTempWarehouseScope is the base predicate shared by the Super Admin and
 // "my uploads" listings: a temporary warehouse is a moderator upload

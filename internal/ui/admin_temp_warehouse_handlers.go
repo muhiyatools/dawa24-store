@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -13,53 +14,93 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// AdminTempWarehousesPage renders temporary warehouses staging directory with database integration.
+// tempWarehouseSuperBase / tempWarehouseSuperPage are the URL roots the Super
+// Admin "المستودعات المؤقتة" screen posts to. The "مستودعاتي المرفوعة" screen
+// uses the /admin/my/temparte-warehouses mirror (see admin_my_temp_warehouse_handlers.go).
+const (
+	tempWarehouseSuperBase = "/admin/temporary-warehouses"
+	tempWarehouseSuperPage = "/admin/user/temparte-warehouses"
+)
+
+// AdminTempWarehousesPage renders the Super Admin temporary warehouses directory:
+// moderator uploads plus vendor compare-tool files, with uploader / type filters.
 func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	query := strings.TrimSpace(r.URL.Query().Get("q"))
-	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
-	scope := strings.TrimSpace(r.URL.Query().Get("scope"))
-	noticeMsg := strings.TrimSpace(r.URL.Query().Get("notice"))
-	noticeType := strings.TrimSpace(r.URL.Query().Get("notice_type"))
-
-	var statusPtr *compare.CompareFileStatus
-	if statusFilter != "" {
-		s := compare.CompareFileStatus(statusFilter)
-		statusPtr = &s
+	filter := compare.AdminTempWarehouseFilter{
+		Search: strings.TrimSpace(r.URL.Query().Get("q")),
+		Source: strings.TrimSpace(r.URL.Query().Get("type")),
+	}
+	if s := strings.TrimSpace(r.URL.Query().Get("status")); s != "" {
+		st := compare.CompareFileStatus(s)
+		filter.Status = &st
+	}
+	if u := strings.TrimSpace(r.URL.Query().Get("uploader")); u != "" {
+		if id, err := strconv.ParseInt(u, 10, 64); err == nil && id > 0 {
+			filter.UploaderID = &id
+		}
 	}
 
-	var files []*compare.CompareFile
-	var err error
+	data := h.buildTempWarehousesData(ctx, filter, false)
+	data.Base = tempWarehouseSuperBase
+	data.PageURL = tempWarehouseSuperPage
+	data.NoticeMsg = strings.TrimSpace(r.URL.Query().Get("notice"))
+	data.NoticeType = strings.TrimSpace(r.URL.Query().Get("notice_type"))
+	if data.NoticeMsg == "" {
+		if m := strings.TrimSpace(r.URL.Query().Get("msg")); m != "" {
+			data.NoticeMsg = m
+		}
+	}
 	if h.compareSvc != nil {
-		files, err = h.compareSvc.ListAllFiles(database.AsSystem(ctx), query, statusPtr)
+		if ups, err := h.compareSvc.ListTempWarehouseUploaders(database.AsSystem(ctx)); err == nil {
+			for _, u := range ups {
+				data.Uploaders = append(data.Uploaders, pages.AdminTempWarehouseUploader{UserID: u.UserID, Name: u.Name})
+			}
+		}
+	}
+
+	h.renderPage(ctx, w, "render temp warehouses", pages.AdminTempWarehousesPage(data, lang, dir))
+}
+
+// buildTempWarehousesData runs the admin temp-warehouse listing and maps it into
+// the page view model. Shared by the Super Admin and "my uploads" screens.
+func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.AdminTempWarehouseFilter, mineOnly bool) *pages.AdminTempWarehousesData {
+	var rows []*compare.AdminTempWarehouse
+	if h.compareSvc != nil {
+		var err error
+		rows, err = h.compareSvc.ListAdminTempWarehouses(database.AsSystem(ctx), filter)
 		if err != nil {
-			h.log.ErrorContext(ctx, "list all temp warehouse files", "error", err)
+			h.log.ErrorContext(ctx, "list admin temp warehouses", "error", err)
 		}
 	}
 
 	var totalRows int64
-	var activeCount int
-	var archivedCount int
-	var items []*pages.AdminTempWarehouseItem
-
-	for _, f := range files {
-		if f == nil {
+	var activeCount, archivedCount int
+	items := make([]*pages.AdminTempWarehouseItem, 0, len(rows))
+	for _, row := range rows {
+		if row == nil || row.CompareFile == nil {
 			continue
 		}
+		f := row.CompareFile
 		totalRows += int64(f.RowCount)
-		if f.Status == compare.FileReady {
+		switch f.Status {
+		case compare.FileReady:
 			activeCount++
-		} else if f.Status == compare.FileArchived {
+		case compare.FileArchived:
 			archivedCount++
 		}
-
+		source := "moderator"
+		if f.OrganizationID != nil {
+			source = "vendor"
+		}
+		uid := f.UserID
 		items = append(items, &pages.AdminTempWarehouseItem{
 			ID:               f.ID,
 			SupplierName:     f.SupplierName,
@@ -67,26 +108,48 @@ func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Reque
 			RowCount:         f.RowCount,
 			SizeBytes:        f.SizeBytes,
 			Status:           string(f.Status),
-			CreatedBy:        &f.UserID,
+			CreatedBy:        &uid,
 			CreatedAt:        f.CreatedAt,
 			ArchivedAt:       f.ArchivedAt,
+			UploaderName:     row.UploaderName,
+			OrgName:          row.OrgName,
+			SourceType:       source,
+			Visibility:       f.Visibility,
 		})
 	}
 
-	data := &pages.AdminTempWarehousesData{
-		Items:         items,
-		TotalCount:    len(items),
-		TotalRows:     totalRows,
-		ActiveCount:   activeCount,
-		ArchivedCount: archivedCount,
-		Query:         query,
-		StatusFilter:  statusFilter,
-		Scope:         scope,
-		NoticeMsg:     noticeMsg,
-		NoticeType:    noticeType,
+	uploaderFilter := ""
+	if filter.UploaderID != nil {
+		uploaderFilter = strconv.FormatInt(*filter.UploaderID, 10)
 	}
 
-	h.renderPage(ctx, w, "render temp warehouses", pages.AdminTempWarehousesPage(data, lang, dir))
+	return &pages.AdminTempWarehousesData{
+		Items:          items,
+		TotalCount:     len(items),
+		TotalRows:      totalRows,
+		ActiveCount:    activeCount,
+		ArchivedCount:  archivedCount,
+		Query:          filter.Search,
+		StatusFilter:   statusFilterString(filter.Status),
+		SourceFilter:   filter.Source,
+		UploaderFilter: uploaderFilter,
+		MineOnly:       mineOnly,
+	}
+}
+
+func statusFilterString(s *compare.CompareFileStatus) string {
+	if s == nil {
+		return ""
+	}
+	return string(*s)
+}
+
+// currentActorUserID returns the authenticated staff user's id, or 0.
+func currentActorUserID(r *http.Request) int64 {
+	if a, ok := authctx.From(r.Context()); ok {
+		return a.UserID
+	}
+	return 0
 }
 
 // AdminTempWarehouseItemsJSON returns paginated items for a warehouse in JSON for the items modal.

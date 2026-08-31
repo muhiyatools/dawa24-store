@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 func (r *Repository) InsertFileRows(ctx context.Context, rows []*compare.CompareFileRow) error {
@@ -190,6 +191,29 @@ func (r *Repository) DeleteFileRow(ctx context.Context, rowID int64) error {
 			    updated_at = NOW()
 			WHERE id = $1;
 		`, fileID)
+		return err
+	})
+}
+
+func (r *Repository) DeleteFileRowOwnedBy(ctx context.Context, rowID int64, ownerUserID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var fileID int64
+		err := tx.QueryRow(txCtx, `
+			DELETE FROM compare.file_rows r
+			USING compare.files f
+			WHERE r.id = $1 AND r.file_id = f.id AND f.user_id = $2
+			RETURNING r.file_id;`, rowID, ownerUserID).Scan(&fileID)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return apperr.NotFound("compare file row")
+			}
+			return err
+		}
+		_, err = tx.Exec(txCtx, `
+			UPDATE compare.files
+			SET row_count = (SELECT COUNT(*) FROM compare.file_rows WHERE file_id = $1),
+			    updated_at = NOW()
+			WHERE id = $1;`, fileID)
 		return err
 	})
 }

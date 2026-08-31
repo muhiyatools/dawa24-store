@@ -181,6 +181,9 @@ func (m *mockCompareRepoE2E) DeleteFileRows(ctx context.Context, fileID int64) e
 	delete(m.fileRows, fileID)
 	return nil
 }
+func (m *mockCompareRepoE2E) DeleteFileRowOwnedBy(ctx context.Context, rowID int64, ownerUserID int64) error {
+	return nil
+}
 func (m *mockCompareRepoE2E) DeleteFileRow(ctx context.Context, rowID int64) error {
 	for fileID, rows := range m.fileRows {
 		for i, r := range rows {

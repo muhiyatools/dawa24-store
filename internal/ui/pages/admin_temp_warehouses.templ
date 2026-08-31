@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -19,6 +20,20 @@ type AdminTempWarehouseItem struct {
 	CreatedBy        *int64
 	CreatedAt        time.Time
 	ArchivedAt       *time.Time
+	// UploaderName is the moderator / vendor user who uploaded this warehouse.
+	UploaderName string
+	// OrgName is the vendor organization name when this is a vendor compare-tool file.
+	OrgName string
+	// SourceType is "vendor" (compare-tool upload) or "moderator" (admin upload).
+	SourceType string
+	// Visibility is "public" or "private"; only meaningful for vendor uploads.
+	Visibility string
+}
+
+// AdminTempWarehouseUploader is one distinct uploader for the filter dropdown.
+type AdminTempWarehouseUploader struct {
+	UserID int64
+	Name   string
 }
 
 // AdminTempWarehousesData carries data for the temporary warehouses admin page.
@@ -33,12 +48,61 @@ type AdminTempWarehousesData struct {
 	Scope         string
 	NoticeMsg     string
 	NoticeType    string
+	// MineOnly renders the "مستودعاتي المرفوعة" variant: own uploads only,
+	// no cross-account scope tabs, no uploader filter.
+	MineOnly bool
+	// Base is the URL root for row mutations / JSON endpoints
+	// ("/admin/temporary-warehouses" or "/admin/my/temparte-warehouses").
+	Base string
+	// PageURL is the GET page + filter form action.
+	PageURL string
+	// UploaderFilter / SourceFilter hold the current filter selection.
+	UploaderFilter string
+	SourceFilter   string
+	Uploaders      []AdminTempWarehouseUploader
+}
+
+func tempWarehousesShellTitle(data *AdminTempWarehousesData) string {
+	if data.MineOnly {
+		return "مستودعاتي المرفوعة"
+	}
+	return "قوائم المستودعات المؤقتة"
+}
+
+func tempWarehousesNavKey(data *AdminTempWarehousesData) string {
+	if data.MineOnly {
+		return "my_temp_warehouses"
+	}
+	return "temp_warehouses"
+}
+
+// tempWarehouseFilterURL builds a status-pill link that carries the current
+// search / uploader / source filters.
+func tempWarehouseFilterURL(data *AdminTempWarehousesData, status string) string {
+	q := url.Values{}
+	if data.Query != "" {
+		q.Set("q", data.Query)
+	}
+	if data.SourceFilter != "" {
+		q.Set("type", data.SourceFilter)
+	}
+	if data.UploaderFilter != "" {
+		q.Set("uploader", data.UploaderFilter)
+	}
+	if status != "" {
+		q.Set("status", status)
+	}
+	if len(q) == 0 {
+		return data.PageURL
+	}
+	return data.PageURL + "?" + q.Encode()
 }
 
 // AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
 templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
-	@layouts.AdminShell("قوائم المستودعات التابعة لحسابي المشرف", "temp_warehouses", lang, dir) {
+	@layouts.AdminShell(tempWarehousesShellTitle(data), tempWarehousesNavKey(data), lang, dir) {
 		<div class="stack-sm"
+			data-base={ data.Base }
 			x-data="{
 				uploadModal: false,
 				itemsModal: false,
@@ -94,7 +158,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				async fetchItems() {
 					this.modalLoading = true;
 					try {
-						const res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
+						const res = await fetch(this.$root.dataset.base + '/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
 						const json = await res.json();
 						if (json.success) {
 							this.modalItems = json.items || [];
@@ -123,7 +187,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					if (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;
 					try {
 						const formData = new FormData();
-						const res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {
+						const res = await fetch(this.$root.dataset.base + '/items/' + rowId + '/delete', {
 							method: 'POST',
 							body: formData
 						});
@@ -145,7 +209,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					this.mappingStep = step || 1;
 					this.mappingTotal = total || (this.mappingQueue.length + 1);
 					try {
-						const res = await fetch('/admin/temporary-warehouses/' + id + '/mapping-json');
+						const res = await fetch(this.$root.dataset.base + '/' + id + '/mapping-json');
 						const json = await res.json();
 						if (json.success) {
 							this.mappingFile = {
@@ -186,7 +250,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						formData.append('step', this.mappingStep);
 						formData.append('total', this.mappingTotal);
 
-						const res = await fetch('/admin/temporary-warehouses/' + this.mappingFile.id + '/mapping', {
+						const res = await fetch(this.$root.dataset.base + '/' + this.mappingFile.id + '/mapping', {
 							method: 'POST',
 							body: formData,
 							headers: {
@@ -355,7 +419,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						this.uploadProgress = 35;
 						this.uploadStatusText = 'جاري المعالجة المتوازية فائقة السرعة واستخراج أصناف المستودعات في قاعدة البيانات...';
 
-						const response = await fetch(form.action || '/admin/temporary-warehouses/upload', {
+						const response = await fetch(form.action || (this.$root.dataset.base + '/upload'), {
 							method: 'POST',
 							body: formData,
 							headers: {
@@ -412,7 +476,11 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							</div>
        <div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">
-									قوائم المستودعات التابعة لحسابي المشرف
+									if data.MineOnly {
+										مستودعاتي المرفوعة
+									} else {
+										قوائم المستودعات المؤقتة
+									}
 								</h1>
 								<span class="text-xs font-bold text-accent uppercase">
 									Temporary Warehouses & Staged Supplier Catalogs
@@ -426,24 +494,26 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 
 					<!-- Top Navigation Scope Tabs + Upload Button -->
 					<div class="d-flex gap-2.5 items-center flex-wrap">
-						<a
-							href="/admin/user/temparte-warehouses?scope=my"
-							class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "my" || data.Scope == ""), templ.KV("btn-secondary", data.Scope != "my" && data.Scope != "") }
-						>
-							<span>مستودعاتي المرفوعة</span>
-						</a>
-						<a
-							href="/admin/user/temparte-warehouses?scope=admins"
-							class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "admins"), templ.KV("btn-secondary", data.Scope != "admins") }
-						>
-							<span>مستودعات كافة المشرفين</span>
-						</a>
-						<a
-							href="/admin/user/temparte-warehouses?scope=all"
-							class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "all"), templ.KV("btn-secondary", data.Scope != "all") }
-						>
-							<span>جميع مستودعات العملاء والبائعين</span>
-						</a>
+						if !data.MineOnly {
+							<a
+								href={ templ.SafeURL(data.PageURL + "?type=") }
+								class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.SourceFilter == ""), templ.KV("btn-secondary", data.SourceFilter != "") }
+							>
+								<span>كل المستودعات</span>
+							</a>
+							<a
+								href={ templ.SafeURL(data.PageURL + "?type=moderator") }
+								class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.SourceFilter == "moderator"), templ.KV("btn-secondary", data.SourceFilter != "moderator") }
+							>
+								<span>مستودعات المشرفين</span>
+							</a>
+							<a
+								href={ templ.SafeURL(data.PageURL + "?type=vendor") }
+								class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.SourceFilter == "vendor"), templ.KV("btn-secondary", data.SourceFilter != "vendor") }
+							>
+								<span>مستودعات البائعين (أداة المقارنة)</span>
+							</a>
+						}
 						<button
 							type="button"
 							@click="uploadModal = true"
@@ -513,11 +583,13 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 
 			<!-- 3. Search & Status Tabs Bar -->
 			<div class="card mb-0 border rounded-2xl p-5 bg-surface-raised">
-				<form method="GET" action="/admin/user/temparte-warehouses" class="flex-between items-center flex-wrap gap-4 m-0">
-					<input type="hidden" name="scope" value={ data.Scope } />
-					
+				<form method="GET" action={ templ.SafeURL(data.PageURL) } class="flex-between items-center flex-wrap gap-4 m-0">
+					if !data.MineOnly {
+						<input type="hidden" name="type" value={ data.SourceFilter } />
+					}
+
 					<!-- Search Input -->
-					<div class="relative min-w-72 flex-1">
+					<div class="relative min-w-60 flex-1">
 						<input
 							type="text"
 							name="q"
@@ -530,23 +602,34 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						</div>
 					</div>
 
+					if !data.MineOnly && len(data.Uploaders) > 0 {
+						<select name="uploader" class="form-input text-sm h-10 rounded-lg min-w-52">
+							<option value="">كل المشرفين والبائعين</option>
+							for _, u := range data.Uploaders {
+								<option value={ fmt.Sprintf("%d", u.UserID) } selected?={ data.UploaderFilter == fmt.Sprintf("%d", u.UserID) }>
+									{ u.Name }
+								</option>
+							}
+						</select>
+					}
+
 					<!-- Status Pill Tabs -->
 					<div class="d-flex items-center gap-2">
 						<div class="d-flex bg-surface-sunken border rounded-lg p-0.5 gap-0.5">
 							<a
-								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=ready", data.Scope, data.Query)) }
+								href={ templ.SafeURL(tempWarehouseFilterURL(data, "ready")) }
 								class={ "btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "ready"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "ready") }
 							>
 								<span>النشطة</span>
 							</a>
 							<a
-								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=archived", data.Scope, data.Query)) }
+								href={ templ.SafeURL(tempWarehouseFilterURL(data, "archived")) }
 								class={ "btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "archived"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "archived") }
 							>
 								<span>المؤرشفة</span>
 							</a>
 							<a
-								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s", data.Scope, data.Query)) }
+								href={ templ.SafeURL(tempWarehouseFilterURL(data, "")) }
 								class={ "btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == ""), templ.KV("btn-ghost text-secondary", data.StatusFilter != "") }
 							>
 								<span>الكل</span>
@@ -585,7 +668,11 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								<tr>
 									<th class="w-10 text-center">#</th>
 									<th class="min-w-60">اسم المورد / الملف</th>
-									<th class="min-w-36">عدد المنتجات</th>
+									if !data.MineOnly {
+										<th class="min-w-44">المشرف / المورد</th>
+									}
+									<th class="min-w-32">النوع</th>
+									<th class="min-w-28">عدد المنتجات</th>
 									<th class="min-w-40">تاريخ الرفع</th>
 									<th class="min-w-64 text-center">الإجراءات</th>
 								</tr>
@@ -604,6 +691,32 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												<div class="tabular-nums text-xs text-muted font-mono mt-0.5">
 													{ item.OriginalFilename }
 												</div>
+											}
+										</td>
+										if !data.MineOnly {
+											<td>
+												<div class="font-bold text-primary text-sm">
+													if item.UploaderName != "" {
+														{ item.UploaderName }
+													} else {
+														—
+													}
+												</div>
+												if item.OrgName != "" {
+													<div class="text-xs text-muted mt-0.5">{ item.OrgName }</div>
+												}
+											</td>
+										}
+										<td>
+											if item.SourceType == "vendor" {
+												<span class="badge badge-amber font-black text-xs px-2.5 py-1 rounded-md">أداة المقارنة — بائع</span>
+												if item.Visibility == "public" {
+													<div class="mt-1"><span class="badge badge-emerald font-bold text-2xs px-2 py-0.5 rounded">عام في السوق</span></div>
+												} else {
+													<div class="mt-1"><span class="badge badge-slate font-bold text-2xs px-2 py-0.5 rounded">خاص</span></div>
+												}
+											} else {
+												<span class="badge badge-sky font-black text-xs px-2.5 py-1 rounded-md">مستودع مشرف</span>
 											}
 										</td>
 										<td>
@@ -638,7 +751,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 
 												<!-- Download XLSX -->
 												<a
-													href={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/export", item.ID)) }
+													href={ templ.SafeURL(fmt.Sprintf("%s/%d/export", data.Base, item.ID)) }
 													class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-emerald text-xs"
 													title="تنزيل كشف المستودع بصيغة Excel"
 												>
@@ -646,7 +759,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												</a>
 
 												<!-- Toggle Archive -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/toggle-archive", item.ID)) } class="inline m-0">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/toggle-archive", data.Base, item.ID)) } class="inline m-0">
 													if item.Status == "archived" {
 														<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs" title="إعادة تفعيل المستودع بالخصومات">
 															<span>تفعيل</span>
@@ -659,7 +772,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												</form>
 
 												<!-- Delete Warehouse -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/delete", item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" class="inline m-0">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", data.Base, item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" class="inline m-0">
 													<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-danger text-xs" title="حذف المستودع بالكامل">
 														<span>حذف</span>
 													</button>

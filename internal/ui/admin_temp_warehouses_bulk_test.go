@@ -117,6 +117,10 @@ func (m *mockBulkCompareRepo) GetFileRowsPaginated(ctx context.Context, fileID i
 	return rows, int64(len(rows)), nil
 }
 
+func (m *mockBulkCompareRepo) DeleteFileRowOwnedBy(ctx context.Context, rowID int64, ownerUserID int64) error {
+	return nil
+}
+
 func (m *mockBulkCompareRepo) DeleteFileRow(ctx context.Context, rowID int64) error {
 	return nil
 }

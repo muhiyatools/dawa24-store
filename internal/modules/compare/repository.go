@@ -71,6 +71,9 @@ type Repository interface {
 	GetFileRowsPaginated(ctx context.Context, fileID int64, page, limit int) ([]*CompareFileRow, int64, error)
 	DeleteFileRows(ctx context.Context, fileID int64) error
 	DeleteFileRow(ctx context.Context, rowID int64) error
+	// DeleteFileRowOwnedBy deletes a row only if its parent file's user_id
+	// matches ownerUserID. Returns apperr.NotFound when nothing matched.
+	DeleteFileRowOwnedBy(ctx context.Context, rowID int64, ownerUserID int64) error
 	UpdateFileRowMatch(ctx context.Context, rowID int64, matchedProductID *int64, method MatchMethod, confidence float64) error
 	// BulkUpdateFileRowMatches writes a whole matching run in one statement.
 	// A price list is tens of thousands of rows; a round trip per row would

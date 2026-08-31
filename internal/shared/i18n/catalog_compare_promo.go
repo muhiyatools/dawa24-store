@@ -99,6 +99,9 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.file.unarchived_success", "compare", "تم استعادة الملف من الأرشيف بنجاح.", "File restored from archive successfully.", "Success notice")
 	addKey(e, "compare.file.delete_forbidden", "compare", "غير مصرح لك بحذف هذا الملف.", "You are not authorized to delete this file.", "Permission error")
 	addKey(e, "compare.file.deleted_success", "compare", "تم حذف الملف بنجاح.", "File deleted successfully.", "Success notice")
+	addKey(e, "compare.file.visibility_forbidden", "compare", "نشر الملفات في خصومات السوق العامة متاح لحسابات الموردين فقط.", "Publishing files to public market discounts is available to vendor accounts only.", "Permission error")
+	addKey(e, "compare.file.visibility_public", "compare", "أصبح الملف الآن ظاهراً في خصومات السوق العامة.", "The file is now visible in public market discounts.", "Success notice")
+	addKey(e, "compare.file.visibility_private", "compare", "تم إخفاء الملف من خصومات السوق العامة.", "The file is now hidden from public market discounts.", "Success notice")
 
 	// --- Compare Run, Results & Market Intelligence ---
 	addKey(e, "compare.run.vendors_only", "compare", "هذه الأداة مخصصة لحسابات الموردين فقط.", "This tool is for vendor accounts only.", "Permission error")

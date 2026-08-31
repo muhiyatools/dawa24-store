@@ -19,7 +19,7 @@ type CompareMatchOptions struct {
 	AIAvailable bool
 }
 
-templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, matching CompareMatchOptions, noticeType, noticeMsg string) {
+templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, matching CompareMatchOptions, noticeType, noticeMsg string, isVendor bool) {
 	@layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir) {
 		<div class="page-container max-w-5xl">
 
@@ -181,6 +181,22 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 												<div class="text-xs text-muted mt-1 tabular-nums">
 													{ f.OriginalFilename } • { f.CreatedAt.Format("2006-01-02") }
 												</div>
+												if isVendor {
+													<div class="d-flex items-center gap-2 mt-1.5">
+														<span class="text-xs text-muted">السوق العامة:</span>
+														if f.Visibility == "public" {
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/visibility", f.ID)) } class="inline m-0">
+																<input type="hidden" name="visibility" value="private"/>
+																<button type="submit" class="badge badge-emerald text-xs font-bold cursor-pointer" title="ظاهر للجمهور — اضغط للإخفاء">عام ✓</button>
+															</form>
+														} else {
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/visibility", f.ID)) } class="inline m-0">
+																<input type="hidden" name="visibility" value="public"/>
+																<button type="submit" class="badge badge-slate text-xs font-bold cursor-pointer" title="خاص — اضغط للنشر في خصومات السوق العامة">خاص — نشر</button>
+															</form>
+														}
+													</div>
+												}
 											</div>
 										</div>
 

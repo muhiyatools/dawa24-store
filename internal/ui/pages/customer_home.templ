@@ -101,6 +101,145 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				</div>
 			</div>
 
+			<!-- 1b. Hero Sponsored Ads Showcase (Vendors' Approved Ads Carousel) -->
+			if len(stats.Ads) > 0 {
+				<div
+					class="hero-ad-showcase-container"
+					x-data={ fmt.Sprintf("heroAdSlider(%d)", len(stats.Ads)) }
+					x-init="startAutoplay()"
+					@mouseenter="pauseAutoplay()"
+					@mouseleave="startAutoplay()"
+				>
+					<div class="hero-ad-slider-frame">
+						for i, ad := range stats.Ads {
+							if ad != nil {
+								<a
+									href={ templ.SafeURL(ad.ResolveClickURL()) }
+									class="hero-ad-slide"
+									x-show={ fmt.Sprintf("currentSlide === %d", i) }
+									x-cloak
+									x-transition:enter="transition ease-out duration-300"
+									x-transition:enter-start="opacity-0 scale-98"
+									x-transition:enter-end="opacity-100 scale-100"
+									x-transition:leave="transition ease-in duration-200"
+									x-transition:leave-start="opacity-100 scale-100"
+									x-transition:leave-end="opacity-0 scale-98"
+									data-ad-id={ fmt.Sprintf("%d", ad.ID) }
+								>
+									if ad.MediaType == "video" && ad.MediaURL != "" {
+										<video
+											src={ ad.MediaURL }
+											poster={ ad.ThumbnailURL }
+											autoplay
+											muted
+											loop
+											playsinline
+											class="hero-ad-video-media"
+										></video>
+									} else if ad.MediaURL != "" {
+										<img
+											src={ ad.MediaURL }
+											alt={ ad.DisplayTitle(lang) }
+											loading="eager"
+											class="hero-ad-bg-media"
+										/>
+									}
+									<div class="hero-ad-gradient-overlay"></div>
+									<div class="hero-ad-floating-badges">
+										<span class="hero-ad-badge-sponsor">
+											@components.IconSparkles("icon-2xs")
+											<span>إعلان ورعاية معتمدة</span>
+										</span>
+										<span class="hero-ad-badge-verified">
+											@components.IconShield("icon-2xs")
+											<span>مورد مرخص</span>
+										</span>
+									</div>
+									<div class="hero-ad-content">
+										<h2 class="hero-ad-title">{ ad.DisplayTitle(lang) }</h2>
+										if ad.DisplayText(lang) != "" {
+											<p class="hero-ad-description">{ ad.DisplayText(lang) }</p>
+										}
+										<div class="hero-ad-cta-row">
+											<span class="hero-ad-cta-btn">
+												<span>استكشف العرض والطلب المباشر</span>
+												@components.IconArrowLeft("icon-xs")
+											</span>
+										</div>
+									</div>
+								</a>
+							}
+						}
+					</div>
+
+					if len(stats.Ads) > 1 {
+						<!-- Prev / Next Navigation Arrows -->
+						<button
+							type="button"
+							class="hero-ad-nav-btn hero-ad-nav-prev"
+							@click="prevSlide()"
+							title="السابق"
+						>
+							@components.IconArrowRight("icon-sm")
+						</button>
+						<button
+							type="button"
+							class="hero-ad-nav-btn hero-ad-nav-next"
+							@click="nextSlide()"
+							title="التالي"
+						>
+							@components.IconArrowLeft("icon-sm")
+						</button>
+
+						<!-- Indicator Dot Pills -->
+						<div class="hero-ad-indicators">
+							for i := range stats.Ads {
+								<button
+									type="button"
+									class="hero-ad-indicator-dot"
+									:class={ fmt.Sprintf("{ 'active': currentSlide === %d }", i) }
+									@click={ fmt.Sprintf("goToSlide(%d)", i) }
+									title={ fmt.Sprintf("إعلان %d", i+1) }
+								></button>
+							}
+						</div>
+					}
+				</div>
+
+				<script>
+					function heroAdSlider(total) {
+						return {
+							currentSlide: 0,
+							totalSlides: total,
+							timer: null,
+							startAutoplay() {
+								if (this.totalSlides <= 1) return;
+								this.pauseAutoplay();
+								this.timer = setInterval(() => {
+									this.nextSlide();
+								}, 5000);
+							},
+							pauseAutoplay() {
+								if (this.timer) {
+									clearInterval(this.timer);
+									this.timer = null;
+								}
+							},
+							nextSlide() {
+								this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+							},
+							prevSlide() {
+								this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+							},
+							goToSlide(idx) {
+								this.currentSlide = idx;
+								this.startAutoplay();
+							}
+						};
+					}
+				</script>
+			}
+
 			<!-- 2. Masterpiece Hyper-Realistic Live Dashboard Preview Frame -->
 			<div class="hero-dashboard-preview-wrapper">
 				<div class="dashboard-preview-frame">

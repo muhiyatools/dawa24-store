@@ -132,7 +132,6 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Get("/admin/temporary-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/user/temparte-warehouses/{id}", h.AdminTempWarehousesPage)
-		g.Get("/admin/my/temparte-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/admins/temparte-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/plan/temparte-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/plan/temparte-warehouses/{id}", h.AdminTempWarehousesPage)
@@ -151,6 +150,24 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.warehouse.delete"))
 		g.Post("/admin/temporary-warehouses/items/{id}/delete", h.AdminTempWarehouseItemDeleteSubmit)
 		g.Post("/admin/temporary-warehouses/{id}/delete", h.AdminTempWarehouseDeleteSubmit)
+	})
+
+	// "مستودعاتي المرفوعة" — same screen, scoped to the signed-in user's own
+	// uploads. Its own permissions so a moderator can be given just this.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("inventory.my_temp_warehouse.view"))
+		g.Get("/admin/my/temparte-warehouses", h.AdminMyTempWarehousesPage)
+		g.Get("/admin/my/temparte-warehouses/{id}/items-json", h.AdminMyTempWarehouseItemsJSON)
+		g.Get("/admin/my/temparte-warehouses/{id}/mapping-json", h.AdminMyTempWarehouseMappingJSON)
+		g.Get("/admin/my/temparte-warehouses/{id}/export", h.AdminMyTempWarehouseExportXLSX)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("inventory.my_temp_warehouse.manage"))
+		g.Post("/admin/my/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+		g.Post("/admin/my/temparte-warehouses/{id}/mapping", h.AdminMyTempWarehouseMappingSubmit)
+		g.Post("/admin/my/temparte-warehouses/{id}/toggle-archive", h.AdminMyTempWarehouseToggleArchiveSubmit)
+		g.Post("/admin/my/temparte-warehouses/{id}/delete", h.AdminMyTempWarehouseDeleteSubmit)
+		g.Post("/admin/my/temparte-warehouses/items/{id}/delete", h.AdminMyTempWarehouseItemDeleteSubmit)
 	})
 }
 

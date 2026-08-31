@@ -29,7 +29,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 						<div class="d-flex items-center gap-2.5">
 							<!-- Download XLSX Button -->
 							<a
-								:href="'/admin/temporary-warehouses/' + selectedWarehouse.id + '/export'"
+								:href="$root.dataset.base + '/' + selectedWarehouse.id + '/export'"
 								class="btn btn-secondary btn-sm font-bold inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-emerald"
 							>
 								<span>تحميل XLSX</span>
@@ -208,7 +208,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 					<!-- Upload Form -->
 					<form
 						x-show="!isBulkUploading"
-						action="/admin/temporary-warehouses/upload"
+						action={ templ.SafeURL(data.Base + "/upload") }
 						method="POST"
 						enctype="multipart/form-data"
 						@submit.prevent="submitBulkUpload($event.target)"
