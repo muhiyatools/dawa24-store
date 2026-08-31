@@ -13,10 +13,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// OnboardingPending is the approval gate. A newly registered organization is
-// pending review, so it reaches an explanation of what happens next rather than
-// a dashboard full of zeroes.
-func OnboardingPending(lang, dir string, rejected bool) templ.Component {
+// OnboardingPending renders the 4-state account review and suspension holding screen.
+func OnboardingPending(lang, dir, state string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -49,12 +47,13 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div class=\"card hover-lift\"><a href=\"/\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\"></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"status-page-wrapper\"><div class=\"status-card\"><a href=\"/\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"status-logo\"></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if rejected {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div>")
+			switch state {
+			case "rejected":
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"status-icon-circle status-rejected\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -62,26 +61,15 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><h1 class=\"status-title\">تم رفض طلب الانضمام</h1><p class=\"status-desc\">عذراً، لم يتم اعتماد حساب مؤسستك في الوقت الحالي. تواصل مع فريق الدعم لمعرفة السبب أو مراجعة المستندات المرفوعة.</p><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-secondary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div>")
+				templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconShield("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			if rejected {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<h1>تم رفض طلب الانضمام</h1><p>عذراً، لم يتم اعتماد حساب مؤسستك في الوقت الحالي. تواصل مع فريق الدعم لمعرفة السبب واستكمال أي مستندات ناقصة.</p><a href=\"/contact\" class=\"btn btn-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>المستندات المرفوعة</span></a> <a href=\"/report-issue\" class=\"btn btn-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -89,23 +77,81 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>التواصل مع الدعم</span></a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>التواصل مع الدعم</span></a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<h1>حسابك قيد المراجعة</h1><p>تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دواء 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب لتبدأ العمل على المنصة.</p><div><div>ماذا يحدث بعد ذلك؟</div><ul><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><a href=\"/\" class=\"btn btn-secondary\">العودة للصفحة الرئيسية</a>")
+			case "suspended":
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"status-icon-circle status-suspended\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconAlertCircle("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><h1 class=\"status-title\">تم إيقاف الحساب مؤقتاً</h1><p class=\"status-desc\">تم إيقاف حساب المؤسسة من قبل إدارة المنصة لمراجعة الامتثال أو الشروط التجارية. يرجى التواصل مع إدارة العمليات وفريق الدعم لاستئناف النشاط.</p><div class=\"status-actions\"><a href=\"/report-issue\" class=\"btn btn-primary\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconInbox("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>التواصل مع إدارة الامتثال</span></a> <a href=\"/\" class=\"btn btn-secondary\">العودة للرئيسية</a></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			case "under_review":
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"status-icon-circle status-review\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconRefresh("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><h1 class=\"status-title\">حسابك قيد التدقيق والفحص</h1><p class=\"status-desc\">يقوم فريق العمليات بمطابقة التراخيص والسجل التجاري لمؤسستك حالياً. يمكنك تزويدنا بأي مستندات إضافية لتسريع الاعتماد.</p><div class=\"status-steps\"><div class=\"status-steps-title\">الإجراءات الجارية</div><ul class=\"status-steps-list\"><li>التحقق من صحة السجل التجاري والبطاقة الضريبية</li><li>مطابقة ترخيص مزاولة المهنة والموقع الجغرافي</li><li>تفعيل صلاحيات التوريد والطلبات الذكية فور المطابقة</li></ul></div><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-primary\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconUpload("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>رفع المستندات الإضافية</span></a> <a href=\"/\" class=\"btn btn-secondary\">العودة للرئيسية</a></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			default:
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " <div class=\"status-icon-circle status-pending\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconShield("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><h1 class=\"status-title\">حسابك قيد المراجعة</h1><p class=\"status-desc\">تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دواء 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب.</p><div class=\"status-steps\"><div class=\"status-steps-title\">ماذا يحدث بعد ذلك؟</div><ul class=\"status-steps-list\"><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-primary\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>إدارة المستندات</span></a> <a href=\"/\" class=\"btn btn-secondary\">العودة للرئيسية</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("قيد المراجعة | Onboarding", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("حالة الحساب | Account Status", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

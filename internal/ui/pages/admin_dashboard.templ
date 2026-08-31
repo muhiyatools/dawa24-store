@@ -80,7 +80,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						</div>
 
 						<!-- Quick Refresh Button -->
-						<a href="/admin/dashboard" class="btn btn-secondary btn-sm fw-800" class="btn-sm text-xs gap-1 rounded-md">
+						<a href="/admin/dashboard"class="btn btn-secondary btn-sm fw-800 text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
 							<span>ØªØ­Ø¯ÙŠØ« ÙÙˆØ±ÙŠ</span>
 						</a>
@@ -101,7 +101,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 							@components.IconChart("icon-sm")
 						</div>
 					</div>
-					<div class="tabular-nums" class="admin-kpi-value text-success">
+					<div class="tabular-nums admin-kpi-value text-success">
 						if stats.TotalGMV != "" {
 							{ stats.TotalGMV }
 						} else {
@@ -124,7 +124,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 							@components.IconTruck("icon-sm")
 						</div>
 					</div>
-					<div class="tabular-nums" class="admin-kpi-value text-primary">
+					<div class="tabular-nums admin-kpi-value text-primary">
 						{ fmt.Sprintf("%d", stats.TotalOrders) } <span class="text-xs text-muted font-bold">Ø·Ù„Ø¨ ØªÙˆØ±ÙŠØ¯</span>
 					</div>
 					<div class="admin-kpi-footer">
@@ -142,7 +142,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 							@components.IconBuilding("icon-sm")
 						</div>
 					</div>
-					<div class="tabular-nums" class="admin-kpi-value text-primary">
+					<div class="tabular-nums admin-kpi-value text-primary">
 						{ fmt.Sprintf("%d", stats.TotalOrganizations) } <span class="text-xs text-muted font-bold">Ù…Ù†Ø´Ø£Ø© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 					</div>
 					<div class="admin-kpi-footer">
@@ -162,17 +162,17 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					</div>
 					<div class="d-flex gap-2 items-baseline flex-wrap my-1">
 						if stats.PendingApprovals > 0 {
-							<a href="/admin/approvals" class="badge badge-amber font-bold text-xs" class="rounded-md no-underline">
+							<a href="/admin/approvals"class="badge badge-amber font-bold text-xs rounded-md no-underline">
 								â³ { fmt.Sprintf("%d ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹Ù„Ù‚Ø©", stats.PendingApprovals) }
 							</a>
 						} else {
-							<span class="badge badge-emerald text-xs font-bold" class="rounded-md">
+							<span class="badge badge-emerald text-xs font-bold rounded-md">
 								Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹ØªÙ…Ø¯Ø©
 							</span>
 						}
 
 						if stats.PendingDepositsCount > 0 {
-							<a href="/admin/finance?tab=deposits" class="badge badge-sky font-bold text-xs" class="rounded-md no-underline">
+							<a href="/admin/finance?tab=deposits"class="badge badge-sky font-bold text-xs rounded-md no-underline">
 								{ fmt.Sprintf("%d Ø´Ø­Ù† Ù…Ø­ÙØ¸Ø©", stats.PendingDepositsCount) }
 							</a>
 						}
@@ -202,7 +202,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								Ø±ØµØ¯ Ù…Ø¨Ø§Ø´Ø± Ù„ØªØ¯ÙÙ‚ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø´Ø±Ø§Ø¡ Ø¨ÙŠÙ† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
 							</p>
 						</div>
-						<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800" class="gap-1">
+						<a href="/admin/orders"class="btn btn-secondary btn-xs fw-800 gap-1">
 							<span>Ø¹Ø±Ø¶ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -212,19 +212,19 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div class="d-grid grid-cols-3 gap-2 mb-3">
 						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
 							<div class="text-xs text-muted font-bold">Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</div>
-							<div class="tabular-nums" class="text-lg font-black text-primary mt-0.5">
+							<div class="tabular-nums text-lg font-black text-primary mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalProducts) }
 							</div>
 						</div>
 						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
 							<div class="text-xs text-muted font-bold">Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ØªÙˆÙÙŠØ±</div>
-							<div class="tabular-nums" class="text-lg font-black text-success mt-0.5">
+							<div class="tabular-nums text-lg font-black text-success mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalSavingProducts) }
 							</div>
 						</div>
 						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
 							<div class="text-xs text-muted font-bold">Ø§Ù„ÙØ±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª</div>
-							<div class="tabular-nums" class="text-lg font-black text-brand mt-0.5">
+							<div class="tabular-nums text-lg font-black text-brand mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalBranches) }
 							</div>
 						</div>
@@ -237,7 +237,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						</div>
 					} else {
 						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
-							<table class="data-table" class="text-xs">
+							<table class="data-table text-xs">
 								<thead>
 									<tr class="bg-surface-raised">
 										<th class="pad-sm"># Ø§Ù„Ø·Ù„Ø¨</th>
@@ -299,7 +299,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								ØªÙˆØ²ÙŠØ¹ Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ØªØµÙØ­ ÙˆØ­Ø§Ù„Ø© Ø®ÙˆØ§Ø¯Ù… Ø§Ù„ØªØ´ØºÙŠÙ„ ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ©
 							</p>
 						</div>
-						<a href="/admin/analytics" class="btn btn-secondary btn-xs fw-800" class="gap-1">
+						<a href="/admin/analytics"class="btn btn-secondary btn-xs fw-800 gap-1">
 							<span>ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø²ÙˆØ§Ø±</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -309,7 +309,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div class="d-grid grid-cols-2 gap-3 mb-3">
 						<div class="bg-surface-sunken border rounded-xl p-3">
 							<div class="label-strong">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø²ÙˆØ§Ø± Ø§Ù„Ù…Ù†ØµØ©</div>
-							<div class="tabular-nums" class="text-xl font-black text-brand mt-0.5">
+							<div class="tabular-nums text-xl font-black text-brand mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalVisitors) } <span class="text-xs text-muted font-semibold">Ø²Ø§Ø¦Ø±</span>
 							</div>
 							<div class="text-xs text-muted mt-1">
@@ -386,7 +386,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								ÙØ­Øµ Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ© ÙˆÙ…Ø²Ø§ÙˆÙ„Ø© Ø§Ù„Ù…Ù‡Ù†Ø© Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
 							</p>
 						</div>
-						<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800" class="gap-1">
+						<a href="/admin/approvals"class="btn btn-primary btn-xs fw-800 gap-1">
 							<span>Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -415,7 +415,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 													<span class="badge badge-emerald text-xs fw-700">ØµÙŠØ¯Ù„ÙŠØ©</span>
 												}
 											</div>
-											<div class="text-xs text-muted tabular-nums" class="mt-0.5">
+											<div class="text-xs text-muted tabular-nums mt-0.5">
 												if po.CommercialRegister != "" {
 													<span>Ø³Ø¬Ù„: { po.CommercialRegister }</span>
 												}
@@ -425,7 +425,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											</div>
 										</div>
 									</div>
-									<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800" class="rounded-md px-3 py-1.5">
+									<a href="/admin/approvals"class="btn btn-primary btn-xs fw-800 rounded-md px-3 py-1.5">
 										ÙØ­Øµ
 									</a>
 								</div>
@@ -446,7 +446,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø­Ø¯ÙŠØ«Ø§Ù‹ ÙÙŠ Ø´Ø¨ÙƒØ© Ø¥Ù…Ø¯Ø§Ø¯ Ø¯ÙˆØ§Ø¡ 24
 							</p>
 						</div>
-						<a href="/admin/organizations" class="btn btn-secondary btn-xs fw-800" class="gap-1">
+						<a href="/admin/organizations"class="btn btn-secondary btn-xs fw-800 gap-1">
 							<span>Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -473,7 +473,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 													<span class="badge badge-emerald text-xs fw-700">ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 												}
 											</div>
-											<div class="text-xs text-muted tabular-nums" class="mt-0.5">
+											<div class="text-xs text-muted tabular-nums mt-0.5">
 												Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", ro.ID) } â€¢ { ro.CreatedAt.Format("2006-01-02") }
 											</div>
 										</div>
@@ -501,31 +501,31 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 			<div class="bg-surface-sunken border rounded-2xl p-4">
 				<div class="text-xs font-bold text-secondary mb-2">Ø§Ù„ÙˆØµÙˆÙ„ Ø§Ù„Ø³Ø±ÙŠØ¹ Ù„Ù„Ø£Ù‚Ø³Ø§Ù… Ø§Ù„ØªÙ†ÙÙŠØ°ÙŠØ©:</div>
 				<div class="d-flex gap-2 flex-wrap items-center">
-					<a href="/admin/finance" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/finance"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconWallet("icon-xs")
 						<span>Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø­Ø§ÙØ¸</span>
 					</a>
-					<a href="/admin/approvals" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/approvals"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconShield("icon-xs")
 						<span>Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„ÙˆØ«Ø§Ø¦Ù‚</span>
 					</a>
-					<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/orders"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTruck("icon-xs")
 						<span>Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø­Ù†Ø§Øª</span>
 					</a>
-					<a href="/admin/products" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/products"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconPackage("icon-xs")
 						<span>ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</span>
 					</a>
-					<a href="/admin/plans" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/plans"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTag("icon-xs")
 						<span>Ø¨Ø§Ù‚Ø§Øª ÙˆØ®Ø·Ø· Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ</span>
 					</a>
-					<a href="/admin/users" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/users"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconUsers("icon-xs")
 						<span>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
 					</a>
-					<a href="/admin/settings" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/settings"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconSettings("icon-xs")
 						<span>Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù†Ø¸Ø§Ù… Ø§Ù„Ø¹Ø§Ù…Ø©</span>
 					</a>

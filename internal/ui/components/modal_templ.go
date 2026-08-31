@@ -880,27 +880,35 @@ func ModalTrigger(dialogID, class string) templ.Component {
 
 func openDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_openDialog_2a67`,
-		Function: `function __templ_openDialog_2a67(id){const el = document.getElementById(id);
+		Name: `__templ_openDialog_3111`,
+		Function: `function __templ_openDialog_3111(id){const el = document.getElementById(id);
 	if (el && typeof el.showModal === "function") {
-		try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
+		try {
+			if (!el.open) {
+				el.showModal();
+			}
+		} catch (_) {}
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_openDialog_2a67`, id),
-		CallInline: templ.SafeScriptInline(`__templ_openDialog_2a67`, id),
+		Call:       templ.SafeScript(`__templ_openDialog_3111`, id),
+		CallInline: templ.SafeScriptInline(`__templ_openDialog_3111`, id),
 	}
 }
 
 func closeDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_closeDialog_12c0`,
-		Function: `function __templ_closeDialog_12c0(id){const el = document.getElementById(id);
+		Name: `__templ_closeDialog_60e7`,
+		Function: `function __templ_closeDialog_60e7(id){const el = document.getElementById(id);
 	if (el && typeof el.close === "function") {
-		try { el.close(); } catch (_) { el.removeAttribute('open'); }
+		try {
+			if (el.open) {
+				el.close();
+			}
+		} catch (_) {}
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_closeDialog_12c0`, id),
-		CallInline: templ.SafeScriptInline(`__templ_closeDialog_12c0`, id),
+		Call:       templ.SafeScript(`__templ_closeDialog_60e7`, id),
+		CallInline: templ.SafeScriptInline(`__templ_closeDialog_60e7`, id),
 	}
 }
 

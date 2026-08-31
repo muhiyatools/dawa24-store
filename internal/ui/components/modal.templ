@@ -225,14 +225,22 @@ templ ModalTrigger(dialogID, class string) {
 script openDialog(id string) {
 	const el = document.getElementById(id);
 	if (el && typeof el.showModal === "function") {
-		try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
+		try {
+			if (!el.open) {
+				el.showModal();
+			}
+		} catch (_) {}
 	}
 }
 
 script closeDialog(id string) {
 	const el = document.getElementById(id);
 	if (el && typeof el.close === "function") {
-		try { el.close(); } catch (_) { el.removeAttribute('open'); }
+		try {
+			if (el.open) {
+				el.close();
+			}
+		} catch (_) {}
 	}
 }
 
