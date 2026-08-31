@@ -50,7 +50,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div class="admin-banner-icon primary">
 							@components.IconBarChart("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="admin-banner-title">
 								<span>لوحة القيادة التنفيذية والمؤشرات المركزية</span>
 							</h1>
@@ -193,7 +193,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<!-- Column 1: Live Orders & Catalog Activity -->
 				<div class="admin-banner">
 					<div class="flex-between pb-3 border-b mb-3">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconCart("icon-sm")</span>
 								<span>حركة الكتالوج وأحدث أوامر التوريد</span>
@@ -290,7 +290,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<!-- Column 2: Traffic, Visitor Analytics & Infrastructure -->
 				<div class="admin-banner">
 					<div class="flex-between pb-3 border-b mb-3">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconGlobe("icon-sm")</span>
 								<span>حركة الزوار وجاهزية البنية التحتية</span>
@@ -374,7 +374,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<!-- Pending Approvals Queue -->
 				<div class="admin-banner">
 					<div class="flex-between pb-3 border-b mb-3">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconShield("icon-sm")</span>
 								<span>طلبات اعتماد التراخيص والمنشآت</span>
@@ -406,7 +406,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 										<div class="w-9 h-9 rounded-lg bg-surface-raised border flex-center text-brand">
 											@components.IconBuilding("icon-xs")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ po.LegalName }</span>
 												if string(po.Type) == "vendor" {
@@ -437,7 +437,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<!-- Recent Organizations Ecosystem -->
 				<div class="admin-banner">
 					<div class="flex-between pb-3 border-b mb-3">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconBuilding("icon-sm")</span>
 								<span>أحدث المنشآت المنضمة للمنظومة</span>
@@ -464,7 +464,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 										<div class="w-9 h-9 rounded-lg bg-surface-raised border flex-center text-brand">
 											@components.IconBuilding("icon-xs")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ ro.LegalName }</span>
 												if string(ro.Type) == "vendor" {
@@ -478,7 +478,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											</div>
 										</div>
 									</div>
-									<div>
+         <div class="stack-sm">
 										if string(ro.Status) == "approved" {
 											<span class="badge badge-emerald text-xs fw-700">معتمد </span>
 										} else if string(ro.Status) == "pending" {

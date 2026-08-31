@@ -30,7 +30,7 @@ type AdminSettingsValues struct {
 templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 	@layouts.AdminShell("إعدادات المنصة والمنظومة | Platform Settings", "settings", lang, dir) {
 		<div
-		
+			class="settings-page stack-lg"
 			x-data="{
 				activeTab: 'features',
 				isMethodModalOpen: false,
@@ -124,16 +124,16 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 		>
 			
 			<!-- Header -->
-			<div>
-				<div class="row-center">
-					<div>
+   <div class="stack-sm">
+				<div class="d-flex items-center gap-3">
+     <div class="stack-sm">
 						@components.IconSettings("icon-md")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h2 class="card-title">
 							إعدادات المنصة والمنظومة
 						</h2>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							إدارة الهوية البصرية، بيانات التواصل، بوابة الذكاء الاصطناعي، السياسات، ومفاتيح الميزات
 						</p>
 					</div>
@@ -190,21 +190,21 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				
 				<!-- Feature Flags -->
 				<div class="card mb-0">
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<h3 class="card-title">
 								مفاتيح تشغيل الميزات والأنظمة (Feature Flags)
 							</h3>
-							<p>
+       <p class="text-sm text-secondary m-0">
 								التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، العروض، والخدمات
 							</p>
 						</div>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						for _, flag := range values.FeatureFlags {
-							<div>
-								<div>
+       <div class="stack-sm">
+        <div class="stack-sm">
 									<div class="row-center-sm">
 										<strong>
 											if flag.Name["ar"] != "" {
@@ -220,7 +220,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										}
 										<span class="badge badge-sky">{ flag.Key }</span>
 									</div>
-									<div>
+         <div class="stack-sm">
 										if flag.Description["ar"] != "" {
 											{ flag.Description["ar"] }
 										} else {
@@ -260,7 +260,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<!-- Financial & General Config -->
 				<div class="card mb-0">
-					<div>
+     <div class="stack-sm">
 						@components.IconSettings("icon-md")
 						<h3 class="card-title">
 							الإعدادات المالية والمنظومة
@@ -290,7 +290,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<button type="submit" class="btn btn-primary">
 								@components.IconCheck("icon-xs")
 								<span>حفظ إعدادات المنصة</span>
@@ -308,7 +308,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				
 				<div class="card mb-0" x-data="{ siteSubTab: 'contact' }">
 					
-					<div>
+     <div class="stack-sm">
 						<button
 							type="button"
 							class="btn btn-sm fw-700"
@@ -342,7 +342,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					</div>
 
 					<!-- 1. Contact Info Form -->
-					<div x-show="siteSubTab === 'contact'">
+					<div class="stack-lg" x-show="siteSubTab === 'contact'">
 						<form action="/admin/settings/site" method="POST" class="stack-115">
 							<input type="hidden" name="section" value="contact"/>
 							
@@ -384,7 +384,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								<input type="text" name="address" value={ values.SiteSettings.Address } class="form-input" placeholder="القاهرة، جمهورية مصر العربية"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<button type="submit" class="btn btn-primary">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتحديث بيانات التواصل</span>
@@ -394,11 +394,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					</div>
 
 					<!-- 2. Social Media Links Form -->
-					<div x-show="siteSubTab === 'socials'">
+					<div class="stack-lg" x-show="siteSubTab === 'socials'">
 						<form action="/admin/settings/site" method="POST" class="stack-115">
 							<input type="hidden" name="section" value="socials"/>
 
-							<p>
+       <p class="text-sm text-secondary m-0">
 								سيتم حفظ هذه الروابط في قاعدة البيانات وعكسها تلقائياً في الفوتر وكافة الأقسام الرسمية للموقع.
 							</p>
 
@@ -446,7 +446,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								</div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<button type="submit" class="btn btn-primary">
 									@components.IconCheck("icon-xs")
 									<span>حفظ روابط التواصل الاجتماعي</span>
@@ -456,22 +456,22 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					</div>
 
 					<!-- 3. Branding & Logo Form -->
-					<div x-show="siteSubTab === 'branding'" x-data="{ logoPreview: '' }">
+					<div class="stack-lg" x-show="siteSubTab === 'branding'" x-data="{ logoPreview: '' }">
 						<form action="/admin/settings/branding" method="POST" enctype="multipart/form-data" class="stack-lg">
 							
-							<div>
-								<div>
+       <div class="stack-sm">
+        <div class="stack-sm">
 									<img
 										:src="logoPreview || '/static/img/logo.png'"
 										alt="Logo Preview"
 									
 									/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<h4 class="text-base fw-800 text-primary m-0">
 										الشعار الرسمي للمنصة (Platform Logo)
 									</h4>
-									<p>
+         <p class="text-sm text-secondary m-0">
 										عند تغيير الشعار، سيتم تطبيقه فورياً على كافة واجهات الهيدر والفوتر والصفحات والشاشات.
 									</p>
 								</div>
@@ -506,7 +506,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								<input type="text" name="favicon_url" value={ values.SiteSettings.FaviconURL } class="form-input" dir="ltr" placeholder="/static/img/logo.png"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<button type="submit" class="btn btn-primary">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتطبيق الهوية البصرية</span>
@@ -536,12 +536,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<div x-show="activeTab === 'payment_methods'" x-cloak class="stack-lg">
 				
 				<div class="card mb-0">
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<h3 class="card-title">
 								قنوات وطرق الدفع والتحويل البنكي للمنصة
 							</h3>
-							<p>
+       <p class="text-sm text-secondary m-0">
 								إدارة الحسابات البنكية الرسمية، معرفات إنستاباي، بوابات الدفع الإلكتروني، وتحديد قنوات الإيداع والسداد المتاحة للصيدليات والموردين
 							</p>
 						</div>
@@ -558,12 +558,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					</div>
 
 					if len(values.PlatformPaymentMethods) == 0 {
-						<div>
-							<div>
+      <div class="stack-sm">
+       <div class="stack-sm">
 								@components.IconWallet("icon-md")
 							</div>
-							<h4>لا توجد قنوات دفع مهيأة</h4>
-							<p>
+							<h4 class="empty-state-title font-semibold text-base">لا توجد قنوات دفع مهيأة</h4>
+       <p class="text-sm text-secondary m-0">
 								أضف الحسابات البنكية ومعرفات إنستاباي المعتمدة لمنصة دواء 24 لتظهر للصيدليات والموردين عند شحن المحفظة وسداد الطلبيات.
 							</p>
 							<button type="button" class="btn btn-primary fw-800" @click="openNewMethodModal()">
@@ -574,11 +574,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					} else {
 						<div class="stack-lg">
 							for _, pm := range values.PlatformPaymentMethods {
-								<div>
+        <div class="stack-sm">
 									<!-- Card Header -->
-									<div>
-										<div>
-											<div>
+         <div class="stack-sm">
+          <div class="stack-sm">
+           <div class="stack-sm">
 												if pm.ProviderType == "bank" {
 													@components.IconBuilding("icon-sm")
 												} else if pm.ProviderType == "instapay" {
@@ -587,12 +587,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 													@components.IconShield("icon-sm")
 												}
 											</div>
-											<div>
+           <div class="stack-sm">
 												<div class="inline-row-wrap">
 													<strong>{ pm.Name.Get(i18n.Lang(lang)) }</strong>
 													<code dir="ltr">#{ pm.ID }</code>
 												</div>
-												<div>
+            <div class="stack-sm">
 													{ pm.Name.Get("en") }
 												</div>
 											</div>
@@ -615,39 +615,39 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 									</div>
 
 									<!-- Card Details Grid -->
-									<div>
+         <div class="stack-sm">
 										if pm.ProviderType == "bank" {
-											<div>
+           <div class="stack-sm">
 												<span>اسم البنك</span>
 												<strong class="text-primary">{ pm.BankName }</strong>
 											</div>
-											<div>
+           <div class="stack-sm">
 												<span>اسم صاحب الحساب</span>
 												<strong class="text-primary">{ pm.AccountName }</strong>
 											</div>
-											<div>
+           <div class="stack-sm">
 												<span>رقم الحساب</span>
 												<strong class="text-accent tabular-nums" dir="ltr">{ pm.AccountNumber }</strong>
 											</div>
-											<div>
+           <div class="stack-sm">
 												<span>الآيبان الدولي (IBAN)</span>
 												<strong class="text-primary tabular-nums" dir="ltr">{ pm.IBAN }</strong>
 											</div>
 										} else if pm.ProviderType == "instapay" || pm.ProviderType == "wallet" {
-											<div>
+           <div class="stack-sm">
 												<span>عنوان الدفع اللحظي (IPA)</span>
 												<strong class="text-accent tabular-nums" dir="ltr">{ pm.InstaPayHandle }</strong>
 											</div>
-											<div>
+           <div class="stack-sm">
 												<span>رقم الهاتف المرتبط</span>
 												<strong class="text-primary tabular-nums" dir="ltr">{ pm.PhoneNumber }</strong>
 											</div>
-											<div>
+           <div class="stack-sm">
 												<span>اسم الحساب / المحفظة</span>
 												<strong class="text-primary">{ pm.AccountName }</strong>
 											</div>
 										} else {
-											<div>
+           <div class="stack-sm">
 												<span>بوابة الدفع</span>
 												<strong class="text-primary">{ pm.BankName }</strong>
 											</div>
@@ -655,13 +655,13 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 									</div>
 
 									if pm.Description.Get("ar") != "" {
-										<div>
+          <div class="stack-sm">
 											<strong>التعليمات للصيدليات:</strong> { pm.Description.Get("ar") }
 										</div>
 									}
 
 									<!-- Card Actions -->
-									<div>
+         <div class="stack-sm">
 										<form method="POST" action="/admin/settings/payment-methods/toggle" class="m-0">
 											<input type="hidden" name="id" value={ pm.ID } />
 											<input type="hidden" name="enabled" value={ ternaryStr(pm.IsActive, "0", "1") } />

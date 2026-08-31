@@ -98,7 +98,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconGlobe("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								المحافظات والمدن والمراكز الجغرافية
 							</h1>
@@ -225,7 +225,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				<!-- Left: Cities Table -->
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
 					<div class="p-4 border-b flex-between items-center flex-wrap gap-2">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-black text-primary m-0">
 								سجل المدن والمراكز المعتمدة
 							</h3>
@@ -402,7 +402,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconBuilding("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-sm font-black text-primary m-0">
 									إضافة مدينة / حي فرعي
 								</h3>
@@ -411,7 +411,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</div>
 
 						<form method="POST" action="/admin/cities/new" class="d-flex flex-col gap-3 m-0">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1">
 									المحافظة التابعة <span class="text-danger">*</span> <span class="text-secondary font-normal">(اختيار المحافظة ينقلك إليها تلقائياً على الخريطة)</span>
 								</label>
@@ -440,14 +440,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input text-xs w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المدينة / الحي بالإنجليزية
 								</label>
@@ -455,7 +455,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 
 							<!-- Interactive Map Picker for City -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1 d-block">
 									الموقع الجغرافي والإحداثيات (GPS) <span class="text-secondary font-normal">(اضغط على الخريطة لتحديد الموقع بدقة)</span>
 								</label>
@@ -502,7 +502,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconBank("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-sm font-black text-primary m-0">
 									إضافة محافظة رئيسية
 								</h3>
@@ -511,14 +511,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</div>
 
 						<form method="POST" action="/admin/governorates/new" class="d-flex flex-col gap-3 m-0">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المحافظة بالعربية <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="gov_name_ar" required placeholder="مثال: مطروح" class="form-input text-xs w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المحافظة بالإنجليزية
 								</label>
@@ -526,7 +526,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 
 							<!-- Interactive Map Picker for Governorate -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1 d-block">
 									الموقع الجغرافي لمركز المحافظة (GPS) <span class="text-secondary font-normal">(حدد موقع ديوان/مركز المحافظة)</span>
 								</label>
@@ -616,7 +616,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconEdit("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-black text-primary m-0">
 									تعديل بيانات المدينة / الحي
 								</h3>
@@ -629,7 +629,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					</div>
 
 					<form :action="'/admin/cities/' + editForm.id + '/edit'" method="POST" class="d-flex flex-col gap-3 m-0">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1">
 								المحافظة التابعة <span class="text-danger">*</span>
 							</label>
@@ -647,14 +647,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="name_ar" x-model="editForm.name_ar" required placeholder="مثال: مدينة نصر" class="form-input text-xs w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المدينة / الحي بالإنجليزية
 							</label>
@@ -662,7 +662,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</div>
 
 						<!-- Map Picker in City Edit Modal -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1 d-block">
 								الموقع الجغرافي للمدينة على الخريطة <span class="text-secondary font-normal">(حرك المؤشر أو اضغط على الموقع لتحديث الإحداثيات)</span>
 							</label>
@@ -744,7 +744,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconBank("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-black text-primary m-0">
 									تعديل بيانات المحافظة والموقع الجغرافي
 								</h3>
@@ -757,21 +757,21 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					</div>
 
 					<form :action="'/admin/governorates/' + govEditForm.id + '/edit'" method="POST" class="d-flex flex-col gap-3 m-0">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المحافظة بالعربية <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="gov_name_ar" x-model="govEditForm.name_ar" required placeholder="مثال: الإسكندرية" class="form-input text-xs w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المحافظة بالإنجليزية
 							</label>
 							<input type="text" name="gov_name_en" x-model="govEditForm.name_en" placeholder="Alexandria" class="form-input text-xs w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold mb-1 d-block">
 								الموقع الجغرافي لمركز المحافظة <span class="text-secondary font-normal">(اضغط على الخريطة لتحديث المركز)</span>
 							</label>
