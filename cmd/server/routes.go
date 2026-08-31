@@ -407,12 +407,43 @@ func mountModuleRoutes(
 		uiRouter.Use(authctx.RequireStaff(log))
 		uiHandler.RegisterAdminRoutes(uiRouter)
 	})
+	// Tier A: Pre-approval shared routes (authenticated only, no RequireApproved)
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))
 		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
-		uiHandler.RegisterSharedRoutes(uiRouter)
+		uiHandler.RegisterPreApprovalRoutes(uiRouter)
+	})
+
+	// Tier B: Approved-only shared routes (RequireApproved mounted)
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		uiRouter.Use(authctx.RequireApproved(log))
+		uiHandler.RegisterApprovedSharedRoutes(uiRouter)
+	})
+
+	// Tier C: Audience-specific customer shared routes
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		uiRouter.Use(authctx.RequireCustomer(log))
+		uiHandler.RegisterCustomerSharedRoutes(uiRouter)
+	})
+
+	// Tier C: Audience-specific vendor shared routes
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		uiRouter.Use(authctx.RequireVendor(log))
+		uiHandler.RegisterVendorSharedRoutes(uiRouter)
 	})
 
 }

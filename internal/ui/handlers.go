@@ -257,46 +257,44 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	h.registerAdminPlatformRoutes(r)
 }
 
-// RegisterSharedRoutes mounts the account surface that both customers and
-// vendors use — settings, documents, wallet, invoices, messages,
-// notifications, requests. The pages render inside the caller's own shell,
-// chosen from actor.OrgType (Rebuild V2 §1.5), so no audience gate is needed
-// here beyond authentication.
-func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
+// RegisterPreApprovalRoutes mounts Tier A shared routes accessible by authenticated
+// callers prior to organization approval: onboarding status, document submission,
+// basic profile/password security, issue reporting, and logout.
+func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Get("/onboarding/pending", h.OnboardingPendingPage)
-	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
 
 	// Documents (Rebuild V2 §4.2) - accessible by both pending and approved orgs
-	r.Get("/customer/documents", h.OrganizationDocumentsPage)
-	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Get("/documents", h.OrganizationDocumentsPage)
 	r.Get("/documents/{id}/view", h.DocumentViewHandler)
 	r.Get("/documents/{id}/download", h.DocumentDownloadHandler)
-	r.Get("/customer/documents/{id}/view", h.DocumentViewHandler)
-	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 
-	// Settings (account surface, both shells)
-
-	// One settings surface: the tabbed page. Six separate sub-pages used to
-	// render the same data through a second tab component, so the two could
-	// disagree about what the account looked like. They are 301s now — the
-	// paths stay reachable because they were linked from sidebars and may be
-	// bookmarked (PLAN_V7 Task 2.1).
+	// Settings (profile and password only)
 	r.Get("/settings", h.SettingsIndex)
 	r.Get("/settings/profile", redirectToSettingsTab("profile"))
+	r.Post("/settings/profile", h.SettingsProfileSubmit)
+	r.Post("/settings/password", h.SettingsPasswordSubmit)
+
+	// Issue reporting
+	r.Get("/report-issue", h.CustomerReportIssuePage)
+	r.Post("/report-issue", h.CustomerReportIssueSubmit)
+}
+
+// RegisterApprovedSharedRoutes mounts Tier B shared routes restricted to approved
+// organizations (authctx.RequireApproved mounted): wallet, invoices, messaging,
+// notifications, employees, org member management, payment methods, sessions.
+func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
+	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
+
+	// Settings tabs & actions (approved only)
 	r.Get("/settings/addresses", redirectToSettingsTab("profile"))
 	r.Get("/settings/security", redirectToSettingsTab("security"))
 	r.Get("/settings/organization", redirectToSettingsTab("organization"))
 	r.Get("/settings/preferences", redirectToSettingsTab("preferences"))
 	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))
-	// Employees is a real management screen, not a settings tab: it lists
-	// staff, assigns branch managers and creates accounts.
 	r.Get("/settings/employees", h.SettingsEmployeesPage)
 
-	r.Post("/settings/profile", h.SettingsProfileSubmit)
-	r.Post("/settings/password", h.SettingsPasswordSubmit)
 	r.Post("/settings/addresses", h.SettingsAddressSubmit)
 	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
 	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
@@ -305,9 +303,6 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
 
 	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
-	// Branch management lives at /customer/branches and /vendor/branches. The
-	// settings page used to carry a third, lower-quality write path that even
-	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
 	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
 	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
 	r.Post("/settings/employees", h.SettingsEmployeeCreateSubmit)
@@ -325,14 +320,11 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	// Wallet, invoices, messages, requests
 	r.Get("/wallet", h.WalletPage)
 	r.Get("/invoices", h.InvoicesPage)
-	r.Get("/vendor/invoices", h.InvoicesPage)
 	r.Get("/invoices/{id}/print", h.InvoicePrintPage)
 	r.Get("/orders/{id}/invoice/print", h.OrderInvoicePrintPage)
 	r.Get("/messages", h.MessagesPage)
 	r.Get("/messages/{id}", h.MessagesConversationPage)
 	r.Get("/requests", h.RequestsPage)
-	r.Get("/report-issue", h.CustomerReportIssuePage)
-	r.Post("/report-issue", h.CustomerReportIssueSubmit)
 
 	r.Post("/wallet/deposit", h.WalletDepositSubmit)
 	r.Post("/wallet/deposit/{id}/edit", h.WalletDepositEditSubmit)
@@ -346,4 +338,29 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
 	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
 	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
+}
+
+// RegisterCustomerSharedRoutes mounts Tier C customer audience-specific shared paths.
+func (h *UIHandler) RegisterCustomerSharedRoutes(r chi.Router) {
+	r.Get("/customer/documents", h.OrganizationDocumentsPage)
+	r.Get("/customer/documents/{id}/view", h.DocumentViewHandler)
+}
+
+// RegisterVendorSharedRoutes mounts Tier C vendor audience-specific shared paths.
+func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
+	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
+	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
+	r.Get("/vendor/invoices", h.InvoicesPage)
+}
+
+// RegisterSharedRoutes mounts the legacy combined shared routes for tests or
+// standalone mounting. In production routes, these are partitioned into
+// RegisterPreApprovalRoutes (Tier A), RegisterApprovedSharedRoutes (Tier B),
+// RegisterCustomerSharedRoutes (Tier C), and RegisterVendorSharedRoutes (Tier C)
+// so that unapproved or cross-audience callers cannot reach protected surfaces.
+func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
+	h.RegisterPreApprovalRoutes(r)
+	h.RegisterApprovedSharedRoutes(r)
+	h.RegisterCustomerSharedRoutes(r)
+	h.RegisterVendorSharedRoutes(r)
 }
