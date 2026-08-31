@@ -36,6 +36,7 @@ func newTestRouter(actor *authctx.Actor) http.Handler {
 	}
 
 	r := chi.NewRouter()
+	r.Use(stubAuth)
 	handler.RegisterPublicRoutes(r)
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(stubAuth)
@@ -92,7 +93,7 @@ func setupTestRouter() http.Handler {
 }
 
 func TestPublicAndAuthPageRoutes(t *testing.T) {
-	router := setupTestRouter()
+	router := newTestRouter(nil)
 
 	routes := []struct {
 		method string

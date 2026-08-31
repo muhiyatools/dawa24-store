@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -42,6 +43,7 @@ func TestVisualRegressionMatrix(t *testing.T) {
 	// Serve the component gallery
 	r := chi.NewRouter()
 	r.Get("/admin/gallery", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		density := req.URL.Query().Get("density")
 		if density == "" {
 			density = "comfortable"
@@ -106,6 +108,8 @@ func TestVisualRegressionMatrix(t *testing.T) {
 				cmd := exec.CommandContext(ctx, chromePath,
 					"--headless=new",
 					"--disable-gpu",
+					"--no-sandbox",
+					"--disable-web-security",
 					"--hide-scrollbars",
 					"--window-size=1280,1800",
 					fmt.Sprintf("--screenshot=%s", targetPath),
@@ -118,12 +122,13 @@ func TestVisualRegressionMatrix(t *testing.T) {
 					t.Fatalf("capturing %s: %v (output: %s)", filename, err, string(out))
 				}
 
-				info, err := os.Stat(targetPath)
-				if err != nil || info.Size() < 1000 {
-					t.Fatalf("screenshot %s invalid or empty (size: %v)", filename, info)
+				data, err := os.ReadFile(targetPath)
+				if err != nil || len(data) < 1000 {
+					t.Fatalf("screenshot %s invalid or empty (len: %d)", filename, len(data))
 				}
 
-				t.Logf("? Captured baseline: %s (%d bytes)", filename, info.Size())
+				hash := fmt.Sprintf("%x", md5.Sum(data))
+				t.Logf("? Captured baseline: %-38s %7d bytes  md5:%s", filename, len(data), hash)
 				capturedCount++
 			}
 		}
