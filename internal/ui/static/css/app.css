@@ -1,15 +1,28 @@
-/* ============================================================
-   DAWA 24 DESIGN SYSTEM — MASTER STYLESHEET (app.css)
-   Font: IBM Plex Sans Arabic | Official Brand Blue: #0284c7 / #38bdf8
-   ============================================================ */
+/* ==========================================================================
+   DAWA 24 — BEHAVIOURAL PRIMITIVES (app.css)
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800;900&display=swap');
-@import url('tokens.css');
-@import url('base.css');
-@import url('layout.css');
-@import url('glass.css');
-@import url('components.css');
-@import url('utilities.css');
+   This file is deliberately OUTSIDE the @layer cascade, and that is the only
+   reason it is a separate file. Unlayered rules beat every layered rule, which
+   is exactly what "this element must be hidden" needs: a cloaked element must
+   not become visible because some component rule later in the sheet says
+   display:flex.
+
+   Everything that is not a hide/show primitive belongs in a layer. Three things
+   were removed from here in Phase 4:
+
+     - Six @import rules pulling in tokens, base, layout, glass, components and
+       utilities. Every one of those is already <link>ed from base.templ, so the
+       browser was parsing all six twice and the imported copies -- arriving
+       last and unlayered -- silently outranked the layered originals.
+
+     - An @import of IBM Plex Sans Arabic. Phase 3 moved the platform to Readex
+       Pro, but this line kept fetching the old family, so both downloaded on
+       every page load.
+
+     - The landing-page advertising gallery, which is page styling and had no
+       business winning against the component layer. It now lives in public.css
+       inside @layer components.
+   ========================================================================== */
 
 /* ---- Visibility and Cloaking primitives ---- */
 [x-cloak],
@@ -62,151 +75,3 @@ svg {
   aspect-ratio: 1 / 1;
   object-fit: contain;
 }
-
-/* ---- Advertising Gallery (landing page) ---- */
-.landing-ad-gallery {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-.ad-gallery-header {
-  text-align: center;
-  margin-bottom: 1.75rem;
-}
-
-.ad-gallery-title {
-  font-size: 1.75rem;
-  font-weight: 900;
-  color: var(--text-primary, #0f172a);
-  margin: 0 0 0.5rem 0;
-}
-
-.ad-gallery-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-secondary, #64748b);
-  margin: 0;
-}
-
-.ad-gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.25rem;
-}
-
-.ad-gallery-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #e2e8f0);
-  border-radius: 1rem;
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
-}
-
-.ad-gallery-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(2, 132, 199, 0.12);
-  border-color: var(--brand, #0284c7);
-}
-
-.ad-gallery-media {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: var(--surface-sunken, #f1f5f9);
-}
-
-.ad-gallery-media-video {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #0f172a;
-}
-
-.ad-gallery-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ad-gallery-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ad-gallery-media-badge {
-  position: absolute;
-  top: 0.5rem;
-  inset-inline-end: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.5rem;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.ad-gallery-content {
-  padding: 1.25rem 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.ad-gallery-card-title {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-primary, #0f172a);
-  margin: 0;
-}
-
-.ad-gallery-card-text {
-  font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
-  line-height: 1.5;
-  margin: 0;
-  flex: 1;
-}
-
-.ad-gallery-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--brand, #0284c7);
-  margin-top: 0.5rem;
-}
-
-/* ---- Sponsorship page ---- */
-.sponsorship-page .card {
-  padding: 1.5rem;
-}
-
-.sponsorship-page .card-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-}
-
-.sponsorship-page .subtitle {
-  font-size: 0.85rem;
-  color: var(--text-secondary, #64748b);
-  margin-top: 0.25rem;
-}
-
-.sponsorship-page .mb-lg { margin-bottom: 1.5rem; }
-.sponsorship-page .mb-md { margin-bottom: 1rem; }
-
-[dir="rtl"] .ad-gallery-cta svg { transform: scaleX(-1); }
-

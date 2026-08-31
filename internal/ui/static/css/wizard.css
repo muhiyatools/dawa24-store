@@ -1,3 +1,7 @@
+/* Wrapped in @layer components in Phase 4: this sheet was unlayered,
+   so every rule in it outranked the entire cascade. */
+
+@layer components {
 /* ==========================================================================
    DAWA 24 DESIGN SYSTEM — STEP WIZARD & ONBOARDING SYSTEM (wizard.css)
    ========================================================================== */
@@ -463,4 +467,5 @@
 .wiz-issue.is-error {
 	color: var(--danger, #ef4444);
 	border-inline-start-color: var(--danger, #ef4444);
+}
 }
