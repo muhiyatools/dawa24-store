@@ -893,7 +893,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</span><h3 id=\"modal-doc-title\">معاينة المستند الرسمي</h3></div><div id=\"modal-doc-filename\" dir=\"ltr\">filename.pdf</div></div><div class=\"d-flex items-center gap-2\"><a id=\"modal-doc-tab-btn\" href=\"#\" target=\"_blank\" class=\"btn btn-secondary btn-sm fw-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</span><h3 id=\"modal-doc-title\">معاينة المستند الرسمي</h3></div><div id=\"modal-doc-filename\" dir=\"ltr\">filename.pdf</div></div><div class=\"d-flex items-center gap-2\"><a id=\"modal-doc-tab-btn\" href=\"/documents\" target=\"_blank\" class=\"btn btn-secondary btn-sm fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -901,7 +901,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<span>فتح في نافذة جديدة ↗</span></a> <a id=\"modal-doc-download-btn\" href=\"#\" class=\"btn btn-primary btn-sm fw-800\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<span>فتح في نافذة جديدة ↗</span></a> <a id=\"modal-doc-download-btn\" href=\"/documents\" class=\"btn btn-primary btn-sm fw-800\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

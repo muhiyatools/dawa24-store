@@ -397,7 +397,7 @@ func AdminDocuments(docs []*attachments.Document, total int, filter attachments.
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<button class=\"btn btn-primary btn-sm font-bold text-xs\" onclick=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs\" onclick=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -414,7 +414,7 @@ func AdminDocuments(docs []*attachments.Document, total int, filter attachments.
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<button class=\"btn btn-danger btn-sm font-bold text-xs\" onclick=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<button type=\"button\" class=\"btn btn-danger btn-sm font-bold text-xs\" onclick=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

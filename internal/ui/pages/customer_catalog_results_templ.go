@@ -1534,7 +1534,7 @@ func CustomerCatalogPagination(data CatalogPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 155, "<button disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 155, "<button type=\"button\" disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1697,7 +1697,7 @@ func CustomerCatalogPagination(data CatalogPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "<button disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\"><span>التالي</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "<button type=\"button\" disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\"><span>التالي</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
