@@ -255,4 +255,3 @@ func (r *OrganizationChangeRequest) ChangedFieldLabels() []string {
 	}
 	return labels
 }
-
