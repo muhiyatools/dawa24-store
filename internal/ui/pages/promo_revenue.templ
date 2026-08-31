@@ -128,12 +128,12 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<!-- Hub Header -->
 			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1.5">
 							<div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 								@components.IconBoxes("icon-md")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">منظومة باقات الرعايات والعروض الترويجية</h1>
 								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">إدارة وتخصيص باقات الرعاية للموردين، مراجعة طلبات التثبيت في الصدارة، ومتابعة الإعلانات</p>
 							</div>
@@ -166,7 +166,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 					<div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center border border-sky-200/60 shrink-0">
 						@components.IconBoxes("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">باقات الرعاية</div>
 						<div class="d-flex items-baseline gap-1.5">
 							<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalPackages) }</span>
@@ -180,7 +180,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 					<div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shrink-0">
 						@components.IconShield("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">طلبات الرعاية</div>
 						<div class="d-flex items-baseline gap-1.5">
 							<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalRequests) }</span>
@@ -198,7 +198,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 					<div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 d-flex items-center justify-center border border-emerald-200/60 shrink-0">
 						@components.IconMegaphone("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">البنرات والإعلانات</div>
 						<div class="d-flex items-baseline gap-1.5">
 							<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalAds) }</span>
@@ -216,7 +216,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 					<div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 d-flex items-center justify-center border border-purple-200/60 shrink-0">
 						@components.IconSparkles("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">مستويات الأولوية</div>
 						<div class="d-flex items-baseline gap-1.5">
 							<span class="text-xl font-black text-primary">5 مستويات</span>
@@ -284,7 +284,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<div x-show="activeTab === 'packages'" class="space-y-6">
 				<!-- Section Header & Actions -->
 				<div class="glass-panel p-4 mb-4 border border-slate-200/80 rounded-xl flex-between items-center flex-wrap gap-3">
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-base font-black text-primary m-0">قائمة باقات الرعاية والعروض الترويجية</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5">الباقات المعروضة للموردين لشراء رصيد تثبيت الأصناف والعروض في صدارة نتائج البحث</p>
 					</div>
@@ -344,7 +344,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 															class="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs border border-white"
 															style={ fmt.Sprintf("background-color: %s;", func() string { if pkg.BadgeColor != "" { return pkg.BadgeColor }; return "#0284c7" }()) }
 														></div>
-														<div>
+              <div class="stack-sm">
 															<div class="d-flex items-center gap-2">
 																<span class="font-black text-primary text-sm">{ pkg.Name.Get(i18n.ParseLang(lang)) }</span>
 																if pkg.IsFeatured {
@@ -469,7 +469,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<div x-show="activeTab === 'requests'" class="space-y-6">
 				<!-- Section Header -->
 				<div class="glass-panel p-4 mb-4 border border-slate-200/80 rounded-xl flex-between items-center flex-wrap gap-3">
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-base font-black text-primary m-0">طلبات الرعاية والترويج من الموردين</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5">مراجعة واعتماد طلبات الموردين لتثبيت الأصناف والعروض في صدارة الكتالوج</p>
 					</div>
@@ -592,7 +592,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<div x-show="activeTab === 'ads'" class="space-y-6">
 				<!-- Section Header -->
 				<div class="glass-panel p-4 mb-4 border border-slate-200/80 rounded-xl flex-between items-center flex-wrap gap-3">
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-base font-black text-primary m-0">الإعلانات والبنرات الترويجية</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5">مراجعة واعتماد بنرات وإعلانات الموردين المعروضة في المنصة</p>
 					</div>
@@ -643,7 +643,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 																}
 															</div>
 														}
-														<div>
+              <div class="stack-sm">
 															<div class="font-extrabold text-primary text-sm">{ ad.DisplayTitle(lang) }</div>
 															if ad.DisplayText(lang) != "" {
 																<div class="text-secondary text-2xs font-medium line-clamp-1 max-w-xs">{ ad.DisplayText(lang) }</div>
@@ -734,57 +734,57 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 				Size:       "lg",
 			}) {
 				<form method="POST" action="/admin/offers-packages/new" class="p-6 space-y-4 m-0">
-						<div>
+      <div class="stack-sm">
 							<!-- Name AR -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
 								<input type="text" name="name_ar" required placeholder="مثال: الباقة الذهبية للرعايات" class="form-input text-xs w-full"/>
 							</div>
 
 							<!-- Name EN -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (إنجليزي) <span class="text-rose-500">*</span></label>
 								<input type="text" name="name_en" required placeholder="e.g. Gold Sponsorship Package" class="form-input text-xs w-full text-left" dir="ltr"/>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Desc AR -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
 								<textarea name="desc_ar" rows="2" placeholder="تثبيت 10 أصناف في صدارة نتائج البحث..." class="form-input text-xs w-full"></textarea>
 							</div>
 
 							<!-- Desc EN -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (إنجليزي)</label>
 								<textarea name="desc_en" rows="2" placeholder="Pin 10 items in top search results..." class="form-input text-xs w-full text-left" dir="ltr"></textarea>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Price -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
 								<input type="number" step="0.01" min="0" name="price" required placeholder="1500.00" class="form-input text-xs w-full font-mono font-bold"/>
 							</div>
 
 							<!-- Duration -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">المدة (بالأيام) <span class="text-rose-500">*</span></label>
 								<input type="number" min="1" name="duration_days" value="30" required class="form-input text-xs w-full font-mono"/>
 							</div>
 
 							<!-- Credits -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">رصيد الرعايات المضمن <span class="text-rose-500">*</span></label>
 								<input type="number" min="1" name="credits" value="10" required class="form-input text-xs w-full font-mono font-bold text-brand"/>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Tier Level -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
 								<select name="tier_level" required class="form-select text-xs w-full font-bold">
 									<option value="1">مستوى 1 - عادي (Standard)</option>
@@ -796,13 +796,13 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 
 							<!-- Max Offers -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">الحد الأقصى للعروض</label>
 								<input type="number" min="1" name="max_offers" value="20" class="form-input text-xs w-full font-mono"/>
 							</div>
 
 							<!-- Badge Color -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">لون الشارة</label>
 								<div class="d-flex items-center gap-2">
 									<input type="color" name="badge_color" value="#0284c7" class="h-9 w-10 p-0 border border-slate-300 rounded cursor-pointer shrink-0"/>
@@ -813,7 +813,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 
 						<div class="pt-2 border-t border-slate-100">
 							<!-- Sort Order -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
 								<input type="number" name="sort_order" value="0" class="form-input text-xs w-full font-mono"/>
 							</div>
@@ -854,57 +854,57 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 				Size:       "lg",
 			}) {
 				<form method="POST" :action="'/admin/offers-packages/' + editPkg.id + '/edit'" class="p-6 space-y-4 m-0">
-						<div>
+      <div class="stack-sm">
 							<!-- Name AR -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
 								<input type="text" name="name_ar" x-model="editPkg.name_ar" required class="form-input text-xs w-full"/>
 							</div>
 
 							<!-- Name EN -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (إنجليزي) <span class="text-rose-500">*</span></label>
 								<input type="text" name="name_en" x-model="editPkg.name_en" required class="form-input text-xs w-full text-left" dir="ltr"/>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Desc AR -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
 								<textarea name="desc_ar" x-model="editPkg.desc_ar" rows="2" class="form-input text-xs w-full"></textarea>
 							</div>
 
 							<!-- Desc EN -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (إنجليزي)</label>
 								<textarea name="desc_en" x-model="editPkg.desc_en" rows="2" class="form-input text-xs w-full text-left" dir="ltr"></textarea>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Price -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
 								<input type="number" step="0.01" min="0" name="price" x-model="editPkg.price" required class="form-input text-xs w-full font-mono font-bold"/>
 							</div>
 
 							<!-- Duration -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">المدة (بالأيام) <span class="text-rose-500">*</span></label>
 								<input type="number" min="1" name="duration_days" x-model="editPkg.duration_days" required class="form-input text-xs w-full font-mono"/>
 							</div>
 
 							<!-- Credits -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">رصيد الرعايات المضمن <span class="text-rose-500">*</span></label>
 								<input type="number" min="1" name="credits" x-model="editPkg.credits" required class="form-input text-xs w-full font-mono font-bold text-brand"/>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Tier Level -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
 								<select name="tier_level" x-model="editPkg.tier_level" required class="form-select text-xs w-full font-bold">
 									<option value="1">مستوى 1 - عادي (Standard)</option>
@@ -916,13 +916,13 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 
 							<!-- Max Offers -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">الحد الأقصى للعروض</label>
 								<input type="number" min="1" name="max_offers" x-model="editPkg.max_offers" class="form-input text-xs w-full font-mono"/>
 							</div>
 
 							<!-- Badge Color -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">لون الشارة</label>
 								<div class="d-flex items-center gap-2">
 									<input type="color" name="badge_color" x-model="editPkg.badge_color" class="h-9 w-10 p-0 border border-slate-300 rounded cursor-pointer shrink-0"/>
@@ -933,7 +933,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 
 						<div class="pt-2 border-t border-slate-100">
 							<!-- Sort Order -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
 								<input type="number" name="sort_order" x-model="editPkg.sort_order" class="form-input text-xs w-full font-mono"/>
 							</div>
@@ -976,7 +976,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 						<p class="text-xs text-secondary leading-relaxed m-0">
 							سيتم رفض طلب الرعاية وإرجاع الرصيد المستهلك إلى محفظة / رصيد المورد تلقائياً.
 						</p>
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary block mb-1">سبب الرفض (اختياري)</label>
 							<textarea name="notes" x-model="rejectNotes" rows="2" placeholder="اكتب سبب الرفض لتوضيحه للمورد..." class="form-input text-xs w-full"></textarea>
 						</div>

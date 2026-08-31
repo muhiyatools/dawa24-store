@@ -605,7 +605,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div></main></div><footer class=\"site-footer\"><div class=\"footer-content\"><!-- Brand & Bio --><div><div class=\"footer-brand\"><img src=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div></main></div><footer class=\"site-footer\"><div class=\"footer-content\"><!-- Brand & Bio --><div class=\"stack-sm\"><div class=\"footer-brand\"><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -631,7 +631,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" class=\"footer-logo\"><div><div class=\"footer-brand-name\">دواء <span class=\"text-accent\">24</span></div><div class=\"footer-brand-subtitle\">منظومة الربط والتوريد الدوائي المباشر</div></div></div><p class=\"footer-description\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" class=\"footer-logo\"><div class=\"stack-sm\"><div class=\"footer-brand-name\">دواء <span class=\"text-accent\">24</span></div><div class=\"footer-brand-subtitle\">منظومة الربط والتوريد الدوائي المباشر</div></div></div><p class=\"footer-description\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -810,7 +810,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</div></div><!-- Quick Links --><div><h4 class=\"footer-heading\">خدمات وروابط المنصة</h4><ul class=\"footer-link-list\"><li><a href=\"/catalog\">كتالوج الأدوية والمستلزمات</a></li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</div></div><!-- Quick Links --><div class=\"stack-sm\"><h4 class=\"footer-heading\">خدمات وروابط المنصة</h4><ul class=\"footer-link-list\"><li><a href=\"/catalog\">كتالوج الأدوية والمستلزمات</a></li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -830,7 +830,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الصيدليات والموردين</a></li></ul></div><!-- Contact & Support --><div><h4 class=\"footer-heading\">التواصل والدعم الفني</h4><ul class=\"footer-link-list footer-contact-list\"><li class=\"row-center-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/faq\">الأسئلة الشائعة (FAQ)</a></li><li><a href=\"/auth/register\">انضمام الصيدليات والموردين</a></li></ul></div><!-- Contact & Support --><div class=\"stack-sm\"><h4 class=\"footer-heading\">التواصل والدعم الفني</h4><ul class=\"footer-link-list footer-contact-list\"><li class=\"row-center-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -929,7 +929,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<li class=\"footer-support-note\">خدمة العملاء والدعم الفني متاح 24/7 للمؤسسات والصيدليات المعتمدة.</li></ul></div></div><div class=\"footer-bottom\"><div><p>جميع الحقوق محفوظة © 2026 ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<li class=\"footer-support-note\">خدمة العملاء والدعم الفني متاح 24/7 للمؤسسات والصيدليات المعتمدة.</li></ul></div></div><div class=\"footer-bottom\"><div class=\"stack-sm\"><p>جميع الحقوق محفوظة © 2026 ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

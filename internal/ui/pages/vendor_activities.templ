@@ -88,7 +88,7 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 		<!-- Header & Action Summary -->
 		<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 			<div class="flex-between items-start flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 							@components.IconClock("icon-sm")
@@ -163,7 +163,7 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 													م
 												}
 											</div>
-											<div>
+           <div class="stack-sm">
 												<div class="font-extrabold text-xs text-primary">
 													if e.ActorName != "" {
 														{ e.ActorName }

@@ -73,7 +73,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 				
 				<!-- Page Header Strip -->
 				<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border border-slate-200/80 rounded-2xl shadow-sm">
-					<div>
+     <div class="stack-sm">
 						<nav class="breadcrumb-trail text-xs text-muted mb-1.5 d-flex items-center gap-1.5 font-semibold">
 							<a href="/" class="text-secondary hover:text-primary transition-colors">الرئيسية</a>
 							<span class="text-slate-300">/</span>
@@ -190,7 +190,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							}
 
 							<!-- Categories Tree -->
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold mb-1.5 text-primary d-flex items-center gap-1.5">
 									@components.IconLayers("icon-xs text-muted")
 									<span>التصنيف الدوائي</span>
@@ -257,10 +257,10 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									<span>سعر التوريد للصيدلية (ج.م)</span>
 								</label>
 								<div class="d-grid grid-cols-2 gap-2">
-									<div>
+         <div class="stack-sm">
 										<input type="number" name="min_price" value={ data.MinPrice } placeholder="من 0" class="form-input text-xs tabular-nums font-semibold" />
 									</div>
-									<div>
+         <div class="stack-sm">
 										<input type="number" name="max_price" value={ data.MaxPrice } placeholder="إلى 1000" class="form-input text-xs tabular-nums font-semibold" />
 									</div>
 								</div>
@@ -316,7 +316,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									
 									<!-- Rows Per Page Selector -->
 									<div class="d-flex items-center gap-1.5 text-xs font-bold text-secondary">
-										<label>عرض:</label>
+										<label class="form-label">عرض:</label>
 										<select
 											name="page_size"
 											class="form-input text-xs w-auto py-1 font-semibold"
@@ -331,7 +331,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 
 									<!-- Sort Selector -->
 									<div class="d-flex items-center gap-1.5 text-xs font-bold text-secondary">
-										<label>الترتيب:</label>
+										<label class="form-label">الترتيب:</label>
 										<select
 											name="sort"
 											class="form-input text-xs w-auto py-1 font-semibold"
@@ -417,7 +417,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 						</div>
 
 						<!-- Results Dynamic Container -->
-						<div id="catalog-results">
+						<div class="stack-sm" id="catalog-results">
 							@CustomerCatalogResults(data, lang)
 						</div>
 

@@ -14,7 +14,7 @@ templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, 
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconPill("icon-sm")
@@ -40,7 +40,7 @@ templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, 
 					<p class="text-sm text-secondary m-0">لم يتم العثور على منتجات مطابقة لكلمات البحث في الكتالوج العام.</p>
 				</div>
 			} else {
-				<form method="POST" action="/vendor/catalog/select">
+				<form class="stack-md" method="POST" action="/vendor/catalog/select">
 					<div class="glass-panel p-0 mb-6 overflow-hidden">
 						<div class="table-container m-0">
 							<table class="data-table m-0">

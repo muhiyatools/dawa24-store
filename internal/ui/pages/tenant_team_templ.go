@@ -103,7 +103,7 @@ func TenantTeamPage(v TenantTeamView, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"glass-panel p-6 mb-4\"><div class=\"flex-between items-start flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"glass-panel p-6 mb-4\"><div class=\"flex-between items-start flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -246,7 +246,7 @@ func tenantTeamAddForm(v TenantTeamView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"d-grid grid-cols-2 gap-4\"><div><label class=\"form-label\" for=\"team-name\">الاسم</label> <input id=\"team-name\" class=\"form-input\" type=\"text\" name=\"name\" required maxlength=\"120\"></div><div><label class=\"form-label\" for=\"team-email\">البريد الإلكتروني</label> <input id=\"team-email\" class=\"form-input\" type=\"email\" name=\"email\" required></div><div><label class=\"form-label\" for=\"team-phone\">رقم الهاتف</label> <input id=\"team-phone\" class=\"form-input\" type=\"tel\" name=\"phone\" maxlength=\"20\"></div><div><label class=\"form-label\" for=\"team-password\">كلمة مرور مبدئية</label> <input id=\"team-password\" class=\"form-input\" type=\"password\" name=\"password\" required minlength=\"8\"></div><div><label class=\"form-label\" for=\"team-job-title\">المسمى الوظيفي</label> <input id=\"team-job-title\" class=\"form-input\" type=\"text\" name=\"job_title\" maxlength=\"80\"></div><div><label class=\"form-label\" for=\"team-role\">الدور</label> <select id=\"team-role\" class=\"form-input\" name=\"role_id\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"d-grid grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\" for=\"team-name\">الاسم</label> <input id=\"team-name\" class=\"form-input\" type=\"text\" name=\"name\" required maxlength=\"120\"></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"team-email\">البريد الإلكتروني</label> <input id=\"team-email\" class=\"form-input\" type=\"email\" name=\"email\" required></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"team-phone\">رقم الهاتف</label> <input id=\"team-phone\" class=\"form-input\" type=\"tel\" name=\"phone\" maxlength=\"20\"></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"team-password\">كلمة مرور مبدئية</label> <input id=\"team-password\" class=\"form-input\" type=\"password\" name=\"password\" required minlength=\"8\"></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"team-job-title\">المسمى الوظيفي</label> <input id=\"team-job-title\" class=\"form-input\" type=\"text\" name=\"job_title\" maxlength=\"80\"></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"team-role\">الدور</label> <select id=\"team-role\" class=\"form-input\" name=\"role_id\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

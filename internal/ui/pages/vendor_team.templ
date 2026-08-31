@@ -94,7 +94,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						<div class="user-avatar-badge text-2xl">
 							@components.IconUsers("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								فريق العمل وصلاحيات الموظفين
 							</h1>
@@ -181,7 +181,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<!-- Search Input -->
-						<div>
+      <div class="stack-sm">
 							<input
 								type="text"
 								x-model="searchQuery"
@@ -251,7 +251,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 												<div class="user-avatar-badge font-black text-xs">
 													{ getInitials(m.Name) }
 												</div>
-												<div>
+            <div class="stack-sm">
 													<div class="font-extrabold text-primary text-sm">
 														{ m.Name }
 														if m.RoleKey == "org_owner" {
@@ -381,7 +381,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 			</div>
 
 			<!-- Add Employee Modal Dialog (Fixed Centered Overlay) -->
-			<div
+			<div class="stack-sm"
 				x-show="showAddModal"
 				x-cloak
 				x-transition.opacity
@@ -406,14 +406,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 					<form method="POST" action="/vendor/team/new" class="d-flex flex-col gap-4 m-0">
 						<!-- Row 1: Name & Title -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الموظف بالكامل <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name" class="form-input text-xs w-full" placeholder="مثال: د. أحمد جمال" required />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المسمى الوظيفي <span class="text-danger">*</span>
 								</label>
@@ -423,14 +423,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 						<!-- Row 2: Email & Phone -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									البريد الإلكتروني للدخول <span class="text-danger">*</span>
 								</label>
 								<input type="email" name="email" class="form-input text-xs tabular-nums w-full" placeholder="ahmed@company.eg" required />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم الهاتف / الواتساب <span class="text-danger">*</span>
 								</label>
@@ -440,7 +440,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 						<!-- Row 3: Role & Branch -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 								</label>
@@ -452,7 +452,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									الفرع / المخزن التابع له
 								</label>
@@ -467,14 +467,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 						<!-- Row 4: Employee Code & Initial Password -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الموظف (اختياري)
 								</label>
 								<input type="text" name="employee_code" class="form-input text-xs w-full" placeholder="مثال: EMP-101" />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كلمة المرور المبدئية <span class="text-danger">*</span>
 								</label>

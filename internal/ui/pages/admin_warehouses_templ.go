@@ -85,7 +85,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-xl font-black text-primary m-0\">???? ??????? ?????? ???????</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p></div></div><div class=\"badge badge-sky font-bold text-sm px-3.5 py-1.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">???? ??????? ?????? ???????</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p></div></div><div class=\"badge badge-sky font-bold text-sm px-3.5 py-1.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -129,7 +129,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span><div><strong class=\"text-primary text-sm font-black\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span><div class=\"stack-sm\"><strong class=\"text-primary text-sm font-black\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -400,7 +400,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div><div><div class=\"d-flex items-center gap-2.5 flex-wrap\"><h1 class=\"text-xl font-black text-primary m-0\">مخزون مخزن: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2.5 flex-wrap\"><h1 class=\"text-xl font-black text-primary m-0\">مخزون مخزن: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -896,7 +896,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</td><td><div><div class=\"font-bold text-primary text-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</td><td><div class=\"stack-sm\"><div class=\"font-bold text-primary text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

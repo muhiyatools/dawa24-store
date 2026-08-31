@@ -67,7 +67,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><!-- 1. Sleek Integrated Header & KPI Bar --><div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center flex-wrap gap-3\"><div><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><!-- 1. Sleek Integrated Header & KPI Bar --><div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center flex-wrap gap-3\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -135,7 +135,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input text-xs w-full\" placeholder=\"بحث باسم الدواء، المادة الفعالة، SKU، الباركود...\"></div><!-- Supplier Select --><div><select name=\"supplier\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"\">كافة الشركات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input text-xs w-full\" placeholder=\"بحث باسم الدواء، المادة الفعالة، SKU، الباركود...\"></div><!-- Supplier Select --><div class=\"stack-sm\"><select name=\"supplier\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"\">كافة الشركات (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -194,7 +194,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- Sort Order --><div><select name=\"sort\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"discount_desc\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- Sort Order --><div class=\"stack-sm\"><select name=\"sort\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"discount_desc\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -244,7 +244,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">الأقدم</option></select></div><!-- Page Size Limit --><div><select name=\"limit\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"24\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">الأقدم</option></select></div><!-- Page Size Limit --><div class=\"stack-sm\"><select name=\"limit\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"24\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -292,7 +292,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><!-- Collapsible Advanced Range Filters --><div x-show=\"showMoreFilters\" x-cloak x-transition.opacity class=\"pt-3 border-t\"><!-- Price Range --><div><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">نطاق السعر الصافي بعد الخصم (ج.م)</label><div class=\"d-flex gap-2 items-center\"><input type=\"number\" step=\"0.5\" name=\"min_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><!-- Collapsible Advanced Range Filters --><div x-show=\"showMoreFilters\" x-cloak x-transition.opacity class=\"pt-3 border-t\"><!-- Price Range --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">نطاق السعر الصافي بعد الخصم (ج.م)</label><div class=\"d-flex gap-2 items-center\"><input type=\"number\" step=\"0.5\" name=\"min_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -318,7 +318,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"form-input text-xs flex-1\" placeholder=\"إلى سعر\"></div></div><!-- Discount Range --><div><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">نطاق نسبة الخصم (%)</label><div class=\"d-flex gap-2 items-center\"><input type=\"number\" step=\"1\" name=\"min_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"form-input text-xs flex-1\" placeholder=\"إلى سعر\"></div></div><!-- Discount Range --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">نطاق نسبة الخصم (%)</label><div class=\"d-flex gap-2 items-center\"><input type=\"number\" step=\"1\" name=\"min_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -362,12 +362,12 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<!-- 1. LIST VIEW --> <div x-show=\"currentView === 'list'\" x-cloak>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<!-- 1. LIST VIEW --> <div class=\"stack-sm\" x-show=\"currentView === 'list'\" x-cloak>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, item := range result.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-4\"><!-- Right: Product Name & SKU --><div><h3 class=\"text-base font-black text-primary m-0 mb-1 leading-snug\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-4\"><!-- Right: Product Name & SKU --><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0 mb-1 leading-snug\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -453,7 +453,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</strong></div></div><!-- Left: Discount Pill + Public Price & Total Price --><div class=\"d-flex items-center gap-4 justify-end\"><!-- Discount Badge Pill --><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</strong></div></div><!-- Left: Discount Pill + Public Price & Total Price --><div class=\"d-flex items-center gap-4 justify-end\"><!-- Discount Badge Pill --><div class=\"stack-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -530,7 +530,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><!-- Quick Order / Cart Action --><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><!-- Quick Order / Cart Action --><div class=\"stack-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -571,12 +571,12 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><!-- 2. GRID VIEW --> <div x-show=\"currentView === 'grid'\" x-cloak>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><!-- 2. GRID VIEW --> <div class=\"stack-sm\" x-show=\"currentView === 'grid'\" x-cloak>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, item := range result.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"glass-panel p-5 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-center mb-2\"><span class=\"badge badge-primary text-xs font-bold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"glass-panel p-5 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-center mb-2\"><span class=\"badge badge-primary text-xs font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -684,7 +684,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div><div class=\"border-t pt-3 flex-between items-center\"><div><div class=\"text-lg font-black text-primary tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div><div class=\"border-t pt-3 flex-between items-center\"><div class=\"stack-sm\"><div class=\"text-lg font-black text-primary tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -720,7 +720,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><div class=\"stack-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

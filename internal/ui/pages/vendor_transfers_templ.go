@@ -54,7 +54,7 @@ func VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string,
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -62,7 +62,7 @@ func VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string,
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">سجل التحويلات بين المخازن</h1></div><p class=\"text-sm text-secondary m-0\">متابعة حركة نقل البضائع والأدوية بين الفروع والمخازن التوزيعية</p></div></div></div><div id=\"vendor-transfers-content\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">سجل التحويلات بين المخازن</h1></div><p class=\"text-sm text-secondary m-0\">متابعة حركة نقل البضائع والأدوية بين الفروع والمخازن التوزيعية</p></div></div></div><div class=\"stack-sm\" id=\"vendor-transfers-content\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

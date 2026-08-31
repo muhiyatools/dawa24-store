@@ -62,7 +62,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"w-full mb-16\" x-data=\"{\r\n\t\t\t\tactiveTab: (new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace('#', '') || 'profile')\r\n\t\t\t}\"><!-- Page Header --><div class=\"flex-between items-center flex-wrap gap-4 mb-8\"><div><div class=\"row-center-sm mb-2\"><div class=\"b2b-icon-box-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"w-full mb-16\" x-data=\"{\r\n\t\t\t\tactiveTab: (new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace('#', '') || 'profile')\r\n\t\t\t}\"><!-- Page Header --><div class=\"flex-between items-center flex-wrap gap-4 mb-8\"><div class=\"stack-sm\"><div class=\"row-center-sm mb-2\"><div class=\"b2b-icon-box-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -432,7 +432,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></button></div></form><!-- Danger Zone: Account Deletion Request --><div class=\"border-t border-danger/30 mt-10 pt-7\"><div class=\"bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5\"><div><div class=\"d-flex items-center gap-2 text-danger font-extrabold text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></button></div></form><!-- Danger Zone: Account Deletion Request --><div class=\"border-t border-danger/30 mt-10 pt-7\"><div class=\"bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 text-danger font-extrabold text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -487,7 +487,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></button></div></div></div><!-- Tab 2: Organization & Licenses --><div id=\"tab-organization\" class=\"tab-pane card p-8\" :class=\"{ 'active': activeTab === 'organization' }\" x-show=\"activeTab === 'organization'\"><div class=\"flex-between items-center mb-6 flex-wrap gap-4\"><div><h3 class=\"text-xl font-black text-primary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></button></div></div></div><!-- Tab 2: Organization & Licenses --><div id=\"tab-organization\" class=\"tab-pane card p-8\" :class=\"{ 'active': activeTab === 'organization' }\" x-show=\"activeTab === 'organization'\"><div class=\"flex-between items-center mb-6 flex-wrap gap-4\"><div class=\"stack-sm\"><h3 class=\"text-xl font-black text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -620,7 +620,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</h3><form action=\"/settings/preferences\" method=\"POST\" class=\"max-w-2xl d-flex flex-col gap-5 text-start\"><div class=\"flex-between items-center p-4 border rounded-lg bg-surface-sunken\"><div><div class=\"font-extrabold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</h3><form action=\"/settings/preferences\" method=\"POST\" class=\"max-w-2xl d-flex flex-col gap-5 text-start\"><div class=\"flex-between items-center p-4 border rounded-lg bg-surface-sunken\"><div class=\"stack-sm\"><div class=\"font-extrabold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -646,7 +646,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><input type=\"checkbox\" name=\"notif_whatsapp\" checked class=\"form-checkbox\"></div><div class=\"flex-between items-center p-4 border rounded-lg bg-surface-sunken\"><div><div class=\"font-extrabold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><input type=\"checkbox\" name=\"notif_whatsapp\" checked class=\"form-checkbox\"></div><div class=\"flex-between items-center p-4 border rounded-lg bg-surface-sunken\"><div class=\"stack-sm\"><div class=\"font-extrabold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -672,7 +672,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div></div><input type=\"checkbox\" name=\"notif_invoices\" checked class=\"form-checkbox\"></div><div class=\"flex-between items-center p-4 border rounded-lg bg-surface-sunken\"><div><div class=\"font-extrabold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div></div><input type=\"checkbox\" name=\"notif_invoices\" checked class=\"form-checkbox\"></div><div class=\"flex-between items-center p-4 border rounded-lg bg-surface-sunken\"><div class=\"stack-sm\"><div class=\"font-extrabold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

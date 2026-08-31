@@ -28,7 +28,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconFileText("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">سجل العمليات والتدقيق الأمني</h1>
 							<p class="text-sm text-secondary m-0 mt-1">سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات ({ fmt.Sprintf("%d عملية", totalEntries) })</p>
 						</div>
@@ -56,7 +56,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="severity" class="form-select text-xs w-full">
 							<option value="">كافة درجات الأهمية</option>
 							<option value="info" selected?={ values.Severity == "info" }>عادي (Info)</option>
@@ -65,7 +65,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						</select>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="action" class="form-select text-xs w-full">
 							<option value="">كافة الأقسام والعمليات</option>
 							<option value="user" selected?={ values.ActionFilter == "user" }>المستخدمين والصلاحيات</option>
@@ -139,7 +139,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 												{ e.ActorName }
 											</div>
 											if e.ActorEmail != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ e.ActorEmail }
 												</div>
 											}
@@ -147,14 +147,14 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 
 										<!-- 4. المنظمة -->
 										<td class="text-start">
-											<div>
+											<div class="stack-xs text-sm">
 												{ e.OrganizationName }
 											</div>
 										</td>
 
 										<!-- 5. القسم والإجراء -->
 										<td class="text-start">
-											<div>
+           <div class="stack-sm">
 												<span class={ "badge", auditBadgeClass(e.Action) }>
 													{ e.ActionLabelAr }
 												</span>
@@ -169,7 +169,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 											<div class="fw-700 text-primary text-sm">
 												{ e.Title }
 											</div>
-											<div>
+											<div class="stack-xs text-sm">
 												{ e.Description }
 											</div>
 										</td>
@@ -187,7 +187,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 												{ e.IPAddress }
 											</div>
 											if e.Route != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ e.Route }
 												</div>
 											}
@@ -226,21 +226,21 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 								
 								<!-- Meta Grid -->
 								<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
-									<div>
+         <div class="stack-sm">
 										<div class="text-xs text-muted">المستخدم المنفذ:</div>
 										<div class="text-sm font-bold text-primary" x-text="selected.actor_name"></div>
 										<div class="text-xs text-secondary text-start" dir="ltr" x-text="selected.actor_email"></div>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<div class="text-xs text-muted">المنظمة / الجهة:</div>
 										<div class="text-sm font-bold text-primary" x-text="selected.organization_name"></div>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<div class="text-xs text-muted">عنوان IP / المسار:</div>
 										<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selected.ip_address"></div>
 										<div class="text-xs text-muted text-start" dir="ltr" x-text="selected.route"></div>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<div class="text-xs text-muted">التوقيت والأهمية:</div>
 										<div class="text-sm font-bold text-primary" x-text="selected.created_at"></div>
 										<div class="mt-0.5">
@@ -287,7 +287,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 							</div>
 						</template>
 					<div class="modal-footer mt-4">
-						<form method="dialog">
+						<form class="stack-md" method="dialog">
 							<button type="submit" class="btn btn-secondary font-bold px-6">
 								إغلاق
 							</button>

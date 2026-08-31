@@ -19,7 +19,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Header & Action Bar -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconBuilding("icon-sm")
@@ -101,7 +101,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 												<div class="user-avatar-badge">
 													@components.IconBuilding("icon-xs")
 												</div>
-												<div>
+            <div class="stack-sm">
 													<strong class="text-primary text-sm font-extrabold">{ w.Name }</strong>
 													<div class="text-xs text-muted">ID #{ fmt.Sprintf("%d", w.ID) }</div>
 												</div>
@@ -122,7 +122,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										<td>
 											<div class="text-xs text-primary">
 												if w.Address != "" {
-													<div>{ w.Address }</div>
+													<div class="stack-xs text-sm">{ w.Address }</div>
 												}
 												if w.Phone != "" {
 													<div class="text-xs text-muted tabular-nums mt-1">{ w.Phone }</div>
@@ -185,7 +185,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 								@components.IconBuilding("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
 								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p>
 							</div>
@@ -196,17 +196,17 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					</div>
 
 					<form method="POST" action="/vendor/warehouses" class="d-flex flex-col gap-4 m-0">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
 							<input type="text" name="name" required class="form-input text-xs font-semibold w-full" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن (اختياري)</label>
 							<input type="text" name="code" class="form-input text-xs font-mono w-full" placeholder="WH-01" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
 							<select name="branch_id" class="form-input text-xs font-semibold w-full">
 								<option value="">بدون فرع محدد (مخزن عام رئيسي)</option>
@@ -223,12 +223,12 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" class="form-input text-xs w-full" placeholder="المنطقة الصناعية، القطعة 14، القاهرة" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
 							<input type="text" name="phone" class="form-input text-xs tabular-nums w-full" placeholder="01012345678" />
 						</div>
@@ -258,7 +258,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							<div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs">
 								@components.IconEdit("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-black text-primary m-0">تعديل بيانات المخزن</h3>
 								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تحديث معلومات وبيانات موقع التخزين</p>
 							</div>
@@ -269,17 +269,17 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					</div>
 
 					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="d-flex flex-col gap-4 m-0">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
 							<input type="text" name="name" x-model="editWh.name" required class="form-input text-xs font-semibold w-full" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن</label>
 							<input type="text" name="code" x-model="editWh.code" class="form-input text-xs font-mono w-full" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
 							<select name="branch_id" x-model="editWh.branch_id" class="form-input text-xs font-semibold w-full">
 								<option value="0">بدون فرع محدد (مخزن رئيسي)</option>
@@ -296,17 +296,17 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" x-model="editWh.address" class="form-input text-xs w-full" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
 							<input type="text" name="phone" x-model="editWh.phone" class="form-input text-xs tabular-nums w-full" />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
 								<input type="checkbox" name="is_active" value="true" x-model="editWh.is_active" class="form-checkbox" />
 								<span>المخزن مفعل ونشط لإدارة المخزون</span>
@@ -449,12 +449,12 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			<!-- Warehouse Header Profile Card -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-start flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-2 flex-wrap">
 							<div class="user-avatar-badge text-xl">
 								@components.IconBuilding("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<div class="d-flex items-center gap-3 flex-wrap">
 									<h1 class="text-2xl font-black text-primary m-0">
 										مخزن { data.Warehouse.Name }
@@ -559,7 +559,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 					<div class="d-grid gap-3 items-end">
 						
 						<!-- Search Query -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1">البحث في أصناف المخزن</label>
 							<div class="position-relative">
 								<input
@@ -573,7 +573,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</div>
 
 						<!-- Stock Status Filter -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الرصيد</label>
 							<select name="stock_status" class="form-select text-xs w-full">
 								<option value="all" selected?={ data.Filter.StockStatus == "" || data.Filter.StockStatus == "all" }>كافة الأرصدة</option>
@@ -584,7 +584,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</div>
 
 						<!-- Expiry Status Filter -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الصلاحية</label>
 							<select name="expiry_status" class="form-select text-xs w-full">
 								<option value="all" selected?={ data.Filter.ExpiryStatus == "" || data.Filter.ExpiryStatus == "all" }>كافة التواريخ</option>
@@ -594,7 +594,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</div>
 
 						<!-- Sort Selector -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1">الترتيب حسب</label>
 							<select name="sort" class="form-select text-xs w-full">
 								<option value="updated_desc" selected?={ data.Filter.Sort == "updated_desc" || data.Filter.Sort == "" }>الأحدث حركة وتحديثاً</option>
@@ -625,7 +625,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			<!-- Inventory Data Table Section -->
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-2">
-					<div>
+     <div class="stack-sm">
 						<h2 class="text-base font-extrabold text-primary m-0">
 							سجل الأرصدة والمخزون الفعلي
 						</h2>
@@ -773,7 +773,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 													0 عبوة (نافد)
 												</div>
 											} else if s.Quantity <= s.MinThreshold {
-												<div>
+            <div class="stack-sm">
 													<span class="badge badge-amber text-xs font-black tabular-nums">
 														{ fmt.Sprintf("%d", s.Quantity) } عبوة
 													</span>
@@ -875,7 +875,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			</div>
 
 			<!-- Quick Stock Adjustment Modal -->
-			<div
+			<div class="stack-sm"
 				x-show="adjustModal"
 				x-cloak
 				@keydown.escape.window="adjustModal = false"
@@ -885,7 +885,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 					class="glass-panel p-6"
 				>
 					<div class="flex-between items-center mb-4 pb-2 border-b">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-black text-primary m-0">
 								تعديل رصيد الصنف بالمخزن
 							</h3>
@@ -908,12 +908,12 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 						<!-- Current vs New Quantity -->
 						<div class="d-grid gap-3" class="grid-cols-2">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-secondary mb-1">الرصيد الحالي بالمخزن</label>
 								<div class="form-input text-center font-black tabular-nums text-muted bg-surface-sunken text-sm flex-center" x-text="adjustStock.qty + ' عبوة'"></div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-brand mb-1">الرصيد الفعلي الجديد <span class="text-danger">*</span></label>
 								<input
 									type="number"
@@ -928,7 +928,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</div>
 
 						<!-- Reason for Adjustment -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1">سبب التسوية / التعديل <span class="text-danger">*</span></label>
 							<select name="reason" class="form-select text-xs w-full" required>
 								<option value="جرد دوري ومطابقة فعلية">جرد دوري ومطابقة فعلية</option>

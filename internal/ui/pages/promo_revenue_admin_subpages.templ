@@ -12,7 +12,7 @@ templ AdminOfferPackagesListPage(lang, dir string) {
 	@layouts.AdminShell("باقات العروض", "offers_packages", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">باقات العروض للموردين</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">تحديد باقات الاشتراك والتثبيت الترويجي المتاحة للموردين</p>
 				</div>
@@ -57,7 +57,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 	@layouts.AdminShell("الرعايات الرسمية للعروض", "offers_packages", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">مراجعة طلبات الرعاية</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
 						اعتماد أو رفض طلبات الرعاية المُقدّمة من الموردين. عند الاعتماد يظهر العنصر في صدارة الكتالوج مع وسم معتمد.
@@ -165,7 +165,7 @@ templ AdminOfferPromotionsPage(lang, dir string) {
 	@layouts.AdminShell("الحملات الترويجية", "offers_packages", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">الحملات الترويجية المخصصة</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">إدارة الحملات الترويجية الموجهة حسب المحافظات والقطاعات الجغرافية</p>
 				</div>
@@ -193,7 +193,7 @@ templ AdminAdsListPage(lang, dir string, ads []*promo.Ad) {
 	@layouts.AdminShell("إدارة الإعلانات والبنرات", "ads", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">الإعلانات والبنرات الترويجية</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">مراجعة واعتماد بنرات الموردين على الصفحة الرئيسية وصفحات الأقسام</p>
 				</div>
@@ -299,7 +299,7 @@ templ AdminAdPlansPage(lang, dir string) {
 	@layouts.AdminShell("خطط وباقات الإعلانات", "ad_plans", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">خطط ومواضع الإعلانات</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">تحديد تسعير ومواضع الإعلانات والبنرات ومدة ظهور كل مساحة ترويجية</p>
 				</div>

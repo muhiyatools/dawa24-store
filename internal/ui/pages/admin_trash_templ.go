@@ -86,7 +86,7 @@ func AdminTrashListPage(models []ModelMetaEntry, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سلة المحذوفات واسترجاع البيانات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة واسترجاع السجلات المحذوفة مؤقتاً (Soft-Deleted) عبر كافة أقسام المنظومة، مع إمكانية الاستعادة الفورية أو الحذف النهائي الموثق أمنياً</p></div></div></div></div><!-- KPI Summary Strip --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي السجلات في السلة</span> <span class=\"text-danger\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سلة المحذوفات واسترجاع البيانات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة واسترجاع السجلات المحذوفة مؤقتاً (Soft-Deleted) عبر كافة أقسام المنظومة، مع إمكانية الاستعادة الفورية أو الحذف النهائي الموثق أمنياً</p></div></div></div></div><!-- KPI Summary Strip --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي السجلات في السلة</span> <span class=\"text-danger\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -364,7 +364,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سلة محذوفات: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سلة محذوفات: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

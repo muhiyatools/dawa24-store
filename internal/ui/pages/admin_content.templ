@@ -52,7 +52,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconFile("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								محتوى الصفحات والأقسام الترويجية ({ fmt.Sprintf("%d", len(blocks)) })
 							</h1>
@@ -113,7 +113,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 					</div>
 
 					<!-- Search Box -->
-					<div>
+     <div class="stack-sm">
 						<input
 							type="text"
 							x-model="searchQuery"
@@ -173,7 +173,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 												}
 											</div>
 											if b.Title.Get("en") != "" {
-												<div dir="ltr">
+												<div class="stack-sm" dir="ltr">
 													{ b.Title.Get("en") }
 												</div>
 											}
@@ -195,11 +195,11 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 										</td>
 										<td>
 											if b.Body.Get("ar") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ b.Body.Get("ar") }
 												</div>
 											} else if b.Body.Get("en") != "" {
-												<div dir="ltr">
+												<div class="stack-sm" dir="ltr">
 													{ b.Body.Get("en") }
 												</div>
 											} else {
@@ -271,7 +271,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 													Title: fmt.Sprintf("تعديل محتوى: %s", b.Key),
 													Size:  "lg",
 												}) {
-													<form method="POST" action="/admin/content">
+													<form class="stack-md" method="POST" action="/admin/content">
 														<input type="hidden" name="id" value={ fmt.Sprintf("%d", b.ID) } />
 														
 														<div class="form-grid-2">
@@ -361,7 +361,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 			Title: "إضافة كتلة محتوى / قسم جديد",
 			Size:  "lg",
 		}) {
-			<form method="POST" action="/admin/content" x-data="{ selectedPreset: '', customKey: '' }">
+			<form class="stack-md" method="POST" action="/admin/content" x-data="{ selectedPreset: '', customKey: '' }">
 				<div class="form-grid-2">
 					<div class="form-group m-0">
 						<label class="form-label">اختيار مفتاح شائع أو كتابة مخصص *</label>

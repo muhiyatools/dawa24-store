@@ -127,7 +127,7 @@ func teamImportContent(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">استيراد فريق العمل والموظفين من ملف Excel</h1><p class=\"text-sm text-secondary m-0 mt-1\">ارفع كشف الموظفين، وحدد ربط الأعمدة، وطابق أدوار وصلاحيات العمل بسهولة وسرعة قبل الإضافة النهائية</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">استيراد فريق العمل والموظفين من ملف Excel</h1><p class=\"text-sm text-secondary m-0 mt-1\">ارفع كشف الموظفين، وحدد ربط الأعمدة، وطابق أدوار وصلاحيات العمل بسهولة وسرعة قبل الإضافة النهائية</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -323,14 +323,14 @@ func teamUploadStage(view TeamImportView) templ.Component {
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"glass-panel p-6 mb-6\"><div class=\"mb-4\"><h2 class=\"text-lg font-black text-primary m-0\">1. اختر أو اسحب ملف الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">ارفع ملف يحتوي على بيانات الموظفين (الاسم، البريد الإلكتروني، رقم الهاتف، الدور أو الوظيفة، الفرع/المخزن) بصيغة Excel (.xlsx, .xls) أو CSV.</p></div><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"glass-panel p-6 mb-6\"><div class=\"mb-4\"><h2 class=\"text-lg font-black text-primary m-0\">1. اختر أو اسحب ملف الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">ارفع ملف يحتوي على بيانات الموظفين (الاسم، البريد الإلكتروني، رقم الهاتف، الدور أو الوظيفة، الفرع/المخزن) بصيغة Excel (.xlsx, .xls) أو CSV.</p></div><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 templ.SafeURL
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL + "/upload"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/team_import_wizard.templ`, Line: 117, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/team_import_wizard.templ`, Line: 117, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -395,7 +395,7 @@ func teamSessionsHistoryCard(view TeamImportView) templ.Component {
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div><h3 class=\"text-sm font-black text-primary m-0\">سجل جلسات الاستيراد</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">يمكنك استئناف الجلسات الجارية أو حذف الجلسات المؤقتة</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الملف</th><th>تاريخ الرفع</th><th class=\"text-center\">عدد الصفوف</th><th class=\"text-center\">المرحلة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div class=\"stack-sm\"><h3 class=\"text-sm font-black text-primary m-0\">سجل جلسات الاستيراد</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">يمكنك استئناف الجلسات الجارية أو حذف الجلسات المؤقتة</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الملف</th><th>تاريخ الرفع</th><th class=\"text-center\">عدد الصفوف</th><th class=\"text-center\">المرحلة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -539,7 +539,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sess := view.Session
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-3 mb-6 pb-4 border-b\"><div><h2 class=\"text-lg font-black text-primary m-0\">2. ربط الأعمدة وتعيين أدوار الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">الملف: <strong>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-3 mb-6 pb-4 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">2. ربط الأعمدة وتعيين أدوار الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">الملف: <strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -591,7 +591,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"stack-lg\"><!-- Column Mapping Section --><div class=\"mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><div class=\"w-6 h-6 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center font-bold text-xs\">أ</div><h3 class=\"text-sm font-black text-primary m-0\">ربط أعمدة ملف الـ Excel بالبيانات</h3></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80\"><!-- Name Column --><div><label class=\"form-label text-xs font-bold\">عمود اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <select name=\"col_name\" class=\"form-select text-xs font-medium\" required><option value=\"-1\">-- اختر العمود --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"stack-lg\"><!-- Column Mapping Section --><div class=\"mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><div class=\"w-6 h-6 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center font-bold text-xs\">أ</div><h3 class=\"text-sm font-black text-primary m-0\">ربط أعمدة ملف الـ Excel بالبيانات</h3></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80\"><!-- Name Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <select name=\"col_name\" class=\"form-select text-xs font-medium\" required><option value=\"-1\">-- اختر العمود --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -637,7 +637,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select></div><!-- Email Column --><div><label class=\"form-label text-xs font-bold\">عمود البريد الإلكتروني <span class=\"text-danger\">*</span></label> <select name=\"col_email\" class=\"form-select text-xs font-medium\" required><option value=\"-1\">-- اختر العمود --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select></div><!-- Email Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود البريد الإلكتروني <span class=\"text-danger\">*</span></label> <select name=\"col_email\" class=\"form-select text-xs font-medium\" required><option value=\"-1\">-- اختر العمود --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -683,7 +683,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></div><!-- Phone Column --><div><label class=\"form-label text-xs font-bold\">عمود رقم الهاتف (اختياري)</label> <select name=\"col_phone\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- غير متوفر في الملف --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></div><!-- Phone Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود رقم الهاتف (اختياري)</label> <select name=\"col_phone\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- غير متوفر في الملف --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -729,7 +729,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></div><!-- Role Column --><div><label class=\"form-label text-xs font-bold\">عمود الدور / الصلاحية (اختياري)</label> <select name=\"col_role\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- غير متوفر (استخدم الدور الافتراضي) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></div><!-- Role Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود الدور / الصلاحية (اختياري)</label> <select name=\"col_role\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- غير متوفر (استخدم الدور الافتراضي) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -775,7 +775,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select></div><!-- Job Title Column --><div><label class=\"form-label text-xs font-bold\">عمود المسمى الوظيفي (اختياري)</label> <select name=\"col_job_title\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- مثل الدور أو فارغ --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select></div><!-- Job Title Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود المسمى الوظيفي (اختياري)</label> <select name=\"col_job_title\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- مثل الدور أو فارغ --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -821,7 +821,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></div><!-- Branch Column --><div><label class=\"form-label text-xs font-bold\">عمود الفرع / المخزن (اختياري)</label> <select name=\"col_branch\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- غير محدد بالملف --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></div><!-- Branch Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود الفرع / المخزن (اختياري)</label> <select name=\"col_branch\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- غير محدد بالملف --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -867,7 +867,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></div><!-- Code Column --><div><label class=\"form-label text-xs font-bold\">عمود كود الموظف (اختياري)</label> <select name=\"col_code\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- توليد تلقائي (EMP-xxx) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></div><!-- Code Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود كود الموظف (اختياري)</label> <select name=\"col_code\" class=\"form-select text-xs font-medium\"><option value=\"-1\">-- توليد تلقائي (EMP-xxx) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -913,7 +913,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</select></div></div></div><!-- Role Matching Section --><div class=\"mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><div class=\"w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 d-flex items-center justify-center font-bold text-xs\">ب</div><div><h3 class=\"text-sm font-black text-primary m-0\">مطابقة الأدوار المكتوبة في ملف الـ Excel بأدوار المنصة</h3><p class=\"text-2xs text-secondary m-0 mt-0.5\">يقوم النظام بمطابقة الأدوار المذكورة بالاسم في الإكسيل تلقائياً بأدوار منشأتك، ويمكنك مراجعة وتعديل أي دور أدناه:</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</select></div></div></div><!-- Role Matching Section --><div class=\"mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><div class=\"w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 d-flex items-center justify-center font-bold text-xs\">ب</div><div class=\"stack-sm\"><h3 class=\"text-sm font-black text-primary m-0\">مطابقة الأدوار المكتوبة في ملف الـ Excel بأدوار المنصة</h3><p class=\"text-2xs text-secondary m-0 mt-0.5\">يقوم النظام بمطابقة الأدوار المذكورة بالاسم في الإكسيل تلقائياً بأدوار منشأتك، ويمكنك مراجعة وتعديل أي دور أدناه:</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -964,7 +964,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</div><div><label class=\"form-label text-2xs text-secondary mb-1\">تعيين الدور بالمنصة:</label> <select name=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</div><div class=\"stack-sm\"><label class=\"form-label text-2xs text-secondary mb-1\">تعيين الدور بالمنصة:</label> <select name=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1033,7 +1033,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<!-- Default Role Selector --><div class=\"p-4 rounded-xl bg-brand-50/40 border border-brand-200/60 d-flex items-center justify-between flex-wrap gap-3\"><div><div class=\"text-xs font-black text-brand-900\">الدور الافتراضي (لأي صفوف لا تحتوي على دور أو مجهولة):</div><div class=\"text-2xs text-brand-700 mt-0.5\">سيتم إسناد هذا الدور لأي موظف لا يحتوي على قيمة محددة في عمود الأدوار</div></div><div class=\"min-w-[220px]\"><select name=\"default_role_id\" class=\"form-select text-xs font-black text-brand-900 border-brand-300\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<!-- Default Role Selector --><div class=\"p-4 rounded-xl bg-brand-50/40 border border-brand-200/60 d-flex items-center justify-between flex-wrap gap-3\"><div class=\"stack-sm\"><div class=\"text-xs font-black text-brand-900\">الدور الافتراضي (لأي صفوف لا تحتوي على دور أو مجهولة):</div><div class=\"text-2xs text-brand-700 mt-0.5\">سيتم إسناد هذا الدور لأي موظف لا يحتوي على قيمة محددة في عمود الأدوار</div></div><div class=\"min-w-[220px]\"><select name=\"default_role_id\" class=\"form-select text-xs font-black text-brand-900 border-brand-300\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1136,7 +1136,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 				existingCount++
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<div class=\"page-container\" x-data=\"{\r\n\t\tfilterTab: 'all',\r\n\t\tsearchQ: '',\r\n\t\tmatches(r) {\r\n\t\t\tconst q = this.searchQ.toLowerCase().trim();\r\n\t\t\tconst matchSearch = !q || (r.name && r.name.toLowerCase().includes(q)) || (r.email && r.email.toLowerCase().includes(q)) || (r.phone && r.phone.includes(q)) || (r.role && r.role.toLowerCase().includes(q));\r\n\t\t\tif (!matchSearch) return false;\r\n\t\t\tif (this.filterTab === 'valid') return r.valid;\r\n\t\t\tif (this.filterTab === 'issues') return !r.valid;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}\"><!-- Review Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0\">3. مراجعة وتأكيد بيانات الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">تحقق من صحة البريد الإلكتروني والأدوار المسندة لكل موظف قبل التأكيد النهائي</p></div><div class=\"d-flex items-center gap-2\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<div class=\"page-container\" x-data=\"{\r\n\t\tfilterTab: 'all',\r\n\t\tsearchQ: '',\r\n\t\tmatches(r) {\r\n\t\t\tconst q = this.searchQ.toLowerCase().trim();\r\n\t\t\tconst matchSearch = !q || (r.name && r.name.toLowerCase().includes(q)) || (r.email && r.email.toLowerCase().includes(q)) || (r.phone && r.phone.includes(q)) || (r.role && r.role.toLowerCase().includes(q));\r\n\t\t\tif (!matchSearch) return false;\r\n\t\t\tif (this.filterTab === 'valid') return r.valid;\r\n\t\t\tif (this.filterTab === 'issues') return !r.valid;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}\"><!-- Review Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">3. مراجعة وتأكيد بيانات الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">تحقق من صحة البريد الإلكتروني والأدوار المسندة لكل موظف قبل التأكيد النهائي</p></div><div class=\"d-flex items-center gap-2\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1157,7 +1157,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</div><div><div class=\"text-2xs text-secondary font-bold\">إجمالي الموظفين بالملف</div><div class=\"text-lg font-black text-primary tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "</div><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold\">إجمالي الموظفين بالملف</div><div class=\"text-lg font-black text-primary tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1178,7 +1178,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div><div><div class=\"text-2xs text-secondary font-bold\">جاهز للإضافة والتفعيل</div><div class=\"text-lg font-black text-emerald-600 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold\">جاهز للإضافة والتفعيل</div><div class=\"text-lg font-black text-emerald-600 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1199,7 +1199,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "</div><div><div class=\"text-2xs text-secondary font-bold\">صفوف بها ملاحظات / تحذيرات</div><div class=\"text-lg font-black text-rose-600 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "</div><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold\">صفوف بها ملاحظات / تحذيرات</div><div class=\"text-lg font-black text-rose-600 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1469,7 +1469,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</tbody></table></div></div><!-- Commit Form Action Bar --><div class=\"glass-panel p-6 d-flex items-center justify-between flex-wrap gap-4\"><div><div class=\"text-xs font-black text-primary\">سيتم إضافة <span class=\"text-emerald-600 font-black\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</tbody></table></div></div><!-- Commit Form Action Bar --><div class=\"glass-panel p-6 d-flex items-center justify-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"text-xs font-black text-primary\">سيتم إضافة <span class=\"text-emerald-600 font-black\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1578,7 +1578,7 @@ func teamCompletedStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 151, "</div><h2 class=\"text-2xl font-black text-primary m-0 mb-2\">تم استيراد الموظفين بنجاح!</h2><p class=\"text-xs text-secondary m-0 mb-6\">تمت معالجة وتفعيل حسابات الموظفين وربطهم بالأدوار والصلاحيات المحددة في المنشأة.</p><div class=\"p-4 rounded-2xl bg-surface-sunken border border-slate-200/80 d-grid grid-cols-3 gap-4 mb-6\"><div><div class=\"text-2xs text-secondary font-bold mb-0.5\">تمت إضافتهم</div><div class=\"text-xl font-black text-emerald-600 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 151, "</div><h2 class=\"text-2xl font-black text-primary m-0 mb-2\">تم استيراد الموظفين بنجاح!</h2><p class=\"text-xs text-secondary m-0 mb-6\">تمت معالجة وتفعيل حسابات الموظفين وربطهم بالأدوار والصلاحيات المحددة في المنشأة.</p><div class=\"p-4 rounded-2xl bg-surface-sunken border border-slate-200/80 d-grid grid-cols-3 gap-4 mb-6\"><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold mb-0.5\">تمت إضافتهم</div><div class=\"text-xl font-black text-emerald-600 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1591,7 +1591,7 @@ func teamCompletedStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 152, "</div></div><div><div class=\"text-2xs text-secondary font-bold mb-0.5\">تم تجاوزهم</div><div class=\"text-xl font-black text-amber-600 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 152, "</div></div><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold mb-0.5\">تم تجاوزهم</div><div class=\"text-xl font-black text-amber-600 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1604,7 +1604,7 @@ func teamCompletedStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 153, "</div></div><div><div class=\"text-2xs text-secondary font-bold mb-0.5\">فشل إضافتهم</div><div class=\"text-xl font-black text-rose-600 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 153, "</div></div><div class=\"stack-sm\"><div class=\"text-2xs text-secondary font-bold mb-0.5\">فشل إضافتهم</div><div class=\"text-xl font-black text-rose-600 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

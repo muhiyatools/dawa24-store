@@ -51,7 +51,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		<!-- Top Banner & Header -->
 		<div class="glass-panel p-6 mb-6">
 			<div class="flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
@@ -134,17 +134,17 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 					ActionURL:   "/suppliers",
 				})
 			} else {
-				<div>
+    <div class="stack-sm">
 					for _, s := range data.Suppliers {
 						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
-							<div>
+       <div class="stack-sm">
 								<!-- Header Strip: Logo, Name, Verified & Status Badge -->
 								<div class="flex-between items-start mb-4 gap-3">
 									<div class="d-flex items-center gap-3">
 										<div class="user-avatar-badge text-lg">
 											@components.IconBuilding("icon-sm")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<h3 class="text-base font-extrabold text-primary m-0 leading-tight">
 												<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.Org.ID)) } class="text-primary text-decoration-none">
 													if s.Org.TradeName.Get(i18n.Lang(lang)) != "" {
@@ -257,25 +257,25 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 
 		<!-- View 2: Interactive Map View -->
 		<div id="suppliers-map-view" class={ templ.KV("d-none", data.ActiveTab != "map") }>
-			<div>
+   <div class="stack-sm">
 				
 				<!-- Map Side Panel: Quick List & Focus -->
 				<div class="card">
-					<div>
-						<h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">
 							مواقع مخازن التوزيع الدوائي
 						</h3>
 						<span>انقر على أي مورد للتركيز عليه على الخريطة</span>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						for idx, s := range data.Suppliers {
 							<div
 								class="map-supplier-item"
 								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%f, %f, %d)", s.Latitude, s.Longitude, idx)} }
 							
 							>
-								<div>
+        <div class="stack-sm">
 									<strong>
 										if s.Org.TradeName.Get(i18n.Lang(lang)) != "" {
 											{ s.Org.TradeName.Get(i18n.Lang(lang)) }
@@ -289,7 +289,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 										<span class="badge badge-slate text-xs">مغلق</span>
 									}
 								</div>
-								<div>
+        <div class="stack-sm">
 									<span>⏱</span>
 									<span>{ s.WorkingHours }</span>
 								</div>
@@ -300,7 +300,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 
 				<!-- Map Container -->
 				<div class="card">
-					<div id="suppliers-leaflet-map"></div>
+					<div class="stack-sm" id="suppliers-leaflet-map"></div>
 				</div>
 
 			</div>
@@ -333,7 +333,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			const statusColor = isOpen ? '#10b981' : '#64748b';
 			return L.divIcon({
 				className: 'custom-map-pin',
-				html: `<div style="background:${statusColor}; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; border:3px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:transform 0.2s;"></div>`,
+				html: `<div class="stack-sm" style="background:${statusColor}; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; border:3px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:transform 0.2s;"></div>`,
 				iconSize: [38, 38],
 				iconAnchor: [19, 38],
 				popupAnchor: [0, -38]
@@ -345,8 +345,8 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				className: 'supplier-active-pin-container',
 				html: `
 					<div class="supplier-active-pin">
-						<div></div>
-						<div>@components.IconBuilding("icon-sm")</div>
+						<div class="stack-sm"></div>
+						<div class="stack-xs text-sm">@components.IconBuilding("icon-sm")</div>
 					</div>
 				`,
 				iconSize: [56, 56],
@@ -389,13 +389,13 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				const marker = L.marker([parseFloat(s.lat), parseFloat(s.lng)], { icon: customIcon }).addTo(mapInstance);
 
 				const linkHtml = '<a href="/suppliers/' + s.id + '">عرض الكتالوج والطلب ↗</a>';
-				const popupContent = '<div>' +
-					'<div><span></span> ' + s.name + '</div>' +
-					'<div><span>' + statusText + '</span></div>' +
-					'<div>⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
-					'<div><strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
-					(s.address ? '<div>' + s.address + '</div>' : '') +
-					'<div>' + linkHtml + '</div>' +
+				const popupContent = '<div class="stack-sm">' +
+					'<div class="stack-sm"><span></span> ' + s.name + '</div>' +
+					'<div class="stack-sm"><span>' + statusText + '</span></div>' +
+					'<div class="stack-sm">⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
+					'<div class="stack-sm"><strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
+					(s.address ? '<div class="stack-xs text-sm">' + s.address + '</div>' : '') +
+					'<div class="stack-xs text-sm">' + linkHtml + '</div>' +
 				'</div>';
 
 				marker.bindPopup(popupContent);

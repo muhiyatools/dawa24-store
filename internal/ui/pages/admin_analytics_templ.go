@@ -49,7 +49,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -282,7 +282,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>الأجهزة والمتصفحات</span></h3></div><div class=\"d-flex flex-col gap-4 text-xs\"><!-- Device --><div><div class=\"text-muted font-bold mb-2\">نوع الجهاز:</div><div class=\"d-flex gap-2 flex-wrap\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>الأجهزة والمتصفحات</span></h3></div><div class=\"d-flex flex-col gap-4 text-xs\"><!-- Device --><div class=\"stack-sm\"><div class=\"text-muted font-bold mb-2\">نوع الجهاز:</div><div class=\"d-flex gap-2 flex-wrap\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -318,7 +318,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div><!-- OS --><div><div class=\"text-muted font-bold mb-2\">نظام التشغيل:</div><div class=\"d-flex gap-2 flex-wrap\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div><!-- OS --><div class=\"stack-sm\"><div class=\"text-muted font-bold mb-2\">نظام التشغيل:</div><div class=\"d-flex gap-2 flex-wrap\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -354,7 +354,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div><!-- Browser --><div><div class=\"text-muted font-bold mb-2\">المتصفح:</div><div class=\"d-flex gap-2 flex-wrap\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div><!-- Browser --><div class=\"stack-sm\"><div class=\"text-muted font-bold mb-2\">المتصفح:</div><div class=\"d-flex gap-2 flex-wrap\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -390,7 +390,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></div></div></div></div><!-- 3. Recent Visits Table --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">أحدث الزيارات المسجلة على المنصة</h3><p class=\"text-xs text-secondary m-0 mt-1\">سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول</p></div><span class=\"badge badge-emerald text-xs font-bold\">محدّث لحظياً</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></div></div></div></div><!-- 3. Recent Visits Table --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">أحدث الزيارات المسجلة على المنصة</h3><p class=\"text-xs text-secondary m-0 mt-1\">سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول</p></div><span class=\"badge badge-emerald text-xs font-bold\">محدّث لحظياً</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

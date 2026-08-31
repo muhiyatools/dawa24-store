@@ -108,7 +108,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"d-flex flex-col gap-6 w-full\" x-data=\"{\n\t\t\tisCheckoutOpen: false,\n\t\t\tselectedPlanSlug: '',\n\t\t\tselectedPlanName: '',\n\t\t\tselectedPlanMonthMinor: 0,\n\t\t\tselectedPlanYearMinor: 0,\n\t\t\tplanBillingPeriod: 'monthly',\n\t\t\tautoRenew: true,\n\t\t\twalletBalanceMinor: 0,\n\t\t\topenCheckout(slug, name, monthMinor, yearMinor) {\n\t\t\t\tthis.selectedPlanSlug = slug;\n\t\t\t\tthis.selectedPlanName = name;\n\t\t\t\tthis.selectedPlanMonthMinor = Number(monthMinor) || 0;\n\t\t\t\tthis.selectedPlanYearMinor = Number(yearMinor) || 0;\n\t\t\t\tthis.autoRenew = true;\n\t\t\t\tthis.isCheckoutOpen = true;\n\t\t\t},\n\t\t\tget currentCostMinor() {\n\t\t\t\treturn this.planBillingPeriod === 'annual' ? this.selectedPlanYearMinor : this.selectedPlanMonthMinor;\n\t\t\t},\n\t\t\tget currentCostFormatted() {\n\t\t\t\treturn (this.currentCostMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';\n\t\t\t},\n\t\t\tget hasSufficientBalance() {\n\t\t\t\treturn this.walletBalanceMinor >= this.currentCostMinor;\n\t\t\t},\n\t\t\tget remainingBalanceFormatted() {\n\t\t\t\tconst rem = (this.walletBalanceMinor - this.currentCostMinor) / 100;\n\t\t\t\treturn rem.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';\n\t\t\t}\n\t\t}\" x-init=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"d-flex flex-col gap-6 w-full\" x-data=\"{\r\n\t\t\tisCheckoutOpen: false,\r\n\t\t\tselectedPlanSlug: '',\r\n\t\t\tselectedPlanName: '',\r\n\t\t\tselectedPlanMonthMinor: 0,\r\n\t\t\tselectedPlanYearMinor: 0,\r\n\t\t\tplanBillingPeriod: 'monthly',\r\n\t\t\tautoRenew: true,\r\n\t\t\twalletBalanceMinor: 0,\r\n\t\t\topenCheckout(slug, name, monthMinor, yearMinor) {\r\n\t\t\t\tthis.selectedPlanSlug = slug;\r\n\t\t\t\tthis.selectedPlanName = name;\r\n\t\t\t\tthis.selectedPlanMonthMinor = Number(monthMinor) || 0;\r\n\t\t\t\tthis.selectedPlanYearMinor = Number(yearMinor) || 0;\r\n\t\t\t\tthis.autoRenew = true;\r\n\t\t\t\tthis.isCheckoutOpen = true;\r\n\t\t\t},\r\n\t\t\tget currentCostMinor() {\r\n\t\t\t\treturn this.planBillingPeriod === 'annual' ? this.selectedPlanYearMinor : this.selectedPlanMonthMinor;\r\n\t\t\t},\r\n\t\t\tget currentCostFormatted() {\r\n\t\t\t\treturn (this.currentCostMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';\r\n\t\t\t},\r\n\t\t\tget hasSufficientBalance() {\r\n\t\t\t\treturn this.walletBalanceMinor >= this.currentCostMinor;\r\n\t\t\t},\r\n\t\t\tget remainingBalanceFormatted() {\r\n\t\t\t\tconst rem = (this.walletBalanceMinor - this.currentCostMinor) / 100;\r\n\t\t\t\treturn rem.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';\r\n\t\t\t}\r\n\t\t}\" x-init=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -187,7 +187,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Page Header & Wallet Summary --><div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2.5 mb-1.5\"><div class=\"w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Page Header & Wallet Summary --><div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2.5 mb-1.5\"><div class=\"w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -195,7 +195,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">الاشتراك وإدارة خطط العضوية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">متابعة باقتك المعتمدة، ترقية العضوية، الدفع المباشر من المحفظة، وحدود الذكاء الاصطناعي</p></div></div></div><div class=\"d-flex items-center gap-3\"><div class=\"stat-card-3d p-3 px-4 border border-slate-200/80 rounded-xl bg-surface-sunken\"><div class=\"stat-card-label text-xs font-bold text-muted\">رصيد محفظتك المتاح</div><div class=\"text-lg font-black text-primary tabular-nums mt-0.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">الاشتراك وإدارة خطط العضوية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">متابعة باقتك المعتمدة، ترقية العضوية، الدفع المباشر من المحفظة، وحدود الذكاء الاصطناعي</p></div></div></div><div class=\"d-flex items-center gap-3\"><div class=\"stat-card-3d p-3 px-4 border border-slate-200/80 rounded-xl bg-surface-sunken\"><div class=\"stat-card-label text-xs font-bold text-muted\">رصيد محفظتك المتاح</div><div class=\"text-lg font-black text-primary tabular-nums mt-0.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -247,7 +247,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div><h2 class=\"text-base font-extrabold text-primary m-0\">باقتك الحالية المفعّلة</h2><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">الحدود والكوتا المطبقة على حساب منشأتك بالكامل</p></div></div><div class=\"d-flex items-center gap-2 flex-wrap\"><span class=\"badge badge-emerald text-xs font-bold shadow-2xs d-inline-flex items-center gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"stack-sm\"><h2 class=\"text-base font-extrabold text-primary m-0\">باقتك الحالية المفعّلة</h2><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">الحدود والكوتا المطبقة على حساب منشأتك بالكامل</p></div></div><div class=\"d-flex items-center gap-2 flex-wrap\"><span class=\"badge badge-emerald text-xs font-bold shadow-2xs d-inline-flex items-center gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -359,7 +359,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"text-xs text-muted mt-1\">الحد الأقصى للأجهزة المتزامنة</div></div><!-- AI Gateway Budget & Usage --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><div class=\"flex-between items-center mb-1\"><span class=\"stat-card-label text-brand font-black\">بوابة الذكاء الاصطناعي</span> <span class=\"badge badge-sky text-xs font-bold font-mono\" dir=\"ltr\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"text-xs text-muted mt-1\">الحد الأقصى للأجهزة المتزامنة</div></div><!-- AI Gateway Budget & Usage --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div class=\"stack-sm\"><div class=\"flex-between items-center mb-1\"><span class=\"stat-card-label text-brand font-black\">بوابة الذكاء الاصطناعي</span> <span class=\"badge badge-sky text-xs font-bold font-mono\" dir=\"ltr\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -475,7 +475,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<!-- Plans Section with Period Switcher --><div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs\"><!-- Section Header & Billing Period Switcher --><div class=\"flex-between items-center flex-wrap gap-4 mb-6 pb-4 border-b border-slate-100\"><div><h2 class=\"text-lg font-black text-primary m-0\">باقات وعضويات المنظومة المتاحة</h2><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اختر الباقة المناسبة لحجم أعمالك، مع إمكانية الترقية الفورية والدفع المباشر من المحفظة</p></div><!-- Billing Switcher --><div class=\"d-inline-flex p-1 rounded-xl bg-slate-100/90 border border-slate-200/80 items-center\"><button type=\"button\" @click=\"planBillingPeriod = 'monthly'\" class=\"px-4 py-1.5 rounded-lg text-xs font-black transition-all\" :class=\"planBillingPeriod === 'monthly' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-primary'\">شهرياً</button> <button type=\"button\" @click=\"planBillingPeriod = 'annual'\" class=\"px-4 py-1.5 rounded-lg text-xs font-black transition-all d-flex items-center gap-1.5\" :class=\"planBillingPeriod === 'annual' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-primary'\"><span>سنوياً</span> <span class=\"badge badge-emerald font-extrabold text-2xs py-0.5 px-1.5\">وفر شهرين مجاناً</span></button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<!-- Plans Section with Period Switcher --><div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs\"><!-- Section Header & Billing Period Switcher --><div class=\"flex-between items-center flex-wrap gap-4 mb-6 pb-4 border-b border-slate-100\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">باقات وعضويات المنظومة المتاحة</h2><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اختر الباقة المناسبة لحجم أعمالك، مع إمكانية الترقية الفورية والدفع المباشر من المحفظة</p></div><!-- Billing Switcher --><div class=\"d-inline-flex p-1 rounded-xl bg-slate-100/90 border border-slate-200/80 items-center\"><button type=\"button\" @click=\"planBillingPeriod = 'monthly'\" class=\"px-4 py-1.5 rounded-lg text-xs font-black transition-all\" :class=\"planBillingPeriod === 'monthly' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-primary'\">شهرياً</button> <button type=\"button\" @click=\"planBillingPeriod = 'annual'\" class=\"px-4 py-1.5 rounded-lg text-xs font-black transition-all d-flex items-center gap-1.5\" :class=\"planBillingPeriod === 'annual' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-primary'\"><span>سنوياً</span> <span class=\"badge badge-emerald font-extrabold text-2xs py-0.5 px-1.5\">وفر شهرين مجاناً</span></button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -485,7 +485,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Horizontal Grid of Modern Pricing Cards --> <div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Horizontal Grid of Modern Pricing Cards --> <div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -529,7 +529,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div><!-- Plan Title & Badge --><div class=\"flex-between items-start mb-2\"><div><h3 class=\"text-lg font-black text-primary m-0\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"stack-sm\"><!-- Plan Title & Badge --><div class=\"flex-between items-start mb-2\"><div class=\"stack-sm\"><h3 class=\"text-lg font-black text-primary m-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -578,7 +578,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</p><!-- Price Display with Dynamic Monthly/Annual View --><div class=\"p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-5\"><!-- Monthly Price View --><div x-show=\"planBillingPeriod === 'monthly'\" class=\"flex-between items-baseline\"><div><span class=\"text-2xl font-black text-brand tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</p><!-- Price Display with Dynamic Monthly/Annual View --><div class=\"p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-5\"><!-- Monthly Price View --><div x-show=\"planBillingPeriod === 'monthly'\" class=\"flex-between items-baseline\"><div class=\"stack-sm\"><span class=\"text-2xl font-black text-brand tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -586,7 +586,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</span> <span class=\"text-xs text-muted ms-1 font-semibold\">/ شهر</span></div><span class=\"text-2xs text-secondary font-medium\">فوترة شهرية</span></div><!-- Annual Price View --><div x-show=\"planBillingPeriod === 'annual'\" class=\"flex-between items-baseline\"><div><span class=\"text-2xl font-black text-emerald-600 tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</span> <span class=\"text-xs text-muted ms-1 font-semibold\">/ شهر</span></div><span class=\"text-2xs text-secondary font-medium\">فوترة شهرية</span></div><!-- Annual Price View --><div x-show=\"planBillingPeriod === 'annual'\" class=\"flex-between items-baseline\"><div class=\"stack-sm\"><span class=\"text-2xl font-black text-emerald-600 tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -865,7 +865,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" class=\"m-0 d-flex flex-col gap-4\"><input type=\"hidden\" name=\"plan_slug\" :value=\"selectedPlanSlug\"><!-- Billing Cycle Choice in Modal --><div><label class=\"form-label font-bold text-xs mb-2 d-block text-primary\">دورة الفوترة والتجديد:</label><div class=\"d-grid gap-2 grid-cols-1 md:grid-cols-2\"><!-- Monthly Radio --><label class=\"p-3 rounded-xl border cursor-pointer d-flex flex-col gap-1 transition-all\" :class=\"planBillingPeriod === 'monthly' ? 'bg-brand-50/50 border-brand-500 shadow-2xs' : 'bg-surface-sunken border-slate-200/80'\"><div class=\"flex-between items-center\"><span class=\"font-bold text-xs text-primary\">اشتراك شهري</span> <input type=\"radio\" name=\"billing_cycle\" value=\"monthly\" x-model=\"planBillingPeriod\" class=\"form-check-input\"></div><div class=\"text-sm font-black text-primary tabular-nums mt-1\" x-text=\"(selectedPlanMonthMinor / 100).toLocaleString('en-US', {minimumFractionDigits:2}) + ' ج.م / شهر'\"></div></label><!-- Annual Radio --><label class=\"p-3 rounded-xl border cursor-pointer d-flex flex-col gap-1 transition-all\" :class=\"planBillingPeriod === 'annual' ? 'bg-brand-50/50 border-brand-500 shadow-2xs' : 'bg-surface-sunken border-slate-200/80'\"><div class=\"flex-between items-center\"><span class=\"font-bold text-xs text-primary\">اشتراك سنوي</span> <input type=\"radio\" name=\"billing_cycle\" value=\"annual\" x-model=\"planBillingPeriod\" class=\"form-check-input\"></div><div class=\"text-sm font-black text-primary tabular-nums mt-1\" x-text=\"(selectedPlanYearMinor / 100).toLocaleString('en-US', {minimumFractionDigits:2}) + ' ج.م / سنة'\"></div><span class=\"badge badge-emerald font-extrabold text-2xs mt-1\">وفر شهرين مجاناً</span></label></div></div><!-- Wallet Balance & Summary Breakdown --><div class=\"p-4 rounded-xl bg-surface-sunken border border-slate-200/80\"><div class=\"flex-between items-center text-xs text-secondary mb-2 font-medium\"><span>المبلغ الإجمالي المستحق:</span> <strong class=\"text-base font-black text-primary tabular-nums\" x-text=\"currentCostFormatted\"></strong></div><div class=\"flex-between items-center text-xs text-secondary mb-2 font-medium\"><span>رصيدك المتاح في المحفظة:</span> <strong class=\"text-sm font-bold text-brand tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" class=\"m-0 d-flex flex-col gap-4\"><input type=\"hidden\" name=\"plan_slug\" :value=\"selectedPlanSlug\"><!-- Billing Cycle Choice in Modal --><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs mb-2 d-block text-primary\">دورة الفوترة والتجديد:</label><div class=\"d-grid gap-2 grid-cols-1 md:grid-cols-2\"><!-- Monthly Radio --><label class=\"p-3 rounded-xl border cursor-pointer d-flex flex-col gap-1 transition-all\" :class=\"planBillingPeriod === 'monthly' ? 'bg-brand-50/50 border-brand-500 shadow-2xs' : 'bg-surface-sunken border-slate-200/80'\"><div class=\"flex-between items-center\"><span class=\"font-bold text-xs text-primary\">اشتراك شهري</span> <input type=\"radio\" name=\"billing_cycle\" value=\"monthly\" x-model=\"planBillingPeriod\" class=\"form-check-input\"></div><div class=\"text-sm font-black text-primary tabular-nums mt-1\" x-text=\"(selectedPlanMonthMinor / 100).toLocaleString('en-US', {minimumFractionDigits:2}) + ' ج.م / شهر'\"></div></label><!-- Annual Radio --><label class=\"p-3 rounded-xl border cursor-pointer d-flex flex-col gap-1 transition-all\" :class=\"planBillingPeriod === 'annual' ? 'bg-brand-50/50 border-brand-500 shadow-2xs' : 'bg-surface-sunken border-slate-200/80'\"><div class=\"flex-between items-center\"><span class=\"font-bold text-xs text-primary\">اشتراك سنوي</span> <input type=\"radio\" name=\"billing_cycle\" value=\"annual\" x-model=\"planBillingPeriod\" class=\"form-check-input\"></div><div class=\"text-sm font-black text-primary tabular-nums mt-1\" x-text=\"(selectedPlanYearMinor / 100).toLocaleString('en-US', {minimumFractionDigits:2}) + ' ج.م / سنة'\"></div><span class=\"badge badge-emerald font-extrabold text-2xs mt-1\">وفر شهرين مجاناً</span></label></div></div><!-- Wallet Balance & Summary Breakdown --><div class=\"p-4 rounded-xl bg-surface-sunken border border-slate-200/80\"><div class=\"flex-between items-center text-xs text-secondary mb-2 font-medium\"><span>المبلغ الإجمالي المستحق:</span> <strong class=\"text-base font-black text-primary tabular-nums\" x-text=\"currentCostFormatted\"></strong></div><div class=\"flex-between items-center text-xs text-secondary mb-2 font-medium\"><span>رصيدك المتاح في المحفظة:</span> <strong class=\"text-sm font-bold text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

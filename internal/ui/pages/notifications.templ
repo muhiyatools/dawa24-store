@@ -33,7 +33,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 					<div class="user-avatar-badge">
 						@components.IconBell("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2.5 mb-1">
 							<h1 class="text-2xl font-black text-primary m-0">
 								مركز الإشعارات والتنبيهات
@@ -110,7 +110,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 		</div>
 
 		<!-- 3. Notifications List Area -->
-		<div id="notifications-list">
+		<div class="stack-sm" id="notifications-list">
 			@NotificationsList(logs)
 		</div>
 	</div>

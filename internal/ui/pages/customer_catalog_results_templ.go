@@ -139,7 +139,7 @@ func CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><div><!-- Top Visual Media Box --><div class=\"product-card-media position-relative rounded-xl overflow-hidden bg-slate-50 border border-slate-100\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><div class=\"stack-sm\"><!-- Top Visual Media Box --><div class=\"product-card-media position-relative rounded-xl overflow-hidden bg-slate-50 border border-slate-100\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -452,7 +452,7 @@ func CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></div><!-- Stock & Expiry --><div class=\"product-card-stock-row flex-between text-xs mb-3 font-semibold\"><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></div><!-- Stock & Expiry --><div class=\"product-card-stock-row flex-between text-xs mb-3 font-semibold\"><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -503,7 +503,7 @@ func CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><!-- Pricing & Action Footer --><div class=\"product-card-pricing-footer border-t border-slate-100 pt-3 mt-auto\"><div class=\"product-card-price-row flex-between items-baseline mb-2.5\"><div><span class=\"text-xs text-secondary font-bold d-block\">سعر التوريد:</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><!-- Pricing & Action Footer --><div class=\"product-card-pricing-footer border-t border-slate-100 pt-3 mt-auto\"><div class=\"product-card-price-row flex-between items-baseline mb-2.5\"><div class=\"stack-sm\"><span class=\"text-xs text-secondary font-bold d-block\">سعر التوريد:</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -573,7 +573,7 @@ func CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) templ.Com
 				return templ_7745c5c3_Err
 			}
 			if v.CanAddToCart {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div onclick=\"event.stopPropagation();\"><form method=\"POST\" action=\"/cart/add\" class=\"product-card-actions-row d-flex items-center gap-1.5 m-0\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"stack-sm\" onclick=\"event.stopPropagation();\"><form method=\"POST\" action=\"/cart/add\" class=\"product-card-actions-row d-flex items-center gap-1.5 m-0\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1149,7 +1149,7 @@ func CustomerCatalogTable(variants []*SupplierVariantCard, lang string) templ.Co
 				return templ_7745c5c3_Err
 			}
 			if v.PublicPrice.IsPositive() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "<div class=\"stack-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1167,7 +1167,7 @@ func CustomerCatalogTable(variants []*SupplierVariantCard, lang string) templ.Co
 					return templ_7745c5c3_Err
 				}
 			} else if v.OriginalPrice.IsPositive() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<div class=\"stack-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1185,7 +1185,7 @@ func CustomerCatalogTable(variants []*SupplierVariantCard, lang string) templ.Co
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<div class=\"stack-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1781,7 +1781,7 @@ func CustomerNegotiationModal() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "<form method=\"POST\" action=\"/customer/negotiate-order\" id=\"negotiation-form\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"variant_id\" id=\"neg-variant-id\"> <input type=\"hidden\" name=\"vendor_org_id\" id=\"neg-vendor-id\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-surface-sunken p-3.5 rounded-xl border border-slate-200/80\"><div class=\"text-xs text-muted font-bold\">الصنف الدوائي المختار:</div><div class=\"text-sm font-black text-primary mt-0.5\" id=\"neg-product-name\">-</div><div class=\"text-xs text-secondary mt-1 font-semibold\">سعر التوريد الحالي المعلن: <strong id=\"neg-current-price\" class=\"tabular-nums text-primary font-black\">-</strong> ج.م</div></div><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label font-bold text-primary text-xs mb-1.5 d-block\">السعر المقترح للعبوة (ج.م) *</label> <input type=\"number\" step=\"0.01\" min=\"0.01\" name=\"proposed_price\" id=\"neg-proposed-price\" required placeholder=\"0.00\" class=\"form-input tabular-nums font-black text-sm w-full\"></div><div><label class=\"form-label font-bold text-primary text-xs mb-1.5 d-block\">الكمية المطلوبة (عبوة) *</label> <input type=\"number\" min=\"1\" name=\"qty\" id=\"neg-qty\" value=\"1\" required class=\"form-input tabular-nums font-black text-sm w-full\"></div></div><div><label class=\"form-label font-bold text-primary text-xs mb-1.5 d-block\">ملاحظات إضافية للمورّد (اختياري)</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد...\" class=\"form-input text-xs w-full\"></textarea></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold text-xs\" onclick=\"closeNegotiationModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-black text-xs px-4 shadow-sm\">إرسال طلب التفاوض للمورّد</button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "<form method=\"POST\" action=\"/customer/negotiate-order\" id=\"negotiation-form\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"variant_id\" id=\"neg-variant-id\"> <input type=\"hidden\" name=\"vendor_org_id\" id=\"neg-vendor-id\"><div class=\"d-flex flex-col gap-3\"><div class=\"bg-surface-sunken p-3.5 rounded-xl border border-slate-200/80\"><div class=\"text-xs text-muted font-bold\">الصنف الدوائي المختار:</div><div class=\"text-sm font-black text-primary mt-0.5\" id=\"neg-product-name\">-</div><div class=\"text-xs text-secondary mt-1 font-semibold\">سعر التوريد الحالي المعلن: <strong id=\"neg-current-price\" class=\"tabular-nums text-primary font-black\">-</strong> ج.م</div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label font-bold text-primary text-xs mb-1.5 d-block\">السعر المقترح للعبوة (ج.م) *</label> <input type=\"number\" step=\"0.01\" min=\"0.01\" name=\"proposed_price\" id=\"neg-proposed-price\" required placeholder=\"0.00\" class=\"form-input tabular-nums font-black text-sm w-full\"></div><div class=\"stack-sm\"><label class=\"form-label font-bold text-primary text-xs mb-1.5 d-block\">الكمية المطلوبة (عبوة) *</label> <input type=\"number\" min=\"1\" name=\"qty\" id=\"neg-qty\" value=\"1\" required class=\"form-input tabular-nums font-black text-sm w-full\"></div></div><div class=\"stack-sm\"><label class=\"form-label font-bold text-primary text-xs mb-1.5 d-block\">ملاحظات إضافية للمورّد (اختياري)</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد...\" class=\"form-input text-xs w-full\"></textarea></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold text-xs\" onclick=\"closeNegotiationModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-black text-xs px-4 shadow-sm\">إرسال طلب التفاوض للمورّد</button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1797,7 +1797,7 @@ func CustomerNegotiationModal() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "<script>\n\t\tfunction triggerNegotiationModal(btn) {\n\t\t\topenNegotiationModal({\n\t\t\t\tvariant_id: btn.getAttribute('data-variant-id'),\n\t\t\t\tproduct_id: btn.getAttribute('data-product-id'),\n\t\t\t\tvendor_org_id: btn.getAttribute('data-vendor-id'),\n\t\t\t\tname: btn.getAttribute('data-product-name'),\n\t\t\t\tcurrent_price: btn.getAttribute('data-current-price'),\n\t\t\t\tmin_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)\n\t\t\t});\n\t\t}\n\t\tfunction openNegotiationModal(data) {\n\t\t\tdocument.getElementById('neg-variant-id').value = data.variant_id || '';\n\t\t\tdocument.getElementById('neg-vendor-id').value = data.vendor_org_id || '';\n\t\t\tdocument.getElementById('neg-product-name').innerText = data.name || 'صنف دوائي';\n\t\t\tdocument.getElementById('neg-current-price').innerText = data.current_price || '0.00';\n\t\t\tdocument.getElementById('neg-qty').value = data.min_qty || 1;\n\t\t\tdocument.getElementById('neg-proposed-price').value = data.current_price || '';\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.showModal === 'function') {\n\t\t\t\tm.showModal();\n\t\t\t}\n\t\t}\n\t\tfunction closeNegotiationModal() {\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.close === 'function') {\n\t\t\t\tm.close();\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "<script>\r\n\t\tfunction triggerNegotiationModal(btn) {\r\n\t\t\topenNegotiationModal({\r\n\t\t\t\tvariant_id: btn.getAttribute('data-variant-id'),\r\n\t\t\t\tproduct_id: btn.getAttribute('data-product-id'),\r\n\t\t\t\tvendor_org_id: btn.getAttribute('data-vendor-id'),\r\n\t\t\t\tname: btn.getAttribute('data-product-name'),\r\n\t\t\t\tcurrent_price: btn.getAttribute('data-current-price'),\r\n\t\t\t\tmin_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)\r\n\t\t\t});\r\n\t\t}\r\n\t\tfunction openNegotiationModal(data) {\r\n\t\t\tdocument.getElementById('neg-variant-id').value = data.variant_id || '';\r\n\t\t\tdocument.getElementById('neg-vendor-id').value = data.vendor_org_id || '';\r\n\t\t\tdocument.getElementById('neg-product-name').innerText = data.name || 'صنف دوائي';\r\n\t\t\tdocument.getElementById('neg-current-price').innerText = data.current_price || '0.00';\r\n\t\t\tdocument.getElementById('neg-qty').value = data.min_qty || 1;\r\n\t\t\tdocument.getElementById('neg-proposed-price').value = data.current_price || '';\r\n\t\t\tconst m = document.getElementById('negotiation-modal');\r\n\t\t\tif (m && typeof m.showModal === 'function') {\r\n\t\t\t\tm.showModal();\r\n\t\t\t}\r\n\t\t}\r\n\t\tfunction closeNegotiationModal() {\r\n\t\t\tconst m = document.getElementById('negotiation-modal');\r\n\t\t\tif (m && typeof m.close === 'function') {\r\n\t\t\t\tm.close();\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

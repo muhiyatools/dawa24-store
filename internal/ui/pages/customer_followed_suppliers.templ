@@ -13,17 +13,17 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 		<div class="followed-suppliers-container">
 			
 			<!-- Page Header -->
-			<div>
-				<div>
-					<div>
-						<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
+     <div class="stack-sm">
+						<div class="stack-xs text-sm">
 							@components.IconBuilding("icon-xs")
 						</div>
-						<h2>
+						<h2 class="card-title font-bold text-base m-0">
 							الموردون المتابعون
 						</h2>
 					</div>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.
 					</p>
 				</div>
@@ -41,21 +41,21 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 					ActionLabel: "تصفح دليل الموردين المعتمدين",
 				})
 			} else {
-				<div>
+    <div class="stack-sm">
 					for _, s := range suppliers {
 						<div class="card">
-							<div>
+       <div class="stack-sm">
 								<!-- Header with Emblem and Verified Badge -->
-								<div>
+        <div class="stack-sm">
 									<div class="row-center">
-										<div>
+										<div class="stack-xs text-sm">
 											@components.IconBuilding("icon-md")
 										</div>
-										<div>
-											<h3>
+          <div class="stack-sm">
+											<h3 class="font-bold text-sm m-0">
 												{ s.TradeName.Get(i18n.Lang(lang)) }
 											</h3>
-											<div>
+           <div class="stack-sm">
 												<span class="badge badge-emerald">مورد معتمد</span>
 											</div>
 										</div>
@@ -69,15 +69,15 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 								</div>
 
 								<!-- Legal Info -->
-								<div>
+        <div class="stack-sm">
 									if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
-										<div>
+          <div class="stack-sm">
 											<span class="text-muted">الاسم القانوني:</span>
 											<strong class="text-primary">{ s.LegalName }</strong>
 										</div>
 									}
 									if s.CommercialRegister != "" {
-										<div>
+          <div class="stack-sm">
 											<span class="text-muted">السجل التجاري:</span>
 											<strong class="tabular-nums text-primary">{ s.CommercialRegister }</strong>
 										</div>
@@ -86,7 +86,7 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 							</div>
 
 							<!-- Bottom Actions -->
-							<div>
+       <div class="stack-sm">
 								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm">
 									@components.IconPackage("icon-xs")
 									<span>عرض الكتالوج والطلب</span>

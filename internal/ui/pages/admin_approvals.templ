@@ -20,7 +20,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconShield("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								اعتماد المنشآت والوثائق الرسمية
 							</h1>
@@ -163,7 +163,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 // -------------------------------------------------------------
 templ AdminApprovalsOrgTab(data *AdminApprovalsData) {
 	<div class="flex-between items-center mb-5 gap-4 flex-wrap">
-		<div>
+  <div class="stack-sm">
 			<h3 class="text-lg fw-800 text-primary m-0">
 				طلبات تسجيل واعتماد المنشآت
 			</h3>
@@ -296,35 +296,35 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 									}) {
 										<div class="d-flex flex-col gap-5 text-start">
 											<div class="d-grid grid-2-col gap-4 bg-surface-sunken p-5 rounded-2xl border text-sm">
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">الاسم القانوني للمنشأة</span>
 													<strong class="text-primary text-base">{ o.LegalName }</strong>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">نوع الحساب</span>
 													<span class="badge badge-sky">{ orgTypeAr(string(o.Type)) }</span>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">الاسم التجاري (عربي)</span>
 													<strong class="text-primary">{ o.TradeName["ar"] }</strong>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">الاسم التجاري (إنجليزي)</span>
 													<span class="text-primary" dir="ltr">{ o.TradeName["en"] }</span>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">رقم السجل التجاري</span>
 													<strong class="tabular-nums text-primary">{ o.CommercialRegister }</strong>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">الرقم الضريبي</span>
 													<span class="tabular-nums text-primary">{ o.TaxNumber }</span>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">رقم ترخيص المؤسسة الصيدلية</span>
 													<strong class="tabular-nums text-accent">{ o.PharmacistLicense }</strong>
 												</div>
-												<div>
+            <div class="stack-sm">
 													<span class="text-muted d-block text-xs">الحالة الحالية</span>
 													if string(o.Status) == "approved" {
 														<span class="badge badge-emerald">معتمد ونشط</span>
@@ -357,10 +357,10 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } class="d-flex flex-col gap-4 text-start">
 											<div class="bg-surface-sunken p-4 rounded-xl border text-sm">
 												<div class="d-grid grid-2-col gap-3 mb-2">
-													<div><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
-													<div><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
-													<div><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
-													<div><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
+													<div class="stack-sm"><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
+													<div class="stack-sm"><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
+													<div class="stack-sm"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
+													<div class="stack-sm"><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
 												
 												<!-- Document Preview Strip -->
@@ -461,7 +461,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 // -------------------------------------------------------------
 templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 	<div class="flex-between items-center mb-5 gap-4 flex-wrap">
-		<div>
+  <div class="stack-sm">
 			<h3 class="text-lg fw-800 text-primary m-0">
 				تدقيق واعتماد وثائق المنشآت المرفوعة
 			</h3>
@@ -572,7 +572,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												<div class="mb-2">
 													<strong>الملف:</strong> { doc.OriginalName } ({ format.Bytes(doc.SizeBytes) })
 												</div>
-												<div>
+            <div class="stack-sm">
 													<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent">
 														@components.IconFile("icon-xs")
 														<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span>
@@ -640,7 +640,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 // -------------------------------------------------------------
 templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 	<div class="flex-between items-center mb-5 gap-4 flex-wrap">
-		<div>
+  <div class="stack-sm">
 			<h3 class="text-lg fw-800 text-primary m-0">
 				سجل المستندات المطلوبة ومتابعة المهل
 			</h3>
@@ -649,7 +649,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 			</p>
 		</div>
 
-		<div>
+  <div class="stack-sm">
 			<button
 				type="button"
 				class="btn btn-primary btn-sm fw-800 gap-1.5"

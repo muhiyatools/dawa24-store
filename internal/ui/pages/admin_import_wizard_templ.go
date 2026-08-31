@@ -65,7 +65,7 @@ func AdminProductsImportPage(lang, dir string, view ImportConfigureView) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">استيراد وتحديث الكتالوج المركزي العام</h1><p class=\"text-sm text-secondary m-0 mt-1\">معالجة ملفات Excel و CSV، التعرف الذكي على الأعمدة، واستكمال البيانات والأسماء العلمية بالذكاء الاصطناعي</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">استيراد وتحديث الكتالوج المركزي العام</h1><p class=\"text-sm text-secondary m-0 mt-1\">معالجة ملفات Excel و CSV، التعرف الذكي على الأعمدة، واستكمال البيانات والأسماء العلمية بالذكاء الاصطناعي</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -87,7 +87,7 @@ func AdminProductsImportPage(lang, dir string, view ImportConfigureView) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/admin/products/import\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-form\" onsubmit=\"handleImportSubmit()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form class=\"stack-md\" method=\"POST\" action=\"/admin/products/import\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-form\" onsubmit=\"handleImportSubmit()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -735,9 +735,9 @@ func importHistoryCard(sessions []*catalog.ImportSession) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var33 string
-			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(session.CreatedAt.Format("2006-01-02 15:04"))
+			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(session.CreatedAt.Format("2006-01-02 03:04 PM"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_wizard.templ`, Line: 281, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_wizard.templ`, Line: 281, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {

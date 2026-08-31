@@ -56,7 +56,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconPackage("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">العروض وباقات الموردين الخاصة</h1>
 							<p class="text-sm text-secondary m-0 mt-1">مراجعة واعتماد عروض وباقات الأدوية المجمعة المقدمة من الموردين، وإدارة التغطية الجغرافية وأسعار الباقات</p>
 						</div>
@@ -164,16 +164,16 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 									<tr>
 										<!-- Offer Title & Info -->
 										<td>
-											<div>
-												<div>
+           <div class="stack-sm">
+												<div class="stack-xs text-sm">
 													@components.IconPackage("icon-sm")
 												</div>
-												<div>
-													<div>
+            <div class="stack-sm">
+													<div class="stack-xs text-sm">
 														{ o.Title.Get(i18n.Lang(lang)) }
 													</div>
 													if !o.Description.IsEmpty() {
-														<div>
+														<div class="stack-xs text-sm">
 															{ o.Description.Get(i18n.Lang(lang)) }
 														</div>
 													}
@@ -186,7 +186,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 										<!-- Supplier Org & Branch -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												if o.OrganizationName != "" {
 													{ o.OrganizationName }
 												} else {
@@ -194,11 +194,11 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 												}
 											</div>
 											if o.BranchName != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													فرع: { o.BranchName }
 												</div>
 											} else {
-												<div>
+												<div class="stack-xs text-sm">
 													كافة الفروع
 												</div>
 											}
@@ -209,10 +209,10 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 											if len(o.Products) == 0 {
 												<span>عرض عام (بدون باقة مخصصة)</span>
 											} else {
-												<div>
+            <div class="stack-sm">
 													for idx, p := range o.Products {
 														if idx < 3 {
-															<div>
+               <div class="stack-sm">
 																<span class="badge badge-slate" class="tabular-nums">
 																	{ fmt.Sprintf("%dx", p.Quantity) }
 																</span>
@@ -230,7 +230,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 														}
 													}
 													if len(o.Products) > 3 {
-														<div>
+														<div class="stack-xs text-sm">
 															+ { fmt.Sprintf("%d أصناف أخرى", len(o.Products)-3) }
 														</div>
 													}
@@ -274,14 +274,14 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 											if len(o.Locations) == 0 {
 												<span class="badge badge-slate text-xs">تغطية عامة</span>
 											} else {
-												<div>
-													<div>
+            <div class="stack-sm">
+             <div class="stack-sm">
 														@components.IconMapPin("icon-xs")
 														<span>
 															{ fmt.Sprintf("%d مناطق/مدن", len(o.Locations)) }
 														</span>
 													</div>
-													<div>
+             <div class="stack-sm">
 														for idx, loc := range o.Locations {
 															if idx < 2 && loc.CityName != "" {
 																<span>{ loc.CityName }</span>
@@ -297,7 +297,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 										<!-- Status & Moderation Badges -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												<!-- Admin Moderation Status -->
 												if o.AdminStatus == "approved" {
 													<span class="badge badge-emerald text-xs">معتمد من الإدارة</span>

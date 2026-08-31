@@ -38,7 +38,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							}
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-2 mb-1">
 								if p.Status == catalog.StatusActive {
 									<span class="badge badge-emerald text-xs font-bold">نشط ومتاح في السوق</span>
@@ -63,13 +63,13 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 							<div class="d-flex items-center gap-4 flex-wrap text-xs text-muted">
 								if p.SKU != "" {
-									<div>SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
+									<div class="stack-sm">SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
 								}
 								if p.Barcode != "" {
-									<div>باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
+									<div class="stack-sm">باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
 								}
 								if p.ManufacturingCompanies != "" {
-									<div>الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
+									<div class="stack-sm">الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
 								}
 							</div>
 						</div>
@@ -326,7 +326,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 						<div class="user-avatar-badge text-xl">
 							@components.IconPackage("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
 							</h1>

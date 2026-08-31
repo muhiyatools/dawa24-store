@@ -104,7 +104,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						<div class="user-avatar-badge text-2xl">
 							@components.IconPackage("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="text-xs text-muted font-extrabold uppercase mb-1">
 								إدارة عروض المورد
 							</div>
@@ -138,21 +138,21 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							</h3>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								عنوان العرض (بالعربية) <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="title_ar" required placeholder="مثال: خصم 20% على أدوية ومستلزمات الموسم" class="form-input text-xs w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								عنوان العرض (بالإنجليزية)
 							</label>
 							<input type="text" name="title_en" placeholder="e.g. 20% Off Seasonal Medicines" class="form-input text-xs w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								وصف تفاصيل العرض
 							</label>
@@ -160,7 +160,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									الفرع المستهدف
 								</label>
@@ -174,7 +174,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									حالة العرض <span class="text-danger">*</span>
 								</label>
@@ -197,14 +197,14 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									نسبة الخصم العامة %
 								</label>
 								<input type="number" step="0.01" name="discount_percentage" placeholder="15.00" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									السعر الإجمالي الكلي (ج.م)
 								</label>
@@ -213,14 +213,14 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ بدء العرض
 								</label>
 								<input type="date" name="start_date" class="form-input text-xs w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ انتهاء العرض
 								</label>
@@ -228,14 +228,14 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								الحد الأدنى للطلب (ج.م)
 							</label>
 							<input type="number" step="0.01" name="min_order_amount" placeholder="500.00" class="form-input text-xs tabular-nums w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								صورة أو بانر ترويجي للعرض
 							</label>
@@ -247,7 +247,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 				<!-- Section 2: Products Selection & Custom Offer Pricing -->
 				<div class="glass-panel p-6 d-flex flex-col gap-4">
 					<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-2">
 								<span class="text-xl">@components.IconPill("icon-sm")</span>
 								<h3 class="text-lg font-black text-primary m-0">
@@ -298,7 +298,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 								>
 									<div class="d-flex items-center gap-2">
 										<span class="text-base">@components.IconPackage("icon-sm")</span>
-										<div>
+          <div class="stack-sm">
 											<strong class="text-primary font-bold d-block" x-text="item.name_ar || item.name_en || item.sku"></strong>
 											<div class="text-muted text-xs tabular-nums">
 												<span x-text="'SKU: ' + item.sku"></span>

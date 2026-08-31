@@ -46,7 +46,7 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div class=\"glass-panel p-8\" x-data=\"{ useRecovery: false }\"><div><div><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><div class=\"glass-panel p-8\" x-data=\"{ useRecovery: false }\"><div class=\"stack-sm\"><div class=\"stack-sm\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -54,12 +54,12 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><h1>التحقق بخطوتين (MFA)</h1><p>حسابك محمي بالمصادقة الثنائية. يرجى إدخال الرمز من تطبيق Google Authenticator للمتابعة.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><h1 class=\"page-title font-bold text-xl m-0\">التحقق بخطوتين (MFA)</h1><p class=\"text-sm text-secondary m-0\">حسابك محمي بالمصادقة الثنائية. يرجى إدخال الرمز من تطبيق Google Authenticator للمتابعة.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if email != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"stack-xs text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -82,7 +82,7 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 				return templ_7745c5c3_Err
 			}
 			if errorMsg != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"alert alert-danger mb-4\"><div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"alert alert-danger mb-4\"><div class=\"stack-xs text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -90,14 +90,14 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"stack-xs text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/mfa_verify.templ`, Line: 32, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/mfa_verify.templ`, Line: 32, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -108,7 +108,7 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<form method=\"POST\" action=\"/auth/mfa-verify\"><input type=\"hidden\" name=\"redirect\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<form class=\"stack-md\" method=\"POST\" action=\"/auth/mfa-verify\"><input type=\"hidden\" name=\"redirect\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -121,7 +121,7 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><!-- Standard TOTP Code Input --><div class=\"form-group mb-0\" x-show=\"!useRecovery\"><label class=\"form-label\" for=\"mfa-code\">رمز التحقق (6 أرقام)</label> <input type=\"text\" id=\"mfa-code\" name=\"code\" inputmode=\"numeric\" pattern=\"[0-9]*\" maxlength=\"6\" autocomplete=\"one-time-code\" autofocus class=\"form-input text-center tabular-nums font-mono\" placeholder=\"000000\"><p>يتغير الرمز تلقائياً كل 30 ثانية في تطبيق Google Authenticator</p></div><!-- Recovery Code Input --><div class=\"form-group mb-0\" x-show=\"useRecovery\"><label class=\"form-label\" for=\"mfa-recovery-code\">رمز الاسترداد الاحتياطي (Backup Code)</label> <input type=\"text\" id=\"mfa-recovery-code\" name=\"recovery_code\" maxlength=\"12\" autocomplete=\"off\" class=\"form-input text-center font-mono uppercase\" placeholder=\"XXXX-XXXX\"><p>أدخل أحد رموز الاسترداد المكونة من 8 خانات التي حفظتها عند تفعيل MFA</p></div><button type=\"submit\" class=\"btn btn-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><!-- Standard TOTP Code Input --><div class=\"form-group mb-0\" x-show=\"!useRecovery\"><label class=\"form-label\" for=\"mfa-code\">رمز التحقق (6 أرقام)</label> <input type=\"text\" id=\"mfa-code\" name=\"code\" inputmode=\"numeric\" pattern=\"[0-9]*\" maxlength=\"6\" autocomplete=\"one-time-code\" autofocus class=\"form-input text-center tabular-nums font-mono\" placeholder=\"000000\"><p class=\"text-sm text-secondary m-0\">يتغير الرمز تلقائياً كل 30 ثانية في تطبيق Google Authenticator</p></div><!-- Recovery Code Input --><div class=\"form-group mb-0\" x-show=\"useRecovery\"><label class=\"form-label\" for=\"mfa-recovery-code\">رمز الاسترداد الاحتياطي (Backup Code)</label> <input type=\"text\" id=\"mfa-recovery-code\" name=\"recovery_code\" maxlength=\"12\" autocomplete=\"off\" class=\"form-input text-center font-mono uppercase\" placeholder=\"XXXX-XXXX\"><p class=\"text-sm text-secondary m-0\">أدخل أحد رموز الاسترداد المكونة من 8 خانات التي حفظتها عند تفعيل MFA</p></div><button type=\"submit\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -129,7 +129,7 @@ func MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>تأكيد تسجيل الدخول</span></button><!-- Recovery Code Toggle --><div><button type=\"button\" class=\"btn btn-link btn-xs\" x-show=\"!useRecovery\" @click=\"useRecovery = true; $nextTick(() => document.getElementById('mfa-recovery-code')?.focus())\">لا يمكنك الوصول لتطبيق Google Authenticator؟ استخدم رمز الاسترداد</button> <button type=\"button\" class=\"btn btn-link btn-xs\" x-show=\"useRecovery\" @click=\"useRecovery = false; $nextTick(() => document.getElementById('mfa-code')?.focus())\">العودة لإدخال رمز تطبيق Google Authenticator</button></div></form><div><a href=\"/auth/login\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>تأكيد تسجيل الدخول</span></button><!-- Recovery Code Toggle --><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-link btn-xs\" x-show=\"!useRecovery\" @click=\"useRecovery = true; $nextTick(() => document.getElementById('mfa-recovery-code')?.focus())\">لا يمكنك الوصول لتطبيق Google Authenticator؟ استخدم رمز الاسترداد</button> <button type=\"button\" class=\"btn btn-link btn-xs\" x-show=\"useRecovery\" @click=\"useRecovery = false; $nextTick(() => document.getElementById('mfa-code')?.focus())\">العودة لإدخال رمز تطبيق Google Authenticator</button></div></form><div class=\"stack-sm\"><a href=\"/auth/login\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

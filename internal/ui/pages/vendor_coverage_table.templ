@@ -12,7 +12,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 			<!-- Active Weekly Coverages Table & Filters -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
 							<span>@components.IconFileText("icon-sm")</span>
 							<span>سجل نطاقات التغطية والتوزيع المسجلة ({ fmt.Sprintf("%d", len(data.Coverages)) })</span>
@@ -199,7 +199,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 			<!-- Delivery Distance Pricing Bands -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3">
-					<div>
+     <div class="stack-sm">
 						<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
 							<span>@components.IconWallet("icon-sm")</span>
 							<span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span>
@@ -219,15 +219,15 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 							<span>إضافة شريحة تسعير جديدة بالمتر</span>
 						</div>
 						<div class="d-grid gap-3" class="grid-cols-3">
-							<div>
+       <div class="stack-sm">
 								<span class="text-xs font-bold text-primary d-block mb-1">من (متر):</span>
 								<input type="number" name="from_meters" min="0" step="1" value="0" class="form-control font-bold" placeholder="0 م" required/>
 							</div>
-							<div>
+       <div class="stack-sm">
 								<span class="text-xs font-bold text-primary d-block mb-1">إلى (متر):</span>
 								<input type="number" name="to_meters" min="0" step="1" value="5000" class="form-control font-bold" placeholder="5000 م" required/>
 							</div>
-							<div>
+       <div class="stack-sm">
 								<span class="text-xs font-bold text-primary d-block mb-1">الرسوم ({ i18n.T(lang, "common.currency_egp") }):</span>
 								<input type="number" step="any" name="delivery_fee" min="0" value="30" class="form-control font-bold" placeholder="30" required/>
 							</div>
@@ -238,7 +238,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 					</form>
 
 					<!-- List of Existing Bands -->
-					<div>
+     <div class="stack-sm">
 						if len(data.Bands) == 0 {
 							<div class="p-8 text-center text-muted text-sm bg-surface-sunken rounded-xl border border-dashed">
 								لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).
@@ -247,7 +247,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 							<div class="d-flex flex-col gap-2">
 								for _, band := range data.Bands {
 									<div class="flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs">
-										<div>
+          <div class="stack-sm">
 											<div class="font-extrabold text-sm text-primary tabular-nums">
 												من { fmt.Sprintf("%d", band.FromMeters) } م إلى { fmt.Sprintf("%d", band.ToMeters) } م
 											</div>
@@ -279,7 +279,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 						<input type="hidden" name="id" :value="editCov.id"/>
 						<input type="hidden" name="coverage_id" :value="editCov.id"/>
 
-						<div>
+      <div class="stack-sm">
 							<label class="d-block text-xs font-bold mb-1 text-primary">??? ???????</label>
 							<select name="day_of_week" x-model="editCov.day_of_week" class="form-control font-bold">
 								<option value="6">السبت</option>
@@ -292,7 +292,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="d-block text-xs font-bold mb-1 text-primary">????? ???????</label>
 							<select name="branch_id" x-model="editCov.branch_id" class="form-control">
 								for _, b := range data.Branches {
@@ -303,7 +303,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="d-block text-xs font-bold mb-1 text-primary">??????? / ??????</label>
 							<select name="city_id" x-model="editCov.city_id" class="form-control">
 								<option value="">-- ??????? --</option>
@@ -316,17 +316,17 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="d-block text-xs font-bold mb-1 text-primary">?? (??? ?????)</label>
 								<input type="time" name="coverage_from" x-model="editCov.coverage_from" class="form-control text-xs"/>
 							</div>
-							<div>
+       <div class="stack-sm">
 								<label class="d-block text-xs font-bold mb-1 text-primary">??? (??? ???????)</label>
 								<input type="time" name="coverage_to" x-model="editCov.coverage_to" class="form-control text-xs"/>
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="d-block text-xs font-bold mb-1 text-primary">??? ????? (??????)</label>
 							<div class="d-flex items-center gap-2">
 								<input type="number" name="distance_meters" x-model="editCov.distance_meters" min="1" max="1000000" step="1" class="form-control text-xs font-bold flex-1" required/>
@@ -334,7 +334,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="d-block text-xs font-bold mb-1 text-primary">??????? ?? ????? ???????? (???????)</label>
 							<input type="text" name="address" x-model="editCov.address" placeholder="????: ???? ???? ??????? ??? ?????? ???????" class="form-control text-xs"/>
 						</div>

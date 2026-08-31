@@ -54,7 +54,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				return templ_7745c5c3_Err
 			}
 			if (isSetup || total > 1) && total > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div><div><span>نسبة إنجاز ملفات الموردين</span> <span class=\"tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"stack-sm\"><div class=\"stack-sm\"><span>نسبة إنجاز ملفات الموردين</span> <span class=\"tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -67,7 +67,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></div><div><div style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></div><div class=\"stack-sm\"><div style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -85,7 +85,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " <!-- Form Content --> <form id=\"compare-mapping-form\" method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " <!-- Form Content --> <form class=\"stack-md\" id=\"compare-mapping-form\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -150,7 +150,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><!-- Supplier Name Editable Field --><div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><!-- Supplier Name Editable Field --><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -158,7 +158,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div><label class=\"form-label\">اسم المورد أو شركة التوزيع <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"supplier_name\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"stack-sm\"><label class=\"form-label\">اسم المورد أو شركة التوزيع <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"supplier_name\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -171,7 +171,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"form-input\" placeholder=\"مثال: شركة المتحدة للصيادلة / ابن سينا فارما\" required></div><div>سيظهر هذا الاسم في جداول المقارنة وأفضل العروض. يمكنك تعديله الآن.</div></div><!-- Column Mapping Selectors Grid (2x2) --><div><div><div class=\"row-center-sm\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"form-input\" placeholder=\"مثال: شركة المتحدة للصيادلة / ابن سينا فارما\" required></div><div class=\"stack-xs text-sm\">سيظهر هذا الاسم في جداول المقارنة وأفضل العروض. يمكنك تعديله الآن.</div></div><!-- Column Mapping Selectors Grid (2x2) --><div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"row-center-sm\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -192,7 +192,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></div><div><!-- 1. Product Name (Required) --><div><div class=\"flex-between\"><label>اسم الصنف الدوائي <span class=\"text-danger\">* (مطلوب للمطابقة)</span></label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></div><div class=\"stack-sm\"><!-- 1. Product Name (Required) --><div class=\"stack-sm\"><div class=\"flex-between\"><label class=\"form-label\">اسم الصنف الدوائي <span class=\"text-danger\">* (مطلوب للمطابقة)</span></label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -286,7 +286,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div><!-- 2. Price --><div><div class=\"flex-between\"><label>سعر الجمهور الرسمي (Public Price)</label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div><!-- 2. Price --><div class=\"stack-sm\"><div class=\"flex-between\"><label class=\"form-label\">سعر الجمهور الرسمي (Public Price)</label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -380,7 +380,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</select></div><!-- 3. Discount --><div><div class=\"flex-between\"><label>نسبة الخصم % (Discount)</label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</select></div><!-- 3. Discount --><div class=\"stack-sm\"><div class=\"flex-between\"><label class=\"form-label\">نسبة الخصم % (Discount)</label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -474,7 +474,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</select></div><!-- 4. Code / SKU --><div><div class=\"flex-between\"><label>كود الصنف / SKU (اختياري)</label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</select></div><!-- 4. Code / SKU --><div class=\"stack-sm\"><div class=\"flex-between\"><label class=\"form-label\">كود الصنف / SKU (اختياري)</label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -573,7 +573,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				return templ_7745c5c3_Err
 			}
 			if len(headers) > 0 && len(preview) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div><div><div>عينة من بيانات الملف (الصفوف الأولى):</div><span class=\"meta-muted\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">عينة من بيانات الملف (الصفوف الأولى):</div><span class=\"meta-muted\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -586,7 +586,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</span></div><div><table class=\"data-table\"><thead><tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</span></div><div class=\"stack-sm\"><table class=\"data-table\"><thead><tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -660,7 +660,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<!-- Actions Bar --><div><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<!-- Actions Bar --><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -741,7 +741,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</button></div></div></form><script>\n\t\t\tif (typeof window.closeMappingModal !== 'function') {\n\t\t\t\twindow.closeMappingModal = function() {\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\n\t\t\t\t\tif (modal) {\n\t\t\t\t\t\tmodal.remove();\n\t\t\t\t\t} else {\n\t\t\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\t\t\tif (root) root.innerHTML = '';\n\t\t\t\t\t\telse window.location.href = '/compare/tool';\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tif (typeof window.handleSetupSkip !== 'function') {\n\t\t\t\twindow.handleSetupSkip = function(fileId, remainingQueue, step, total) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\n\t\t\t\t\tif (modal) {\n\t\t\t\t\t\tmodal.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"card\">\n\t\t\t\t\t\t\t\t<div>⏩</div>\n\t\t\t\t\t\t\t\t<div>جاري تخطي الملف والانتقال للملف التالي...</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\n\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\tformData.append('setup_queue', remainingQueue);\n\t\t\t\t\tformData.append('step', step);\n\t\t\t\t\tformData.append('total', total);\n\n\t\t\t\t\tfetch('/compare/files/' + fileId + '/skip', {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل تخطي الملف.');\n\t\t\t\t\t\treturn res.json();\n\t\t\t\t\t})\n\t\t\t\t\t.then(data => {\n\t\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\t\tif (typeof window.openSetupModal === 'function') {\n\t\t\t\t\t\t\t\twindow.openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\twindow.location.href = '/compare/tool?setup_file=' + data.next_file_id + '&setup_queue=' + encodeURIComponent(data.remaining_queue || '') + '&setup_step=' + data.step + '&setup_total=' + data.total;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\talert(err.message || 'تعذر تخطي الملف.');\n\t\t\t\t\t\tif (typeof window.closeMappingModal === 'function') {\n\t\t\t\t\t\t\twindow.closeMappingModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t};\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</button></div></div></form><script>\r\n\t\t\tif (typeof window.closeMappingModal !== 'function') {\r\n\t\t\t\twindow.closeMappingModal = function() {\r\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\r\n\t\t\t\t\tif (modal) {\r\n\t\t\t\t\t\tmodal.remove();\r\n\t\t\t\t\t} else {\r\n\t\t\t\t\t\tconst root = document.getElementById('mapping-modal-root');\r\n\t\t\t\t\t\tif (root) root.innerHTML = '';\r\n\t\t\t\t\t\telse window.location.href = '/compare/tool';\r\n\t\t\t\t\t}\r\n\t\t\t\t};\r\n\t\t\t}\r\n\r\n\t\t\tif (typeof window.handleSetupSkip !== 'function') {\r\n\t\t\t\twindow.handleSetupSkip = function(fileId, remainingQueue, step, total) {\r\n\t\t\t\t\tif (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {\r\n\t\t\t\t\t\treturn;\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\r\n\t\t\t\t\tif (modal) {\r\n\t\t\t\t\t\tmodal.innerHTML = `\r\n\t\t\t\t\t\t\t<div class=\"card\">\r\n\t\t\t\t\t\t\t\t<div class=\"stack-xs text-sm\">⏩</div>\r\n\t\t\t\t\t\t\t\t<div class=\"stack-xs text-sm\">جاري تخطي الملف والانتقال للملف التالي...</div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t`;\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\tconst formData = new FormData();\r\n\t\t\t\t\tformData.append('setup_queue', remainingQueue);\r\n\t\t\t\t\tformData.append('step', step);\r\n\t\t\t\t\tformData.append('total', total);\r\n\r\n\t\t\t\t\tfetch('/compare/files/' + fileId + '/skip', {\r\n\t\t\t\t\t\tmethod: 'POST',\r\n\t\t\t\t\t\tbody: formData,\r\n\t\t\t\t\t\theaders: {\r\n\t\t\t\t\t\t\t'Accept': 'application/json'\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t})\r\n\t\t\t\t\t.then(res => {\r\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل تخطي الملف.');\r\n\t\t\t\t\t\treturn res.json();\r\n\t\t\t\t\t})\r\n\t\t\t\t\t.then(data => {\r\n\t\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\r\n\t\t\t\t\t\t\tif (typeof window.openSetupModal === 'function') {\r\n\t\t\t\t\t\t\t\twindow.openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\r\n\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\twindow.location.href = '/compare/tool?setup_file=' + data.next_file_id + '&setup_queue=' + encodeURIComponent(data.remaining_queue || '') + '&setup_step=' + data.step + '&setup_total=' + data.total;\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t})\r\n\t\t\t\t\t.catch(err => {\r\n\t\t\t\t\t\talert(err.message || 'تعذر تخطي الملف.');\r\n\t\t\t\t\t\tif (typeof window.closeMappingModal === 'function') {\r\n\t\t\t\t\t\t\twindow.closeMappingModal();\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t};\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -793,7 +793,7 @@ func CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

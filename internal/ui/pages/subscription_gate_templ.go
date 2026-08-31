@@ -199,7 +199,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 			return templ_7745c5c3_Err
 		}
 		if len(props.Plans) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"mb-6\"><div class=\"text-center mb-6\"><h2 class=\"text-xl font-extrabold text-primary mb-1\">الباقات المتاحة التي تتضمن هذه الميزة</h2><p class=\"text-xs text-secondary\">اختر الباقة المناسبة لمنشأتك للوصول الفوري لكافة الصلاحيات والأدوات المتقدمة</p></div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"mb-6\"><div class=\"text-center mb-6\"><h2 class=\"text-xl font-extrabold text-primary mb-1\">الباقات المتاحة التي تتضمن هذه الميزة</h2><p class=\"text-xs text-secondary\">اختر الباقة المناسبة لمنشأتك للوصول الفوري لكافة الصلاحيات والأدوات المتقدمة</p></div><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -240,7 +240,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><div class=\"flex-between items-center mb-3\"><h3 class=\"text-lg font-black text-primary m-0\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"stack-sm\"><div class=\"flex-between items-center mb-3\"><h3 class=\"text-lg font-black text-primary m-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -393,7 +393,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div></div><div><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div></div><div class=\"stack-sm\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

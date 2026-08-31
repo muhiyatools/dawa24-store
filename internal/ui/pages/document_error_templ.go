@@ -62,7 +62,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div class=\"card\"><!-- Icon Badge --><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><div class=\"card\"><!-- Icon Badge --><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -70,7 +70,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Main Title & Reason --><h1>تعذر فتح المستند — الملف غير متوفر</h1><p>لم يتم العثور على الملف الرقمي الفعلي لهذا المستند على وسائط التخزين السحابي، أو قد تم حذفه أو نقله أثناء تحديث البيئة.</p><!-- Document Meta Details Box --><div><div><span class=\"text-muted\">نوع المستند:</span> <strong class=\"text-body\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Main Title & Reason --><h1 class=\"page-title font-bold text-xl m-0\">تعذر فتح المستند — الملف غير متوفر</h1><p class=\"text-sm text-secondary m-0\">لم يتم العثور على الملف الرقمي الفعلي لهذا المستند على وسائط التخزين السحابي، أو قد تم حذفه أو نقله أثناء تحديث البيئة.</p><!-- Document Meta Details Box --><div class=\"stack-sm\"><div class=\"stack-sm\"><span class=\"text-muted\">نوع المستند:</span> <strong class=\"text-body\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,7 +83,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</strong></div><div><span class=\"text-muted\">اسم الملف الأصلي:</span> <span dir=\"ltr\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</strong></div><div class=\"stack-sm\"><span class=\"text-muted\">اسم الملف الأصلي:</span> <span dir=\"ltr\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -101,7 +101,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 			if data.OrgName != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div><span class=\"text-muted\">المنشأة التابع لها:</span> <strong class=\"text-body\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"stack-sm\"><span class=\"text-muted\">المنشأة التابع لها:</span> <strong class=\"text-body\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -120,7 +120,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				}
 			}
 			if data.UploadDate != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div><span class=\"text-muted\">تاريخ الرفع والتسجيل:</span> <span class=\"tabular-nums text-body\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"stack-sm\"><span class=\"text-muted\">تاريخ الرفع والتسجيل:</span> <span class=\"tabular-nums text-body\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -138,7 +138,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div><span class=\"text-muted\">رقم المستند بالنظام:</span> <code>#")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"stack-sm\"><span class=\"text-muted\">رقم المستند بالنظام:</span> <code>#")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -156,17 +156,17 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 			if data.IsAdmin {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div><strong>توجيه للإدارة:</strong> يمكنك مراسلة المنشأة أو إرسال طلب رسمي لإعادة رفع المستند عبر تبويب <strong>\"طلبات المستندات\"</strong> في لوحة الموافقات.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"stack-sm\"><strong>توجيه للإدارة:</strong> يمكنك مراسلة المنشأة أو إرسال طلب رسمي لإعادة رفع المستند عبر تبويب <strong>\"طلبات المستندات\"</strong> في لوحة الموافقات.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><strong>تنبيه:</strong> يمكنك إعادة رفع المستند المحدث مباشرة عبر صفحة <strong>\"المستندات والتراخيص\"</strong> في حسابك.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"stack-sm\"><strong>تنبيه:</strong> يمكنك إعادة رفع المستند المحدث مباشرة عبر صفحة <strong>\"المستندات والتراخيص\"</strong> في حسابك.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Action Buttons --><div><a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Action Buttons --><div class=\"stack-sm\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

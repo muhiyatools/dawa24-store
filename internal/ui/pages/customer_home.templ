@@ -381,7 +381,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="metric-strip-icon-box">
 						@components.IconBuilding("icon-md")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="metric-strip-number tabular-nums">
 							if stats.TotalSuppliers > 0 {
 								{ fmt.Sprintf("%d", stats.TotalSuppliers) }
@@ -399,7 +399,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="metric-strip-icon-box">
 						@components.IconPill("icon-md")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="metric-strip-number tabular-nums">
 							if stats.TotalProducts > 0 {
 								{ fmt.Sprintf("%d", stats.TotalProducts) }
@@ -417,7 +417,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="metric-strip-icon-box">
 						@components.IconTruck("icon-md")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="metric-strip-number tabular-nums">
 							if stats.TotalCities > 0 {
 								{ fmt.Sprintf("%d", stats.TotalCities) }
@@ -435,7 +435,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="metric-strip-icon-box">
 						@components.IconFileText("icon-md")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="metric-strip-number text-xl">توثيق رسمي 100%</div>
 						<div class="metric-strip-label">مطابق لمعايير التوزيع الجيد (GDP)</div>
 					</div>
@@ -494,7 +494,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		if len(offers) > 0 {
 			<section class="landing-section-block">
 				<div class="section-header-flex">
-					<div>
+     <div class="stack-sm">
 						<div class="row-center-xs mb-1">
 							<span class="badge badge-emerald font-bold">
 								@components.IconPercent("icon-xs")
@@ -543,7 +543,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 							}
 
 							<div class="offer-card-footer">
-								<div>
+        <div class="stack-sm">
 									<div class="text-xs text-muted">الحد الأدنى للطلب</div>
 									<div class="font-extrabold text-sm text-primary">
 										if off.MinOrderAmount.IsPositive() {
@@ -567,7 +567,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		<!-- 6. Featured Catalog Products for Direct Procurement -->
 		<section class="landing-section-block">
 			<div class="section-header-flex">
-				<div>
+    <div class="stack-sm">
 					<h2 class="section-main-title">
 						أصناف دوائية متوفرة للتوريد الفوري
 					</h2>
@@ -592,7 +592,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				<div class="product-grid-wrapper">
 					for _, prod := range featured {
 						<div class="product-card-glass">
-							<div>
+       <div class="stack-sm">
 								<!-- Badges row -->
 								<div class="flex-between mb-3">
 									if prod.DosageForm != "" {

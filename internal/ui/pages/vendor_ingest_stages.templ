@@ -17,7 +17,7 @@ templ importMappingStage(view VendorImportView) {
 	@importFileSummary(view)
 	if view.Analysis != nil {
 		@importFindings(view.Analysis)
-		<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
+		<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
 			
 			<!-- Core Required Fields Status Overview -->
 			<div class="card">
@@ -110,10 +110,10 @@ templ importMappingStage(view VendorImportView) {
 			<!-- Section 3: Manual / Default Stock Quantity Setting -->
 			<div class="card">
 				<div class="row-center-sm gap-sm mb-2">
-					<div>
+					<div class="stack-xs text-sm">
 						@components.IconPackage("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h2 class="wiz-head mb-0">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2>
 						<p class="wiz-sub mb-0">
 							إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.
@@ -138,7 +138,7 @@ templ importMappingStage(view VendorImportView) {
 				<div class="wiz-actions">
 					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span>
 					<div class="row-center">
-						<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }>
+						<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }>
 							<button type="submit" class="btn btn-ghost">إلغاء</button>
 						</form>
 						<button type="submit" class="btn btn-primary">اعتماد الربط والمتابعة ←</button>
@@ -242,12 +242,12 @@ templ importStat(label, value string) {
 // --- stage 3: settings -----------------------------------------------------
 
 templ importSettingsStage(view VendorImportView) {
-	<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/settings") } hx-boost="false">
+	<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/settings") } hx-boost="false">
 		<div class="card">
 			<h2 class="wiz-head">3. إعدادات الاستيراد</h2>
 			<p class="wiz-sub">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p>
 			<div class="stack-lg">
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class="text-danger">*</span></label>
 					<select name="warehouse_id" class="form-input" required>
 						<option value="">— اختر المخزن —</option>
@@ -396,7 +396,7 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 		</div>
 	</form>
-	<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
+	<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
 		<button type="submit" class="btn btn-ghost btn-sm">← العودة لربط الأعمدة</button>
 	</form>
 }

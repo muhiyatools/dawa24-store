@@ -46,7 +46,7 @@ func PasswordReset() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div class=\"card hover-lift\"><div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><div class=\"card hover-lift\"><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -54,7 +54,7 @@ func PasswordReset() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1>استعادة كلمة المرور</h1><p>أدخل بريدك الإلكتروني المسجل وسنرسل لك رابط إعادة التعيين</p></div><form action=\"/auth/forgot\" method=\"POST\" class=\"stack-lg\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"email\">البريد الإلكتروني المسجل</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"pharmacist@dawa24.eg\" required class=\"form-input\"></div><button type=\"submit\" class=\"btn btn-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"page-title font-bold text-xl m-0\">استعادة كلمة المرور</h1><p class=\"text-sm text-secondary m-0\">أدخل بريدك الإلكتروني المسجل وسنرسل لك رابط إعادة التعيين</p></div><form action=\"/auth/forgot\" method=\"POST\" class=\"stack-lg\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"email\">البريد الإلكتروني المسجل</label> <input type=\"email\" id=\"email\" name=\"email\" placeholder=\"pharmacist@dawa24.eg\" required class=\"form-input\"></div><button type=\"submit\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +62,7 @@ func PasswordReset() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إرسال رابط التعيين</span></button></form><div><a href=\"/auth/login\">العودة لتسجيل الدخول</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إرسال رابط التعيين</span></button></form><div class=\"stack-sm\"><a href=\"/auth/login\">العودة لتسجيل الدخول</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func PasswordResetConfirm(token string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div><div class=\"card hover-lift\"><div><h1>تعيين كلمة المرور الجديدة</h1></div><form action=\"/auth/reset\" method=\"POST\" class=\"stack-lg\"><input type=\"hidden\" name=\"token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"stack-sm\"><div class=\"card hover-lift\"><div class=\"stack-sm\"><h1 class=\"page-title font-bold text-xl m-0\">تعيين كلمة المرور الجديدة</h1></div><form action=\"/auth/reset\" method=\"POST\" class=\"stack-lg\"><input type=\"hidden\" name=\"token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

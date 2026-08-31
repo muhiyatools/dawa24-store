@@ -47,7 +47,7 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 						<div class="admin-banner-icon purple">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="admin-banner-title">
 								<span>إدارة المنشآت والمؤسسات المعتمدة</span>
 								<span class="badge badge-purple text-xs font-black tabular-nums">{ fmt.Sprintf("%d منشأة", data.TotalOrgs) }</span>
@@ -162,7 +162,7 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 													O
 												}
 											</div>
-											<div>
+           <div class="stack-sm">
 												<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="font-bold text-sm text-primary no-underline">
 													{ o.LegalName }
 												</a>
@@ -182,13 +182,13 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 									<td>
 										<div class="text-xs d-flex flex-col gap-1 tabular-nums text-muted">
 											if o.CommercialRegister != "" {
-												<div><strong class="text-secondary font-bold">سجل:</strong> { o.CommercialRegister }</div>
+												<div class="stack-sm"><strong class="text-secondary font-bold">سجل:</strong> { o.CommercialRegister }</div>
 											}
 											if o.TaxNumber != "" {
-												<div><strong class="text-secondary font-bold">ضريبة:</strong> { o.TaxNumber }</div>
+												<div class="stack-sm"><strong class="text-secondary font-bold">ضريبة:</strong> { o.TaxNumber }</div>
 											}
 											if o.PharmacistLicense != "" {
-												<div><strong class="text-secondary font-bold">ترخيص:</strong> { o.PharmacistLicense }</div>
+												<div class="stack-sm"><strong class="text-secondary font-bold">ترخيص:</strong> { o.PharmacistLicense }</div>
 											}
 										</div>
 									</td>

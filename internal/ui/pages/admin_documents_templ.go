@@ -57,7 +57,7 @@ func AdminDocuments(docs []*attachments.Document, total int, filter attachments.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سجل المستندات والتراخيص الرسمية</h1><p class=\"text-sm text-secondary m-0 mt-1\">مراجعة وتدقيق السجلات التجارية، البطاقات الضريبية، تراخيص الصيادلة ومستندات الفحص (إجمالي: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجل المستندات والتراخيص الرسمية</h1><p class=\"text-sm text-secondary m-0 mt-1\">مراجعة وتدقيق السجلات التجارية، البطاقات الضريبية، تراخيص الصيادلة ومستندات الفحص (إجمالي: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -438,7 +438,7 @@ func AdminDocuments(docs []*attachments.Document, total int, filter attachments.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div><script>\n\t\t\tfunction verifyDoc(id, status) {\n\t\t\t\tconst notes = prompt(status === 'rejected' ? 'اكتب سبب الرفض:' : 'ملاحظات التدقيق (اختياري):') || '';\n\t\t\t\tfetch('/api/v1/admin/attachments/' + id + '/verify', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\tbody: JSON.stringify({ status: status, notes: notes })\n\t\t\t\t}).then(res => {\n\t\t\t\t\tif (res.ok) window.location.reload();\n\t\t\t\t\telse alert('حدث خطأ أثناء تحديث حالة المستند');\n\t\t\t\t});\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div><script>\r\n\t\t\tfunction verifyDoc(id, status) {\r\n\t\t\t\tconst notes = prompt(status === 'rejected' ? 'اكتب سبب الرفض:' : 'ملاحظات التدقيق (اختياري):') || '';\r\n\t\t\t\tfetch('/api/v1/admin/attachments/' + id + '/verify', {\r\n\t\t\t\t\tmethod: 'POST',\r\n\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\r\n\t\t\t\t\tbody: JSON.stringify({ status: status, notes: notes })\r\n\t\t\t\t}).then(res => {\r\n\t\t\t\t\tif (res.ok) window.location.reload();\r\n\t\t\t\t\telse alert('حدث خطأ أثناء تحديث حالة المستند');\r\n\t\t\t\t});\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

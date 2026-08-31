@@ -68,7 +68,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconCreditCard("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">المركز المالي والمحافظ والتحصيل</h1>
 							<p class="text-sm text-secondary m-0 mt-1">إدارة ومتابعة فواتير التوريد، تسويات بوابات الدفع، محافظ الصيدليات والموردين، وسجل القيود المحاسبية</p>
 						</div>
@@ -180,12 +180,12 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					</a>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<!-- TAB 0: DEPOSIT REQUESTS REVIEW -->
 					if data.ActiveTab == "deposits" || data.ActiveTab == "" {
 						<div class="tab-content-pane space-y-4">
 							<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
-								<div>
+        <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
 										<span>@components.IconCreditCard("icon-sm")</span>
 										<span>مراجعة وتدقيق طلبات شحن المحفظة</span>
@@ -281,7 +281,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														}
 													</td>
 													<td class="tabular-nums text-xs text-muted nowrap">
-														{ d.CreatedAt.Format("2006-01-02 15:04") }
+														{ d.CreatedAt.Format("2006-01-02 03:04 PM") }
 													</td>
 													<td>
 														<div class="d-flex flex-col gap-1 items-start">
@@ -357,7 +357,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					if data.ActiveTab == "invoices" {
 						<div class="tab-content-pane space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
-								<div>
+        <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">الفواتير والمطالبات الضريبية</h2>
 									<p class="text-xs text-secondary mt-1 mb-0">سجل الفواتير الضريبية لأوامر التوريد والاشتراكات الصادرة في المنظومة.</p>
 								</div>
@@ -464,7 +464,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					if data.ActiveTab == "payments" {
 						<div class="tab-content-pane space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
-								<div>
+        <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">سجل المدفوعات والتحصيلات الإلكترونية</h2>
 									<p class="text-xs text-secondary mt-1 mb-0">تدقيق عمليات الدفع المحصلة عبر بوابات الدفع الإلكتروني والتحويلات البنكية.</p>
 								</div>
@@ -540,7 +540,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															<span class="badge badge-rose">{ string(p.Status) }</span>
 														}
 													</td>
-													<td class="tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+													<td class="tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
 												</tr>
 											}
 										</tbody>
@@ -554,7 +554,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					if data.ActiveTab == "wallets" {
 						<div class="tab-content-pane space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
-								<div>
+        <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">محافظ الصيدليات والموردين والأرصدة</h2>
 									<p class="text-xs text-secondary mt-1 mb-0">تدقيق وإدارة محافظ المنشآت الرقمية وإجراء الشحن والتسويات المحاسبية المباشرة.</p>
 								</div>
@@ -606,7 +606,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 																	{ string([]rune(w.UserName)[0:1]) }
 																}
 															</div>
-															<div>
+               <div class="stack-sm">
 																if w.OrganizationName != "" {
 																	<div class="font-black text-primary text-base">{ w.OrganizationName }</div>
 																	<div class="text-xs text-secondary">المالك: { w.UserName } • { w.UserEmail }</div>
@@ -663,7 +663,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					if data.ActiveTab == "transactions" {
 						<div class="tab-content-pane space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
-								<div>
+        <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">سجل حركات ومعاملات المحافظ التفصيلي</h2>
 									<p class="text-xs text-secondary mt-1 mb-0">كشف الحركات المالية المزدوجة (إيداع، سحب، مشتريات، استرداد، تسوية).</p>
 								</div>
@@ -773,7 +773,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															<div class="text-xs text-muted">مرجع: { tx.ReferenceType } { fmt.Sprintf("#%v", tx.ReferenceID) }</div>
 														}
 													</td>
-													<td class="tabular-nums text-sm text-muted">{ tx.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+													<td class="tabular-nums text-sm text-muted">{ tx.CreatedAt.Format("2006-01-02 03:04:05 PM") }</td>
 												</tr>
 											}
 										</tbody>
@@ -855,7 +855,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						</div>
 
 						<!-- Action Type -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label font-bold" for="modalActionType">نوع العملية المحاسبية *</label>
 							<select name="action_type" id="modalActionType" class="form-select w-full" required>
 								<option value="deposit">إيداع رصيد (شحن مباشر / تحويل)</option>
@@ -865,13 +865,13 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						</div>
 
 						<!-- Amount -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label font-bold" for="adjust-amount">المبلغ بالجنيه المصري (EGP) *</label>
 							<input id="adjust-amount" type="number" step="0.01" min="0.01" name="amount" class="form-input w-full text-lg font-black tabular-nums" placeholder="0.00" required/>
 						</div>
 
 						<!-- Reason / Notes -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label font-bold" for="adjust-reason">سبب العملية والملاحظات المحاسبية *</label>
 							<textarea id="adjust-reason" name="reason" rows="2" class="form-input w-full text-sm" placeholder="اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)..." required></textarea>
 						</div>

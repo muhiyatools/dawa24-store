@@ -500,7 +500,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div><div class=\"metric-strip-number tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div class=\"stack-sm\"><div class=\"metric-strip-number tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -528,7 +528,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><div><div class=\"metric-strip-number tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><div class=\"stack-sm\"><div class=\"metric-strip-number tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -556,7 +556,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div><div class=\"metric-strip-number tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div class=\"stack-sm\"><div class=\"metric-strip-number tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -584,7 +584,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div><div class=\"metric-strip-number text-xl\">توثيق رسمي 100%</div><div class=\"metric-strip-label\">مطابق لمعايير التوزيع الجيد (GDP)</div></div></div></div></section><!-- 4. Smart Procurement Cycle in 3 Steps --> <section class=\"landing-section-block\"><div class=\"section-title-wrap text-center\"><h2 class=\"section-main-title\">كيف تعمل منظومة التوريد الذكية للصيدليات</h2><p class=\"section-main-subtitle\">خطوات رقمية ميسرة تختصر ساعات البحث وتوفر أعلى نسب ربحية للصيدلية مباشرة من المصادر المعتمدة</p></div><div class=\"procurement-steps-grid\"><div class=\"procurement-step-card\"><div class=\"step-card-badge\">01</div><div class=\"step-card-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div class=\"stack-sm\"><div class=\"metric-strip-number text-xl\">توثيق رسمي 100%</div><div class=\"metric-strip-label\">مطابق لمعايير التوزيع الجيد (GDP)</div></div></div></div></section><!-- 4. Smart Procurement Cycle in 3 Steps --> <section class=\"landing-section-block\"><div class=\"section-title-wrap text-center\"><h2 class=\"section-main-title\">كيف تعمل منظومة التوريد الذكية للصيدليات</h2><p class=\"section-main-subtitle\">خطوات رقمية ميسرة تختصر ساعات البحث وتوفر أعلى نسب ربحية للصيدلية مباشرة من المصادر المعتمدة</p></div><div class=\"procurement-steps-grid\"><div class=\"procurement-step-card\"><div class=\"step-card-badge\">01</div><div class=\"step-card-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -613,7 +613,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 				return templ_7745c5c3_Err
 			}
 			if len(offers) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<section class=\"landing-section-block\"><div class=\"section-header-flex\"><div><div class=\"row-center-xs mb-1\"><span class=\"badge badge-emerald font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<section class=\"landing-section-block\"><div class=\"section-header-flex\"><div class=\"stack-sm\"><div class=\"row-center-xs mb-1\"><span class=\"badge badge-emerald font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -720,7 +720,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"offer-card-footer\"><div><div class=\"text-xs text-muted\">الحد الأدنى للطلب</div><div class=\"font-extrabold text-sm text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"offer-card-footer\"><div class=\"stack-sm\"><div class=\"text-xs text-muted\">الحد الأدنى للطلب</div><div class=\"font-extrabold text-sm text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -775,7 +775,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, " <!-- 6. Featured Catalog Products for Direct Procurement --> <section class=\"landing-section-block\"><div class=\"section-header-flex\"><div><h2 class=\"section-main-title\">أصناف دوائية متوفرة للتوريد الفوري</h2><p class=\"section-main-subtitle\">أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين والموزعين</p></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm font-bold\"><span>عرض الكتالوج الشامل</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, " <!-- 6. Featured Catalog Products for Direct Procurement --> <section class=\"landing-section-block\"><div class=\"section-header-flex\"><div class=\"stack-sm\"><h2 class=\"section-main-title\">أصناف دوائية متوفرة للتوريد الفوري</h2><p class=\"section-main-subtitle\">أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين والموزعين</p></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm font-bold\"><span>عرض الكتالوج الشامل</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -809,7 +809,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 					return templ_7745c5c3_Err
 				}
 				for _, prod := range featured {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<div class=\"product-card-glass\"><div><!-- Badges row --><div class=\"flex-between mb-3\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<div class=\"product-card-glass\"><div class=\"stack-sm\"><!-- Badges row --><div class=\"flex-between mb-3\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

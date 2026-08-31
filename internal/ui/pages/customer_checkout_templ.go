@@ -59,7 +59,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">إتمام أمر الشراء والتوريد</h1><p class=\"text-sm text-muted m-0 mt-1\">تأكيد عنوان فرع الصيدلية المستلم، شروط الدفع، وإصدار الفواتير الإلكترونية المعتمدة</p></div></div></div><!-- Stepper Progress Bar --><div class=\"mb-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">إتمام أمر الشراء والتوريد</h1><p class=\"text-sm text-muted m-0 mt-1\">تأكيد عنوان فرع الصيدلية المستلم، شروط الدفع، وإصدار الفواتير الإلكترونية المعتمدة</p></div></div></div><!-- Stepper Progress Bar --><div class=\"mb-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -101,7 +101,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<form action=\"/checkout\" method=\"POST\"><div class=\"checkout-grid\"><!-- Left Column: Address, Payment, Notes --><div class=\"d-flex flex-col gap-6\"><!-- 1. Pharmacy Delivery Branches Card --><div class=\"checkout-step-card\"><div class=\"flex-between mb-4 flex-wrap gap-3\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<form class=\"stack-md\" action=\"/checkout\" method=\"POST\"><div class=\"checkout-grid\"><!-- Left Column: Address, Payment, Notes --><div class=\"d-flex flex-col gap-6\"><!-- 1. Pharmacy Delivery Branches Card --><div class=\"checkout-step-card\"><div class=\"flex-between mb-4 flex-wrap gap-3\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -109,7 +109,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><h2 class=\"text-lg font-extrabold text-primary m-0\">1. اختيار فرع الصيدلية المستلم للطلبية</h2><span class=\"text-xs text-muted\">تسليم مباشر إلى مقر الفرع المرخص</span></div></div><a href=\"/customer/branches\" class=\"btn btn-secondary btn-sm font-bold gap-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"stack-sm\"><h2 class=\"text-lg font-extrabold text-primary m-0\">1. اختيار فرع الصيدلية المستلم للطلبية</h2><span class=\"text-xs text-muted\">تسليم مباشر إلى مقر الفرع المرخص</span></div></div><a href=\"/customer/branches\" class=\"btn btn-secondary btn-sm font-bold gap-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -368,7 +368,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div>معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow) والفواتير الإلكترونية المعتمدة.</div></div></div></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div class=\"stack-xs text-sm\">معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow) والفواتير الإلكترونية المعتمدة.</div></div></div></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

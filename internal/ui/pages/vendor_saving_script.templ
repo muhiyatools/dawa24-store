@@ -80,7 +80,7 @@ templ VendorSavingScript() {
 						.then(r => r.json())
 						.then(items => {
 							if (!items || items.length === 0) {
-								dropdown.innerHTML = '<div >لم يتم العثور على نتائج بالكتالوج</div>';
+								dropdown.innerHTML = '<div class="stack-sm" >لم يتم العثور على نتائج بالكتالوج</div>';
 								dropdown.style.display = 'block';
 								return;
 							}
@@ -89,10 +89,10 @@ templ VendorSavingScript() {
 							items.forEach(it => {
 								const skuText = it.sku ? ('<span >(' + it.sku + ')</span>') : '';
 								const safeName = (it.name || '').replace(/'/g, "\\'");
-								html += '<div  ' +
+								html += '<div class="stack-sm"  ' +
 									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
 									'onclick="selectCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
-									'<div><strong >' + it.name + '</strong>' + skuText + '</div>' +
+									'<div class="stack-sm"><strong >' + it.name + '</strong>' + skuText + '</div>' +
 									'<span class="badge badge-emerald text-xs">اختيار</span></div>';
 							});
 							dropdown.innerHTML = html;
@@ -214,8 +214,8 @@ templ VendorSavingScript() {
 				const container = document.getElementById(prefix + '-import-preview-table-container');
 				if (!container || !sampleRows || sampleRows.length === 0) return;
 
-				let html = '<div >';
-				html += '<div >';
+				let html = '<div class="stack-sm" >';
+				html += '<div class="stack-sm" >';
 				html += '<span>معاينة أعمدة الملف والبيانات الحقيقية:</span>';
 				html += '<span class="meta-muted">أول ' + sampleRows.length + ' صفوف</span>';
 				html += '</div>';
@@ -559,7 +559,7 @@ templ VendorSavingScript() {
 
 			function openProvidersModal(productId, productName) {
 				document.getElementById('providers-modal-subtitle').textContent = 'الصنف: ' + productName;
-				document.getElementById('providers-modal-content').innerHTML = '<div >⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+				document.getElementById('providers-modal-content').innerHTML = '<div class="stack-sm" >⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
 				
 				const el = document.getElementById('providers-modal');
 				if (el && typeof el.showModal === 'function') {
@@ -570,7 +570,7 @@ templ VendorSavingScript() {
 					.then(r => r.json())
 					.then(providers => {
 						if (!providers || providers.length === 0) {
-							document.getElementById('providers-modal-content').innerHTML = '<div >لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
+							document.getElementById('providers-modal-content').innerHTML = '<div class="stack-sm" >لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
 							return;
 						}
 
@@ -586,7 +586,7 @@ templ VendorSavingScript() {
 
 							html += '<tr class="rule-bottom">' +
 								'<td class="p-sm"><strong class="text-primary">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
-								'<td class="p-sm"><div>' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+								'<td class="p-sm"><div class="stack-xs text-sm">' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
 								'<td class="p-sm text-center tabular-nums">' + publicPrice + ' ج.م</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
@@ -598,7 +598,7 @@ templ VendorSavingScript() {
 						document.getElementById('providers-modal-content').innerHTML = html;
 					})
 					.catch(() => {
-						document.getElementById('providers-modal-content').innerHTML = '<div >حدث خطأ أثناء تحميل عروض الموردين.</div>';
+						document.getElementById('providers-modal-content').innerHTML = '<div class="stack-sm" >حدث خطأ أثناء تحميل عروض الموردين.</div>';
 					});
 			}
 

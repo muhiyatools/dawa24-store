@@ -59,7 +59,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -239,7 +239,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"form-input text-xs w-full\"></div><div><select name=\"ns\" class=\"form-select text-xs w-full\"><option value=\"\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><select name=\"ns\" class=\"form-select text-xs w-full\"><option value=\"\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -298,7 +298,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div><div><select name=\"custom\" class=\"form-select text-xs w-full\"><option value=\"\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div><div class=\"stack-sm\"><select name=\"custom\" class=\"form-select text-xs w-full\"><option value=\"\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -707,7 +707,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</button></div><form method=\"POST\" action=\"/admin/translations\" class=\"d-flex flex-col gap-4 m-0\"><div><label class=\"form-label\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</button></div><form method=\"POST\" action=\"/admin/translations\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -720,7 +720,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</label> <input type=\"text\" id=\"modal-key\" name=\"key\" readonly class=\"form-input font-mono font-bold bg-surface-sunken\"></div><div><label class=\"form-label\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</label> <input type=\"text\" id=\"modal-key\" name=\"key\" readonly class=\"form-input font-mono font-bold bg-surface-sunken\"></div><div class=\"stack-sm\"><label class=\"form-label\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -733,7 +733,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</label> <textarea id=\"modal-text-ar\" name=\"text_ar\" rows=\"3\" class=\"form-input\" dir=\"rtl\" required></textarea></div><div><label class=\"form-label\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</label> <textarea id=\"modal-text-ar\" name=\"text_ar\" rows=\"3\" class=\"form-input\" dir=\"rtl\" required></textarea></div><div class=\"stack-sm\"><label class=\"form-label\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -746,7 +746,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</label> <textarea id=\"modal-text-en\" name=\"text_en\" rows=\"3\" class=\"form-input\" dir=\"ltr\" required></textarea></div><div><label class=\"form-label\">الوصف أو ملاحظات الاستخدام</label> <input type=\"text\" id=\"modal-desc\" name=\"description\" class=\"form-input\"></div><div class=\"flex-between items-center border-t pt-4 mt-2\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</label> <textarea id=\"modal-text-en\" name=\"text_en\" rows=\"3\" class=\"form-input\" dir=\"ltr\" required></textarea></div><div class=\"stack-sm\"><label class=\"form-label\">الوصف أو ملاحظات الاستخدام</label> <input type=\"text\" id=\"modal-desc\" name=\"description\" class=\"form-input\"></div><div class=\"flex-between items-center border-t pt-4 mt-2\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -772,7 +772,7 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</button></div></form></div></div><script>\n\t\t\tfunction showEditModal(key, ns, ar, en, desc) {\n\t\t\t\tdocument.getElementById('modal-key').value = key;\n\t\t\t\tdocument.getElementById('modal-text-ar').value = ar;\n\t\t\t\tdocument.getElementById('modal-text-en').value = en;\n\t\t\t\tdocument.getElementById('modal-desc').value = desc || '';\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\n\t\t\t\tm.style.display = 'flex';\n\t\t\t}\n\t\t\tfunction closeEditModal() {\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\n\t\t\t\tm.style.display = 'none';\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</button></div></form></div></div><script>\r\n\t\t\tfunction showEditModal(key, ns, ar, en, desc) {\r\n\t\t\t\tdocument.getElementById('modal-key').value = key;\r\n\t\t\t\tdocument.getElementById('modal-text-ar').value = ar;\r\n\t\t\t\tdocument.getElementById('modal-text-en').value = en;\r\n\t\t\t\tdocument.getElementById('modal-desc').value = desc || '';\r\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\r\n\t\t\t\tm.style.display = 'flex';\r\n\t\t\t}\r\n\t\t\tfunction closeEditModal() {\r\n\t\t\t\tvar m = document.getElementById('edit-translation-modal');\r\n\t\t\t\tm.style.display = 'none';\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -788,11 +788,11 @@ func AdminTranslations(data AdminTranslationsData, lang string, dir string) temp
 
 func showEditModal(key, ns, ar, en, desc string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_showEditModal_9a51`,
-		Function: `function __templ_showEditModal_9a51(key, ns, ar, en, desc){showEditModal(key, ns, ar, en, desc);
+		Name: `__templ_showEditModal_d5f1`,
+		Function: `function __templ_showEditModal_d5f1(key, ns, ar, en, desc){showEditModal(key, ns, ar, en, desc);
 }`,
-		Call:       templ.SafeScript(`__templ_showEditModal_9a51`, key, ns, ar, en, desc),
-		CallInline: templ.SafeScriptInline(`__templ_showEditModal_9a51`, key, ns, ar, en, desc),
+		Call:       templ.SafeScript(`__templ_showEditModal_d5f1`, key, ns, ar, en, desc),
+		CallInline: templ.SafeScriptInline(`__templ_showEditModal_d5f1`, key, ns, ar, en, desc),
 	}
 }
 

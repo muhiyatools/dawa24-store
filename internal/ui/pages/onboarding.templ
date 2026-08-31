@@ -8,12 +8,12 @@ import (
 templ Onboarding() {
 	@layouts.PublicShell("انضمام الشركاء والموردين | Partner Onboarding", "ar", "rtl") {
 		<div class="card">
-			<div>
+   <div class="stack-sm">
 				<a href="/">
 					<img src="/static/img/logo.png" alt="DAWA24" />
 				</a>
-				<h1>انضمام شريك توريد أو صيدلية</h1>
-				<p>سجل بيانات مؤسستك للانضمام إلى شبكة التوزيع الدوائي الموحدة</p>
+				<h1 class="page-title font-bold text-xl m-0">انضمام شريك توريد أو صيدلية</h1>
+				<p class="text-sm text-secondary m-0">سجل بيانات مؤسستك للانضمام إلى شبكة التوزيع الدوائي الموحدة</p>
 			</div>
 
 			<form action="/onboarding" method="POST" class="stack-lg">

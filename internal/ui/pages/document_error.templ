@@ -23,49 +23,49 @@ type DocumentUnavailableView struct {
 // DocumentUnavailablePage renders a clear, polished error notification when a document file cannot be opened.
 templ DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) {
 	@layouts.Base("تعذر فتح المستند — منصة دواء24", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div class="card">
 				
 				<!-- Icon Badge -->
-				<div>
+				<div class="stack-xs text-sm">
 					@components.IconFile("icon-sm")
 				</div>
 
 				<!-- Main Title & Reason -->
-				<h1>
+				<h1 class="page-title font-bold text-xl m-0">
 					تعذر فتح المستند — الملف غير متوفر
 				</h1>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					لم يتم العثور على الملف الرقمي الفعلي لهذا المستند على وسائط التخزين السحابي، أو قد تم حذفه أو نقله أثناء تحديث البيئة.
 				</p>
 
 				<!-- Document Meta Details Box -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<span class="text-muted">نوع المستند:</span>
 						<strong class="text-body">{ data.DocTypeLabel }</strong>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<span class="text-muted">اسم الملف الأصلي:</span>
 						<span dir="ltr" class="tabular-nums">{ data.OriginalName }</span>
 					</div>
 
 					if data.OrgName != "" {
-						<div>
+      <div class="stack-sm">
 							<span class="text-muted">المنشأة التابع لها:</span>
 							<strong class="text-body">{ data.OrgName }</strong>
 						</div>
 					}
 
 					if data.UploadDate != "" {
-						<div>
+      <div class="stack-sm">
 							<span class="text-muted">تاريخ الرفع والتسجيل:</span>
 							<span class="tabular-nums text-body">{ data.UploadDate }</span>
 						</div>
 					}
 
-					<div>
+     <div class="stack-sm">
 						<span class="text-muted">رقم المستند بالنظام:</span>
 						<code>#{ fmt.Sprintf("%d", data.DocID) }</code>
 					</div>
@@ -73,17 +73,17 @@ templ DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) {
 
 				<!-- Administrative Guidance Notice -->
 				if data.IsAdmin {
-					<div>
+     <div class="stack-sm">
 						<strong>توجيه للإدارة:</strong> يمكنك مراسلة المنشأة أو إرسال طلب رسمي لإعادة رفع المستند عبر تبويب <strong>"طلبات المستندات"</strong> في لوحة الموافقات.
 					</div>
 				} else {
-					<div>
+     <div class="stack-sm">
 						<strong>تنبيه:</strong> يمكنك إعادة رفع المستند المحدث مباشرة عبر صفحة <strong>"المستندات والتراخيص"</strong> في حسابك.
 					</div>
 				}
 
 				<!-- Action Buttons -->
-				<div>
+    <div class="stack-sm">
 					<a
 						href={ templ.SafeURL(data.ReturnURL) }
 						class="btn btn-primary"

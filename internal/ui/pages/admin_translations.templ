@@ -24,7 +24,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconGlobe("icon-sm")
@@ -104,7 +104,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="ns" class="form-select text-xs w-full">
 							<option value="">{ i18n.T(lang, "admin.translations_all_namespaces") }</option>
 							for _, ns := range data.Namespaces {
@@ -113,7 +113,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 						</select>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="custom" class="form-select text-xs w-full">
 							<option value="">{ i18n.T(lang, "common.all") }</option>
 							<option value="true" selected?={ data.CustomFilter == "true" }>{ i18n.T(lang, "admin.translations_custom_badge") }</option>
@@ -243,28 +243,28 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 					</button>
 				</div>
 				<form method="POST" action="/admin/translations" class="d-flex flex-col gap-4 m-0">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							{ i18n.T(lang, "admin.translations_key_col") }
 						</label>
 						<input type="text" id="modal-key" name="key" readonly class="form-input font-mono font-bold bg-surface-sunken" />
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							{ i18n.T(lang, "admin.translations_ar_col") }
 						</label>
 						<textarea id="modal-text-ar" name="text_ar" rows="3" class="form-input" dir="rtl" required></textarea>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							{ i18n.T(lang, "admin.translations_en_col") }
 						</label>
 						<textarea id="modal-text-en" name="text_en" rows="3" class="form-input" dir="ltr" required></textarea>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							الوصف أو ملاحظات الاستخدام
 						</label>

@@ -30,7 +30,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconSparkles("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">سجلات محادثات المساعد الذكي كبسولة AI</h1>
 							<p class="text-sm text-secondary m-0 mt-1">مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات</p>
 						</div>
@@ -132,8 +132,8 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										}
 									</td>
 									<td>
-										<div>{ c.OrganizationName }</div>
-										<div>
+										<div class="stack-xs text-sm">{ c.OrganizationName }</div>
+          <div class="stack-sm">
 											if c.OrganizationType == "vendor" {
 												<span class="badge badge-sky">مورد</span>
 											} else if c.OrganizationType == "customer" {
@@ -143,7 +143,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										</div>
 									</td>
 									<td>
-										<div>
+          <div class="stack-sm">
 											if c.Title != "" {
 												<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } title={ c.Title }>
 													{ c.Title }
@@ -157,8 +157,8 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										<span class="badge badge-emerald">{ fmt.Sprintf("%d رسائل", c.MessageCount) }</span>
 									</td>
 									<td class="tabular-nums text-sm">
-										<div><span class="text-muted">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
-										<div><span class="text-muted">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
+										<div class="stack-sm"><span class="text-muted">إدخال:</span> { fmt.Sprintf("%d", c.TotalInputTokens) }</div>
+										<div class="stack-sm"><span class="text-muted">توليد:</span> { fmt.Sprintf("%d", c.TotalOutputTokens) }</div>
 									</td>
 									<td class="text-sm text-muted tabular-nums">
 										{ c.CreatedAt.Format("2006-01-02 03:04 PM") }
@@ -191,7 +191,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 			<!-- Header Card -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-1">
 							<span class="badge badge-sky text-xs font-black">جلسة كبسولة AI</span>
 							<strong class="text-primary text-base tabular-nums font-mono font-black">#{ fmt.Sprintf("%d", summary.ID) }</strong>
@@ -204,14 +204,14 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 							}
 						</h1>
 						<div class="d-flex items-center gap-3 flex-wrap text-xs text-secondary">
-							<div><strong>المستخدم:</strong> { summary.UserName } <span class="tabular-nums" dir="ltr">({ summary.UserEmail })</span></div>
-							<div><strong>المنشأة:</strong> { summary.OrganizationName } <span class="tabular-nums">(#{ fmt.Sprintf("%d", summary.OrganizationID) })</span></div>
-							<div><strong>البدء:</strong> <span class="tabular-nums">{ summary.CreatedAt.Format("2006-01-02 03:04 PM") }</span></div>
-							<div>⏱️ <strong>آخر نشاط:</strong> <span class="tabular-nums">{ summary.UpdatedAt.Format("2006-01-02 03:04 PM") }</span></div>
+							<div class="stack-sm"><strong>المستخدم:</strong> { summary.UserName } <span class="tabular-nums" dir="ltr">({ summary.UserEmail })</span></div>
+							<div class="stack-sm"><strong>المنشأة:</strong> { summary.OrganizationName } <span class="tabular-nums">(#{ fmt.Sprintf("%d", summary.OrganizationID) })</span></div>
+							<div class="stack-sm"><strong>البدء:</strong> <span class="tabular-nums">{ summary.CreatedAt.Format("2006-01-02 03:04 PM") }</span></div>
+							<div class="stack-sm">⏱️ <strong>آخر نشاط:</strong> <span class="tabular-nums">{ summary.UpdatedAt.Format("2006-01-02 03:04 PM") }</span></div>
 						</div>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<a href="/admin/chat/history" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
 							@components.IconArrowRight("icon-xs")
 							<span>العودة لقائمة السجلات</span>

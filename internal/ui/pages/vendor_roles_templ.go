@@ -58,7 +58,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-6xl\"><!-- Header Action Bar --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-6xl\"><!-- Header Action Bar --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -74,7 +74,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>فريق العمل والموظفين</span></a></div></div></div><!-- Role Cards Grid --><div class=\"d-grid grid-cols-3 gap-4\"><!-- Role 1: Owner / Super Admin --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">مالك المنشأة (Owner)</h3><span class=\"text-xs text-muted\">أعلى مستوى صلاحيات للنظام</span></div><span class=\"badge badge-emerald font-bold text-xs\">كامل الصلاحيات</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>فريق العمل والموظفين</span></a></div></div></div><!-- Role Cards Grid --><div class=\"d-grid grid-cols-3 gap-4\"><!-- Role 1: Owner / Super Admin --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">مالك المنشأة (Owner)</h3><span class=\"text-xs text-muted\">أعلى مستوى صلاحيات للنظام</span></div><span class=\"badge badge-emerald font-bold text-xs\">كامل الصلاحيات</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -111,7 +111,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</strong></span> <span class=\"text-brand font-bold\">دور نظامي أساسي</span></div></div><!-- Role 2: Branch & Operations Manager --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">مدير العمليات والتوريد (Manager)</h3><span class=\"text-xs text-muted\">إدارة الفروع والشحنات</span></div><span class=\"badge badge-sky font-bold text-xs\">إداري</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</strong></span> <span class=\"text-brand font-bold\">دور نظامي أساسي</span></div></div><!-- Role 2: Branch & Operations Manager --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">مدير العمليات والتوريد (Manager)</h3><span class=\"text-xs text-muted\">إدارة الفروع والشحنات</span></div><span class=\"badge badge-sky font-bold text-xs\">إداري</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,7 +148,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 3: Warehouse & Inventory Keeper --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">أمين المخزن (Warehouse Keeper)</h3><span class=\"text-xs text-muted\">إدارة المخزون والتشغيلات</span></div><span class=\"badge badge-amber font-bold text-xs\">مخزني</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 3: Warehouse & Inventory Keeper --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">أمين المخزن (Warehouse Keeper)</h3><span class=\"text-xs text-muted\">إدارة المخزون والتشغيلات</span></div><span class=\"badge badge-amber font-bold text-xs\">مخزني</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -185,7 +185,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 4: Financial Accountant --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">المحاسب المالي (Accountant)</h3><span class=\"text-xs text-muted\">الفواتير والمحفظة</span></div><span class=\"badge badge-indigo font-bold text-xs\">مالي</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 4: Financial Accountant --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">المحاسب المالي (Accountant)</h3><span class=\"text-xs text-muted\">الفواتير والمحفظة</span></div><span class=\"badge badge-indigo font-bold text-xs\">مالي</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -222,7 +222,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 5: Sales Representative --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">مندوب مبيعات وتوريد (Sales Rep)</h3><span class=\"text-xs text-muted\">المبيعات والتواصل مع الصيدليات</span></div><span class=\"badge badge-slate font-bold text-xs\">مبيعات</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 5: Sales Representative --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">مندوب مبيعات وتوريد (Sales Rep)</h3><span class=\"text-xs text-muted\">المبيعات والتواصل مع الصيدليات</span></div><span class=\"badge badge-slate font-bold text-xs\">مبيعات</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -26,7 +26,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconDownload("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">استيراد وتحديث الكتالوج المركزي العام</h1>
 							<p class="text-sm text-secondary m-0 mt-1">معالجة ملفات Excel و CSV، التعرف الذكي على الأعمدة، واستكمال البيانات والأسماء العلمية بالذكاء الاصطناعي</p>
 						</div>
@@ -46,7 +46,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 				if view.Fatal != "" {
 					@wizardFatal(view.Fatal, view.FatalDetail)
 				}
-				<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
+				<form class="stack-md" method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
 					@importUploadCard()
 					<div class="glass-panel p-6 mb-6">
 						<div class="wiz-actions">
@@ -278,7 +278,7 @@ templ importHistoryCard(sessions []*catalog.ImportSession) {
 									{ SessionStatusLabel(session.Status) }
 								</span>
 							</td>
-							<td class="tabular-nums">{ session.CreatedAt.Format("2006-01-02 15:04") }</td>
+							<td class="tabular-nums">{ session.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
 						</tr>
 					}
 				</tbody>

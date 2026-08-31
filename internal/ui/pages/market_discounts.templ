@@ -22,7 +22,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 			<!-- 1. Sleek Integrated Header & KPI Bar -->
 			<div class="glass-panel p-4 mb-0">
 				<div class="flex-between items-center flex-wrap gap-3">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-1">
 							<span class="text-xl">@components.IconTag("icon-sm")</span>
 							<h1 class="text-xl font-black text-primary m-0">
@@ -76,7 +76,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Supplier Select -->
-						<div>
+      <div class="stack-sm">
 							<select name="supplier" class="form-input text-xs w-full" onchange="this.form.submit()">
 								<option value="">كافة الشركات ({ fmt.Sprintf("%d", len(result.AvailableSuppliers)) })</option>
 								for _, sup := range result.AvailableSuppliers {
@@ -86,7 +86,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Sort Order -->
-						<div>
+      <div class="stack-sm">
 							<select name="sort" class="form-input text-xs w-full" onchange="this.form.submit()">
 								<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً </option>
 								<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً </option>
@@ -97,7 +97,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Page Size Limit -->
-						<div>
+      <div class="stack-sm">
 							<select name="limit" class="form-input text-xs w-full" onchange="this.form.submit()">
 								<option value="24" selected?={ filter.Limit == 24 || filter.Limit == 0 }>24 عنصر</option>
 								<option value="48" selected?={ filter.Limit == 48 }>48 عنصر</option>
@@ -152,7 +152,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					<!-- Collapsible Advanced Range Filters -->
 					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="pt-3 border-t">
 						<!-- Price Range -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
 								نطاق السعر الصافي بعد الخصم (ج.م)
 							</label>
@@ -178,7 +178,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Discount Range -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
 								نطاق نسبة الخصم (%)
 							</label>
@@ -222,11 +222,11 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 			} else {
 				<!-- 1. LIST VIEW -->
-				<div x-show="currentView === 'list'" x-cloak>
+				<div class="stack-sm" x-show="currentView === 'list'" x-cloak>
 					for _, item := range result.Items {
 						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
 							<!-- Right: Product Name & SKU -->
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-black text-primary m-0 mb-1 leading-snug">
 									{ item.ProductName }
 								</h3>
@@ -258,7 +258,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							<!-- Left: Discount Pill + Public Price & Total Price -->
 							<div class="d-flex items-center gap-4 justify-end">
 								<!-- Discount Badge Pill -->
-								<div>
+        <div class="stack-sm">
 									if item.DiscountPercent >= 40 {
 										<div class="badge badge-rose text-xs font-black py-2 px-3">
 											{ formatDiscount(item.DiscountPercent) }% خصم
@@ -283,7 +283,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 								</div>
 
 								<!-- Quick Order / Cart Action -->
-								<div>
+        <div class="stack-sm">
 									if item.InCatalog && item.MatchedProductID != nil {
 										<a
 											href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
@@ -310,10 +310,10 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 
 				<!-- 2. GRID VIEW -->
-				<div x-show="currentView === 'grid'" x-cloak>
+				<div class="stack-sm" x-show="currentView === 'grid'" x-cloak>
 					for _, item := range result.Items {
 						<div class="glass-panel p-5 d-flex flex-col justify-between gap-4">
-							<div>
+       <div class="stack-sm">
 								<div class="flex-between items-center mb-2">
 									<span class="badge badge-primary text-xs font-bold">
 										{ item.SupplierName }
@@ -344,7 +344,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 
 							<div class="border-t pt-3 flex-between items-center">
-								<div>
+        <div class="stack-sm">
 									<div class="text-lg font-black text-primary tabular-nums">
 										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
 									</div>
@@ -355,7 +355,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 									}
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									if item.InCatalog && item.MatchedProductID != nil {
 										<a
 											href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }

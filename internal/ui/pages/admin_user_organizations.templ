@@ -26,7 +26,7 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								مستخدمو المنظمات (User Organizations Directory)
 							</h1>
@@ -99,7 +99,7 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 											<strong class="text-primary">{ uo.UserName }</strong>
 											<div class="meta-muted" dir="ltr">{ uo.UserEmail }</div>
 											if uo.CustomerOrgName != "" {
-												<div>{ uo.CustomerOrgName }</div>
+												<div class="stack-xs text-sm">{ uo.CustomerOrgName }</div>
 											}
 										</td>
 										<td>

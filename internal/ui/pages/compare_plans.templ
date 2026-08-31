@@ -11,9 +11,9 @@ import (
 
 templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
 	@layouts.PublicShell("خطط مقارنة الخصومات | Plans", lang, dir) {
-		<div>
-			<h2>خطط مقارنة الخصومات</h2>
-			<p>قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p>
+  <div class="stack-sm">
+			<h2 class="card-title font-bold text-base m-0">خطط مقارنة الخصومات</h2>
+			<p class="text-sm text-secondary m-0">قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p>
 		</div>
 		if len(plans) == 0 {
 			@components.EmptyState(components.EmptyStateProps{
@@ -22,16 +22,16 @@ templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
 				ActionLabel: "تواصل معنا",
 			})
 		} else {
-			<div>
+   <div class="stack-sm">
 				for _, p := range plans {
 					<div class="card hover-lift">
-						<div>
-							<h3>{ p.Name.Get(i18n.Lang(lang)) }</h3>
-							<p>{ p.Description.Get(i18n.Lang(lang)) }</p>
-							<div>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })<span> / شهرياً</span></div>
-							<div>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })<span> / سنوياً</span></div>
+      <div class="stack-sm">
+							<h3 class="font-bold text-sm m-0">{ p.Name.Get(i18n.Lang(lang)) }</h3>
+							<p class="text-sm text-secondary m-0">{ p.Description.Get(i18n.Lang(lang)) }</p>
+							<div class="stack-sm">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })<span> / شهرياً</span></div>
+							<div class="stack-sm">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })<span> / سنوياً</span></div>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/subscribe?plan=%s", p.Slug)) } class="m-0">
 								<button type="submit" class="btn btn-primary">اشترك الآن</button>
 							</form>

@@ -14,19 +14,19 @@ import (
 templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, roles []*org.Role, lang, dir string, actor authctx.Actor) {
 	@layouts.ShellFor("إدارة الموظفين ومدراء الفروع | Team & Managers", "employees", lang, dir, actor) {
 
-		<div>
+  <div class="stack-sm">
 
 			<!-- Top Header Card -->
-			<div>
-				<div>
-					<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
+					<div class="stack-xs text-sm">
 						@components.IconUsers("icon-sm")
 					</div>
-					<div>
-						<h1>
+     <div class="stack-sm">
+						<h1 class="page-title font-bold text-xl m-0">
 							منظومة الموظفين ومدراء الفروع المعتمدين
 						</h1>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							إدارة حسابات الصيادلة والموظفين، وتعيين مدير مسؤول لكل فرع ونقطة توزيع.
 						</p>
 					</div>
@@ -44,17 +44,17 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 			</div>
 
 			<!-- In-Page Embedded Form Panel: Add New Employee (NO floating modal overlay) -->
-			<div id="new-employee-panel">
-				<div>
+			<div class="stack-sm" id="new-employee-panel">
+    <div class="stack-sm">
 					<div class="row-center">
-						<div>
+						<div class="stack-xs text-sm">
 							@components.IconUser("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h2 class="text-lg fw-800 text-primary m-0">
 								إضافة وتعيين حساب موظف / مدير جديد
 							</h2>
-							<p>
+       <p class="text-sm text-secondary m-0">
 								أدخل البيانات وسيقوم النظام بربط الموظف بالدور والفرع المختار
 							</p>
 						</div>
@@ -62,22 +62,22 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 				</div>
 
 				<form method="POST" action="/settings/employees/create" class="stack-115">
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<label class="form-label">
 								اسم الموظف بالكامل <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="name" placeholder="د. أحمد محمود" class="form-input w-full" required/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								البريد الإلكتروني الرسمي <span class="text-danger">*</span>
 							</label>
 							<input type="email" name="email" placeholder="pharmacist@example.com" class="form-input tabular-nums w-full" required/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								رقم الهاتف / الواتساب
 							</label>
@@ -85,22 +85,22 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 						</div>
 					</div>
 
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<label class="form-label">
 								المسمى الوظيفي <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="job_title" placeholder="مدير فرع / صيدلي مسؤول" class="form-input w-full" required/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								كود الموظف الداخلي
 							</label>
 							<input type="text" name="employee_code" placeholder="EMP-0101" class="form-input tabular-nums w-full"/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الدور والصلاحيات
 							</label>
@@ -118,8 +118,8 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 						</div>
 					</div>
 
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<label class="form-label">
 								الفرع المخصص
 							</label>
@@ -137,7 +137,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الراتب الأساسي (ج.م)
 							</label>
@@ -145,8 +145,8 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 						</div>
 					</div>
 
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<span>ℹ️ سيتم تطبيق الصلاحيات والوصول للفرع المحدد تلقائياً وفقاً للدور المختار.</span>
 						</div>
 
@@ -160,32 +160,32 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 
 
 			<!-- Section 1: Branch Managers Assignment (توزيع وتعيين مدراء الفروع) -->
-			<div>
-				<div>
-					<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
+					<div class="stack-xs text-sm">
 						@components.IconBuilding("icon-xs")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-lg fw-800 text-primary m-0">
 							تعيين مدراء الفروع ونقاط التوزيع
 						</h3>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							يتم تعيين مدير لكل فرع من بين حسابات الموظفين المسجلين في النظام.
 						</p>
 					</div>
 				</div>
 
 				if len(branches) == 0 {
-					<div>
+     <div class="stack-sm">
 						لم يتم تسجيل أي فروع للمنشأة بعد. يمكنك إضافة فروع من <a href="/vendor/branches">صفحة الفروع ونقاط التوزيع</a>.
 					</div>
 				} else {
-					<div>
+     <div class="stack-sm">
 						for _, b := range branches {
-							<div>
-								<div>
-									<div>
-										<div>
+       <div class="stack-sm">
+        <div class="stack-sm">
+         <div class="stack-sm">
+          <div class="stack-sm">
 											<strong>
 												if b.Name["ar"] != "" {
 													{ b.Name["ar"] }
@@ -200,12 +200,12 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 										<span class="badge badge-sky tabular-nums text-xs">{ b.Code }</span>
 									</div>
 
-									<div>
+         <div class="stack-sm">
 										<span>العنوان: </span><strong>{ b.Address }</strong>
 									</div>
 
 									<!-- Current Manager Status -->
-									<div>
+         <div class="stack-sm">
 										<span class="text-muted">المدير الحالي: </span>
 										if b.ManagerID != nil && *b.ManagerID > 0 {
 											<strong class="text-accent">
@@ -224,7 +224,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 								</div>
 
 								<!-- Quick Assign Manager Dropdown -->
-								<form method="POST" action="/settings/employees/assign-manager">
+								<form class="stack-md" method="POST" action="/settings/employees/assign-manager">
 									<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", b.ID) }/>
 									<select name="manager_user_id" class="form-input">
 										<option value="0">-- إلغاء تعيين المدير --</option>
@@ -248,13 +248,13 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 			</div>
 
 			<!-- Section 2: Employees Directory List (جدول الموظفين والصلاحيات) -->
-			<div>
-				<div>
-					<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<h3 class="text-lg fw-800 text-primary m-0">
 							سجل الموظفين وفريق العمل
 						</h3>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							جميع أعضاء المنشأة والصيادلة المرتبطين بصلاحيات التشغيل.
 						</p>
 					</div>
@@ -265,12 +265,12 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 				</div>
 
 				if len(employees) == 0 {
-					<div>
+					<div class="stack-xs text-sm">
 						لا يوجد موظفون مضافون حالياً. استخدم نموذج الإضافة أعلاه لإضافة أول موظف.
 					</div>
 				} else {
-					<div>
-						<table>
+     <div class="stack-sm">
+      <table class="data-table">
 							<thead>
 								<tr>
 									<th class="pad-md">الموظف</th>
@@ -293,7 +293,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 										<td>
 											<div class="fw-700 text-primary">{ emp.Member.JobTitle }</div>
 											if emp.Member.EmployeeCode != "" {
-												<div>{ emp.Member.EmployeeCode }</div>
+												<div class="stack-xs text-sm">{ emp.Member.EmployeeCode }</div>
 											}
 										</td>
 										<td>

@@ -262,14 +262,14 @@ func importFatal(message string, session *ingest.Session) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if session != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<form class=\"stack-md\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 templ.SafeURL
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + session.PublicID + "/cancel"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 79, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest.templ`, Line: 79, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -310,7 +310,7 @@ func importUploadStage(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-upload-form\"><div class=\"card\"><h2 class=\"wiz-head\">1. اختر ملف الكتالوج</h2><p class=\"wiz-sub\">الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML. لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv,.txt\" required id=\"import-file-input\"> <span class=\"wiz-drop-icon\" aria-hidden=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form class=\"stack-md\" method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-upload-form\"><div class=\"card\"><h2 class=\"wiz-head\">1. اختر ملف الكتالوج</h2><p class=\"wiz-sub\">الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML. لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv,.txt\" required id=\"import-file-input\"> <span class=\"wiz-drop-icon\" aria-hidden=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

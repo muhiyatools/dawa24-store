@@ -240,7 +240,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					/>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<select name="dosage" class="form-select" onchange="this.form.submit()">
 						<option value="all" selected?={ dosageFilter == "" || dosageFilter == "all" }>كل الأشكال الصيدلية</option>
 						<option value="أقراص" selected?={ dosageFilter == "أقراص" }>أقراص (Tablets)</option>
@@ -254,7 +254,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</select>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<select name="brand_id" class="form-select" onchange="this.form.submit()">
 						<option value="0" selected?={ brandFilterVal == 0 }>كل الشركات المصنعة</option>
 						for _, b := range brands {
@@ -265,7 +265,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</select>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<select name="status" class="form-select" onchange="this.form.submit()">
 						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>كل الحالات</option>
 						<option value="active" selected?={ statusFilter == "active" }>نشط ومعتمد (Active)</option>
@@ -273,7 +273,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</select>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<select name="limit" class="form-select" onchange="this.form.submit()">
 						<option value="25" selected?={ pageSize == 25 }>25 صنف لكل صفحة</option>
 						<option value="50" selected?={ pageSize == 50 }>50 صنف لكل صفحة</option>
@@ -333,7 +333,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 										if p.Image != "" {
 											<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } />
 										} else {
-											<div>
+											<div class="stack-xs text-sm">
 												@components.IconPill("icon-xs")
 											</div>
 										}
@@ -348,7 +348,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 										}
 									</td>
 									<td>
-										<div>{ p.ScientificName }</div>
+										<div class="stack-xs text-sm">{ p.ScientificName }</div>
 										if p.Active != "" {
 											<div class="text-xs text-secondary">{ p.Active }</div>
 										}
@@ -442,13 +442,13 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 
 				<!-- Pagination Controls -->
 				if totalCount > 0 {
-					<div>
-						<div>
+     <div class="stack-sm">
+						<div class="stack-xs text-sm">
 							{ fmt.Sprintf("عرض %d - %d من إجمالي %d صنف معتمد", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 						</div>
 
 						<!-- Page navigation numbers -->
-						<div>
+      <div class="stack-sm">
 							if currentPage > 1 {
 								<a
 									href={ templ.SafeURL(buildAdminProductsPageURL(1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }

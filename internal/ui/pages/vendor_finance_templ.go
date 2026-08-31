@@ -52,7 +52,7 @@ func VendorPaymentsPage(payments []*billing.Payment, lang, dir string) templ.Com
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -265,7 +265,7 @@ func VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, dir
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"page-container\"><!-- Header & Period Filter Toolbar --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4 items-center\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"page-container\"><!-- Header & Period Filter Toolbar --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4 items-center\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -369,7 +369,7 @@ func VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, dir
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div><div><div class=\"font-extrabold text-sm text-primary\">معادلة احتساب الأرباح والمصروفات المعتمدة:</div><div class=\"text-xs text-secondary mt-1 lh-relaxed\"><strong>صافي الربح الفعلي = (سعر الجمهور - خصم الجمهور للصيدلية) - (سعر التكلفة - خصم التكلفة)</strong>.  يتم احتساب الأرباح وتسجيل تكلفة البضاعة المباعة تلقائياً فور تحول الشحنة إلى حالة <strong>مستلم (Delivered)</strong>.  الأصناف التي لا يتوفر لها سعر تكلفة يتم احتساب أرباحها بالكامل من صافي سعر البيع.</div></div></div></div><!-- 6 Key Financial KPI Cards --><div class=\"dashboard-stat-grid mb-6\"><!-- 1. Gross Sales --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-primary font-bold flex-between\"><span>إجمالي المبيعات (الجمهور)</span> <span class=\"badge badge-slate text-xs\">Gross</span></div><div class=\"stat-card-value text-primary tabular-nums mt-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div><div class=\"stack-sm\"><div class=\"font-extrabold text-sm text-primary\">معادلة احتساب الأرباح والمصروفات المعتمدة:</div><div class=\"text-xs text-secondary mt-1 lh-relaxed\"><strong>صافي الربح الفعلي = (سعر الجمهور - خصم الجمهور للصيدلية) - (سعر التكلفة - خصم التكلفة)</strong>.  يتم احتساب الأرباح وتسجيل تكلفة البضاعة المباعة تلقائياً فور تحول الشحنة إلى حالة <strong>مستلم (Delivered)</strong>.  الأصناف التي لا يتوفر لها سعر تكلفة يتم احتساب أرباحها بالكامل من صافي سعر البيع.</div></div></div></div><!-- 6 Key Financial KPI Cards --><div class=\"dashboard-stat-grid mb-6\"><!-- 1. Gross Sales --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-primary font-bold flex-between\"><span>إجمالي المبيعات (الجمهور)</span> <span class=\"badge badge-slate text-xs\">Gross</span></div><div class=\"stat-card-value text-primary tabular-nums mt-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1100,7 +1100,7 @@ func VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir string
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1267,7 +1267,7 @@ func VendorOfferOrderDetailPage(id int64, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<div class=\"page-container\"><div class=\"glass-panel p-6 max-w-2xl mx-auto\"><div class=\"flex-between items-center mb-4 pb-2 border-b\"><div><h1 class=\"text-xl font-black text-primary m-0\">طلب عروض #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<div class=\"page-container\"><div class=\"glass-panel p-6 max-w-2xl mx-auto\"><div class=\"flex-between items-center mb-4 pb-2 border-b\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">طلب عروض #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

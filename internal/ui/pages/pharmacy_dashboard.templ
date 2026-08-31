@@ -16,7 +16,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 			
 			<!-- Header / Pharmacy Overview Banner -->
 			<div class="glass-panel p-4 mb-6 flex-between flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<h1 class="text-xl font-black text-primary m-0">
 							if data.CustomerOrgName != "" {
@@ -62,7 +62,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						<div class="text-warning flex-shrink-0">
 							@components.IconAlert("icon-lg")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="font-extrabold text-sm text-warning">
 								تنبيه إداري عاجل: مطلوب استكمال مستند رسمي ({ data.PendingDocRequests[0].Title })
 							</div>
@@ -89,7 +89,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							@components.IconChart("icon-sm")
 						</div>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="stat-card-value">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.TotalSpend, Large: true })
 						</div>
@@ -108,7 +108,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							@components.IconPackage("icon-sm")
 						</div>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-baseline gap-2">
 							<span class="stat-card-value">
 								{ fmt.Sprintf("%d", data.TotalOrders) }
@@ -144,7 +144,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							@components.IconWallet("icon-sm")
 						</div>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="stat-card-value text-success">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance, Large: true })
 						</div>
@@ -172,7 +172,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							@components.IconZap("icon-sm")
 						</div>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-baseline gap-2">
 							<span class="stat-card-value text-brand">
 								{ fmt.Sprintf("%d", data.SmartOrdersCount) }
@@ -252,7 +252,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					<!-- Recent Orders Table Section -->
 					<div class="glass-panel p-4">
 						<div class="flex-between pb-3 border-b mb-4">
-							<div>
+       <div class="stack-sm">
 								<h2 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.recent_orders") }</h2>
 								<span class="text-xs text-muted">{ i18n.T(lang, "pharmacy.dashboard.recent_orders_desc") }</span>
 							</div>
@@ -334,7 +334,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					<!-- Section: الطلب الذكي (الطلب الذكي ومطابقة النواقص) -->
 					<div class="glass-panel p-4">
 						<div class="flex-between pb-3 border-b mb-4">
-							<div>
+       <div class="stack-sm">
 								<div class="d-flex items-center gap-2">
 									<h2 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.smart_matching_title") }</h2>
 									<span class="badge badge-sky text-xs font-bold">{ i18n.T(lang, "pharmacy.dashboard.ai_badge") }</span>
@@ -393,7 +393,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							<div class="d-flex flex-col gap-2.5">
 								for _, r := range data.RecentSmartOrders {
 									<div class="flex-between items-center p-3 px-4 border rounded-lg bg-surface-sunken flex-wrap gap-2">
-										<div>
+          <div class="stack-sm">
 											<div class="font-extrabold text-primary text-sm d-flex items-center gap-1.5">
 												<span>{ r.OriginalFile }</span>
 												<span class="text-xs font-semibold text-muted tabular-nums">#{ r.RunNumber }</span>
@@ -464,7 +464,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 								<div class="d-flex flex-col gap-2">
 									for _, tx := range data.RecentTransactions {
 										<div class="flex-between items-center text-xs p-2 rounded-md bg-surface-sunken">
-											<div>
+           <div class="stack-sm">
 												<div class="font-bold text-primary">{ FormatTxTypeLabel(tx.Type) }</div>
 												<div class="text-xs text-muted">{ tx.CreatedAt.Format("2006-01-02 15:04") }</div>
 											</div>
@@ -551,7 +551,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 								</span>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<div class="flex-between items-baseline mb-1.5">
 									<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "pharmacy.dashboard.ai_monthly_label") }</span>
 									<span class="tabular-nums text-lg font-black text-primary">
@@ -588,7 +588,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							<div class="d-flex flex-col gap-2">
 								for _, o := range data.Offers {
 									<div class="flex-between items-center p-3 border rounded-lg bg-surface-sunken">
-										<div>
+          <div class="stack-sm">
 											<div class="font-extrabold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
 											<div class="text-xs text-secondary mt-1">
 												{ i18n.T(lang, "pharmacy.dashboard.offer_discount") } <strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> ج.م

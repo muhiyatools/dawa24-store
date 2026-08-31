@@ -36,7 +36,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -491,7 +491,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -507,7 +507,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" class=\"grid-cols-3\"><div><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"1\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"0\" step=\"1\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" class=\"grid-cols-3\"><div class=\"stack-sm\"><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"1\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div class=\"stack-sm\"><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"0\" step=\"1\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div class=\"stack-sm\"><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -520,7 +520,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "):</span> <input type=\"number\" step=\"any\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "):</span> <input type=\"number\" step=\"any\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">حفظ الشريحة</button></form><!-- List of Existing Bands --><div class=\"stack-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -535,7 +535,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 				return templ_7745c5c3_Err
 			}
 			for _, band := range data.Bands {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs\"><div><div class=\"font-extrabold text-sm text-primary tabular-nums\">من ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs\"><div class=\"stack-sm\"><div class=\"font-extrabold text-sm text-primary tabular-nums\">من ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -647,7 +647,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<form :action=\"'/vendor/coverage/' + editCov.id + '/update'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">??? ???????</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control font-bold\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">????? ???????</label> <select name=\"branch_id\" x-model=\"editCov.branch_id\" class=\"form-control\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<form :action=\"'/vendor/coverage/' + editCov.id + '/update'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">??? ???????</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control font-bold\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">????? ???????</label> <select name=\"branch_id\" x-model=\"editCov.branch_id\" class=\"form-control\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -683,7 +683,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">??????? / ??????</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\"><option value=\"\">-- ??????? --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</select></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">??????? / ??????</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\"><option value=\"\">-- ??????? --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -719,7 +719,7 @@ func VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</select></div><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">?? (??? ?????)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">??? (??? ???????)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">??? ????? (??????)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' ??'\"></span></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">??????? ?? ????? ???????? (???????)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"????: ???? ???? ??????? ??? ?????? ???????\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">????? ??? ?????? ????? ?????? ???????</label></div><div class=\"modal-footer pt-3 border-t mt-3 flex-between items-center\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">?????</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">??? ?????????</button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</select></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">?? (??? ?????)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">??? (??? ???????)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">??? ????? (??????)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' ??'\"></span></div></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-1 text-primary\">??????? ?? ????? ???????? (???????)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"????: ???? ???? ??????? ??? ?????? ???????\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">????? ??? ?????? ????? ?????? ???????</label></div><div class=\"modal-footer pt-3 border-t mt-3 flex-between items-center\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">?????</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">??? ?????????</button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

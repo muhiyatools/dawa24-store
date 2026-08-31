@@ -71,10 +71,10 @@ templ importConfirmStage(view VendorImportView) {
 				}
 			</span>
 			<div class="row-center">
-				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
+				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back") }>
 					<button type="submit" class="btn btn-ghost">← تعديل الربط</button>
 				</form>
-				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/confirm") } hx-boost="false"
+				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/confirm") } hx-boost="false"
 					if view.Session.Settings.Mode.Destructive() {
 						onsubmit="return confirm('سيتم إيقاف عرض كل صنف غير موجود في هذا الملف. هل أنت متأكد؟');"
 					}
@@ -203,7 +203,7 @@ templ importResultsStage(view VendorImportView) {
 
 templ importRowsTable(view VendorImportView) {
 	<div class="card">
-		<div>
+  <div class="stack-sm">
 			<h3 class="wiz-head m-0">{ fmt.Sprintf("سجل الصفوف (%d)", view.RowTotal) }</h3>
 			<div class="row-center-sm">
 				@importRowFilter(view, "", "الكل")
@@ -261,7 +261,7 @@ templ importRowsTable(view VendorImportView) {
 								</span>
 							</td>
 							<td class="text-center text-xs">
-								<div>
+        <div class="stack-sm">
 									<span class={ "badge", MatchLevelBadgeClass(row.MatchLevel), "text-xs" }>
 										{ MatchLevelLabel(row.MatchLevel) }
 									</span>

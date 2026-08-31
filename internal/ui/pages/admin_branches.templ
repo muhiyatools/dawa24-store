@@ -33,7 +33,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 						<div class="admin-banner-icon primary">
 							@components.IconMapPin("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="admin-banner-title">
 								<span>دليل الفروع ومواقع التخزين والمستودعات</span>
 								<span class="badge badge-sky text-xs font-black tabular-nums">{ fmt.Sprintf("%d فرع ومخزن", data.TotalBranches) }</span>
@@ -197,7 +197,7 @@ templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
 		<div class="admin-page-container">
 			<div class="admin-banner">
 				<div class="admin-banner-inner">
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-xl font-black text-primary m-0">{ b.Name.Get("ar") }</h1>
 						<p class="text-sm text-secondary mt-1 m-0">
 							كود الفرع: <strong class="tabular-nums">{ b.Code }</strong> | منشأة #{ fmt.Sprintf("%d", b.OrganizationID) }

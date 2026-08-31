@@ -18,12 +18,12 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 
 			<!-- Visual Progress Bar if in Multi-File Setup Mode -->
 			if (isSetup || total > 1) && total > 0 {
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<span>نسبة إنجاز ملفات الموردين</span>
 						<span class="tabular-nums">{ fmt.Sprintf("%d%%", (step*100)/total) }</span>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div
 							style={ fmt.Sprintf("width:%d%%;", (step*100)/total) }
 							class="progress-bar-fill"
@@ -33,7 +33,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 			}
 
 			<!-- Form Content -->
-			<form
+			<form class="stack-md"
 				id="compare-mapping-form"
 				method="POST"
 				action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) }
@@ -46,9 +46,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				<input type="hidden" name="next_file_id" value={ fmt.Sprintf("%d", nextFileID) } />
 
 				<!-- Supplier Name Editable Field -->
-				<div>
-					<div>@components.IconBuilding("icon-sm")</div>
-					<div>
+    <div class="stack-sm">
+					<div class="stack-xs text-sm">@components.IconBuilding("icon-sm")</div>
+     <div class="stack-sm">
 						<label class="form-label">
 							اسم المورد أو شركة التوزيع <span class="text-danger">*</span>
 						</label>
@@ -62,14 +62,14 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							required
 						/>
 					</div>
-					<div>
+					<div class="stack-xs text-sm">
 						سيظهر هذا الاسم في جداول المقارنة وأفضل العروض. يمكنك تعديله الآن.
 					</div>
 				</div>
 
 				<!-- Column Mapping Selectors Grid (2x2) -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<div class="row-center-sm">
 							<span>@components.IconActivity("icon-sm")</span>
 							<strong>تحديد أعمدة البيانات بالكشف:</strong>
@@ -79,12 +79,12 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</span>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						
 						<!-- 1. Product Name (Required) -->
-						<div>
+      <div class="stack-sm">
 							<div class="flex-between">
-								<label>
+        <label class="form-label">
 									اسم الصنف الدوائي <span class="text-danger">* (مطلوب للمطابقة)</span>
 								</label>
 								if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
@@ -108,9 +108,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</div>
 
 						<!-- 2. Price -->
-						<div>
+      <div class="stack-sm">
 							<div class="flex-between">
-								<label>
+        <label class="form-label">
 									سعر الجمهور الرسمي (Public Price)
 								</label>
 								if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
@@ -134,9 +134,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</div>
 
 						<!-- 3. Discount -->
-						<div>
+      <div class="stack-sm">
 							<div class="flex-between">
-								<label>
+        <label class="form-label">
 									نسبة الخصم % (Discount)
 								</label>
 								if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
@@ -160,9 +160,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</div>
 
 						<!-- 4. Code / SKU -->
-						<div>
+      <div class="stack-sm">
 							<div class="flex-between">
-								<label>
+        <label class="form-label">
 									كود الصنف / SKU (اختياري)
 								</label>
 								if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
@@ -190,16 +190,16 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 
 				<!-- Live Preview Table -->
 				if len(headers) > 0 && len(preview) > 0 {
-					<div>
-						<div>
-							<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								عينة من بيانات الملف (الصفوف الأولى):
 							</div>
 							<span class="meta-muted">
 								{ fmt.Sprintf("%d صفوف للمعاينة", len(preview)) }
 							</span>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<table class="data-table">
 								<thead>
 									<tr>
@@ -228,7 +228,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				}
 
 				<!-- Actions Bar -->
-				<div>
+    <div class="stack-sm">
 					
 					<div class="d-flex items-center gap-2">
 						if isSetup || total > 1 {
@@ -300,8 +300,8 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 					if (modal) {
 						modal.innerHTML = `
 							<div class="card">
-								<div>⏩</div>
-								<div>جاري تخطي الملف والانتقال للملف التالي...</div>
+								<div class="stack-xs text-sm">⏩</div>
+								<div class="stack-xs text-sm">جاري تخطي الملف والانتقال للملف التالي...</div>
 							</div>
 						`;
 					}
@@ -347,7 +347,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 
 templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {
 	@layouts.VendorShell("تعيين أعمدة الملف - "+file.SupplierName, "compare", lang, dir) {
-		<div>
+		<div class="stack-xs text-sm">
 			@CompareFileMappingModal(file, headers, preview, detection, isSetup, step, total, remainingQueue, nextFileID)
 		</div>
 	}

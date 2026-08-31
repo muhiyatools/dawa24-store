@@ -339,7 +339,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 			<div class="no-print-toolbar">
 				<div class="d-flex items-center gap-2">
 					<span style="font-size:1.3rem;">@components.IconFileText("icon-sm")</span>
-					<div>
+     <div class="stack-sm">
 						<strong style="font-size:0.95rem; display:block; color:#0f172a;">
 							فاتورة استلام وتوريد
 						</strong>
@@ -399,15 +399,15 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 								style="max-height:52px; max-width:150px; object-fit:contain; margin-bottom:0.35rem; display:block; -webkit-print-color-adjust:exact; print-color-adjust:exact;"
 							/>
 						}
-						<div style="font-size:1.15rem; font-weight:900; color:#0f172a; line-height:1.2;">
+						<div class="stack-sm" style="font-size:1.15rem; font-weight:900; color:#0f172a; line-height:1.2;">
 							{ data.Vendor.DisplayName }
 						</div>
 						if data.Vendor.LegalName != "" && data.Vendor.LegalName != data.Vendor.DisplayName {
-							<div style="font-size:0.75rem; color:#64748b; margin-top:2px;">
+							<div class="stack-sm" style="font-size:0.75rem; color:#64748b; margin-top:2px;">
 								{ data.Vendor.LegalName }
 							</div>
 						}
-						<div style="font-size:0.75rem; color:#334155; margin-top:3px;">
+						<div class="stack-sm" style="font-size:0.75rem; color:#334155; margin-top:3px;">
 							if data.Vendor.TaxNumber != "" {
 								<span>ب.ض: <strong class="tabular-nums">{ data.Vendor.TaxNumber }</strong></span>
 							}
@@ -419,7 +419,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 
 					<!-- 2. Center Column: Dawa 24 Official Vector Logo & Document Title -->
 					<div class="header-center-logo">
-						<div style="display:inline-flex; align-items:center; justify-content:center; gap:0.45rem;">
+						<div class="stack-sm" style="display:inline-flex; align-items:center; justify-content:center; gap:0.45rem;">
 							<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block; vertical-align:middle;">
 								<rect width="32" height="32" rx="8" fill="#2563eb"/>
 								<path d="M16 7V25M7 16H25" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -427,31 +427,31 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 							<span style="font-size:1.6rem; font-weight:900; color:#2563eb; letter-spacing:-0.5px;">دواء</span>
 							<span style="font-size:1.6rem; font-weight:900; color:#0f172a; letter-spacing:-0.5px;">24</span>
 						</div>
-						<div style="font-size:0.75rem; font-weight:700; color:#475569; margin-top:2px;">
+						<div class="stack-sm" style="font-size:0.75rem; font-weight:700; color:#475569; margin-top:2px;">
 							منصة الربط والتوزيع الدوائي المعتمدة
 						</div>
-						<div style="font-size:0.75rem; font-weight:800; color:#0f172a; margin-top:4px; padding:0.2rem 0.6rem; background:#f1f5f9; border-radius:4px; display:inline-block; border:1px solid #e2e8f0;">
+						<div class="stack-sm" style="font-size:0.75rem; font-weight:800; color:#0f172a; margin-top:4px; padding:0.2rem 0.6rem; background:#f1f5f9; border-radius:4px; display:inline-block; border:1px solid #e2e8f0;">
 							فاتورة استلام وتوريد
 						</div>
 					</div>
 
 					<!-- 3. Left Column: Invoice Meta Details -->
 					<div class="header-meta" style="text-align:left; direction:ltr;">
-						<div style="font-size:0.85rem; color:#334155; margin-bottom:0.2rem;">
+						<div class="stack-sm" style="font-size:0.85rem; color:#334155; margin-bottom:0.2rem;">
 							<span style="direction:rtl; display:inline-block; font-size:0.8rem; color:#64748b; margin-right:4px;">رقم الفاتورة:</span>
 							<strong class="tabular-nums" style="color:#0f172a; font-size:0.95rem;">{ data.InvoiceNumber }</strong>
 						</div>
 						if data.OrderNumber != "" {
-							<div style="font-size:0.8rem; color:#334155; margin-bottom:0.2rem;">
+							<div class="stack-sm" style="font-size:0.8rem; color:#334155; margin-bottom:0.2rem;">
 								<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">أمر الشراء:</span>
 								<strong class="tabular-nums">#{ data.OrderNumber }</strong>
 							</div>
 						}
-						<div style="font-size:0.775rem; color:#334155; margin-bottom:0.2rem;">
+						<div class="stack-sm" style="font-size:0.775rem; color:#334155; margin-bottom:0.2rem;">
 							<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">تاريخ الإصدار:</span>
 							<span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 15:04") }</span>
 						</div>
-						<div style="font-size:0.775rem; color:#334155;">
+						<div class="stack-sm" style="font-size:0.775rem; color:#334155;">
 							<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">طريقة السداد:</span>
 							if data.PaymentMethod == "cash" || data.PaymentMethod == "cash_on_delivery" || data.PaymentMethod == "cod" {
 								<span class="font-bold">نقداً عند الاستلام</span>
@@ -462,7 +462,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 							}
 						</div>
 						if data.DeliveryCode != "" {
-							<div style="font-size:0.775rem; color:#0f172a; margin-top:0.35rem; background:#f0fdf4; padding:0.25rem 0.5rem; border-radius:4px; border:1px solid #bbf7d0;">
+							<div class="stack-sm" style="font-size:0.775rem; color:#0f172a; margin-top:0.35rem; background:#f0fdf4; padding:0.25rem 0.5rem; border-radius:4px; border:1px solid #bbf7d0;">
 								<span style="font-size:0.75rem; color:#166534; font-weight:bold;">كود الاستلام (PIN):</span>
 								<strong class="tabular-nums" style="font-family:monospace; font-size:0.95rem; color:#15803d; margin-inline-start:0.35rem; letter-spacing:0.1em;">{ data.DeliveryCode }</strong>
 							</div>
@@ -476,7 +476,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					
 					<!-- Vendor Details (Right in RTL) -->
 					<div class="party-column">
-						<h4>بيانات المورد (البائع / المصدر)</h4>
+						<h4 class="font-semibold text-sm m-0">بيانات المورد (البائع / المصدر)</h4>
 						<div class="party-info-row">الاسم التجاري: <strong>{ data.Vendor.DisplayName }</strong></div>
 						if data.Vendor.TaxNumber != "" {
 							<div class="party-info-row">البطاقة الضريبية: <strong class="tabular-nums">{ data.Vendor.TaxNumber }</strong></div>
@@ -494,7 +494,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 
 					<!-- Customer / Pharmacy Details (Left in RTL) -->
 					<div class="party-column">
-						<h4>بيانات الصيدلية (المشتري / المستلم)</h4>
+						<h4 class="font-semibold text-sm m-0">بيانات الصيدلية (المشتري / المستلم)</h4>
 						<div class="party-info-row">اسم الصيدلية: <strong>{ data.Customer.DisplayName }</strong></div>
 						if data.Customer.OrganizationNumber != "" {
 							<div class="party-info-row">رقم المنظمة لدى المورد: <strong class="tabular-nums" style="font-family:monospace; color:#2563eb; font-size:0.9rem;">{ data.Customer.OrganizationNumber }</strong></div>
@@ -567,20 +567,20 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					<div class="signatures-box">
 						<div class="sig-col">
 							<strong style="display:block; color:#0f172a; margin-bottom:0.25rem;">تسليم المورد (المندوب):</strong>
-							<div style="font-size:0.7rem; color:#64748b;">الاسم: .......................................</div>
+							<div class="stack-sm" style="font-size:0.7rem; color:#64748b;">الاسم: .......................................</div>
 							<div class="sig-line"></div>
-							<div style="font-size:0.7rem; color:#64748b; margin-top:2px;">التوقيع والتاريخ</div>
+							<div class="stack-sm" style="font-size:0.7rem; color:#64748b; margin-top:2px;">التوقيع والتاريخ</div>
 						</div>
 						<div class="sig-col">
 							<strong style="display:block; color:#0f172a; margin-bottom:0.25rem;">استلام الصيدلية (المشتري):</strong>
-							<div style="font-size:0.7rem; color:#64748b;">الاسم: .......................................</div>
+							<div class="stack-sm" style="font-size:0.7rem; color:#64748b;">الاسم: .......................................</div>
 							<div class="sig-line"></div>
-							<div style="font-size:0.7rem; color:#64748b; margin-top:2px;">الختم / التوقيع</div>
+							<div class="stack-sm" style="font-size:0.7rem; color:#64748b; margin-top:2px;">الختم / التوقيع</div>
 						</div>
 					</div>
 
 					<!-- Financial Totals -->
-					<div>
+     <div class="stack-sm">
 						<table class="totals-table">
 							<tr>
 								<td style="color:#64748b;">إجمالي سعر الجمهور:</td>
@@ -600,7 +600,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 							</tr>
 						</table>
 						if data.Notes != "" {
-							<div style="font-size:0.75rem; color:#475569; margin-top:0.4rem;">
+							<div class="stack-sm" style="font-size:0.75rem; color:#475569; margin-top:0.4rem;">
 								<strong>ملاحظات:</strong> { data.Notes }
 							</div>
 						}
@@ -630,7 +630,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 							style="max-height:36px; max-width:120px; object-fit:contain; margin:0 auto 4px auto; display:block; filter:grayscale(100%) contrast(150%);"
 						/>
 					}
-					<div style="font-size:15px; font-weight:900; letter-spacing:-0.5px;">
+					<div class="stack-sm" style="font-size:15px; font-weight:900; letter-spacing:-0.5px;">
 						{ data.Vendor.DisplayName }
 					</div>
 					if data.Vendor.TaxNumber != "" {
@@ -640,7 +640,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						<div class="font-size-10">هاتف: { data.Vendor.Phone }</div>
 					}
 					<div class="thermal-divider"></div>
-					<div style="font-size:13px; font-weight:900;">
+					<div class="stack-sm" style="font-size:13px; font-weight:900;">
 						دواء 24 — إيصال استلام وتوريد
 					</div>
 					<div class="tabular-nums font-size-10">#{ data.InvoiceNumber }</div>
@@ -693,8 +693,8 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 
 				<!-- Items -->
 				for _, line := range data.Lines {
-					<div style="margin-bottom:5px;">
-						<div style="font-weight:700; font-size:10.5px;">{ line.ItemName }</div>
+					<div class="stack-sm" style="margin-bottom:5px;">
+						<div class="stack-sm" style="font-weight:700; font-size:10.5px;">{ line.ItemName }</div>
 						<div class="thermal-row" style="font-size:9.5px; color:#111; align-items:center;">
 							<span style="flex:2; color:#555;" class="tabular-nums">{ line.NetUnitPrice.String() + " صافي" }</span>
 							<span style="width:48px; text-align:center;" class="tabular-nums">{ line.UnitPrice.String() }</span>

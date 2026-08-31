@@ -80,12 +80,12 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		<!-- Page Header & Wallet Summary -->
 		<div class="glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-sm">
 			<div class="flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-2.5 mb-1.5">
 						<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 							@components.IconSparkles("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								الاشتراك وإدارة خطط العضوية
 							</h1>
@@ -125,7 +125,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 						<div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 d-flex items-center justify-center border border-sky-200/60 shadow-2xs">
 							@components.IconShield("icon-xs")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h2 class="text-base font-extrabold text-primary m-0">
 								باقتك الحالية المفعّلة
 							</h2>
@@ -178,7 +178,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 
 					<!-- AI Gateway Budget & Usage -->
 					<div class="stat-card-3d d-flex flex-col justify-between">
-						<div>
+      <div class="stack-sm">
 							<div class="flex-between items-center mb-1">
 								<span class="stat-card-label text-brand font-black">بوابة الذكاء الاصطناعي</span>
 								<span class="badge badge-sky text-xs font-bold font-mono" dir="ltr">{ data.Subscription.AIPlanID }</span>
@@ -221,7 +221,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		<div class="glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs">
 			<!-- Section Header & Billing Period Switcher -->
 			<div class="flex-between items-center flex-wrap gap-4 mb-6 pb-4 border-b border-slate-100">
-				<div>
+    <div class="stack-sm">
 					<h2 class="text-lg font-black text-primary m-0">
 						باقات وعضويات المنظومة المتاحة
 					</h2>
@@ -258,7 +258,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 				</div>
 			} else {
 				<!-- Horizontal Grid of Modern Pricing Cards -->
-				<div>
+    <div class="stack-sm">
 					for _, p := range data.Plans {
 						{{ isCurrent := data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) }}
 						<div
@@ -276,10 +276,10 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 								</div>
 							}
 
-							<div>
+       <div class="stack-sm">
 								<!-- Plan Title & Badge -->
 								<div class="flex-between items-start mb-2">
-									<div>
+         <div class="stack-sm">
 										<h3 class="text-lg font-black text-primary m-0">
 											{ p.Name.Get("ar") }
 										</h3>
@@ -301,7 +301,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 								<div class="p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-5">
 									<!-- Monthly Price View -->
 									<div x-show="planBillingPeriod === 'monthly'" class="flex-between items-baseline">
-										<div>
+          <div class="stack-sm">
 											<span class="text-2xl font-black text-brand tabular-nums">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })
 											</span>
@@ -312,7 +312,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 
 									<!-- Annual Price View -->
 									<div x-show="planBillingPeriod === 'annual'" class="flex-between items-baseline">
-										<div>
+          <div class="stack-sm">
 											<span class="text-2xl font-black text-emerald-600 tabular-nums">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })
 											</span>
@@ -434,7 +434,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 					<input type="hidden" name="plan_slug" :value="selectedPlanSlug" />
 
 					<!-- Billing Cycle Choice in Modal -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label font-bold text-xs mb-2 d-block text-primary">دورة الفوترة والتجديد:</label>
 						<div class="d-grid gap-2 grid-cols-1 md:grid-cols-2">
 							<!-- Monthly Radio -->

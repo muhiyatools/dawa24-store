@@ -6,7 +6,7 @@ import (
 
 templ RatingStars(score float64, count int) {
 	<div class="rating-stars-container" style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.8rem;">
-		<div style="display:inline-flex; align-items:center; gap:1px; color:#f59e0b;">
+		<div class="stack-sm" style="display:inline-flex; align-items:center; gap:1px; color:#f59e0b;">
 			for i := 1; i <= 5; i++ {
 				if float64(i) <= score {
 					<!-- Full Star -->

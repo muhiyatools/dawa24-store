@@ -111,7 +111,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Page Header Strip --><div class=\"glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border border-slate-200/80 rounded-2xl shadow-sm\"><div><nav class=\"breadcrumb-trail text-xs text-muted mb-1.5 d-flex items-center gap-1.5 font-semibold\"><a href=\"/\" class=\"text-secondary hover:text-primary transition-colors\">الرئيسية</a> <span class=\"text-slate-300\">/</span> <span class=\"text-primary font-bold\">كتالوج التوريد الدوائي</span></nav><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">كتالوج عروض توريد الأدوية والمستلزمات الطبية</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة</p></div><div class=\"page-actions-group d-flex items-center gap-2.5\"><a href=\"/customer/purchase-request\" class=\"btn btn-secondary btn-sm font-bold gap-2 shadow-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Page Header Strip --><div class=\"glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"stack-sm\"><nav class=\"breadcrumb-trail text-xs text-muted mb-1.5 d-flex items-center gap-1.5 font-semibold\"><a href=\"/\" class=\"text-secondary hover:text-primary transition-colors\">الرئيسية</a> <span class=\"text-slate-300\">/</span> <span class=\"text-primary font-bold\">كتالوج التوريد الدوائي</span></nav><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">كتالوج عروض توريد الأدوية والمستلزمات الطبية</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة</p></div><div class=\"page-actions-group d-flex items-center gap-2.5\"><a href=\"/customer/purchase-request\" class=\"btn btn-secondary btn-sm font-bold gap-2 shadow-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -522,7 +522,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<!-- Categories Tree --><div><label class=\"form-label text-xs font-bold mb-1.5 text-primary d-flex items-center gap-1.5\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<!-- Categories Tree --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold mb-1.5 text-primary d-flex items-center gap-1.5\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -715,7 +715,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>سعر التوريد للصيدلية (ج.م)</span></label><div class=\"d-grid grid-cols-2 gap-2\"><div><input type=\"number\" name=\"min_price\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>سعر التوريد للصيدلية (ج.م)</span></label><div class=\"d-grid grid-cols-2 gap-2\"><div class=\"stack-sm\"><input type=\"number\" name=\"min_price\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -728,7 +728,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\" placeholder=\"من 0\" class=\"form-input text-xs tabular-nums font-semibold\"></div><div><input type=\"number\" name=\"max_price\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\" placeholder=\"من 0\" class=\"form-input text-xs tabular-nums font-semibold\"></div><div class=\"stack-sm\"><input type=\"number\" name=\"max_price\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -790,7 +790,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" placeholder=\"ابحث بالاسم التجاري، المادة الفعالة، اسم الشركة، أو الباركود...\" class=\"form-input ps-10 font-medium text-xs\" hx-get=\"/catalog\" hx-trigger=\"keyup changed delay:350ms, search\" hx-target=\"#catalog-results\" hx-push-url=\"true\" autocomplete=\"off\"></div><!-- Controls: Rows per page, Sort, View Toggle --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Rows Per Page Selector --><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-secondary\"><label>عرض:</label> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" placeholder=\"ابحث بالاسم التجاري، المادة الفعالة، اسم الشركة، أو الباركود...\" class=\"form-input ps-10 font-medium text-xs\" hx-get=\"/catalog\" hx-trigger=\"keyup changed delay:350ms, search\" hx-target=\"#catalog-results\" hx-push-url=\"true\" autocomplete=\"off\"></div><!-- Controls: Rows per page, Sort, View Toggle --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Rows Per Page Selector --><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-secondary\"><label class=\"form-label\">عرض:</label> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -847,7 +847,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, ">96</option></select></div><!-- Sort Selector --><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-secondary\"><label>الترتيب:</label> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, ">96</option></select></div><!-- Sort Selector --><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-secondary\"><label class=\"form-label\">الترتيب:</label> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1190,7 +1190,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "</div><!-- Results Dynamic Container --><div id=\"catalog-results\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "</div><!-- Results Dynamic Container --><div class=\"stack-sm\" id=\"catalog-results\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

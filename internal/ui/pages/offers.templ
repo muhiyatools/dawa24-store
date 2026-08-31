@@ -58,7 +58,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 		<!-- Header Banner -->
 		<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 			<div class="flex-between flex-wrap gap-4 items-center">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-2 mb-2">
 						<span class="badge badge-emerald font-bold text-xs">
 							@components.IconCheckCircle("icon-2xs")
@@ -92,7 +92,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 		</div>
 
 		<!-- Section: Available Offers Grid -->
-		<div>
+  <div class="stack-sm">
 			<div class="flex-between items-center mb-4">
 				<div class="d-flex items-center gap-2">
 					@components.IconTag("icon-sm text-brand")
@@ -122,7 +122,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 				<div class="d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 					for _, o := range offers {
 						<div class="glass-panel p-5 d-flex flex-col justify-between border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 hover:shadow-md transition-all">
-							<div>
+       <div class="stack-sm">
 								<!-- Header Badges -->
 								<div class="flex-between items-start gap-2 mb-3">
 									<div class="d-flex items-center gap-2 flex-wrap">
@@ -160,7 +160,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 
 								<!-- Key Offer Metrics Strip -->
 								<div class="d-grid gap-2 p-3 bg-surface-sunken rounded-xl border border-slate-200/70 mb-4 text-xs">
-									<div>
+         <div class="stack-sm">
 										<span class="text-muted d-block mb-1 font-semibold">الأصناف المشمولة:</span>
 										<strong class="text-primary font-bold tabular-nums">
 											if o.ProductsCount > 0 {
@@ -171,12 +171,12 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 										</strong>
 									</div>
 									if o.TotalPrice.IsPositive() {
-										<div>
+          <div class="stack-sm">
 											<span class="text-muted d-block mb-1 font-semibold">إجمالي الحزمة:</span>
 											<strong class="text-brand font-black tabular-nums">{ o.TotalPrice.String() } <span class="text-2xs font-bold text-secondary">ج.م</span></strong>
 										</div>
 									} else if o.MinOrderAmount.IsPositive() {
-										<div>
+          <div class="stack-sm">
 											<span class="text-muted d-block mb-1 font-semibold">الحد الأدنى للطلب:</span>
 											<strong class="text-primary font-bold tabular-nums">{ o.MinOrderAmount.String() } <span class="text-2xs font-bold text-secondary">ج.م</span></strong>
 										</div>
@@ -228,7 +228,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 		<!-- Offer Master Card -->
 		<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 			<div class="flex-between items-start flex-wrap gap-4 mb-4 pb-4 border-b border-slate-100">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-2 mb-2 flex-wrap">
 						<span class="badge badge-emerald font-bold text-xs shadow-2xs">
 							@components.IconCheckCircle("icon-2xs")
@@ -272,7 +272,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 
 			<!-- Offer Validity & Summary Grid -->
 			<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border border-slate-200/70 mb-6 text-xs">
-				<div>
+    <div class="stack-sm">
 					<span class="text-muted font-bold d-block mb-1">المورد / المنشأة:</span>
 					<strong class="text-primary text-sm font-extrabold d-block">
 						if data.Offer.OrganizationName != "" {
@@ -286,7 +286,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 					}
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<span class="text-muted font-bold d-block mb-1">فترة الصلاحية وسريان العرض:</span>
 					<div class="text-primary font-bold tabular-nums">
 						if data.Offer.StartDate != nil {
@@ -298,9 +298,9 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<span class="text-muted font-bold d-block mb-1">شروط التوريد والشحن:</span>
-					<div>
+     <div class="stack-sm">
 						<span class="badge badge-sky text-xs font-bold shadow-2xs">
 							@components.IconTruck("icon-2xs")
 							<span>شحن مبرد Cold-Chain معتمد</span>
@@ -315,7 +315,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 					<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 d-flex items-center justify-center font-black">
 						@components.IconTag("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-sm font-black text-primary m-0">طلب هذا العرض الترويجي</h3>
 						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
 							إضافة كافة أصناف العرض بأسعار التخفيض المعتمدة مباشرة إلى سلة المشتريات

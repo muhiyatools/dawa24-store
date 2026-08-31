@@ -51,7 +51,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><!-- Top Header Card --><div><div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><!-- Top Header Card --><div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -59,7 +59,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1>منظومة الموظفين ومدراء الفروع المعتمدين</h1><p>إدارة حسابات الصيادلة والموظفين، وتعيين مدير مسؤول لكل فرع ونقطة توزيع.</p></div></div><div class=\"row-center\"><a href=\"/vendor/roles\" class=\"btn btn-secondary btn-sm fw-700\"><span>إدارة الأدوار والصلاحيات</span></a> <a href=\"#new-employee-panel\" class=\"btn btn-primary btn-sm fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"page-title font-bold text-xl m-0\">منظومة الموظفين ومدراء الفروع المعتمدين</h1><p class=\"text-sm text-secondary m-0\">إدارة حسابات الصيادلة والموظفين، وتعيين مدير مسؤول لكل فرع ونقطة توزيع.</p></div></div><div class=\"row-center\"><a href=\"/vendor/roles\" class=\"btn btn-secondary btn-sm fw-700\"><span>إدارة الأدوار والصلاحيات</span></a> <a href=\"#new-employee-panel\" class=\"btn btn-primary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -67,7 +67,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>+ إضافة موظف جديد</span></a></div></div><!-- In-Page Embedded Form Panel: Add New Employee (NO floating modal overlay) --><div id=\"new-employee-panel\"><div><div class=\"row-center\"><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>+ إضافة موظف جديد</span></a></div></div><!-- In-Page Embedded Form Panel: Add New Employee (NO floating modal overlay) --><div class=\"stack-sm\" id=\"new-employee-panel\"><div class=\"stack-sm\"><div class=\"row-center\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,7 +75,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div><h2 class=\"text-lg fw-800 text-primary m-0\">إضافة وتعيين حساب موظف / مدير جديد</h2><p>أدخل البيانات وسيقوم النظام بربط الموظف بالدور والفرع المختار</p></div></div></div><form method=\"POST\" action=\"/settings/employees/create\" class=\"stack-115\"><div><div><label class=\"form-label\">اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" placeholder=\"د. أحمد محمود\" class=\"form-input w-full\" required></div><div><label class=\"form-label\">البريد الإلكتروني الرسمي <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"email\" placeholder=\"pharmacist@example.com\" class=\"form-input tabular-nums w-full\" required></div><div><label class=\"form-label\">رقم الهاتف / الواتساب</label> <input type=\"tel\" name=\"phone\" placeholder=\"01012345678\" class=\"form-input tabular-nums w-full\"></div></div><div><div><label class=\"form-label\">المسمى الوظيفي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"job_title\" placeholder=\"مدير فرع / صيدلي مسؤول\" class=\"form-input w-full\" required></div><div><label class=\"form-label\">كود الموظف الداخلي</label> <input type=\"text\" name=\"employee_code\" placeholder=\"EMP-0101\" class=\"form-input tabular-nums w-full\"></div><div><label class=\"form-label\">الدور والصلاحيات</label> <select name=\"role_key\" class=\"form-input w-full\"><option value=\"org_manager\">مدير فرع / عمليات (Branch Manager)</option> <option value=\"org_pharmacist\">صيدلي مسؤول (Pharmacist)</option> <option value=\"org_warehouse\">أمين مخزن وتوزيع (Warehouse)</option> <option value=\"org_accountant\">محاسب مالي (Accountant)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"stack-sm\"><h2 class=\"text-lg fw-800 text-primary m-0\">إضافة وتعيين حساب موظف / مدير جديد</h2><p class=\"text-sm text-secondary m-0\">أدخل البيانات وسيقوم النظام بربط الموظف بالدور والفرع المختار</p></div></div></div><form method=\"POST\" action=\"/settings/employees/create\" class=\"stack-115\"><div class=\"stack-sm\"><div class=\"stack-sm\"><label class=\"form-label\">اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" placeholder=\"د. أحمد محمود\" class=\"form-input w-full\" required></div><div class=\"stack-sm\"><label class=\"form-label\">البريد الإلكتروني الرسمي <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"email\" placeholder=\"pharmacist@example.com\" class=\"form-input tabular-nums w-full\" required></div><div class=\"stack-sm\"><label class=\"form-label\">رقم الهاتف / الواتساب</label> <input type=\"tel\" name=\"phone\" placeholder=\"01012345678\" class=\"form-input tabular-nums w-full\"></div></div><div class=\"stack-sm\"><div class=\"stack-sm\"><label class=\"form-label\">المسمى الوظيفي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"job_title\" placeholder=\"مدير فرع / صيدلي مسؤول\" class=\"form-input w-full\" required></div><div class=\"stack-sm\"><label class=\"form-label\">كود الموظف الداخلي</label> <input type=\"text\" name=\"employee_code\" placeholder=\"EMP-0101\" class=\"form-input tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"form-label\">الدور والصلاحيات</label> <select name=\"role_key\" class=\"form-input w-full\"><option value=\"org_manager\">مدير فرع / عمليات (Branch Manager)</option> <option value=\"org_pharmacist\">صيدلي مسؤول (Pharmacist)</option> <option value=\"org_warehouse\">أمين مخزن وتوزيع (Warehouse)</option> <option value=\"org_accountant\">محاسب مالي (Accountant)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -113,7 +113,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</select></div></div><div><div><label class=\"form-label\">الفرع المخصص</label> <select name=\"branch_id\" class=\"form-input w-full\"><option value=\"\">كافة الفروع (صلاحية عامة)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</select></div></div><div class=\"stack-sm\"><div class=\"stack-sm\"><label class=\"form-label\">الفرع المخصص</label> <select name=\"branch_id\" class=\"form-input w-full\"><option value=\"\">كافة الفروع (صلاحية عامة)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -161,7 +161,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select></div><div><label class=\"form-label\">الراتب الأساسي (ج.م)</label> <input type=\"number\" name=\"base_salary\" placeholder=\"8000\" class=\"form-input tabular-nums w-full\"></div></div><div><div><span>ℹ️ سيتم تطبيق الصلاحيات والوصول للفرع المحدد تلقائياً وفقاً للدور المختار.</span></div><button type=\"submit\" class=\"btn btn-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select></div><div class=\"stack-sm\"><label class=\"form-label\">الراتب الأساسي (ج.م)</label> <input type=\"number\" name=\"base_salary\" placeholder=\"8000\" class=\"form-input tabular-nums w-full\"></div></div><div class=\"stack-sm\"><div class=\"stack-sm\"><span>ℹ️ سيتم تطبيق الصلاحيات والوصول للفرع المحدد تلقائياً وفقاً للدور المختار.</span></div><button type=\"submit\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -169,7 +169,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>حفظ وإضافة الموظف الآن</span></button></div></form></div><!-- Section 1: Branch Managers Assignment (توزيع وتعيين مدراء الفروع) --><div><div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>حفظ وإضافة الموظف الآن</span></button></div></form></div><!-- Section 1: Branch Managers Assignment (توزيع وتعيين مدراء الفروع) --><div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -177,22 +177,22 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div><h3 class=\"text-lg fw-800 text-primary m-0\">تعيين مدراء الفروع ونقاط التوزيع</h3><p>يتم تعيين مدير لكل فرع من بين حسابات الموظفين المسجلين في النظام.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stack-sm\"><h3 class=\"text-lg fw-800 text-primary m-0\">تعيين مدراء الفروع ونقاط التوزيع</h3><p class=\"text-sm text-secondary m-0\">يتم تعيين مدير لكل فرع من بين حسابات الموظفين المسجلين في النظام.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(branches) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div>لم يتم تسجيل أي فروع للمنشأة بعد. يمكنك إضافة فروع من <a href=\"/vendor/branches\">صفحة الفروع ونقاط التوزيع</a>.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"stack-sm\">لم يتم تسجيل أي فروع للمنشأة بعد. يمكنك إضافة فروع من <a href=\"/vendor/branches\">صفحة الفروع ونقاط التوزيع</a>.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"stack-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, b := range branches {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div><div><div><div><strong>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"stack-sm\"><strong>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -240,7 +240,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div><div><span>العنوان: </span><strong>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></div><div class=\"stack-sm\"><span>العنوان: </span><strong>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -253,7 +253,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</strong></div><!-- Current Manager Status --><div><span class=\"text-muted\">المدير الحالي: </span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</strong></div><!-- Current Manager Status --><div class=\"stack-sm\"><span class=\"text-muted\">المدير الحالي: </span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -298,7 +298,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div><!-- Quick Assign Manager Dropdown --><form method=\"POST\" action=\"/settings/employees/assign-manager\"><input type=\"hidden\" name=\"branch_id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div><!-- Quick Assign Manager Dropdown --><form class=\"stack-md\" method=\"POST\" action=\"/settings/employees/assign-manager\"><input type=\"hidden\" name=\"branch_id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -380,7 +380,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><!-- Section 2: Employees Directory List (جدول الموظفين والصلاحيات) --><div><div><div><h3 class=\"text-lg fw-800 text-primary m-0\">سجل الموظفين وفريق العمل</h3><p>جميع أعضاء المنشأة والصيادلة المرتبطين بصلاحيات التشغيل.</p></div><span class=\"badge badge-sky tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><!-- Section 2: Employees Directory List (جدول الموظفين والصلاحيات) --><div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"stack-sm\"><h3 class=\"text-lg fw-800 text-primary m-0\">سجل الموظفين وفريق العمل</h3><p class=\"text-sm text-secondary m-0\">جميع أعضاء المنشأة والصيادلة المرتبطين بصلاحيات التشغيل.</p></div><span class=\"badge badge-sky tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -398,12 +398,12 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 				return templ_7745c5c3_Err
 			}
 			if len(employees) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div>لا يوجد موظفون مضافون حالياً. استخدم نموذج الإضافة أعلاه لإضافة أول موظف.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"stack-xs text-sm\">لا يوجد موظفون مضافون حالياً. استخدم نموذج الإضافة أعلاه لإضافة أول موظف.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div><table><thead><tr><th class=\"pad-md\">الموظف</th><th class=\"pad-md\">المسمى والكود</th><th class=\"pad-md\">الدور</th><th class=\"pad-md\">الفرع</th><th class=\"pad-md\">الرتبة</th><th class=\"pad-md\">الراتب الأساسي</th><th class=\"pad-md\">الحالة</th><th>الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"stack-sm\"><table class=\"data-table\"><thead><tr><th class=\"pad-md\">الموظف</th><th class=\"pad-md\">المسمى والكود</th><th class=\"pad-md\">الدور</th><th class=\"pad-md\">الفرع</th><th class=\"pad-md\">الرتبة</th><th class=\"pad-md\">الراتب الأساسي</th><th class=\"pad-md\">الحالة</th><th>الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -465,14 +465,14 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 						return templ_7745c5c3_Err
 					}
 					if emp.Member.EmployeeCode != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div class=\"stack-xs text-sm\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(emp.Member.EmployeeCode)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_employees.templ`, Line: 296, Col: 42}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_employees.templ`, Line: 296, Col: 67}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {

@@ -46,7 +46,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 						<div class="w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-xl font-black text-primary m-0">???? ??????? ?????? ???????</h1>
 							<p class="text-sm text-secondary m-0 mt-1">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p>
 						</div>
@@ -87,7 +87,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 										<td>
 											<div class="d-flex items-center gap-2.5">
 												<span class="text-lg">@components.IconBuilding("icon-sm")</span>
-												<div>
+            <div class="stack-sm">
 													<strong class="text-primary text-sm font-black">{ row.Warehouse.Name }</strong>
 													if row.Warehouse.Code != "" {
 														<div class="text-xs text-muted font-mono">???: { row.Warehouse.Code }</div>
@@ -179,7 +179,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 						<div class="w-14 h-14 rounded-2xl bg-sky-500/15 text-accent flex-center text-2xl shrink-0 border border-sky-500/25">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-2.5 flex-wrap">
 								<h1 class="text-xl font-black text-primary m-0">
 									مخزون مخزن: { data.Warehouse.Name }
@@ -418,7 +418,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 											{ fmt.Sprintf("%d", (data.CurrentPage-1)*data.PageSize + idx + 1) }
 										</td>
 										<td>
-											<div>
+           <div class="stack-sm">
 												<div class="font-bold text-primary text-sm">
 													if st.ProductName != "" {
 														{ st.ProductName }

@@ -18,7 +18,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 						<div class="user-avatar-badge text-xl">
 							🩺
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">سجلات تشخيص واستثناءات النظام ({ fmt.Sprintf("%d", len(logs)) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">مراقبة الأخطاء البرمجية، استثناءات قاعدة البيانات، واستجابات 5xx</p>
 						</div>
@@ -61,7 +61,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 											}
 										</td>
 										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ l.Status }</span></td>
-										<td class="tabular-nums text-xs text-secondary">{ l.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+										<td class="tabular-nums text-xs text-secondary">{ l.CreatedAt.Format("2006-01-02 03:04:05 PM") }</td>
 										<td class="text-end">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d", l.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض التفاصيل</a>
 										</td>
@@ -81,7 +81,7 @@ templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الخطأ #%d", l.ID), "developers", lang, dir) {
 		<div class="card max-w-3xl mx-auto">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">خطأ #{ fmt.Sprintf("%d", l.ID) }: { l.ErrorMessage }</h2>
 					<p class="subtitle">مسار: <code>{ l.URLPath }</code> | خطورة: { l.ErrorLevel }</p>
 				</div>
@@ -89,7 +89,7 @@ templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 			</div>
 
 			<div class="mb-lg">
-				<h3>Stack Trace:</h3>
+				<h3 class="font-bold text-sm m-0">Stack Trace:</h3>
 				<pre>{ l.StackTrace }</pre>
 			</div>
 
@@ -117,18 +117,18 @@ templ AdminSystemResourcesPage(systemName string, lang, dir string) {
 	@layouts.AdminShell("حالة موارد النظام والخدمات", "developers", lang, dir) {
 		<div class="card mb-0">
 			<h2 class="card-title mb-lg">موارد النظام وقدرات المنصة ({ systemName })</h2>
-			<div>
-				<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
 					<div class="text-sm text-secondary">قاعدة البيانات PostgreSQL</div>
-					<div><span class="badge badge-emerald">متصل ونشط</span></div>
+					<div class="stack-sm"><span class="badge badge-emerald">متصل ونشط</span></div>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<div class="text-sm text-secondary">بوابة الذكاء الاصطناعي AI Gateway</div>
-					<div><span class="badge badge-emerald">جاهز للخدمة</span></div>
+					<div class="stack-sm"><span class="badge badge-emerald">جاهز للخدمة</span></div>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<div class="text-sm text-secondary">نظام التخزين Storage S3/Local</div>
-					<div><span class="badge badge-emerald">يعمل بكفاءة</span></div>
+					<div class="stack-sm"><span class="badge badge-emerald">يعمل بكفاءة</span></div>
 				</div>
 			</div>
 		</div>
@@ -140,7 +140,7 @@ templ AdminFirstLookPage(lang, dir string) {
 	@layouts.AdminShell("جولة في لوحة التحكم (First Look)", "dashboard", lang, dir) {
 		<div class="card max-w-2xl mx-auto">
 			<h2 class="card-title">مرحباً بك في لوحة تحكم منصة دواء 24</h2>
-			<p>
+   <p class="text-sm text-secondary m-0">
 				تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.
 			</p>
 			<a href="/admin/dashboard" class="btn btn-primary">الانتقال للرئيسية</a>

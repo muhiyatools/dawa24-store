@@ -32,7 +32,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 		>
 			<!-- Page Header -->
 			<div class="flex-between items-center flex-wrap gap-4 mb-8">
-				<div>
+    <div class="stack-sm">
 					<div class="row-center-sm mb-2">
 						<div class="b2b-icon-box-sm">
 							@components.IconSettings("icon-sm")
@@ -205,7 +205,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<!-- Danger Zone: Account Deletion Request -->
 				<div class="border-t border-danger/30 mt-10 pt-7">
 					<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
 								@components.IconTrash("icon-xs")
 								<span>{ i18n.T(lang, "settings.delete_account_title") }</span>
@@ -234,7 +234,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				x-show="activeTab === 'organization'"
 			>
 				<div class="flex-between items-center mb-6 flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-xl font-black text-primary m-0">
 							{ i18n.T(lang, "settings.org_title") }
 						</h3>
@@ -292,7 +292,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 				<form action="/settings/preferences" method="POST" class="max-w-2xl d-flex flex-col gap-5 text-start">
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
-						<div>
+      <div class="stack-sm">
 							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_whatsapp") }</div>
 							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_whatsapp_desc") }</div>
 						</div>
@@ -300,7 +300,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
-						<div>
+      <div class="stack-sm">
 							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_invoices") }</div>
 							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_invoices_desc") }</div>
 						</div>
@@ -308,7 +308,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</div>
 
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
-						<div>
+      <div class="stack-sm">
 							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_promos") }</div>
 							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_promos_desc") }</div>
 						</div>

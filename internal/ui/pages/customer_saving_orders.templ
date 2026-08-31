@@ -13,7 +13,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 	@layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil) {
 		<div class="card mb-0">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
 					<p class="subtitle">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p>
 				</div>
@@ -58,25 +58,25 @@ templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil) {
 		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">إتمام شراء العرض: { offer.Title.Get("ar") }</h2>
 					<p class="subtitle">قيمة الخصم: { offer.DiscountValue.String() }</p>
 				</div>
 				<a href="/offers" class="btn btn-secondary btn-sm">إلغاء والعودة</a>
 			</div>
 
-			<form method="POST" action="/checkout">
+			<form class="stack-md" method="POST" action="/checkout">
 				<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", offer.ID) } />
-				<div>
-					<h3>بيانات التسليم والفرع</h3>
+    <div class="stack-sm">
+					<h3 class="font-bold text-sm m-0">بيانات التسليم والفرع</h3>
 					<div class="stack">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">فرع الاستلام</label>
 							<select name="branch_id" class="form-input" required>
 								<option value="1">الفرع الرئيسي للصيدلية</option>
 							</select>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">ملاحظات التوصيل</label>
 							<textarea name="notes" class="form-input" rows="2" placeholder="مواعيد التسليم أو تعليمات الشحن..."></textarea>
 						</div>
@@ -107,25 +107,25 @@ templ GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, di
 		<div class="container">
 			<div class="card">
 				<h2 class="card-title">تتبع شحنات وطلبات دواء 24</h2>
-				<p>أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p>
+				<p class="text-sm text-secondary m-0">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p>
 
-				<form method="GET" action="/tracking">
+				<form class="stack-md" method="GET" action="/tracking">
 					<input type="text" name="order_number" value={ orderNumber } placeholder="مثال: ORD-20260819-XXXXXX" class="form-input flex-1" required />
 					<button type="submit" class="btn btn-primary">تتبع الآن</button>
 				</form>
 
 				if orderNumber != "" {
 					if order != nil {
-						<div>
+      <div class="stack-sm">
 							<div class="flex-between mb-md">
-								<div>
+        <div class="stack-sm">
 									<div class="text-sm text-secondary">رقم الطلب</div>
-									<div><code>{ order.OrderNumber }</code></div>
+									<div class="stack-sm"><code>{ order.OrderNumber }</code></div>
 								</div>
 								<span class="badge badge-sky">{ string(order.Status) }</span>
 							</div>
 							<div class="text-sm text-secondary">
-								تاريخ الإنشاء: <span class="tabular-nums">{ order.CreatedAt.Format("2006-01-02 15:04") }</span>
+								تاريخ الإنشاء: <span class="tabular-nums">{ order.CreatedAt.Format("2006-01-02 03:04 PM") }</span>
 							</div>
 						</div>
 					} else {

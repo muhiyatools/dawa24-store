@@ -165,7 +165,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 					class="card mb-0 max-w-3xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<div class="flex-between items-center mb-5 pb-4 border-b">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-xl font-black text-primary m-0 d-flex items-center gap-2">
 								<span>@components.IconZap("icon-sm")</span>
 								<span>رفع كشوف المستودعات المجمّع (حتى 100 ملف دفعة واحدة)</span>
@@ -357,7 +357,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 							<div class="w-11 h-11 rounded-2xl bg-accent-subtle text-accent flex-center text-xl shrink-0">
 								@components.IconSettings("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<div class="d-flex items-center gap-2 mb-1">
 									<span class="badge badge-emerald font-black text-xs">
 										معالج ضبط وتأكيد أعمدة المستودع
@@ -442,7 +442,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 
 							<div class="d-grid grid-auto-fit-sm gap-3">
 								<!-- Code Col -->
-								<div>
+        <div class="stack-sm">
 									<label class="form-label text-xs font-black mb-1">
 										كود الصنف (SKU / Barcode)
 									</label>
@@ -455,7 +455,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 								</div>
 
 								<!-- Name Col -->
-								<div>
+        <div class="stack-sm">
 									<label class="form-label text-xs font-black mb-1">
 										اسم المنتج / الصنف <span class="text-danger">*</span>
 									</label>
@@ -468,7 +468,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 								</div>
 
 								<!-- Price Col -->
-								<div>
+        <div class="stack-sm">
 									<label class="form-label text-xs font-black mb-1">
 										سعر الجمهور (الرسمي)
 									</label>
@@ -481,7 +481,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 								</div>
 
 								<!-- Discount Col -->
-								<div>
+        <div class="stack-sm">
 									<label class="form-label text-xs font-black mb-1">
 										نسبة الخصم (%)
 									</label>
@@ -545,7 +545,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 
 						<!-- Modal Footer Actions -->
 						<div class="flex-between items-center flex-wrap gap-3 border-t pt-4">
-							<div>
+       <div class="stack-sm">
 								<template x-if="mappingQueue.length > 0">
 									<button
 										type="button"

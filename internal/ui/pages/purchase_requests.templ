@@ -15,12 +15,12 @@ templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option strin
 			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconShoppingBag("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">طلبات الشراء والتوريد</h1>
 								<p class="text-sm text-secondary m-0 mt-1">
 									اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج الأصناف، أو تجهيز طلب ذكي من ملف.
@@ -38,7 +38,7 @@ templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option strin
 					class="glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer"
 					onclick="window.location='/suppliers'"
 				>
-					<div>
+     <div class="stack-sm">
 						<div class="user-avatar-badge text-2xl mx-auto mb-4">
 							@components.IconBuilding("icon-lg")
 						</div>
@@ -58,7 +58,7 @@ templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option strin
 					class="glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer"
 					onclick="window.location='/catalog'"
 				>
-					<div>
+     <div class="stack-sm">
 						<div class="user-avatar-badge text-2xl mx-auto mb-4">
 							@components.IconPackage("icon-lg")
 						</div>
@@ -78,7 +78,7 @@ templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option strin
 					class="glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer border-brand"
 					onclick="window.location='/customer/smart-order/new'"
 				>
-					<div>
+     <div class="stack-sm">
 						<div class="user-avatar-badge text-2xl mx-auto mb-4">
 							@components.IconSparkles("icon-lg")
 						</div>
@@ -104,12 +104,12 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconDownload("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">طلبات الشراء الواردة من الصيدليات</h1>
 								<p class="text-sm text-secondary m-0 mt-1">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p>
 							</div>
@@ -136,7 +136,7 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 				<div class="d-flex flex-col gap-3">
 					for _, req := range requests {
 						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
-							<div>
+       <div class="stack-sm">
 								<div class="d-flex items-center gap-2 mb-1">
 									<h3 class="m-0 text-base font-extrabold text-primary">طلب #{ req.RequestNumber }</h3>
 									<span class="badge badge-primary text-xs font-bold">{ string(req.Status) }</span>
@@ -164,12 +164,12 @@ templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purcha
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconFile("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">طلب شراء #{ request.RequestNumber }</h1>
 								<p class="text-sm text-secondary m-0 mt-1">العميل: { request.CustomerName } | الحالة: { string(request.Status) }</p>
 							</div>
@@ -226,7 +226,7 @@ templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purcha
 							<option value="cancelled">اعتذار / رفض الطلب</option>
 						</select>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات التوريد الموجهة للصيدلية</label>
 						<textarea name="vendor_notes" rows="3" class="form-input text-xs w-full" placeholder="اكتب أية شروط أو ملاحظات للمشتري...">{ request.VendorNotes }</textarea>
 					</div>

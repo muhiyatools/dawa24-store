@@ -48,7 +48,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 						<div class="w-11 h-11 rounded-xl bg-surface-sunken text-primary d-flex items-center justify-center border">
 							@components.IconUsers("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-xl font-black text-primary m-0 d-flex items-center gap-2">
 								<span>إدارة المستخدمين والحسابات المركزية</span>
 								<span class="badge badge-indigo text-xs font-black tabular-nums">{ fmt.Sprintf("%d حساب", data.TotalUsers) }</span>
@@ -162,7 +162,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 														U
 													}
 												</div>
-												<div>
+            <div class="stack-sm">
 													<div class="font-extrabold text-primary text-xs">{ userDisplayName(u) }</div>
 													<div class="text-2xs text-muted tabular-nums font-mono">#{ fmt.Sprintf("USR-%d", u.ID) }</div>
 												</div>
@@ -232,27 +232,27 @@ templ adminStaffCreateForm(data AdminUsersPageData) {
 				يحدد الدور المختار الصفحات والإجراءات المتاحة للمشرف داخل لوحة الإدارة. يمكنك تعديل صلاحيات أي دور من صفحة الأدوار.
 			</p>
 			<form method="POST" action="/admin/users/staff" class="d-grid gap-3 grid-auto-fit-sm">
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="staff-name-ar">الاسم بالعربية</label>
 					<input id="staff-name-ar" class="form-input" type="text" name="name_ar" required maxlength="120"/>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="staff-name-en">الاسم بالإنجليزية</label>
 					<input id="staff-name-en" class="form-input" type="text" name="name_en" maxlength="120"/>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="staff-email">البريد الإلكتروني</label>
 					<input id="staff-email" class="form-input" type="email" name="email" required autocomplete="off"/>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="staff-phone">رقم الهاتف</label>
 					<input id="staff-phone" class="form-input" type="tel" name="phone" maxlength="20"/>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="staff-password">كلمة مرور مبدئية</label>
 					<input id="staff-password" class="form-input" type="password" name="password" required minlength="8" autocomplete="new-password"/>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="staff-role">الدور الإداري</label>
 					<select id="staff-role" class="form-input font-bold" name="role" required>
 						for _, role := range data.StaffRoles {
@@ -313,7 +313,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconUsers("icon-sm")
@@ -396,7 +396,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				<!-- Search and Filter Toolstrip -->
 				<div class="glass-panel p-4 mb-0">
 					<div class="d-grid grid-3-col gap-3 items-center">
-						<div>
+      <div class="stack-sm">
 							<input
 								type="text"
 								x-model="searchQuery"
@@ -405,7 +405,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<select x-model="statusFilter" class="form-select text-xs w-full font-bold">
 								<option value="all">جميع الحالات (All Status)</option>
 								<option value="active">نشط (Active)</option>
@@ -414,7 +414,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<select x-model="roleFilter" class="form-select text-xs w-full font-bold">
 								<option value="all">جميع الصلاحيات (All Roles)</option>
 								<option value="super_admin">مدير نظام عام (Super Admin)</option>
@@ -528,7 +528,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 			<div x-show="activeTab === 'deletion_requests'" class="d-flex flex-col gap-6">
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
 					<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-2">
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-extrabold text-primary m-0">
 								طلبات حذف الحسابات المقدمة من الصيدليات والموردين ({ fmt.Sprintf("%d", len(data.DeletionRequests)) })
 							</h3>
@@ -580,7 +580,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 												}
 											</td>
 											<td class="tabular-nums">
-												<span class="text-secondary text-xs">{ req.CreatedAt.Format("2006-01-02 15:04") }</span>
+												<span class="text-secondary text-xs">{ req.CreatedAt.Format("2006-01-02 03:04 PM") }</span>
 											</td>
 											<td class="text-center">
 												if req.Status == "pending" {

@@ -92,9 +92,9 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 			
 			<!-- Breadcrumb & Top Navigation Bar -->
 			<div class="card">
-				<div>
-					<div>
-						<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<a href="/vendor/branches">شبكة الفروع والمخازن</a>
 							<span>/</span>
 							if data.IsEdit {
@@ -103,7 +103,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 								<span>إضافة فرع جديد</span>
 							}
 						</div>
-						<h1>
+						<h1 class="page-title font-bold text-xl m-0">
 							{ pageTitle }
 						</h1>
 					</div>
@@ -131,17 +131,17 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 
 			<!-- Main Form Card -->
 			<div class="card">
-				<form method="POST" action={ templ.SafeURL(formAction) }>
+				<form class="stack-md" method="POST" action={ templ.SafeURL(formAction) }>
 					
 					<!-- Section 1: Basic Information -->
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<span>@components.IconBuilding("icon-sm")</span>
-							<h2>1. البيانات الأساسية للفرع أو المخزن</h2>
+							<h2 class="card-title font-bold text-base m-0">1. البيانات الأساسية للفرع أو المخزن</h2>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									اسم الفرع / المخزن (بالعربية) <span>*</span>
 								</label>
@@ -156,7 +156,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
  />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									اسم الفرع (بالإنجليزية)
 								</label>
@@ -170,7 +170,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
  />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									كود الفرع (Branch Code)
 								</label>
@@ -184,7 +184,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
  />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									نوع المنشأة اللوجستية <span>*</span>
 								</label>
@@ -199,14 +199,14 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 					</div>
 
 					<!-- Section 2: City, Manager, Address, Phone, Capacity -->
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<span>@components.IconMapPin("icon-sm")</span>
-							<h2>2. الموقع الإداري والإدارة المسؤولة</h2>
+							<h2 class="card-title font-bold text-base m-0">2. الموقع الإداري والإدارة المسؤولة</h2>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									المدينة / المحافظة <span>*</span>
 								</label>
@@ -225,7 +225,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									مدير الفرع المسؤول
 								</label>
@@ -244,7 +244,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									رقم هاتف الفرع
 								</label>
@@ -258,7 +258,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
  />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label field-label">
 									المساحة التخزينية (م²)
 								</label>
@@ -273,7 +273,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label field-label">
 								العنوان التفصيلي وموقع الاستلام <span>*</span>
 							</label>
@@ -290,20 +290,20 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 					</div>
 
 					<!-- Section 3: Interactive OpenStreetMap -->
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<span>@components.IconGlobe("icon-sm")</span>
-							<h2>3. الإحداثيات الجغرافية وخريطة الموقع</h2>
+							<h2 class="card-title font-bold text-base m-0">3. الإحداثيات الجغرافية وخريطة الموقع</h2>
 						</div>
 
 						<div class="stack-xs">
-							<div
+							<div class="stack-sm"
 								data-map-picker
 								data-default-lat={ defaultLat }
 								data-default-lon={ defaultLon }
 							>
 								<div class="map-container map-canvas"></div>
-								<div>
+        <div class="stack-sm">
 									<div class="d-flex items-center gap-2">
 										<span>الإحداثيات المحددة:</span>
 										<span data-map-coords-badge class="tabular-nums fw-800 text-primary">{ defaultLat }, { defaultLon }</span>
@@ -317,7 +317,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label field-label">
 								رابط خرائط Google (Google Maps URL)
 							</label>
@@ -333,20 +333,20 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 					</div>
 
 					<!-- Section 4: Institutional Works (12 Categories) -->
-					<div>
-						<div>
-							<h3>
+     <div class="stack-sm">
+      <div class="stack-sm">
+							<h3 class="font-bold text-sm m-0">
 								مجالات الأعمال المؤسسية المغطاة (Institutional Works)
 							</h3>
 							<span class="badge badge-sky text-xs fw-700">12 فئة معتمدة</span>
 						</div>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							حدد مجالات العمل المؤسسي التي يخدمها هذا الفرع لضمان شموله في نتائج البحث والتوريد للعملاء:
 						</p>
 
-						<div>
+      <div class="stack-sm">
 							for _, cat := range institutionalWorkCategories {
-								<label>
+        <label class="form-label">
 									<input
 										type="checkbox"
 										name="institutional_works"
@@ -360,15 +360,15 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 					</div>
 
 					<!-- Section 5: Cold Storage, Main Branch, Status -->
-					<div>
-						<label>
+     <div class="stack-sm">
+      <label class="form-label">
 							<input
 								type="checkbox"
 								name="has_cold_storage"
 								value="true"
 								checked?={ hasColdStorage }
 							/>
-							<div>
+       <div class="stack-sm">
 								<span>سلسلة تبريد دوائية مجهزة (2° - 8° مئوية)</span>
 								<span>
 									مخزن مجهز لتخزين وتوريد الأدوية الحيوية والأنسولين واللقاحات.
@@ -376,14 +376,14 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 							</div>
 						</label>
 
-						<label>
+      <label class="form-label">
 							<input
 								type="checkbox"
 								name="is_main"
 								value="true"
 								checked?={ isMain }
 							/>
-							<div>
+       <div class="stack-sm">
 								<span>تعيين كفرع ومخزن رئيسي للمنشأة</span>
 								<span>
 									الفرع الافتراضي الذي يظهر للصيادلة كمركز رئيسي للتوريد.
@@ -392,13 +392,13 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 						</label>
 
 						if data.IsEdit {
-							<div>
+       <div class="stack-sm">
 								<span>حالة تشغيل الفرع:</span>
-								<label>
+        <label class="form-label">
 									<input type="radio" name="status" value="active" checked?={ status != "inactive" } />
 									<span class="badge badge-emerald">نشط وجاهز للتوريد</span>
 								</label>
-								<label>
+        <label class="form-label">
 									<input type="radio" name="status" value="inactive" checked?={ status == "inactive" } />
 									<span class="badge badge-slate">معطل مؤقتاً</span>
 								</label>
@@ -407,7 +407,7 @@ templ VendorBranchFormPage(data VendorBranchFormData, lang, dir string) {
 					</div>
 
 					<!-- Bottom Action Footer -->
-					<div>
+     <div class="stack-sm">
 						<a href="/vendor/branches" class="btn btn-secondary btn-md fw-700">
 							إلغاء والعودة بدون حفظ
 						</a>

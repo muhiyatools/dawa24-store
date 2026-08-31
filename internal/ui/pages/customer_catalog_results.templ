@@ -43,7 +43,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 				class={ "product-card-glass", "cursor-pointer", templ.KV("is-sponsored", v.IsSponsored) }
 				onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
 			>
-				<div>
+    <div class="stack-sm">
 					<!-- Top Visual Media Box -->
 					<div class="product-card-media position-relative rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
 						if v.ProductImage != "" {
@@ -154,7 +154,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 					<!-- Stock & Expiry -->
 					<div class="product-card-stock-row flex-between text-xs mb-3 font-semibold">
-						<div>
+      <div class="stack-sm">
 							if v.AvailableStock > 0 {
 								<span class="badge badge-emerald gap-1">
 									<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -178,7 +178,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 				<!-- Pricing & Action Footer -->
 				<div class="product-card-pricing-footer border-t border-slate-100 pt-3 mt-auto">
 					<div class="product-card-price-row flex-between items-baseline mb-2.5">
-						<div>
+      <div class="stack-sm">
 							<span class="text-xs text-secondary font-bold d-block">سعر التوريد:</span>
 							if v.OriginalPrice.IsPositive() && v.OriginalPrice.Minor() > v.Price.Minor() {
 								<span class="text-xs text-muted line-through tabular-nums font-semibold">
@@ -200,7 +200,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 					</div>
 
 					if v.CanAddToCart {
-						<div onclick="event.stopPropagation();">
+						<div class="stack-sm" onclick="event.stopPropagation();">
 							<form method="POST" action="/cart/add" class="product-card-actions-row d-flex items-center gap-1.5 m-0">
 								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
 								<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
@@ -363,15 +363,15 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 							<!-- سعر الجمهور -->
 							<td class="text-center tabular-nums font-bold text-primary py-3">
 								if v.PublicPrice.IsPositive() {
-									<div>
+         <div class="stack-sm">
 										{ v.PublicPrice.String() } <span class="text-xs text-secondary font-medium">ج.م</span>
 									</div>
 								} else if v.OriginalPrice.IsPositive() {
-									<div>
+         <div class="stack-sm">
 										{ v.OriginalPrice.String() } <span class="text-xs text-secondary font-medium">ج.م</span>
 									</div>
 								} else {
-									<div>
+         <div class="stack-sm">
 										{ v.Price.String() } <span class="text-xs text-secondary font-medium">ج.م</span>
 									</div>
 								}
@@ -551,7 +551,7 @@ templ CustomerNegotiationModal() {
 				</div>
 
 				<div class="d-grid grid-cols-2 gap-3">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
 							السعر المقترح للعبوة (ج.م) *
 						</label>
@@ -567,7 +567,7 @@ templ CustomerNegotiationModal() {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
 							الكمية المطلوبة (عبوة) *
 						</label>
@@ -583,7 +583,7 @@ templ CustomerNegotiationModal() {
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
 						ملاحظات إضافية للمورّد (اختياري)
 					</label>

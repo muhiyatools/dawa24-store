@@ -49,7 +49,7 @@ func VendorTeamImportPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2><p class=\"subtitle\">إنشاء حسابات موظفي الفروع والمخازن بشكل آمن مع توليد دعوات انضمام تلقائية.</p></div><a href=\"/settings/employees\" class=\"btn btn-secondary btn-sm\">العودة لفريق العمل</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div class=\"stack-sm\"><h2 class=\"card-title m-0\">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2><p class=\"subtitle\">إنشاء حسابات موظفي الفروع والمخازن بشكل آمن مع توليد دعوات انضمام تلقائية.</p></div><a href=\"/settings/employees\" class=\"btn btn-secondary btn-sm\">العودة لفريق العمل</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -105,7 +105,7 @@ func VendorTeamFastAddPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card max-w-lg mx-auto\"><h2 class=\"card-title mb-lg\">إضافة موظف جديد للمنشأة</h2><form method=\"POST\" action=\"/settings/employees\" class=\"stack\"><div><label class=\"form-label\">الاسم الكامل</label> <input type=\"text\" name=\"name\" class=\"form-input\" required></div><div><label class=\"form-label\">البريد الإلكتروني</label> <input type=\"email\" name=\"email\" class=\"form-input\" required></div><div><label class=\"form-label\">رقم الهاتف</label> <input type=\"text\" name=\"phone\" class=\"form-input\" required></div><div><a href=\"/settings/employees\" class=\"btn btn-secondary\">إلغاء</a> <button type=\"submit\" class=\"btn btn-primary\">إرسال دعوة الانضمام</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card max-w-lg mx-auto\"><h2 class=\"card-title mb-lg\">إضافة موظف جديد للمنشأة</h2><form method=\"POST\" action=\"/settings/employees\" class=\"stack\"><div class=\"stack-sm\"><label class=\"form-label\">الاسم الكامل</label> <input type=\"text\" name=\"name\" class=\"form-input\" required></div><div class=\"stack-sm\"><label class=\"form-label\">البريد الإلكتروني</label> <input type=\"email\" name=\"email\" class=\"form-input\" required></div><div class=\"stack-sm\"><label class=\"form-label\">رقم الهاتف</label> <input type=\"text\" name=\"phone\" class=\"form-input\" required></div><div class=\"stack-sm\"><a href=\"/settings/employees\" class=\"btn btn-secondary\">إلغاء</a> <button type=\"submit\" class=\"btn btn-primary\">إرسال دعوة الانضمام</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -153,7 +153,7 @@ func VendorTeamUserDetailPage(empID int64, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">ملف الموظف #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div class=\"stack-sm\"><h2 class=\"card-title m-0\">ملف الموظف #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

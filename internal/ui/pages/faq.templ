@@ -66,19 +66,19 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 		<div class="faq-page-container" x-data="{ activeCategory: 'all' }">
 			
 			<!-- Header -->
-			<div>
-				<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
 					@components.IconHelpCircle("icon-xs")
 					<span>مركز المساعدة والمعلومات</span>
 				</div>
-				<h1>
+				<h1 class="page-title font-bold text-xl m-0">
 					if customTitle != "" {
 						{ customTitle }
 					} else {
 						الأسئلة الشائعة وإرشادات الاستخدام
 					}
 				</h1>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					if customSubtitle != "" {
 						{ customSubtitle }
 					} else {
@@ -88,7 +88,7 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 			</div>
 
 			<!-- Category Filter Tabs -->
-			<div>
+   <div class="stack-sm">
 				<button
 					type="button"
 					@click="activeCategory = 'all'"
@@ -146,7 +146,7 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 			</div>
 
 			<!-- FAQ List Accordion -->
-			<div>
+   <div class="stack-sm">
 				for _, item := range GetFAQs() {
 					<div
 						class="card mb-0"
@@ -155,7 +155,7 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 						x-show={ "activeCategory === 'all' || activeCategory === '" + item.Category + "'" }
 						:style="open ? 'border-color:var(--accent);' : ''"
 					>
-						<div
+						<div class="stack-sm"
 						
 							@click="open = !open"
 						>
@@ -163,15 +163,15 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 								<span class="badge badge-sky">
 									{ item.Category }
 								</span>
-								<h3>
+								<h3 class="font-bold text-sm m-0">
 									{ item.Question }
 								</h3>
 							</div>
-							<div :style="open ? 'transform: rotate(180deg)' : ''">
+							<div class="stack-sm" :style="open ? 'transform: rotate(180deg)' : ''">
 								@components.IconChevronDown("icon-sm")
 							</div>
 						</div>
-						<div
+						<div class="stack-sm"
 							x-show="open"
 							x-cloak
 							x-collapse
@@ -185,13 +185,13 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 
 			<!-- Contact Support Card -->
 			<div class="card mb-0">
-				<h3>
+				<h3 class="font-bold text-sm m-0">
 					لم تجد إجابة لاستفسارك؟
 				</h3>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.
 				</p>
-				<div>
+    <div class="stack-sm">
 					<a href="/contact" class="btn btn-primary btn-sm">
 						@components.IconMail("icon-xs")
 						<span>إرسال استفسار عبر نموذج التواصل</span>

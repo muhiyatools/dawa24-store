@@ -51,7 +51,7 @@ func VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequests
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Header --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2.5 mb-1.5\"><div class=\"w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Header --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2.5 mb-1.5\"><div class=\"w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -59,7 +59,7 @@ func VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequests
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">باقات العروض الترويجية المتاحة لمنشأتك</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث</p></div></div></div><div class=\"d-flex items-center gap-2.5\"><a href=\"/vendor/sponsorship-requests\" class=\"btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">باقات العروض الترويجية المتاحة لمنشأتك</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث</p></div></div></div><div class=\"d-flex items-center gap-2.5\"><a href=\"/vendor/sponsorship-requests\" class=\"btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +78,7 @@ func VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequests
 				}
 				for _, pkg := range data.Packages {
 					if pkg != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 hover:shadow-md transition-all d-flex flex-col justify-between\"><div><!-- Card Top Header --><div class=\"flex-between items-start mb-4\"><div><h3 class=\"text-lg font-black text-primary m-0 leading-tight\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 hover:shadow-md transition-all d-flex flex-col justify-between\"><div class=\"stack-sm\"><!-- Card Top Header --><div class=\"flex-between items-start mb-4\"><div class=\"stack-sm\"><h3 class=\"text-lg font-black text-primary m-0 leading-tight\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -334,7 +334,7 @@ func VendorOffersPackagesSponsorshipsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">رعايات العروض الترويجية لمنشأتك</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تثبيت عروضك المميزة بأعلى نتائج البحث لجذب مزيد من الصيدليات</p></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">رعايات العروض الترويجية لمنشأتك</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تثبيت عروضك المميزة بأعلى نتائج البحث لجذب مزيد من الصيدليات</p></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -398,7 +398,7 @@ func VendorOffersPackagesPromotionsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">الحملات الترويجية الموجهة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إنشاء حملات ترويجية موجهة لمدن محددة لتعزيز المبيعات</p></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">الحملات الترويجية الموجهة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إنشاء حملات ترويجية موجهة لمدن محددة لتعزيز المبيعات</p></div><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -470,7 +470,7 @@ func VendorAdsPage(lang, dir string, ads []*promo.Ad) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">إعلانات وبنرات المنشأة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">أنشئ إعلاناً وبنراً ترويجياً بصورة أو فيديو ونص ثنائي اللغة. يتم مراجعة كل إعلان من قِبل الإدارة قبل نشره</p></div></div></div><!-- Create Ad Form Panel --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">إعلانات وبنرات المنشأة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">أنشئ إعلاناً وبنراً ترويجياً بصورة أو فيديو ونص ثنائي اللغة. يتم مراجعة كل إعلان من قِبل الإدارة قبل نشره</p></div></div></div><!-- Create Ad Form Panel --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -478,7 +478,7 @@ func VendorAdsPage(lang, dir string, ads []*promo.Ad) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<h3 class=\"text-sm font-black text-primary m-0\">إنشاء إعلان وبنر جديد</h3></div><form method=\"POST\" action=\"/vendor/ads/new\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان (عربي) *</label> <input type=\"text\" name=\"title_ar\" class=\"form-input text-xs font-semibold\" required placeholder=\"عنوان الإعلان بالعربية\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" class=\"form-input text-xs font-semibold\" placeholder=\"Ad title in English\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">النص الإعلاني (عربي)</label> <textarea name=\"ad_text_ar\" class=\"form-input text-xs\" rows=\"2\" placeholder=\"النص والرسالة الترويجية بالعربية\"></textarea></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">النص الإعلاني (إنجليزي)</label> <textarea name=\"ad_text_en\" class=\"form-input text-xs\" rows=\"2\" placeholder=\"Advertising message in English\" dir=\"ltr\"></textarea></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رابط الوسائط (صورة / فيديو) *</label> <input type=\"url\" name=\"media_url\" class=\"form-input text-xs font-mono\" required placeholder=\"https://cdn.example.com/banner.jpg\" dir=\"ltr\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">نوع الوسائط *</label> <select name=\"media_type\" class=\"form-input text-xs font-semibold\"><option value=\"image\">صورة ثابتة (Image Banner)</option> <option value=\"video\">مقطع فيديو ترويجي (Video Ad)</option></select></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">وجهة النقر (Target Type)</label> <select name=\"click_target_type\" class=\"form-input text-xs font-semibold\"><option value=\"vendor_page\">صفحة بروفايل المورد</option> <option value=\"offer\">عرض ترويجي محدد</option> <option value=\"external_url\">رابط خارجي مخصص</option></select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">معرف الوجهة (ID أو الرابط)</label> <input type=\"number\" name=\"click_target_id\" class=\"form-input text-xs tabular-nums\" placeholder=\"معرف العرض (إن وجد)\"></div></div><div class=\"pt-2\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<h3 class=\"text-sm font-black text-primary m-0\">إنشاء إعلان وبنر جديد</h3></div><form method=\"POST\" action=\"/vendor/ads/new\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان (عربي) *</label> <input type=\"text\" name=\"title_ar\" class=\"form-input text-xs font-semibold\" required placeholder=\"عنوان الإعلان بالعربية\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" class=\"form-input text-xs font-semibold\" placeholder=\"Ad title in English\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">النص الإعلاني (عربي)</label> <textarea name=\"ad_text_ar\" class=\"form-input text-xs\" rows=\"2\" placeholder=\"النص والرسالة الترويجية بالعربية\"></textarea></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">النص الإعلاني (إنجليزي)</label> <textarea name=\"ad_text_en\" class=\"form-input text-xs\" rows=\"2\" placeholder=\"Advertising message in English\" dir=\"ltr\"></textarea></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رابط الوسائط (صورة / فيديو) *</label> <input type=\"url\" name=\"media_url\" class=\"form-input text-xs font-mono\" required placeholder=\"https://cdn.example.com/banner.jpg\" dir=\"ltr\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">نوع الوسائط *</label> <select name=\"media_type\" class=\"form-input text-xs font-semibold\"><option value=\"image\">صورة ثابتة (Image Banner)</option> <option value=\"video\">مقطع فيديو ترويجي (Video Ad)</option></select></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">وجهة النقر (Target Type)</label> <select name=\"click_target_type\" class=\"form-input text-xs font-semibold\"><option value=\"vendor_page\">صفحة بروفايل المورد</option> <option value=\"offer\">عرض ترويجي محدد</option> <option value=\"external_url\">رابط خارجي مخصص</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">معرف الوجهة (ID أو الرابط)</label> <input type=\"number\" name=\"click_target_id\" class=\"form-input text-xs tabular-nums\" placeholder=\"معرف العرض (إن وجد)\"></div></div><div class=\"pt-2\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -690,7 +690,7 @@ func VendorOffersLocationsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">التغطية الجغرافية لعروض المنشأة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">حدد المحافظات والمدن التي تتاح فيها عروضك الترويجية</p></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">التغطية الجغرافية لعروض المنشأة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">حدد المحافظات والمدن التي تتاح فيها عروضك الترويجية</p></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -754,7 +754,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"page-container py-6\"><!-- Header --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2.5 mb-1.5\"><div class=\"w-10 h-10 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"page-container py-6\"><!-- Header --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2.5 mb-1.5\"><div class=\"w-10 h-10 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -762,7 +762,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الرعاية وباقات الترويج</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اشترِ باقة رعاية للحصول على رصيد الرعايات، ثم قدّم طلبات رعاية لأصنافك أو عروضك لتثبيتها في صدارة الكتالوج</p></div></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الرعاية وباقات الترويج</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اشترِ باقة رعاية للحصول على رصيد الرعايات، ثم قدّم طلبات رعاية لأصنافك أو عروضك لتثبيتها في صدارة الكتالوج</p></div></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/vendor/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -858,7 +858,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 				}
 				for _, pkg := range data.Packages {
 					if pkg != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"bg-surface-sunken p-4 rounded-xl border border-slate-200/80 d-flex flex-col justify-between\"><div><div class=\"flex-between items-start mb-2\"><div><h4 class=\"font-black text-sm text-primary m-0\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"bg-surface-sunken p-4 rounded-xl border border-slate-200/80 d-flex flex-col justify-between\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-2\"><div class=\"stack-sm\"><h4 class=\"font-black text-sm text-primary m-0\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -965,7 +965,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<h3 class=\"text-sm font-black text-primary m-0\">تقديم طلب رعاية جديد لأحد أصنافك</h3></div><form method=\"POST\" action=\"/vendor/sponsorship-requests/new\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-4\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">نوع العنصر المراد رعايته *</label> <select name=\"item_type\" class=\"form-input text-xs font-semibold\"><option value=\"product\">صنف دوائي (Product)</option> <option value=\"offer\">عرض ترويجي خاص (Offer)</option></select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">معرف العنصر (Item ID) *</label> <input type=\"number\" name=\"item_id\" class=\"form-input text-xs tabular-nums font-bold\" required min=\"1\" placeholder=\"أدخل رقم المعرف من الكتالوج\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الباقة المستخدمة للخصم من الرصيد *</label> <select name=\"package_id\" class=\"form-input text-xs font-semibold\" required>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<h3 class=\"text-sm font-black text-primary m-0\">تقديم طلب رعاية جديد لأحد أصنافك</h3></div><form method=\"POST\" action=\"/vendor/sponsorship-requests/new\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">نوع العنصر المراد رعايته *</label> <select name=\"item_type\" class=\"form-input text-xs font-semibold\"><option value=\"product\">صنف دوائي (Product)</option> <option value=\"offer\">عرض ترويجي خاص (Offer)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">معرف العنصر (Item ID) *</label> <input type=\"number\" name=\"item_id\" class=\"form-input text-xs tabular-nums font-bold\" required min=\"1\" placeholder=\"أدخل رقم المعرف من الكتالوج\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الباقة المستخدمة للخصم من الرصيد *</label> <select name=\"package_id\" class=\"form-input text-xs font-semibold\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

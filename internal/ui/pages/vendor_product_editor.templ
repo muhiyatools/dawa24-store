@@ -18,15 +18,15 @@ type VendorVariantEditorData struct {
 templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 	@layouts.VendorShell("إضافة عرض توريد لصنف دوائي معتمد", "new_variant", lang, dir) {
 		<div class="card">
-			<div>
-				<div>
+   <div class="stack-sm">
+				<div class="stack-xs text-sm">
 					@components.IconPlus("icon-sm")
 				</div>
-				<div>
-					<h2>
+    <div class="stack-sm">
+					<h2 class="card-title font-bold text-base m-0">
 						إضافة عرض توريد لصنف دوائي
 					</h2>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						اختر الصنف من الكتالوج المعتمد وحدد سعر التوريد، الكمية، والخصم الممنوح للصيدليات
 					</p>
 				</div>
@@ -34,7 +34,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 
 			<form action="/vendor/variants/new" method="POST" class="stack-lg">
 				<!-- 1. Master Product Selection -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label" for="var-master-prod">
 						الصنف الدوائي المعتمد من هيئة الدواء (Master Product) *
 					</label>
@@ -49,30 +49,30 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							</option>
 						}
 					</select>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.
 					</p>
 				</div>
 
 				<!-- 2. Variant Title -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<label class="form-label" for="var-name-ar">اسم العبوة والمواصفات (عربي) *</label>
 						<input type="text" id="var-name-ar" name="name_ar" class="form-input" placeholder="مثال: علبة 30 قرص (3 شرائط)" required />
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label" for="var-name-en">اسم العبوة والمواصفات (إنجليزي)</label>
 						<input type="text" id="var-name-en" name="name_en" class="form-input" dir="ltr" placeholder="e.g. Box of 30 Tablets (3 Strips)" />
 					</div>
 				</div>
 
 				<!-- 3. Batch and Expiry -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<label class="form-label" for="var-batch">رقم التشغيلة (Batch / Lot Number) *</label>
 						<input type="text" id="var-batch" name="batch_number" class="form-input tabular-nums" placeholder="مثال: BTH-2026-948" required />
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label" for="var-expiry">تاريخ انتهاء الصلاحية *</label>
 						<input type="date" id="var-expiry" name="expiry_date" class="form-input tabular-nums" required />
 					</div>
@@ -85,26 +85,26 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 						<span class="font-extrabold text-sm text-primary">التسعير، الخصومات، وهوامش الربح</span>
 					</div>
 					
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<label class="form-label" for="var-price">سعر الجمهور الرسمي (ج.م) <span class="text-danger">*</span></label>
 							<input type="number" step="0.01" min="0.5" id="var-price" name="price" class="form-input tabular-nums" placeholder="مثال: 100.00" required oninput="recalcProfitPreview()" />
 							<span class="text-xs text-muted mt-1 d-block">السعر الرسمي المعتمد للمستهلك</span>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<label class="form-label" for="var-discount">نسبة الخصم الممنوح للصيدليات (%)</label>
 							<input type="number" step="0.1" min="0" max="100" id="var-discount" name="discount" class="form-input tabular-nums" placeholder="مثال: 15.0%" oninput="recalcProfitPreview()" />
 							<span class="text-xs text-muted mt-1 d-block">الخصم المطبق على سعر الجمهور</span>
 						</div>
 					</div>
 
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<label class="form-label" for="var-cost">سعر التكلفة (ج.م) <span class="badge badge-slate text-xs">اختياري</span></label>
 							<input type="number" step="0.01" min="0" id="var-cost" name="cost_price" class="form-input tabular-nums" placeholder="0.00 (إن وجد)" oninput="recalcProfitPreview()" />
 							<span class="text-xs text-muted mt-1 d-block">تكلفة شراء الصنف على المورد</span>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<label class="form-label" for="var-cost-discount">خصم التكلفة (%) <span class="badge badge-slate text-xs">اختياري</span></label>
 							<input type="number" step="0.1" min="0" max="100" id="var-cost-discount" name="cost_discount_percentage" class="form-input tabular-nums" placeholder="0.0%" oninput="recalcProfitPreview()" />
 							<span class="text-xs text-muted mt-1 d-block">نسبة الخصم الممنوحة على سعر التكلفة</span>
@@ -112,20 +112,20 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 
 					<!-- Real-time Profit Preview Strip -->
-					<div id="profit-calc-preview">
-						<div>
+					<div class="stack-sm" id="profit-calc-preview">
+      <div class="stack-sm">
 							<div class="text-xs text-muted font-bold">سعر البيع بعد الخصم</div>
 							<div id="preview-selling-price" class="font-extrabold text-primary tabular-nums mt-1">0.00 ج.م</div>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="text-xs text-muted font-bold">التكلفة الفعلية المخفضة</div>
 							<div id="preview-cost-price" class="font-extrabold text-secondary tabular-nums mt-1">0.00 ج.م</div>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="text-xs text-muted font-bold">صافي ربح الوحدة</div>
 							<div id="preview-net-profit" class="font-black text-success tabular-nums mt-1">0.00 ج.م</div>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="text-xs text-muted font-bold">هامش الربح المتوقع</div>
 							<div id="preview-profit-margin" class="font-black text-brand tabular-nums mt-1">0.0%</div>
 						</div>
@@ -162,20 +162,20 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</script>
 
 				<!-- 5. Quantities & Stock -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<label class="form-label" for="var-stock">الكمية المتوفرة بالمخزن (الرصيد) *</label>
 						<input type="number" min="1" id="var-stock" name="stock_qty" class="form-input tabular-nums" placeholder="مثال: 500" required />
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label" for="var-min-qty">الحد الأدنى لطلب الصيدلية (عبوة)</label>
 						<input type="number" min="1" id="var-min-qty" name="min_order_qty" value="1" class="form-input tabular-nums" required />
 					</div>
 				</div>
 
 				<!-- 6. Branch / Warehouse Location -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<label class="form-label" for="var-branch">مخزن أو فرع الشحن المعتمد *</label>
 						<select id="var-branch" name="branch_id" class="form-select">
 							for _, b := range data.Branches {
@@ -191,13 +191,13 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							}
 						</select>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label" for="var-sku">كود الصنف الخاص بالشركة (SKU / Barcode)</label>
 						<input type="text" id="var-sku" name="sku" class="form-input tabular-nums" placeholder="مثال: SKU-88492" />
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<a href="/vendor/products" class="btn btn-secondary">إلغاء</a>
 					<button type="submit" class="btn btn-primary">
 						@components.IconCheck("icon-xs")

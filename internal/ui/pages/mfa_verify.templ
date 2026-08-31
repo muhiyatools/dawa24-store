@@ -7,20 +7,20 @@ import (
 
 templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 	@layouts.Base("التحقق بخطوتين (MFA)", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div class="glass-panel p-8" x-data="{ useRecovery: false }">
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<span>@components.IconShield("icon-sm")</span>
 					</div>
-					<h1>
+					<h1 class="page-title font-bold text-xl m-0">
 						التحقق بخطوتين (MFA)
 					</h1>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						حسابك محمي بالمصادقة الثنائية. يرجى إدخال الرمز من تطبيق Google Authenticator للمتابعة.
 					</p>
 					if email != "" {
-						<div>
+						<div class="stack-xs text-sm">
 							{ email }
 						</div>
 					}
@@ -28,12 +28,12 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 
 				if errorMsg != "" {
 					<div class="alert alert-danger mb-4">
-						<div>@components.IconAlert("icon-xs")</div>
-						<div>{ errorMsg }</div>
+						<div class="stack-xs text-sm">@components.IconAlert("icon-xs")</div>
+						<div class="stack-xs text-sm">{ errorMsg }</div>
 					</div>
 				}
 
-				<form method="POST" action="/auth/mfa-verify">
+				<form class="stack-md" method="POST" action="/auth/mfa-verify">
 					<input type="hidden" name="redirect" value={ redirectURL } />
 
 					<!-- Standard TOTP Code Input -->
@@ -54,7 +54,7 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 						
 							placeholder="000000"
 						/>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							يتغير الرمز تلقائياً كل 30 ثانية في تطبيق Google Authenticator
 						</p>
 					</div>
@@ -74,7 +74,7 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 						
 							placeholder="XXXX-XXXX"
 						/>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							أدخل أحد رموز الاسترداد المكونة من 8 خانات التي حفظتها عند تفعيل MFA
 						</p>
 					</div>
@@ -85,7 +85,7 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 					</button>
 
 					<!-- Recovery Code Toggle -->
-					<div>
+     <div class="stack-sm">
 						<button
 							type="button"
 							class="btn btn-link btn-xs"
@@ -107,7 +107,7 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 					</div>
 				</form>
 
-				<div>
+    <div class="stack-sm">
 					<a href="/auth/login">
 						<span>@components.IconX("icon-sm")</span>
 						<span>إلغاء والعودة لصفحة تسجيل الدخول</span>

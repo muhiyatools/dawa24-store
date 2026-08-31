@@ -23,7 +23,7 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 				<div class="user-avatar-badge text-xl">
 					@components.IconDownload("icon-sm")
 				</div>
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-2xl font-black text-primary m-0">طلبات المستندات والإجراءات</h1>
 					<p class="text-sm text-secondary m-0 mt-1">إرسال واستقبال طلبات المستندات، التراخيص، والاعتمادات الرسمية بين المنشآت</p>
 				</div>
@@ -32,7 +32,7 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 
 		<div class="glass-panel p-6 mb-6">
 			<h3 class="text-base font-black text-primary m-0 mb-4">طلب جديد</h3>
-			<form method="POST" action="/requests">
+			<form class="stack-md" method="POST" action="/requests">
 				<div class="form-grid-2">
 					<div class="form-group mb-0">
 						<label class="form-label" for="r-type">النوع</label>
@@ -60,7 +60,7 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 					<label class="form-label" for="r-desc">الوصف</label>
 					<textarea id="r-desc" name="description" rows="3" class="form-textarea text-xs"></textarea>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<button type="submit" class="btn btn-primary font-bold text-xs gap-1">
 						@components.IconPlus("icon-xs")
 						<span>إرسال الطلب</span>
@@ -110,11 +110,11 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 									<td class="text-end">
 										if q.ToOrgID == data.CurrentOrgID && q.Status == "pending" {
 											<div class="d-inline-flex gap-2">
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) }>
+												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) }>
 													<input type="hidden" name="status" value="accepted" />
 													<button type="submit" class="btn btn-primary btn-sm font-bold text-xs">قبول</button>
 												</form>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) }>
+												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) }>
 													<input type="hidden" name="status" value="declined" />
 													<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs text-danger">رفض</button>
 												</form>

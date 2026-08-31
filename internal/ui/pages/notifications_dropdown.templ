@@ -9,8 +9,8 @@ import (
 // NotificationsDropdownPanel is the bell dropdown content, returned as an
 // HTMX partial so the header stays light and the list is always fresh.
 templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread int) {
-	<div>
-		<div>
+ <div class="stack-sm">
+  <div class="stack-sm">
 			<div class="row-center-sm">
 				@components.IconBell("icon-xs")
 				<span>الإشعارات</span>
@@ -21,24 +21,24 @@ templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread i
 		</div>
 
 		if len(logs) == 0 {
-			<div>
-				<div>
+   <div class="stack-sm">
+				<div class="stack-xs text-sm">
 					@components.IconBell("icon-sm")
 				</div>
-				<div>لا توجد إشعارات جديدة</div>
+				<div class="stack-xs text-sm">لا توجد إشعارات جديدة</div>
 			</div>
 		} else {
-			<div>
+   <div class="stack-sm">
 				for _, n := range logs {
-					<div>
+     <div class="stack-sm">
 						if !n.IsRead {
 							<span></span>
 						} else {
 							<span></span>
 						}
 						<div class="flex-1">
-							<div>{ n.Title }</div>
-							<div>{ n.Body }</div>
+							<div class="stack-xs text-sm">{ n.Title }</div>
+							<div class="stack-xs text-sm">{ n.Body }</div>
 							<div class="tabular-nums">{ RelTime(n.CreatedAt) }</div>
 						</div>
 					</div>
@@ -46,10 +46,10 @@ templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread i
 			</div>
 		}
 
-		<div>
+  <div class="stack-sm">
 			<a href="/notifications">عرض كل الإشعارات</a>
 			if unread > 0 {
-				<form method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="closest .dropdown-menu">
+				<form class="stack-md" method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="closest .dropdown-menu">
 					<button type="submit" class="btn btn-secondary btn-sm">تعليم الكل كمقروء</button>
 				</form>
 			}

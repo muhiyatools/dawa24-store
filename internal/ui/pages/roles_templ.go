@@ -122,7 +122,7 @@ func RolesPage(v RolesView, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"glass-panel p-6 mb-4\"><div class=\"flex-between items-start flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"glass-panel p-6 mb-4\"><div class=\"flex-between items-start flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -236,7 +236,7 @@ func roleCreateForm(v RolesView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"d-grid grid-cols-2 gap-4\"><div><label class=\"form-label\" for=\"new-role-name-ar\">اسم الدور (عربي)</label> <input id=\"new-role-name-ar\" class=\"form-input\" type=\"text\" name=\"name_ar\" required maxlength=\"80\" placeholder=\"مثال: مسؤول المشتريات\"></div><div><label class=\"form-label\" for=\"new-role-name-en\">اسم الدور (إنجليزي)</label> <input id=\"new-role-name-en\" class=\"form-input\" type=\"text\" name=\"name_en\" maxlength=\"80\" placeholder=\"Purchasing Officer\"></div><div class=\"col-span-2\"><label class=\"form-label\" for=\"new-role-description\">وصف مختصر</label> <input id=\"new-role-description\" class=\"form-input\" type=\"text\" name=\"description\" maxlength=\"200\" placeholder=\"ما الذي يفعله حامل هذا الدور؟\"></div><div class=\"col-span-2 d-flex items-center gap-3\"><button type=\"submit\" class=\"btn btn-primary font-bold\">إنشاء وتحديد الصلاحيات</button> <span class=\"text-xs text-muted\">يُنشأ الدور بدون صلاحيات، ثم تُحدَّد صلاحياته في الشاشة التالية.</span></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"d-grid grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\" for=\"new-role-name-ar\">اسم الدور (عربي)</label> <input id=\"new-role-name-ar\" class=\"form-input\" type=\"text\" name=\"name_ar\" required maxlength=\"80\" placeholder=\"مثال: مسؤول المشتريات\"></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"new-role-name-en\">اسم الدور (إنجليزي)</label> <input id=\"new-role-name-en\" class=\"form-input\" type=\"text\" name=\"name_en\" maxlength=\"80\" placeholder=\"Purchasing Officer\"></div><div class=\"col-span-2\"><label class=\"form-label\" for=\"new-role-description\">وصف مختصر</label> <input id=\"new-role-description\" class=\"form-input\" type=\"text\" name=\"description\" maxlength=\"200\" placeholder=\"ما الذي يفعله حامل هذا الدور؟\"></div><div class=\"col-span-2 d-flex items-center gap-3\"><button type=\"submit\" class=\"btn btn-primary font-bold\">إنشاء وتحديد الصلاحيات</button> <span class=\"text-xs text-muted\">يُنشأ الدور بدون صلاحيات، ثم تُحدَّد صلاحياته في الشاشة التالية.</span></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -276,7 +276,7 @@ func roleList(v RolesView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			for _, role := range v.Roles {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3 gap-2\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3 gap-2\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -505,7 +505,7 @@ func RoleEditPage(v RoleEditView, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-4\"><div class=\"flex-between items-start flex-wrap gap-4\"><div><a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-4\"><div class=\"flex-between items-start flex-wrap gap-4\"><div class=\"stack-sm\"><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -577,14 +577,14 @@ func RoleEditPage(v RoleEditView, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<form class=\"stack-md\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var21 templ.SafeURL
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(v.BasePath + "/" + v.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/roles.templ`, Line: 224, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/roles.templ`, Line: 224, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -656,7 +656,7 @@ func roleIdentityFields(v RoleEditView) templ.Component {
 			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"glass-panel p-6 mb-4 d-grid grid-cols-2 gap-4\"><div><label class=\"form-label\" for=\"role-name-ar\">اسم الدور (عربي)</label> <input id=\"role-name-ar\" class=\"form-input\" type=\"text\" name=\"name_ar\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"glass-panel p-6 mb-4 d-grid grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\" for=\"role-name-ar\">اسم الدور (عربي)</label> <input id=\"role-name-ar\" class=\"form-input\" type=\"text\" name=\"name_ar\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -679,7 +679,7 @@ func roleIdentityFields(v RoleEditView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "></div><div><label class=\"form-label\" for=\"role-name-en\">اسم الدور (إنجليزي)</label> <input id=\"role-name-en\" class=\"form-input\" type=\"text\" name=\"name_en\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "></div><div class=\"stack-sm\"><label class=\"form-label\" for=\"role-name-en\">اسم الدور (إنجليزي)</label> <input id=\"role-name-en\" class=\"form-input\" type=\"text\" name=\"name_en\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

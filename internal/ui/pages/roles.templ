@@ -79,7 +79,7 @@ templ RolesPage(v RolesView, lang, dir string) {
 			@roleNotice(v.NoticeKind, v.Notice)
 			<div class="glass-panel p-6 mb-4">
 				<div class="flex-between items-start flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconShield("icon-sm")
@@ -108,11 +108,11 @@ templ roleCreateForm(v RolesView) {
 	<div class="glass-panel p-6 mb-4" x-show="showCreate" x-cloak>
 		<h2 class="text-lg font-extrabold text-primary mt-0 mb-4">إنشاء دور جديد</h2>
 		<form method="POST" action={ templ.SafeURL(v.BasePath) } class="d-grid grid-cols-2 gap-4">
-			<div>
+   <div class="stack-sm">
 				<label class="form-label" for="new-role-name-ar">اسم الدور (عربي)</label>
 				<input id="new-role-name-ar" class="form-input" type="text" name="name_ar" required maxlength="80" placeholder="مثال: مسؤول المشتريات"/>
 			</div>
-			<div>
+   <div class="stack-sm">
 				<label class="form-label" for="new-role-name-en">اسم الدور (إنجليزي)</label>
 				<input id="new-role-name-en" class="form-input" type="text" name="name_en" maxlength="80" placeholder="Purchasing Officer"/>
 			</div>
@@ -137,9 +137,9 @@ templ roleList(v RolesView) {
 		<div class="d-grid grid-cols-3 gap-4">
 			for _, role := range v.Roles {
 				<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="flex-between items-start mb-3 gap-2">
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-extrabold text-primary m-0">{ role.Name }</h3>
 								<span class="text-xs text-muted">{ role.Badge }</span>
 							</div>
@@ -196,7 +196,7 @@ templ RoleEditPage(v RoleEditView, lang, dir string) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-4">
 				<div class="flex-between items-start flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<a href={ templ.SafeURL(v.BasePath) } class="text-xs text-secondary d-inline-flex items-center gap-1 mb-2">
 							@components.IconArrowRight("icon-xs")
 							<span>العودة إلى الأدوار</span>
@@ -221,7 +221,7 @@ templ RoleEditPage(v RoleEditView, lang, dir string) {
 					</p>
 				</div>
 			}
-			<form method="POST" action={ templ.SafeURL(v.BasePath + "/" + v.ID) }>
+			<form class="stack-md" method="POST" action={ templ.SafeURL(v.BasePath + "/" + v.ID) }>
 				@roleIdentityFields(v)
 				@rolePermissionMatrix(v)
 				if !v.ReadOnly {
@@ -240,7 +240,7 @@ templ RoleEditPage(v RoleEditView, lang, dir string) {
 
 templ roleIdentityFields(v RoleEditView) {
 	<div class="glass-panel p-6 mb-4 d-grid grid-cols-2 gap-4">
-		<div>
+  <div class="stack-sm">
 			<label class="form-label" for="role-name-ar">اسم الدور (عربي)</label>
 			<input
 				id="role-name-ar"
@@ -252,7 +252,7 @@ templ roleIdentityFields(v RoleEditView) {
 				disabled?={ v.ReadOnly }
 			/>
 		</div>
-		<div>
+  <div class="stack-sm">
 			<label class="form-label" for="role-name-en">اسم الدور (إنجليزي)</label>
 			<input
 				id="role-name-en"

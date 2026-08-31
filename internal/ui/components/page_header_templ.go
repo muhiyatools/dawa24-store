@@ -38,7 +38,7 @@ func PageHeader(props PageHeaderProps) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"b2b-page-header\"><div class=\"b2b-page-header-info\"><div><h1 class=\"b2b-page-header-title\"><span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"b2b-page-header\"><div class=\"b2b-page-header-info\"><div class=\"stack-sm\"><h1 class=\"b2b-page-header-title\"><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

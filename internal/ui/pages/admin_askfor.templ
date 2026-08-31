@@ -18,7 +18,7 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconFileText("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">طلبات المستندات والإجراءات المطلوبة ({ fmt.Sprintf("%d", len(requests)) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">متابعة طلبات المستندات الرسمية والتحديثات المطلوبة من الصيدليات والموردين</p>
 						</div>
@@ -84,7 +84,7 @@ templ AdminAskForDetailPage(r *workflow.Request, lang, dir string) {
 		<div class="page-container max-w-2xl mx-auto">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center mb-4 pb-3 border-b">
-					<div>
+     <div class="stack-sm">
 						<h2 class="text-xl font-black text-primary m-0">{ r.Title.Get("ar") }</h2>
 						<p class="text-xs text-secondary m-0 mt-1">طلب #{ fmt.Sprintf("%d", r.ID) } | نوع: { string(r.Type) }</p>
 					</div>

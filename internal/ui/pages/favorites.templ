@@ -9,17 +9,17 @@ import (
 
 templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 	@layouts.CustomerShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil) {
-		<div>
-			<div>
+  <div class="stack-sm">
+   <div class="stack-sm">
 				<div class="row-center-sm">
-					<div>
+					<div class="stack-xs text-sm">
 						@components.IconHeart("icon-sm")
 					</div>
-					<div>
-						<h2>
+     <div class="stack-sm">
+						<h2 class="card-title font-bold text-base m-0">
 							الأدوية والمستلزمات المفضلة
 						</h2>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							قائمة الأصناف المحفوظة للطلب السريع
 						</p>
 					</div>
@@ -40,8 +40,8 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 				<div class="product-grid">
 					for _, p := range products {
 						<div class="card hover-lift">
-							<div>
-								<div>
+       <div class="stack-sm">
+        <div class="stack-sm">
 									<span class="badge badge-slate text-xs">
 										@components.IconPill("icon-xs")
 										<span>{ p.DosageForm }</span>
@@ -53,7 +53,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 									</form>
 								</div>
 
-								<h3>
+								<h3 class="font-bold text-sm m-0">
 									if p.Name["ar"] != "" {
 										{ p.Name["ar"] }
 									} else {
@@ -62,18 +62,18 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 								</h3>
 
 								if p.ScientificName != "" {
-									<p>
+         <p class="text-sm text-secondary m-0">
 										{ p.ScientificName }
 									</p>
 								}
 								if p.ManufacturingCompanies != "" {
-									<div>
+									<div class="stack-xs text-sm">
 										الشركة: { p.ManufacturingCompanies }
 									</div>
 								}
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary btn-sm">
 									@components.IconFileText("icon-xs")
 									<span>التفاصيل والطلب</span>

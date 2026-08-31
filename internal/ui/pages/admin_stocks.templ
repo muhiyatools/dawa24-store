@@ -18,7 +18,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconBarChart("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">أرصدة المخزون بالمنشآت والمخازن ({ fmt.Sprintf("%d", len(stocks)) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p>
 						</div>

@@ -23,7 +23,7 @@ type CustomerJobsData struct {
 
 templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 	@layouts.CustomerShell("إدارة التوظيف والوظائف | دواء 24", "jobs", lang, dir, data.Permissions) {
-		<div>
+  <div class="stack-sm">
 			
 			<!-- Notice Toast -->
 			if data.NoticeMsg != "" {
@@ -42,14 +42,14 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 			<!-- Top Header Banner -->
 			<div class="card">
-				<div>
-					<div>
+    <div class="stack-sm">
+					<div class="stat-label text-sm text-secondary">
 						لوحة الصيدلية • إدارة الكوادر والتوظيف
 					</div>
-					<h1>
+					<h1 class="page-title font-bold text-xl m-0">
 						شواغر ووظائف الصيدلية
 					</h1>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
 					</p>
 				</div>
@@ -60,15 +60,15 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Metric Stats Cards -->
-			<div>
+   <div class="stack-sm">
 				<!-- Card 1 -->
 				<div class="card">
-					<div>
+					<div class="stat-label text-sm text-secondary">
 						@components.IconBriefcase("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-sm fw-700 text-muted">إجمالي الوظائف</div>
-						<div>
+						<div class="stat-label text-sm text-secondary">
 							{ fmt.Sprintf("%d", data.TotalCount) }
 						</div>
 					</div>
@@ -76,12 +76,12 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 				<!-- Card 2 -->
 				<div class="card">
-					<div>
+					<div class="stat-label text-sm text-secondary">
 						🟢
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-sm fw-700 text-muted">الوظائف النشطة</div>
-						<div>
+						<div class="stat-label text-sm text-secondary">
 							{ fmt.Sprintf("%d", data.PublishedCount) }
 						</div>
 					</div>
@@ -89,12 +89,12 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 				<!-- Card 3 -->
 				<div class="card">
-					<div>
+					<div class="stat-label text-sm text-secondary">
 						@components.IconShield("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-sm fw-700 text-muted">الوظائف المغلقة</div>
-						<div>
+						<div class="stat-label text-sm text-secondary">
 							{ fmt.Sprintf("%d", data.ClosedCount) }
 						</div>
 					</div>
@@ -102,12 +102,12 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 				<!-- Card 4 -->
 				<div class="card">
-					<div>
+					<div class="stat-label text-sm text-secondary">
 						@components.IconUsers("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-sm fw-700 text-muted">إجمالي المتقدمين</div>
-						<div>
+						<div class="stat-label text-sm text-secondary">
 							{ fmt.Sprintf("%d", data.TotalApplications) }
 						</div>
 					</div>
@@ -116,17 +116,17 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 			<!-- Main Jobs Table Card -->
 			<div class="card">
-				<div>
-					<h3>
+    <div class="stack-sm">
+					<h3 class="font-bold text-sm m-0">
 						قائمة الوظائف المنشورة
 					</h3>
 				</div>
 
 				if len(data.Jobs) == 0 {
-					<div>
-						<div>@components.IconBriefcase("icon-sm")</div>
-						<h3>لم تقم بنشر أي وظائف حتى الآن</h3>
-						<p>
+     <div class="stack-sm">
+						<div class="stat-label text-sm text-secondary">@components.IconBriefcase("icon-sm")</div>
+						<h3 class="font-bold text-sm m-0">لم تقم بنشر أي وظائف حتى الآن</h3>
+      <p class="text-sm text-secondary m-0">
 							يمكنك نشر وظيفة جديدة الآن لاستقبال طلبات الصيادلة ومساعدي الصيادلة وإدارة التعيينات بكل سهولة.
 						</p>
 						<button type="button" class="btn btn-primary" onclick="openAddJobModal()">
@@ -151,15 +151,15 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 								for _, item := range data.Jobs {
 									<tr>
 										<td>
-											<div>
+											<div class="stat-label text-sm text-secondary">
 												{ item.Job.Title.Get(i18n.ParseLang(lang)) }
 											</div>
-											<div>
+											<div class="stat-label text-sm text-secondary">
 												{ item.Job.PublicID }
 											</div>
 										</td>
 										<td>
-											<div>
+           <div class="stack-sm">
 												<span>@components.IconMapPin("icon-sm")</span>
 												<span>
 													if item.Job.Location != "" {
@@ -171,7 +171,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 											</div>
 										</td>
 										<td>
-											<div>
+           <div class="stack-sm">
 												if !item.Job.SalaryMin.IsZero() || !item.Job.SalaryMax.IsZero() {
 													@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: item.Job.SalaryMin })
 													if !item.Job.SalaryMax.IsZero() {
@@ -206,7 +206,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 											}
 										</td>
 										<td>
-											<div>
+           <div class="stack-sm">
 												<!-- Edit Button -->
 												<button
 													type="button"
@@ -227,7 +227,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 												</button>
 
 												<!-- Toggle Status Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/toggle", item.Job.ID)) }>
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/toggle", item.Job.ID)) } class="m-0">
 													<button
 														type="submit"
 														class="btn btn-secondary btn-sm btn-icon"
@@ -242,7 +242,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 												</form>
 
 												<!-- Delete Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟');">
+												<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟');">
 													<button type="submit" class="btn btn-danger btn-sm btn-icon" title="حذف الوظيفة">
 														@components.IconTrash("icon-sm")
 													</button>
@@ -389,9 +389,9 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 				currentJobTitle = jobTitle;
 				document.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;
 				document.getElementById('applicants-modal-content').innerHTML = `
-					<div>
-						<div>⏳</div>
-						<div>جاري استرجاع طلبات التقديم والسير الذاتية...</div>
+     <div class="stack-sm">
+						<div class="stat-label text-sm text-secondary">⏳</div>
+						<div class="stat-label text-sm text-secondary">جاري استرجاع طلبات التقديم والسير الذاتية...</div>
 					</div>
 				`;
 				openApplicantsModal();
@@ -403,10 +403,10 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 					if (!apps || apps.length === 0) {
 						document.getElementById('applicants-modal-content').innerHTML = `
-							<div>
-								<div>@components.IconMail("icon-sm")</div>
-								<h4>لا يوجد متقدمين حتى الآن</h4>
-								<p>
+       <div class="stack-sm">
+								<div class="stat-label text-sm text-secondary">@components.IconMail("icon-sm")</div>
+								<h4 class="font-semibold text-sm m-0">لا يوجد متقدمين حتى الآن</h4>
+        <p class="text-sm text-secondary m-0">
 									لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.
 								</p>
 							</div>
@@ -414,7 +414,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						return;
 					}
 
-					let html = `<div>`;
+					let html = `<div class="applicants-list stack-md">`;
 
 					apps.forEach(app => {
 						const dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';
@@ -436,7 +436,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						} else {
 							statusBadge = `<span class="badge badge-sky text-xs fw-700">⏳ قيد المراجعة</span>`;
 							actionButtons = `
-								<div>
+        <div class="stack-sm">
 									<button type="button" class="btn btn-primary btn-sm fw-800" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
 										<span>@components.IconCheckCircle("icon-sm")</span>
 										<span>قبول وتعيين</span>
@@ -449,19 +449,19 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						}
 
 						html += `
-							<div>
-								<div>
+       <div class="stack-sm">
+        <div class="stack-sm">
 									<div class="inline-row-06">
 										<span>${app.applicant_name || 'متقدم'}</span>
 										${statusBadge}
 									</div>
-									<div>
+         <div class="stack-sm">
 										<span>${app.applicant_email || '-'}</span>
 										<span>${app.applicant_phone || '-'}</span>
 										<span>${dateStr}</span>
 									</div>
 								</div>
-								<div>
+								<div class="stat-label text-sm text-secondary">
 									${cvBtn}
 									${actionButtons}
 								</div>

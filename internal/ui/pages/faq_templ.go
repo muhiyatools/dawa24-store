@@ -102,7 +102,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"faq-page-container\" x-data=\"{ activeCategory: 'all' }\"><!-- Header --><div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"faq-page-container\" x-data=\"{ activeCategory: 'all' }\"><!-- Header --><div class=\"stack-sm\"><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -110,7 +110,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز المساعدة والمعلومات</span></div><h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز المساعدة والمعلومات</span></div><h1 class=\"page-title font-bold text-xl m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -130,7 +130,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-sm text-secondary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -150,7 +150,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><!-- Category Filter Tabs --><div><button type=\"button\" @click=\"activeCategory = 'all'\" class=\"btn btn-sm\" :class=\"activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'\">جميع الأسئلة</button> <button type=\"button\" @click=\"activeCategory = 'عام ونظرة عامة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'عام ونظرة عامة' ? 'btn-primary' : 'btn-secondary'\">عام ونظرة عامة</button> <button type=\"button\" @click=\"activeCategory = 'الطلبات والتوريد'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الطلبات والتوريد' ? 'btn-primary' : 'btn-secondary'\">الطلبات والتوريد</button> <button type=\"button\" @click=\"activeCategory = 'الشحن والجودة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الشحن والجودة' ? 'btn-primary' : 'btn-secondary'\">الشحن وسلسلة التبريد</button> <button type=\"button\" @click=\"activeCategory = 'الدفع والفواتير'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الدفع والفواتير' ? 'btn-primary' : 'btn-secondary'\">الدفع والفواتير</button> <button type=\"button\" @click=\"activeCategory = 'انضمام الموردين'\" class=\"btn btn-sm\" :class=\"activeCategory === 'انضمام الموردين' ? 'btn-primary' : 'btn-secondary'\">انضمام الموردين</button></div><!-- FAQ List Accordion --><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><!-- Category Filter Tabs --><div class=\"stack-sm\"><button type=\"button\" @click=\"activeCategory = 'all'\" class=\"btn btn-sm\" :class=\"activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'\">جميع الأسئلة</button> <button type=\"button\" @click=\"activeCategory = 'عام ونظرة عامة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'عام ونظرة عامة' ? 'btn-primary' : 'btn-secondary'\">عام ونظرة عامة</button> <button type=\"button\" @click=\"activeCategory = 'الطلبات والتوريد'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الطلبات والتوريد' ? 'btn-primary' : 'btn-secondary'\">الطلبات والتوريد</button> <button type=\"button\" @click=\"activeCategory = 'الشحن والجودة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الشحن والجودة' ? 'btn-primary' : 'btn-secondary'\">الشحن وسلسلة التبريد</button> <button type=\"button\" @click=\"activeCategory = 'الدفع والفواتير'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الدفع والفواتير' ? 'btn-primary' : 'btn-secondary'\">الدفع والفواتير</button> <button type=\"button\" @click=\"activeCategory = 'انضمام الموردين'\" class=\"btn btn-sm\" :class=\"activeCategory === 'انضمام الموردين' ? 'btn-primary' : 'btn-secondary'\">انضمام الموردين</button></div><!-- FAQ List Accordion --><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -168,7 +168,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div @click=\"open = !open\"><div class=\"row-center\"><span class=\"badge badge-sky\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div class=\"stack-sm\" @click=\"open = !open\"><div class=\"row-center\"><span class=\"badge badge-sky\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -181,7 +181,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span><h3>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span><h3 class=\"font-bold text-sm m-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -194,7 +194,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3></div><div :style=\"open ? 'transform: rotate(180deg)' : ''\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3></div><div class=\"stack-sm\" :style=\"open ? 'transform: rotate(180deg)' : ''\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -202,7 +202,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div x-show=\"open\" x-cloak x-collapse>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"stack-sm\" x-show=\"open\" x-cloak x-collapse>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -220,7 +220,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Contact Support Card --><div class=\"card mb-0\"><h3>لم تجد إجابة لاستفسارك؟</h3><p>فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.</p><div><a href=\"/contact\" class=\"btn btn-primary btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Contact Support Card --><div class=\"card mb-0\"><h3 class=\"font-bold text-sm m-0\">لم تجد إجابة لاستفسارك؟</h3><p class=\"text-sm text-secondary m-0\">فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.</p><div class=\"stack-sm\"><a href=\"/contact\" class=\"btn btn-primary btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

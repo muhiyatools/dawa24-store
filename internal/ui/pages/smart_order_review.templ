@@ -72,8 +72,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 		<div class="container-fluid">
 			
 			<!-- Page Header Strip -->
-			<div>
-				<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
 					<nav>
 						<a href="/">الرئيسية</a>
 						<span>/</span>
@@ -81,14 +81,14 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						<span>/</span>
 						<span>مراجعة الطلب</span>
 					</nav>
-					<h1>
+					<h1 class="page-title font-bold text-xl m-0">
 						مراجعة وتأكيد طلب الشراء — { data.Run.RunNumber }
 					</h1>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						تدقيق الأصناف والموردين والكميات المطلوبة والأسعار قبل الاعتماد النهائي وإرسال أوامر الشراء.
 					</p>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary btn-sm fw-700">
 						<span>← العودة لنتائج المطابقة</span>
 					</a>
@@ -98,15 +98,15 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			@WizardRail(OrderRail(StepOrder))
 
 			if data.Error != "" {
-				<div>
+				<div class="stack-xs text-sm">
 					{ data.Error }
 				</div>
 			}
 
 			if len(data.Stale) > 0 {
-				<div>
+    <div class="stack-sm">
 					<strong>تنبيه: تغيّرت بعض عروض التوريد منذ إنشاء الطلب</strong>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						لم يُستبدل أي مورد تلقائياً ولم يُحذف أي صنف. يرجى مراجعة الأصناف التالية:
 					</p>
 					<ul>
@@ -120,7 +120,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			}
 
 			<!-- Summary Metrics Grid -->
-			<div>
+			<div class="stack-xs text-sm">
 				@statCard("إجمالي قيمة الطلب", data.Run.EstimatedTotal.String() + " ج.م")
 				@statCard("عدد الموردين", fmt.Sprintf("%d موردين", len(data.Groups)))
 				@statCard("الأصناف الجاهزة للتوريد", fmt.Sprintf("%d صنف", totalOrderableItems(data.Groups)))
@@ -129,7 +129,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			</div>
 
 			if data.Run.BudgetExceeded != nil && *data.Run.BudgetExceeded {
-				<div>
+    <div class="stack-sm">
 					<strong>تجاوز الطلب الميزانية المحددة</strong>
 					if data.Run.BudgetOverage != nil {
 						<span> — بزيادة { data.Run.BudgetOverage.String() }</span>
@@ -160,14 +160,14 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				<div class="card">
 					
 					<!-- Group Header Strip -->
-					<div>
+     <div class="stack-sm">
 						<div class="inline-row-06">
 							<span>@components.IconBuilding("icon-sm")</span>
-							<div>
-								<div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">
 									{ g.VendorName }
 								</div>
-								<div>
+								<div class="stack-xs text-sm">
 									{ fmt.Sprintf("%d أصناف مطلوبة من هذا المورد", len(g.Lines)) }
 								</div>
 							</div>
@@ -203,11 +203,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										
 										<!-- 1. Product Name -->
 										<td class="pad-md">
-											<div>
+											<div class="stack-xs text-sm">
 												{ l.Line.RawName }
 											</div>
 											if l.Line.RawBarcode != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													باركود: { l.Line.RawBarcode }
 												</div>
 											}
@@ -226,8 +226,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 										<!-- 3. Requested Quantity (with in-place stepper form) -->
 										<td>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
-												<div>
+											<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
+            <div class="stack-sm">
 													<button type="button" class="btn btn-ghost btn-xs" onclick="stepReviewQty(this, -1)">−</button>
 													<input
 														type="number"
@@ -248,11 +248,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										<!-- 4. Matched Product -->
 										<td class="pad-md">
 											if l.Line.MatchedProductName != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ l.Line.MatchedProductName }
 												</div>
 												if l.Line.MatchedProductID != nil {
-													<div>
+													<div class="stack-xs text-sm">
 														#{ fmt.Sprintf("%d", *l.Line.MatchedProductID) }
 													</div>
 												}
@@ -263,10 +263,10 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 										<!-- 5. Supplier & Selection Decision -->
 										<td>
-											<div>
+											<div class="stack-xs text-sm">
 												{ l.VendorName }
 											</div>
-											<div>
+           <div class="stack-sm">
 												<span class="badge badge-slate">
 													{ decidedLabel(l.DecidedBy) }
 												</span>
@@ -318,11 +318,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 										<!-- 9. Status & Line Actions -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												<span class="badge badge-emerald">
 													جاهز للطلب 
 												</span>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) }>
+												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) }>
 													<button type="submit" class="btn btn-ghost btn-xs text-danger" title="حذف الصنف من الطلب">
 														@components.IconX("icon-sm")
 													</button>
@@ -356,8 +356,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							لم تكتمل شروط توريدها. اضغط لمراجعتها ومعالجتها قبل الاعتماد.
 						</span>
 					</summary>
-					<div>
-					<div>
+     <div class="stack-sm">
+     <div class="stack-sm">
 						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=blocked", data.Run.PublicID)) } class="btn btn-secondary btn-xs fw-700">
 							معالجة الأصناف ←
 						</a>
@@ -411,21 +411,21 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			<!-- Bottom Sticky Placement Action Bar -->
 			<div class="card">
-				<div>
-					<div>إجمالي الطلب الشامل:</div>
+    <div class="stack-sm">
+					<div class="stack-xs text-sm">إجمالي الطلب الشامل:</div>
 					<div class="tabular-nums">
 						{ data.Run.EstimatedTotal.String() } <span>ج.م</span>
 					</div>
-					<div>
+					<div class="stack-xs text-sm">
 						{ fmt.Sprintf("سيتم إنشاء %d أوامر شراء منفصلة ومباشرة للموردين المحددين", len(data.Groups)) }
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary fw-700">
 						تعديل المطابقة
 					</a>
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) }>
+					<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) }>
 						<button
 							type="submit"
 							class="btn btn-primary"

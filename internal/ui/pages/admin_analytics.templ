@@ -14,7 +14,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconTrendingUp("icon-sm")
@@ -146,7 +146,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 
 					<div class="d-flex flex-col gap-4 text-xs">
 						<!-- Device -->
-						<div>
+      <div class="stack-sm">
 							<div class="text-muted font-bold mb-2">نوع الجهاز:</div>
 							<div class="d-flex gap-2 flex-wrap">
 								for d, count := range a.ByDevice {
@@ -158,7 +158,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						</div>
 
 						<!-- OS -->
-						<div>
+      <div class="stack-sm">
 							<div class="text-muted font-bold mb-2">نظام التشغيل:</div>
 							<div class="d-flex gap-2 flex-wrap">
 								for os, count := range a.ByOS {
@@ -170,7 +170,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 						</div>
 
 						<!-- Browser -->
-						<div>
+      <div class="stack-sm">
 							<div class="text-muted font-bold mb-2">المتصفح:</div>
 							<div class="d-flex gap-2 flex-wrap">
 								for b, count := range a.ByBrowser {
@@ -188,7 +188,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			<!-- 3. Recent Visits Table -->
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				<div class="p-4 px-6 border-b flex-between items-center">
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-base font-extrabold text-primary m-0">
 							أحدث الزيارات المسجلة على المنصة
 						</h3>

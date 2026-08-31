@@ -71,7 +71,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		<!-- Header Banner -->
 		<div class="glass-panel p-6 mb-0">
 			<div class="flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1 flex-wrap">
 						<div class="user-avatar-badge text-xl">
 							@components.IconSparkles("icon-sm")
@@ -111,7 +111,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		if !data.IsEnabled {
 			<div class="alert alert-warning mb-0 p-4 d-flex items-center gap-3">
 				<span class="text-2xl">@components.IconAlert("icon-sm")</span>
-				<div>
+    <div class="stack-sm">
 					<div class="font-extrabold text-sm text-warning">نظام ذاكرة القرارات معطل مؤقتاً على مستوى المنصة</div>
 					<div class="text-xs text-muted mt-1">
 						تم إيقاف استخدام ذاكرة القرارات مؤقتاً بواسطة إدارة المنصة. لن يتم تطبيق القرارات المخزنة خلال الاستيراد حتى يتم إعادة التفعيل من قبل الإدارة.
@@ -161,7 +161,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					/>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
 						<option value="25" selected?={ data.PerPage == 25 }>25 عنصر</option>
 						<option value="50" selected?={ data.PerPage == 50 || data.PerPage == 0 }>50 عنصر</option>
@@ -280,7 +280,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 
 								<!-- Last Used At -->
 								<td class="text-center text-xs text-muted tabular-nums">
-									{ d.LastUsedAt.Format("2006-01-02 15:04") }
+									{ d.LastUsedAt.Format("2006-01-02 03:04 PM") }
 								</td>
 
 								<!-- Actions -->

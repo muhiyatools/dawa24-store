@@ -20,7 +20,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 						<div class="user-avatar-badge text-xl">
 							@components.IconMail("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								رسائل واستفسارات التواصل ({ fmt.Sprintf("%d", len(messages)) })
 							</h1>
@@ -72,7 +72,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 												{ m.Name }
 											</div>
 											if m.Email != "" {
-												<div dir="ltr">
+												<div class="stack-sm" dir="ltr">
 													<a href={ templ.SafeURL(fmt.Sprintf("mailto:%s", m.Email)) }>
 														{ m.Email }
 													</a>
@@ -96,7 +96,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 											</span>
 										</td>
 										<td>
-											<div>
+											<div class="stack-xs text-sm">
 												{ m.Message }
 											</div>
 										</td>
@@ -110,8 +110,8 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 											}
 										</td>
 										<td class="tabular-nums">
-											<div>{ m.CreatedAt.Format("2006-01-02") }</div>
-											<div>{ m.CreatedAt.Format("15:04:05") }</div>
+											<div class="stack-xs text-sm">{ m.CreatedAt.Format("2006-01-02") }</div>
+											<div class="stack-xs text-sm">{ m.CreatedAt.Format("03:04:05 PM") }</div>
 										</td>
 										<td class="text-end">
 											<div class="table-actions">

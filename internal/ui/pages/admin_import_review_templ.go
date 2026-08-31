@@ -63,7 +63,7 @@ func AdminProductsImportReview(lang, dir string, view ImportReviewView) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">مراجعة وتحليل بيانات الكتالوج</h1><p class=\"text-sm text-secondary m-0 mt-1\">فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products/import\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">مراجعة وتحليل بيانات الكتالوج</h1><p class=\"text-sm text-secondary m-0 mt-1\">فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products/import\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1150,14 +1150,14 @@ func ImportRowLine(view ImportReviewView, row *catalog.StagingRow) templ.Compone
 		}
 		for _, issue := range row.Issues {
 			if issue.Severity == catalog.SeverityError {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div><span class=\"badge badge-rose\">خطأ</span> <span class=\"wiz-row-meta\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"stack-sm\"><span class=\"badge badge-rose\">خطأ</span> <span class=\"wiz-row-meta\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var55 string
 				templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(issue.Message)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 347, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 347, Col: 114}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 				if templ_7745c5c3_Err != nil {
@@ -1168,14 +1168,14 @@ func ImportRowLine(view ImportReviewView, row *catalog.StagingRow) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div><span class=\"badge badge-amber\">تنبيه</span> <span class=\"wiz-row-meta\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"stack-sm\"><span class=\"badge badge-amber\">تنبيه</span> <span class=\"wiz-row-meta\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var56 string
 				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(issue.Message)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 349, Col: 102}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 349, Col: 119}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 				if templ_7745c5c3_Err != nil {
@@ -1538,14 +1538,14 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "\" hx-boost=\"false\" class=\"wiz-actions-note\"><button type=\"submit\" class=\"btn btn-ghost\">إلغاء العملية</button></form><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "\" hx-boost=\"false\" class=\"wiz-actions-note\"><button type=\"submit\" class=\"btn btn-ghost\">إلغاء العملية</button></form><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var78 templ.SafeURL
 		templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinURLErrs(importAction(view, "commit"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 437, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 437, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
 		if templ_7745c5c3_Err != nil {
@@ -1767,7 +1767,7 @@ func importProgressCard(view ImportReviewView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "</ol><p class=\"wiz-sub\">يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج والمراجعة تلقائياً عند اكتمال المعالجة. لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.</p><script>\n\t\t\t(function() {\n\t\t\t\tconst sessionEl = document.getElementById('import-progress');\n\t\t\t\tconst sessionID = sessionEl ? sessionEl.dataset.session : null;\n\t\t\t\tif (!sessionID) return;\n\n\t\t\t\tconst fill = document.getElementById('import-progress-fill');\n\t\t\t\tconst msg = document.getElementById('import-progress-message');\n\t\t\t\tconst count = document.getElementById('import-progress-count');\n\n\t\t\t\tconst poll = setInterval(async () => {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch('/admin/products/import/' + sessionID + '/progress');\n\t\t\t\t\t\tif (!res.ok) return;\n\t\t\t\t\t\tconst data = await res.json();\n\t\t\t\t\t\tif (msg && data.message) msg.textContent = data.message;\n\t\t\t\t\t\tif (count && data.total > 0) {\n\t\t\t\t\t\t\tcount.textContent = Number(data.current).toLocaleString() + ' / ' + Number(data.total).toLocaleString();\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (fill) {\n\t\t\t\t\t\t\tif (data.percent >= 0) {\n\t\t\t\t\t\t\t\tfill.classList.remove('is-indeterminate');\n\t\t\t\t\t\t\t\tfill.style.width = data.percent + '%';\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tfill.classList.add('is-indeterminate');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (data.done) {\n\t\t\t\t\t\t\tclearInterval(poll);\n\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t}, 400);\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('progress poll failed', e);\n\t\t\t\t\t}\n\t\t\t\t}, 1500);\n\t\t\t})();\n\t\t</script></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "</ol><p class=\"wiz-sub\">يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج والمراجعة تلقائياً عند اكتمال المعالجة. لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.</p><script>\r\n\t\t\t(function() {\r\n\t\t\t\tconst sessionEl = document.getElementById('import-progress');\r\n\t\t\t\tconst sessionID = sessionEl ? sessionEl.dataset.session : null;\r\n\t\t\t\tif (!sessionID) return;\r\n\r\n\t\t\t\tconst fill = document.getElementById('import-progress-fill');\r\n\t\t\t\tconst msg = document.getElementById('import-progress-message');\r\n\t\t\t\tconst count = document.getElementById('import-progress-count');\r\n\r\n\t\t\t\tconst poll = setInterval(async () => {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tconst res = await fetch('/admin/products/import/' + sessionID + '/progress');\r\n\t\t\t\t\t\tif (!res.ok) return;\r\n\t\t\t\t\t\tconst data = await res.json();\r\n\t\t\t\t\t\tif (msg && data.message) msg.textContent = data.message;\r\n\t\t\t\t\t\tif (count && data.total > 0) {\r\n\t\t\t\t\t\t\tcount.textContent = Number(data.current).toLocaleString() + ' / ' + Number(data.total).toLocaleString();\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (fill) {\r\n\t\t\t\t\t\t\tif (data.percent >= 0) {\r\n\t\t\t\t\t\t\t\tfill.classList.remove('is-indeterminate');\r\n\t\t\t\t\t\t\t\tfill.style.width = data.percent + '%';\r\n\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\tfill.classList.add('is-indeterminate');\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (data.done) {\r\n\t\t\t\t\t\t\tclearInterval(poll);\r\n\t\t\t\t\t\t\tsetTimeout(() => {\r\n\t\t\t\t\t\t\t\twindow.location.reload();\r\n\t\t\t\t\t\t\t}, 400);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\tconsole.error('progress poll failed', e);\r\n\t\t\t\t\t}\r\n\t\t\t\t}, 1500);\r\n\t\t\t})();\r\n\t\t</script></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

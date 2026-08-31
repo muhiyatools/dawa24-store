@@ -98,7 +98,7 @@ templ CustomerOrderEditModal(order *commerce.Order, lang string) {
 						</div>
 
 						<!-- Notes -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label>
 							<input type="text" name="notes" placeholder="اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف..." class="form-input text-xs w-full"/>
 						</div>
@@ -106,11 +106,11 @@ templ CustomerOrderEditModal(order *commerce.Order, lang string) {
 						<!-- Summary Box -->
 						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-3">
 							<div class="d-flex gap-4 flex-wrap text-xs">
-								<div>
+        <div class="stack-sm">
 									<span class="text-secondary">إجمالي الأصناف:</span>
 									<strong id="edit-subtotal-val" class="tabular-nums text-primary ms-1">{ order.Subtotal.String() }</strong> ج.م
 								</div>
-								<div>
+        <div class="stack-sm">
 									<span class="text-success">إجمالي الخصم:</span>
 									<strong id="edit-discount-val" class="tabular-nums text-success ms-1">-{ order.DiscountAmount.String() }</strong> ج.م
 								</div>

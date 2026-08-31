@@ -9,10 +9,10 @@ import (
 // loaded directly from the platform_admin.policies database table.
 templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 	@layouts.PublicShell(title+" | دواء 24", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			
 			<!-- Breadcrumbs -->
-			<div>
+   <div class="stack-sm">
 				<a href="/">الرئيسية</a>
 				<span>/</span>
 				<span>السياسات والضوابط القانونية</span>
@@ -21,7 +21,7 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 			</div>
 
 			<!-- Quick Policy Switcher Bar -->
-			<div>
+   <div class="stack-sm">
 				<a
 					href="/terms"
 					class={ "btn", templ.KV("btn-primary", slug == "terms"), templ.KV("btn-secondary", slug != "terms") }
@@ -44,9 +44,9 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 			<div class="card">
 				
 				<!-- Document Header -->
-				<div>
-					<div>
-						<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<div class="b2b-icon-box">
 								if slug == "privacy" {
 									@components.IconShield("icon-sm")
@@ -54,23 +54,23 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 									@components.IconFileText("icon-sm")
 								}
 							</div>
-							<h1>
+							<h1 class="page-title font-bold text-xl m-0">
 								{ title }
 							</h1>
 						</div>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24
 						</p>
 					</div>
 
 					<!-- Metadata Badges -->
-					<div>
+     <div class="stack-sm">
 						<span class="badge badge-emerald">
 							@components.IconCheck("icon-xs")
 							<span>سارية ومعتمدة رسمياً</span>
 						</span>
 						if version != "" || lastUpdated != "" {
-							<div>
+       <div class="stack-sm">
 								if version != "" {
 									<span>إصدار: { version }</span>
 								}
@@ -86,13 +86,13 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 				</div>
 
 				<!-- Document Body Content -->
-				<div>
+				<div class="stack-xs text-sm">
 					{ body }
 				</div>
 
 				<!-- Official Compliance Footer Strip -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						@components.IconShield("icon-xs")
 						<span>كافة البنود والتعاملات خاضعة للضوابط واللوائح الصيدلانية والتجارية المصرية السارية.</span>
 					</div>
@@ -111,10 +111,10 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 // CmsPage renders a database-driven content page from its bilingual title and body.
 templ CmsPage(lang, dir, title, body string) {
 	@layouts.PublicShell(title, lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div class="card">
-				<h1>{ title }</h1>
-				<div>{ body }</div>
+				<h1 class="page-title font-bold text-xl m-0">{ title }</h1>
+				<div class="stack-xs text-sm">{ body }</div>
 			</div>
 		</div>
 	}

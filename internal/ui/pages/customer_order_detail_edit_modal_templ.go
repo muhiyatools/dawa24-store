@@ -270,7 +270,7 @@ func CustomerOrderEditModal(order *commerce.Order, lang string) templ.Component 
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</tbody></table></div><!-- Button to add new line row --><div class=\"d-flex justify-start\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold gap-1 border-dashed\" onclick=\"window.addNewEditRow()\"><span>إضافة صنف جديد يدوياً للطلب</span></button></div><!-- Notes --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label> <input type=\"text\" name=\"notes\" placeholder=\"اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف...\" class=\"form-input text-xs w-full\"></div><!-- Summary Box --><div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-3\"><div class=\"d-flex gap-4 flex-wrap text-xs\"><div><span class=\"text-secondary\">إجمالي الأصناف:</span> <strong id=\"edit-subtotal-val\" class=\"tabular-nums text-primary ms-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</tbody></table></div><!-- Button to add new line row --><div class=\"d-flex justify-start\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold gap-1 border-dashed\" onclick=\"window.addNewEditRow()\"><span>إضافة صنف جديد يدوياً للطلب</span></button></div><!-- Notes --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label> <input type=\"text\" name=\"notes\" placeholder=\"اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف...\" class=\"form-input text-xs w-full\"></div><!-- Summary Box --><div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-3\"><div class=\"d-flex gap-4 flex-wrap text-xs\"><div class=\"stack-sm\"><span class=\"text-secondary\">إجمالي الأصناف:</span> <strong id=\"edit-subtotal-val\" class=\"tabular-nums text-primary ms-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -283,7 +283,7 @@ func CustomerOrderEditModal(order *commerce.Order, lang string) templ.Component 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</strong> ج.م</div><div><span class=\"text-success\">إجمالي الخصم:</span> <strong id=\"edit-discount-val\" class=\"tabular-nums text-success ms-1\">-")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</strong> ج.م</div><div class=\"stack-sm\"><span class=\"text-success\">إجمالي الخصم:</span> <strong id=\"edit-discount-val\" class=\"tabular-nums text-success ms-1\">-")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

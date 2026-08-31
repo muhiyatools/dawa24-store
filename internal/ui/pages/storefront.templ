@@ -101,7 +101,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 			<!-- Header Card -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconStar("icon-sm")
@@ -153,7 +153,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 								<div class="flex-between items-center flex-wrap gap-3">
 									<div class="d-flex items-center gap-3">
 										<span class="text-2xl">{ sectionTypeIcon(s.SectionType) }</span>
-										<div>
+          <div class="stack-sm">
 											<div class="d-flex items-center gap-2 flex-wrap">
 												<strong class="text-primary text-sm font-extrabold">
 													{ s.Title.Get(i18n.Lang(lang)) }
@@ -218,7 +218,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 			</div>
 
 			<!-- Unified Add / Edit Section Modal (Fixed Centered Overlay) -->
-			<div
+			<div class="stack-sm"
 				x-show="isModalOpen"
 				x-cloak
 				x-transition.opacity
@@ -243,11 +243,11 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 
 						<!-- Titles -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان (بالعربية) <span class="text-danger">*</span></label>
 								<input type="text" name="title_ar" x-model="currentSection.title_ar" required placeholder="مثال: رؤيتنا للتميز الدوائي" class="form-input text-xs w-full" />
 							</div>
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان (بالإنجليزية)</label>
 								<input type="text" name="title_en" x-model="currentSection.title_en" placeholder="e.g. Our Vision" class="form-input text-xs w-full" dir="ltr" />
 							</div>
@@ -255,12 +255,12 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 
 						<!-- Order & Color -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">ترتيب العرض</label>
 								<input type="number" name="display_order" x-model.number="currentSection.display_order" min="0" class="form-input text-xs tabular-nums w-full" />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">اللون المميز</label>
 								<select name="color" x-model="currentSection.color" class="form-input text-xs w-full">
 									<option value="#0284c7">أزرق سماوي (Sky Blue)</option>
@@ -275,11 +275,11 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 
 						<!-- Descriptions -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المحتوى والوصف (بالعربية) <span class="text-danger">*</span></label>
 								<textarea name="description_ar" x-model="currentSection.description_ar" rows="4" required placeholder="اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة..." class="form-input text-xs w-full"></textarea>
 							</div>
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المحتوى والوصف (بالإنجليزية)</label>
 								<textarea name="description_en" x-model="currentSection.description_en" rows="4" placeholder="Detailed content and description in English..." class="form-input text-xs w-full" dir="ltr"></textarea>
 							</div>

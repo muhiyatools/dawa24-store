@@ -88,7 +88,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"d-flex flex-col gap-4 admin-page-container\"><!-- Header Card --><div class=\"admin-banner\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"w-11 h-11 rounded-xl bg-primary-subtle text-brand flex-center text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"d-flex flex-col gap-4 admin-page-container\"><!-- Header Card --><div class=\"admin-banner\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"w-11 h-11 rounded-xl bg-primary-subtle text-brand flex-center text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -96,7 +96,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-xl font-black text-primary m-0\">نطاقات وجداول التغطية الأسبوعية</h1><span class=\"text-xs font-bold text-brand uppercase\">Weekly Delivery Schedules & Routes</span></div></div><p class=\"text-sm text-secondary mt-1 m-0\">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><form method=\"GET\" action=\"/admin/weekly-coverages\" class=\"d-flex items-center gap-2 m-0\"><label class=\"text-xs font-bold text-secondary nowrap\">تصفية المنشأة:</label> <select name=\"org_id\" class=\"form-select text-sm min-w-56 font-bold\" onchange=\"this.form.submit()\"><option value=\"0\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">نطاقات وجداول التغطية الأسبوعية</h1><span class=\"text-xs font-bold text-brand uppercase\">Weekly Delivery Schedules & Routes</span></div></div><p class=\"text-sm text-secondary mt-1 m-0\">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><form method=\"GET\" action=\"/admin/weekly-coverages\" class=\"d-flex items-center gap-2 m-0\"><label class=\"text-xs font-bold text-secondary nowrap\">تصفية المنشأة:</label> <select name=\"org_id\" class=\"form-select text-sm min-w-56 font-bold\" onchange=\"this.form.submit()\"><option value=\"0\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -531,7 +531,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"><div class=\"d-flex flex-col gap-3\"><div><label class=\"form-label font-bold\" for=\"cov-org-id\">المنشأة / المورد المعتمد *</label> <select id=\"cov-org-id\" name=\"organization_id\" class=\"form-select w-full\" required>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"><div class=\"d-flex flex-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-org-id\">المنشأة / المورد المعتمد *</label> <select id=\"cov-org-id\" name=\"organization_id\" class=\"form-select w-full\" required>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -577,7 +577,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></div><div class=\"d-grid grid-2-col gap-3\"><div><label class=\"form-label font-bold\" for=\"cov-branch-id\">الفرع أو المخزن المنفذ *</label> <select id=\"cov-branch-id\" name=\"branch_id\" class=\"form-select w-full\" required>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</select></div><div class=\"d-grid grid-2-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-branch-id\">الفرع أو المخزن المنفذ *</label> <select id=\"cov-branch-id\" name=\"branch_id\" class=\"form-select w-full\" required>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -625,7 +625,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</select></div><div><label class=\"form-label font-bold\" for=\"cov-city-id\">المدينة / المحافظة المشمولة</label> <select id=\"cov-city-id\" name=\"city_id\" class=\"form-select w-full\"><option value=\"0\">كافة مدن النطاق</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</select></div><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-city-id\">المدينة / المحافظة المشمولة</label> <select id=\"cov-city-id\" name=\"city_id\" class=\"form-select w-full\"><option value=\"0\">كافة مدن النطاق</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -661,7 +661,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</select></div></div><div class=\"d-grid grid-2-col gap-3\"><div><label class=\"form-label font-bold\" for=\"cov-day-id\">يوم التوصيل *</label> <select id=\"cov-day-id\" name=\"day_of_week\" class=\"form-select w-full font-bold\" required><option value=\"0\">الأحد (Sunday)</option> <option value=\"1\">الاثنين (Monday)</option> <option value=\"2\">الثلاثاء (Tuesday)</option> <option value=\"3\">الأربعاء (Wednesday)</option> <option value=\"4\">الخميس (Thursday)</option> <option value=\"5\">الجمعة (Friday)</option> <option value=\"6\">السبت (Saturday)</option></select></div><div><label class=\"form-label font-bold\" for=\"cov-dist-id\">نصف قطر التغطية (كم) *</label> <input id=\"cov-dist-id\" type=\"number\" name=\"distance_km\" value=\"50\" min=\"1\" max=\"500\" required class=\"form-input w-full font-bold tabular-nums\"></div></div><div class=\"d-grid grid-2-col gap-3\"><div><label class=\"form-label font-bold\" for=\"cov-from-id\">من الساعة (اختياري)</label> <input id=\"cov-from-id\" type=\"text\" name=\"coverage_from\" placeholder=\"مثال: 08:00\" pattern=\"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$\" class=\"form-input w-full tabular-nums\"></div><div><label class=\"form-label font-bold\" for=\"cov-to-id\">إلى الساعة (اختياري)</label> <input id=\"cov-to-id\" type=\"text\" name=\"coverage_to\" placeholder=\"مثال: 18:00\" pattern=\"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$\" class=\"form-input w-full tabular-nums\"></div></div><div><label class=\"form-label font-bold\" for=\"cov-address-id\">ملاحظات العنوان أو خط السير</label> <input id=\"cov-address-id\" type=\"text\" name=\"address\" placeholder=\"مثال: خط سير الصيدليات المركزية والمستشفيات\" class=\"form-input w-full\"></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"add-weekly-coverage-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ الجدول</button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</select></div></div><div class=\"d-grid grid-2-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-day-id\">يوم التوصيل *</label> <select id=\"cov-day-id\" name=\"day_of_week\" class=\"form-select w-full font-bold\" required><option value=\"0\">الأحد (Sunday)</option> <option value=\"1\">الاثنين (Monday)</option> <option value=\"2\">الثلاثاء (Tuesday)</option> <option value=\"3\">الأربعاء (Wednesday)</option> <option value=\"4\">الخميس (Thursday)</option> <option value=\"5\">الجمعة (Friday)</option> <option value=\"6\">السبت (Saturday)</option></select></div><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-dist-id\">نصف قطر التغطية (كم) *</label> <input id=\"cov-dist-id\" type=\"number\" name=\"distance_km\" value=\"50\" min=\"1\" max=\"500\" required class=\"form-input w-full font-bold tabular-nums\"></div></div><div class=\"d-grid grid-2-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-from-id\">من الساعة (اختياري)</label> <input id=\"cov-from-id\" type=\"text\" name=\"coverage_from\" placeholder=\"مثال: 08:00\" pattern=\"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$\" class=\"form-input w-full tabular-nums\"></div><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-to-id\">إلى الساعة (اختياري)</label> <input id=\"cov-to-id\" type=\"text\" name=\"coverage_to\" placeholder=\"مثال: 18:00\" pattern=\"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$\" class=\"form-input w-full tabular-nums\"></div></div><div class=\"stack-sm\"><label class=\"form-label font-bold\" for=\"cov-address-id\">ملاحظات العنوان أو خط السير</label> <input id=\"cov-address-id\" type=\"text\" name=\"address\" placeholder=\"مثال: خط سير الصيدليات المركزية والمستشفيات\" class=\"form-input w-full\"></div></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"add-weekly-coverage-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ الجدول</button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

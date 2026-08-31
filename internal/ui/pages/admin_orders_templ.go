@@ -88,7 +88,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><h1 class=\"text-2xl font-black text-primary m-0\">إدارة الطلبات وأوامر التوريد</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة جميع طلبات الشراء، أوامر التوريد المباشرة، وطلبات التفاوض على الأسعار بين الصيدليات والموردين.</p></div><form method=\"GET\" action=\"/admin/orders\" class=\"d-flex items-center gap-2 m-0 min-w-280\"><input type=\"hidden\" name=\"tab\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">إدارة الطلبات وأوامر التوريد</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة جميع طلبات الشراء، أوامر التوريد المباشرة، وطلبات التفاوض على الأسعار بين الصيدليات والموردين.</p></div><form method=\"GET\" action=\"/admin/orders\" class=\"d-flex items-center gap-2 m-0 min-w-280\"><input type=\"hidden\" name=\"tab\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -90,7 +90,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">محتوى الصفحات والأقسام الترويجية (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">محتوى الصفحات والأقسام الترويجية (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -124,7 +124,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'page' }\" @click=\"activeTab = 'page'\">صفحات المنصة العامة (Pages)</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'section' }\" @click=\"activeTab = 'section'\">الأقسام المميزة والبانرات (Sections & Banners)</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'custom' }\" @click=\"activeTab = 'custom'\">أخرى ومخصصة</button></div><!-- Search Box --><div><input type=\"text\" x-model=\"searchQuery\" class=\"form-input text-xs w-full\" placeholder=\"بحث بالمفتاح أو العنوان...\"></div></div></div><!-- Content Blocks Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'page' }\" @click=\"activeTab = 'page'\">صفحات المنصة العامة (Pages)</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'section' }\" @click=\"activeTab = 'section'\">الأقسام المميزة والبانرات (Sections & Banners)</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'custom' }\" @click=\"activeTab = 'custom'\">أخرى ومخصصة</button></div><!-- Search Box --><div class=\"stack-sm\"><input type=\"text\" x-model=\"searchQuery\" class=\"form-input text-xs w-full\" placeholder=\"بحث بالمفتاح أو العنوان...\"></div></div></div><!-- Content Blocks Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -225,7 +225,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 						return templ_7745c5c3_Err
 					}
 					if b.Title.Get("en") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"stack-sm\" dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -307,7 +307,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 						return templ_7745c5c3_Err
 					}
 					if b.Body.Get("ar") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"stack-xs text-sm\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -325,7 +325,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 							return templ_7745c5c3_Err
 						}
 					} else if b.Body.Get("en") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"stack-sm\" dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -485,7 +485,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<form method=\"POST\" action=\"/admin/content\"><input type=\"hidden\" name=\"id\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<form class=\"stack-md\" method=\"POST\" action=\"/admin/content\"><input type=\"hidden\" name=\"id\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -707,7 +707,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<form method=\"POST\" action=\"/admin/content\" x-data=\"{ selectedPreset: '', customKey: '' }\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اختيار مفتاح شائع أو كتابة مخصص *</label> <select class=\"form-select\" x-model=\"selectedPreset\" @change=\"if (selectedPreset !== 'custom' && selectedPreset !== '') { customKey = selectedPreset }\"><option value=\"\">-- اختر من الكتل والصفحات الجاهزة --</option> <optgroup label=\"صفحات المنصة العامة\"><option value=\"about\">about — من نحن (العنوان والنبذة)</option> <option value=\"about-vision\">about-vision — رؤيتنا</option> <option value=\"about-mission\">about-mission — رسالتنا</option> <option value=\"faq\">faq — الأسئلة الشائعة</option> <option value=\"how-it-works\">how-it-works — كيف يعمل</option></optgroup> <optgroup label=\"الأقسام المميزة والبانرات\"><option value=\"home-hero\">home-hero — واجهة الصفحة الرئيسية</option> <option value=\"home-features\">home-features — مميزات وخدمات المنصة</option> <option value=\"home-banner\">home-banner — بانر ترويجي</option> <option value=\"highlight-coldchain\">highlight-coldchain — سلسلة التبريد</option> <option value=\"highlight-fastdelivery\">highlight-fastdelivery — التوصيل السريع</option> <option value=\"highlight-einvoice\">highlight-einvoice — الفاتورة الإلكترونية</option></optgroup> <option value=\"custom\">مفتاح مخصص آخر...</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\">المفتاح التعريفي (Key) *</label> <input type=\"text\" name=\"key\" x-model=\"customKey\" required class=\"form-input\" placeholder=\"about, home-hero...\" dir=\"ltr\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الموضع والتصنيف (Position) *</label> <select name=\"position\" class=\"form-select\"><option value=\"page\" selected>صفحة عامة (Page)</option> <option value=\"section\">قسم مميز (Section)</option> <option value=\"banner\">بانر إعلاني / ترويجي (Banner)</option> <option value=\"footer\">تذييل الموقع (Footer)</option> <option value=\"header\">ترويسة الموقع (Header)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة *</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\" selected>نشط ومفعل (Active)</option> <option value=\"false\">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (عربي)</label> <input type=\"text\" name=\"title_ar\" class=\"form-input\" placeholder=\"عنوان القسم أو الصفحة...\"></div><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Title in English...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (عربي)</label> <textarea name=\"body_ar\" rows=\"6\" class=\"form-input\" placeholder=\"نص المحتوى أو الفقرة بالعربية...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (إنجليزي)</label> <textarea name=\"body_en\" rows=\"6\" class=\"form-input\" dir=\"ltr\" placeholder=\"Content text in English...\"></textarea></div></div><div class=\"form-group m-0\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"0\" class=\"form-input\" min=\"0\"></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"create-content-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<form class=\"stack-md\" method=\"POST\" action=\"/admin/content\" x-data=\"{ selectedPreset: '', customKey: '' }\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اختيار مفتاح شائع أو كتابة مخصص *</label> <select class=\"form-select\" x-model=\"selectedPreset\" @change=\"if (selectedPreset !== 'custom' && selectedPreset !== '') { customKey = selectedPreset }\"><option value=\"\">-- اختر من الكتل والصفحات الجاهزة --</option> <optgroup label=\"صفحات المنصة العامة\"><option value=\"about\">about — من نحن (العنوان والنبذة)</option> <option value=\"about-vision\">about-vision — رؤيتنا</option> <option value=\"about-mission\">about-mission — رسالتنا</option> <option value=\"faq\">faq — الأسئلة الشائعة</option> <option value=\"how-it-works\">how-it-works — كيف يعمل</option></optgroup> <optgroup label=\"الأقسام المميزة والبانرات\"><option value=\"home-hero\">home-hero — واجهة الصفحة الرئيسية</option> <option value=\"home-features\">home-features — مميزات وخدمات المنصة</option> <option value=\"home-banner\">home-banner — بانر ترويجي</option> <option value=\"highlight-coldchain\">highlight-coldchain — سلسلة التبريد</option> <option value=\"highlight-fastdelivery\">highlight-fastdelivery — التوصيل السريع</option> <option value=\"highlight-einvoice\">highlight-einvoice — الفاتورة الإلكترونية</option></optgroup> <option value=\"custom\">مفتاح مخصص آخر...</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\">المفتاح التعريفي (Key) *</label> <input type=\"text\" name=\"key\" x-model=\"customKey\" required class=\"form-input\" placeholder=\"about, home-hero...\" dir=\"ltr\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">الموضع والتصنيف (Position) *</label> <select name=\"position\" class=\"form-select\"><option value=\"page\" selected>صفحة عامة (Page)</option> <option value=\"section\">قسم مميز (Section)</option> <option value=\"banner\">بانر إعلاني / ترويجي (Banner)</option> <option value=\"footer\">تذييل الموقع (Footer)</option> <option value=\"header\">ترويسة الموقع (Header)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة *</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\" selected>نشط ومفعل (Active)</option> <option value=\"false\">معطل (Inactive)</option></select></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (عربي)</label> <input type=\"text\" name=\"title_ar\" class=\"form-input\" placeholder=\"عنوان القسم أو الصفحة...\"></div><div class=\"form-group m-0\"><label class=\"form-label\">العنوان (إنجليزي)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Title in English...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (عربي)</label> <textarea name=\"body_ar\" rows=\"6\" class=\"form-input\" placeholder=\"نص المحتوى أو الفقرة بالعربية...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">نص المحتوى (إنجليزي)</label> <textarea name=\"body_en\" rows=\"6\" class=\"form-input\" dir=\"ltr\" placeholder=\"Content text in English...\"></textarea></div></div><div class=\"form-group m-0\"><label class=\"form-label\">ترتيب العرض</label> <input type=\"number\" name=\"sort_order\" value=\"0\" class=\"form-input\" min=\"0\"></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"create-content-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

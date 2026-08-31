@@ -12,11 +12,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		<div id="add-job-modal" class="modal-backdrop hidden">
 			<div class="card">
 				<div class="section-head">
-					<div>
-						<h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">
 							نشر وظيفة / شاغر صيدلاني جديد
 						</h3>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة.
 						</p>
 					</div>
@@ -26,7 +26,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 				<form method="POST" action="/customer/jobs" class="stack-115">
 					<!-- Job Title Arabic & English -->
 					<div class="grid-2">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 							</label>
@@ -40,7 +40,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
  />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								المسمى الوظيفي (بالإنجليزية)
 							</label>
@@ -56,12 +56,12 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 					<!-- Location & Branch Selection -->
 					<div class="grid-2">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الفرع المخصص للشاغر <span class="text-danger">*</span>
 							</label>
 							if len(data.Branches) == 0 {
-								<div>
+        <div class="stack-sm">
 									<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/customer/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ↗</a>.</span>
 								</div>
 								<input type="hidden" name="location" value="الفرع الرئيسي" />
@@ -85,7 +85,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 							}
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								حالة الوظيفة <span class="text-danger">*</span>
 							</label>
@@ -104,7 +104,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 					<!-- Salary Range -->
 					<div class="grid-2">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الحد الأدنى للراتب (اختياري)
 							</label>
@@ -117,7 +117,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
  />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الحد الأقصى للراتب (اختياري)
 							</label>
@@ -132,7 +132,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Description -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							الوصف الوظيفي والمسؤوليات
 						</label>
@@ -146,7 +146,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Requirements -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المتطلبات والمؤهلات المطلوبة
 						</label>
@@ -160,7 +160,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Form Actions -->
-					<div>
+     <div class="stack-sm">
 						<button type="button" class="btn btn-secondary" onclick="closeAddJobModal()">
 							إلغاء
 						</button>
@@ -178,11 +178,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		<div id="edit-job-modal" class="modal-backdrop hidden">
 			<div class="card">
 				<div class="section-head">
-					<div>
-						<h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">
 							تعديل بيانات الشاغر الوظيفي
 						</h3>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها.
 						</p>
 					</div>
@@ -192,7 +192,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 				<form id="edit-job-form" method="POST" action="" class="stack-115">
 					<!-- Job Title Arabic & English -->
 					<div class="grid-2">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 							</label>
@@ -206,7 +206,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
  />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								المسمى الوظيفي (بالإنجليزية)
 							</label>
@@ -222,7 +222,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 					<!-- Location & Status -->
 					<div class="grid-2">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الفرع المخصص للشاغر <span class="text-danger">*</span>
 							</label>
@@ -261,7 +261,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 							}
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								حالة الوظيفة <span class="text-danger">*</span>
 							</label>
@@ -281,7 +281,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 
 					<!-- Salary Range -->
 					<div class="grid-2">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الحد الأدنى للراتب
 							</label>
@@ -294,7 +294,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
  />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الحد الأقصى للراتب
 							</label>
@@ -309,7 +309,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Description -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							الوصف الوظيفي والمسؤوليات
 						</label>
@@ -323,7 +323,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Requirements -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المتطلبات والمؤهلات المطلوبة
 						</label>
@@ -337,7 +337,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Form Actions -->
-					<div>
+     <div class="stack-sm">
 						<button type="button" class="btn btn-secondary" onclick="closeEditJobModal()">
 							إلغاء
 						</button>
@@ -355,11 +355,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		<div id="job-applicants-modal" class="modal-backdrop hidden">
 			<div class="card">
 				<div class="section-head">
-					<div>
-						<h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">
 							طلبات التقديم والسير الذاتية
 						</h3>
-						<p id="applicants-modal-subtitle">
+						<p class="text-sm text-secondary m-0" id="applicants-modal-subtitle">
 							الوظيفة: -
 						</p>
 					</div>
@@ -367,7 +367,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 				</div>
 
 				<!-- Dynamic Content -->
-				<div id="applicants-modal-content">
+				<div class="stack-sm" id="applicants-modal-content">
 					<!-- Populated by JS -->
 				</div>
 			</div>
@@ -376,24 +376,24 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
 		<div id="onboard-modal" class="modal-backdrop hidden">
 			<div class="card">
-				<div>
-					<div>
-						<h3>
+    <div class="stack-sm">
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">
 							قبول المتقدم وتعيينه كموظف
 						</h3>
-						<p id="onboard-modal-subtitle">
+						<p class="text-sm text-secondary m-0" id="onboard-modal-subtitle">
 							المتقدم: -
 						</p>
 					</div>
 					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeOnboardModal()">@components.IconX("icon-sm")</button>
 				</div>
 
-				<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
+				<form class="stack-md" id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
 					<input type="hidden" id="onboard-job-id" value="" />
 					<input type="hidden" id="onboard-app-id" value="" />
 
 					<!-- Branch Selection -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							الفرع المخصص للعمل <span class="text-danger">*</span>
 						</label>
@@ -414,7 +414,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Role / Permissions Selection -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 						</label>
@@ -428,7 +428,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Job Title -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المسمى الوظيفي المعتمد <span class="text-danger">*</span>
 						</label>
@@ -443,7 +443,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Salary -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							الراتب الأساسي (ج.م / شهرياً)
 						</label>
@@ -457,7 +457,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Notes -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							ملاحظات التعيين (اختياري)
 						</label>
@@ -471,7 +471,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					</div>
 
 					<!-- Form Actions -->
-					<div>
+     <div class="stack-sm">
 						<button type="button" class="btn btn-secondary" onclick="closeOnboardModal()">
 							إلغاء
 						</button>

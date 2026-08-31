@@ -46,9 +46,9 @@ templ MapPicker(props MapPickerProps) {
 	<div class="map-picker-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-4); background:var(--surface-raised); display:flex; flex-direction:column; gap:var(--space-3);" data-map-picker>
 		<input type="hidden" name={ fmt.Sprintf("%s_city_id", namePrefix) } data-map-city-id />
 		<!-- Header Toolbar -->
-		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);">
-			<div>
-				<div style="display:flex; align-items:center; gap:var(--space-2);">
+		<div class="stack-sm" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);">
+   <div class="stack-sm">
+				<div class="stack-sm" style="display:flex; align-items:center; gap:var(--space-2);">
 					<span style="color:var(--accent); font-weight:700; font-size:var(--text-sm);">
 						if props.Label != "" {
 							{ props.Label }
@@ -60,13 +60,13 @@ templ MapPicker(props MapPickerProps) {
 						{ fmt.Sprintf("%.4f, %.4f", latVal, lonVal) }
 					</span>
 				</div>
-				<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
+				<div class="stack-sm" style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
 					انقر على الخريطة أو اسحب المؤشر لتحديد موقع المنشأة بدقة
 				</div>
 			</div>
 
 			<!-- Toolbar Buttons -->
-			<div style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
+			<div class="stack-sm" style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
 				<!-- City Jump Selector (Dynamic from Database) -->
 				<select class="form-select text-xs" style="padding:0.25rem 0.5rem; font-size:11px; width:auto;" data-city-selector>
 					<option value="">-- المحافظات المصرية (Governorates) --</option>
@@ -138,8 +138,8 @@ templ MapPicker(props MapPickerProps) {
 		</div>
 
 		<!-- Coordinate Inputs Matrix -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);">
-			<div>
+		<div class="stack-sm" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);">
+   <div class="stack-sm">
 				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط العرض (Latitude) *</label>
 				<input
 					type="number"
@@ -154,7 +154,7 @@ templ MapPicker(props MapPickerProps) {
 					}
 				/>
 			</div>
-			<div>
+   <div class="stack-sm">
 				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">خط الطول (Longitude) *</label>
 				<input
 					type="number"
@@ -170,7 +170,7 @@ templ MapPicker(props MapPickerProps) {
 				/>
 			</div>
 			if props.ShowRadius {
-				<div>
+    <div class="stack-sm">
 					<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">نصف قطر التغطية (بالمتر)</label>
 					<input
 						type="number"
@@ -188,7 +188,7 @@ templ MapPicker(props MapPickerProps) {
 					/>
 				</div>
 			}
-			<div style="grid-column: 1 / -1;">
+			<div class="stack-sm" style="grid-column: 1 / -1;">
 				<label class="form-label text-xs" style="color:var(--text-secondary); margin-bottom:4px; display:block;">رابط الموقع على خرائط Google Maps</label>
 				<input
 					type="url"

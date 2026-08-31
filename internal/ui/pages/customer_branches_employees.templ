@@ -9,12 +9,12 @@ import (
 
 templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []string) {
 			<!-- TAB 2: Branch Employees & RBAC Content -->
-			<div id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
+			<div class="stack-sm" id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
 				
 				<!-- Employees Toolbar -->
-				<div>
-					<div>
-						<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<input
 								type="text"
 								id="cb-emp-search-input"
@@ -23,7 +23,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 							
 								oninput="filterCustomerEmployees()"
 							/>
-							<div>
+							<div class="stack-xs text-sm">
 								@components.IconSearch("icon-xs")
 							</div>
 						</div>
@@ -76,18 +76,18 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 											<!-- Personal Info -->
 											<td>
 												<div class="d-flex items-center gap-3">
-													<div>
+             <div class="stack-sm">
 														if len(emp.UserName) >= 2 {
 															{ string([]rune(emp.UserName)[0:1]) }
 														} else {
 															<span>@components.IconUser("icon-sm")</span>
 														}
 													</div>
-													<div>
-														<div>
+             <div class="stack-sm">
+														<div class="stack-xs text-sm">
 															{ emp.UserName }
 														</div>
-														<div>
+              <div class="stack-sm">
 															<span>{ emp.UserEmail }</span>
 															if emp.Member.EmployeeCode != "" {
 																<span class="badge badge-slate tabular-nums">{ emp.Member.EmployeeCode }</span>
@@ -142,7 +142,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 
 											<!-- Actions -->
 											<td class="text-center">
-												<div>
+            <div class="stack-sm">
 													<!-- Edit Button -->
 													<button
 														type="button"
@@ -193,40 +193,40 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 				<form method="POST" action="/customer/employees/new" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-3">
 							<div class="d-grid grid-cols-2 gap-3">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">اسم الموظف بالكامل <span class="text-danger">*</span></label>
 									<input type="text" name="name" required placeholder="د. أحمد محمد" class="form-input w-full"/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">البريد الإلكتروني <span class="text-danger">*</span></label>
 									<input type="email" name="email" required placeholder="ahmed@pharmacy.com" class="form-input w-full"/>
 								</div>
 							</div>
 
 							<div class="d-grid grid-cols-2 gap-3">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">رقم الهاتف للتواصل</label>
 									<input type="tel" name="phone" placeholder="01099887766" class="form-input tabular-nums w-full"/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">المسمى الوظيفي</label>
 									<input type="text" name="job_title" placeholder="صيدلي أول / مدير فرع" class="form-input w-full"/>
 								</div>
 							</div>
 
 							<div class="d-grid grid-cols-2 gap-3">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">كود الموظف الداخلي</label>
 									<input type="text" name="employee_code" placeholder="EMP-01" class="form-input tabular-nums w-full"/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">كلمة المرور (اختياري)</label>
 									<input type="password" name="password" placeholder="اتركه فارغاً للتوليد التلقائي" class="form-input w-full"/>
 								</div>
 							</div>
 
 							<div class="d-grid grid-cols-2 gap-3">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">الفرع التابع له الموظف <span class="text-danger">*</span></label>
 									<select id="add-emp-branch-select" name="branch_id" class="form-select w-full">
 										<option value="">-- عام (كافة الفروع) --</option>
@@ -242,7 +242,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs">الدور والصلاحيات (Role) <span class="text-danger">*</span></label>
 									<select name="role_key" required class="form-select w-full">
 										<option value="org_pharmacist">صيدلي مسؤول (طلب أدوية واستعراض)</option>
@@ -277,29 +277,29 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)) } class="d-flex flex-col gap-4 m-0">
 								<div class="modal-body d-flex flex-col gap-3">
 									<div class="d-grid grid-cols-2 gap-3">
-										<div>
+          <div class="stack-sm">
 											<label class="form-label font-bold text-xs">اسم الموظف</label>
 											<input type="text" value={ emp.UserName } disabled class="form-input w-full"/>
 										</div>
-										<div>
+          <div class="stack-sm">
 											<label class="form-label font-bold text-xs">البريد الإلكتروني</label>
 											<input type="email" value={ emp.UserEmail } disabled class="form-input w-full"/>
 										</div>
 									</div>
 
 									<div class="d-grid grid-cols-2 gap-3">
-										<div>
+          <div class="stack-sm">
 											<label class="form-label font-bold text-xs">المسمى الوظيفي</label>
 											<input type="text" name="job_title" value={ emp.Member.JobTitle } class="form-input w-full"/>
 										</div>
-										<div>
+          <div class="stack-sm">
 											<label class="form-label font-bold text-xs">كود الموظف</label>
 											<input type="text" name="employee_code" value={ emp.Member.EmployeeCode } class="form-input tabular-nums w-full"/>
 										</div>
 									</div>
 
 									<div class="d-grid grid-cols-2 gap-3">
-										<div>
+          <div class="stack-sm">
 											<label class="form-label font-bold text-xs">الفرع التابع له الموظف</label>
 											<select name="branch_id" class="form-select w-full">
 												<option value="">-- عام (كافة الفروع) --</option>
@@ -315,7 +315,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 											</select>
 										</div>
 
-										<div>
+          <div class="stack-sm">
 											<label class="form-label font-bold text-xs">الدور والصلاحيات</label>
 											<select name="role_key" required class="form-select w-full">
 												<option value="org_pharmacist" selected?={ emp.Member.RoleKey == "org_pharmacist" }>صيدلي مسؤول</option>

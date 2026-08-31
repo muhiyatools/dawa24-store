@@ -20,7 +20,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			
 			<!-- Header -->
 			<div class="d-flex items-center justify-between border-b pb-4">
-				<div>
+    <div class="stack-sm">
 					<h1 class="text-2xl font-bold">معرض المكوّنات (Phase 3 Component Gallery)</h1>
 					<p class="text-sm text-muted">مرجع بصري لكل مكوّن في نظام التصميم، بكل حالاته</p>
 				</div>
@@ -49,15 +49,15 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			<section class="card p-4">
 				<h2 class="text-lg font-bold mb-3">2. Form Inputs & Selects</h2>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">حقل نص عادي</label>
 						<input type="text" class="form-input w-full" placeholder="اكتب هنا..." value="قيمة مبدئية"/>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">حقل معطّل</label>
 						<input type="text" class="form-input w-full" disabled value="لا يمكن تعديل هذا الحقل"/>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">قائمة اختيار (Select)</label>
 						<select class="form-input w-full">
 							<option>الخيار الأول (افتراضي)</option>

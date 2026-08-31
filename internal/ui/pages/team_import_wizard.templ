@@ -39,7 +39,7 @@ templ teamImportContent(view TeamImportView) {
 					<div class="user-avatar-badge text-2xl">
 						@components.IconUsers("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-2xl font-black text-primary m-0">استيراد فريق العمل والموظفين من ملف Excel</h1>
 						<p class="text-sm text-secondary m-0 mt-1">
 							ارفع كشف الموظفين، وحدد ربط الأعمدة، وطابق أدوار وصلاحيات العمل بسهولة وسرعة قبل الإضافة النهائية
@@ -114,7 +114,7 @@ templ teamUploadStage(view TeamImportView) {
 			</p>
 		</div>
 
-		<form method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
+		<form class="stack-md" method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
 			<label class="dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-brand-500 hover:bg-brand-50/20 transition-all mb-4" id="team-dropzone">
 				<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" onchange="handleTeamFileSelect(this)" />
 				<div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center mb-3">
@@ -156,7 +156,7 @@ templ teamUploadStage(view TeamImportView) {
 templ teamSessionsHistoryCard(view TeamImportView) {
 	<div class="glass-panel p-0 mb-6 overflow-hidden">
 		<div class="p-4 border-b flex-between items-center">
-			<div>
+   <div class="stack-sm">
 				<h3 class="text-sm font-black text-primary m-0">سجل جلسات الاستيراد</h3>
 				<p class="text-xs text-secondary m-0 mt-0.5">يمكنك استئناف الجلسات الجارية أو حذف الجلسات المؤقتة</p>
 			</div>
@@ -225,7 +225,7 @@ templ teamMappingStage(view TeamImportView) {
 	{{ sess := view.Session }}
 	<div class="glass-panel p-6 mb-6">
 		<div class="flex-between items-center flex-wrap gap-3 mb-6 pb-4 border-b">
-			<div>
+   <div class="stack-sm">
 				<h2 class="text-lg font-black text-primary m-0">2. ربط الأعمدة وتعيين أدوار الموظفين</h2>
 				<p class="text-xs text-secondary m-0 mt-1">الملف: <strong>{ sess.Filename }</strong> ({ fmt.Sprint(sess.TotalRows) } صف تم التعرف عليها)</p>
 			</div>
@@ -245,7 +245,7 @@ templ teamMappingStage(view TeamImportView) {
 
 				<div class="d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80">
 					<!-- Name Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود اسم الموظف بالكامل <span class="text-danger">*</span></label>
 						<select name="col_name" class="form-select text-xs font-medium" required>
 							<option value="-1">-- اختر العمود --</option>
@@ -256,7 +256,7 @@ templ teamMappingStage(view TeamImportView) {
 					</div>
 
 					<!-- Email Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود البريد الإلكتروني <span class="text-danger">*</span></label>
 						<select name="col_email" class="form-select text-xs font-medium" required>
 							<option value="-1">-- اختر العمود --</option>
@@ -267,7 +267,7 @@ templ teamMappingStage(view TeamImportView) {
 					</div>
 
 					<!-- Phone Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود رقم الهاتف (اختياري)</label>
 						<select name="col_phone" class="form-select text-xs font-medium">
 							<option value="-1">-- غير متوفر في الملف --</option>
@@ -278,7 +278,7 @@ templ teamMappingStage(view TeamImportView) {
 					</div>
 
 					<!-- Role Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود الدور / الصلاحية (اختياري)</label>
 						<select name="col_role" class="form-select text-xs font-medium">
 							<option value="-1">-- غير متوفر (استخدم الدور الافتراضي) --</option>
@@ -289,7 +289,7 @@ templ teamMappingStage(view TeamImportView) {
 					</div>
 
 					<!-- Job Title Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود المسمى الوظيفي (اختياري)</label>
 						<select name="col_job_title" class="form-select text-xs font-medium">
 							<option value="-1">-- مثل الدور أو فارغ --</option>
@@ -300,7 +300,7 @@ templ teamMappingStage(view TeamImportView) {
 					</div>
 
 					<!-- Branch Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود الفرع / المخزن (اختياري)</label>
 						<select name="col_branch" class="form-select text-xs font-medium">
 							<option value="-1">-- غير محدد بالملف --</option>
@@ -311,7 +311,7 @@ templ teamMappingStage(view TeamImportView) {
 					</div>
 
 					<!-- Code Column -->
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود كود الموظف (اختياري)</label>
 						<select name="col_code" class="form-select text-xs font-medium">
 							<option value="-1">-- توليد تلقائي (EMP-xxx) --</option>
@@ -327,7 +327,7 @@ templ teamMappingStage(view TeamImportView) {
 			<div class="mb-6">
 				<div class="d-flex items-center gap-2 mb-3">
 					<div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 d-flex items-center justify-center font-bold text-xs">ب</div>
-					<div>
+     <div class="stack-sm">
 						<h3 class="text-sm font-black text-primary m-0">مطابقة الأدوار المكتوبة في ملف الـ Excel بأدوار المنصة</h3>
 						<p class="text-2xs text-secondary m-0 mt-0.5">يقوم النظام بمطابقة الأدوار المذكورة بالاسم في الإكسيل تلقائياً بأدوار منشأتك، ويمكنك مراجعة وتعديل أي دور أدناه:</p>
 					</div>
@@ -349,7 +349,7 @@ templ teamMappingStage(view TeamImportView) {
 											<span class="badge badge-amber text-2xs font-bold">تحديد يدوي</span>
 										}
 									</div>
-									<div>
+         <div class="stack-sm">
 										<label class="form-label text-2xs text-secondary mb-1">تعيين الدور بالمنصة:</label>
 										<select name={ "role_map_" + er.RawName } class="form-select text-xs font-bold">
 											for _, cr := range sess.CompanyRoles {
@@ -367,7 +367,7 @@ templ teamMappingStage(view TeamImportView) {
 
 				<!-- Default Role Selector -->
 				<div class="p-4 rounded-xl bg-brand-50/40 border border-brand-200/60 d-flex items-center justify-between flex-wrap gap-3">
-					<div>
+     <div class="stack-sm">
 						<div class="text-xs font-black text-brand-900">الدور الافتراضي (لأي صفوف لا تحتوي على دور أو مجهولة):</div>
 						<div class="text-2xs text-brand-700 mt-0.5">سيتم إسناد هذا الدور لأي موظف لا يحتوي على قيمة محددة في عمود الأدوار</div>
 					</div>
@@ -429,7 +429,7 @@ templ teamReviewStage(view TeamImportView) {
 		<!-- Review Header -->
 		<div class="glass-panel p-6 mb-6">
 			<div class="flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<h2 class="text-lg font-black text-primary m-0">3. مراجعة وتأكيد بيانات الموظفين</h2>
 					<p class="text-xs text-secondary m-0 mt-1">
 						تحقق من صحة البريد الإلكتروني والأدوار المسندة لكل موظف قبل التأكيد النهائي
@@ -450,7 +450,7 @@ templ teamReviewStage(view TeamImportView) {
 				<div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shrink-0">
 					@components.IconUsers("icon-sm")
 				</div>
-				<div>
+    <div class="stack-sm">
 					<div class="text-2xs text-secondary font-bold">إجمالي الموظفين بالملف</div>
 					<div class="text-lg font-black text-primary tabular-nums">{ fmt.Sprint(len(sess.Rows)) }</div>
 				</div>
@@ -461,7 +461,7 @@ templ teamReviewStage(view TeamImportView) {
 				<div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 d-flex items-center justify-center shrink-0">
 					@components.IconCheckCircle("icon-sm")
 				</div>
-				<div>
+    <div class="stack-sm">
 					<div class="text-2xs text-secondary font-bold">جاهز للإضافة والتفعيل</div>
 					<div class="text-lg font-black text-emerald-600 tabular-nums">{ fmt.Sprint(validCount) }</div>
 				</div>
@@ -472,7 +472,7 @@ templ teamReviewStage(view TeamImportView) {
 				<div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 d-flex items-center justify-center shrink-0">
 					@components.IconAlert("icon-sm")
 				</div>
-				<div>
+    <div class="stack-sm">
 					<div class="text-2xs text-secondary font-bold">صفوف بها ملاحظات / تحذيرات</div>
 					<div class="text-lg font-black text-rose-600 tabular-nums">{ fmt.Sprint(invalidCount) }</div>
 				</div>
@@ -575,7 +575,7 @@ templ teamReviewStage(view TeamImportView) {
 
 		<!-- Commit Form Action Bar -->
 		<div class="glass-panel p-6 d-flex items-center justify-between flex-wrap gap-4">
-			<div>
+   <div class="stack-sm">
 				<div class="text-xs font-black text-primary">سيتم إضافة <span class="text-emerald-600 font-black">{ fmt.Sprint(validCount) } موظف</span> إلى المنشأة</div>
 				<div class="text-2xs text-secondary mt-0.5">سيتم إنشاء حسابات مستخدمين جديدة وتعيين كلمة مرور افتراضية وإرسال الصلاحيات المحددة فوراً.</div>
 			</div>
@@ -607,15 +607,15 @@ templ teamCompletedStage(view TeamImportView) {
 		</p>
 
 		<div class="p-4 rounded-2xl bg-surface-sunken border border-slate-200/80 d-grid grid-cols-3 gap-4 mb-6">
-			<div>
+   <div class="stack-sm">
 				<div class="text-2xs text-secondary font-bold mb-0.5">تمت إضافتهم</div>
 				<div class="text-xl font-black text-emerald-600 tabular-nums">{ fmt.Sprint(sess.ImportedCount) }</div>
 			</div>
-			<div>
+   <div class="stack-sm">
 				<div class="text-2xs text-secondary font-bold mb-0.5">تم تجاوزهم</div>
 				<div class="text-xl font-black text-amber-600 tabular-nums">{ fmt.Sprint(sess.SkippedCount) }</div>
 			</div>
-			<div>
+   <div class="stack-sm">
 				<div class="text-2xs text-secondary font-bold mb-0.5">فشل إضافتهم</div>
 				<div class="text-xl font-black text-rose-600 tabular-nums">{ fmt.Sprint(sess.FailedCount) }</div>
 			</div>

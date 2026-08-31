@@ -173,7 +173,7 @@ func Modal(props ModalProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div><h3 class=\"modal-title\" id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"stack-sm\"><h3 class=\"modal-title\" id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -222,7 +222,7 @@ func Modal(props ModalProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><form method=\"dialog\"><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><form class=\"stack-md\" method=\"dialog\"><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -369,7 +369,7 @@ func ConfirmModal(props ConfirmModalProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</h3></div><form method=\"dialog\"><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</h3></div><form class=\"stack-md\" method=\"dialog\"><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -434,7 +434,7 @@ func ConfirmModal(props ConfirmModalProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" autocomplete=\"off\"><div class=\"modal-footer mt-4\"><form method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" autocomplete=\"off\"><div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -611,7 +611,7 @@ func ConfirmModal(props ConfirmModalProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"modal-footer mt-4\"><form method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -880,8 +880,8 @@ func ModalTrigger(dialogID, class string) templ.Component {
 
 func openDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_openDialog_3111`,
-		Function: `function __templ_openDialog_3111(id){const el = document.getElementById(id);
+		Name: `__templ_openDialog_919a`,
+		Function: `function __templ_openDialog_919a(id){const el = document.getElementById(id);
 	if (el && typeof el.showModal === "function") {
 		try {
 			if (!el.open) {
@@ -890,15 +890,15 @@ func openDialog(id string) templ.ComponentScript {
 		} catch (_) {}
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_openDialog_3111`, id),
-		CallInline: templ.SafeScriptInline(`__templ_openDialog_3111`, id),
+		Call:       templ.SafeScript(`__templ_openDialog_919a`, id),
+		CallInline: templ.SafeScriptInline(`__templ_openDialog_919a`, id),
 	}
 }
 
 func closeDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_closeDialog_60e7`,
-		Function: `function __templ_closeDialog_60e7(id){const el = document.getElementById(id);
+		Name: `__templ_closeDialog_48f3`,
+		Function: `function __templ_closeDialog_48f3(id){const el = document.getElementById(id);
 	if (el && typeof el.close === "function") {
 		try {
 			if (el.open) {
@@ -907,8 +907,8 @@ func closeDialog(id string) templ.ComponentScript {
 		} catch (_) {}
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_closeDialog_60e7`, id),
-		CallInline: templ.SafeScriptInline(`__templ_closeDialog_60e7`, id),
+		Call:       templ.SafeScript(`__templ_closeDialog_48f3`, id),
+		CallInline: templ.SafeScriptInline(`__templ_closeDialog_48f3`, id),
 	}
 }
 

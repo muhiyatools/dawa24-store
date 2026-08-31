@@ -19,7 +19,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 		<!-- Header Banner -->
 		<div class="glass-panel p-6 mb-6">
 			<div class="flex-between flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
 							@components.IconSparkles("icon-sm")
@@ -162,7 +162,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 											<span class="badge badge-emerald text-xs font-extrabold">
 												{ fmt.Sprintf("%.1f%%", deal.BestDiscount) }
 											</span>
-											<div>
+           <div class="stack-sm">
 												<div class="font-bold text-xs text-primary">
 													{ deal.BestSupplier }
 												</div>
@@ -179,7 +179,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 											<span class="badge badge-slate text-xs">
 												{ fmt.Sprintf("%.1f%%", deal.WorstDiscount) }
 											</span>
-											<div>
+           <div class="stack-sm">
 												<div class="font-bold text-xs text-muted">
 													{ deal.WorstSupplier }
 												</div>

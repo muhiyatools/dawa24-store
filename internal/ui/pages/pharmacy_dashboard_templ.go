@@ -51,7 +51,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header / Pharmacy Overview Banner --><div class=\"glass-panel p-4 mb-6 flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 flex-wrap\"><h1 class=\"text-xl font-black text-primary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header / Pharmacy Overview Banner --><div class=\"glass-panel p-4 mb-6 flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 flex-wrap\"><h1 class=\"text-xl font-black text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -216,7 +216,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div><div class=\"font-extrabold text-sm text-warning\">تنبيه إداري عاجل: مطلوب استكمال مستند رسمي (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"stack-sm\"><div class=\"font-extrabold text-sm text-warning\">تنبيه إداري عاجل: مطلوب استكمال مستند رسمي (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -289,7 +289,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div><div><div class=\"stat-card-value\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div><div class=\"stack-sm\"><div class=\"stat-card-value\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -357,7 +357,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div><div><div class=\"d-flex items-baseline gap-2\"><span class=\"stat-card-value\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div><div class=\"stack-sm\"><div class=\"d-flex items-baseline gap-2\"><span class=\"stat-card-value\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -453,7 +453,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div><div><div class=\"stat-card-value text-success\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div><div class=\"stack-sm\"><div class=\"stat-card-value text-success\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -536,7 +536,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div><div><div class=\"d-flex items-baseline gap-2\"><span class=\"stat-card-value text-brand\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div><div class=\"stack-sm\"><div class=\"d-flex items-baseline gap-2\"><span class=\"stat-card-value text-brand\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -773,7 +773,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</span></a></div></div><!-- Main 2-Column Responsive Workspace Grid --><div class=\"dashboard-workspace-grid\"><!-- Column 1: Main Area (Recent Orders Table + Smart Orders Section) --><div class=\"d-flex flex-col gap-6\"><!-- Recent Orders Table Section --><div class=\"glass-panel p-4\"><div class=\"flex-between pb-3 border-b mb-4\"><div><h2 class=\"text-base font-extrabold text-primary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</span></a></div></div><!-- Main 2-Column Responsive Workspace Grid --><div class=\"dashboard-workspace-grid\"><!-- Column 1: Main Area (Recent Orders Table + Smart Orders Section) --><div class=\"d-flex flex-col gap-6\"><!-- Recent Orders Table Section --><div class=\"glass-panel p-4\"><div class=\"flex-between pb-3 border-b mb-4\"><div class=\"stack-sm\"><h2 class=\"text-base font-extrabold text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1104,7 +1104,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</div><!-- Section: الطلب الذكي (الطلب الذكي ومطابقة النواقص) --><div class=\"glass-panel p-4\"><div class=\"flex-between pb-3 border-b mb-4\"><div><div class=\"d-flex items-center gap-2\"><h2 class=\"text-base font-extrabold text-primary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</div><!-- Section: الطلب الذكي (الطلب الذكي ومطابقة النواقص) --><div class=\"glass-panel p-4\"><div class=\"flex-between pb-3 border-b mb-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2\"><h2 class=\"text-base font-extrabold text-primary m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1322,7 +1322,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					return templ_7745c5c3_Err
 				}
 				for _, r := range data.RecentSmartOrders {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"flex-between items-center p-3 px-4 border rounded-lg bg-surface-sunken flex-wrap gap-2\"><div><div class=\"font-extrabold text-primary text-sm d-flex items-center gap-1.5\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"flex-between items-center p-3 px-4 border rounded-lg bg-surface-sunken flex-wrap gap-2\"><div class=\"stack-sm\"><div class=\"font-extrabold text-primary text-sm d-flex items-center gap-1.5\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1579,7 +1579,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					return templ_7745c5c3_Err
 				}
 				for _, tx := range data.RecentTransactions {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "<div class=\"flex-between items-center text-xs p-2 rounded-md bg-surface-sunken\"><div><div class=\"font-bold text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "<div class=\"flex-between items-center text-xs p-2 rounded-md bg-surface-sunken\"><div class=\"stack-sm\"><div class=\"font-bold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1926,7 +1926,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 182, "</span></div><div><div class=\"flex-between items-baseline mb-1.5\"><span class=\"text-xs text-secondary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 182, "</span></div><div class=\"stack-sm\"><div class=\"flex-between items-baseline mb-1.5\"><span class=\"text-xs text-secondary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2062,7 +2062,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					return templ_7745c5c3_Err
 				}
 				for _, o := range data.Offers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "<div class=\"flex-between items-center p-3 border rounded-lg bg-surface-sunken\"><div><div class=\"font-extrabold text-primary text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "<div class=\"flex-between items-center p-3 border rounded-lg bg-surface-sunken\"><div class=\"stack-sm\"><div class=\"font-extrabold text-primary text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

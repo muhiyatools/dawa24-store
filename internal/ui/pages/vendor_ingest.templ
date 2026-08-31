@@ -76,7 +76,7 @@ templ importFatal(message string, session *ingest.Session) {
 		<div class="row-center">
 			<a href="/vendor/ingest" class="btn btn-primary">رفع ملف آخر</a>
 			if session != nil {
-				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + session.PublicID + "/cancel") }>
+				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + session.PublicID + "/cancel") }>
 					<button type="submit" class="btn btn-ghost">إلغاء هذه الجلسة</button>
 				</form>
 			}
@@ -87,7 +87,7 @@ templ importFatal(message string, session *ingest.Session) {
 // --- stage 1: upload -------------------------------------------------------
 
 templ importUploadStage(view VendorImportView) {
-	<form method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
+	<form class="stack-md" method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
 		<div class="card">
 			<h2 class="wiz-head">1. اختر ملف الكتالوج</h2>
 			<p class="wiz-sub">

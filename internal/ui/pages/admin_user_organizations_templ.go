@@ -64,7 +64,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">مستخدمو المنظمات (User Organizations Directory)</h1><p class=\"text-sm text-secondary m-0 mt-1\">سجل ربط الصيدليات والمستخدمين بالموردين والشركات وأرقام المنظمات المعتمدة</p></div></div></div><!-- Filter Tabs -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">مستخدمو المنظمات (User Organizations Directory)</h1><p class=\"text-sm text-secondary m-0 mt-1\">سجل ربط الصيدليات والمستخدمين بالموردين والشركات وأرقام المنظمات المعتمدة</p></div></div></div><!-- Filter Tabs -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -243,14 +243,14 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 							return templ_7745c5c3_Err
 						}
 						if uo.CustomerOrgName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"stack-xs text-sm\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var15 string
 							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(uo.CustomerOrgName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_user_organizations.templ`, Line: 102, Col: 37}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_user_organizations.templ`, Line: 102, Col: 62}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 							if templ_7745c5c3_Err != nil {

@@ -79,7 +79,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">?????? ??????? ????? ??????? ??????</h1><p class=\"text-sm text-secondary m-0 mt-1\">?????? ???? ????? ?????? ??????? ???????? ????????? ??????? ?? ??? ????????? ???????? ?????????</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">?????? ??????? ????? ??????? ??????</h1><p class=\"text-sm text-secondary m-0 mt-1\">?????? ???? ????? ?????? ??????? ???????? ????????? ??????? ?? ??? ????????? ???????? ?????????</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -349,7 +349,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"??? ??????? SKU? ??? ????????...\" class=\"form-input text-xs w-full\"></div></div><!-- Filter Actions --><div class=\"flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2\"><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"??? ??????? SKU? ??? ????????...\" class=\"form-input text-xs w-full\"></div></div><!-- Filter Actions --><div class=\"flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2\"><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -506,7 +506,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						return templ_7745c5c3_Err
 					}
 					if item.ProductID != nil && *item.ProductID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div><span class=\"badge badge-emerald text-xs font-bold mb-1\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"stack-sm\"><span class=\"badge badge-emerald text-xs font-bold mb-1\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -594,9 +594,9 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var29 string
-					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 15:04"))
+					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_saving_products.templ`, Line: 259, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_saving_products.templ`, Line: 259, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {

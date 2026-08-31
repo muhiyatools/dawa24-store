@@ -82,7 +82,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" data-map-city-id><!-- Header Toolbar --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);\"><div><div style=\"display:flex; align-items:center; gap:var(--space-2);\"><span style=\"color:var(--accent); font-weight:700; font-size:var(--text-sm);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" data-map-city-id><!-- Header Toolbar --><div class=\"stack-sm\" style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-2);\"><div class=\"stack-sm\"><div class=\"stack-sm\" style=\"display:flex; align-items:center; gap:var(--space-2);\"><span style=\"color:var(--accent); font-weight:700; font-size:var(--text-sm);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -115,7 +115,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;\">انقر على الخريطة أو اسحب المؤشر لتحديد موقع المنشأة بدقة</div></div><!-- Toolbar Buttons --><div style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><!-- City Jump Selector (Dynamic from Database) --><select class=\"form-select text-xs\" style=\"padding:0.25rem 0.5rem; font-size:11px; width:auto;\" data-city-selector><option value=\"\">-- المحافظات المصرية (Governorates) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div class=\"stack-sm\" style=\"font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;\">انقر على الخريطة أو اسحب المؤشر لتحديد موقع المنشأة بدقة</div></div><!-- Toolbar Buttons --><div class=\"stack-sm\" style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><!-- City Jump Selector (Dynamic from Database) --><select class=\"form-select text-xs\" style=\"padding:0.25rem 0.5rem; font-size:11px; width:auto;\" data-city-selector><option value=\"\">-- المحافظات المصرية (Governorates) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -275,7 +275,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"></div><!-- Coordinate Inputs Matrix --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);\"><div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط العرض (Latitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"></div><!-- Coordinate Inputs Matrix --><div class=\"stack-sm\" style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:var(--space-3); margin-top:var(--space-1);\"><div class=\"stack-sm\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط العرض (Latitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -311,7 +311,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "></div><div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط الطول (Longitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "></div><div class=\"stack-sm\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">خط الطول (Longitude) *</label> <input type=\"number\" step=\"0.00000001\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -352,7 +352,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if props.ShowRadius {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" step=\"500\" min=\"500\" max=\"500000\" name=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"stack-sm\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" step=\"500\" min=\"500\" max=\"500000\" name=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -393,7 +393,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div style=\"grid-column: 1 / -1;\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">رابط الموقع على خرائط Google Maps</label> <input type=\"url\" name=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"stack-sm\" style=\"grid-column: 1 / -1;\"><label class=\"form-label text-xs\" style=\"color:var(--text-secondary); margin-bottom:4px; display:block;\">رابط الموقع على خرائط Google Maps</label> <input type=\"url\" name=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

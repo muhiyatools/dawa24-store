@@ -34,7 +34,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								بيانات المنشأة والهوية التجارية
 							</h1>
@@ -61,7 +61,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						<div class="user-avatar-badge">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-extrabold text-primary m-0">
 								البيانات الأساسية والهوية
 							</h3>
@@ -70,7 +70,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 					</div>
 
 					<div class="d-grid grid-cols-3 gap-4">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								اسم المؤسسة بالعربية <span class="text-danger">*</span>
 							</label>
@@ -84,7 +84,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								اسم المؤسسة بالإنجليزية <span class="text-danger">*</span>
 							</label>
@@ -98,7 +98,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								النوع / التصنيف <span class="text-danger">*</span>
 							</label>
@@ -117,7 +117,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						<div class="user-avatar-badge text-lg">
 							@components.IconWallet("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-extrabold text-primary m-0">
 								إعدادات الحد الأدنى والأقصى لسعر الطلب
 							</h3>
@@ -128,7 +128,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 					</div>
 
 					<div class="d-grid grid-cols-2 gap-4">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الحد الأدنى لسعر الطلب <span class="text-danger">*</span>
 							</label>
@@ -146,7 +146,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الحد الأقصى لسعر الطلب <span class="text-danger">*</span>
 							</label>
@@ -172,7 +172,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						<div class="user-avatar-badge">
 							@components.IconPhone("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-extrabold text-primary m-0">
 								معلومات الاتصال والضرائب
 							</h3>
@@ -181,7 +181,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 					</div>
 
 					<div class="d-grid grid-cols-3 gap-4">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								رقم المنظمة
 							</label>
@@ -194,7 +194,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								البريد الإلكتروني
 							</label>
@@ -207,7 +207,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								رقم الهاتف
 							</label>
@@ -220,7 +220,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الرقم الضريبي
 							</label>
@@ -254,7 +254,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						<div class="user-avatar-badge">
 							@components.IconEdit("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h3 class="text-base font-extrabold text-primary m-0">
 								الوصف والشعار وصورة الغلاف
 							</h3>
@@ -263,7 +263,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 					</div>
 
 					<div class="d-grid grid-cols-2 gap-4">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الوصف (بالعربية)
 							</label>
@@ -275,7 +275,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 							>{ profile.DescriptionAr }</textarea>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								الوصف (بالإنجليزية)
 							</label>
@@ -323,7 +323,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 							<div class="d-flex items-center gap-3 flex-wrap">
 								if profile.CoverageImage != "" {
-									<div>
+         <div class="stack-sm">
 										<img src={ profile.CoverageImage } alt="Cover" />
 									</div>
 								}

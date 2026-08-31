@@ -97,4 +97,14 @@ type Repository interface {
 	ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*UserOrganization, error)
 	ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*UserOrganization, error)
 	ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error)
+
+	// Organization Change Requests (طلبات تعديل بيانات المنشآت)
+	CreateChangeRequest(ctx context.Context, req *OrganizationChangeRequest) error
+	GetChangeRequestByID(ctx context.Context, id int64) (*OrganizationChangeRequest, error)
+	GetPendingChangeRequestByOrg(ctx context.Context, orgID int64) (*OrganizationChangeRequest, error)
+	ListChangeRequests(ctx context.Context, orgID *int64, status *ChangeRequestStatus, limit, offset int) ([]*OrganizationChangeRequest, error)
+	CountChangeRequests(ctx context.Context, orgID *int64, status *ChangeRequestStatus) (int, error)
+	ApproveChangeRequest(ctx context.Context, reqID int64, adminID int64, adminNotes string) error
+	RejectChangeRequest(ctx context.Context, reqID int64, adminID int64, rejectionReason string) error
 }
+

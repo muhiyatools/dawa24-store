@@ -50,7 +50,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -58,7 +58,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء والتوريد</h1><p class=\"text-sm text-secondary m-0 mt-1\">اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج الأصناف، أو تجهيز طلب ذكي من ملف.</p></div></div></div></div></div><!-- 3 Direct Options Grid --><div class=\"dashboard-grid-3col mb-0\"><!-- Option 1: By Supplier --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/suppliers'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء والتوريد</h1><p class=\"text-sm text-secondary m-0 mt-1\">اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج الأصناف، أو تجهيز طلب ذكي من ملف.</p></div></div></div></div></div><!-- 3 Direct Options Grid --><div class=\"dashboard-grid-3col mb-0\"><!-- Option 1: By Supplier --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/suppliers'\"><div class=\"stack-sm\"><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -74,7 +74,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</a></div><!-- Option 2: By Products --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/catalog'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</a></div><!-- Option 2: By Products --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/catalog'\"><div class=\"stack-sm\"><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -90,7 +90,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</a></div><!-- Option 3: Smart Ordering --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer border-brand\" onclick=\"window.location='/customer/smart-order/new'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</a></div><!-- Option 3: Smart Ordering --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer border-brand\" onclick=\"window.location='/customer/smart-order/new'\"><div class=\"stack-sm\"><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,7 +154,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -162,7 +162,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء الواردة من الصيدليات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p></div></div></div><!-- Status Filter Tabs --><div class=\"cb-tabs-nav m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء الواردة من الصيدليات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p></div></div></div><!-- Status Filter Tabs --><div class=\"cb-tabs-nav m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -273,7 +273,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 					return templ_7745c5c3_Err
 				}
 				for _, req := range requests {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><h3 class=\"m-0 text-base font-extrabold text-primary\">طلب #")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 mb-1\"><h3 class=\"m-0 text-base font-extrabold text-primary\">طلب #")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -404,7 +404,7 @@ func VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purchas
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"page-container\"><!-- Header --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -412,7 +412,7 @@ func VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purchas
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلب شراء #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلب شراء #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -599,7 +599,7 @@ func VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purchas
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div></div><div class=\"glass-panel p-6 mb-0\"><div class=\"mb-4\"><label class=\"form-label text-xs font-bold text-primary mb-1\">القرار والحالة</label> <select name=\"status\" class=\"form-input text-xs\"><option value=\"approved\">قبول وتأكيد الطلب</option> <option value=\"processing\">قبول وقيد التجهيز</option> <option value=\"cancelled\">اعتذار / رفض الطلب</option></select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1\">ملاحظات التوريد الموجهة للصيدلية</label> <textarea name=\"vendor_notes\" rows=\"3\" class=\"form-input text-xs w-full\" placeholder=\"اكتب أية شروط أو ملاحظات للمشتري...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div></div><div class=\"glass-panel p-6 mb-0\"><div class=\"mb-4\"><label class=\"form-label text-xs font-bold text-primary mb-1\">القرار والحالة</label> <select name=\"status\" class=\"form-input text-xs\"><option value=\"approved\">قبول وتأكيد الطلب</option> <option value=\"processing\">قبول وقيد التجهيز</option> <option value=\"cancelled\">اعتذار / رفض الطلب</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1\">ملاحظات التوريد الموجهة للصيدلية</label> <textarea name=\"vendor_notes\" rows=\"3\" class=\"form-input text-xs w-full\" placeholder=\"اكتب أية شروط أو ملاحظات للمشتري...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

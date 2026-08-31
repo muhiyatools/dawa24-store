@@ -183,21 +183,21 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 						<div class="d-flex flex-col gap-4 text-start">
 							<!-- Diagnostic Info Grid -->
 							<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
-								<div>
+        <div class="stack-sm">
 									<div class="text-xs text-muted">المستخدم المتأثر:</div>
 									<div class="text-sm font-bold text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
 									<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<div class="text-xs text-muted">المنظمة:</div>
 									<div class="font-bold text-primary" x-text="selectedError.organization_name || 'عام'"></div>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<div class="text-xs text-muted">المسار وعنوان IP:</div>
 									<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
 									<div class="text-xs text-muted font-mono text-start" dir="ltr" x-text="selectedError.ip_address"></div>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<div class="text-xs text-muted">التوقيت والمستوى:</div>
 									<div class="text-sm font-bold text-primary" x-text="selectedError.created_at"></div>
 									<span class="badge badge-rose" x-text="selectedError.error_level"></span>
@@ -207,11 +207,11 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 							<!-- Error Message Box -->
 							<div class="bg-surface-sunken text-danger p-4 rounded-lg font-mono text-sm text-start" dir="ltr">
 								<div class="text-muted text-xs mb-1">ERROR MESSAGE:</div>
-								<div x-text="selectedError.error_message"></div>
+								<div class="stack-sm" x-text="selectedError.error_message"></div>
 							</div>
 
 							<!-- Stack Trace Viewer -->
-							<div>
+       <div class="stack-sm">
 								<div class="text-xs font-bold text-secondary mb-1">
 									تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
 								</div>
@@ -266,7 +266,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				
 				<div class="card mb-0">
 					<div class="flex-between items-center mb-4 pb-3 border-b">
-						<div>
+      <div class="stack-sm">
 							<h3 class="card-title m-0 text-lg font-black">
 								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.AuditEntries)) })
 							</h3>

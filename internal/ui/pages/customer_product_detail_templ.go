@@ -62,7 +62,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></nav><!-- 1. Hero Variant Details Card --><div class=\"glass-panel p-6 mb-6\"><div><!-- Col 1: Product Image Gallery --><div class=\"d-flex flex-col gap-4\"><div class=\"p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden\"><div class=\"position-absolute\"><span class=\"badge badge-emerald text-xs font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></nav><!-- 1. Hero Variant Details Card --><div class=\"glass-panel p-6 mb-6\"><div class=\"stack-sm\"><!-- Col 1: Product Image Gallery --><div class=\"d-flex flex-col gap-4\"><div class=\"p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden\"><div class=\"position-absolute\"><span class=\"badge badge-emerald text-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,7 +119,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- Col 2: Product & Variant Specifications --><div class=\"d-flex flex-col gap-4\"><div><!-- Dosage Badge -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- Col 2: Product & Variant Specifications --><div class=\"d-flex flex-col gap-4\"><div class=\"stack-sm\"><!-- Dosage Badge -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -183,7 +183,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				return templ_7745c5c3_Err
 			}
 			if product.ScientificName != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div><span class=\"text-muted d-block text-xs mb-1\">الاسم العلمي / التركيز:</span> <strong class=\"text-primary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"stack-sm\"><span class=\"text-muted d-block text-xs mb-1\">الاسم العلمي / التركيز:</span> <strong class=\"text-primary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -202,7 +202,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				}
 			}
 			if product.Active != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div><span class=\"text-muted d-block text-xs mb-1\">المادة الفعالة:</span> <strong class=\"text-primary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"stack-sm\"><span class=\"text-muted d-block text-xs mb-1\">المادة الفعالة:</span> <strong class=\"text-primary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -221,7 +221,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				}
 			}
 			if product.ManufacturingCompanies != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div><span class=\"text-muted d-block text-xs mb-1\">الشركة المصنعة:</span> <strong class=\"text-primary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"stack-sm\"><span class=\"text-muted d-block text-xs mb-1\">الشركة المصنعة:</span> <strong class=\"text-primary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -240,7 +240,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				}
 			}
 			if product.Barcode != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div><span class=\"text-muted d-block text-xs mb-1\">الباركود الدولي:</span> <strong class=\"text-primary font-mono\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"stack-sm\"><span class=\"text-muted d-block text-xs mb-1\">الباركود الدولي:</span> <strong class=\"text-primary font-mono\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -263,7 +263,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				return templ_7745c5c3_Err
 			}
 			if len(variants) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div><label class=\"text-xs font-extrabold text-primary d-block mb-2\">العبوات والتنويعات المسجلة:</label><div class=\"d-flex flex-wrap gap-2\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"stack-sm\"><label class=\"text-xs font-extrabold text-primary d-block mb-2\">العبوات والتنويعات المسجلة:</label><div class=\"d-flex flex-wrap gap-2\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -339,7 +339,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div><div class=\"text-xs font-extrabold text-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"stack-sm\"><div class=\"text-xs font-extrabold text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -385,7 +385,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><!-- Pricing Block --> <div><div class=\"text-xs text-muted font-bold mb-1\">سعر التوريد للصيدلية:</div><div class=\"d-flex items-baseline gap-2 flex-wrap\"><span class=\"tabular-nums text-2xl font-black text-brand\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div><!-- Pricing Block --> <div class=\"stack-sm\"><div class=\"text-xs text-muted font-bold mb-1\">سعر التوريد للصيدلية:</div><div class=\"d-flex items-baseline gap-2 flex-wrap\"><span class=\"tabular-nums text-2xl font-black text-brand\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -508,7 +508,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><!-- Coverage Banner --> <div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><!-- Coverage Banner --> <div class=\"stack-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -899,7 +899,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 						return templ_7745c5c3_Err
 					}
 					if off.CanAddToCart {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<form method=\"POST\" action=\"/cart/add\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<form class=\"stack-md\" method=\"POST\" action=\"/cart/add\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

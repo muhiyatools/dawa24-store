@@ -410,7 +410,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"container-fluid so-results-page\"><!-- Header Banner --><div class=\"so-page-header\"><div><h1 class=\"so-page-title\">نتائج مطابقة الأصناف — ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"container-fluid so-results-page\"><!-- Header Banner --><div class=\"so-page-header\"><div class=\"stack-sm\"><h1 class=\"so-page-title\">نتائج مطابقة الأصناف — ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

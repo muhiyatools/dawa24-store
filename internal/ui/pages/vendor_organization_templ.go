@@ -116,7 +116,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">بيانات المنشأة والهوية التجارية</h1><p class=\"text-sm text-secondary m-0 mt-1\">تعديل الاسم التجاري، حدود أسعار الطلبات، أرقام التواصل والتراخيص، والشعار الرسمي للمنشأة.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">بيانات المنشأة والهوية التجارية</h1><p class=\"text-sm text-secondary m-0 mt-1\">تعديل الاسم التجاري، حدود أسعار الطلبات، أرقام التواصل والتراخيص، والشعار الرسمي للمنشأة.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -155,7 +155,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div><h3 class=\"text-base font-extrabold text-primary m-0\">البيانات الأساسية والهوية</h3><p class=\"text-xs text-muted m-0\">الاسم الرسمي للمؤسسة والتصنيف التجاري</p></div></div><div class=\"d-grid grid-cols-3 gap-4\"><div><label class=\"form-label\">اسم المؤسسة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">البيانات الأساسية والهوية</h3><p class=\"text-xs text-muted m-0\">الاسم الرسمي للمؤسسة والتصنيف التجاري</p></div></div><div class=\"d-grid grid-cols-3 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\">اسم المؤسسة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -168,7 +168,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required class=\"form-input\" placeholder=\"مثال: سمارت كودز لتوزيع الأدوية\"></div><div><label class=\"form-label\">اسم المؤسسة بالإنجليزية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_en\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required class=\"form-input\" placeholder=\"مثال: سمارت كودز لتوزيع الأدوية\"></div><div class=\"stack-sm\"><label class=\"form-label\">اسم المؤسسة بالإنجليزية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_en\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -181,7 +181,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" required class=\"form-input\" placeholder=\"Example: Smart Codes Pharma Distribution\"></div><div><label class=\"form-label\">النوع / التصنيف <span class=\"text-danger\">*</span></label> <select name=\"type\" class=\"form-select\"><option value=\"supplier\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" required class=\"form-input\" placeholder=\"Example: Smart Codes Pharma Distribution\"></div><div class=\"stack-sm\"><label class=\"form-label\">النوع / التصنيف <span class=\"text-danger\">*</span></label> <select name=\"type\" class=\"form-select\"><option value=\"supplier\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +219,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><div><h3 class=\"text-base font-extrabold text-primary m-0\">إعدادات الحد الأدنى والأقصى لسعر الطلب</h3><p class=\"text-xs text-muted m-0 mt-1\">تحديد القيود المالية لقيمة الطلبات المسموح بها لهذه المنظمة</p></div></div><div class=\"d-grid grid-cols-2 gap-4\"><div><label class=\"form-label\">الحد الأدنى لسعر الطلب <span class=\"text-danger\">*</span></label><div class=\"position-relative d-flex items-center\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"min_order_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">إعدادات الحد الأدنى والأقصى لسعر الطلب</h3><p class=\"text-xs text-muted m-0 mt-1\">تحديد القيود المالية لقيمة الطلبات المسموح بها لهذه المنظمة</p></div></div><div class=\"d-grid grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى لسعر الطلب <span class=\"text-danger\">*</span></label><div class=\"position-relative d-flex items-center\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"min_order_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -232,7 +232,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" required class=\"form-input font-bold tabular-nums\" placeholder=\"10.00\"></div></div><div><label class=\"form-label\">الحد الأقصى لسعر الطلب <span class=\"text-danger\">*</span></label><div class=\"position-relative d-flex items-center\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"max_order_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" required class=\"form-input font-bold tabular-nums\" placeholder=\"10.00\"></div></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى لسعر الطلب <span class=\"text-danger\">*</span></label><div class=\"position-relative d-flex items-center\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"max_order_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -253,7 +253,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div><h3 class=\"text-base font-extrabold text-primary m-0\">معلومات الاتصال والضرائب</h3><p class=\"text-xs text-muted m-0\">بيانات التواصل الرسمي والعنوان والرقم الضريبي</p></div></div><div class=\"d-grid grid-cols-3 gap-4\"><div><label class=\"form-label\">رقم المنظمة</label> <input type=\"text\" name=\"organization_number\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">معلومات الاتصال والضرائب</h3><p class=\"text-xs text-muted m-0\">بيانات التواصل الرسمي والعنوان والرقم الضريبي</p></div></div><div class=\"d-grid grid-cols-3 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\">رقم المنظمة</label> <input type=\"text\" name=\"organization_number\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -266,7 +266,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"form-input\" placeholder=\"مثال: 267244\"></div><div><label class=\"form-label\">البريد الإلكتروني</label> <input type=\"email\" name=\"email\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"form-input\" placeholder=\"مثال: 267244\"></div><div class=\"stack-sm\"><label class=\"form-label\">البريد الإلكتروني</label> <input type=\"email\" name=\"email\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -279,7 +279,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"form-input\" placeholder=\"info@smartcodes.com\"></div><div><label class=\"form-label\">رقم الهاتف</label> <input type=\"text\" name=\"phone\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"form-input\" placeholder=\"info@smartcodes.com\"></div><div class=\"stack-sm\"><label class=\"form-label\">رقم الهاتف</label> <input type=\"text\" name=\"phone\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -292,7 +292,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"form-input\" placeholder=\"01099887766\"></div><div><label class=\"form-label\">الرقم الضريبي</label> <input type=\"text\" name=\"tax_number\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"form-input\" placeholder=\"01099887766\"></div><div class=\"stack-sm\"><label class=\"form-label\">الرقم الضريبي</label> <input type=\"text\" name=\"tax_number\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -326,7 +326,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><h3 class=\"text-base font-extrabold text-primary m-0\">الوصف والشعار وصورة الغلاف</h3><p class=\"text-xs text-muted m-0\">نبذة عن المورد وصور الهوية البصرية المعروضة للعملاء</p></div></div><div class=\"d-grid grid-cols-2 gap-4\"><div><label class=\"form-label\">الوصف (بالعربية)</label> <textarea name=\"description_ar\" rows=\"3\" class=\"form-input\" placeholder=\"شركة متخصصة في توزيع وتوريد الأدوية والمستلزمات الطبية...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">الوصف والشعار وصورة الغلاف</h3><p class=\"text-xs text-muted m-0\">نبذة عن المورد وصور الهوية البصرية المعروضة للعملاء</p></div></div><div class=\"d-grid grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label\">الوصف (بالعربية)</label> <textarea name=\"description_ar\" rows=\"3\" class=\"form-input\" placeholder=\"شركة متخصصة في توزيع وتوريد الأدوية والمستلزمات الطبية...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -339,7 +339,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</textarea></div><div><label class=\"form-label\">الوصف (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"3\" class=\"form-input\" placeholder=\"Specialized company in pharmaceutical and healthcare distribution...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</textarea></div><div class=\"stack-sm\"><label class=\"form-label\">الوصف (بالإنجليزية)</label> <textarea name=\"description_en\" rows=\"3\" class=\"form-input\" placeholder=\"Specialized company in pharmaceutical and healthcare distribution...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -380,7 +380,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 				return templ_7745c5c3_Err
 			}
 			if profile.CoverageImage != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div><img src=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"stack-sm\"><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

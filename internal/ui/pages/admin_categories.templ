@@ -54,7 +54,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						<div class="user-avatar-badge text-xl">
 							@components.IconFolder("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">فئات المنتجات والتصنيفات المركزية</h1>
 							<p class="text-sm text-secondary m-0 mt-1">إدارة الشجرة التصنيفية للأصناف الدوائية والطبية، وتحديد الفئات الرئيسية والفرعية المعتمدة ({ fmt.Sprintf("%d فئة", totalCount) })</p>
 						</div>
@@ -90,7 +90,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
@@ -98,7 +98,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						</select>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="25" selected?={ pageSize == 25 }>25 فئة لكل صفحة</option>
 							<option value="50" selected?={ pageSize == 50 }>50 فئة لكل صفحة</option>
@@ -152,7 +152,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												{ c.Name.Get("ar") }
 											</div>
 											if c.Name.Get("en") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ c.Name.Get("en") }
 												</div>
 											}
@@ -168,11 +168,11 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 										</td>
 										<td>
 											if c.Description.Get("ar") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ c.Description.Get("ar") }
 												</div>
 											} else if c.Description.Get("en") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ c.Description.Get("en") }
 												</div>
 											} else {
@@ -201,7 +201,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 											}
 										</td>
 										<td class="text-end">
-											<div>
+           <div class="stack-sm">
 												<button
 													type="button"
 													class="btn btn-secondary btn-icon size-8"
@@ -236,7 +236,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 													Title: fmt.Sprintf("تعديل فئة: %s", c.Name.Get("ar")),
 													Size:  "md",
 												}) {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/edit", c.ID)) }>
+													<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/edit", c.ID)) }>
 														<div class="form-grid-2">
 															<div class="form-group m-0">
 																<label class="form-label">اسم الفئة (عربي) *</label>
@@ -316,13 +316,13 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								{ fmt.Sprintf("عرض %d - %d من إجمالي %d فئة منتجات", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 							</div>
 
 							<!-- Page navigation numbers -->
-							<div>
+       <div class="stack-sm">
 								if currentPage > 1 {
 									<a
 										href={ templ.SafeURL(buildAdminCategoriesPageURL(1, pageSize, searchQuery, statusFilter)) }
@@ -391,7 +391,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 			Title: "إضافة فئة منتجات جديدة",
 			Size:  "md",
 		}) {
-			<form method="POST" action="/admin/categories/new">
+			<form class="stack-md" method="POST" action="/admin/categories/new">
 				<div class="form-grid-2">
 					<div class="form-group m-0">
 						<label class="form-label">اسم الفئة (عربي) *</label>

@@ -83,7 +83,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							<span>واتساب</span>
 						</a>
 
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) }>
+						<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) }>
 							if data.IsFollowing {
 								<button type="submit" class="btn btn-secondary btn-sm">
 									@components.IconHeart("icon-xs")
@@ -209,7 +209,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				<!-- Catalog Controls Toolbar -->
 				<div class="sp-catalog-toolbar">
 					<form method="GET" class="sp-catalog-search">
-						<div>
+      <div class="stack-sm">
 							<input
 								type="text"
 								name="q"
@@ -218,7 +218,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								class="form-input input-sm"
 							
 							/>
-							<div>
+							<div class="stack-xs text-sm">
 								@components.IconSearch("icon-xs")
 							</div>
 						</div>
@@ -236,7 +236,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						<span class="badge badge-sky text-xs fw-700">
 							{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
 						</span>
-						<div>
+      <div class="stack-sm">
 							<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" title="عرض الجدول التفصيلي">
 								جدول
 							</button>
@@ -250,7 +250,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				if len(data.Variants) == 0 {
 					<div class="card">
 						@components.IconPill("icon-lg")
-						<h3>لا توجد أصناف مطابقة للبحث</h3>
+						<h3 class="font-bold text-sm m-0">لا توجد أصناف مطابقة للبحث</h3>
 						<p class="text-sm text-muted m-0">يقوم المورد بتحديث قائمة الأدوية والأسعار بانتظام.</p>
 					</div>
 				} else {
@@ -323,12 +323,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- Batch & Expiry -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												if v.BatchNumber != "" {
-													<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
+													<div class="stack-sm"><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
 												}
 												if v.ExpiryDate != nil {
-													<div><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
+													<div class="stack-sm"><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
 												}
 												if v.MinOrderQty > 1 {
 													<span class="badge badge-slate text-xs">حد أدنى: { fmt.Sprintf("%d", v.MinOrderQty) }</span>
@@ -372,7 +372,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- 3. Price After Discount (السعر بعد الخصم) -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												<div class="tabular-nums">
 													if v.Price.IsPositive() {
 														{ v.Price.String() } <span>ج.م</span>
@@ -385,7 +385,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- 4. Stock & Coverage Status -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												if availStock > 0 {
 													<span class="badge badge-emerald text-xs font-bold tabular-nums">
 														متوفر ({ fmt.Sprintf("%d", availStock) } عبوة)
@@ -410,7 +410,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										<!-- 5. Order Action & Stepper -->
 										<td class="text-center">
 											if canAdd {
-												<form
+												<form class="stack-md"
 													action="/cart/add"
 													method="POST"
 													hx-post="/cart/add"
@@ -480,7 +480,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</div>
 
 					<!-- Compact Grid View (Hidden by Default) -->
-					<div id="catalog-grid-view">
+					<div class="stack-sm" id="catalog-grid-view">
 						for _, v := range data.Variants {
 							{{
 								availStock := data.GetAvailableStock(v)
@@ -489,9 +489,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								minOrderQty := data.GetMinOrderQty(v)
 							}}
 							<div class="card hover-lift">
-								<div>
+        <div class="stack-sm">
 									<!-- Top Row: Thumbnail + Dosage Badge -->
-									<div>
+         <div class="stack-sm">
 										<div class="sp-product-thumb">
 											if img := data.GetProductImage(v); img != "" {
 												<img src={ img } alt={ v.Name.Get(i18n.Lang(lang)) } loading="lazy" />
@@ -499,7 +499,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												<span>{ dosageFormIcon(data.GetDosageForm(v)) }</span>
 											}
 										</div>
-										<div>
+          <div class="stack-sm">
 											if form := data.GetDosageForm(v); form != "" {
 												<span class="badge badge-slate text-xs">{ form }</span>
 											}
@@ -509,7 +509,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										</div>
 									</div>
 
-									<h4>
+									<h4 class="font-semibold text-sm m-0">
 										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) }>
 											if v.Name.Get(i18n.Lang(lang)) != "" {
 												{ v.Name.Get(i18n.Lang(lang)) }
@@ -520,21 +520,21 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</h4>
 
 									if sci := data.GetScientificName(v); sci != "" {
-										<div>{ sci }</div>
+										<div class="stack-xs text-sm">{ sci }</div>
 									}
 
 									<!-- Batch & Expiry Tag -->
-									<div>
+         <div class="stack-sm">
 										if v.BatchNumber != "" {
-											<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
+											<div class="stack-sm"><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
 										}
 										if v.ExpiryDate != nil {
-											<div><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
+											<div class="stack-sm"><span class="text-muted">صلاحية:</span> <strong class="tabular-nums text-emerald">{ v.ExpiryDate.Format("2006-01") }</strong></div>
 										}
 									</div>
 
 									<!-- Stock & Coverage Pills -->
-									<div>
+         <div class="stack-sm">
 										if availStock > 0 {
 											<span class="badge badge-emerald text-xs font-bold tabular-nums">
 												متوفر ({ fmt.Sprintf("%d", availStock) })
@@ -552,7 +552,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</div>
 
 									<!-- Pricing Row -->
-									<div>
+         <div class="stack-sm">
 										<span>سعر التوريد:</span>
 										<div class="tabular-nums">
 											if v.Price.IsPositive() {
@@ -565,9 +565,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								</div>
 
 								<!-- Action Form -->
-								<div>
+        <div class="stack-sm">
 									if canAdd {
-										<form
+										<form class="stack-md"
 											action="/cart/add"
 											method="POST"
 											hx-post="/cart/add"
@@ -629,7 +629,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 					<!-- Pagination Bar -->
 					if data.TotalPages > 1 {
-						<div>
+      <div class="stack-sm">
 							if data.CurrentPage > 1 {
 								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage-1)) } class="btn btn-secondary btn-sm">
 									@components.IconArrowRight("icon-xs")
@@ -654,19 +654,19 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 5. Tab 2: About & Highlights -->
 			if len(data.Sections) > 0 {
 				<div id="tab-content-sections" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "sections") }>
-					<div>
+     <div class="stack-sm">
 						for _, s := range data.Sections {
 							if s.IsActive {
 								<div class="card hover-lift">
-									<div>
-										<div style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
+         <div class="stack-sm">
+										<div class="stack-sm" style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
 											{ sectionTypeIcon(s.SectionType) }
 										</div>
-										<h3>
+										<h3 class="font-bold text-sm m-0">
 											{ s.Title.Get(i18n.Lang(lang)) }
 										</h3>
 									</div>
-									<div>
+									<div class="stack-xs text-sm">
 										{ s.Description.Get(i18n.Lang(lang)) }
 									</div>
 									<button
@@ -688,31 +688,31 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<div id="tab-content-policies" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "policies") }>
 				if len(data.Policies) == 0 {
 					<div class="card">
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								@components.IconShield("icon-sm")
 							</div>
-							<h3>
+							<h3 class="font-bold text-sm m-0">
 								الشروط والسياسات القياسية المعتمدة
 							</h3>
 						</div>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							تخضع كافة طلبيات التوريد الصادرة عبر المنصة لضوابط ومعايير هيئة الدواء المصرية، مع الالتزام بتوفير فواتير ضريبية إلكترونية معتمدة وضمان سلامة سلسلة التبريد وسرعة التوصيل خلال المواعيد المحددة.
 						</p>
 					</div>
 				} else {
-					<div>
+     <div class="stack-sm">
 						for _, pol := range data.Policies {
 							<div class="card">
-								<div>
-									<div>
+        <div class="stack-sm">
+									<div class="stack-xs text-sm">
 										@components.IconShield("icon-xs")
 									</div>
-									<h4>
+									<h4 class="font-semibold text-sm m-0">
 										{ pol.Title }
 									</h4>
 								</div>
-								<p>
+        <p class="text-sm text-secondary m-0">
 									{ pol.Content }
 								</p>
 							</div>
@@ -726,20 +726,20 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				if len(data.Branches) == 0 {
 					<div class="card">
 						@components.IconBuilding("icon-lg")
-						<h3>المخزن الرئيسي للمورد</h3>
+						<h3 class="font-bold text-sm m-0">المخزن الرئيسي للمورد</h3>
 						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
 					</div>
 				} else {
-					<div>
+     <div class="stack-sm">
 						for _, b := range data.Branches {
 							<div class="card">
-								<div>
-									<div>
-										<div>
+        <div class="stack-sm">
+         <div class="stack-sm">
+										<div class="stack-xs text-sm">
 											@components.IconBuilding("icon-sm")
 										</div>
-										<div>
-											<h4>
+          <div class="stack-sm">
+											<h4 class="font-semibold text-sm m-0">
 												{ b.Name.Get(i18n.Lang(lang)) }
 											</h4>
 											if b.IsMain {
@@ -752,18 +752,18 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									}
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									if b.Address != "" {
-										<div><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
+										<div class="stack-sm"><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
 									}
 									if b.OperatingHours != "" {
-										<div><span class="text-muted">ساعات العمل:</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+										<div class="stack-sm"><span class="text-muted">ساعات العمل:</span> <strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 									}
 									if b.Phone != "" {
-										<div><span class="text-muted">الهاتف:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
+										<div class="stack-sm"><span class="text-muted">الهاتف:</span> <strong class="tabular-nums">{ b.Phone }</strong></div>
 									}
 									if b.ManagerName != "" {
-										<div><span class="text-muted">مسؤول الفرع:</span> <strong>{ b.ManagerName }</strong></div>
+										<div class="stack-sm"><span class="text-muted">مسؤول الفرع:</span> <strong>{ b.ManagerName }</strong></div>
 									}
 								</div>
 							</div>
@@ -776,19 +776,19 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<div id="tab-content-reviews" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
 					<div class="card">
-						<div>@components.IconStar("icon-sm")</div>
-						<h3>مورد معتمد موثق</h3>
+						<div class="stack-xs text-sm">@components.IconStar("icon-sm")</div>
+						<h3 class="font-bold text-sm m-0">مورد معتمد موثق</h3>
 						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
 					</div>
 				} else {
-					<div>
+     <div class="stack-sm">
 						for _, rv := range data.Reviews {
 							<div class="card">
-								<div>
+        <div class="stack-sm">
 									<strong>صيدلية معتمدة</strong>
 									@components.RatingStars(float64(rv.Rating), 0)
 								</div>
-								<p>
+        <p class="text-sm text-secondary m-0">
 									{ rv.ReviewText }
 								</p>
 							</div>
@@ -855,7 +855,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						{ s.Description.Get(i18n.Lang(lang)) }
 					</div>
 					<div class="modal-footer mt-4">
-						<form method="dialog">
+						<form class="stack-md" method="dialog">
 							<button type="submit" class="btn btn-secondary font-bold">?????</button>
 						</form>
 					</div>

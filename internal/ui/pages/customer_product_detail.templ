@@ -23,7 +23,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 			<!-- 1. Hero Variant Details Card -->
 			<div class="glass-panel p-6 mb-6">
-				<div>
+    <div class="stack-sm">
 				
 				<!-- Col 1: Product Image Gallery -->
 				<div class="d-flex flex-col gap-4">
@@ -49,7 +49,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 				<!-- Col 2: Product & Variant Specifications -->
 				<div class="d-flex flex-col gap-4">
-					<div>
+     <div class="stack-sm">
 						<!-- Dosage Badge -->
 						if product.DosageForm != "" {
 							<span class="badge badge-sky text-xs font-bold mb-2">
@@ -71,25 +71,25 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					<!-- Master Attributes Grid -->
 					<div class="p-4 rounded-xl bg-surface-sunken border text-xs">
 						if product.ScientificName != "" {
-							<div>
+       <div class="stack-sm">
 								<span class="text-muted d-block text-xs mb-1">الاسم العلمي / التركيز:</span>
 								<strong class="text-primary font-bold">{ product.ScientificName }</strong>
 							</div>
 						}
 						if product.Active != "" {
-							<div>
+       <div class="stack-sm">
 								<span class="text-muted d-block text-xs mb-1">المادة الفعالة:</span>
 								<strong class="text-primary font-bold">{ product.Active }</strong>
 							</div>
 						}
 						if product.ManufacturingCompanies != "" {
-							<div>
+       <div class="stack-sm">
 								<span class="text-muted d-block text-xs mb-1">الشركة المصنعة:</span>
 								<strong class="text-primary font-bold">{ product.ManufacturingCompanies }</strong>
 							</div>
 						}
 						if product.Barcode != "" {
-							<div>
+       <div class="stack-sm">
 								<span class="text-muted d-block text-xs mb-1">الباركود الدولي:</span>
 								<strong class="text-primary font-mono">{ product.Barcode }</strong>
 							</div>
@@ -98,7 +98,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 					<!-- Variants Packaging Strip -->
 					if len(variants) > 0 {
-						<div>
+      <div class="stack-sm">
 							<label class="text-xs font-extrabold text-primary d-block mb-2">
 								العبوات والتنويعات المسجلة:
 							</label>
@@ -133,7 +133,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 								<div class="user-avatar-badge text-sm">
 									@components.IconBuilding("icon-sm")
 								</div>
-								<div>
+        <div class="stack-sm">
 									<div class="text-xs font-extrabold text-primary">
 										{ offers[0].SupplierName }
 									</div>
@@ -151,7 +151,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</div>
 
 						<!-- Pricing Block -->
-						<div>
+      <div class="stack-sm">
 							<div class="text-xs text-muted font-bold mb-1">
 								سعر التوريد للصيدلية:
 							</div>
@@ -199,7 +199,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</div>
 
 						<!-- Coverage Banner -->
-						<div>
+      <div class="stack-sm">
 							if offers[0].IsCovered {
 								<div class="p-2 px-3 rounded-lg bg-emerald-subtle border border-emerald text-emerald text-xs font-bold d-flex items-center gap-2">
 									<span>@components.IconTruck("icon-sm")</span>
@@ -351,7 +351,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										<!-- Action -->
 										<td class="text-center">
 											if off.CanAddToCart {
-												<form method="POST" action="/cart/add">
+												<form class="stack-md" method="POST" action="/cart/add">
 													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />
 													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 													<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", off.SupplierID) } />

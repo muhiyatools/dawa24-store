@@ -116,7 +116,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">استيراد قائمة أصناف التوفير والنواقص</h1><p class=\"text-sm text-secondary m-0 mt-1\">ارفع ملف الأدوية، وافحص المطابقة التفاعلية مع الكتالوج المركزي، وراجع الكميات والأسعار قبل الحفظ النهائي</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">استيراد قائمة أصناف التوفير والنواقص</h1><p class=\"text-sm text-secondary m-0 mt-1\">ارفع ملف الأدوية، وافحص المطابقة التفاعلية مع الكتالوج المركزي، وراجع الكميات والأسعار قبل الحفظ النهائي</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -281,14 +281,14 @@ func savingUploadStage(view SavingImportView) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"card\"><h2 class=\"wiz-head\">1. اختر ملف قائمة الأدوية والتوفير</h2><p class=\"wiz-sub\">ارفع ملف أدوية الصيدلية أو منتجات التوفير بصيغة Excel (.xlsx, .xls) أو CSV.</p><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"card\"><h2 class=\"wiz-head\">1. اختر ملف قائمة الأدوية والتوفير</h2><p class=\"wiz-sub\">ارفع ملف أدوية الصيدلية أو منتجات التوفير بصيغة Excel (.xlsx, .xls) أو CSV.</p><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 templ.SafeURL
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL + "/upload"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 89, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 89, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -365,7 +365,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div><h3 class=\"text-sm font-black text-primary m-0\">سجل جلسات الاستيراد السابقة والنشطة</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الملف</th><th class=\"saving-col-date\">تاريخ الجلسة</th><th class=\"saving-col-count\">عدد الأصناف</th><th class=\"saving-col-status\">الحالة</th><th class=\"saving-col-actions\">الإجراءات</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div class=\"stack-sm\"><h3 class=\"text-sm font-black text-primary m-0\">سجل جلسات الاستيراد السابقة والنشطة</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الملف</th><th class=\"saving-col-date\">تاريخ الجلسة</th><th class=\"saving-col-count\">عدد الأصناف</th><th class=\"saving-col-status\">الحالة</th><th class=\"saving-col-actions\">الإجراءات</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -531,7 +531,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sess := view.Session
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"card\"><div class=\"flex-between items-center mb-md\"><div><h2 class=\"wiz-head mb-0\">2. ربط الأعمدة واستراتيجية المطابقة الذكية</h2><p class=\"wiz-sub mb-0\">الملف: <strong>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"card\"><div class=\"flex-between items-center mb-md\"><div class=\"stack-sm\"><h2 class=\"wiz-head mb-0\">2. ربط الأعمدة واستراتيجية المطابقة الذكية</h2><p class=\"wiz-sub mb-0\">الملف: <strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -557,14 +557,14 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " صف)</p></div><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " صف)</p></div><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var26 templ.SafeURL
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 208, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 208, Col: 116}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -583,7 +583,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" class=\"stack-lg\"><div class=\"grid-2\"><div><label class=\"form-label\">عمود اسم الدواء / الصنف <span class=\"text-danger\">*</span></label> <select name=\"col_name\" class=\"form-select\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" class=\"stack-lg\"><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">عمود اسم الدواء / الصنف <span class=\"text-danger\">*</span></label> <select name=\"col_name\" class=\"form-select\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -629,7 +629,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</select></div><div><label class=\"form-label\">عمود كود الصنف / SKU / الباركود</label> <select name=\"col_sku\" class=\"form-select\"><option value=\"\">-- غير محدد --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</select></div><div class=\"stack-sm\"><label class=\"form-label\">عمود كود الصنف / SKU / الباركود</label> <select name=\"col_sku\" class=\"form-select\"><option value=\"\">-- غير محدد --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -675,7 +675,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</select></div><div><label class=\"form-label\">عمود الكمية المطلوبة للتوفير</label> <select name=\"col_qty\" class=\"form-select\"><option value=\"\">-- غير محدد (افتراضي: 1) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</select></div><div class=\"stack-sm\"><label class=\"form-label\">عمود الكمية المطلوبة للتوفير</label> <select name=\"col_qty\" class=\"form-select\"><option value=\"\">-- غير محدد (افتراضي: 1) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -721,7 +721,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</select></div><div><label class=\"form-label\">عمود سعر الجمهور المسجل (ج.م)</label> <select name=\"col_price\" class=\"form-select\"><option value=\"\">-- غير محدد (افتراضي: 0.00) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</select></div><div class=\"stack-sm\"><label class=\"form-label\">عمود سعر الجمهور المسجل (ج.م)</label> <select name=\"col_price\" class=\"form-select\"><option value=\"\">-- غير محدد (افتراضي: 0.00) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -767,7 +767,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</select></div></div><div><label class=\"form-label\">استراتيجية المطابقة مع الكتالوج المركزي</label> <select name=\"match_strategy\" class=\"form-select\"><option value=\"smart_auto\" selected>المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option> <option value=\"sku_only\">بالكود والباركود فقط</option> <option value=\"name_only\">بالاسم فقط (تجاهل أكواد الصيدلية الداخلية)</option> <option value=\"id_only\">بمعرف المنتج في دواء 24 فقط</option> <option value=\"none\">بدون مطابقة تلقائية (للربط اليدوي)</option></select><p class=\"wiz-sub mt-xs\">تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.</p></div><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</select></div></div><div class=\"stack-sm\"><label class=\"form-label\">استراتيجية المطابقة مع الكتالوج المركزي</label> <select name=\"match_strategy\" class=\"form-select\"><option value=\"smart_auto\" selected>المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option> <option value=\"sku_only\">بالكود والباركود فقط</option> <option value=\"name_only\">بالاسم فقط (تجاهل أكواد الصيدلية الداخلية)</option> <option value=\"id_only\">بمعرف المنتج في دواء 24 فقط</option> <option value=\"none\">بدون مطابقة تلقائية (للربط اليدوي)</option></select><p class=\"wiz-sub mt-xs\">تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.</p></div><div class=\"stack-xs text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

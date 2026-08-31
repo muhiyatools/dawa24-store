@@ -9,29 +9,29 @@ templ VendorPoliciesPage(policies map[string]string, lang, dir string) {
 	@layouts.VendorShell("سياسات التوريد والاسترجاع", "policies", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">سياسات التوريد والدفع والاسترجاع للمنشأة</h2>
 					<p class="subtitle">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p>
 				</div>
 			</div>
 
-			<form method="POST" action="/vendor/policies">
-				<div>
-					<div>
-						<h3>سياسة الشحن والتسليم</h3>
+			<form class="stack-md" method="POST" action="/vendor/policies">
+    <div class="stack-sm">
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">سياسة الشحن والتسليم</h3>
 						<textarea name="shipping_policy" class="form-input" rows="4" placeholder="اكتب شروط التوصيل والحد الأدنى للطلبات...">{ policies["shipping"] }</textarea>
 					</div>
-					<div>
-						<h3>سياسة المرتجعات والتوالف</h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">سياسة المرتجعات والتوالف</h3>
 						<textarea name="returns_policy" class="form-input" rows="4" placeholder="اكتب شروط وفترة قبول المرتجعات...">{ policies["returns"] }</textarea>
 					</div>
-					<div>
-						<h3>شروط السداد والدفع الآجل</h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">شروط السداد والدفع الآجل</h3>
 						<textarea name="terms_policy" class="form-input" rows="4" placeholder="اكتب شروط السداد وشيكات الضمان...">{ policies["terms"] }</textarea>
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<button type="submit" class="btn btn-primary">حفظ السياسات</button>
 				</div>
 			</form>
@@ -44,29 +44,29 @@ templ VendorSocialMediaPage(links map[string]string, lang, dir string) {
 	@layouts.VendorShell("وسائل التواصل الاجتماعي للمورد", "social_media", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">قنوات التواصل الاجتماعي للمنشأة</h2>
 					<p class="subtitle">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p>
 				</div>
 			</div>
 
-			<form method="POST" action="/vendor/social-media">
-				<div>
-					<div>
+			<form class="stack-md" method="POST" action="/vendor/social-media">
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<label class="form-label">رقم الواتساب الرسمي (WhatsApp)</label>
 						<input type="text" name="whatsapp" value={ links["whatsapp"] } class="form-input" placeholder="+2010..." />
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">رابط صفحة الفيسبوك (Facebook)</label>
 						<input type="url" name="facebook" value={ links["facebook"] } class="form-input" placeholder="https://facebook.com/..." />
 					</div>
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">حساب لينكد إن (LinkedIn)</label>
 						<input type="url" name="linkedin" value={ links["linkedin"] } class="form-input" placeholder="https://linkedin.com/company/..." />
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<button type="submit" class="btn btn-primary">حفظ الروابط</button>
 				</div>
 			</form>

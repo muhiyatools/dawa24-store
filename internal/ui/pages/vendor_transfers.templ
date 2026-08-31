@@ -16,7 +16,7 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 				<!-- Header -->
 				<div class="glass-panel p-6 mb-6">
 					<div class="flex-between flex-wrap gap-4">
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-3 mb-1">
 								<div class="user-avatar-badge text-xl">
 									@components.IconRefresh("icon-sm")
@@ -28,7 +28,7 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 					</div>
 				</div>
 
-				<div id="vendor-transfers-content">
+				<div class="stack-sm" id="vendor-transfers-content">
 					@VendorTransfersTable(transfers)
 				</div>
 			</div>

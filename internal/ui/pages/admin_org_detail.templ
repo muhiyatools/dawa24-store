@@ -40,7 +40,7 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 								@components.IconBuilding("icon-sm")
 							}
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-2 flex-wrap">
 								<h1 class="text-xl font-black text-primary m-0">
 									{ data.Organization.LegalName }
@@ -58,7 +58,7 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 								</div>
 							}
 							<div class="d-flex items-center gap-3 mt-1 text-xs text-muted flex-wrap">
-								<span>تاريخ التسجيل: <strong class="tabular-nums text-secondary">{ data.Organization.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
+								<span>تاريخ التسجيل: <strong class="tabular-nums text-secondary">{ data.Organization.CreatedAt.Format("2006-01-02 03:04 PM") }</strong></span>
 								if string(data.Organization.Status) == "approved" {
 									<span class="badge badge-emerald text-xs font-black">معتمد ومفعل في المنظومة</span>
 								} else if string(data.Organization.Status) == "pending" {
@@ -149,12 +149,12 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 					</div>
 
 					<div class="d-grid grid-2-col gap-4 text-sm">
-						<div>
+      <div class="stack-sm">
 							<div class="label-strong">الاسم القانوني المسجل</div>
 							<div class="font-bold text-primary mt-1">{ data.Organization.LegalName }</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<div class="label-strong">نوع النشاط</div>
 							<div class="mt-1">
 								if string(data.Organization.Type) == "vendor" {
@@ -244,7 +244,7 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 										<div class="w-8 h-8 rounded-md bg-surface-raised border flex-center text-brand">
 											@components.IconFile("icon-xs")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<div class="font-bold text-xs text-primary">{ doc.Title }</div>
 											<div class="text-xs text-muted tabular-nums">{ string(doc.DocumentType) } • { doc.CreatedAt.Format("2006-01-02") }</div>
 										</div>

@@ -14,7 +14,7 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 	@layouts.AdminShell("طلبات عروض الأسعار والمشتريات (Offer Orders)", "orders", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">طلبات العروض والمشتريات ({ fmt.Sprintf("%d", len(orders)) })</h2>
 					<p class="subtitle">متابعة اعتمادات عروض الأسعار والتوريد بين الصيدليات والموردين.</p>
 				</div>
@@ -66,7 +66,7 @@ templ AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("طلب عروض: %s", o.OrderNumber), "orders", lang, dir) {
 		<div class="card max-w-2xl mx-auto">
 			<div class="header-row">
-				<div>
+    <div class="stack-sm">
 					<h2 class="card-title m-0">طلب { o.OrderNumber }</h2>
 					<p class="subtitle">حالة: { string(o.Status) } | الإجمالي: { fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</p>
 				</div>

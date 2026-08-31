@@ -26,7 +26,7 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 					</a>
 				}
 
-				<div id="cart-content">
+				<div class="stack-sm" id="cart-content">
 					@CustomerCartContent(cart, lang)
 				</div>
 			</div>
@@ -58,7 +58,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 					<div class="user-avatar-badge">
 						@components.IconMapPin("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-xs text-muted font-semibold">فرع استلام الشحنات وتغطية التوريد:</div>
 						<div class="text-base font-extrabold text-primary d-flex items-center gap-2">
 							<span>
@@ -72,7 +72,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 						</div>
 					</div>
 				</div>
-				<div>
+    <div class="stack-sm">
 					<form method="POST" action="/customer/set-branch" class="m-0 d-inline-flex items-center gap-2">
 						<input type="hidden" name="redirect_to" value="/cart" />
 						<span class="text-xs text-secondary font-semibold">تغيير الفرع:</span>
@@ -105,7 +105,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 								<div class="user-avatar-badge">
 									@components.IconBuilding("icon-xs")
 								</div>
-								<div>
+        <div class="stack-sm">
 									<div class="font-extrabold text-lg text-primary">
 										{ group.SupplierName.Get(i18n.Lang(lang)) }
 									</div>
@@ -142,7 +142,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 										<div class="user-avatar-badge">
 											@components.IconPill("icon-sm")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<h4 class="font-extrabold text-base text-primary m-0">
 												{ item.ProductName.Get(i18n.Lang(lang)) }
 											</h4>

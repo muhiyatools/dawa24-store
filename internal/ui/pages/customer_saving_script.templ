@@ -80,7 +80,7 @@ templ CustomerSavingScript() {
 						.then(r => r.json())
 						.then(items => {
 							if (!items || items.length === 0) {
-								dropdown.innerHTML = '<div>لم يتم العثور على نتائج بالكتالوج</div>';
+								dropdown.innerHTML = '<div class="stack-xs text-sm">لم يتم العثور على نتائج بالكتالوج</div>';
 								dropdown.style.display = 'block';
 								return;
 							}
@@ -89,10 +89,10 @@ templ CustomerSavingScript() {
 							items.forEach(it => {
 								const skuText = it.sku ? ('<span>(' + it.sku + ')</span>') : '';
 								const safeName = (it.name || '').replace(/'/g, "\\'");
-								html += '<div ' +
+								html += '<div class="stack-sm" ' +
 									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
 									'onclick="selectPharmacyCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
-									'<div><strong>' + it.name + '</strong>' + skuText + '</div>' +
+									'<div class="stack-sm"><strong>' + it.name + '</strong>' + skuText + '</div>' +
 									'<span class="badge badge-emerald text-xs">اختيار</span></div>';
 							});
 							dropdown.innerHTML = html;
@@ -214,8 +214,8 @@ templ CustomerSavingScript() {
 				const container = document.getElementById(prefix + '-import-preview-table-container');
 				if (!container || !sampleRows || sampleRows.length === 0) return;
 
-				let html = '<div>';
-				html += '<div>';
+				let html = '<div class="stack-sm">';
+				html += '<div class="stack-sm">';
 				html += '<span>معاينة أعمدة الملف والبيانات الحقيقية:</span>';
 				html += '<span class="meta-muted">أول ' + sampleRows.length + ' صفوف</span>';
 				html += '</div>';
@@ -561,7 +561,7 @@ templ CustomerSavingScript() {
 				const subtitleEl = document.getElementById('pharmacy-providers-modal-subtitle');
 				if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
 				const contentEl = document.getElementById('pharmacy-providers-modal-content');
-				if (contentEl) contentEl.innerHTML = '<div>⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+				if (contentEl) contentEl.innerHTML = '<div class="stack-xs text-sm">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
 				
 				const modalEl = document.getElementById('pharmacy-providers-modal');
 				if (modalEl && typeof modalEl.showModal === 'function') {
@@ -572,14 +572,14 @@ templ CustomerSavingScript() {
 					.then(r => r.json())
 					.then(providers => {
 						if (!providers || providers.length === 0) {
-							if (contentEl) contentEl.innerHTML = '<div>لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.<br><a href="/catalog" class="btn btn-secondary btn-sm">تصفح كتالوج الأدوية العام</a></div>';
+							if (contentEl) contentEl.innerHTML = '<div class="stack-sm">لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.<br><a href="/catalog" class="btn btn-secondary btn-sm">تصفح كتالوج الأدوية العام</a></div>';
 							return;
 						}
 
-						let html = '<div><table class="data-table"><thead><tr><th class="p-sm">المورد / المخزن</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
+						let html = '<div class="stack-sm"><table class="data-table"><thead><tr><th class="p-sm">المورد / المخزن</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
-							const branchText = p.branch_name ? ('<div>' + p.branch_name + '</div>') : '';
+							const branchText = p.branch_name ? ('<div class="stack-xs text-sm">' + p.branch_name + '</div>') : '';
 							const skuText = p.sku ? ('<code class="text-xs">' + p.sku + '</code>') : '';
 							const stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';
 							const orgDisplayName = (typeof p.org_name === 'object' && p.org_name) ? (p.org_name.ar || p.org_name.en || 'مورد معتمد') : (p.org_name || 'مورد معتمد');
@@ -590,7 +590,7 @@ templ CustomerSavingScript() {
 							const netPrice = p.price_after_discount || p.price;
 
 							const addCartAction = (p.stock_quantity > 0 && p.variant_id) ?
-								('<form method="POST" action="/cart/add">' +
+								('<form class="stack-md" method="POST" action="/cart/add">' +
 									'<input type="hidden" name="variant_id" value="' + p.variant_id + '" />' +
 									'<input type="hidden" name="product_id" value="' + productId + '" />' +
 									'<input type="hidden" name="organization_id" value="' + (p.organization_id || '') + '" />' +
@@ -603,7 +603,7 @@ templ CustomerSavingScript() {
 
 							html += '<tr class="rule-bottom">' +
 								'<td class="p-sm"><strong>' + orgDisplayName + '</strong>' + branchText + '</td>' +
-								'<td class="p-sm"><div>' + varDisplayName + '</div>' + skuText + '</td>' +
+								'<td class="p-sm"><div class="stack-xs text-sm">' + varDisplayName + '</div>' + skuText + '</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
 								'<td class="p-sm text-center tabular-nums">' + publicPrice + ' ج.م</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
@@ -616,7 +616,7 @@ templ CustomerSavingScript() {
 						if (contentEl) contentEl.innerHTML = html;
 					})
 					.catch(() => {
-						if (contentEl) contentEl.innerHTML = '<div>حدث خطأ أثناء تحميل عروض الموردين.</div>';
+						if (contentEl) contentEl.innerHTML = '<div class="stack-xs text-sm">حدث خطأ أثناء تحميل عروض الموردين.</div>';
 					});
 			}
 

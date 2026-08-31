@@ -46,7 +46,7 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconTrash("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">سلة المحذوفات واسترجاع البيانات</h1>
 							<p class="text-sm text-secondary m-0 mt-1">إدارة واسترجاع السجلات المحذوفة مؤقتاً (Soft-Deleted) عبر كافة أقسام المنظومة، مع إمكانية الاستعادة الفورية أو الحذف النهائي الموثق أمنياً</p>
 						</div>
@@ -168,7 +168,7 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 						<div class="user-avatar-badge text-xl">
 							@components.IconTrash("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">سلة محذوفات: { modelKey } ({ fmt.Sprintf("%d", len(rows)) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">استعراض كافة السجلات المحذوفة مؤقتاً في هذا القسم، مع خيارات الاسترجاع الفوري أو الحذف النهائي الموثق</p>
 						</div>

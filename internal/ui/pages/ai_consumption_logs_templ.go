@@ -118,7 +118,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سجل استهلاك وعمليات الذكاء الاصطناعي</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة استدعاءات بوابات الذكاء الاصطناعي، وتتبع استهلاك الحصة ومعدل التوكنز للعمليات التشغيلية</p></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><div class=\"d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs\"><span class=\"text-secondary font-bold\">معرّف البوابة:</span> <code dir=\"ltr\" class=\"font-bold text-brand font-mono\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجل استهلاك وعمليات الذكاء الاصطناعي</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة استدعاءات بوابات الذكاء الاصطناعي، وتتبع استهلاك الحصة ومعدل التوكنز للعمليات التشغيلية</p></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><div class=\"d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs\"><span class=\"text-secondary font-bold\">معرّف البوابة:</span> <code dir=\"ltr\" class=\"font-bold text-brand font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -188,14 +188,14 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			return templ_7745c5c3_Err
 		}
 		if data.HasBudget {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div><div style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"stack-sm\"><div class=\"stack-sm\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 73, Col: 203}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 73, Col: 220}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -387,7 +387,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><!-- Request ID & Timestamp --><td><div><code dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><!-- Request ID & Timestamp --><td><div class=\"stack-sm\"><code dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -413,7 +413,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div></td><!-- Feature Name & Context --><td><div><strong>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div></td><!-- Feature Name & Context --><td><div class=\"stack-sm\"><strong>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -597,7 +597,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Client-side Filtering Script --><script>\n\t\tfunction filterAILogs() {\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\n\n\t\t\trows.forEach(row => {\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\n\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\n\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\n\t\t\t\t\trow.style.display = '';\n\t\t\t\t} else {\n\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Client-side Filtering Script --><script>\r\n\t\tfunction filterAILogs() {\r\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\r\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\r\n\r\n\t\t\trows.forEach(row => {\r\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\r\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\r\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\r\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\r\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\r\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\r\n\r\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\r\n\t\t\t\t\trow.style.display = '';\r\n\t\t\t\t} else {\r\n\t\t\t\t\trow.style.display = 'none';\r\n\t\t\t\t}\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

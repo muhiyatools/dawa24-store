@@ -33,7 +33,7 @@ func RatingStars(score float64, count int) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"rating-stars-container\" style=\"display:inline-flex; align-items:center; gap:0.35rem; font-size:0.8rem;\"><div style=\"display:inline-flex; align-items:center; gap:1px; color:#f59e0b;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"rating-stars-container\" style=\"display:inline-flex; align-items:center; gap:0.35rem; font-size:0.8rem;\"><div class=\"stack-sm\" style=\"display:inline-flex; align-items:center; gap:1px; color:#f59e0b;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

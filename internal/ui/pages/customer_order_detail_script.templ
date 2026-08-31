@@ -191,7 +191,7 @@ templ CustomerOrderDetailScript() {
 								<input type="text" name="product_name[]" placeholder="اسم الصنف الدوائي الجديد..." required class="form-input input-sm w-full fw-700"/>
 							</td>
 							<td>
-								<div>
+        <div class="stack-sm">
 									<button type="button" class="btn btn-secondary btn-icon" onclick="window.stepQty(this, -1)">-</button>
 									<input type="number" name="quantity[]" value="1" min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" oninput="window.recalcEditOrder()"/>
 									<button type="button" class="btn btn-secondary btn-icon" onclick="window.stepQty(this, 1)">+</button>

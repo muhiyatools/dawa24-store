@@ -70,7 +70,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 				<!-- Header -->
 				<div class="glass-panel p-6 mb-0">
 					<div class="flex-between items-center flex-wrap gap-4">
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-3 mb-1">
 								<div class="user-avatar-badge text-xl">
 									@components.IconBarChart("icon-sm")
@@ -152,7 +152,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 							/>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<select name="warehouse_id" onchange="this.form.submit()" class="form-input text-xs w-full">
 								<option value="">كافة المخازن ({ fmt.Sprintf("%d", len(data.Warehouses)) })</option>
 								for _, wh := range data.Warehouses {
@@ -163,7 +163,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 							</select>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
 								<option value="10" selected?={ data.PerPage == 10 }>10 عناصر</option>
 								<option value="25" selected?={ data.PerPage == 25 || data.PerPage == 0 }>25 عنصر</option>
@@ -186,13 +186,13 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 
 				<!-- Inventory Table Card -->
 				<div class="glass-panel p-0 mb-0 overflow-hidden">
-					<div id="vendor-inventory-content">
+					<div class="stack-sm" id="vendor-inventory-content">
 						@VendorInventoryTable(data)
 					</div>
 				</div>
 
 				<!-- Stock Adjustment Modal (True Fixed Centered Overlay) -->
-				<div
+				<div class="stack-sm"
 					x-show="adjustModal"
 					x-cloak
 					x-transition.opacity
@@ -218,13 +218,13 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 						</div>
 
 						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" class="d-flex flex-col gap-4 m-0">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">الكمية المراد إضافتها أو خصمها (+/-) <span class="text-danger">*</span></label>
 								<input type="number" name="delta" required class="form-input tabular-nums w-full" placeholder="+50 (إضافة) أو -10 (خصم)" />
 								<span class="text-xs text-muted mt-1 d-block">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</span>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">سبب التعديل</label>
 								<select name="reason" class="form-input text-xs w-full">
 									<option value="تسوية جرد دوري">تسوية جرد دوري</option>
@@ -276,7 +276,7 @@ templ VendorInventoryTable(data VendorInventoryData) {
 									<div class="user-avatar-badge">
 										@components.IconPackage("icon-xs")
 									</div>
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary text-sm font-extrabold d-block">
 											{ resolveVariantName(s.ProductVariantID, data.Variants) }
 										</strong>

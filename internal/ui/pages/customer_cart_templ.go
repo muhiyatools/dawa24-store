@@ -94,7 +94,7 @@ func CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"cart-content\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"stack-sm\" id=\"cart-content\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -169,7 +169,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div><div class=\"text-xs text-muted font-semibold\">فرع استلام الشحنات وتغطية التوريد:</div><div class=\"text-base font-extrabold text-primary d-flex items-center gap-2\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><div class=\"text-xs text-muted font-semibold\">فرع استلام الشحنات وتغطية التوريد:</div><div class=\"text-base font-extrabold text-primary d-flex items-center gap-2\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -186,7 +186,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> <span class=\"badge badge-emerald text-xs\">الفرع النشط</span></div></div></div><div><form method=\"POST\" action=\"/customer/set-branch\" class=\"m-0 d-inline-flex items-center gap-2\"><input type=\"hidden\" name=\"redirect_to\" value=\"/cart\"> <span class=\"text-xs text-secondary font-semibold\">تغيير الفرع:</span> <select name=\"branch_id\" class=\"form-select form-input-sm\" onchange=\"this.form.submit()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> <span class=\"badge badge-emerald text-xs\">الفرع النشط</span></div></div></div><div class=\"stack-sm\"><form method=\"POST\" action=\"/customer/set-branch\" class=\"m-0 d-inline-flex items-center gap-2\"><input type=\"hidden\" name=\"redirect_to\" value=\"/cart\"> <span class=\"text-xs text-secondary font-semibold\">تغيير الفرع:</span> <select name=\"branch_id\" class=\"form-select form-input-sm\" onchange=\"this.form.submit()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -250,7 +250,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div><div class=\"font-extrabold text-lg text-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div class=\"stack-sm\"><div class=\"font-extrabold text-lg text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -328,7 +328,7 @@ func CustomerCartContent(cart *commerce.Cart, lang string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div><h4 class=\"font-extrabold text-base text-primary m-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"stack-sm\"><h4 class=\"font-extrabold text-base text-primary m-0\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

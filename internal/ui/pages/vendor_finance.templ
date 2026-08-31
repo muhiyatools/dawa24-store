@@ -17,7 +17,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconCreditCard("icon-sm")
@@ -83,7 +83,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 			<!-- Header & Period Filter Toolbar -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4 items-center">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconWallet("icon-sm")
@@ -133,7 +133,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 					<div class="text-sky flex-shrink-0 mt-0.5">
 						@components.IconInfo("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="font-extrabold text-sm text-primary">
 							معادلة احتساب الأرباح والمصروفات المعتمدة:
 						</div>
@@ -474,7 +474,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconPackage("icon-sm")
@@ -532,7 +532,7 @@ templ VendorOfferOrderDetailPage(id int64, lang, dir string) {
 		<div class="page-container">
 			<div class="glass-panel p-6 max-w-2xl mx-auto">
 				<div class="flex-between items-center mb-4 pb-2 border-b">
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-xl font-black text-primary m-0">طلب عروض #{ fmt.Sprintf("%d", id) }</h1>
 					</div>
 					<a href="/vendor/orders/offers" class="btn btn-secondary btn-sm font-bold">العودة</a>

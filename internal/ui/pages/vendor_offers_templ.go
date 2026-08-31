@@ -55,7 +55,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Action Bar --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Action Bar --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -63,7 +63,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">العروض الخاصة والتغطية الجغرافية</h1></div><p class=\"text-sm text-secondary m-0\">إدارة وتخصيص العروض الخاصة بالمنشأة، المنتجات المشمولة، ونطاقات التغطية وأيام التوصيل</p></div><div><a href=\"/vendor/offers/new\" class=\"btn btn-primary font-bold text-xs px-4 py-2 gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">العروض الخاصة والتغطية الجغرافية</h1></div><p class=\"text-sm text-secondary m-0\">إدارة وتخصيص العروض الخاصة بالمنشأة، المنتجات المشمولة، ونطاقات التغطية وأيام التوصيل</p></div><div class=\"stack-sm\"><a href=\"/vendor/offers/new\" class=\"btn btn-primary font-bold text-xs px-4 py-2 gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,7 +154,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 					return templ_7745c5c3_Err
 				}
 				for _, o := range data.Offers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"glass-panel p-6 mb-0 d-flex flex-col justify-between\"><div><!-- Header Strip --><div class=\"flex-between items-start gap-2 mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"glass-panel p-6 mb-0 d-flex flex-col justify-between\"><div class=\"stack-sm\"><!-- Header Strip --><div class=\"flex-between items-start gap-2 mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -190,7 +190,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"stack-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -246,7 +246,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<!-- Pricing & Products Summary Pill --><div class=\"p-3 rounded-lg bg-surface-sunken border mb-4\"><div class=\"flex-between items-baseline\"><div><span class=\"text-xs text-muted font-bold d-block\">نسبة الخصم:</span> <span class=\"text-lg font-black text-brand tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<!-- Pricing & Products Summary Pill --><div class=\"p-3 rounded-lg bg-surface-sunken border mb-4\"><div class=\"flex-between items-baseline\"><div class=\"stack-sm\"><span class=\"text-xs text-muted font-bold d-block\">نسبة الخصم:</span> <span class=\"text-lg font-black text-brand tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

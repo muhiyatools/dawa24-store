@@ -12,19 +12,19 @@ templ CustomerSavingImportModal(lang string) {
 		Size:     "xl",
 	}) {
 		<div id="pharmacy-import-step-config" class="stack-lg">
-						<div
+						<div class="stack-sm"
 							id="pharmacy-import-dropzone"
 						
 							onclick="document.getElementById('pharmacy-import-file-input').click()"
 						>
-							<div>@components.IconBarChart("icon-sm")</div>
+							<div class="stack-xs text-sm">@components.IconBarChart("icon-sm")</div>
 							<strong>
 								انقر هنا لاختيار الملف أو اسحبه هنا
 							</strong>
 							<p class="text-sm text-muted m-0">
 								يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 32 ميجابايت
 							</p>
-							<div id="pharmacy-import-filename-preview"></div>
+							<div class="stack-sm" id="pharmacy-import-filename-preview"></div>
 
 							<input
 								type="file"
@@ -37,8 +37,8 @@ templ CustomerSavingImportModal(lang string) {
 							/>
 						</div>
 
-						<div id="pharmacy-import-columns-panel">
-							<div>
+						<div class="stack-sm" id="pharmacy-import-columns-panel">
+       <div class="stack-sm">
 								<div class="row-center-sm">
 									<span>@components.IconSettings("icon-sm")</span>
 									<span>تحديد وتعيين أعمدة الملف:</span>
@@ -46,12 +46,12 @@ templ CustomerSavingImportModal(lang string) {
 								<span class="badge badge-emerald font-size-10">تم التحديد الذكي تلقائياً </span>
 							</div>
 
-							<div id="pharmacy-import-columns-loading">
+							<div class="stack-sm" id="pharmacy-import-columns-loading">
 								⏳ جاري قراءة أعمدة الملف وتحليل البيانات...
 							</div>
 
 							<div id="pharmacy-import-columns-grid" class="grid-halves">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label">
 										عمود اسم الصنف / الدواء <span class="text-danger">*</span>
 									</label>
@@ -60,7 +60,7 @@ templ CustomerSavingImportModal(lang string) {
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label">
 										عمود كود الصنف / SKU / الباركود
 									</label>
@@ -69,7 +69,7 @@ templ CustomerSavingImportModal(lang string) {
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label">
 										عمود الكمية المطلوبة
 									</label>
@@ -78,7 +78,7 @@ templ CustomerSavingImportModal(lang string) {
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label">
 										عمود سعر الشراء المسجل (ج.م)
 									</label>
@@ -89,32 +89,32 @@ templ CustomerSavingImportModal(lang string) {
 							</div>
 
 							<!-- Live Sample Preview Container -->
-							<div id="pharmacy-import-preview-table-container"></div>
+							<div class="stack-sm" id="pharmacy-import-preview-table-container"></div>
 						</div>
 
 						<!-- Match Strategy Selection -->
-						<div>
-							<label>
+      <div class="stack-sm">
+       <label class="form-label">
 								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
 							</label>
-							<div>
-								<label>
+       <div class="stack-sm">
+        <label class="form-label">
 									<input type="radio" name="pharmacy_match_strategy" value="smart_auto" checked />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-body">مطابقة ذكية شاملة (موصى بها)</strong>
 										<span>الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span>
 									</div>
 								</label>
-								<label>
+        <label class="form-label">
 									<input type="radio" name="pharmacy_match_strategy" value="sku_only" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-body">مطابقة عبر كود SKU / الباركود فقط</strong>
 										<span>المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span>
 									</div>
 								</label>
-								<label>
+        <label class="form-label">
 									<input type="radio" name="pharmacy_match_strategy" value="name_only" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-body">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong>
 										<span>مثالي إذا كانت الصيدلية تستخدم أكواد كاشير داخلية خاصة تختلف عن أكواد الكتالوج العام.</span>
 									</div>
@@ -122,25 +122,25 @@ templ CustomerSavingImportModal(lang string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							ℹ️ <strong>معالجة آمنة في الخلفية:</strong> لن يتم حفظ أو تعديل أي صنف في قاعدة البيانات مباشرة؛ ستظهر لك نتائج المطابقة كاملة في الخطوة التالية لمراجعتها والموافقة عليها.
 						</div>
 					</div>
 
 					<!-- STEP 2: Real-time Background Progress -->
-					<div id="pharmacy-import-step-progress">
-						<div>@components.IconZap("icon-sm")</div>
-						<h4 id="pharmacy-progress-phase">
+					<div class="stack-sm" id="pharmacy-import-step-progress">
+						<div class="stack-xs text-sm">@components.IconZap("icon-sm")</div>
+						<h4 class="font-bold" id="pharmacy-progress-phase">
 							جاري قراءة وفك تشفير ملف الإكسيل...
 						</h4>
-						<p id="pharmacy-progress-sub">
+						<p class="text-sm text-secondary m-0" id="pharmacy-progress-sub">
 							تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح
 						</p>
 
-						<div>
-							<div id="pharmacy-progress-bar"></div>
+      <div class="stack-sm">
+							<div class="stack-sm" id="pharmacy-progress-bar"></div>
 						</div>
-						<div>
+      <div class="stack-sm">
 							<span id="pharmacy-progress-percent">10%</span>
 							<span id="pharmacy-progress-counter">0 / 0 صنف</span>
 						</div>
@@ -149,27 +149,27 @@ templ CustomerSavingImportModal(lang string) {
 					<!-- STEP 3: Staged Review & Confirmation -->
 					<div id="pharmacy-import-step-review" class="stack-md">
 						<!-- Stats Summary Grid -->
-						<div>
-							<div>
-								<div>إجمالي الأصناف بالملف</div>
-								<div id="pharmacy-review-total-count">0</div>
+      <div class="stack-sm">
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">إجمالي الأصناف بالملف</div>
+								<div class="stack-sm" id="pharmacy-review-total-count">0</div>
 							</div>
-							<div>
-								<div>تم ربطها بالكتالوج</div>
-								<div id="pharmacy-review-matched-count">0</div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">تم ربطها بالكتالوج</div>
+								<div class="stack-sm" id="pharmacy-review-matched-count">0</div>
 							</div>
-							<div>
-								<div>أصناف غير مرتبطة / جديدة</div>
-								<div id="pharmacy-review-unlinked-count">0</div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">أصناف غير مرتبطة / جديدة</div>
+								<div class="stack-sm" id="pharmacy-review-unlinked-count">0</div>
 							</div>
-							<div>
-								<div>إجمالي الكمية المطلوبة</div>
-								<div id="pharmacy-review-total-qty">0</div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">إجمالي الكمية المطلوبة</div>
+								<div class="stack-sm" id="pharmacy-review-total-qty">0</div>
 							</div>
 						</div>
 
 						<!-- Filter Tabs & Quick Search -->
-						<div>
+      <div class="stack-sm">
 							<div class="row-center-sm">
 								<button type="button" class="btn btn-sm btn-ghost" id="pharmacy-tab-all" onclick="filterPharmacyReviewTable('all')">الكل (<span id="pharmacy-badge-all">0</span>)</button>
 								<button type="button" class="btn btn-sm btn-ghost" id="pharmacy-tab-matched" onclick="filterPharmacyReviewTable('matched')">المتطابق فقط (<span id="pharmacy-badge-matched">0</span>)</button>
@@ -198,15 +198,15 @@ templ CustomerSavingImportModal(lang string) {
 							</table>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<span>لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط "تأكيد الاستيراد والحفظ" لاعتماد البيانات.</span>
 							<span>الأصناف المحددة: <strong id="pharmacy-selected-count">0</strong></span>
 						</div>
 					</div>
 
 				<!-- Fixed Sticky Footer -->
-				<div id="pharmacy-import-footer">
-					<div id="pharmacy-footer-left">
+				<div class="stack-sm" id="pharmacy-import-footer">
+					<div class="stack-sm" id="pharmacy-footer-left">
 						<button type="button" id="pharmacy-cancel-btn" class="btn btn-secondary" onclick="handlePharmacyImportCancelClick()">
 							إلغاء
 						</button>

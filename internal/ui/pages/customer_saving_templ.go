@@ -112,7 +112,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">منتجات وأدوية التوفير للصيدلية</h1><p class=\"text-sm text-secondary m-0 mt-1\">تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية</p></div></div><!-- Top Action Buttons --><div class=\"d-flex items-center gap-2 flex-wrap\"><button type=\"button\" class=\"btn btn-primary font-bold text-xs px-3 py-2\" data-modal-open=\"pharmacy-saving-product-modal\" onclick=\"openPharmacyCreateModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">منتجات وأدوية التوفير للصيدلية</h1><p class=\"text-sm text-secondary m-0 mt-1\">تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية</p></div></div><!-- Top Action Buttons --><div class=\"d-flex items-center gap-2 flex-wrap\"><button type=\"button\" class=\"btn btn-primary font-bold text-xs px-3 py-2\" data-modal-open=\"pharmacy-saving-product-modal\" onclick=\"openPharmacyCreateModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -141,7 +141,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 			if data.Stats != nil && data.Stats.CountAll > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<form method=\"POST\" action=\"/customer/saving-products/delete-all\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بصيدليتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');\"><button type=\"submit\" class=\"btn btn-secondary font-bold text-xs px-3 py-2 text-danger\" title=\"حذف كافة منتجات التوفير المسجلة للصيدلية فقط\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<form class=\"stack-md\" method=\"POST\" action=\"/customer/saving-products/delete-all\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بصيدليتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');\"><button type=\"submit\" class=\"btn btn-secondary font-bold text-xs px-3 py-2 text-danger\" title=\"حذف كافة منتجات التوفير المسجلة للصيدلية فقط\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -388,7 +388,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						return templ_7745c5c3_Err
 					}
 					if it.SKU != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div><code>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"stack-sm\"><code>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -548,7 +548,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Actions --><td><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Actions --><td><div class=\"stack-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -630,7 +630,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<form method=\"POST\" id=\"pharmacy-saving-product-form\" action=\"/customer/saving-products\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"pharmacy-form-saving-id\" name=\"id\" value=\"\"><div class=\"modal-body d-flex flex-col gap-3\"><div><label class=\"form-label text-sm fw-700 text-primary\">اسم الصنف الدوائي بالصيدلية <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"pharmacy-form-name-product\" name=\"name_product\" required placeholder=\"مثال: أوجمنتين 1 جم 14 قرص\" class=\"form-input w-full-rounded\"></div><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-sm fw-700 text-primary\">رمز SKU (اختياري)</label> <input type=\"text\" id=\"pharmacy-form-sku\" name=\"sku\" placeholder=\"كود الصنف...\" class=\"form-input w-full-rounded\"></div><div><label class=\"form-label text-sm fw-700 text-primary\">الكمية المطلوبة</label> <input type=\"number\" step=\"any\" id=\"pharmacy-form-qty\" name=\"qty\" placeholder=\"0\" class=\"form-input w-full-rounded\"></div></div><div><label class=\"form-label text-sm fw-700 text-primary\">سعر الشراء الحالي / المستهدف (ج.م)</label> <input type=\"number\" step=\"0.01\" id=\"pharmacy-form-price\" name=\"price\" placeholder=\"0.00\" class=\"form-input w-full-rounded\"></div><div class=\"d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken\"><label class=\"font-extrabold text-sm text-primary\">ربط الصنف بالكتالوج المركزي العام</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div id=\"pharmacy-selected-product-box\"><span id=\"pharmacy-selected-product-label\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"clearPharmacySelectedProduct()\">إلغاء الربط </button></div><div id=\"pharmacy-search-product-container\" class=\"relative\"><input type=\"text\" id=\"pharmacy-product-search-input\" placeholder=\"ابحث بالاسم أو SKU لربط الصنف بالكتالوج...\" class=\"form-input w-full\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div id=\"pharmacy-product-search-dropdown\"></div></div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closePharmacyCreateModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ وتثبيت البيانات</button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<form method=\"POST\" id=\"pharmacy-saving-product-form\" action=\"/customer/saving-products\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"pharmacy-form-saving-id\" name=\"id\" value=\"\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-sm fw-700 text-primary\">اسم الصنف الدوائي بالصيدلية <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"pharmacy-form-name-product\" name=\"name_product\" required placeholder=\"مثال: أوجمنتين 1 جم 14 قرص\" class=\"form-input w-full-rounded\"></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-sm fw-700 text-primary\">رمز SKU (اختياري)</label> <input type=\"text\" id=\"pharmacy-form-sku\" name=\"sku\" placeholder=\"كود الصنف...\" class=\"form-input w-full-rounded\"></div><div class=\"stack-sm\"><label class=\"form-label text-sm fw-700 text-primary\">الكمية المطلوبة</label> <input type=\"number\" step=\"any\" id=\"pharmacy-form-qty\" name=\"qty\" placeholder=\"0\" class=\"form-input w-full-rounded\"></div></div><div class=\"stack-sm\"><label class=\"form-label text-sm fw-700 text-primary\">سعر الشراء الحالي / المستهدف (ج.م)</label> <input type=\"number\" step=\"0.01\" id=\"pharmacy-form-price\" name=\"price\" placeholder=\"0.00\" class=\"form-input w-full-rounded\"></div><div class=\"d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken\"><label class=\"font-extrabold text-sm text-primary\">ربط الصنف بالكتالوج المركزي العام</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div class=\"stack-sm\" id=\"pharmacy-selected-product-box\"><span id=\"pharmacy-selected-product-label\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"clearPharmacySelectedProduct()\">إلغاء الربط </button></div><div id=\"pharmacy-search-product-container\" class=\"relative\"><input type=\"text\" id=\"pharmacy-product-search-input\" placeholder=\"ابحث بالاسم أو SKU لربط الصنف بالكتالوج...\" class=\"form-input w-full\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div class=\"stack-sm\" id=\"pharmacy-product-search-dropdown\"></div></div></div></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closePharmacyCreateModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ وتثبيت البيانات</button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

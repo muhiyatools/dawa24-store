@@ -36,7 +36,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 						<div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 d-flex items-center justify-center border border-indigo-200/60 shadow-2xs">
 							@components.IconUsers("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة</p>
 						</div>
@@ -129,23 +129,23 @@ templ AdminUserDetailPage(v AdminUserDetailView, lang, dir string) {
 		<div class="page-container max-w-2xl mx-auto">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center mb-4 pb-3 border-b">
-					<div>
+     <div class="stack-sm">
 						<h2 class="text-xl font-black text-primary m-0">{ u.Name.Get("ar") }</h2>
 						<p class="text-xs text-secondary m-0 mt-1">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
 					</div>
 					<a href="/admin/users" class="btn btn-secondary btn-sm font-bold text-xs">العودة لدليل المستخدمين</a>
 				</div>
 
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<div class="text-xs text-secondary font-bold">البريد الإلكتروني</div>
 						<div class="tabular-nums text-sm font-bold text-primary mt-1 font-mono">{ u.Email }</div>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-xs text-secondary font-bold">رقم الهاتف</div>
 						<div class="tabular-nums text-sm font-bold text-primary mt-1">{ u.Phone }</div>
 					</div>
-					<div>
+     <div class="stack-sm">
 						<div class="text-xs text-secondary font-bold">الحالة</div>
 						<div class="mt-1">
 							if u.Status == identity.StatusActive {
@@ -209,7 +209,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 					<div class="user-avatar-badge text-xl">
 						@components.IconTrash("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-2xl font-black text-primary m-0">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h1>
 						<p class="text-sm text-secondary m-0 mt-1">مراجعة طلبات المستخدمين لحذف الحسابات نهائياً من المنصة</p>
 					</div>
@@ -243,13 +243,13 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 										<td class="text-xs">مستخدم #{ fmt.Sprintf("%d", r.UserID) }</td>
 										<td class="text-xs">{ r.Reason }</td>
 										<td class="text-center"><span class="badge badge-amber text-xs font-bold">{ r.Status }</span></td>
-										<td class="text-xs tabular-nums">{ r.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td class="text-xs tabular-nums">{ r.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
 										<td class="text-end">
 											<div class="d-inline-flex gap-2">
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
+												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
 													<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">موافقة وحذف</button>
 												</form>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", r.ID)) }>
+												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", r.ID)) }>
 													<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">رفض الطلب</button>
 												</form>
 											</div>
@@ -277,7 +277,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 						<div class="w-11 h-11 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs text-xl">
 							@components.IconClock("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">سجل نشاطات وعمليات الموظفين بالمنشآت</h1>
 							<p class="text-xs text-secondary m-0 mt-1 font-medium">
 								تدقيق وتتبع كافة الإجراءات والعمليات المنفذة من قِبل موظفي الصيدليات والشركات الموردة ({ fmt.Sprintf("%d عملية موثقة", data.TotalCount) })
@@ -299,7 +299,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 				<form method="GET" action="/admin/employee-activities" class="d-flex flex-col gap-3 m-0">
 					<div class="d-grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
 						<!-- Search Query -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">البحث العام</label>
 							<input
 								type="text"
@@ -311,7 +311,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 						</div>
 
 						<!-- Organization Filter -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">المنشأة التابع لها</label>
 							<select name="org_id" class="form-input text-xs font-medium w-full">
 								<option value="0">كافة المنشآت (صيدليات وموردين)</option>
@@ -329,7 +329,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 						</div>
 
 						<!-- User / Employee Filter -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">الموظف المنفذ</label>
 							<select name="user_id" class="form-input text-xs font-medium w-full">
 								<option value="0">كافة المستخدمين والموظفين</option>
@@ -414,7 +414,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 												{ e.CreatedAt.Format("2006-01-02") }
 											</div>
 											<div class="tabular-nums text-2xs text-muted mt-0.5">
-												{ e.CreatedAt.Format("15:04:05") }
+												{ e.CreatedAt.Format("03:04:05 PM") }
 											</div>
 										</td>
 
@@ -428,7 +428,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 														م
 													}
 												</div>
-												<div>
+            <div class="stack-sm">
 													<div class="font-extrabold text-xs text-primary">
 														{ e.ActorName }
 													</div>
@@ -562,7 +562,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 								@components.IconClock("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h3 class="text-base font-black text-primary m-0" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
 								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium" x-text="selected ? (selected.action + ' • ' + selected.entity_type) : ''"></p>
 							</div>
@@ -575,19 +575,19 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 					<template x-if="selected">
 						<div class="d-flex flex-col gap-4">
 							<div class="d-grid grid-cols-2 gap-3 p-3.5 bg-surface-sunken rounded-xl border border-slate-200/80 text-xs">
-								<div>
+        <div class="stack-sm">
 									<span class="text-muted d-block text-2xs">الموظف المنفذ:</span>
 									<strong class="text-primary font-bold" x-text="selected.actor_name"></strong>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<span class="text-muted d-block text-2xs">المنشأة:</span>
 									<strong class="text-primary font-bold" x-text="selected.organization_name"></strong>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<span class="text-muted d-block text-2xs">عنوان IP:</span>
 									<code class="font-mono text-secondary" x-text="selected.ip_address || 'داخلي'"></code>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<span class="text-muted d-block text-2xs">التوقيت:</span>
 									<span class="tabular-nums font-bold text-secondary" x-text="selected.created_at"></span>
 								</div>

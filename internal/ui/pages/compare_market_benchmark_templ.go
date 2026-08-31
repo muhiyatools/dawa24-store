@@ -81,7 +81,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -115,7 +115,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"cb-tab-btn\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"cb-tab-btn\">مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"cb-tab-btn active\">مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"cb-tab-btn\">تقرير ذكاء السوق</a></div></div><!-- Supplier Selector Form --><div class=\"glass-panel p-6 mb-6\"><form method=\"GET\" action=\"/compare/market-benchmark\" class=\"d-grid gap-4 items-end m-0\"><div><label class=\"form-label font-bold text-xs text-primary mb-1 d-block\">اختر ملف المورد المراد مقارنته مع السوق</label> <select name=\"file\" class=\"form-select text-xs w-full\" required><option value=\"\">-- اختر ملف المورد --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"cb-tab-btn\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"cb-tab-btn\">مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"cb-tab-btn active\">مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"cb-tab-btn\">تقرير ذكاء السوق</a></div></div><!-- Supplier Selector Form --><div class=\"glass-panel p-6 mb-6\"><form method=\"GET\" action=\"/compare/market-benchmark\" class=\"d-grid gap-4 items-end m-0\"><div class=\"stack-sm\"><label class=\"form-label font-bold text-xs text-primary mb-1 d-block\">اختر ملف المورد المراد مقارنته مع السوق</label> <select name=\"file\" class=\"form-select text-xs w-full\" required><option value=\"\">-- اختر ملف المورد --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -283,7 +283,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><div class=\"d-grid gap-3 items-end\"><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"min_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><div class=\"d-grid gap-3 items-end\"><div class=\"stack-sm\"><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"min_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -296,7 +296,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" placeholder=\"0.00\" class=\"form-input text-xs\"></div><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"max_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" placeholder=\"0.00\" class=\"form-input text-xs\"></div><div class=\"stack-sm\"><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"max_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -309,7 +309,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" placeholder=\"1000.00\" class=\"form-input text-xs\"></div><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"min_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" placeholder=\"1000.00\" class=\"form-input text-xs\"></div><div class=\"stack-sm\"><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"min_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -322,7 +322,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" placeholder=\"0%\" class=\"form-input text-xs\"></div><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"max_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" placeholder=\"0%\" class=\"form-input text-xs\"></div><div class=\"stack-sm\"><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"max_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -335,7 +335,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" placeholder=\"50%\" class=\"form-input text-xs\"></div><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">بحث بالاسم أو الكود</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" placeholder=\"50%\" class=\"form-input text-xs\"></div><div class=\"stack-sm\"><label class=\"text-xs font-bold text-muted mb-1 d-block\">بحث بالاسم أو الكود</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -812,7 +812,7 @@ func CompareMarketBenchmarkContent(data MarketBenchmarkPageData) templ.Component
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div><!-- Export Table to CSV Script --><script>\n\t\tfunction exportBenchmarkToCSV() {\n\t\t\tvar table = document.getElementById(\"market-benchmark-table\");\n\t\t\tif (!table) return;\n\t\t\tvar rows = table.querySelectorAll(\"tr\");\n\t\t\tvar csv = [];\n\t\t\tfor (var i = 0; i < rows.length; i++) {\n\t\t\t\tvar row = [], cols = rows[i].querySelectorAll(\"td, th\");\n\t\t\t\tfor (var j = 0; j < cols.length; j++) {\n\t\t\t\t\tvar data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, \" \").trim();\n\t\t\t\t\tdata = data.replace(/\"/g, '\"\"');\n\t\t\t\t\trow.push('\"' + data + '\"');\n\t\t\t\t}\n\t\t\t\tcsv.push(row.join(\",\"));\n\t\t\t}\n\t\t\tvar csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\n\t\t\tvar downloadLink = document.createElement(\"a\");\n\t\t\tdownloadLink.download = \"market_benchmark_report.csv\";\n\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\n\t\t\tdownloadLink.style.display = \"none\";\n\t\t\tdocument.body.appendChild(downloadLink);\n\t\t\tdownloadLink.click();\n\t\t\tdocument.body.removeChild(downloadLink);\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div><!-- Export Table to CSV Script --><script>\r\n\t\tfunction exportBenchmarkToCSV() {\r\n\t\t\tvar table = document.getElementById(\"market-benchmark-table\");\r\n\t\t\tif (!table) return;\r\n\t\t\tvar rows = table.querySelectorAll(\"tr\");\r\n\t\t\tvar csv = [];\r\n\t\t\tfor (var i = 0; i < rows.length; i++) {\r\n\t\t\t\tvar row = [], cols = rows[i].querySelectorAll(\"td, th\");\r\n\t\t\t\tfor (var j = 0; j < cols.length; j++) {\r\n\t\t\t\t\tvar data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, \" \").trim();\r\n\t\t\t\t\tdata = data.replace(/\"/g, '\"\"');\r\n\t\t\t\t\trow.push('\"' + data + '\"');\r\n\t\t\t\t}\r\n\t\t\t\tcsv.push(row.join(\",\"));\r\n\t\t\t}\r\n\t\t\tvar csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\r\n\t\t\tvar downloadLink = document.createElement(\"a\");\r\n\t\t\tdownloadLink.download = \"market_benchmark_report.csv\";\r\n\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\r\n\t\t\tdownloadLink.style.display = \"none\";\r\n\t\t\tdocument.body.appendChild(downloadLink);\r\n\t\t\tdownloadLink.click();\r\n\t\t\tdocument.body.removeChild(downloadLink);\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

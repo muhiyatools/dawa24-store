@@ -134,7 +134,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<!-- Breadcrumb & Quick Actions Header -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<nav class="d-flex items-center gap-2 text-xs text-muted mb-2">
 							<a href="/" class="text-secondary text-decoration-none">الرئيسية</a>
 							<span>/</span>
@@ -198,7 +198,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								</h2>
 							</div>
 							<span class="text-xs text-muted tabular-nums">
-								تاريخ الطلب: { order.CreatedAt.Format("2006-01-02 15:04") }
+								تاريخ الطلب: { order.CreatedAt.Format("2006-01-02 03:04 PM") }
 							</span>
 						</div>
 
@@ -216,7 +216,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								</div>
 								<div class="font-extrabold text-xs text-primary">تم استلام الطلب</div>
 								<div class="text-xs text-muted mt-1 tabular-nums">
-									{ order.CreatedAt.Format("15:04") }
+									{ order.CreatedAt.Format("03:04 PM") }
 								</div>
 							</div>
 
@@ -276,7 +276,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										<div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 d-flex items-center justify-center shadow-2xs">
 											@components.IconShield("icon-md")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<div class="d-flex items-center gap-2">
 												<h3 class="text-sm font-black text-emerald-950 m-0">
 													كود تأكيد الاستلام الخاص بك (Delivery PIN)
@@ -336,14 +336,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						} else {
 							<!-- Direct & Editable Order Lines Form -->
 							if order.Status == commerce.StatusPending {
-								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="main-order-lines-form">
+								<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="main-order-lines-form">
 									if len(order.Shipments) > 0 {
 										<!-- Grouped by Shipment / Vendor -->
-										<div>
+          <div class="stack-sm">
 											for idx, sh := range order.Shipments {
-												<div>
+            <div class="stack-sm">
 													<!-- Shipment Header -->
-													<div>
+             <div class="stack-sm">
 														<div class="inline-row-06">
 															<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
 															<strong>
@@ -711,7 +711,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												<span class="text-secondary font-medium">{ h.Notes }</span>
 											}
 										</div>
-										<span class="text-muted tabular-nums">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
+										<span class="text-muted tabular-nums">{ h.CreatedAt.Format("2006-01-02 03:04:05 PM") }</span>
 									</div>
 								}
 							</div>
@@ -836,7 +836,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						</div>
 
 						<div class="d-flex flex-col gap-3 text-xs">
-							<div>
+       <div class="stack-sm">
 								<div class="text-muted font-bold mb-1">فرع الصيدلية:</div>
 								<div class="text-primary font-bold">
 									if order.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
@@ -848,20 +848,20 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							if order.CustomerManagerName != "" {
-								<div>
+        <div class="stack-sm">
 									<div class="text-muted font-bold mb-1">الصيدلي المسؤول:</div>
 									<div class="text-primary font-bold">{ order.CustomerManagerName }</div>
 								</div>
 							}
 
 							if order.CustomerBranchPhone != "" {
-								<div>
+        <div class="stack-sm">
 									<div class="text-muted font-bold mb-1">هاتف الفرع:</div>
 									<div class="text-primary font-bold tabular-nums font-mono">{ order.CustomerBranchPhone }</div>
 								</div>
 							}
 
-							<div>
+       <div class="stack-sm">
 								<div class="text-muted font-bold mb-1">عنوان التوصيل المسجل:</div>
 								<div class="text-secondary leading-relaxed">
 									if order.CustomerBranchAddress != "" {

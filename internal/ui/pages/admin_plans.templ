@@ -54,12 +54,12 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			<!-- Top Header & Actions -->
 			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3">
 							<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 								@components.IconTag("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">
 									باقات واشتراكات المنظومة الموحدة
 								</h1>
@@ -178,7 +178,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 					</a>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					if data.ActiveTab == "subscriptions" {
 						<!-- TAB 2: Subscriptions Table -->
 						if len(data.Subscriptions) == 0 {
@@ -263,10 +263,10 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								for _, p := range data.Plans {
 									<div class={ "glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 transition-all d-flex flex-col justify-between", templ.KV("ring-2 ring-brand-500 shadow-md", p.IsDefault) }>
 										<!-- Card Top: Badges & Title -->
-										<div>
+          <div class="stack-sm">
 											<!-- Header Badges -->
 											<div class="flex-between items-start gap-2 mb-3">
-												<div>
+            <div class="stack-sm">
 													<div class="d-flex items-center gap-2 flex-wrap">
 														<h3 class="m-0 text-base font-black text-primary">
 															{ p.Name.Get(i18n.Lang(lang)) }
@@ -304,7 +304,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 											<!-- Pricing Display Strip -->
 											<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-3.5 mb-4 flex-between items-center">
-												<div>
+            <div class="stack-sm">
 													<div class="text-2xs text-secondary font-bold">الاشتراك الشهري</div>
 													<div class="text-lg font-black text-brand tabular-nums">
 														if p.PriceMonth.IsPositive() {
@@ -476,7 +476,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 											<!-- Secondary Action Strip: Quick Toggle, Set Default, Delete -->
 											<div class="d-flex items-center gap-2 pt-1">
 												<!-- Quick Toggle Active Status -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)) }>
+												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)) }>
 													if p.IsActive {
 														<button type="submit" class="btn btn-outline-secondary btn-xs w-full" title="تعطيل الباقة مؤقتاً">
 															<span>إيقاف الباقة</span>
@@ -490,7 +490,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Set Default Plan -->
 												if !p.IsDefault {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) }>
+													<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) }>
 														<button type="submit" class="btn btn-outline-amber btn-xs w-full d-flex items-center justify-center gap-1" title="جعلها الباقة الافتراضية">
 															@components.IconShield("icon-2xs")
 															<span>تعيين كافتراضية</span>
@@ -500,7 +500,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Delete Plan (if not default) -->
 												if !p.IsDefault {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
+													<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
 														<button type="submit" class="btn btn-outline-danger btn-xs btn-icon" title="حذف الباقة">
 															@components.IconTrash("icon-2xs text-rose-600")
 														</button>
@@ -533,28 +533,28 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						<div class="modal-body d-flex flex-col gap-4">
 							<!-- Section 1: Identity & Names -->
 							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs d-block mb-1">المعرّف الفريد (Slug) <span class="text-danger">*</span></label>
 									<input type="text" name="slug" x-model="form.slug" required class="form-input text-xs font-mono" placeholder="e.g. basic, pro, enterprise" dir="ltr" />
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs d-block mb-1">اسم الباقة (عربي) <span class="text-danger">*</span></label>
 									<input type="text" name="name_ar" x-model="form.name_ar" required class="form-input text-xs font-bold" placeholder="مثال: الباقة الاحترافية" />
 								</div>
 							</div>
 
 							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs d-block mb-1">اسم الباقة (إنجليزي)</label>
 									<input type="text" name="name_en" x-model="form.name_en" class="form-input text-xs" placeholder="e.g. Professional Plan" dir="ltr" />
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label font-bold text-xs d-block mb-1">فترة الصلاحية (أيام) <span class="text-danger">*</span></label>
 									<input type="number" name="duration_days" x-model="form.duration" class="form-input tabular-nums text-xs" min="1" required />
 								</div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label font-bold text-xs d-block mb-1">وصف الباقة ومزاياها للمشتركين</label>
 								<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input text-xs" placeholder="اكتب نبذة توضيحية عن ميزات الباقة..."></textarea>
 							</div>
@@ -567,12 +567,12 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								</div>
 
 								<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
-									<div>
+         <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">السعر الشهري (ج.م) <span class="text-danger">*</span></label>
 										<input type="number" step="0.01" min="0" name="price_month" x-model="form.price_month" class="form-input tabular-nums text-xs font-bold" placeholder="0.00" required />
 										<span class="text-2xs text-muted mt-1 d-block font-medium">ضع 0 للباقات المجانية</span>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">السعر السنوي (ج.م) <span class="text-danger">*</span></label>
 										<input type="number" step="0.01" min="0" name="price_year" x-model="form.price_year" class="form-input tabular-nums text-xs font-bold" placeholder="0.00" required />
 										<span class="text-2xs text-muted mt-1 d-block font-medium">سعر الدفع السنوي المجمع</span>
@@ -588,22 +588,22 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								</div>
 
 								<div class="d-grid grid-cols-1 md:grid-cols-3 gap-3">
-									<div>
+         <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">الجلسات المتزامنة <span class="text-danger">*</span></label>
 										<input type="number" name="max_login_sessions" x-model="form.sessions" class="form-input tabular-nums text-xs" min="1" max="500" required />
 										<span class="text-2xs text-secondary mt-1 d-block font-medium">مطبقة على إجمالي المنشأة</span>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">الأجهزة المسموح بها <span class="text-danger">*</span></label>
 										<input type="number" name="max_devices" x-model="form.devices" class="form-input tabular-nums text-xs" min="1" max="500" required />
 										<span class="text-2xs text-secondary mt-1 d-block font-medium">أقصى أجهزة مسجلة</span>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">كشوف المقارنة المسموحة <span class="text-danger">*</span></label>
 										<input type="number" name="max_compare_files" x-model="form.max_compare_files" class="form-input tabular-nums text-xs font-bold" min="0" max="500" required />
 										<span class="text-2xs text-secondary mt-1 d-block font-medium">أقصى كشوف موردين (0 لغير محدود)</span>
 									</div>
-									<div>
+         <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">صلاحية ملفات المقارنة (بالأيام) <span class="text-danger">*</span></label>
 										<input type="number" name="compare_file_retention_days" x-model="form.compare_file_retention_days" class="form-input tabular-nums text-xs font-bold" min="0" max="3650" required />
 										<span class="text-2xs text-secondary mt-1 d-block font-medium">مسح آلي بعد X يوم (0 للدائمة)</span>
@@ -636,7 +636,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 								<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-emerald-200/60 bg-emerald-50/40">
 									<input type="checkbox" name="feature_market_discounts" value="1" x-model="form.feat_market" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary d-block text-xs font-extrabold">(خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong>
 										<span class="text-2xs text-secondary font-medium">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span>
 									</div>
@@ -644,7 +644,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 								<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-indigo-200/60 bg-indigo-50/40">
 									<input type="checkbox" name="feature_compare_tool" value="1" x-model="form.feat_compare" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary d-block text-xs font-extrabold">(خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات وتحليل العروض</strong>
 										<span class="text-2xs text-secondary font-medium">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span>
 									</div>
@@ -652,7 +652,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 								<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-sky-200/60 bg-sky-50/40">
 									<input type="checkbox" name="feature_bulk_import" value="1" x-model="form.feat_import" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary d-block text-xs font-extrabold">إتاحة استيراد وتحديث الكتالوجات بالجملة (Bulk Ingest)</strong>
 										<span class="text-2xs text-secondary font-medium">معالجة وتحديث كميات وأسعار الأصناف من ملفات Excel و CSV</span>
 									</div>
@@ -660,7 +660,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 								<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-purple-200/60 bg-purple-50/40">
 									<input type="checkbox" name="feature_analytics" value="1" x-model="form.feat_analytics" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary d-block text-xs font-extrabold">إتاحة لوحة التحليلات المتقدمة والتقارير المالية</strong>
 										<span class="text-2xs text-secondary font-medium">إحصائيات تفصيلية ومؤشرات الأداء للأعمال والمبيعات</span>
 									</div>
@@ -671,7 +671,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							<div class="d-flex flex-col gap-2.5 pt-2 border-t border-slate-100">
 								<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-amber-200/60 bg-amber-50/40">
 									<input type="checkbox" name="is_default" value="1" x-model="form.is_default" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary d-block text-xs font-extrabold">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong>
 										<span class="text-2xs text-secondary font-medium">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span>
 									</div>
@@ -679,7 +679,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 								<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-slate-200/80 bg-surface-sunken">
 									<input type="checkbox" name="is_active" value="1" x-model="form.is_active" />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-primary d-block text-xs font-extrabold">الباقة نشطة ومتاحة للاشتراك والتجديد</strong>
 										<span class="text-2xs text-secondary font-medium">عند التعطيل لن يتمكن المشتركون الجدد من اختيار هذه الباقة</span>
 									</div>

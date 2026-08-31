@@ -20,7 +20,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 					<div class="user-avatar-badge">
 						@components.IconPackage("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-2xl font-black text-primary m-0">
 							إتمام أمر الشراء والتوريد
 						</h1>
@@ -61,7 +61,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 					</a>
 				</div>
 			} else {
-				<form action="/checkout" method="POST">
+				<form class="stack-md" action="/checkout" method="POST">
 					<div class="checkout-grid">
 						
 						<!-- Left Column: Address, Payment, Notes -->
@@ -74,7 +74,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 										<div class="user-avatar-badge">
 											@components.IconBuilding("icon-xs")
 										</div>
-										<div>
+          <div class="stack-sm">
 											<h2 class="text-lg font-extrabold text-primary m-0">
 												1. اختيار فرع الصيدلية المستلم للطلبية
 											</h2>
@@ -255,7 +255,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 							<!-- Security Badge -->
 							<div class="glass-panel p-3 d-flex items-center gap-3 text-xs text-muted">
 								<div class="text-brand text-lg">@components.IconShield("icon-sm")</div>
-								<div>معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow) والفواتير الإلكترونية المعتمدة.</div>
+								<div class="stack-xs text-sm">معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow) والفواتير الإلكترونية المعتمدة.</div>
 							</div>
 						</div>
 					</div>

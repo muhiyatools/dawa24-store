@@ -86,7 +86,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						<div class="user-avatar-badge text-xl">
 							@components.IconTag("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">دليل الشركات المصنعة والماركات</h1>
 							<p class="text-sm text-secondary m-0 mt-1">إدارة الشركات الدوائية المنتجة والمصنعة المعتمدة وربطها المباشر بالأصناف والمنتجات الأساسية ({ fmt.Sprintf("%d شركة", totalCount) })</p>
 						</div>
@@ -118,7 +118,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
@@ -126,7 +126,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</select>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="25" selected?={ pageSize == 25 }>25 شركة لكل صفحة</option>
 							<option value="50" selected?={ pageSize == 50 }>50 شركة لكل صفحة</option>
@@ -182,18 +182,18 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												{ item.Brand.Name.Get("ar") }
 											</div>
 											if item.Brand.Name.Get("en") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ item.Brand.Name.Get("en") }
 												</div>
 											}
 										</td>
 										<td>
 											if item.Brand.Description.Get("ar") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ item.Brand.Description.Get("ar") }
 												</div>
 											} else if item.Brand.Description.Get("en") != "" {
-												<div>
+												<div class="stack-xs text-sm">
 													{ item.Brand.Description.Get("en") }
 												</div>
 											} else {
@@ -220,7 +220,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 											}
 										</td>
 										<td class="text-end">
-											<div>
+           <div class="stack-sm">
 												<!-- Edit Trigger -->
 												<button
 													type="button"
@@ -260,13 +260,13 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								{ fmt.Sprintf("عرض %d - %d من إجمالي %d شركة مصنعة", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 							</div>
 
 							<!-- Page navigation numbers -->
-							<div>
+       <div class="stack-sm">
 								if currentPage > 1 {
 									<a
 										href={ templ.SafeURL(buildAdminBrandsPageURL(1, pageSize, searchQuery, statusFilter)) }
@@ -357,7 +357,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 							</div>
 						</div>
 				<div class="modal-footer mt-4">
-					<form method="dialog">
+					<form class="stack-md" method="dialog">
 						<button type="submit" class="btn btn-secondary font-bold">?????</button>
 					</form>
 				</div>

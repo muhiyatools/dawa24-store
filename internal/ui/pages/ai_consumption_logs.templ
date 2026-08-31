@@ -31,7 +31,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 					<div class="user-avatar-badge text-xl">
 						@components.IconSparkles("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-2xl font-black text-primary m-0">
 							سجل استهلاك وعمليات الذكاء الاصطناعي
 						</h1>
@@ -69,8 +69,8 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</div>
 
 				if data.HasBudget {
-					<div>
-						<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
+     <div class="stack-sm">
+						<div class="stack-sm" style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
 					</div>
 				}
 
@@ -193,7 +193,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 								>
 									<!-- Request ID & Timestamp -->
 									<td>
-										<div>
+          <div class="stack-sm">
 											<code dir="ltr">{ log.ID }</code>
 											<span class="tabular-nums text-xs text-muted">{ log.TimeFormatted }</span>
 										</div>
@@ -201,7 +201,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 
 									<!-- Feature Name & Context -->
 									<td>
-										<div>
+          <div class="stack-sm">
 											<strong>{ log.FeatureName }</strong>
 											if log.SourceContext != "" {
 												<span>

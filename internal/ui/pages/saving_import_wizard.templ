@@ -27,7 +27,7 @@ templ savingImportContent(view SavingImportView) {
 					<div class="user-avatar-badge text-xl">
 						@components.IconPackage("icon-sm")
 					</div>
-					<div>
+     <div class="stack-sm">
 						<h1 class="text-2xl font-black text-primary m-0">استيراد قائمة أصناف التوفير والنواقص</h1>
 						<p class="text-sm text-secondary m-0 mt-1">ارفع ملف الأدوية، وافحص المطابقة التفاعلية مع الكتالوج المركزي، وراجع الكميات والأسعار قبل الحفظ النهائي</p>
 					</div>
@@ -86,7 +86,7 @@ templ savingUploadStage(view SavingImportView) {
 			ارفع ملف أدوية الصيدلية أو منتجات التوفير بصيغة Excel (.xlsx, .xls) أو CSV.
 		</p>
 
-		<form method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
+		<form class="stack-md" method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
 			<label class="dropzone saving-dropzone" id="saving-dropzone">
 				<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" onchange="handleSavingFileSelect(this)" />
 				<div class="saving-upload-mark" aria-hidden="true"></div>
@@ -129,7 +129,7 @@ templ savingUploadStage(view SavingImportView) {
 templ savingSessionsHistoryCard(view SavingImportView) {
 	<div class="glass-panel p-0 mb-6 overflow-hidden">
 		<div class="p-4 border-b flex-between items-center">
-			<div>
+   <div class="stack-sm">
 				<h3 class="text-sm font-black text-primary m-0">سجل جلسات الاستيراد السابقة والنشطة</h3>
 				<p class="text-xs text-secondary m-0 mt-0.5">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p>
 			</div>
@@ -201,11 +201,11 @@ templ savingMappingStage(view SavingImportView) {
 	{{ sess := view.Session }}
 	<div class="card">
 		<div class="flex-between items-center mb-md">
-			<div>
+   <div class="stack-sm">
 				<h2 class="wiz-head mb-0">2. ربط الأعمدة واستراتيجية المطابقة الذكية</h2>
 				<p class="wiz-sub mb-0">الملف: <strong>{ sess.Filename }</strong> ({ fmt.Sprint(sess.TotalRows) } صف)</p>
 			</div>
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
+			<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
 				onsubmit="return confirm('هل تريد إلغاء هذه الجلسة؟');">
 				<button type="submit" class="btn btn-ghost btn-sm text-danger">إلغاء الجلسة</button>
 			</form>
@@ -213,7 +213,7 @@ templ savingMappingStage(view SavingImportView) {
 
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/map", view.ImportURL, sess.ID)) } class="stack-lg">
 			<div class="grid-2">
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">عمود اسم الدواء / الصنف <span class="text-danger">*</span></label>
 					<select name="col_name" class="form-select">
 						for i, h := range sess.Headers {
@@ -222,7 +222,7 @@ templ savingMappingStage(view SavingImportView) {
 					</select>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">عمود كود الصنف / SKU / الباركود</label>
 					<select name="col_sku" class="form-select">
 						<option value="">-- غير محدد --</option>
@@ -232,7 +232,7 @@ templ savingMappingStage(view SavingImportView) {
 					</select>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">عمود الكمية المطلوبة للتوفير</label>
 					<select name="col_qty" class="form-select">
 						<option value="">-- غير محدد (افتراضي: 1) --</option>
@@ -242,7 +242,7 @@ templ savingMappingStage(view SavingImportView) {
 					</select>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">عمود سعر الجمهور المسجل (ج.م)</label>
 					<select name="col_price" class="form-select">
 						<option value="">-- غير محدد (افتراضي: 0.00) --</option>
@@ -253,7 +253,7 @@ templ savingMappingStage(view SavingImportView) {
 				</div>
 			</div>
 
-			<div>
+   <div class="stack-sm">
 				<label class="form-label">استراتيجية المطابقة مع الكتالوج المركزي</label>
 				<select name="match_strategy" class="form-select">
 					<option value="smart_auto" selected>المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option>
@@ -267,7 +267,7 @@ templ savingMappingStage(view SavingImportView) {
 				</p>
 			</div>
 
-			<div>
+			<div class="stack-xs text-sm">
 				@WizardToggles([]WizardToggle{
 					AIToggle("use_ai", false, view.AIAvailable, view.AIUnavailableReason),
 				}, GroupAI)

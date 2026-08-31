@@ -121,7 +121,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<h2 class="text-2xl font-black text-primary m-0 mb-1">
 							إدارة الفروع ومستخدمي الصيدلية
 						</h2>
@@ -211,12 +211,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- TAB 1: Branches Network Content -->
-			<div id="cb-tab-panel-branches" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "none" }; return "block" }()) }>
+			<div class="stack-sm" id="cb-tab-panel-branches" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "none" }; return "block" }()) }>
 				<div class="cb-split-grid">
 					
 					<!-- Left Column: Existing Pharmacy Branches List -->
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-2">
 								@components.IconBuilding("icon-xs")
 								<span>فروع الصيدلية المعتمدة</span>
@@ -225,17 +225,17 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						</div>
 
 						if len(data.Branches) == 0 {
-							<div>
-								<div>@components.IconBuilding("icon-sm")</div>
-								<h3>لم تقم بإضافة فروع بعد</h3>
-								<p>أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">@components.IconBuilding("icon-sm")</div>
+								<h3 class="font-bold text-sm m-0">لم تقم بإضافة فروع بعد</h3>
+								<p class="text-sm text-secondary m-0">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
 							</div>
 						} else {
-							<div>
+       <div class="stack-sm">
 								for _, b := range data.Branches {
 									<div class="cb-branch-card">
-										<div>
-											<div>
+          <div class="stack-sm">
+           <div class="stack-sm">
 												<div class="inline-row-wrap">
 													<strong>
 														if b.Name["ar"] != "" {
@@ -296,23 +296,23 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											</div>
 										</div>
 
-										<div>
+          <div class="stack-sm">
 											if b.Address != "" {
-												<div><span class="text-muted">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
+												<div class="stack-sm"><span class="text-muted">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
 											}
 											if b.Phone != "" {
-												<div><span class="text-muted">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
+												<div class="stack-sm"><span class="text-muted">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
 											}
 											if b.OperatingHours != "" {
-												<div><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+												<div class="stack-sm"><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 											}
 										</div>
 
 										<!-- Badges Strip: Cold Storage & Staff Count -->
-										<div>
+          <div class="stack-sm">
 											<div class="inline-row-wrap">
 												<!-- Coordinates -->
-												<div>
+            <div class="stack-sm">
 													<span>الإحداثيات:</span>
 													if b.Latitude != nil && b.Longitude != nil {
 														<span class="tabular-nums fw-700">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
@@ -326,7 +326,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												}
 											</div>
 
-											<div>
+           <div class="stack-sm">
 												<!-- Assigned Staff Pill -->
 												{{ branchEmps := data.GetBranchEmployees(b.ID) }}
 												<span class="badge badge-secondary text-xs font-bold">
@@ -352,16 +352,16 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					</div>
 
 					<!-- Right Column: Unified Pharmacy Branch Form (Add / Edit Modes) -->
-					<div id="new-branch-form">
-						<div>
+					<div class="stack-sm" id="new-branch-form">
+      <div class="stack-sm">
 							<div class="inline-row-06">
-								<div>
+        <div class="stack-sm">
 									<span x-text="mode === 'edit' ? '' : ''"></span>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<h3 class="text-base fw-800 text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع صيدلية جديد'">
 									</h3>
-									<p x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية'">
+									<p class="text-sm text-secondary m-0" x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية'">
 									</p>
 								</div>
 							</div>
@@ -379,15 +379,15 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</template>
 						</div>
 
-						<form method="POST" :action="formAction">
+						<form class="stack-md" method="POST" :action="formAction">
 							<div class="grid-halves">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label label-sm-bold">
 										اسم الفرع بالعربية <span class="text-danger">*</span>
 									</label>
 									<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="صيدلية الأمل - المعادي" class="form-input input-sm w-full"/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label label-sm-bold">
 										اسم الفرع بالإنجليزية
 									</label>
@@ -396,13 +396,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 
 							<div class="grid-halves">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label label-sm-bold">
 										كود الفرع الداخلي
 									</label>
 									<input type="text" name="code" x-model="form.code" placeholder="PH-01" class="form-input input-sm tabular-nums w-full"/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label label-sm-bold">
 										المدينة / المحافظة <span class="text-danger">*</span>
 									</label>
@@ -425,7 +425,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								</div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label label-sm-bold">
 									العنوان التفصيلي <span class="text-danger">*</span>
 								</label>
@@ -433,13 +433,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 
 							<div class="grid-halves">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label label-sm-bold">
 										رقم هاتف الفرع
 									</label>
 									<input type="tel" name="phone" x-model="form.phone" placeholder="01012345678" class="form-input input-sm tabular-nums w-full"/>
 								</div>
-								<div>
+        <div class="stack-sm">
 									<label class="form-label label-sm-bold">
 										ساعات العمل
 									</label>
@@ -449,12 +449,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 							<!-- Leaflet Map Picker with Auto-Pan -->
 							<div class="stack-xs">
-								<label>
+        <label class="form-label">
 									موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)
 								</label>
-								<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357">
+								<div class="stack-sm" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357">
 									<div class="map-container map-canvas"></div>
-									<div>
+         <div class="stack-sm">
 										<span data-map-coords-badge class="tabular-nums fw-700 text-primary">30.0444, 31.2357</span>
 										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">موقعي</button>
 									</div>
@@ -463,19 +463,19 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								</div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label">
 									رابط خرائط Google (اختياري)
 								</label>
 								<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input input-sm w-full text-xs"/>
 							</div>
 
-							<div>
-								<label>
+       <div class="stack-sm">
+        <label class="form-label">
 									<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage"/>
 									<span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
 								</label>
-								<label>
+        <label class="form-label">
 									<input type="checkbox" name="is_main" value="true" x-model="form.is_main"/>
 									<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
 								</label>

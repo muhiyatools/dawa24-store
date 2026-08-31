@@ -43,7 +43,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						<div class="user-avatar-badge text-xl">
 							@components.IconPill("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								منتجات وأدوية التوفير للصيدلية
 							</h1>
@@ -83,7 +83,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</a>
 
 						if data.Stats != nil && data.Stats.CountAll > 0 {
-							<form
+							<form class="stack-md"
 								method="POST"
 								action="/customer/saving-products/delete-all"
 								onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بصيدليتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');"
@@ -223,7 +223,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 												{ it.NameProduct }
 											</div>
 											if it.SKU != "" {
-												<div>
+            <div class="stack-sm">
 													<code>{ it.SKU }</code>
 												</div>
 											}
@@ -277,7 +277,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 										<!-- Actions -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												<button
 													type="button"
 													class="btn btn-secondary btn-icon size-8"
@@ -320,7 +320,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					<input type="hidden" id="pharmacy-form-saving-id" name="id" value="" />
 					
 					<div class="modal-body d-flex flex-col gap-3">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-sm fw-700 text-primary">
 								اسم الصنف الدوائي بالصيدلية <span class="text-danger">*</span>
 							</label>
@@ -335,7 +335,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-sm fw-700 text-primary">
 									رمز SKU (اختياري)
 								</label>
@@ -348,7 +348,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-sm fw-700 text-primary">
 									الكمية المطلوبة
 								</label>
@@ -363,7 +363,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-sm fw-700 text-primary">
 								سعر الشراء الحالي / المستهدف (ج.م)
 							</label>
@@ -384,7 +384,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							
 							<input type="hidden" id="pharmacy-form-product-id" name="product_id" value="" />
 							
-							<div id="pharmacy-selected-product-box">
+							<div class="stack-sm" id="pharmacy-selected-product-box">
 								<span id="pharmacy-selected-product-label"></span>
 								<button type="button" class="btn btn-secondary btn-sm" onclick="clearPharmacySelectedProduct()">
 									إلغاء الربط 
@@ -399,7 +399,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									class="form-input w-full"
 									oninput="searchPharmacyCatalogProductsLive(this.value)"
 								/>
-								<div id="pharmacy-product-search-dropdown"></div>
+								<div class="stack-sm" id="pharmacy-product-search-dropdown"></div>
 							</div>
 						</div>
 					</div>

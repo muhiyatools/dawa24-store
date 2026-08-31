@@ -30,16 +30,16 @@ var daysOfWeek = []struct {
 
 templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) {
 	@layouts.VendorShell("نطاقات التغطية الجغرافية للعرض | Offer Locations", "offers", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			
 			<!-- Header -->
-			<div>
+   <div class="stack-sm">
 				<div class="d-flex items-center gap-2">
-					<div>
+					<div class="stack-xs text-sm">
 						@components.IconGlobe("icon-sm")
 					</div>
-					<div>
-						<div>
+     <div class="stack-sm">
+						<div class="stack-xs text-sm">
 							تغطية العرض الجغرافية
 						</div>
 						<h1 class="text-2xl fw-800 text-primary m-0">
@@ -57,24 +57,24 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 			<div class="locations-grid">
 				
 				<!-- Add New Location Coverage Form -->
-				<div>
-					<h3>
+    <div class="stack-sm">
+					<h3 class="font-bold text-sm m-0">
 						+ إضافة نطاق تغطية جغرافي جديد
 					</h3>
 
-					<form action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST">
+					<form class="stack-md" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST">
 						
 						<!-- Leaflet Map Picker with Radius Circle -->
 						<div class="stack-sm">
-							<label>
+       <label class="form-label">
 								حدد مركز ونصف قطر التغطية على الخريطة
 							</label>
 
-							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000">
+							<div class="stack-sm" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000">
 								<div class="map-container map-canvas"></div>
 
 								
-								<div>
+        <div class="stack-sm">
 									<span data-map-coords-badge>30.0444, 31.2357</span>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs">موقعي</button>
 								</div>
@@ -84,8 +84,8 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</div>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+       <div class="stack-sm">
 								<label class="form-label">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
@@ -100,7 +100,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label">
 									نصف قطر التغطية (بالمتر)
 								</label>
@@ -108,15 +108,15 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label">
 								العنوان والمنطقة المغطاة (بالعربية)
 							</label>
 							<input type="text" name="address_ar" placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس" class="form-input w-full"/>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+       <div class="stack-sm">
 								<label class="form-label">
 									يوم التوصيل
 								</label>
@@ -127,14 +127,14 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label">
 									من الساعة
 								</label>
 								<input type="time" name="time_from" value="09:00" class="form-input"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label">
 									إلى الساعة
 								</label>
@@ -150,8 +150,8 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 				</div>
 
 				<!-- Existing Locations List -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<h3 class="text-lg fw-800 text-primary m-0">
 							النطاقات المسجلة لهذا العرض
 						</h3>
@@ -161,20 +161,20 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 					</div>
 
 					if len(data.Locations) == 0 {
-						<div>
+						<div class="stack-xs text-sm">
 							لا توجد نطاقات جغرافية مضافة لهذا العرض بعد. استخدم النموذج لإضافة أول نطاق.
 						</div>
 					} else {
-						<div>
+      <div class="stack-sm">
 							for _, loc := range data.Locations {
-								<div>
-									<div>
-										<div>
+        <div class="stack-sm">
+         <div class="stack-sm">
+										<div class="stack-xs text-sm">
 											{ loc.CityName } - { loc.AddressAr }
 										</div>
-										<div>
-											<div>نصف قطر التغطية: <strong class="tabular-nums text-accent">{ fmt.Sprintf("%d م", loc.Radius) }</strong></div>
-											<div>أوقات التوصيل: { formatDayName(loc.DayOfWeek) } ({ loc.TimeFrom } - { loc.TimeTo })</div>
+          <div class="stack-sm">
+											<div class="stack-sm">نصف قطر التغطية: <strong class="tabular-nums text-accent">{ fmt.Sprintf("%d م", loc.Radius) }</strong></div>
+											<div class="stack-xs text-sm">أوقات التوصيل: { formatDayName(loc.DayOfWeek) } ({ loc.TimeFrom } - { loc.TimeTo })</div>
 										</div>
 									</div>
 

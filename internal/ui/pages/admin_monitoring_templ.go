@@ -50,7 +50,7 @@ func AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSta
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🩺</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سجلات تشخيص واستثناءات النظام (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🩺</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">سجلات تشخيص واستثناءات النظام (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -176,9 +176,9 @@ func AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSta
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(l.CreatedAt.Format("2006-01-02 15:04:05"))
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(l.CreatedAt.Format("2006-01-02 03:04:05 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 64, Col: 101}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 64, Col: 104}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -255,7 +255,7 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"card max-w-3xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">خطأ #")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"card max-w-3xl mx-auto\"><div class=\"header-row\"><div class=\"stack-sm\"><h2 class=\"card-title m-0\">خطأ #")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -307,7 +307,7 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p></div><a href=\"/admin/full-error-logs\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div><div class=\"mb-lg\"><h3>Stack Trace:</h3><pre>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p></div><a href=\"/admin/full-error-logs\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div><div class=\"mb-lg\"><h3 class=\"font-bold text-sm m-0\">Stack Trace:</h3><pre>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -450,7 +450,7 @@ func AdminSystemResourcesPage(systemName string, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ")</h2><div><div><div class=\"text-sm text-secondary\">قاعدة البيانات PostgreSQL</div><div><span class=\"badge badge-emerald\">متصل ونشط</span></div></div><div><div class=\"text-sm text-secondary\">بوابة الذكاء الاصطناعي AI Gateway</div><div><span class=\"badge badge-emerald\">جاهز للخدمة</span></div></div><div><div class=\"text-sm text-secondary\">نظام التخزين Storage S3/Local</div><div><span class=\"badge badge-emerald\">يعمل بكفاءة</span></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ")</h2><div class=\"stack-sm\"><div class=\"stack-sm\"><div class=\"text-sm text-secondary\">قاعدة البيانات PostgreSQL</div><div class=\"stack-sm\"><span class=\"badge badge-emerald\">متصل ونشط</span></div></div><div class=\"stack-sm\"><div class=\"text-sm text-secondary\">بوابة الذكاء الاصطناعي AI Gateway</div><div class=\"stack-sm\"><span class=\"badge badge-emerald\">جاهز للخدمة</span></div></div><div class=\"stack-sm\"><div class=\"text-sm text-secondary\">نظام التخزين Storage S3/Local</div><div class=\"stack-sm\"><span class=\"badge badge-emerald\">يعمل بكفاءة</span></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -498,7 +498,7 @@ func AdminFirstLookPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p>تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p class=\"text-sm text-secondary m-0\">تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

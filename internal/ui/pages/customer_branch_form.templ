@@ -70,7 +70,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 			<!-- Breadcrumb & Top Exit / Navigation Bar -->
 			<div class="glass-panel p-4 px-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<!-- Breadcrumbs -->
 						<div class="d-flex items-center gap-2 text-xs text-secondary mb-1">
 							<a href="/customer/branches" class="text-secondary text-none font-semibold">إدارة الفروع</a>
@@ -118,14 +118,14 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 				<form method="POST" action={ templ.SafeURL(formAction) } class="d-flex flex-col gap-6">
 					
 					<!-- Section 1: Basic Identity -->
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							<span class="text-brand">@components.IconBuilding("icon-sm")</span>
 							<h2 class="text-base font-extrabold text-primary m-0">1. البيانات الأساسية للفرع</h2>
 						</div>
 
 						<div class="d-grid gap-4">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع بالعربية <span class="text-danger">*</span>
 								</label>
@@ -140,7 +140,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								<span class="text-xs text-muted mt-1 d-block">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع بالإنجليزية (اختياري)
 								</label>
@@ -153,7 +153,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الفرع الداخلي
 								</label>
@@ -167,7 +167,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								<span class="text-xs text-muted mt-1 d-block">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
@@ -193,14 +193,14 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Section 2: Address & Contact -->
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							<span class="text-brand">@components.IconLocation("icon-sm")</span>
 							<h2 class="text-base font-extrabold text-primary m-0">2. العنوان وبيانات الاتصال</h2>
 						</div>
 
 						<div class="d-grid gap-4 mb-4">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									العنوان التفصيلي وموقع الاستلام <span class="text-danger">*</span>
 								</label>
@@ -217,7 +217,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 						</div>
 
 						<div class="d-grid gap-4">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم هاتف / محمول الفرع
 								</label>
@@ -233,7 +233,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Section 3: Interactive Map & Coordinates -->
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							<span class="text-brand">@components.IconLocation("icon-sm")</span>
 							<h2 class="text-base font-extrabold text-primary m-0">3. الموقع الجغرافي على الخريطة</h2>
@@ -265,7 +265,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								رابط خرائط Google (Google Maps URL)
 							</label>
@@ -281,7 +281,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Section 4: Storage & Branch Attributes -->
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							<span class="text-brand">@components.IconTag("icon-sm")</span>
 							<h2 class="text-base font-extrabold text-primary m-0">4. خصائص الفرع وحالة التشغيل</h2>
@@ -296,7 +296,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									checked?={ hasColdStorage }
 									class="mt-1"
 								/>
-								<div>
+        <div class="stack-sm">
 									<span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
 									<span class="d-block text-xs font-normal text-secondary mt-1">
 										يتيح هذا الخيار للموردين توريد الأدوية الحيوية والأنسولين واللقاحات التي تتطلب سلسلة تبريد.
@@ -312,7 +312,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									checked?={ isMain }
 									class="mt-1"
 								/>
-								<div>
+        <div class="stack-sm">
 									<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
 									<span class="d-block text-xs font-normal text-secondary mt-1">
 										سيتم تعيين هذا الفرع كفرع افتراضي عند إنشاء الطلبيات وعمليات الطلب الذكي.

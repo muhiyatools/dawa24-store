@@ -34,7 +34,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 				<!-- Header Section -->
 				<div class="glass-panel p-6 mb-6">
 					<div class="flex-between flex-wrap gap-4">
-						<div>
+      <div class="stack-sm">
 							<div class="d-flex items-center gap-3 mb-1">
 								<div class="user-avatar-badge text-xl">
 									@components.IconPackage("icon-sm")
@@ -134,7 +134,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 					</a>
 				</div>
 
-				<div id="vendor-orders-content">
+				<div class="stack-sm" id="vendor-orders-content">
 					@VendorOrdersContent(data, lang, dir)
 				</div>
 			</div>
@@ -228,7 +228,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 						
 						<!-- Destination & Contact Grid -->
 						<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border mb-5 text-sm" class="grid-auto-fit-md">
-							<div>
+       <div class="stack-sm">
 								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
 									@components.IconBuilding("icon-xs")
 									<span>الصيدلية والفرع المستلم:</span>
@@ -243,7 +243,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 								}
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
 									@components.IconTruck("icon-xs")
 									<span>عنوان التسليم الجغرافي:</span>
@@ -257,7 +257,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 								</div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
 									@components.IconPhone("icon-xs")
 									<span>مسؤول الاستلام والتواصل:</span>

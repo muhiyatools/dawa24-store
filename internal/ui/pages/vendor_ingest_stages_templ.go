@@ -50,14 +50,14 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <form class=\"stack-md\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 templ.SafeURL
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 20, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 20, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -179,7 +179,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div></div><!-- Section 3: Manual / Default Stock Quantity Setting --><div class=\"card\"><div class=\"row-center-sm gap-sm mb-2\"><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div></div><!-- Section 3: Manual / Default Stock Quantity Setting --><div class=\"card\"><div class=\"row-center-sm gap-sm mb-2\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -187,7 +187,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div><h2 class=\"wiz-head mb-0\">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2><p class=\"wiz-sub mb-0\">إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.</p></div></div><div class=\"row-center-sm gap-md flex-wrap mt-3\"><label class=\"form-label mb-0 fw-800 text-sm\">الكمية الافتراضية لكل صنف:</label> <input type=\"number\" name=\"default_quantity\" min=\"0\" placeholder=\"مثال: 50 أو 100\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div class=\"stack-sm\"><h2 class=\"wiz-head mb-0\">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2><p class=\"wiz-sub mb-0\">إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.</p></div></div><div class=\"row-center-sm gap-md flex-wrap mt-3\"><label class=\"form-label mb-0 fw-800 text-sm\">الكمية الافتراضية لكل صنف:</label> <input type=\"number\" name=\"default_quantity\" min=\"0\" placeholder=\"مثال: 50 أو 100\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -200,14 +200,14 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input tabular-nums fw-700 text-center\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input tabular-nums fw-700 text-center\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form class=\"stack-md\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 141, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 141, Col: 120}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -716,20 +716,20 @@ func importSettingsStage(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var31 templ.SafeURL
 		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/settings"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 245, Col: 100}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 245, Col: 117}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" hx-boost=\"false\"><div class=\"card\"><h2 class=\"wiz-head\">3. إعدادات الاستيراد</h2><p class=\"wiz-sub\">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p><div class=\"stack-lg\"><div><label class=\"form-label\">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class=\"text-danger\">*</span></label> <select name=\"warehouse_id\" class=\"form-input\" required><option value=\"\">— اختر المخزن —</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" hx-boost=\"false\"><div class=\"card\"><h2 class=\"wiz-head\">3. إعدادات الاستيراد</h2><p class=\"wiz-sub\">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p><div class=\"stack-lg\"><div class=\"stack-sm\"><label class=\"form-label\">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class=\"text-danger\">*</span></label> <select name=\"warehouse_id\" class=\"form-input\" required><option value=\"\">— اختر المخزن —</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1099,14 +1099,14 @@ func importSettingsStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\"></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-primary\">متابعة إلى مراجعة الأصناف ←</button></div></div></div></form><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\"></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-primary\">متابعة إلى مراجعة الأصناف ←</button></div></div></div></form><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var48 templ.SafeURL
 		templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 399, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_stages.templ`, Line: 399, Col: 113}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 		if templ_7745c5c3_Err != nil {

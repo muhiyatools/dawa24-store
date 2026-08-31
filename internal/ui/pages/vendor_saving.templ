@@ -57,7 +57,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								منتجات التوفير والمساعدة للمنشأة
 							</h1>
@@ -323,7 +323,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 										<!-- Actions (View Providers / Edit / Delete) -->
 										<td class="text-center">
-											<div >
+											<div class="stack-sm" >
 												if item.ProductID != nil && *item.ProductID > 0 {
 													<button
 														type="button"
@@ -375,7 +375,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					<div class="stack-md">
 						
 						<!-- Product Name -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-sm fw-700 text-primary">
 								اسم الصنف الدوائي للمنظمة <span class="text-danger">*</span>
 							</label>
@@ -392,7 +392,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 
 						<!-- SKU & Qty Row -->
 						<div class="grid-2">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-sm fw-700 text-primary">
 									رمز SKU (اختياري)
 								</label>
@@ -406,7 +406,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
  />
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-sm fw-700 text-primary">
 									الكمية المتوفرة
 								</label>
@@ -423,7 +423,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						</div>
 
 						<!-- Price Row -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-sm fw-700 text-primary">
 								السعر المستهدف / سعر الوحدة (ج.م)
 							</label>
@@ -492,19 +492,19 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					<div id="vendor-import-step-config" class="stack-lg">
 						
 						<!-- Dropzone -->
-						<div
+						<div class="stack-sm"
 							id="import-dropzone"
 							
 							onclick="document.getElementById('import-file-input').click()"
 						>
-							<div >@components.IconBarChart("icon-sm")</div>
+							<div class="stack-sm" >@components.IconBarChart("icon-sm")</div>
 							<strong >
 								انقر هنا لاختيار الملف أو اسحبه هنا
 							</strong>
 							<p class="text-sm text-muted m-0">
 								يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 32 ميجابايت
 							</p>
-							<div id="import-filename-preview" ></div>
+							<div class="stack-sm" id="import-filename-preview" ></div>
 
 							<input
 								type="file"
@@ -518,8 +518,8 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						</div>
 
 						<!-- Column Mapping Customizer -->
-						<div id="vendor-import-columns-panel" >
-							<div >
+						<div class="stack-sm" id="vendor-import-columns-panel" >
+							<div class="stack-sm" >
 								<div class="row-center-sm">
 									<span>@components.IconSettings("icon-sm")</span>
 									<span>تحديد وتعيين أعمدة الملف:</span>
@@ -527,12 +527,12 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 								<span class="badge badge-emerald font-size-10">تم التحديد الذكي تلقائياً </span>
 							</div>
 
-							<div id="vendor-import-columns-loading" >
+							<div class="stack-sm" id="vendor-import-columns-loading" >
 								⏳ جاري قراءة أعمدة الملف وتحليل البيانات...
 							</div>
 
 							<div id="vendor-import-columns-grid" class="grid-halves">
-								<div>
+        <div class="stack-sm">
 									<label class="form-label" >
 										عمود اسم الصنف / المنتج <span class="text-danger">*</span>
 									</label>
@@ -541,7 +541,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label" >
 										عمود كود الصنف / SKU / الباركود
 									</label>
@@ -550,7 +550,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label" >
 										عمود الكمية المطلوبة
 									</label>
@@ -559,7 +559,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 									</select>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									<label class="form-label" >
 										عمود السعر المستهدف (ج.م)
 									</label>
@@ -570,32 +570,32 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							</div>
 
 							<!-- Live Sample Preview Container -->
-							<div id="vendor-import-preview-table-container"></div>
+							<div class="stack-sm" id="vendor-import-preview-table-container"></div>
 						</div>
 
 						<!-- Match Strategy Selection -->
-						<div >
-							<label >
+						<div class="stack-sm" >
+							<label class="form-label" >
 								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
 							</label>
-							<div >
-								<label >
+							<div class="stack-sm" >
+								<label class="form-label" >
 									<input type="radio" name="vendor_match_strategy" value="smart_auto" checked  />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-body">مطابقة ذكية شاملة (موصى بها)</strong>
 										<span >الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span>
 									</div>
 								</label>
-								<label >
+								<label class="form-label" >
 									<input type="radio" name="vendor_match_strategy" value="sku_only"  />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-body">مطابقة عبر كود SKU / الباركود فقط</strong>
 										<span >المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span>
 									</div>
 								</label>
-								<label >
+								<label class="form-label" >
 									<input type="radio" name="vendor_match_strategy" value="name_only"  />
-									<div>
+         <div class="stack-sm">
 										<strong class="text-body">مطابقة عبر اسم الصنف فقط (تجاهل كود المورد الداخلي)</strong>
 										<span >مثالي إذا كان المورد يستخدم أكواد ERP داخلية خاصة تختلف عن أكواد الكتالوج العام.</span>
 									</div>
@@ -603,26 +603,26 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							</div>
 						</div>
 
-						<div >
+						<div class="stack-sm" >
 							ℹ️ <strong>معالجة آمنة في الخلفية:</strong> لن يتم حفظ أو تعديل أي صنف في قاعدة البيانات مباشرة؛ ستظهر لك نتائج المطابقة كاملة في الخطوة التالية لمراجعتها والموافقة عليها.
 						</div>
 
 					</div>
 
 					<!-- STEP 2: Real-time Background Progress -->
-					<div id="vendor-import-step-progress" >
-						<div >@components.IconZap("icon-sm")</div>
-						<h4 id="vendor-progress-phase" >
+					<div class="stack-sm" id="vendor-import-step-progress" >
+						<div class="stack-sm" >@components.IconZap("icon-sm")</div>
+						<h4 class="font-bold" id="vendor-progress-phase" >
 							جاري قراءة وفك تشفير ملف الإكسيل...
 						</h4>
-						<p id="vendor-progress-sub" >
+						<p class="text-sm text-secondary m-0" id="vendor-progress-sub" >
 							تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح
 						</p>
 
-						<div >
-							<div id="vendor-progress-bar" ></div>
+						<div class="stack-sm" >
+							<div class="stack-sm" id="vendor-progress-bar" ></div>
 						</div>
-						<div >
+						<div class="stack-sm" >
 							<span id="vendor-progress-percent">10%</span>
 							<span id="vendor-progress-counter">0 / 0 صنف</span>
 						</div>
@@ -631,27 +631,27 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					<!-- STEP 3: Staged Review & Confirmation -->
 					<div id="vendor-import-step-review"  class="stack-md">
 						<!-- Stats Summary Grid -->
-						<div >
-							<div >
-								<div >إجمالي الأصناف بالملف</div>
-								<div id="vendor-review-total-count" >0</div>
+						<div class="stack-sm" >
+							<div class="stack-sm" >
+								<div class="stack-sm" >إجمالي الأصناف بالملف</div>
+								<div class="stack-sm" id="vendor-review-total-count" >0</div>
 							</div>
-							<div >
-								<div >تم ربطها بالكتالوج</div>
-								<div id="vendor-review-matched-count" >0</div>
+							<div class="stack-sm" >
+								<div class="stack-sm" >تم ربطها بالكتالوج</div>
+								<div class="stack-sm" id="vendor-review-matched-count" >0</div>
 							</div>
-							<div >
-								<div >أصناف غير مرتبطة / جديدة</div>
-								<div id="vendor-review-unlinked-count" >0</div>
+							<div class="stack-sm" >
+								<div class="stack-sm" >أصناف غير مرتبطة / جديدة</div>
+								<div class="stack-sm" id="vendor-review-unlinked-count" >0</div>
 							</div>
-							<div >
-								<div >إجمالي الكمية المطلوبة</div>
-								<div id="vendor-review-total-qty" >0</div>
+							<div class="stack-sm" >
+								<div class="stack-sm" >إجمالي الكمية المطلوبة</div>
+								<div class="stack-sm" id="vendor-review-total-qty" >0</div>
 							</div>
 						</div>
 
 						<!-- Filter Tabs & Quick Search -->
-						<div >
+						<div class="stack-sm" >
 							<div class="row-center-sm" >
 								<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-all" onclick="filterVendorReviewTable('all')" >الكل (<span id="vendor-badge-all">0</span>)</button>
 								<button type="button" class="btn btn-sm btn-ghost" id="vendor-tab-matched" onclick="filterVendorReviewTable('matched')" >المتطابق فقط (<span id="vendor-badge-matched">0</span>)</button>
@@ -680,15 +680,15 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							</table>
 						</div>
 
-						<div >
+						<div class="stack-sm" >
 							<span>لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط "تأكيد الاستيراد والحفظ" لاعتماد البيانات.</span>
 							<span>الأصناف المحددة: <strong id="vendor-selected-count" >0</strong></span>
 						</div>
 					</div>
 
 				<!-- Fixed Sticky Footer -->
-				<div id="vendor-import-footer" >
-					<div id="vendor-footer-left">
+				<div class="stack-sm" id="vendor-import-footer" >
+					<div class="stack-sm" id="vendor-footer-left">
 						<button type="button" id="vendor-cancel-btn" class="btn btn-secondary" onclick="handleVendorImportCancelClick()">
 							إلغاء
 						</button>

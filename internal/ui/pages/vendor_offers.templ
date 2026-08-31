@@ -21,7 +21,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 			<!-- Header Action Bar -->
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconPackage("icon-sm")
@@ -35,7 +35,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 						</p>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs px-4 py-2 gap-1">
 							@components.IconPlus("icon-xs")
 							<span>إضافة عرض خاص جديد</span>
@@ -115,10 +115,10 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 				<div class="dashboard-grid-3col mb-0">
 					for _, o := range data.Offers {
 						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
-							<div>
+       <div class="stack-sm">
 								<!-- Header Strip -->
 								<div class="flex-between items-start gap-2 mb-3">
-									<div>
+         <div class="stack-sm">
 										<h3 class="text-base font-extrabold text-primary m-0">
 											{ o.Title.Get(i18n.Lang(lang)) }
 										</h3>
@@ -129,7 +129,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 										}
 									</div>
 
-									<div>
+         <div class="stack-sm">
 										if o.Status == "active" {
 											<span class="badge badge-emerald text-xs font-bold">نشط</span>
 										} else if o.Status == "draft" {
@@ -149,7 +149,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 								<!-- Pricing & Products Summary Pill -->
 								<div class="p-3 rounded-lg bg-surface-sunken border mb-4">
 									<div class="flex-between items-baseline">
-										<div>
+          <div class="stack-sm">
 											<span class="text-xs text-muted font-bold d-block">نسبة الخصم:</span>
 											<span class="text-lg font-black text-brand tabular-nums">
 												{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }

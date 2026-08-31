@@ -47,7 +47,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<div class="user-avatar-badge text-2xl">
 							@components.IconMapPin("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								شبكة الفروع والمخازن المركزية
 							</h1>
@@ -57,7 +57,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<button
 							type="button"
 							class="btn btn-primary font-bold text-xs px-4 py-2 gap-2"
@@ -149,7 +149,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								>
 									<!-- Card Header -->
 									<div class="flex-between items-start gap-3 flex-wrap">
-										<div>
+          <div class="stack-sm">
 											<div class="d-flex items-center gap-2">
 												<h3 class="text-base font-black text-primary m-0">
 													{ b.Name.Get(i18n.Lang(lang)) }
@@ -181,11 +181,11 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 									<!-- Card Details Grid -->
 									<div class="d-grid grid-cols-2 gap-2 text-xs bg-surface-sunken p-3 rounded-xl border">
-										<div>
+          <div class="stack-sm">
 											<strong class="text-muted d-block text-xs mb-0.5">العنوان والمقر:</strong>
 											<span class="text-primary font-bold">{ b.Address }</span>
 										</div>
-										<div>
+          <div class="stack-sm">
 											<strong class="text-muted d-block text-xs mb-0.5">مدير الفرع:</strong>
 											if b.ManagerName != "" {
 												<span class="text-brand font-bold">{ b.ManagerName }</span>
@@ -193,7 +193,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 												<span class="text-muted">غير محدد</span>
 											}
 										</div>
-										<div>
+          <div class="stack-sm">
 											<strong class="text-muted d-block text-xs mb-0.5">سلسلة التبريد:</strong>
 											if b.HasColdStorage {
 												<span class="badge badge-emerald text-xs font-bold">مبرد (2° - 8° مئوية)</span>
@@ -201,7 +201,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 												<span class="text-secondary">تخزين جاف عادي</span>
 											}
 										</div>
-										<div>
+          <div class="stack-sm">
 											<strong class="text-muted d-block text-xs mb-0.5">المساحة التخزينية:</strong>
 											<span class="tabular-nums font-bold text-primary">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</span>
 										</div>
@@ -209,7 +209,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 									<!-- Institutional Works Tags -->
 									if len(b.InstitutionalWorks) > 0 {
-										<div>
+          <div class="stack-sm">
 											<div class="text-xs font-bold text-muted uppercase mb-1">
 												الأعمال المؤسسية المغطاة:
 											</div>
@@ -269,7 +269,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<div class="flex-between items-center pb-3 border-b">
 						<div class="d-flex items-center gap-2">
 							<span class="text-xl" x-text="mode === 'edit' ? '' : ''"></span>
-							<div>
+       <div class="stack-sm">
 								<h2 class="text-base font-black text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'">
 								</h2>
 								<p class="text-xs text-secondary m-0 mt-0.5" x-text="mode === 'edit' ? 'تحديث وتعديل بيانات الفرع المحدد وموقعه الجغرافي' : 'أدخل بيانات الفرع أو المستودع وموقعه لإضافته لشبكتك'">
@@ -294,14 +294,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						
 						<!-- Section 1: Names & Code -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع (بالعربية) <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input text-xs w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع (بالإنجليزية) <span class="text-danger">*</span>
 								</label>
@@ -310,14 +310,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الفرع (Branch Code)
 								</label>
 								<input type="text" name="code" x-model="form.code" placeholder="مثال: BR-CAI-01" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									نوع المنشأة اللوجستية <span class="text-danger">*</span>
 								</label>
@@ -352,7 +352,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 
 						<!-- Google Maps URL Input -->
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								رابط خرائط Google (Google Maps URL)
 							</label>
@@ -361,7 +361,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 						<!-- Section 3: City, Address, Manager -->
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
@@ -379,7 +379,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								</select>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									مدير الفرع المسؤول
 								</label>
@@ -396,7 +396,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								العنوان التفصيلي <span class="text-danger">*</span>
 							</label>
@@ -404,14 +404,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم هاتف الفرع
 								</label>
 								<input type="tel" name="phone" x-model="form.phone" placeholder="010XXXXXXXX" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المساحة التخزينية (م²)
 								</label>

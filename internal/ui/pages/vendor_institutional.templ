@@ -15,7 +15,7 @@ templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir stri
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconBank("icon-sm")
@@ -76,7 +76,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 			<!-- Header & Action Bar -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconGlobe("icon-sm")
@@ -126,12 +126,12 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 			<!-- Filter Bar -->
 			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action="/vendor/pharmacy-coverage" class="d-grid gap-3 items-end">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold text-secondary mb-1">البحث بالاسم أو العنوان أو الهاتف</label>
 						<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder="اسم الصيدلية / الفرع / العنوان..." />
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold text-secondary mb-1">يوم التوصيل</label>
 						<select name="day" class="form-select text-xs w-full">
 							<option value="">كافة الأيام</option>
@@ -146,7 +146,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold text-secondary mb-1">فرع التوزيع</label>
 						<select name="branch" class="form-select text-xs w-full">
 							<option value="">كافة الفروع</option>
@@ -156,7 +156,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label text-xs font-bold text-secondary mb-1">المدينة / المنطقة</label>
 						<select name="city" class="form-select text-xs w-full">
 							<option value="">كافة المدن</option>
@@ -205,7 +205,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 												<div class="user-avatar-badge text-xs font-black">
 													@components.IconBuilding("icon-sm")
 												</div>
-												<div>
+            <div class="stack-sm">
 													<div class="font-extrabold text-primary text-sm">
 														if p.PharmacyTradeName != "" {
 															{ p.PharmacyTradeName }
@@ -235,7 +235,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 											</div>
 										</td>
 										<td>
-											<div>
+           <div class="stack-sm">
 												<div class="font-bold text-primary text-xs">{ p.CoveringBranchName }</div>
 												<div class="text-xs text-brand font-bold mt-1">
 													if p.DistanceKM > 0 {

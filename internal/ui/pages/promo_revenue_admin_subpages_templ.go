@@ -50,7 +50,7 @@ func AdminOfferPackagesListPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">باقات العروض للموردين</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحديد باقات الاشتراك والتثبيت الترويجي المتاحة للموردين</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">باقات العروض للموردين</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحديد باقات الاشتراك والتثبيت الترويجي المتاحة للموردين</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -183,7 +183,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.SponsorshipR
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">مراجعة طلبات الرعاية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اعتماد أو رفض طلبات الرعاية المُقدّمة من الموردين. عند الاعتماد يظهر العنصر في صدارة الكتالوج مع وسم معتمد.</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">مراجعة طلبات الرعاية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">اعتماد أو رفض طلبات الرعاية المُقدّمة من الموردين. عند الاعتماد يظهر العنصر في صدارة الكتالوج مع وسم معتمد.</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -446,7 +446,7 @@ func AdminOfferPromotionsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">الحملات الترويجية المخصصة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إدارة الحملات الترويجية الموجهة حسب المحافظات والقطاعات الجغرافية</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">الحملات الترويجية المخصصة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إدارة الحملات الترويجية الموجهة حسب المحافظات والقطاعات الجغرافية</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -510,7 +510,7 @@ func AdminAdsListPage(lang, dir string, ads []*promo.Ad) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">الإعلانات والبنرات الترويجية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">مراجعة واعتماد بنرات الموردين على الصفحة الرئيسية وصفحات الأقسام</p></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/ad-plan\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">الإعلانات والبنرات الترويجية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">مراجعة واعتماد بنرات الموردين على الصفحة الرئيسية وصفحات الأقسام</p></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/ad-plan\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -773,7 +773,7 @@ func AdminAdPlansPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div><h1 class=\"text-xl font-black text-primary m-0\">خطط ومواضع الإعلانات</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحديد تسعير ومواضع الإعلانات والبنرات ومدة ظهور كل مساحة ترويجية</p></div><a href=\"/admin/ads\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">خطط ومواضع الإعلانات</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحديد تسعير ومواضع الإعلانات والبنرات ومدة ظهور كل مساحة ترويجية</p></div><a href=\"/admin/ads\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

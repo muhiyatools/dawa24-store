@@ -53,7 +53,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }\" class=\"page-container\"><!-- Header & Action Bar --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }\" class=\"page-container\"><!-- Header & Action Bar --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -155,7 +155,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div><strong class=\"text-primary text-sm font-extrabold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"stack-sm\"><strong class=\"text-primary text-sm font-extrabold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -227,14 +227,14 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 						return templ_7745c5c3_Err
 					}
 					if w.Address != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"stack-xs text-sm\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(w.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 125, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 125, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -364,7 +364,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div><h3 class=\"text-base font-black text-primary m-0\">إضافة مخزن / مركز تخزين جديد</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p></div></div><button type=\"button\" @click=\"showAddModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">إضافة مخزن / مركز تخزين جديد</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p></div></div><button type=\"button\" @click=\"showAddModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -372,7 +372,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div><form method=\"POST\" action=\"/vendor/warehouses\" class=\"d-flex flex-col gap-4 m-0\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">اسم المخزن <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" required class=\"form-input text-xs font-semibold w-full\" placeholder=\"مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">كود المخزن (اختياري)</label> <input type=\"text\" name=\"code\" class=\"form-input text-xs font-mono w-full\" placeholder=\"WH-01\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الفرع التوزيعي المرتبط</label> <select name=\"branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"\">بدون فرع محدد (مخزن عام رئيسي)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div><form method=\"POST\" action=\"/vendor/warehouses\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">اسم المخزن <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" required class=\"form-input text-xs font-semibold w-full\" placeholder=\"مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">كود المخزن (اختياري)</label> <input type=\"text\" name=\"code\" class=\"form-input text-xs font-mono w-full\" placeholder=\"WH-01\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الفرع التوزيعي المرتبط</label> <select name=\"branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"\">بدون فرع محدد (مخزن عام رئيسي)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -441,7 +441,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" class=\"form-input text-xs w-full\" placeholder=\"المنطقة الصناعية، القطعة 14، القاهرة\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رقم الهاتف والتواصل</label> <input type=\"text\" name=\"phone\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"01012345678\"></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"showAddModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">حفظ وتفعيل المخزن</button></div></form></div></div><!-- Edit Warehouse Modal --><div x-show=\"editModal\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs\" @keydown.escape.window=\"editModal = false\"><div @click.outside=\"editModal = false\" class=\"glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" class=\"form-input text-xs w-full\" placeholder=\"المنطقة الصناعية، القطعة 14، القاهرة\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رقم الهاتف والتواصل</label> <input type=\"text\" name=\"phone\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"01012345678\"></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"showAddModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">حفظ وتفعيل المخزن</button></div></form></div></div><!-- Edit Warehouse Modal --><div x-show=\"editModal\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs\" @keydown.escape.window=\"editModal = false\"><div @click.outside=\"editModal = false\" class=\"glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -449,7 +449,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><div><h3 class=\"text-base font-black text-primary m-0\">تعديل بيانات المخزن</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">تحديث معلومات وبيانات موقع التخزين</p></div></div><button type=\"button\" @click=\"editModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">تعديل بيانات المخزن</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">تحديث معلومات وبيانات موقع التخزين</p></div></div><button type=\"button\" @click=\"editModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -457,7 +457,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button></div><form :action=\"'/vendor/warehouses/' + editWh.id\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">اسم المخزن <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" x-model=\"editWh.name\" required class=\"form-input text-xs font-semibold w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">كود المخزن</label> <input type=\"text\" name=\"code\" x-model=\"editWh.code\" class=\"form-input text-xs font-mono w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الفرع التوزيعي المرتبط</label> <select name=\"branch_id\" x-model=\"editWh.branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"0\">بدون فرع محدد (مخزن رئيسي)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button></div><form :action=\"'/vendor/warehouses/' + editWh.id\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">اسم المخزن <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" x-model=\"editWh.name\" required class=\"form-input text-xs font-semibold w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">كود المخزن</label> <input type=\"text\" name=\"code\" x-model=\"editWh.code\" class=\"form-input text-xs font-mono w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الفرع التوزيعي المرتبط</label> <select name=\"branch_id\" x-model=\"editWh.branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"0\">بدون فرع محدد (مخزن رئيسي)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -526,7 +526,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" x-model=\"editWh.address\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رقم الهاتف والتواصل</label> <input type=\"text\" name=\"phone\" x-model=\"editWh.phone\" class=\"form-input text-xs tabular-nums w-full\"></div><div><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"editWh.is_active\" class=\"form-checkbox\"> <span>المخزن مفعل ونشط لإدارة المخزون</span></label></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"editModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">حفظ التغييرات</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" x-model=\"editWh.address\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رقم الهاتف والتواصل</label> <input type=\"text\" name=\"phone\" x-model=\"editWh.phone\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"editWh.is_active\" class=\"form-checkbox\"> <span>المخزن مفعل ونشط لإدارة المخزون</span></label></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"editModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">حفظ التغييرات</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -740,7 +740,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<!-- Warehouse Header Profile Card --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-start flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-2 flex-wrap\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<!-- Warehouse Header Profile Card --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-start flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-2 flex-wrap\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -748,7 +748,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div><div><div class=\"d-flex items-center gap-3 flex-wrap\"><h1 class=\"text-2xl font-black text-primary m-0\">مخزن ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 flex-wrap\"><h1 class=\"text-2xl font-black text-primary m-0\">مخزن ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -964,7 +964,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" class=\"d-flex flex-col gap-3\" hx-boost=\"false\"><div class=\"d-grid gap-3 items-end\"><!-- Search Query --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">البحث في أصناف المخزن</label><div class=\"position-relative\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" class=\"d-flex flex-col gap-3\" hx-boost=\"false\"><div class=\"d-grid gap-3 items-end\"><!-- Search Query --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">البحث في أصناف المخزن</label><div class=\"position-relative\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -977,7 +977,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" class=\"form-input text-xs w-full\" placeholder=\"ابحث باسم الدواء، الكود SKU، الباركود، رقم التشغيلة...\"></div></div><!-- Stock Status Filter --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الرصيد</label> <select name=\"stock_status\" class=\"form-select text-xs w-full\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" class=\"form-input text-xs w-full\" placeholder=\"ابحث باسم الدواء، الكود SKU، الباركود، رقم التشغيلة...\"></div></div><!-- Stock Status Filter --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الرصيد</label> <select name=\"stock_status\" class=\"form-select text-xs w-full\"><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1017,7 +1017,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ">نفد من الرصيد (0)</option></select></div><!-- Expiry Status Filter --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الصلاحية</label> <select name=\"expiry_status\" class=\"form-select text-xs w-full\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ">نفد من الرصيد (0)</option></select></div><!-- Expiry Status Filter --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الصلاحية</label> <select name=\"expiry_status\" class=\"form-select text-xs w-full\"><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1047,7 +1047,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, ">منتهي الصلاحية</option></select></div><!-- Sort Selector --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">الترتيب حسب</label> <select name=\"sort\" class=\"form-select text-xs w-full\"><option value=\"updated_desc\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, ">منتهي الصلاحية</option></select></div><!-- Sort Selector --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">الترتيب حسب</label> <select name=\"sort\" class=\"form-select text-xs w-full\"><option value=\"updated_desc\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1138,7 +1138,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</div></div></form></div><!-- Inventory Data Table Section --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center flex-wrap gap-2\"><div><h2 class=\"text-base font-extrabold text-primary m-0\">سجل الأرصدة والمخزون الفعلي</h2><p class=\"text-xs text-secondary m-0 mt-1\">عرض تفصيلي لبيانات الأدوية، التشغيلات، تواريخ الصلاحية، وأسعار التوريد</p></div><div class=\"badge badge-slate text-xs font-black tabular-nums\">إجمالي النتائج: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "</div></div></form></div><!-- Inventory Data Table Section --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center flex-wrap gap-2\"><div class=\"stack-sm\"><h2 class=\"text-base font-extrabold text-primary m-0\">سجل الأرصدة والمخزون الفعلي</h2><p class=\"text-xs text-secondary m-0 mt-1\">عرض تفصيلي لبيانات الأدوية، التشغيلات، تواريخ الصلاحية، وأسعار التوريد</p></div><div class=\"badge badge-slate text-xs font-black tabular-nums\">إجمالي النتائج: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1520,7 +1520,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 							return templ_7745c5c3_Err
 						}
 					} else if s.Quantity <= s.MinThreshold {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 163, "<div><span class=\"badge badge-amber text-xs font-black tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 163, "<div class=\"stack-sm\"><span class=\"badge badge-amber text-xs font-black tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1794,7 +1794,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 194, "</div><!-- Quick Stock Adjustment Modal --><div x-show=\"adjustModal\" x-cloak @keydown.escape.window=\"adjustModal = false\" @click.self=\"adjustModal = false\"><div class=\"glass-panel p-6\"><div class=\"flex-between items-center mb-4 pb-2 border-b\"><div><h3 class=\"text-base font-black text-primary m-0\">تعديل رصيد الصنف بالمخزن</h3><p class=\"text-xs text-secondary m-0 mt-1\">تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً</p></div><button type=\"button\" @click=\"adjustModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">&times;</button></div><form :action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 194, "</div><!-- Quick Stock Adjustment Modal --><div class=\"stack-sm\" x-show=\"adjustModal\" x-cloak @keydown.escape.window=\"adjustModal = false\" @click.self=\"adjustModal = false\"><div class=\"glass-panel p-6\"><div class=\"flex-between items-center mb-4 pb-2 border-b\"><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">تعديل رصيد الصنف بالمخزن</h3><p class=\"text-xs text-secondary m-0 mt-1\">تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً</p></div><button type=\"button\" @click=\"adjustModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">&times;</button></div><form :action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1807,7 +1807,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "\" method=\"POST\" class=\"d-flex flex-col gap-4\"><!-- Product Summary Header --><div class=\"p-3 bg-surface-sunken rounded-lg border\"><div class=\"text-xs text-muted font-bold mb-1\">الصنف المختار:</div><div class=\"font-extrabold text-primary text-sm\" x-text=\"adjustStock.name\"></div><div class=\"d-flex gap-3 mt-1 text-xs text-secondary\" x-show=\"adjustStock.batch\"><span>رقم التشغيلة: <strong class=\"text-primary tabular-nums\" x-text=\"adjustStock.batch\"></strong></span></div></div><!-- Current vs New Quantity --><div class=\"d-grid gap-3\" class=\"grid-cols-2\"><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">الرصيد الحالي بالمخزن</label><div class=\"form-input text-center font-black tabular-nums text-muted bg-surface-sunken text-sm flex-center\" x-text=\"adjustStock.qty + ' عبوة'\"></div></div><div><label class=\"form-label text-xs font-bold text-brand mb-1\">الرصيد الفعلي الجديد <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"new_quantity\" min=\"0\" required class=\"form-input text-center font-black tabular-nums text-sm w-full\" :value=\"adjustStock.qty\" placeholder=\"0\"></div></div><!-- Reason for Adjustment --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">سبب التسوية / التعديل <span class=\"text-danger\">*</span></label> <select name=\"reason\" class=\"form-select text-xs w-full\" required><option value=\"جرد دوري ومطابقة فعلية\">جرد دوري ومطابقة فعلية</option> <option value=\"استلام شحنة إضافية / توريد\">استلام شحنة إضافية / توريد</option> <option value=\"تسوية تلفيات أو إرجاع مورد\">تسوية تلفيات أو إرجاع مورد</option> <option value=\"تصحيح خطأ في إدخال الرصيد السابق\">تصحيح خطأ في إدخال الرصيد السابق</option> <option value=\"تسوية أخرى\">تسوية أخرى</option></select></div><div class=\"d-flex items-center justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary text-xs\" @click=\"adjustModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold\">حفظ وتحديث الرصيد فورياً</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "\" method=\"POST\" class=\"d-flex flex-col gap-4\"><!-- Product Summary Header --><div class=\"p-3 bg-surface-sunken rounded-lg border\"><div class=\"text-xs text-muted font-bold mb-1\">الصنف المختار:</div><div class=\"font-extrabold text-primary text-sm\" x-text=\"adjustStock.name\"></div><div class=\"d-flex gap-3 mt-1 text-xs text-secondary\" x-show=\"adjustStock.batch\"><span>رقم التشغيلة: <strong class=\"text-primary tabular-nums\" x-text=\"adjustStock.batch\"></strong></span></div></div><!-- Current vs New Quantity --><div class=\"d-grid gap-3\" class=\"grid-cols-2\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">الرصيد الحالي بالمخزن</label><div class=\"form-input text-center font-black tabular-nums text-muted bg-surface-sunken text-sm flex-center\" x-text=\"adjustStock.qty + ' عبوة'\"></div></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-brand mb-1\">الرصيد الفعلي الجديد <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"new_quantity\" min=\"0\" required class=\"form-input text-center font-black tabular-nums text-sm w-full\" :value=\"adjustStock.qty\" placeholder=\"0\"></div></div><!-- Reason for Adjustment --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">سبب التسوية / التعديل <span class=\"text-danger\">*</span></label> <select name=\"reason\" class=\"form-select text-xs w-full\" required><option value=\"جرد دوري ومطابقة فعلية\">جرد دوري ومطابقة فعلية</option> <option value=\"استلام شحنة إضافية / توريد\">استلام شحنة إضافية / توريد</option> <option value=\"تسوية تلفيات أو إرجاع مورد\">تسوية تلفيات أو إرجاع مورد</option> <option value=\"تصحيح خطأ في إدخال الرصيد السابق\">تصحيح خطأ في إدخال الرصيد السابق</option> <option value=\"تسوية أخرى\">تسوية أخرى</option></select></div><div class=\"d-flex items-center justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary text-xs\" @click=\"adjustModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold\">حفظ وتحديث الرصيد فورياً</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

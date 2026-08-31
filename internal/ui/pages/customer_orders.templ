@@ -31,7 +31,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 			<div class="page-container">
 				<!-- Header Section -->
 				<div class="page-header-block mb-6">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-1">
 							<h1 class="text-2xl font-black text-primary m-0">
 								سجل طلبيات وأوامر التوريد
@@ -105,7 +105,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 				</div>
 
 				<!-- Orders List Container -->
-				<div id="orders-list">
+				<div class="stack-sm" id="orders-list">
 					@CustomerOrdersList(orders, lang)
 				</div>
 			</div>
@@ -194,7 +194,7 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 						<div class="order-card-meta">
 							<span class="d-flex items-center gap-1">
 								<span>@components.IconClock("icon-sm")</span>
-								<span class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 15:04") }</span>
+								<span class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 03:04 PM") }</span>
 							</span>
 							if o.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 								<span class="d-flex items-center gap-1">

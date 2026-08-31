@@ -56,7 +56,7 @@ func AdminProductsImportMapping(lang, dir string, view ImportMappingView) templ.
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🧭</div><div><h1 class=\"text-2xl font-black text-primary m-0\">مراجعة الأعمدة قبل المعالجة</h1><p class=\"text-sm text-secondary m-0 mt-1\">تأكد من أن كل عمود في الملف مربوط بالحقل الصحيح، وراجع عيّنة من الأصناف كما ستُقرأ فعلياً</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products/import\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🧭</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">مراجعة الأعمدة قبل المعالجة</h1><p class=\"text-sm text-secondary m-0 mt-1\">تأكد من أن كل عمود في الملف مربوط بالحقل الصحيح، وراجع عيّنة من الأصناف كما ستُقرأ فعلياً</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products/import\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +78,7 @@ func AdminProductsImportMapping(lang, dir string, view ImportMappingView) templ.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<form method=\"POST\" hx-boost=\"false\" id=\"mapping-form\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<form class=\"stack-md\" method=\"POST\" hx-boost=\"false\" id=\"mapping-form\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -310,7 +310,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b\"><div><h2 class=\"text-xl font-black text-primary m-0\">ربط وتعيين أعمدة الملف</h2><p class=\"text-xs text-secondary m-0 mt-1\">تم تقسيم الحقول إلى 3 أقسام منظمة لتسهيل المراجعة: الحقول الأساسية، المواصفات الدوائية، وبيانات الأسعار والمخزون.</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b\"><div class=\"stack-sm\"><h2 class=\"text-xl font-black text-primary m-0\">ربط وتعيين أعمدة الملف</h2><p class=\"text-xs text-secondary m-0 mt-1\">تم تقسيم الحقول إلى 3 أقسام منظمة لتسهيل المراجعة: الحقول الأساسية، المواصفات الدوائية، وبيانات الأسعار والمخزون.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -52,14 +52,14 @@ templ Modal(props ModalProps) {
 					if props.Icon != "" {
 						<span class="text-primary">@Icon(props.Icon, "icon-sm")</span>
 					}
-					<div>
+     <div class="stack-sm">
 						<h3 class="modal-title" id={ props.ID + "-title" }>{ props.Title }</h3>
 						if props.Subtitle != "" {
 							<p class="text-xs text-muted mt-0.5 m-0">{ props.Subtitle }</p>
 						}
 					</div>
 				</div>
-				<form method="dialog">
+				<form class="stack-md" method="dialog">
 					<button type="button" class="modal-close" aria-label="إغلاق">
 						@IconClose("icon-sm")
 					</button>
@@ -110,7 +110,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 					}
 					<h3 class="modal-title" id={ props.ID + "-title" }>{ props.Title }</h3>
 				</div>
-				<form method="dialog">
+				<form class="stack-md" method="dialog">
 					<button type="button" class="modal-close" aria-label="إغلاق">
 						@IconClose("icon-sm")
 					</button>
@@ -131,7 +131,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 							autocomplete="off"
 						/>
 						<div class="modal-footer mt-4">
-							<form method="dialog">
+							<form class="stack-md" method="dialog">
 								<button type="submit" class="btn btn-secondary font-bold">
 									if props.CancelText != "" {
 										{ props.CancelText }
@@ -169,7 +169,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 					</div>
 				} else {
 					<div class="modal-footer mt-4">
-						<form method="dialog">
+						<form class="stack-md" method="dialog">
 							<button type="submit" class="btn btn-secondary font-bold">
 								if props.CancelText != "" {
 									{ props.CancelText }

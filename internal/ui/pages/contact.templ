@@ -10,54 +10,54 @@ templ ContactPage(lang, dir string, submitted bool) {
 		<div class="contact-page-container">
 			
 			<!-- Page Header -->
-			<div>
-				<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
 					@components.IconPhone("icon-xs")
 					<span>مركز التواصل وخدمة الشركاء</span>
 				</div>
-				<h1>
+				<h1 class="page-title font-bold text-xl m-0">
 					تواصل مع فريق دواء 24
 				</h1>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					فريق الدعم الفني والخدمات الصيدلانية متاح للإجابة على استفسارات الصيدليات والموردين على مدار الساعة.
 				</p>
 			</div>
 
 			if submitted {
-				<div>
+    <div class="stack-sm">
 					@components.IconCheckCircle("icon-md")
-					<div>
+     <div class="stack-sm">
 						<strong>تم إرسال رسالتك بنجاح!</strong>
 						<span class="text-sm text-secondary">سيتواصل معك ممثل خدمة العملاء المختص خلال أقرب وقت ممكن.</span>
 					</div>
 				</div>
 			}
 
-			<div>
+   <div class="stack-sm">
 				
 				<!-- Left: Direct Contact Channels & Headquarters Info -->
 				<div class="stack-lg">
 					
 					<!-- Direct Hotline Card -->
 					<div class="card mb-0">
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								@components.IconPhone("icon-sm")
 							</div>
-							<div>
-								<div>الخط الساخن للمبيعات والطلبيات</div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">الخط الساخن للمبيعات والطلبيات</div>
 								<a href="tel:01065397000" class="tabular-nums">
 									01065397000
 								</a>
 							</div>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								@components.IconWhatsApp("icon-sm")
 							</div>
 							<div class="flex-1">
-								<div>محادثة واتساب للطلبيات العاجلة</div>
+								<div class="stack-xs text-sm">محادثة واتساب للطلبيات العاجلة</div>
 								<a href="https://wa.me/201065397000" target="_blank" rel="noopener">
 									تحدث مباشرة مع مسؤول التوزيع ←
 								</a>
@@ -67,37 +67,37 @@ templ ContactPage(lang, dir string, submitted bool) {
 
 					<!-- Email & Support Hours Card -->
 					<div class="card mb-0">
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								@components.IconMail("icon-xs")
 							</div>
-							<div>
-								<div>البريد الإلكتروني المعتمد</div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">البريد الإلكتروني المعتمد</div>
 								<a href="mailto:support@dawa24.com">
 									support@dawa24.com
 								</a>
 							</div>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								@components.IconBuilding("icon-xs")
 							</div>
-							<div>
-								<div>المقر الرئيسي</div>
-								<div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">المقر الرئيسي</div>
+								<div class="stack-xs text-sm">
 									القاهرة، جمهورية مصر العربية
 								</div>
 							</div>
 						</div>
 
-						<div>
-							<div>
+      <div class="stack-sm">
+							<div class="stack-xs text-sm">
 								@components.IconClock("icon-xs")
 							</div>
-							<div>
-								<div>ساعات العمل والدعم</div>
-								<div>
+       <div class="stack-sm">
+								<div class="stack-xs text-sm">ساعات العمل والدعم</div>
+								<div class="stack-xs text-sm">
 									الدعم الفني متاح 24/7 للصيدليات والمخازن
 								</div>
 							</div>
@@ -107,7 +107,7 @@ templ ContactPage(lang, dir string, submitted bool) {
 
 				<!-- Right: Contact Form Card -->
 				<div class="card mb-0">
-					<h3>
+					<h3 class="font-bold text-sm m-0">
 						أرسل استفسارك أو طلبك
 					</h3>
 

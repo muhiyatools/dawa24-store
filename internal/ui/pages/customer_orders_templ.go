@@ -68,7 +68,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 						activeCount++
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Section --><div class=\"page-header-block mb-6\"><div><div class=\"d-flex items-center gap-2 mb-1\"><h1 class=\"text-2xl font-black text-primary m-0\">سجل طلبيات وأوامر التوريد</h1><span class=\"badge badge-primary text-xs tabular-nums font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Section --><div class=\"page-header-block mb-6\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-2 mb-1\"><h1 class=\"text-2xl font-black text-primary m-0\">سجل طلبيات وأوامر التوريد</h1><span class=\"badge badge-primary text-xs tabular-nums font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -151,7 +151,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><!-- Search input --><div class=\"position-relative min-w-0\"><input type=\"text\" id=\"order-search-input\" placeholder=\"بحث برقم الطلب...\" onkeyup=\"searchOrders(this.value)\" class=\"form-input form-input-sm ps-6\"></div></div><!-- Orders List Container --><div id=\"orders-list\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><!-- Search input --><div class=\"position-relative min-w-0\"><input type=\"text\" id=\"order-search-input\" placeholder=\"بحث برقم الطلب...\" onkeyup=\"searchOrders(this.value)\" class=\"form-input form-input-sm ps-6\"></div></div><!-- Orders List Container --><div class=\"stack-sm\" id=\"orders-list\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
