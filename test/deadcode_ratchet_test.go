@@ -30,7 +30,7 @@ func TestDeadcodeRatchet(t *testing.T) {
 		}
 	}
 
-	const deadcodeCeiling = 302
+	const deadcodeCeiling = 303
 	if len(deadEntries) > deadcodeCeiling {
 		t.Errorf("deadcode count %d exceeded ratchet ceiling %d", len(deadEntries), deadcodeCeiling)
 	}

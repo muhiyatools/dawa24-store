@@ -222,7 +222,7 @@ func Modal(props ModalProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><form method=\"dialog\"><button class=\"modal-close\" aria-label=\"إغلاق\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><form method=\"dialog\"><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -369,7 +369,7 @@ func ConfirmModal(props ConfirmModalProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</h3></div><form method=\"dialog\"><button class=\"modal-close\" aria-label=\"إغلاق\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</h3></div><form method=\"dialog\"><button type=\"button\" class=\"modal-close\" aria-label=\"إغلاق\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -880,27 +880,27 @@ func ModalTrigger(dialogID, class string) templ.Component {
 
 func openDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_openDialog_2a67`,
-		Function: `function __templ_openDialog_2a67(id){const el = document.getElementById(id);
+		Name: `__templ_openDialog_e73d`,
+		Function: `function __templ_openDialog_e73d(id){const el = document.getElementById(id);
 	if (el && typeof el.showModal === "function") {
 		try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_openDialog_2a67`, id),
-		CallInline: templ.SafeScriptInline(`__templ_openDialog_2a67`, id),
+		Call:       templ.SafeScript(`__templ_openDialog_e73d`, id),
+		CallInline: templ.SafeScriptInline(`__templ_openDialog_e73d`, id),
 	}
 }
 
 func closeDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_closeDialog_12c0`,
-		Function: `function __templ_closeDialog_12c0(id){const el = document.getElementById(id);
+		Name: `__templ_closeDialog_cc16`,
+		Function: `function __templ_closeDialog_cc16(id){const el = document.getElementById(id);
 	if (el && typeof el.close === "function") {
 		try { el.close(); } catch (_) { el.removeAttribute('open'); }
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_closeDialog_12c0`, id),
-		CallInline: templ.SafeScriptInline(`__templ_closeDialog_12c0`, id),
+		Call:       templ.SafeScript(`__templ_closeDialog_cc16`, id),
+		CallInline: templ.SafeScriptInline(`__templ_closeDialog_cc16`, id),
 	}
 }
 

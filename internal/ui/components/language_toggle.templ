@@ -7,6 +7,7 @@ templ LanguageToggle(currentLang string) {
 			class={ "lang-toggle-btn", templ.KV("active", currentLang == "ar" || currentLang == "") }
 			style={ "display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:700; text-decoration:none !important; transition:all 0.15s ease;", templ.KV("background:var(--surface-raised); color:var(--text); box-shadow:var(--shadow-sm);", currentLang == "ar" || currentLang == ""), templ.KV("color:var(--text-muted);", currentLang == "en") }
 			title="العربية"
+			aria-label="تغيير اللغة إلى العربية"
 		>
 			<span style="display:inline-flex; align-items:center;">@IconFlagEG("icon-xxs")</span>
 			<span>عربي</span>
@@ -16,6 +17,7 @@ templ LanguageToggle(currentLang string) {
 			class={ "lang-toggle-btn", templ.KV("active", currentLang == "en") }
 			style={ "display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:700; text-decoration:none !important; transition:all 0.15s ease;", templ.KV("background:var(--surface-raised); color:var(--text); box-shadow:var(--shadow-sm);", currentLang == "en"), templ.KV("color:var(--text-muted);", currentLang != "en") }
 			title="English"
+			aria-label="Switch interface language to English"
 		>
 			<span style="display:inline-flex; align-items:center;">@IconFlagGB("icon-xxs")</span>
 			<span>EN</span>

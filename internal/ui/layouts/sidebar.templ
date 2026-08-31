@@ -24,7 +24,7 @@ import (
 
 // SidebarNav renders the caller's visible navigation for a dashboard.
 templ SidebarNav(scope rbac.Scope, activeNav string, lang string) {
-	<nav class="sidebar-nav">
+	<nav class="sidebar-nav" aria-label="Main Navigation">
 		for _, section := range visibleNav(ctx, scope) {
 			<div class="sidebar-group">
 				<div class="sidebar-section-header">
@@ -34,6 +34,9 @@ templ SidebarNav(scope rbac.Scope, activeNav string, lang string) {
 					<a
 						href={ templ.SafeURL(item.Href) }
 						class={ "sidebar-link", templ.KV("active", item.Active(activeNav)) }
+						if item.Active(activeNav) {
+							aria-current="page"
+						}
 					>
 						@components.Icon(item.Icon, "icon-sm")
 						<span>{ item.Label(lang) }</span>
