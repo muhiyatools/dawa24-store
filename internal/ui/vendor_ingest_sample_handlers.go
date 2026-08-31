@@ -23,17 +23,17 @@ func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Reques
 
 	sheet := "Sheet1"
 	headers := []string{
-		"الباركود",
-		"اسم الصنف بالعربي",
-		"اسم الصنف بالإنجليزي",
-		"الاسم العلمي",
+		i18n.T("ar", "ingest.col.barcode"),
+		i18n.T("ar", "ingest.col.name_ar"),
+		i18n.T("ar", "ingest.col.name_en"),
+		i18n.T("ar", "ingest.col.scientific_name"),
 		"المادة الفعالة",
-		"الشكل الصيدلي",
-		"الشركة المصنعة",
+		i18n.T("ar", "ingest.col.dosage_form"),
+		i18n.T("ar", "ingest.col.manufacturer"),
 		"سعر التوريد",
 		"الرصيد",
-		"رقم التشغيلة",
-		"تاريخ الصلاحية",
+		i18n.T("ar", "ingest.col.batch_no"),
+		i18n.T("ar", "ingest.col.expiry_date"),
 	}
 
 	for i, head := range headers {
@@ -73,17 +73,17 @@ func (h *UIHandler) VendorIngestSampleCSV(w http.ResponseWriter, r *http.Request
 	defer writer.Flush()
 
 	headers := []string{
-		"الباركود",
-		"اسم الصنف بالعربي",
-		"اسم الصنف بالإنجليزي",
-		"الاسم العلمي",
+		i18n.T("ar", "ingest.col.barcode"),
+		i18n.T("ar", "ingest.col.name_ar"),
+		i18n.T("ar", "ingest.col.name_en"),
+		i18n.T("ar", "ingest.col.scientific_name"),
 		"المادة الفعالة",
-		"الشكل الصيدلي",
-		"الشركة المصنعة",
+		i18n.T("ar", "ingest.col.dosage_form"),
+		i18n.T("ar", "ingest.col.manufacturer"),
 		"سعر التوريد",
 		"الرصيد",
-		"رقم التشغيلة",
-		"تاريخ الصلاحية",
+		i18n.T("ar", "ingest.col.batch_no"),
+		i18n.T("ar", "ingest.col.expiry_date"),
 	}
 	_ = writer.Write(headers)
 
@@ -118,7 +118,7 @@ func (h *UIHandler) VendorIngestExport(w http.ResponseWriter, r *http.Request) {
 	writer := csv.NewWriter(w)
 	defer writer.Flush()
 
-	headers := []string{"الباركود / SKU", "اسم الصنف الدوائي", "سعر التوريد (ج.م)", "الرصيد المتاح (عبوة)", "رقم التشغيلة", "تاريخ الصلاحية", "الحالة"}
+	headers := []string{"الباركود / SKU", "اسم الصنف الدوائي", "سعر التوريد (ج.م)", "الرصيد المتاح (عبوة)", i18n.T("ar", "ingest.col.batch_no"), i18n.T("ar", "ingest.col.expiry_date"), "الحالة"}
 	_ = writer.Write(headers)
 
 	if h.catSvc != nil {

@@ -328,7 +328,7 @@ func importProcessingStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p><div class=\"progress\"><div class=\"progress-bar\" id=\"import-progress-bar\" style=\"width:0%\"></div></div><p class=\"text-xs text-muted mt-2\">يمكنك إغلاق هذه الصفحة؛ ستستمر العملية وستجد نتيجتها في سجل عمليات الاستيراد.</p></div><script>\n\t\t(function () {\n\t\t\tconst card = document.getElementById('import-progress-card');\n\t\t\tif (!card) return;\n\t\t\tconst id = card.dataset.import;\n\t\t\tconst bar = document.getElementById('import-progress-bar');\n\t\t\tconst note = document.getElementById('import-progress-note');\n\t\t\tfunction poll() {\n\t\t\t\tfetch('/vendor/ingest/' + id + '/progress', { headers: { 'Accept': 'application/json' } })\n\t\t\t\t\t.then(function (r) { return r.json(); })\n\t\t\t\t\t.then(function (p) {\n\t\t\t\t\t\tif (bar) { bar.style.width = (p.percent || 0) + '%'; }\n\t\t\t\t\t\tif (note && p.note) { note.textContent = p.note; }\n\t\t\t\t\t\tif (p.done) { window.location.reload(); return; }\n\t\t\t\t\t\tsetTimeout(poll, 1500);\n\t\t\t\t\t})\n\t\t\t\t\t.catch(function () { setTimeout(poll, 4000); });\n\t\t\t}\n\t\t\tpoll();\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p><div class=\"progress\"><div class=\"progress-bar\" id=\"import-progress-bar\"></div></div><p class=\"text-xs text-muted mt-2\">يمكنك إغلاق هذه الصفحة؛ ستستمر العملية وستجد نتيجتها في سجل عمليات الاستيراد.</p></div><script>\n\t\t(function () {\n\t\t\tconst card = document.getElementById('import-progress-card');\n\t\t\tif (!card) return;\n\t\t\tconst id = card.dataset.import;\n\t\t\tconst bar = document.getElementById('import-progress-bar');\n\t\t\tconst note = document.getElementById('import-progress-note');\n\t\t\tfunction poll() {\n\t\t\t\tfetch('/vendor/ingest/' + id + '/progress', { headers: { 'Accept': 'application/json' } })\n\t\t\t\t\t.then(function (r) { return r.json(); })\n\t\t\t\t\t.then(function (p) {\n\t\t\t\t\t\tif (bar) { bar.style.width = (p.percent || 0) + '%'; }\n\t\t\t\t\t\tif (note && p.note) { note.textContent = p.note; }\n\t\t\t\t\t\tif (p.done) { window.location.reload(); return; }\n\t\t\t\t\t\tsetTimeout(poll, 1500);\n\t\t\t\t\t})\n\t\t\t\t\t.catch(function () { setTimeout(poll, 4000); });\n\t\t\t}\n\t\t\tpoll();\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -583,7 +583,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var24 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"card\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;\"><h3 class=\"wiz-head m-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"card\"><div><h3 class=\"wiz-head m-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -596,7 +596,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</h3><div class=\"row-center-sm\" style=\"flex-wrap:wrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</h3><div class=\"row-center-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -620,7 +620,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border);\"><th style=\"width:50px; text-align:center;\">#</th><th style=\"min-width:200px;\">اسم الصنف في الملف</th><th style=\"min-width:220px;\">الصنف المطابق المعتمد في المنصة (الأدوية المعتمدة)</th><th class=\"text-center\" style=\"width:100px;\">النتيجة</th><th class=\"text-center\" style=\"width:130px;\">درجة المطابقة</th><th style=\"min-width:200px;\">تفاصيل وملاحظات الذكاء الصيدلاني</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr><th>#</th><th>اسم الصنف في الملف</th><th>الصنف المطابق المعتمد في المنصة (الأدوية المعتمدة)</th><th class=\"text-center\">النتيجة</th><th class=\"text-center\">درجة المطابقة</th><th>تفاصيل وملاحظات الذكاء الصيدلاني</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -656,14 +656,14 @@ func importRowsTable(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if row.SourceCode != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"text-xs text-muted\" style=\"margin-top:3px;\">كود الصنف بالملف: <code class=\"text-xs\" style=\"background:var(--surface-sunken); padding:1px 4px; border-radius:4px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"text-xs text-muted\">كود الصنف بالملف: <code class=\"text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(row.SourceCode)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 236, Col: 158}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 236, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -679,7 +679,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if row.MatchedCatalogName() != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div class=\"fw-700\" style=\"color:var(--emerald-600); font-size:0.9rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div class=\"fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -697,14 +697,14 @@ func importRowsTable(view VendorImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if row.MatchedCatalogSKU() != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"text-xs text-muted\" style=\"margin-top:3px;\">كود الكتالوج: <code class=\"text-xs\" style=\"background:rgba(16,185,129,0.1); color:var(--emerald-600); padding:1px 4px; border-radius:4px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"text-xs text-muted\">كود الكتالوج: <code class=\"text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(row.MatchedCatalogSKU())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 247, Col: 186}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 247, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -716,7 +716,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 					}
 				}
 			} else if row.MatchLevel == "none" || row.Outcome == ingest.OutcomeInserted {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-amber text-xs\" style=\"padding:0.25rem 0.5rem;\">صنف جديد غير مسجل مسبقاً بالكتالوج المركزي</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-amber text-xs\">صنف جديد غير مسجل مسبقاً بالكتالوج المركزي</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -748,7 +748,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" style=\"padding:0.3rem 0.6rem; font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -783,7 +783,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\" style=\"padding:0.25rem 0.5rem; font-weight:700;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -801,7 +801,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if row.MatchScore > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"text-muted tabular-nums fw-700\" style=\"font-size:11px; margin-top:3px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"text-muted tabular-nums fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -819,7 +819,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</td><td class=\"text-xs\" style=\"color:var(--text-muted); line-height:1.4;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</td><td class=\"text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

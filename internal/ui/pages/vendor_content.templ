@@ -16,22 +16,22 @@ templ VendorPoliciesPage(policies map[string]string, lang, dir string) {
 			</div>
 
 			<form method="POST" action="/vendor/policies">
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
-					<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-						<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">سياسة الشحن والتسليم</h3>
+				<div>
+					<div>
+						<h3>سياسة الشحن والتسليم</h3>
 						<textarea name="shipping_policy" class="form-input" rows="4" placeholder="اكتب شروط التوصيل والحد الأدنى للطلبات...">{ policies["shipping"] }</textarea>
 					</div>
-					<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-						<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">سياسة المرتجعات والتوالف</h3>
+					<div>
+						<h3>سياسة المرتجعات والتوالف</h3>
 						<textarea name="returns_policy" class="form-input" rows="4" placeholder="اكتب شروط وفترة قبول المرتجعات...">{ policies["returns"] }</textarea>
 					</div>
-					<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);">
-						<h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;">شروط السداد والدفع الآجل</h3>
+					<div>
+						<h3>شروط السداد والدفع الآجل</h3>
 						<textarea name="terms_policy" class="form-input" rows="4" placeholder="اكتب شروط السداد وشيكات الضمان...">{ policies["terms"] }</textarea>
 					</div>
 				</div>
 
-				<div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+				<div>
 					<button type="submit" class="btn btn-primary">حفظ السياسات</button>
 				</div>
 			</form>
@@ -51,7 +51,7 @@ templ VendorSocialMediaPage(links map[string]string, lang, dir string) {
 			</div>
 
 			<form method="POST" action="/vendor/social-media">
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+				<div>
 					<div>
 						<label class="form-label">رقم الواتساب الرسمي (WhatsApp)</label>
 						<input type="text" name="whatsapp" value={ links["whatsapp"] } class="form-input" placeholder="+2010..." />
@@ -66,7 +66,7 @@ templ VendorSocialMediaPage(links map[string]string, lang, dir string) {
 					</div>
 				</div>
 
-				<div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+				<div>
 					<button type="submit" class="btn btn-primary">حفظ الروابط</button>
 				</div>
 			</form>

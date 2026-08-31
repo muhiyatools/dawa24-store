@@ -291,14 +291,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									<input type="hidden" name="sort" value={ data.Filter.Sort } />
 								}
 								<input type="hidden" name="page" value="1" />
-								<label for="bottom-limit-select" style="font-size:0.825rem; color:var(--text-secondary); font-weight:700; white-space:nowrap;">
+								<label for="bottom-limit-select" class="text-xs text-secondary font-bold whitespace-nowrap">
 									عرض في الصفحة:
 								</label>
 								<select
 									id="bottom-limit-select"
 									name="limit"
 									class="form-input"
-									style="width:auto; font-weight:700; font-size:0.825rem; border-radius:var(--radius-md); padding:0.25rem 0.5rem;"
+									class="w-auto font-bold text-xs rounded-md px-2 py-1"
 									onchange="this.form.submit()"
 								>
 									for _, sz := range data.PageSizes {
@@ -315,23 +315,8 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 1: Master Catalog Selection Modal -->
-			<dialog id="add-from-catalog-modal" class="modal" aria-labelledby="cat-modal-title">
-				<div class="modal-box modal-xl">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2">
-							<span class="text-2xl">@components.IconGlobe("icon-sm")</span>
-							<h3 id="cat-modal-title" class="modal-title">
-								إضافة صنف من الكتالوج المركزي العام
-							</h3>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeAddFromCatalogModal()">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form" style="display:flex; flex-direction:column; flex:1; overflow-y:auto; padding-inline-end:0.25rem;">
+			@components.Modal(components.ModalProps{ID: "add-from-catalog-modal", Title: "????? ??? ?? ???????? ??????? ?????", Size: "xl"}) {
+				<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form" class="d-flex flex-col flex-1 overflow-y-auto pe-1">
 						<input type="hidden" id="cat-select-product-id" name="product_id" value="" />
 						<input type="hidden" id="cat-select-name-ar" name="name_ar" value="" />
 						<input type="hidden" id="cat-select-name-en" name="name_en" value="" />
@@ -339,46 +324,46 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						<input type="hidden" id="cat-select-barcode" name="barcode" value="" />
 						<input type="hidden" id="cat-select-unit" name="unit" value="" />
 
-						<div class="stack-lg" style="flex:1;">
+						<div class="stack-lg" class="flex-1">
 							
 							<!-- Search Input for General Catalog -->
-							<div style="position:relative; width:100%;">
-								<label class="form-label" style="font-weight:800; color:var(--text); font-size:0.875rem; margin-bottom:0.4rem;">
+							<div class="relative w-full">
+								<label class="form-label" class="font-extrabold text-primary text-sm mb-1">
 									1. ابحث في الكتالوج المركزي العام <span class="text-danger">*</span>
 								</label>
-								<div style="position:relative; width:100%;">
+								<div class="relative w-full">
 									<input
 										type="text"
 										id="cat-search-input"
 										placeholder="اكتب اسم الدواء، المادة الفعالة، أو كود SKU..."
 										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg); padding-inline-start:2.75rem; font-size:0.95rem; height:46px;"
+										class="w-full rounded-lg ps-11 text-sm h-11"
 										oninput="searchMasterCatalogLive(this.value)"
 										autocomplete="off"
 									/>
-									<div style="position:absolute; inset-inline-start:0.95rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; display:flex; align-items:center;">
+									<div class="absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none d-flex items-center">
 										@components.IconSearch("icon-sm")
 									</div>
 								</div>
 
 								<!-- Dropdown Results in flow -->
-								<div id="cat-search-dropdown" style="display:none; max-height:280px; overflow-y:auto; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 8px 24px rgba(0,0,0,0.18); margin-top:0.6rem;"></div>
+								<div id="cat-search-dropdown" class="d-none max-h-72 overflow-y-auto bg-surface-sunken border rounded-2xl shadow-xl mt-2"></div>
 							</div>
 
 							<!-- Selected Product Info Card Preview -->
-							<div id="cat-selected-preview" style="display:none; background:var(--surface-sunken); border:1px solid var(--accent); border-radius:var(--radius-xl); padding:1.25rem;">
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+							<div id="cat-selected-preview" class="d-none bg-surface-sunken border border-accent rounded-2xl p-5">
+								<div class="flex-between items-start mb-3">
 									<div>
-										<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800; margin-bottom:0.35rem; display:inline-block;">صنف معتمد تم اختياره</span>
-										<h4 id="cat-preview-name" style="font-size:1.1rem; font-weight:900; color:var(--text); margin:0;"></h4>
-										<div id="cat-preview-scientific" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></div>
+										<span class="badge badge-emerald" class="badge badge-emerald text-xs font-black mb-1 inline-block">صنف معتمد تم اختياره</span>
+										<h4 id="cat-preview-name" class="text-base font-black text-primary m-0"></h4>
+										<div id="cat-preview-scientific" class="text-xs text-muted mt-0.5"></div>
 									</div>
-									<button type="button" class="btn btn-secondary btn-sm" onclick="resetSelectedMasterProduct()" style="font-size:0.75rem; color:var(--danger-text);">
+									<button type="button" class="btn btn-secondary btn-sm" onclick="resetSelectedMasterProduct()" class="btn btn-secondary btn-sm text-xs text-danger font-bold">
 										تغيير الصنف 
 									</button>
 								</div>
 								
-								<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.75rem; color:var(--text-secondary);">
+								<div class="d-flex gap-2 flex-wrap text-xs text-secondary">
 									<span id="cat-preview-dosage" class="badge badge-slate"></span>
 									<span id="cat-preview-sku" class="badge badge-slate"></span>
 									<span id="cat-preview-price" class="badge badge-sky"></span>
@@ -386,8 +371,8 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							</div>
 
 							<!-- Vendor Customization Fields -->
-							<div id="cat-vendor-fields" style="display:none; flex-direction:column; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-								<div style="font-weight:800; font-size:0.95rem; color:var(--text);">
+							<div id="cat-vendor-fields" class="d-none flex-col gap-4 border-t pt-5">
+								<div class="font-extrabold text-sm text-primary">
 									2. حدد شروط وسعر التوريد الخاص بك:
 								</div>
 
@@ -540,7 +525,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										<label class="form-label fw-700 text-primary text-sm">
 											قابل للتفاوض على السعر؟
 										</label>
-										<select name="is_negotiable" id="cat-field-negotiable" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+										<select name="is_negotiable" id="cat-field-negotiable" class="form-input" class="form-input w-full rounded-lg font-bold">
 											<option value="false">لا (سعر توريد ثابت)</option>
 											<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
 										</select>
@@ -559,24 +544,11 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- MODAL 2: Quick Edit Variant Modal -->
-			<dialog id="edit-variant-modal" class="modal" aria-labelledby="edit-modal-title">
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<h3 id="edit-modal-title" class="modal-title">
-							تعديل بيانات وسعر صنف التوريد
-						</h3>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeEditVariantModal()">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
+			@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: "????? ?????? ???? ??? ???????", Size: "md"}) {
+				<form method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
 						<div class="stack-md">
 							
 							<div>
@@ -749,7 +721,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									<label class="form-label fw-700 text-primary text-sm">
 										قابل للتفاوض على السعر؟
 									</label>
-									<select name="is_negotiable" id="edit-form-negotiable" class="form-input" style="width:100%; border-radius:var(--radius-lg); font-weight:700;">
+									<select name="is_negotiable" id="edit-form-negotiable" class="form-input" class="form-input w-full rounded-lg font-bold">
 										<option value="false">لا (سعر توريد ثابت)</option>
 										<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
 									</select>
@@ -767,24 +739,11 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- MODAL 3: Add Custom Variant Modal -->
-			<dialog id="add-custom-variant-modal" class="modal" aria-labelledby="custom-modal-title">
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<h3 id="custom-modal-title" class="modal-title">
-							إضافة صنف أو تنويعة توريد مخصصة
-						</h3>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeAddCustomVariantModal()">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form method="POST" action="/vendor/variants/new">
+			@components.Modal(components.ModalProps{ID: "add-custom-variant-modal", Title: "????? ??? ?? ?????? ????? ?????", Size: "md"}) {
+				<form method="POST" action="/vendor/variants/new">
 						<div class="stack-md">
 							
 							<div>
@@ -947,8 +906,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- Live JS Logic for all Modals and Autocomplete -->
 			<script>
@@ -1038,7 +996,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							.then(r => r.json())
 							.then(items => {
 								if (!items || items.length === 0) {
-									dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">لم يتم العثور على أدوية مطابقة بالكتالوج</div>';
+									dropdown.innerHTML = '<div class="p-3 text-muted text-xs text-center">لم يتم العثور على أدوية مطابقة بالكتالوج</div>';
 									dropdown.style.display = 'block';
 									return;
 								}
@@ -1052,12 +1010,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									const safeSku = (it.sku || '').replace(/'/g, "\\'");
 									const safeUnit = (it.unit || '').replace(/'/g, "\\'");
 									
-									html += '<div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;" ' +
+									html += '<div class="p-3 border-b cursor-pointer flex-between items-center transition-colors" ' +
 										'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
 										'onclick="selectMasterProductForStaging(' + it.id + ', \'' + safeName + '\', \'' + safeSci + '\', \'' + (it.dosage_form || '') + '\', \'' + safeSku + '\', \'' + (it.price || '') + '\', \'' + safeUnit + '\')">' +
 										'<div>' +
-											'<div style="font-weight:800; color:var(--text); font-size:0.875rem;">' + (it.name_ar || it.name_en) + '</div>' +
-											'<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + (it.scientific_name || '') + '</div>' +
+											'<div class="font-extrabold text-primary text-sm">' + (it.name_ar || it.name_en) + '</div>' +
+											'<div class="text-xs text-muted mt-0.5">' + (it.scientific_name || '') + '</div>' +
 										'</div>' +
 										'<div class="row-center-sm">' +
 											dosage + priceBadge +

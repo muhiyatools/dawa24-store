@@ -249,7 +249,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></div><div class=\"d-flex items-center gap-2 flex-wrap\"><!-- Search Input --><div style=\"min-width: 220px;\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالاسم، البريد، أو الهاتف...\" class=\"form-input text-xs w-full\"></div><!-- Role Filter --><select x-model=\"roleFilter\" class=\"form-input text-xs\" style=\"min-width: 140px;\"><option value=\"all\">كل الأدوار</option> <option value=\"org_owner\">مالك المنشأة</option> <option value=\"org_manager\">مدير عمليات</option> <option value=\"org_employee\">موظف مبيعات وتوريد</option> <option value=\"org_warehouse\">أمين مخزن</option> <option value=\"org_accountant\">محاسب مالي</option></select><!-- Status Filter --><select x-model=\"statusFilter\" class=\"form-input text-xs\" style=\"min-width: 110px;\"><option value=\"all\">كل الحالات</option> <option value=\"active\">النشط فقط</option> <option value=\"inactive\">المعطل فقط</option></select></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></div><div class=\"d-flex items-center gap-2 flex-wrap\"><!-- Search Input --><div><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالاسم، البريد، أو الهاتف...\" class=\"form-input text-xs w-full\"></div><!-- Role Filter --><select x-model=\"roleFilter\" class=\"form-input text-xs\"><option value=\"all\">كل الأدوار</option> <option value=\"org_owner\">مالك المنشأة</option> <option value=\"org_manager\">مدير عمليات</option> <option value=\"org_employee\">موظف مبيعات وتوريد</option> <option value=\"org_warehouse\">أمين مخزن</option> <option value=\"org_accountant\">محاسب مالي</option></select><!-- Status Filter --><select x-model=\"statusFilter\" class=\"form-input text-xs\"><option value=\"all\">كل الحالات</option> <option value=\"active\">النشط فقط</option> <option value=\"inactive\">المعطل فقط</option></select></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -684,7 +684,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div><!-- Add Employee Modal Dialog (Fixed Centered Overlay) --><div x-show=\"showAddModal\" x-cloak x-transition.opacity style=\"position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;\" @keydown.escape.window=\"showAddModal = false\"><div @click.outside=\"showAddModal = false\" class=\"glass-panel p-6 w-full\" style=\"max-width: 600px; max-height: 90vh; overflow-y: auto;\"><!-- Modal Header --><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div><!-- Add Employee Modal Dialog (Fixed Centered Overlay) --><div x-show=\"showAddModal\" x-cloak x-transition.opacity @keydown.escape.window=\"showAddModal = false\"><div @click.outside=\"showAddModal = false\" class=\"glass-panel p-6 w-full\"><!-- Modal Header --><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -712,7 +712,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 464, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 462, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 				if templ_7745c5c3_Err != nil {
@@ -725,7 +725,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 464, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_team.templ`, Line: 462, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {

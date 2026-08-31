@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -47,19 +48,19 @@ const (
 func (p Phase) Label() string {
 	switch p {
 	case PhaseMapping:
-		return "مراجعة ربط الأعمدة"
+		return i18n.T("ar", "ingest.phase.mapping")
 	case PhaseSettings:
-		return "إعدادات الاستيراد"
+		return i18n.T("ar", "ingest.phase.settings")
 	case PhaseReview:
-		return "مراجعة الأصناف والمطابقة"
+		return i18n.T("ar", "ingest.phase.review")
 	case PhaseConfirm:
-		return "بانتظار التأكيد"
+		return i18n.T("ar", "ingest.phase.confirm")
 	case PhaseProcessing:
-		return "جارٍ التنفيذ"
+		return i18n.T("ar", "ingest.phase.processing")
 	case PhaseCompleted:
-		return "مكتمل"
+		return i18n.T("ar", "ingest.phase.completed")
 	case PhaseFailed:
-		return "فشل"
+		return i18n.T("ar", "ingest.phase.failed")
 	default:
 		return string(p)
 	}
@@ -108,26 +109,26 @@ var ModeOptions = []ModeOption{
 	{
 		Mode:        ModeUpsert,
 		Icon:        "⚡",
-		Title:       "تحديث الأصناف الحالية وإضافة الجديدة",
-		Description: "الخيار الافتراضي؛ يحدّث أسعار وأرصدة الأصناف المطابقة ويضيف أي صنف جديد في الملف.",
+		Title:       i18n.T("ar", "ingest.mode.upsert_title"),
+		Description: i18n.T("ar", "ingest.mode.upsert_desc"),
 	},
 	{
 		Mode:        ModeAddOnly,
 		Icon:        "➕",
-		Title:       "إضافة الأصناف الجديدة فقط",
-		Description: "يضيف ما ليس لديك ولا يغيّر سعر أو رصيد أي صنف موجود.",
+		Title:       i18n.T("ar", "ingest.mode.add_only_title"),
+		Description: i18n.T("ar", "ingest.mode.add_only_desc"),
 	},
 	{
 		Mode:        ModeUpdateOnly,
 		Icon:        "🔄",
-		Title:       "تحديث الأصناف الموجودة فقط",
-		Description: "يحدّث الأصناف المطابقة فقط، ولا يضيف أي صنف جديد إلى كتالوجك.",
+		Title:       i18n.T("ar", "ingest.mode.update_only_title"),
+		Description: i18n.T("ar", "ingest.mode.update_only_desc"),
 	},
 	{
 		Mode:        ModeReplace,
 		Icon:        "🗂️",
-		Title:       "اعتبار الملف هو الكتالوج الكامل",
-		Description: "يحدّث ويضيف، ثم يوقف عرض كل صنف لديك غير موجود في هذا الملف.",
+		Title:       i18n.T("ar", "ingest.mode.replace_title"),
+		Description: i18n.T("ar", "ingest.mode.replace_desc"),
 		Destructive: true,
 	},
 }

@@ -45,7 +45,6 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 	@layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "offers", lang, dir) {
 		<div
 			class="page-container"
-			style="max-width: 1100px; margin: 0 auto;"
 			x-data={ fmt.Sprintf(`{
 				availableItems: %s,
 				selectedItems: [],
@@ -157,7 +156,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								وصف تفاصيل العرض
 							</label>
-							<textarea name="description_ar" rows="3" placeholder="اكتب تفاصيل وشروط الاستفادة من العرض..." class="form-input text-xs w-full" style="resize:vertical;"></textarea>
+							<textarea name="description_ar" rows="3" placeholder="اكتب تفاصيل وشروط الاستفادة من العرض..." class="form-input text-xs w-full"></textarea>
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
@@ -218,14 +217,14 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ بدء العرض
 								</label>
-								<input type="date" name="start_date" class="form-input text-xs w-full" style="color-scheme:dark;"/>
+								<input type="date" name="start_date" class="form-input text-xs w-full"/>
 							</div>
 
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ انتهاء العرض
 								</label>
-								<input type="date" name="end_date" class="form-input text-xs w-full" style="color-scheme:dark;"/>
+								<input type="date" name="end_date" class="form-input text-xs w-full"/>
 							</div>
 						</div>
 
@@ -290,7 +289,6 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							x-show="showDropdown"
 							@click.outside="showDropdown = false"
 							class="position-absolute z-50 w-full bg-surface-raised border rounded-xl shadow-2xl p-2 mt-1 overflow-y-auto"
-							style="max-height: 280px; left: 0; right: 0;"
 							x-cloak
 						>
 							<template x-for="item in filteredItems" :key="item.variant_id">
@@ -326,15 +324,15 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th style="width: 40px;" class="text-center">#</th>
+									<th class="text-center">#</th>
 									<th>الصنف الدوائي والتشغيلة</th>
 									<th>المخزن والرصيد المتاح</th>
-									<th style="width: 100px;" class="text-center">الكمية (QTY)</th>
-									<th style="width: 120px;" class="text-end">سعر الجمهور</th>
-									<th style="width: 110px;" class="text-center">نسبة الخصم</th>
-									<th style="width: 130px;" class="text-end">السعر بعد الخصم</th>
-									<th style="width: 130px;" class="text-end">الإجمالي الصافي</th>
-									<th style="width: 50px;" class="text-center">حذف</th>
+									<th class="text-center">الكمية (QTY)</th>
+									<th class="text-end">سعر الجمهور</th>
+									<th class="text-center">نسبة الخصم</th>
+									<th class="text-end">السعر بعد الخصم</th>
+									<th class="text-end">الإجمالي الصافي</th>
+									<th class="text-center">حذف</th>
 								</tr>
 							</thead>
 							<tbody>

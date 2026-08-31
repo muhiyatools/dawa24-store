@@ -26,7 +26,7 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 	f := excelize.NewFile()
 	defer f.Close()
 
-	sheetName := "كشف أسعار المورد"
+	sheetName := i18n.T("ar", "excel.sheet.price_list")
 	f.SetSheetName("Sheet1", sheetName)
 
 	// Set right-to-left layout for Arabic
@@ -61,16 +61,16 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 
 	// 10 realistic pharmaceutical sample records
 	samples := [][]any{
-		{"1001", "بانادول اكسترا 24 قرص", 45.00, 18.5, "متوفر كميات كبيرة"},
-		{"1002", "اوجمنتين 1 جم 14 قرص", 135.00, 12.0, "خصم إضافي للطلبيات الكبيرة"},
-		{"1003", "كونجستال 20 قرص", 31.00, 20.0, "عرض موسمي حصري"},
-		{"1004", "كتافلام 50 مجم 20 قرص", 58.50, 15.0, "تاريخ صلاحية حديث"},
-		{"1005", "انتوسيد 20 قرص", 22.00, 25.0, "أعلى خصم بالسوق"},
-		{"1006", "بروفين 400 مجم 30 قرص", 48.00, 14.5, "تسليم فوري ومباشر"},
+		{"1001", "بانادول اكسترا 24 قرص", 45.00, 18.5, i18n.T("ar", "sample.notes.large_stock")},
+		{"1002", "اوجمنتين 1 جم 14 قرص", 135.00, 12.0, i18n.T("ar", "sample.notes.extra_discount")},
+		{"1003", "كونجستال 20 قرص", 31.00, 20.0, i18n.T("ar", "sample.notes.seasonal_offer")},
+		{"1004", "كتافلام 50 مجم 20 قرص", 58.50, 15.0, i18n.T("ar", "sample.notes.fresh_expiry")},
+		{"1005", "انتوسيد 20 قرص", 22.00, 25.0, i18n.T("ar", "sample.notes.highest_discount")},
+		{"1006", "بروفين 400 مجم 30 قرص", 48.00, 14.5, i18n.T("ar", "sample.notes.fast_delivery")},
 		{"1007", "اومفيل 20 كبسولة", 35.00, 16.0, "صلاحية 2027"},
-		{"1008", "سيتال 500 مجم 20 قرص", 18.00, 22.5, "عرض خاص للصيدليات"},
-		{"1009", "ازيثرودوز 500 مجم 3 كبسولات", 52.00, 15.0, "توريد مباشر من المصنع"},
-		{"1010", "كولد اند فلو 20 قرص", 28.00, 19.0, "شحن مجاني للطلبات الكبيرة"},
+		{"1008", "سيتال 500 مجم 20 قرص", 18.00, 22.5, i18n.T("ar", "sample.notes.pharmacy_offer")},
+		{"1009", "ازيثرودوز 500 مجم 3 كبسولات", 52.00, 15.0, i18n.T("ar", "sample.notes.factory_direct")},
+		{"1010", "كولد اند فلو 20 قرص", 28.00, 19.0, i18n.T("ar", "sample.notes.free_shipping")},
 	}
 
 	for rowIdx, row := range samples {

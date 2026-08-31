@@ -3,6 +3,7 @@ package catalog
 import (
 	"sort"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -48,23 +49,23 @@ const (
 // FieldLabels are the Arabic names shown in the import report, so an admin
 // reading "لم يتم العثور على عمود: السعر" knows which column to add.
 var FieldLabels = map[string]string{
-	FieldNameAR:        "اسم الصنف بالعربي",
-	FieldNameEN:        "اسم الصنف بالإنجليزي",
-	FieldSKU:           "كود الصنف",
-	FieldBarcode:       "الباركود",
+	FieldNameAR:        i18n.T("ar", "ingest.col.name_ar"),
+	FieldNameEN:        i18n.T("ar", "ingest.col.name_en"),
+	FieldSKU:           i18n.T("ar", "ingest.col.sku"),
+	FieldBarcode:       i18n.T("ar", "ingest.col.barcode"),
 	FieldPrice:         "السعر",
-	FieldPublicPrice:   "سعر الجمهور",
-	FieldCostPrice:     "سعر التكلفة",
+	FieldPublicPrice:   i18n.T("ar", "ingest.col.public_price"),
+	FieldCostPrice:     i18n.T("ar", "ingest.col.cost_price"),
 	FieldDiscount:      "الخصم",
 	FieldGenericName:   "الاسم العلمي",
 	FieldActive:        "المادة الفعالة",
-	FieldDosageForm:    "الشكل الصيدلي",
-	FieldConcentration: "التركيز",
-	FieldUnit:          "الوحدة",
-	FieldManufacturer:  "الشركة المصنعة",
+	FieldDosageForm:    i18n.T("ar", "ingest.col.dosage_form"),
+	FieldConcentration: i18n.T("ar", "ingest.col.concentration"),
+	FieldUnit:          i18n.T("ar", "ingest.col.unit"),
+	FieldManufacturer:  i18n.T("ar", "ingest.col.manufacturer"),
 	FieldDescriptionAR: "الوصف بالعربي",
 	FieldDescriptionEN: "الوصف بالإنجليزي",
-	FieldQuantity:      "الكمية",
+	FieldQuantity:      i18n.T("ar", "ingest.col.quantity"),
 	FieldStatus:        "الحالة",
 	FieldCategory:      "فئة المنتج",
 }

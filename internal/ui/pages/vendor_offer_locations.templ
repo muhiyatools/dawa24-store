@@ -30,16 +30,16 @@ var daysOfWeek = []struct {
 
 templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) {
 	@layouts.VendorShell("نطاقات التغطية الجغرافية للعرض | Offer Locations", "offers", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem; max-width:1100px; margin:0 auto;">
+		<div>
 			
 			<!-- Header -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div style="display:flex; align-items:center; gap:1rem;">
-					<div style="width:50px; height:50px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+			<div>
+				<div class="d-flex items-center gap-2">
+					<div>
 						@components.IconGlobe("icon-sm")
 					</div>
 					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.2rem;">
+						<div>
 							تغطية العرض الجغرافية
 						</div>
 						<h1 class="text-2xl fw-800 text-primary m-0">
@@ -54,28 +54,28 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 			</div>
 
 			<!-- Split Layout: Form on Left, List on Right -->
-			<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.75rem;" class="locations-grid">
+			<div class="locations-grid">
 				
 				<!-- Add New Location Coverage Form -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;">
-					<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+				<div>
+					<h3>
 						+ إضافة نطاق تغطية جغرافي جديد
 					</h3>
 
-					<form action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+					<form action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST">
 						
 						<!-- Leaflet Map Picker with Radius Circle -->
 						<div class="stack-sm">
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
+							<label>
 								حدد مركز ونصف قطر التغطية على الخريطة
 							</label>
 
-							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000" style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
-								<div class="map-container map-canvas" style="height:220px; width:100%;"></div>
+							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000">
+								<div class="map-container map-canvas"></div>
 
 								
-								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
-									<span data-map-coords-badge style="font-weight:700; color:var(--accent);">30.0444, 31.2357</span>
+								<div>
+									<span data-map-coords-badge>30.0444, 31.2357</span>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs">موقعي</button>
 								</div>
 
@@ -84,7 +84,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div>
 							<div>
 								<label class="form-label">
 									المدينة / المحافظة <span class="text-danger">*</span>
@@ -115,7 +115,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							<input type="text" name="address_ar" placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس" class="form-input w-full"/>
 						</div>
 
-						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem;">
+						<div>
 							<div>
 								<label class="form-label">
 									يوم التوصيل
@@ -131,18 +131,18 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 								<label class="form-label">
 									من الساعة
 								</label>
-								<input type="time" name="time_from" value="09:00" class="form-input" style="width:100%; color-scheme:dark;"/>
+								<input type="time" name="time_from" value="09:00" class="form-input"/>
 							</div>
 
 							<div>
 								<label class="form-label">
 									إلى الساعة
 								</label>
-								<input type="time" name="time_to" value="18:00" class="form-input" style="width:100%; color-scheme:dark;"/>
+								<input type="time" name="time_to" value="18:00" class="form-input"/>
 							</div>
 						</div>
 
-						<button type="submit" class="btn btn-primary" style="font-weight:800; justify-content:center; margin-top:0.5rem;">
+						<button type="submit" class="btn btn-primary">
 							@components.IconPlus("icon-xs")
 							<span>حفظ نطاق التغطية للعرض</span>
 						</button>
@@ -150,8 +150,8 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 				</div>
 
 				<!-- Existing Locations List -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+				<div>
+					<div>
 						<h3 class="text-lg fw-800 text-primary m-0">
 							النطاقات المسجلة لهذا العرض
 						</h3>
@@ -161,24 +161,24 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 					</div>
 
 					if len(data.Locations) == 0 {
-						<div style="padding:3rem 1.5rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
+						<div>
 							لا توجد نطاقات جغرافية مضافة لهذا العرض بعد. استخدم النموذج لإضافة أول نطاق.
 						</div>
 					} else {
-						<div style="display:flex; flex-direction:column; gap:0.9rem;">
+						<div>
 							for _, loc := range data.Locations {
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.1rem; display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem;">
+								<div>
 									<div>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem; margin-bottom:0.25rem;">
+										<div>
 											{ loc.CityName } - { loc.AddressAr }
 										</div>
-										<div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.4;">
+										<div>
 											<div>نصف قطر التغطية: <strong class="tabular-nums text-accent">{ fmt.Sprintf("%d م", loc.Radius) }</strong></div>
 											<div>أوقات التوصيل: { formatDayName(loc.DayOfWeek) } ({ loc.TimeFrom } - { loc.TimeTo })</div>
 										</div>
 									</div>
 
-									<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:700;">نشط</span>
+									<span class="badge badge-emerald">نشط</span>
 								</div>
 							}
 						</div>

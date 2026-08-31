@@ -98,7 +98,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 			</div>
 
 			<!-- Responsive 2-Column Split: Left = Branch List, Right = Unified Form Panel -->
-			<div style="display:grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap:1.5rem; align-items:start;">
+			<div>
 				
 				<!-- Left Column: Branch Cards List -->
 				<div class="d-flex flex-col gap-4">
@@ -334,7 +334,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							</label>
 
 							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" class="border rounded-xl overflow-hidden bg-surface-sunken position-relative">
-								<div class="map-container map-canvas" style="height: 180px; width: 100%; z-index: 1;"></div>
+								<div class="map-container map-canvas"></div>
 								
 								<div class="flex-between items-center p-2 bg-surface-raised border-t text-xs">
 									<span data-map-coords-badge class="tabular-nums font-bold text-brand">30.0444, 31.2357</span>
@@ -422,7 +422,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								الأعمال المؤسسية المغطاة (Institutional Works)
 							</label>
 
-							<div class="d-grid grid-cols-2 gap-1.5 mt-1" style="max-height: 140px; overflow-y: auto;">
+							<div class="d-grid grid-cols-2 gap-1.5 mt-1">
 								for _, cat := range institutionalWorkCategories {
 									<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface-raised">
 										<input type="checkbox" name="institutional_works" value={ cat.Key } x-model="form.institutional_works" class="form-checkbox"/>

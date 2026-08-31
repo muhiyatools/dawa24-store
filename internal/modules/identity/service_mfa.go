@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"crypto/subtle"
 	"encoding/json"
@@ -118,18 +119,18 @@ func (s *Service) ConfirmEnableMFA(ctx context.Context, userID int64, code strin
 
 	cleanCode := strings.TrimSpace(code)
 	if len(cleanCode) != TOTPDigits {
-		return nil, apperr.Validation("mfa.code_invalid", "رمز التحقق يجب أن يتكون من 6 أرقام.", nil)
+		return nil, apperr.Validation("mfa.code_invalid", i18n.T("ar", "mfa.err.code_len"), nil)
 	}
 
 	mfa, err := s.repo.GetMFA(ctx, userID)
 	if err != nil || mfa == nil || len(mfa.TOTPSecret) == 0 {
-		return nil, apperr.Validation("mfa.not_setup", "لم يتم بدء إعداد المصادقة الثنائية. يرجى مسح رمز الاستجابة السريعة (QR) أولاً.", nil)
+		return nil, apperr.Validation("mfa.not_setup", i18n.T("ar", "mfa.err.not_setup"), nil)
 	}
 
 	secret := string(mfa.TOTPSecret)
 	now := time.Now().UTC()
 	if !ValidateTOTP(secret, cleanCode, now) {
-		return nil, apperr.Validation("mfa.code_incorrect", "رمز التحقق غير صحيح أو انتهت صلاحيته. يرجى التحقق من توقيت هاتفك وإعادة المحاولة.", nil)
+		return nil, apperr.Validation("mfa.code_incorrect", i18n.T("ar", "mfa.err.code_incorrect"), nil)
 	}
 
 	// Generate 8 backup recovery codes
@@ -173,7 +174,7 @@ func (s *Service) DisableMFA(ctx context.Context, userID int64, password, code s
 	// Password verification is required to disable MFA
 	if password != "" {
 		if !CheckPassword(user.PasswordHash, password) {
-			return apperr.Validation("password.incorrect", "كلمة المرور الحالية غير صحيحة.", nil)
+			return apperr.Validation("password.incorrect", i18n.T("ar", "mfa.err.password_incorrect"), nil)
 		}
 	} else if code != "" {
 		// Alternatively allow current valid TOTP code
@@ -332,7 +333,7 @@ func (s *Service) RegenerateRecoveryCodes(ctx context.Context, userID int64, pas
 	}
 
 	if !CheckPassword(user.PasswordHash, password) {
-		return nil, apperr.Validation("password.incorrect", "كلمة المرور الحالية غير صحيحة.", nil)
+		return nil, apperr.Validation("password.incorrect", i18n.T("ar", "mfa.err.password_incorrect"), nil)
 	}
 
 	mfa, err := s.repo.GetMFA(ctx, userID)

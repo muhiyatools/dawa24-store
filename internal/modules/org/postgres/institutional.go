@@ -74,9 +74,9 @@ func seedDefaultInstitutionalWorks(ctx context.Context, tx pgx.Tx) error {
 		}
 	}{
 		{
-			titleAr:     "جملة جملة",
+			titleAr:     i18n.T("ar", "tier.mega_wholesale_title"),
 			titleEn:     "Wholesale - Wholesale",
-			descAr:      "كبار المخازن وشركات التوزيع الدوائي المركزية للتوريد بالجملة الكبرى",
+			descAr:      i18n.T("ar", "tier.mega_wholesale_desc"),
 			descEn:      "Primary large-scale pharmaceutical wholesalers and master hubs",
 			pricingType: "subscription",
 			icon:        "truck",
@@ -91,9 +91,9 @@ func seedDefaultInstitutionalWorks(ctx context.Context, tx pgx.Tx) error {
 				viewType int
 			}{
 				{
-					titleAr:  "قطاع",
+					titleAr:  i18n.T("ar", "tier.sector_title"),
 					titleEn:  "Sector",
-					descAr:   "القطاعات الجغرافية والتخصصية لتوزيع المستحضرات",
+					descAr:   i18n.T("ar", "tier.sector_desc"),
 					descEn:   "Specialized geographical distribution sector",
 					pricing:  "subscription",
 					icon:     "layers",

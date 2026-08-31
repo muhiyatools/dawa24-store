@@ -174,13 +174,11 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-cloak
 				x-transition.opacity
 				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem; margin: 0;"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
 					@click.outside="showAddModal = false"
 					class="glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto"
-					style="max-width: 560px; max-height: 90vh; overflow-y: auto; margin: auto;"
 				>
 					<div class="flex-between items-center mb-4 pb-3 border-b border-slate-100">
 						<div class="d-flex items-center gap-2.5">
@@ -249,13 +247,11 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-cloak
 				x-transition.opacity
 				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem; margin: 0;"
 				@keydown.escape.window="editModal = false"
 			>
 				<div
 					@click.outside="editModal = false"
 					class="glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto"
-					style="max-width: 560px; max-height: 90vh; overflow-y: auto; margin: auto;"
 				>
 					<div class="flex-between items-center mb-4 pb-3 border-b border-slate-100">
 						<div class="d-flex items-center gap-2.5">
@@ -560,7 +556,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			<!-- Filter & Control Toolbar Card -->
 			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="d-flex flex-col gap-3" hx-boost="false">
-					<div class="d-grid gap-3 items-end" style="grid-template-columns: 2fr 1fr 1fr 1fr auto;">
+					<div class="d-grid gap-3 items-end">
 						
 						<!-- Search Query -->
 						<div>
@@ -660,7 +656,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th style="width:50px;">#</th>
+									<th>#</th>
 									<th>الصنف الدوائي والمواصفات</th>
 									<th>الأكواد والتشغيلة والصلاحية</th>
 									<th>الأسعار والخصم</th>
@@ -844,14 +840,13 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 								<!-- Page Numbers -->
 								for p := 1; p <= data.TotalPages; p++ {
 									if p == data.Filter.Page {
-										<span class="btn btn-primary btn-sm font-black tabular-nums text-xs" style="min-width:32px;">
+										<span class="btn btn-primary btn-sm font-black tabular-nums text-xs">
 											{ fmt.Sprintf("%d", p) }
 										</span>
 									} else if p <= 3 || p >= data.TotalPages - 2 || (p >= data.Filter.Page - 1 && p <= data.Filter.Page + 1) {
 										<a
 											href={ templ.SafeURL(buildWarehouseInventoryURL(data.Warehouse.ID, data.Filter, p, data.Filter.PerPage)) }
 											class="btn btn-secondary btn-sm tabular-nums font-bold text-xs"
-											style="min-width:32px;"
 										>
 											{ fmt.Sprintf("%d", p) }
 										</a>
@@ -882,14 +877,12 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			<!-- Quick Stock Adjustment Modal -->
 			<div
 				x-show="adjustModal"
-				style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1rem;"
 				x-cloak
 				@keydown.escape.window="adjustModal = false"
 				@click.self="adjustModal = false"
 			>
 				<div
 					class="glass-panel p-6"
-					style="max-width:520px; width:100%; max-height:90vh; overflow-y:auto;"
 				>
 					<div class="flex-between items-center mb-4 pb-2 border-b">
 						<div>
@@ -914,10 +907,10 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</div>
 
 						<!-- Current vs New Quantity -->
-						<div class="d-grid gap-3" style="grid-template-columns: 1fr 1fr;">
+						<div class="d-grid gap-3" class="grid-cols-2">
 							<div>
 								<label class="form-label text-xs font-bold text-secondary mb-1">الرصيد الحالي بالمخزن</label>
-								<div class="form-input text-center font-black tabular-nums text-muted bg-surface-sunken text-sm flex-center" style="height:42px;" x-text="adjustStock.qty + ' عبوة'"></div>
+								<div class="form-input text-center font-black tabular-nums text-muted bg-surface-sunken text-sm flex-center" x-text="adjustStock.qty + ' عبوة'"></div>
 							</div>
 
 							<div>
@@ -928,7 +921,6 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 									min="0"
 									required
 									class="form-input text-center font-black tabular-nums text-sm w-full"
-									style="height:42px;"
 									:value="adjustStock.qty"
 									placeholder="0"
 								/>
@@ -938,7 +930,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						<!-- Reason for Adjustment -->
 						<div>
 							<label class="form-label text-xs font-bold text-secondary mb-1">سبب التسوية / التعديل <span class="text-danger">*</span></label>
-							<select name="reason" class="form-select text-xs w-full" required style="height:42px;">
+							<select name="reason" class="form-select text-xs w-full" required>
 								<option value="جرد دوري ومطابقة فعلية">جرد دوري ومطابقة فعلية</option>
 								<option value="استلام شحنة إضافية / توريد">استلام شحنة إضافية / توريد</option>
 								<option value="تسوية تلفيات أو إرجاع مورد">تسوية تلفيات أو إرجاع مورد</option>

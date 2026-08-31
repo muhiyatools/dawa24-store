@@ -14,6 +14,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -321,7 +322,7 @@ func (s *Service) UploadCompareFile(ctx context.Context, userID int64, orgID *in
 		if keepCount < 0 {
 			keepCount = 0
 		}
-		reason := "تجاوز الحد الأقصى للملفات النشطة المسموح بها في باقتك (" + strconv.Itoa(ent.MaxActiveFiles) + ")"
+		reason := fmt.Sprintf(i18n.T("ar", "err.compare_quota_exceeded"), strconv.Itoa(ent.MaxActiveFiles))
 		archivedNames, _ = s.repo.ArchiveOldestFiles(ctx, userID, orgID, keepCount, reason)
 	}
 
@@ -355,7 +356,7 @@ func (s *Service) RenameFile(ctx context.Context, fileID int64, newSupplierName 
 // ArchiveFile manually archives a file.
 func (s *Service) ArchiveFile(ctx context.Context, fileID int64, reason string) error {
 	if reason == "" {
-		reason = "أرشفة يدوية من قبل المستخدم"
+		reason = i18n.T("ar", "err.manual_archive_reason")
 	}
 	return s.repo.ArchiveFile(ctx, fileID, reason)
 }
@@ -399,8 +400,8 @@ func (s *Service) ListFileRows(ctx context.Context, fileID int64, limit, offset 
 // After saving the mapping, it automatically processes the file to extract rows.
 func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config MappingConfig) error {
 	if config.NameCol == nil {
-		return apperr.Validation("mapping.name_required", "يرجى تحديد عمود اسم الصنف على الأقل.", map[string]string{
-			"name_col": "اسم الصنف مطلوب لإتمام المقارنة",
+		return apperr.Validation("mapping.name_required", i18n.T("ar", "err.name_col_required"), map[string]string{
+			"name_col": i18n.T("ar", "err.name_col_missing"),
 		})
 	}
 	if config.PriceCol == nil && config.DiscountCol == nil {

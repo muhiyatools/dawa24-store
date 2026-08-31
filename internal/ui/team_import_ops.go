@@ -133,12 +133,12 @@ func DetectTeamColumns(headers []string, sampleRows [][]string) TeamDetectedCols
 	}
 
 	nameKeywords := []string{"اسم الموظف", "اسم العامل", "الاسم بالكامل", "الاسم", "الموظف", "العامل", "اسم", "employee name", "staff name", "full name", "name", "username"}
-	emailKeywords := []string{"البريد الإلكتروني", "البريد الالكتروني", "البريد", "الايميل", "الإيميل", "ايميل", "email", "e-mail", "mail"}
-	phoneKeywords := []string{"رقم الهاتف", "رقم الموبايل", "الهاتف", "الموبايل", "الجوال", "التليفون", "تليفون", "موبايل", "هاتف", "phone", "mobile", "tel", "cellphone"}
+	emailKeywords := []string{i18n.T("ar", "excel.col.email"), "البريد الالكتروني", "البريد", "الايميل", "الإيميل", "ايميل", "email", "e-mail", "mail"}
+	phoneKeywords := []string{i18n.T("ar", "excel.col.phone"), "رقم الموبايل", "الهاتف", "الموبايل", "الجوال", "التليفون", "تليفون", "موبايل", "هاتف", "phone", "mobile", "tel", "cellphone"}
 	roleKeywords := []string{"الدور", "الصلاحية", "الصلاحيات", "نوع الحساب", "نوع الدور", "المسمى الوظيفي / الدور", "role", "roles", "permission", "user role"}
-	jobTitleKeywords := []string{"المسمى الوظيفي", "الوظيفة", "المهنة", "المنصب", "job title", "position", "title", "designation"}
+	jobTitleKeywords := []string{i18n.T("ar", "excel.col.job_title"), "الوظيفة", "المهنة", "المنصب", "job title", "position", "title", "designation"}
 	branchKeywords := []string{"الفرع", "المخزن", "المستودع", "مكان العمل", "فرع", "مخزن", "branch", "warehouse", "store", "location"}
-	codeKeywords := []string{"كود الموظف", "الرقم الوظيفي", "كود", "الكود", "رمز الموظف", "الرقم التعريفي", "employee code", "emp code", "code", "staff id", "employee id", "emp id"}
+	codeKeywords := []string{i18n.T("ar", "excel.col.emp_code"), "الرقم الوظيفي", "كود", "الكود", "رمز الموظف", "الرقم التعريفي", "employee code", "emp code", "code", "staff id", "employee id", "emp id"}
 	notesKeywords := []string{"ملاحظات", "ملاحظة", "الرقم القومي", "بطاقة الرقم القومي", "notes", "remarks", "national id"}
 
 	matchesHeader := func(header string, keywords []string) bool {
@@ -475,33 +475,33 @@ func GenerateTeamSampleExcel(orgType string) ([]byte, error) {
 	f := excelize.NewFile()
 	defer f.Close()
 
-	sheetName := "الموظفون"
+	sheetName := i18n.T("ar", "excel.sheet.employees")
 	f.SetSheetName("Sheet1", sheetName)
 
 	headers := []string{
-		"اسم الموظف بالكامل",
-		"البريد الإلكتروني",
-		"رقم الهاتف",
-		"الدور / الصلاحية",
-		"المسمى الوظيفي",
-		"كود الموظف",
-		"الفرع / المخزن",
+		i18n.T("ar", "excel.col.full_name"),
+		i18n.T("ar", "excel.col.email"),
+		i18n.T("ar", "excel.col.phone"),
+		i18n.T("ar", "excel.col.role"),
+		i18n.T("ar", "excel.col.job_title"),
+		i18n.T("ar", "excel.col.emp_code"),
+		i18n.T("ar", "excel.col.branch_warehouse"),
 	}
 
 	var sampleData [][]string
 	if orgType == "vendor" {
 		sampleData = [][]string{
-			{"أحمد محمود علي", "ahmed.ali@example.com", "01012345678", "مدير", "مدير مبيعات وتوريد", "V-EMP-01", "المخزن الرئيسي"},
-			{"سارة إبراهيم حسن", "sara.hassan@example.com", "01123456789", "موظف", "أخصائي مبيعات", "V-EMP-02", "فرع الإسكندرية"},
-			{"محمد كريم عبد الله", "mohamed.kareem@example.com", "01234567890", "موظف", "مسؤول مخزن وجرد", "V-EMP-03", "المخزن الرئيسي"},
-			{"هبة سمير فؤاد", "heba.fouad@example.com", "01511223344", "محاسب", "محاسب مالي", "V-EMP-04", "الإدارة"},
+			{i18n.T("ar", "excel.sample.vendor_emp1_name"), "ahmed.ali@example.com", "01012345678", i18n.T("ar", "role.branch_manager"), i18n.T("ar", "excel.sample.vendor_emp1_title"), "V-EMP-01", i18n.T("ar", "excel.sample.vendor_emp1_wh")},
+			{i18n.T("ar", "excel.sample.vendor_emp2_name"), "sara.hassan@example.com", "01123456789", i18n.T("ar", "role.sales_rep"), i18n.T("ar", "excel.sample.vendor_emp2_title"), "V-EMP-02", i18n.T("ar", "excel.sample.vendor_emp2_wh")},
+			{i18n.T("ar", "excel.sample.vendor_emp3_name"), "mohamed.kareem@example.com", "01234567890", i18n.T("ar", "role.data_entry"), i18n.T("ar", "excel.sample.vendor_emp3_title"), "V-EMP-03", i18n.T("ar", "excel.sample.vendor_emp1_wh")},
+			{i18n.T("ar", "excel.sample.vendor_emp4_name"), "heba.fouad@example.com", "01511223344", i18n.T("ar", "role.accountant"), i18n.T("ar", "excel.sample.vendor_emp4_title"), "V-EMP-04", i18n.T("ar", "excel.sample.vendor_emp4_wh")},
 		}
 	} else {
 		sampleData = [][]string{
-			{"د. أحمد محمود علي", "dr.ahmed@pharmacy.com", "01012345678", "صيدلي", "صيدلي أول", "PH-001", "الفرع الرئيسي"},
-			{"د. ريم مصطفى كامل", "dr.reem@pharmacy.com", "01123456789", "صيدلي", "صيدلي فترة مسائية", "PH-002", "فرع التجمع"},
-			{"طارق عبد الرحمن", "tarek@pharmacy.com", "01234567890", "كاشير", "كاشير ومساعد صيدلي", "PH-003", "الفرع الرئيسي"},
-			{"منى السيد يوسف", "mona@pharmacy.com", "01511223344", "مدير", "مدير فرع وتطوير", "PH-004", "فرع المعادي"},
+			{i18n.T("ar", "excel.sample.pharm_emp1_name"), "dr.ahmed@pharmacy.com", "01012345678", i18n.T("ar", "role.pharmacist"), i18n.T("ar", "excel.sample.pharm_emp1_title"), "PH-001", i18n.T("ar", "excel.sample.vendor_emp1_wh")},
+			{i18n.T("ar", "excel.sample.pharm_emp2_name"), "dr.reem@pharmacy.com", "01123456789", i18n.T("ar", "role.pharmacist"), i18n.T("ar", "excel.sample.pharm_emp2_title"), "PH-002", i18n.T("ar", "excel.sample.pharm_emp2_wh")},
+			{i18n.T("ar", "excel.sample.pharm_emp3_name"), "tarek@pharmacy.com", "01234567890", i18n.T("ar", "role.data_entry"), i18n.T("ar", "excel.sample.pharm_emp3_title"), "PH-003", i18n.T("ar", "excel.sample.vendor_emp1_wh")},
+			{i18n.T("ar", "excel.sample.pharm_emp4_name"), "mona@pharmacy.com", "01511223344", i18n.T("ar", "role.branch_manager"), i18n.T("ar", "excel.sample.pharm_emp4_title"), "PH-004", i18n.T("ar", "excel.sample.pharm_emp4_wh")},
 		}
 	}
 

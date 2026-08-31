@@ -357,7 +357,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 				return templ_7745c5c3_Err
 			}
 			if profile.Image != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"user-avatar-badge\" style=\"width:54px; height:54px;\"><img src=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"user-avatar-badge\"><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -380,7 +380,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 				return templ_7745c5c3_Err
 			}
 			if profile.CoverageImage != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div style=\"width:80px; height:50px; border-radius:var(--radius-lg); border:1px solid var(--border-card); overflow:hidden; flex-shrink:0;\"><img src=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -393,7 +393,7 @@ func VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, n
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" alt=\"Cover\" style=\"width:100%; height:100%; object-fit:cover;\"></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" alt=\"Cover\"></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

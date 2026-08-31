@@ -302,7 +302,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 							<div class="d-flex items-center gap-3 flex-wrap">
 								if profile.Image != "" {
-									<div class="user-avatar-badge" style="width:54px; height:54px;">
+									<div class="user-avatar-badge">
 										<img src={ profile.Image } alt="Logo" class="product-thumb-img" />
 									</div>
 								}
@@ -323,8 +323,8 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 
 							<div class="d-flex items-center gap-3 flex-wrap">
 								if profile.CoverageImage != "" {
-									<div style="width:80px; height:50px; border-radius:var(--radius-lg); border:1px solid var(--border-card); overflow:hidden; flex-shrink:0;">
-										<img src={ profile.CoverageImage } alt="Cover" style="width:100%; height:100%; object-fit:cover;" />
+									<div>
+										<img src={ profile.CoverageImage } alt="Cover" />
 									</div>
 								}
 								<div class="flex-1 min-w-0">

@@ -1,5 +1,7 @@
 package pages
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 // One wizard, four faces.
 //
 // Every import in this platform is the same journey — choose a file, confirm how
@@ -39,10 +41,10 @@ const (
 // stages, not the code's: a vendor and a pharmacy are doing the same thing on
 // step 2 and should read the same word for it.
 var stepTitles = map[Step]struct{ icon, title string }{
-	StepFile:     {"📤", "الملف"},
-	StepColumns:  {"🔗", "الأعمدة"},
-	StepSettings: {"⚙️", "الإعدادات"},
-	StepReview:   {"📋", "المراجعة"},
+	StepFile:     {"📤", i18n.T("ar", "wizard.step.file")},
+	StepColumns:  {"🔗", i18n.T("ar", "wizard.step.columns")},
+	StepSettings: {"⚙️", i18n.T("ar", "wizard.step.settings")},
+	StepReview:   {"📋", i18n.T("ar", "wizard.step.review")},
 	StepResults:  {"📊", "النتائج"},
 	StepOrder:    {"🛒", "الطلب"},
 }

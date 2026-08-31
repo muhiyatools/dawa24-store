@@ -125,7 +125,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 
 			<!-- Filter Bar -->
 			<div class="glass-panel p-4 mb-6">
-				<form method="GET" action="/vendor/pharmacy-coverage" class="d-grid gap-3 items-end" style="grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto;">
+				<form method="GET" action="/vendor/pharmacy-coverage" class="d-grid gap-3 items-end">
 					<div>
 						<label class="form-label text-xs font-bold text-secondary mb-1">البحث بالاسم أو العنوان أو الهاتف</label>
 						<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder="اسم الصيدلية / الفرع / العنوان..." />
@@ -216,7 +216,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 													<div class="text-xs text-muted">
 														<span>{ p.BranchName }</span>
 														if p.Phone != "" {
-															<span class="tabular-nums" style="margin-inline-start:0.35rem;">• { p.Phone }</span>
+															<span class="tabular-nums">• { p.Phone }</span>
 														}
 													</div>
 												</div>

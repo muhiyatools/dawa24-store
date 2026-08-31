@@ -60,9 +60,9 @@ func (h *UIHandler) SmartOrderExportCSV(w http.ResponseWriter, r *http.Request) 
 		})
 	} else {
 		_ = out.Write([]string{
-			"رقم الصف", "الصنف كما ورد", "الكود", "الباركود",
-			"رقم المنتج المطابق", "اسم المنتج المطابق",
-			"طريقة المطابقة", "نسبة الثقة", "الكمية", "الحالة", "السبب",
+			i18n.T("ar", "smartorder.export.row_num"), i18n.T("ar", "smartorder.export.raw_name"), i18n.T("ar", "smartorder.export.code"), i18n.T("ar", "smartorder.export.barcode"),
+			i18n.T("ar", "smartorder.export.matched_id"), i18n.T("ar", "smartorder.export.matched_name"),
+			i18n.T("ar", "smartorder.export.method"), i18n.T("ar", "smartorder.export.confidence"), i18n.T("ar", "smartorder.export.quantity"), i18n.T("ar", "smartorder.export.status"), i18n.T("ar", "smartorder.export.reason"),
 		})
 	}
 

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"crypto/rand"
 	"encoding/hex"
 	"net"
@@ -115,10 +116,10 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 	ip := net.ParseIP(host)
 	if ip != nil && (ip.IsLoopback() || ip.IsPrivate()) {
 		if country == "" {
-			country = "مصر 🇪🇬"
+			country = i18n.T("ar", "geo.country.eg")
 		}
 		if city == "" {
-			city = "القاهرة"
+			city = i18n.T("ar", "geo.city.cairo")
 		}
 		return country, city
 	}
@@ -128,55 +129,55 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 		al := strings.ToLower(r.Header.Get("Accept-Language"))
 		switch {
 		case strings.Contains(al, "ar-eg"), strings.Contains(al, "eg"):
-			country = "مصر 🇪🇬"
+			country = i18n.T("ar", "geo.country.eg")
 			if city == "" {
-				city = "القاهرة"
+				city = i18n.T("ar", "geo.city.cairo")
 			}
 		case strings.Contains(al, "ar-sa"), strings.Contains(al, "sa"):
-			country = "السعودية 🇸🇦"
+			country = i18n.T("ar", "geo.country.sa")
 			if city == "" {
-				city = "الرياض"
+				city = i18n.T("ar", "geo.city.riyadh")
 			}
 		case strings.Contains(al, "ar-ae"), strings.Contains(al, "ae"):
-			country = "الإمارات 🇦🇪"
+			country = i18n.T("ar", "geo.country.ae")
 			if city == "" {
-				city = "دبي"
+				city = i18n.T("ar", "geo.city.dubai")
 			}
 		case strings.Contains(al, "ar-kw"), strings.Contains(al, "kw"):
-			country = "الكويت 🇰🇼"
+			country = i18n.T("ar", "geo.country.kw")
 			if city == "" {
-				city = "الكويت العاصمة"
+				city = i18n.T("ar", "geo.city.kuwait")
 			}
 		case strings.Contains(al, "ar-jo"), strings.Contains(al, "jo"):
-			country = "الأردن 🇯🇴"
+			country = i18n.T("ar", "geo.country.jo")
 			if city == "" {
-				city = "عمان"
+				city = i18n.T("ar", "geo.city.amman")
 			}
 		case strings.Contains(al, "en-us"):
-			country = "الولايات المتحدة 🇺🇸"
+			country = i18n.T("ar", "geo.country.us")
 			if city == "" {
-				city = "نيويورك"
+				city = i18n.T("ar", "geo.city.newyork")
 			}
 		case strings.Contains(al, "en-gb"):
-			country = "المملكة المتحدة 🇬🇧"
+			country = i18n.T("ar", "geo.country.gb")
 			if city == "" {
-				city = "لندن"
+				city = i18n.T("ar", "geo.city.london")
 			}
 		default:
-			country = "مصر 🇪🇬"
+			country = i18n.T("ar", "geo.country.eg")
 			if city == "" {
-				city = "القاهرة"
+				city = i18n.T("ar", "geo.city.cairo")
 			}
 		}
 	}
 
 	if city == "" {
 		if strings.Contains(country, "مصر") {
-			city = "القاهرة"
+			city = i18n.T("ar", "geo.city.cairo")
 		} else if strings.Contains(country, "السعودية") {
-			city = "الرياض"
+			city = i18n.T("ar", "geo.city.riyadh")
 		} else {
-			city = "المركز الرئيسي"
+			city = i18n.T("ar", "geo.city.main_center")
 		}
 	}
 	return country, city
@@ -189,55 +190,55 @@ func cleanCityName(raw string) string {
 	}
 	switch strings.ToLower(raw) {
 	case "cairo", "al qahirah", "el qahira":
-		return "القاهرة"
+		return i18n.T("ar", "geo.city.cairo")
 	case "giza", "al jizah":
-		return "الجيزة"
+		return i18n.T("ar", "geo.city.giza")
 	case "alexandria", "al iskandariyah":
-		return "الإسكندرية"
+		return i18n.T("ar", "geo.city.alexandria")
 	case "mansoura", "al mansurah":
-		return "المنصورة"
+		return i18n.T("ar", "geo.city.mansoura")
 	case "tanta":
-		return "طنطا"
+		return i18n.T("ar", "geo.city.tanta")
 	case "asyut", "assiut":
-		return "أسيوط"
+		return i18n.T("ar", "geo.city.asyut")
 	case "zagazig", "az zaqaziq":
-		return "الزقازيق"
+		return i18n.T("ar", "geo.city.zagazig")
 	case "ismailia", "al ismailiyah":
-		return "الإسماعيلية"
+		return i18n.T("ar", "geo.city.ismailia")
 	case "suez", "as suways":
-		return "السويس"
+		return i18n.T("ar", "geo.city.suez")
 	case "port said", "bur said":
-		return "بورسعيد"
+		return i18n.T("ar", "geo.city.portsaid")
 	case "damietta", "dumyat":
-		return "دمياط"
+		return i18n.T("ar", "geo.city.damietta")
 	case "aswan":
-		return "أسوان"
+		return i18n.T("ar", "geo.city.aswan")
 	case "luxor", "al uqsur":
-		return "الأقصر"
+		return i18n.T("ar", "geo.city.luxor")
 	case "hurghada", "al ghardaqah":
-		return "الغردقة"
+		return i18n.T("ar", "geo.city.hurghada")
 	case "sharm el-sheikh", "sharm ash shaykh":
-		return "شرم الشيخ"
+		return i18n.T("ar", "geo.city.sharm")
 	case "riyadh", "ar riyad":
-		return "الرياض"
+		return i18n.T("ar", "geo.city.riyadh")
 	case "jeddah":
-		return "جدة"
+		return i18n.T("ar", "geo.city.jeddah")
 	case "mecca", "makkah":
-		return "مكة المكرمة"
+		return i18n.T("ar", "geo.city.mecca")
 	case "medina", "madinah":
-		return "المدينة المنورة"
+		return i18n.T("ar", "geo.city.medina")
 	case "dammam", "ad dammam":
-		return "الدمام"
+		return i18n.T("ar", "geo.city.dammam")
 	case "dubai":
-		return "دبي"
+		return i18n.T("ar", "geo.city.dubai")
 	case "abu dhabi":
-		return "أبوظبي"
+		return i18n.T("ar", "geo.city.abudhabi")
 	case "doha":
-		return "الدوحة"
+		return i18n.T("ar", "geo.city.doha")
 	case "kuwait", "kuwait city":
-		return "الكويت العاصمة"
+		return i18n.T("ar", "geo.city.kuwait")
 	case "amman":
-		return "عمان"
+		return i18n.T("ar", "geo.city.amman")
 	default:
 		return raw
 	}
@@ -246,33 +247,33 @@ func cleanCityName(raw string) string {
 func mapCountryCode(code string) string {
 	switch strings.ToUpper(code) {
 	case "EG":
-		return "مصر 🇪🇬"
+		return i18n.T("ar", "geo.country.eg")
 	case "SA":
-		return "السعودية 🇸🇦"
+		return i18n.T("ar", "geo.country.sa")
 	case "AE":
-		return "الإمارات 🇦🇪"
+		return i18n.T("ar", "geo.country.ae")
 	case "KW":
-		return "الكويت 🇰🇼"
+		return i18n.T("ar", "geo.country.kw")
 	case "JO":
-		return "الأردن 🇯🇴"
+		return i18n.T("ar", "geo.country.jo")
 	case "OM":
-		return "عمان 🇴🇲"
+		return i18n.T("ar", "geo.country.om")
 	case "QA":
-		return "قطر 🇶🇦"
+		return i18n.T("ar", "geo.country.qa")
 	case "BH":
-		return "البحرين 🇧🇭"
+		return i18n.T("ar", "geo.country.bh")
 	case "IQ":
-		return "العراق 🇮🇶"
+		return i18n.T("ar", "geo.country.iq")
 	case "LY":
-		return "ليبيا 🇱🇾"
+		return i18n.T("ar", "geo.country.ly")
 	case "SD":
-		return "السودان 🇸🇩"
+		return i18n.T("ar", "geo.country.sd")
 	case "US":
-		return "الولايات المتحدة 🇺🇸"
+		return i18n.T("ar", "geo.country.us")
 	case "GB", "UK":
-		return "المملكة المتحدة 🇬🇧"
+		return i18n.T("ar", "geo.country.gb")
 	case "DE":
-		return "ألمانيا 🇩🇪"
+		return i18n.T("ar", "geo.country.de")
 	default:
 		return strings.ToUpper(code)
 	}

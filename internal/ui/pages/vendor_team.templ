@@ -181,7 +181,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<!-- Search Input -->
-						<div style="min-width: 220px;">
+						<div>
 							<input
 								type="text"
 								x-model="searchQuery"
@@ -191,7 +191,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</div>
 
 						<!-- Role Filter -->
-						<select x-model="roleFilter" class="form-input text-xs" style="min-width: 140px;">
+						<select x-model="roleFilter" class="form-input text-xs">
 							<option value="all">كل الأدوار</option>
 							<option value="org_owner">مالك المنشأة</option>
 							<option value="org_manager">مدير عمليات</option>
@@ -201,7 +201,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</select>
 
 						<!-- Status Filter -->
-						<select x-model="statusFilter" class="form-input text-xs" style="min-width: 110px;">
+						<select x-model="statusFilter" class="form-input text-xs">
 							<option value="all">كل الحالات</option>
 							<option value="active">النشط فقط</option>
 							<option value="inactive">المعطل فقط</option>
@@ -385,13 +385,11 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 				x-show="showAddModal"
 				x-cloak
 				x-transition.opacity
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
 					@click.outside="showAddModal = false"
 					class="glass-panel p-6 w-full"
-					style="max-width: 600px; max-height: 90vh; overflow-y: auto;"
 				>
 					<!-- Modal Header -->
 					<div class="flex-between items-center mb-4 pb-3 border-b">

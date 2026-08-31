@@ -1,5 +1,7 @@
 package ui
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 // The downloadable import template.
 //
 // One definition backs both the .xlsx and the .csv download, because two copies
@@ -14,17 +16,17 @@ package ui
 // importSampleHeaders are written in the vocabulary the column mapper scores
 // highest, so a template filled in as-is maps with full confidence.
 var importSampleHeaders = []string{
-	"اسم الصنف بالعربي",
-	"اسم الصنف بالإنجليزي",
-	"كود الصنف",
-	"الباركود",
-	"الاسم العلمي",
-	"المادة الفعالة",
-	"الشكل الصيدلي",
-	"التركيز",
-	"الوحدة",
-	"الشركة المصنعة",
-	"سعر الجمهور",
+	i18n.T("ar", "ingest.col.name_ar"),
+	i18n.T("ar", "ingest.col.name_en"),
+	i18n.T("ar", "ingest.col.sku"),
+	i18n.T("ar", "ingest.col.barcode"),
+	i18n.T("ar", "ingest.col.scientific_name"),
+	i18n.T("ar", "ingest.col.active_ingredient"),
+	i18n.T("ar", "ingest.col.dosage_form"),
+	i18n.T("ar", "ingest.col.concentration"),
+	i18n.T("ar", "ingest.col.unit"),
+	i18n.T("ar", "ingest.col.manufacturer"),
+	i18n.T("ar", "ingest.col.public_price"),
 	"نسبة الخصم",
 	"السعر بعد الخصم",
 	"الوصف بالعربي",

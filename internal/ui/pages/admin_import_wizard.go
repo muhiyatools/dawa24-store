@@ -1,5 +1,7 @@
 package pages
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 import (
 	"fmt"
 	"net/url"
@@ -65,49 +67,49 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 	toggles := []ImportToggle{
 		{
 			Name: "auto_create_brands", Icon: "🏭",
-			Title:       "إنشاء الشركات المصنعة تلقائياً",
-			Description: "تسجيل أي شركة مصنعة غير موجودة في قائمة الشركات وربط الأصناف بها.",
+			Title:       i18n.T("ar", "wizard.opt.auto_create_mfr_title"),
+			Description: i18n.T("ar", "wizard.opt.auto_create_mfr_desc"),
 			Checked:     opts.AutoCreateBrands,
 		},
 		{
 			Name: "assign_category", Icon: "🗂️",
-			Title:       "تحديد فئة المنتج",
-			Description: "ربط كل صنف بالفئة المناسبة من فئات المنصة الموجودة.",
+			Title:       i18n.T("ar", "wizard.opt.assign_cat_title"),
+			Description: i18n.T("ar", "wizard.opt.assign_cat_desc"),
 			Checked:     opts.AssignCategory,
 		},
 		{
 			Name: "auto_create_categories", Icon: "➕",
-			Title:       "إنشاء الفئات غير الموجودة",
-			Description: "إضافة الفئات المستوردة التي لا تطابق أي فئة حالية. الفئات الموجودة يُعاد استخدامها دائماً.",
+			Title:       i18n.T("ar", "wizard.opt.auto_create_cats_title"),
+			Description: i18n.T("ar", "wizard.opt.auto_create_cats_desc"),
 			Checked:     opts.AutoCreateCategories,
 		},
 		{
 			Name: "assign_dosage_form", Icon: "💊",
-			Title:       "تحديد الشكل الصيدلي",
-			Description: "استنتاج الشكل الصيدلي (أقراص، شراب، كريم…) من اسم الصنف.",
+			Title:       i18n.T("ar", "wizard.opt.assign_dosage_title"),
+			Description: i18n.T("ar", "wizard.opt.assign_dosage_desc"),
 			Checked:     opts.AssignDosageForm,
 		},
 		{
 			Name: "assign_scientific_name", Icon: "🧪",
-			Title:       "تحديد الاسم العلمي",
-			Description: "تحديد الاسم العلمي للمادة الفعالة لكل صنف دوائي.",
+			Title:       i18n.T("ar", "wizard.opt.assign_scientific_title"),
+			Description: i18n.T("ar", "wizard.opt.assign_scientific_desc"),
 			Checked:     opts.AssignScientificName,
 		},
 	}
 
 	ai := ImportToggle{
 		Name: "use_ai", Icon: "🤖",
-		Title: "مساعدة الذكاء الاصطناعي",
+		Title: i18n.T("ar", "wizard.opt.use_ai_title"),
 		Description: "ثلاثة طلبات ثابتة مهما كان حجم الملف — تحديد معنى الأعمدة، ومطابقة الفئات " +
 			"والأشكال الصيدلية — ثم طلبات مجمّعة للأصناف التي لم يحسمها التطابق الحتمي وحده " +
 			"(٢٥ صنفاً في الطلب الواحد، ومن بين مرشحين محدّدين فقط). لا يُعالَج أي صف على حدة، " +
 			"وإيقافه لا يعطّل الاستيراد بل يقلّل نسبة المطابقة فقط.",
 		Checked: opts.UseAI && aiAvailable,
-		Note:    "اختياري — الاستيراد يعمل بالكامل بدون تفعيله.",
+		Note:    i18n.T("ar", "wizard.opt.use_ai_note_optional"),
 	}
 	if !aiAvailable {
 		ai.Disabled = true
-		ai.Note = "خدمة الذكاء الاصطناعي غير متاحة حالياً."
+		ai.Note = i18n.T("ar", "wizard.opt.use_ai_note_unavailable")
 	}
 	return append(toggles, ai)
 }

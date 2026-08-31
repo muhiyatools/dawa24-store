@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"bytes"
 	"context"
 	"crypto/rand"
@@ -66,7 +67,7 @@ func (s *AdminImageImportSessionStore) NewSession(orgID, userID int64, filename 
 		Filename:       filename,
 		Phase:          AdminImagePhaseMapping,
 		Progress:       0,
-		ProgressNote:   "بانتظار تأكيد الأعمدة",
+		ProgressNote:   i18n.T("ar", "ops.image.awaiting_columns"),
 		TotalRows:      totalRows,
 		DetectedSKUCol: -1,
 		DetectedURLCol: -1,
@@ -143,7 +144,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 	}
 	sess.Phase = AdminImagePhaseProcessing
 	sess.Progress = 0
-	sess.ProgressNote = "بدء تنزيل الصور والربط بالكتالوج..."
+	sess.ProgressNote = i18n.T("ar", "ops.image.start_download")
 	rawRows := sess.RawDataRows
 	s.mu.Unlock()
 
@@ -173,7 +174,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 
 		if skuVal == "" {
 			itemRow.Status = "invalid_url"
-			itemRow.ErrorMsg = "كود الصنف (SKU) فارغ"
+			itemRow.ErrorMsg = i18n.T("ar", "ops.image.sku_empty")
 			errorCount++
 			outRows = append(outRows, itemRow)
 			continue
@@ -181,7 +182,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 
 		if urlVal == "" || (!strings.HasPrefix(urlVal, "http://") && !strings.HasPrefix(urlVal, "https://")) {
 			itemRow.Status = "invalid_url"
-			itemRow.ErrorMsg = "رابط الصورة غير صالح أو فارغ"
+			itemRow.ErrorMsg = i18n.T("ar", "ops.image.url_invalid")
 			errorCount++
 			outRows = append(outRows, itemRow)
 			continue
@@ -191,7 +192,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 		prod, err := catSvc.GetProductBySKU(ctx, skuVal)
 		if err != nil || prod == nil {
 			itemRow.Status = "not_found"
-			itemRow.ErrorMsg = fmt.Sprintf("لا يوجد منتج مطابق لكود الصنف (%s) في الكتالوج المعتمد", skuVal)
+			itemRow.ErrorMsg = fmt.Sprintf(i18n.T("ar", "ops.image.prod_not_found"), skuVal)
 			notFoundCount++
 			outRows = append(outRows, itemRow)
 			continue

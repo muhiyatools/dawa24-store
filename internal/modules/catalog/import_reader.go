@@ -1,6 +1,7 @@
 package catalog
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"bytes"
 	"encoding/csv"
 	"errors"
@@ -67,7 +68,7 @@ var ErrLegacyXLS = errors.New("catalog: legacy .xls workbook")
 // second branch — which told the admin nothing at all.
 func ReadSpreadsheet(content []byte, filename string) (*SheetData, error) {
 	if len(content) == 0 {
-		return nil, errors.New("الملف المرفوع فارغ (0 بايت). يرجى التأكد من اكتمال رفع الملف ثم المحاولة مرة أخرى")
+		return nil, errors.New(i18n.T("ar", "err.empty_file"))
 	}
 
 	switch {
@@ -75,7 +76,7 @@ func ReadSpreadsheet(content []byte, filename string) (*SheetData, error) {
 		return readExcel(content)
 
 	case bytes.HasPrefix(content, []byte("%PDF")):
-		return nil, errors.New("لا يمكن استيراد ملفات PDF. يرجى رفع ملف Excel (.xlsx) أو CSV")
+		return nil, errors.New(i18n.T("ar", "err.pdf_unsupported"))
 
 	case bytes.HasPrefix(content, magicOLE2), looksLikeHTML(content):
 		// Legacy BIFF .xls, and the HTML table a decade-old ERP writes and
@@ -130,7 +131,7 @@ func readViaSheet(content []byte, filename string) (*SheetData, error) {
 		return nil, err
 	}
 	if len(data.Rows) == 0 {
-		return nil, errors.New("لا يحتوي الملف على أي صفوف قابلة للقراءة")
+		return nil, errors.New(i18n.T("ar", "err.no_readable_rows"))
 	}
 	normalizeWidth(data)
 	return data, nil
@@ -158,7 +159,7 @@ const (
 
 // errSheetTooLarge is the refusal for a workbook past the decode caps.
 var errSheetTooLarge = errors.New(
-	"الملف أكبر من الحد المسموح به للاستيراد (200,000 صف). يرجى تقسيمه إلى عدة ملفات")
+	i18n.T("ar", "err.row_limit_exceeded"))
 
 // readExcel picks the worksheet that actually holds the catalogue.
 //
