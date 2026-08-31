@@ -211,7 +211,7 @@ func (r *Repository) ResolveByAlias(ctx context.Context, names []string) (map[st
 // language setting.
 //
 // This is the single most impactful tier that was missing: when a pharmacy
-// types "البير 40جم كريم" and the catalogue has exactly that, no fuzzy scorer
+// types i18n.TDefault("w4_mod.40_454") and the catalogue has exactly that, no fuzzy scorer
 // or AI is needed — a normalised string comparison settles it. On the live
 // catalogue of ~20,000 products, this tier alone resolves thousands of lines
 // that previously fell through to the scorer or were left unmatched.
@@ -287,7 +287,7 @@ func (r *Repository) ResolveByExactName(ctx context.Context, names []string, mat
 
 // ResolveByFuzzyDB uses PostgreSQL's pg_trgm extension to find catalogue
 // products whose names are similar to the unresolved lines — catching
-// transliteration variants ("ابليفاى" vs "ابيليفاي") and typos that share no
+// transliteration variants (i18n.TDefault("w4_mod.s_203_203") vs i18n.TDefault("w4_mod.s_204_204")) and typos that share no
 // whole word but plenty of character sequences.
 //
 // This tier runs AFTER exact name matching and BEFORE the in-memory scorer,

@@ -196,7 +196,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><!-- Upload Dropzone Card --><div class=\"glass-panel p-6 mb-6\"><form method=\"POST\" action=\"/admin/products/images/import/upload\" enctype=\"multipart/form-data\" class=\"stack-md\"><div style=\"text-align:center; padding:2.5rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-xl); background:var(--surface-sunken); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;\"><div style=\"width:64px; height:64px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><!-- Upload Dropzone Card --><div class=\"glass-panel p-6 mb-6\"><form method=\"POST\" action=\"/admin/products/images/import/upload\" enctype=\"multipart/form-data\" class=\"stack-md\"><div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -204,7 +204,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;\">اختر ملف Excel أو CSV لصور المنتجات</h3><p style=\"font-size:0.875rem; color:var(--text-muted);\">يجب أن يحتوي الملف على عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL)</p></div><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input\" style=\"max-width:360px;\"> <button type=\"submit\" class=\"btn btn-primary btn-md font-bold\" style=\"min-width:220px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div><h3>اختر ملف Excel أو CSV لصور المنتجات</h3><p>يجب أن يحتوي الملف على عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL)</p></div><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input\"> <button type=\"submit\" class=\"btn btn-primary btn-md font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -235,27 +235,27 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			for _, sess := range view.Sessions {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td style=\"font-weight:700; color:var(--text-primary);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Filename)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 121, Col: 80}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 121, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text-muted);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 122, Col: 128}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 122, Col: 77}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -333,7 +333,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td><div class=\"row-center\" style=\"gap:0.35rem;\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td><div class=\"row-center\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -359,7 +359,7 @@ func adminImageUploadStage(view AdminProductImagesImportView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" style=\"margin:0;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة؟');\"><button type=\"submit\" class=\"btn btn-danger btn-xs\" title=\"حذف الجلسة\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة؟');\"><button type=\"submit\" class=\"btn btn-danger btn-xs\" title=\"حذف الجلسة\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -406,7 +406,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"card\" style=\"padding:1.75rem;\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"card\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -419,7 +419,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"stack-lg\"><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;\">تأكيد مطابقة أعمدة ملف الصور (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"stack-lg\"><div><h3>تأكيد مطابقة أعمدة ملف الصور (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -432,7 +432,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ")</h3><p style=\"font-size:0.875rem; color:var(--text-muted);\">تحقق من تحديد عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL) بشكل صحيح لبدء التنزيل والربط.</p></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div class=\"form-group\"><label class=\"form-label font-bold\">عمود كود الصنف (SKU) *</label> <select name=\"sku_col\" class=\"form-input\" required>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ")</h3><p>تحقق من تحديد عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL) بشكل صحيح لبدء التنزيل والربط.</p></div><div><div class=\"form-group\"><label class=\"form-label font-bold\">عمود كود الصنف (SKU) *</label> <select name=\"sku_col\" class=\"form-input\" required>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -562,14 +562,14 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, cell := range row {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<td style=\"max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(cell)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 211, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 211, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -590,7 +590,7 @@ func adminImageMappingStage(view AdminProductImagesImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"row-center\" style=\"justify-content:flex-end; gap:0.75rem;\"><a href=\"/admin/products/images/import\" class=\"btn btn-secondary btn-md\">إلغاء والعودة</a> <button type=\"submit\" class=\"btn btn-primary btn-md fw-800\" style=\"min-width:200px;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"row-center\"><a href=\"/admin/products/images/import\" class=\"btn btn-secondary btn-md\">إلغاء والعودة</a> <button type=\"submit\" class=\"btn btn-primary btn-md fw-800\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -627,7 +627,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"card\" style=\"padding:2.5rem; text-align:center;\" id=\"image-processing-card\"><div style=\"width:72px; height:72px; border-radius:var(--radius-full); background:var(--brand-surface); color:var(--brand-primary); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"card\" id=\"image-processing-card\"><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -635,7 +635,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><h3 style=\"font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;\">جارٍ تنزيل الصور وحفظها وربطها بالكتالوج...</h3><p style=\"font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem;\" id=\"progress-note\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><h3>جارٍ تنزيل الصور وحفظها وربطها بالكتالوج...</h3><p id=\"progress-note\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -648,7 +648,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</p><!-- Progress Bar --><div style=\"max-width:500px; margin:0 auto 1.5rem auto;\"><div style=\"background:var(--bg-surface-sunken); height:16px; border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border-subtle);\"><div id=\"progress-bar-fill\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</p><!-- Progress Bar --><div><div><div id=\"progress-bar-fill\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -661,7 +661,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\"></div></div><div style=\"display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;\"><span id=\"progress-percent-label\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\"></div></div><div><span id=\"progress-percent-label\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -687,7 +687,7 @@ func adminImageProcessingStage(view AdminProductImagesImportView) templ.Componen
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, " صنفاً</span></div></div><script>\n\t\t\t(function() {\n\t\t\t\tvar sessionID = window.location.pathname.split('/').pop();\n\t\t\t\tvar interval = setInterval(function() {\n\t\t\t\t\tfetch('/admin/products/images/import/' + sessionID + '/progress')\n\t\t\t\t\t\t.then(function(res) { return res.json(); })\n\t\t\t\t\t\t.then(function(data) {\n\t\t\t\t\t\t\tif (!data || !data.success) return;\n\t\t\t\t\t\t\tvar p = data.progress || 0;\n\t\t\t\t\t\t\tvar fill = document.getElementById('progress-bar-fill');\n\t\t\t\t\t\t\tvar label = document.getElementById('progress-percent-label');\n\t\t\t\t\t\t\tvar note = document.getElementById('progress-note');\n\t\t\t\t\t\t\tif (fill) fill.style.width = p + '%';\n\t\t\t\t\t\t\tif (label) label.textContent = p + '%';\n\t\t\t\t\t\t\tif (note && data.progress_note) note.textContent = data.progress_note;\n\t\t\t\t\t\t\tif (data.phase === 'completed' || data.phase === 'failed') {\n\t\t\t\t\t\t\t\tclearInterval(interval);\n\t\t\t\t\t\t\t\tsetTimeout(function() { window.location.reload(); }, 600);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(function(err) {});\n\t\t\t\t}, 1500);\n\t\t\t})();\n\t\t</script></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, " صنفاً</span></div></div><script>\r\n\t\t\t(function() {\r\n\t\t\t\tvar sessionID = window.location.pathname.split('/').pop();\r\n\t\t\t\tvar interval = setInterval(function() {\r\n\t\t\t\t\tfetch('/admin/products/images/import/' + sessionID + '/progress')\r\n\t\t\t\t\t\t.then(function(res) { return res.json(); })\r\n\t\t\t\t\t\t.then(function(data) {\r\n\t\t\t\t\t\t\tif (!data || !data.success) return;\r\n\t\t\t\t\t\t\tvar p = data.progress || 0;\r\n\t\t\t\t\t\t\tvar fill = document.getElementById('progress-bar-fill');\r\n\t\t\t\t\t\t\tvar label = document.getElementById('progress-percent-label');\r\n\t\t\t\t\t\t\tvar note = document.getElementById('progress-note');\r\n\t\t\t\t\t\t\tif (fill) fill.style.width = p + '%';\r\n\t\t\t\t\t\t\tif (label) label.textContent = p + '%';\r\n\t\t\t\t\t\t\tif (note && data.progress_note) note.textContent = data.progress_note;\r\n\t\t\t\t\t\t\tif (data.phase === 'completed' || data.phase === 'failed') {\r\n\t\t\t\t\t\t\t\tclearInterval(interval);\r\n\t\t\t\t\t\t\t\tsetTimeout(function() { window.location.reload(); }, 600);\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t})\r\n\t\t\t\t\t\t.catch(function(err) {});\r\n\t\t\t\t}, 1500);\r\n\t\t\t})();\r\n\t\t</script></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -716,72 +716,72 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"stack-lg\"><!-- Stats Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><div class=\"card\" style=\"padding:1.25rem;\"><div style=\"font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;\">إجمالي الصفوف المفحوصة</div><div style=\"font-size:1.6rem; font-weight:800; color:var(--text-primary);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"stack-lg\"><!-- Stats Grid --><div><div class=\"card\"><div>إجمالي الصفوف المفحوصة</div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var31 string
 		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.TotalRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 288, Col: 122}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 288, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div></div><div class=\"card\" style=\"padding:1.25rem; border-inline-start:4px solid var(--success);\"><div style=\"font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;\">تم تنزيلها وربطها بنجاح</div><div style=\"font-size:1.6rem; font-weight:800; color:var(--success);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div></div><div class=\"card\"><div>تم تنزيلها وربطها بنجاح</div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.SuccessRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 292, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 292, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div></div><div class=\"card\" style=\"padding:1.25rem; border-inline-start:4px solid var(--warning);\"><div style=\"font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;\">أصناف غير موجودة بالكتالوج</div><div style=\"font-size:1.6rem; font-weight:800; color:var(--warning);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div></div><div class=\"card\"><div>أصناف غير موجودة بالكتالوج</div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.NotFoundRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 296, Col: 120}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 296, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div></div><div class=\"card\" style=\"padding:1.25rem; border-inline-start:4px solid var(--danger);\"><div style=\"font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;\">أخطاء في التنزيل / روابط تالفة</div><div style=\"font-size:1.6rem; font-weight:800; color:var(--danger);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div></div><div class=\"card\"><div>أخطاء في التنزيل / روابط تالفة</div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", view.Session.ErrorRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 300, Col: 116}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 300, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div></div></div><!-- Interactive Results Table --><div class=\"card\"><div class=\"card-header\" style=\"padding:1.25rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;\">نتائج معالجة وتنزيل صور المنتجات</h3><span style=\"font-size:0.8rem; color:var(--text-muted);\">الملف: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div></div></div><!-- Interactive Results Table --><div class=\"card\"><div class=\"card-header\"><div><h3>نتائج معالجة وتنزيل صور المنتجات</h3><span>الملف: ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var35 string
 		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(view.Session.Filename)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 311, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 311, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</span></div><div class=\"row-center\" style=\"gap:0.75rem;\"><a href=\"/admin/products/images/import\" class=\"btn btn-secondary btn-sm fw-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</span></div><div class=\"row-center\"><a href=\"/admin/products/images/import\" class=\"btn btn-secondary btn-sm fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -797,7 +797,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span>كتالوج الأدوية المعتمدة ←</span></a></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:40px;\">#</th><th style=\"width:80px;\">الصورة</th><th>كود الصنف (SKU)</th><th>المنتج المطابق بالكتالوج</th><th>رابط الصورة الأصلي</th><th>الحالة</th><th>التفاصيل / الملاحظة</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span>كتالوج الأدوية المعتمدة ←</span></a></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>الصورة</th><th>كود الصنف (SKU)</th><th>المنتج المطابق بالكتالوج</th><th>رابط الصورة الأصلي</th><th>الحالة</th><th>التفاصيل / الملاحظة</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -846,24 +846,24 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" style=\"width:44px; height:44px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border-subtle); background:var(--bg-surface-sunken);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div style=\"width:44px; height:44px; border-radius:var(--radius-md); background:var(--bg-surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.75rem;\">-</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div>-</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</td><td style=\"font-family:monospace; font-weight:700; color:var(--text-primary);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(r.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 349, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 349, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
@@ -887,7 +887,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" target=\"_blank\" style=\"font-weight:700; color:var(--brand-primary); text-decoration:none;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" target=\"_blank\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -910,7 +910,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</td><td style=\"max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem; direction:ltr; text-align:right;\"><a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</td><td><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -923,7 +923,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--text-muted); text-decoration:underline;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" target=\"_blank\" rel=\"noopener\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -956,19 +956,19 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</td><td style=\"font-size:0.8rem; color:var(--text-secondary);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if r.ErrorMsg != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span style=\"color:var(--danger);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var44 string
 				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(r.ErrorMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 375, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_product_images_import.templ`, Line: 375, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 				if templ_7745c5c3_Err != nil {
@@ -979,7 +979,7 @@ func adminImageCompletedStage(view AdminProductImagesImportView) templ.Component
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span style=\"color:var(--success);\">تم الحفظ بنجاح</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>تم الحفظ بنجاح</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

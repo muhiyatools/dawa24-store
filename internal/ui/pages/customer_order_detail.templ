@@ -339,17 +339,17 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="main-order-lines-form">
 									if len(order.Shipments) > 0 {
 										<!-- Grouped by Shipment / Vendor -->
-										<div style="display:flex; flex-direction:column; gap:1.25rem;">
+										<div>
 											for idx, sh := range order.Shipments {
-												<div style="border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); overflow:hidden;">
+												<div>
 													<!-- Shipment Header -->
-													<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.75rem;">
+													<div>
 														<div class="inline-row-06">
 															<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
-															<strong style="font-size:0.95rem; color:var(--text); font-weight:800;">
+															<strong>
 																{ sh.VendorName.Get(i18n.Lang(lang)) }
 															</strong>
-															<span style="font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.25rem;">
+															<span>
 																(رقم الشحنة: <span class="tabular-nums font-mono">{ sh.ShipmentNumber }</span>)
 															</span>
 														</div>
@@ -367,11 +367,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															<thead>
 																<tr>
 																	<th>الصنف الدوائي</th>
-																	<th style="width:170px;" class="text-center">الكمية المطلوبة</th>
+																	<th class="text-center">الكمية المطلوبة</th>
 																	<th class="text-end">سعر الجمهور</th>
 																	<th class="text-center">نسبة الخصم</th>
 																	<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
-																	<th style="width:45px;" class="text-center"></th>
+																	<th class="text-center"></th>
 																</tr>
 															</thead>
 															<tbody>
@@ -401,7 +401,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																			}
 																			if l.AvailableStock > 0 {
 																				<div class="mt-1">
-																					<span class="badge badge-emerald text-xs font-bold" style="font-size:0.7rem; padding:0.1rem 0.4rem;">
+																					<span class="badge badge-emerald text-xs font-bold">
 																						المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
 																					</span>
 																				</div>
@@ -426,7 +426,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																					}
 																					required
 																					class="form-input text-xs tabular-nums text-center row-qty-input font-bold"
-																					style="width:62px;"
+																				
 																					oninput="recalcRowTotal(this)"
 																				/>
 																				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
@@ -471,11 +471,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												<thead>
 													<tr>
 														<th>الصنف الدوائي</th>
-														<th style="width:170px;" class="text-center">الكمية المطلوبة</th>
+														<th class="text-center">الكمية المطلوبة</th>
 														<th class="text-end">سعر الجمهور</th>
 														<th class="text-center">نسبة الخصم</th>
 														<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
-														<th style="width:45px;" class="text-center"></th>
+														<th class="text-center"></th>
 													</tr>
 												</thead>
 												<tbody>
@@ -505,7 +505,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																}
 																if l.AvailableStock > 0 {
 																	<div class="mt-1">
-																		<span class="badge badge-emerald text-xs font-bold" style="font-size:0.7rem; padding:0.1rem 0.4rem;">
+																		<span class="badge badge-emerald text-xs font-bold">
 																			المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
 																		</span>
 																	</div>
@@ -530,7 +530,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		}
 																		required
 																		class="form-input text-xs tabular-nums text-center row-qty-input font-bold"
-																		style="width:62px;"
+																	
 																		oninput="recalcRowTotal(this)"
 																	/>
 																	<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
@@ -568,11 +568,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									}
 
 									<!-- Save Edits Action Bar -->
-									<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3 border-brand-subtle" style="background:var(--surface-raised);">
+									<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3 border-brand-subtle">
 										<div class="d-flex items-center gap-3 text-xs text-secondary flex-wrap">
 											<span class="badge badge-amber font-bold">قيد المراجعة</span>
 											<span>تم تعديل الكميات مباشرة: سيتم حفظ التعديلات وإعادة حساب الإجمالي الصافي فوراً.</span>
-											<span class="text-brand font-black ms-2 tabular-nums" style="font-size:0.95rem;">الإجمالي الصافي: <span id="form-bar-total">{ order.TotalAmount.String() } ج.م</span></span>
+											<span class="text-brand font-black ms-2 tabular-nums">الإجمالي الصافي: <span id="form-bar-total">{ order.TotalAmount.String() } ج.م</span></span>
 										</div>
 										<div class="d-flex items-center gap-2">
 											<button type="submit" id="save-order-lines-btn" class="btn btn-primary font-bold text-xs px-5 py-2 gap-2 shadow-sm">
@@ -913,11 +913,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								<thead>
 									<tr>
 										<th>الصنف الدوائي</th>
-										<th style="width:145px;" class="text-center">الكمية</th>
-										<th style="width:110px;" class="text-end">سعر الوحدة</th>
-										<th style="width:95px;" class="text-end">الخصم</th>
-										<th style="width:110px;" class="text-end">الإجمالي</th>
-										<th style="width:45px;" class="text-center"></th>
+										<th class="text-center">الكمية</th>
+										<th class="text-end">سعر الوحدة</th>
+										<th class="text-end">الخصم</th>
+										<th class="text-end">الإجمالي</th>
+										<th class="text-center"></th>
 									</tr>
 								</thead>
 								<tbody id="edit-lines-tbody">
@@ -934,7 +934,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												<input type="hidden" name="is_deleted[]" value="0" class="line-deleted-input"/>
 												<input type="text" name="product_name[]" value={ line.ProductName.Get(i18n.Lang(lang)) } required class="form-input text-xs w-full font-bold"/>
 												if line.AvailableStock > 0 {
-													<div class="text-xs text-emerald font-bold mt-1" style="font-size:0.7rem;">
+													<div class="text-xs text-emerald font-bold mt-1">
 														المتوفر: { fmt.Sprintf("%d", line.AvailableStock) } قطعة
 													</div>
 												}
@@ -952,17 +952,17 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 														}
 														required
 														class="form-input text-xs tabular-nums text-center line-qty-input font-bold"
-														style="width:55px;"
+													
 														oninput="window.recalcEditOrder()"
 													/>
 													<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="window.stepQty(this, 1)">+</button>
 												</div>
 											</td>
 											<td class="text-end">
-												<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input text-xs tabular-nums line-unit-price text-end font-bold" style="width:100%;" oninput="window.recalcEditOrder()"/>
+												<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input text-xs tabular-nums line-unit-price text-end font-bold" oninput="window.recalcEditOrder()"/>
 											</td>
 											<td class="text-end">
-												<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input text-xs tabular-nums line-disc-amount text-end" style="width:100%;" oninput="window.recalcEditOrder()"/>
+												<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input text-xs tabular-nums line-disc-amount text-end" oninput="window.recalcEditOrder()"/>
 											</td>
 											<td class="text-end tabular-nums font-black text-brand text-xs">
 												<span class="line-total-cell">{ line.TotalPrice.String() }</span>
@@ -1204,29 +1204,29 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						tr.setAttribute('data-min-qty', '1');
 						tr.setAttribute('data-max-qty', '99999');
 						tr.innerHTML = `
-							<td style="padding:0.65rem 0.85rem;">
+							<td>
 								<input type="hidden" name="line_id[]" value="0"/>
 								<input type="hidden" name="is_deleted[]" value="0" class="line-deleted-input"/>
-								<input type="text" name="product_name[]" placeholder="اسم الصنف الدوائي الجديد..." required class="form-input input-sm w-full fw-700" style="font-size:0.875rem;"/>
+								<input type="text" name="product_name[]" placeholder="اسم الصنف الدوائي الجديد..." required class="form-input input-sm w-full fw-700"/>
 							</td>
-							<td style="padding:0.65rem 0.75rem;">
-								<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
-									<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, -1)">-</button>
-									<input type="number" name="quantity[]" value="1" min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" style="width:55px; font-weight:800; padding:0.25rem 0.35rem;" oninput="window.recalcEditOrder()"/>
-									<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, 1)">+</button>
+							<td>
+								<div>
+									<button type="button" class="btn btn-secondary btn-icon" onclick="window.stepQty(this, -1)">-</button>
+									<input type="number" name="quantity[]" value="1" min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" oninput="window.recalcEditOrder()"/>
+									<button type="button" class="btn btn-secondary btn-icon" onclick="window.stepQty(this, 1)">+</button>
 								</div>
 							</td>
-							<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-								<input type="text" name="unit_price[]" value="0.00" required class="form-input input-sm tabular-nums line-unit-price text-right" style="width:100%; font-weight:700;" oninput="window.recalcEditOrder()"/>
+							<td class="td-numeric">
+								<input type="text" name="unit_price[]" value="0.00" required class="form-input input-sm tabular-nums line-unit-price text-right" oninput="window.recalcEditOrder()"/>
 							</td>
-							<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-								<input type="text" name="discount_amount[]" value="0.00" class="form-input input-sm tabular-nums line-disc-amount text-right" style="width:100%;" oninput="window.recalcEditOrder()"/>
+							<td class="td-numeric">
+								<input type="text" name="discount_amount[]" value="0.00" class="form-input input-sm tabular-nums line-disc-amount text-right" oninput="window.recalcEditOrder()"/>
 							</td>
-							<td style="padding:0.65rem 0.85rem;" class="td-numeric">
+							<td class="td-numeric">
 								<span class="line-total-cell tabular-nums fw-800 text-primary">0.00</span>
 							</td>
-							<td style="padding:0.65rem 0.5rem; text-align:center;">
-								<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
+							<td>
+								<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)">
 									@components.IconTrash("icon-sm")
 								</button>
 							</td>

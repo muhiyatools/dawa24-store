@@ -218,7 +218,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span><h2 class=\"text-base font-extrabold text-primary m-0\">1. البيانات الأساسية للفرع</h2></div><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span><h2 class=\"text-base font-extrabold text-primary m-0\">1. البيانات الأساسية للفرع</h2></div><div class=\"d-grid gap-4\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -409,7 +409,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\" style=\"height:280px; width:100%; z-index:1;\"></div><div class=\"flex-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-secondary font-bold\">الإحداثيات المحددة:</span> <span data-map-coords-badge class=\"tabular-nums font-black text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\"></div><div class=\"flex-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-secondary font-bold\">الإحداثيات المحددة:</span> <span data-map-coords-badge class=\"tabular-nums font-black text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -53,7 +53,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	Normalize(lines)
 	smartorder.ApplyQuantities(cfg, lines)
 	r.emit(ctx, run, smartorder.StageNormalize, len(lines), len(lines),
-		"جارٍ تجهيز الأصناف", "Preparing items")
+		i18n.TDefault("w4_mod.s_451_451"), "Preparing items")
 
 	// Stage 2 — the exact tiers, each one query for the whole file.
 	resolver := NewResolver(r.repo, cfg)
@@ -62,7 +62,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	}
 	residual := Unresolved(lines)
 	r.emit(ctx, run, smartorder.StageResolve, len(lines)-len(residual), len(lines),
-		"مطابقة الأكواد والأسماء", "Matching codes and names")
+		i18n.TDefault("w4_mod.s_428_428"), "Matching codes and names")
 
 	// Stage 3 — score what is left against an in-memory catalogue.
 	matcher := NewMatcher(r.repo)
@@ -78,7 +78,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	}
 	reviews := matcher.Score(residual)
 	r.emit(ctx, run, smartorder.StageCandidates, len(lines)-len(reviews), len(lines),
-		"مطابقة الأصناف المتبقية", "Matching remaining items")
+		i18n.TDefault("w4_mod.s_429_429"), "Matching remaining items")
 
 	// The deterministic engine is done. Saying so out loud, as its own event, is
 	// what lets the buyer see that ordinary matching finished and something else
@@ -87,7 +87,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	deterministicMS := int(time.Since(started).Milliseconds())
 	run.DeterministicMS = &deterministicMS
 	r.emit(ctx, run, smartorder.StageInitialDone, len(lines)-len(reviews), len(lines),
-		"اكتملت المطابقة المبدئية", "Initial matching completed")
+		i18n.TDefault("w4_mod.s_430_430"), "Initial matching completed")
 
 	// Stage 4 — AI enhancement, on exactly the lines the engine left as
 	// غير مطابق or مطلوب للمراجعة, and on nothing else.
@@ -102,7 +102,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	}
 
 	// Stage 5 — suppliers, coverage, Corporate Operations, selection.
-	r.emit(ctx, run, smartorder.StageSelect, 0, len(lines), "البحث عن الموردين", "Finding suppliers")
+	r.emit(ctx, run, smartorder.StageSelect, 0, len(lines), i18n.TDefault("w4_mod.s_432_432"), "Finding suppliers")
 	supplier := NewSupplier(r.repo, r.coverage, r.institutional, cfg, branch)
 	total, err := supplier.Resolve(ctx, lines)
 	if err != nil {
@@ -113,7 +113,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 		return err
 	}
 	r.emit(ctx, run, smartorder.StageSelect, len(lines), len(lines),
-		"البحث عن الموردين", "Finding suppliers")
+		i18n.TDefault("w4_mod.s_432_432"), "Finding suppliers")
 
 	run.Stats = smartorder.CountByOutcome(lines)
 	run.EstimatedTotal = total
@@ -130,7 +130,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// A terminal event, so the bar reaches 100 rather than stopping at 99 and
 	// being replaced by the results page mid-animation.
 	r.emit(ctx, run, smartorder.StageFinalize, 1, 1,
-		"اكتملت المطابقة", "Matching completed")
+		i18n.TDefault("w4_mod.s_433_433"), "Matching completed")
 
 	return r.repo.UpdateRunStats(ctx, run)
 }
@@ -164,7 +164,7 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// buyer watching a still number through the slowest minute of the run.
 	enh.OnProgress = func(done int) {
 		r.emit(ctx, run, smartorder.StageAIEnhance, done, total,
-			"الذكاء الاصطناعي يحسّن المطابقات غير المؤكدة", "AI is improving uncertain matches")
+			i18n.TDefault("w4_mod.s_431_431"), "AI is improving uncertain matches")
 	}
 	enh.Run(ctx, askable)
 
@@ -183,11 +183,11 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 		"ceiling_hit", enh.Stats.CeilingHit)
 
 	r.emit(ctx, run, smartorder.StageAIEnhance, total, total,
-		"اكتمل تحسين المطابقة بالذكاء الاصطناعي", "AI enhancement completed")
+		i18n.TDefault("w4_mod.s_452_452"), "AI enhancement completed")
 
 	if enh.Stats.CeilingHit {
 		r.emitWarn(ctx, run, smartorder.StageAIEnhance,
-			"تم بلوغ حد التحسين بالذكاء الاصطناعي؛ بقيت بعض الأصناف كما هي",
+			i18n.TDefault("w4_mod.s_453_453"),
 			"AI enhancement limit reached; some items were left as matched deterministically")
 	}
 }

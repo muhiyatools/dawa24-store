@@ -30,7 +30,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 		<div class="glass-panel p-6 mb-6">
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div class="d-flex items-center gap-3.5">
-					<div class="user-avatar-badge" style="width:48px; height:48px; font-size:1.5rem;">
+					<div class="user-avatar-badge">
 						@components.IconBell("icon-sm")
 					</div>
 					<div>
@@ -137,7 +137,7 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 					style={ notifCardInlineStyle(l.IsRead) }
 				>
 					<!-- Icon & Main Details -->
-					<div class="d-flex items-start gap-3.5 flex-1" style="min-width: 260px;">
+					<div class="d-flex items-start gap-3.5 flex-1">
 						<!-- Icon Badge -->
 						<div class={ "user-avatar-badge rounded-xl flex-shrink-0 p-2.5", notifBadgeClass(l.Title, l.IsRead) }>
 							@notifIcon(l.Title)

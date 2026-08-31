@@ -49,7 +49,7 @@ const EnhancePromptVersion = matchflow.PromptVersion
 // Arabic name first, because that is what the pharmacy wrote and what the
 // catalogue is authored in. The English name is carried too and earns its
 // tokens: transliteration is where Arabic pharmacy matching actually fails, and
-// "ابليفاى" against "ابيليفاي" is obvious the moment both rows show `abilify`.
+// i18n.TDefault("w4_mod.s_203_203") against i18n.TDefault("w4_mod.s_204_204") is obvious the moment both rows show `abilify`.
 type CatalogEntry = matchflow.CatalogEntry
 
 // EnhanceItem is one line the deterministic engine could not settle.

@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -196,12 +197,12 @@ func (s *Service) SetStock(ctx context.Context, st *Stock) error {
 	if st == nil || st.WarehouseID <= 0 || st.ProductVariantID <= 0 {
 		return apperr.Validation("inventory.stock_invalid",
 			"Warehouse and product variant are required.",
-			map[string]string{"warehouse_id": "المخزن والصنف مطلوبان"})
+			map[string]string{"warehouse_id": i18n.TDefault("w4_mod.s_397_397")})
 	}
 	if st.Quantity < 0 {
 		return apperr.Validation("inventory.quantity_negative",
 			"Quantity cannot be negative.",
-			map[string]string{"quantity": "الكمية لا يمكن أن تكون سالبة"})
+			map[string]string{"quantity": i18n.TDefault("w4_mod.s_398_398")})
 	}
 	return s.repo.UpsertStock(ctx, st)
 }

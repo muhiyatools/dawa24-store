@@ -3,6 +3,7 @@ package aicapabilities
 import (
 	"context"
 	"encoding/json"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
 	"strings"
 
@@ -144,8 +145,8 @@ func (s *Service) ExpandSearch(ctx context.Context, req QueryExpansionRequest) Q
 	var expanded []string
 	for _, t := range terms {
 		expanded = append(expanded, t)
-		if strings.HasPrefix(t, "ال") && len(t) > 4 {
-			expanded = append(expanded, strings.TrimPrefix(t, "ال"))
+		if strings.HasPrefix(t, i18n.TDefault("w4_mod.s_229_229")) && len(t) > 4 {
+			expanded = append(expanded, strings.TrimPrefix(t, i18n.TDefault("w4_mod.s_229_229")))
 		}
 	}
 

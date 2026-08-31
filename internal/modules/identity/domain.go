@@ -376,13 +376,13 @@ func ParseUserAgentDevice(ua, ip string) DeviceDetails {
 	uaLower := strings.ToLower(ua)
 	det := DeviceDetails{
 		DeviceType: "desktop",
-		Browser:    "متصفح ويب",
-		OS:         "نظام تشغيل",
+		Browser:    i18n.TDefault("w4s_mod.s_1_1"),
+		OS:         i18n.TDefault("w4s_mod.s_2_2"),
 		Icon:       "💻",
 	}
 
 	if strings.TrimSpace(ua) == "" {
-		det.DeviceName = "جهاز غير محدد"
+		det.DeviceName = i18n.TDefault("w4s_mod.s_3_3")
 		return det
 	}
 
@@ -434,11 +434,11 @@ func ParseUserAgentDevice(ua, ip string) DeviceDetails {
 	}
 
 	// 3. Compose Friendly Name
-	typeLabel := "كمبيوتر مكتبي"
+	typeLabel := i18n.TDefault("w4s_mod.s_4_4")
 	if det.DeviceType == "mobile" {
-		typeLabel = "هاتف ذكي"
+		typeLabel = i18n.TDefault("w4s_mod.s_5_5")
 	} else if det.DeviceType == "tablet" {
-		typeLabel = "جهاز لوحي"
+		typeLabel = i18n.TDefault("w4s_mod.s_6_6")
 	}
 
 	det.DeviceName = typeLabel + " (" + det.OS + " - " + det.Browser + ")"

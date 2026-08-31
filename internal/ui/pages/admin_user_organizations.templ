@@ -99,7 +99,7 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 											<strong class="text-primary">{ uo.UserName }</strong>
 											<div class="meta-muted" dir="ltr">{ uo.UserEmail }</div>
 											if uo.CustomerOrgName != "" {
-												<div style="font-size:0.75rem; color:var(--text-secondary);">{ uo.CustomerOrgName }</div>
+												<div>{ uo.CustomerOrgName }</div>
 											}
 										</td>
 										<td>
@@ -107,7 +107,7 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 											<div class="meta-muted">معرف: #{ fmt.Sprintf("%d", uo.VendorOrgID) }</div>
 										</td>
 										<td>
-											<span class="badge badge-sky text-xs fw-800 tabular-nums" style="font-family:var(--font-mono, monospace);" dir="ltr">
+											<span class="badge badge-sky text-xs fw-800 tabular-nums" dir="ltr">
 												{ uo.OrganizationNumber }
 											</span>
 										</td>
@@ -122,13 +122,13 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 											}
 										</td>
 										<td>
-											<span class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">
+											<span class="tabular-nums">
 												{ format.Date(uo.CreatedAt, "ar") }
 											</span>
 										</td>
 										<td>
 											if uo.Notes != "" {
-												<span style="font-size:0.8rem; color:var(--text-secondary);">{ uo.Notes }</span>
+												<span>{ uo.Notes }</span>
 											} else {
 												<span class="text-muted">-</span>
 											}

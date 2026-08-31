@@ -1237,7 +1237,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "\" style=\"flex:1; margin:0;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1270,7 +1270,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "\" style=\"flex:1; margin:0;\"><button type=\"submit\" class=\"btn btn-outline-amber btn-xs w-full d-flex items-center justify-center gap-1\" title=\"جعلها الباقة الافتراضية\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "\"><button type=\"submit\" class=\"btn btn-outline-amber btn-xs w-full d-flex items-center justify-center gap-1\" title=\"جعلها الباقة الافتراضية\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1301,7 +1301,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 131, "\" style=\"margin:0;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');\"><button type=\"submit\" class=\"btn btn-outline-danger btn-xs btn-icon\" title=\"حذف الباقة\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 131, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');\"><button type=\"submit\" class=\"btn btn-outline-danger btn-xs btn-icon\" title=\"حذف الباقة\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1325,132 +1325,155 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 135, "</div></div><!-- ========================================== --><!-- Create / Edit Plan Modal                   --><!-- ========================================== --><!-- ========================================== --><!-- Create / Edit Plan Modal                   --><!-- ========================================== --><dialog id=\"admin-plan-modal\" class=\"modal\" aria-labelledby=\"admin-plan-modal-title\"><div class=\"modal-box modal-lg\"><!-- Modal Header --><div class=\"modal-header\"><div><h3 id=\"admin-plan-modal-title\" class=\"modal-title\" x-text=\"isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'\"></h3><p class=\"m-0 mt-0.5 text-xs text-secondary font-medium\">تحديد الأسعار، حدود الجلسات المتزامنة، وصلاحيات الوصول لحصص الذكاء الاصطناعي وخصومات السوق.</p></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 135, "</div></div><!-- ========================================== --><!-- Create / Edit Plan Modal                   --><!-- ========================================== --><!-- ========================================== --><!-- Create / Edit Plan Modal                   --><!-- ========================================== -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Var62 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "<form :action=\"formAction\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-4\"><!-- Section 1: Identity & Names --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">المعرّف الفريد (Slug) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"slug\" x-model=\"form.slug\" required class=\"form-input text-xs font-mono\" placeholder=\"e.g. basic, pro, enterprise\" dir=\"ltr\"></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">اسم الباقة (عربي) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required class=\"form-input text-xs font-bold\" placeholder=\"مثال: الباقة الاحترافية\"></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">اسم الباقة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" class=\"form-input text-xs\" placeholder=\"e.g. Professional Plan\" dir=\"ltr\"></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">فترة الصلاحية (أيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"duration_days\" x-model=\"form.duration\" class=\"form-input tabular-nums text-xs\" min=\"1\" required></div></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">وصف الباقة ومزاياها للمشتركين</label> <textarea name=\"description_ar\" x-model=\"form.desc_ar\" rows=\"2\" class=\"form-input text-xs\" placeholder=\"اكتب نبذة توضيحية عن ميزات الباقة...\"></textarea></div><!-- Section 2: Pricing (Monthly & Yearly) --><div class=\"bg-surface-sunken border border-slate-200/80 rounded-xl p-4\"><div class=\"text-xs font-extrabold text-primary mb-3 d-flex items-center gap-1.5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconCreditCard("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "<span>تسعير الباقة (شهري وسنوي)</span></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-3\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">السعر الشهري (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" name=\"price_month\" x-model=\"form.price_month\" class=\"form-input tabular-nums text-xs font-bold\" placeholder=\"0.00\" required> <span class=\"text-2xs text-muted mt-1 d-block font-medium\">ضع 0 للباقات المجانية</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">السعر السنوي (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" name=\"price_year\" x-model=\"form.price_year\" class=\"form-input tabular-nums text-xs font-bold\" placeholder=\"0.00\" required> <span class=\"text-2xs text-muted mt-1 d-block font-medium\">سعر الدفع السنوي المجمع</span></div></div></div><!-- Section 3: Limits & AI Gateway Plan --><div class=\"bg-surface-sunken border border-slate-200/80 rounded-xl p-4 d-flex flex-col gap-3\"><div class=\"text-xs font-extrabold text-primary d-flex items-center gap-1.5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconShield("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span></div><div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-3\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">الجلسات المتزامنة <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_login_sessions\" x-model=\"form.sessions\" class=\"form-input tabular-nums text-xs\" min=\"1\" max=\"500\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">مطبقة على إجمالي المنشأة</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">الأجهزة المسموح بها <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_devices\" x-model=\"form.devices\" class=\"form-input tabular-nums text-xs\" min=\"1\" max=\"500\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">أقصى أجهزة مسجلة</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">كشوف المقارنة المسموحة <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_compare_files\" x-model=\"form.max_compare_files\" class=\"form-input tabular-nums text-xs font-bold\" min=\"0\" max=\"500\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">أقصى كشوف موردين (0 لغير محدود)</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">صلاحية ملفات المقارنة (بالأيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"compare_file_retention_days\" x-model=\"form.compare_file_retention_days\" class=\"form-input tabular-nums text-xs font-bold\" min=\"0\" max=\"3650\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">مسح آلي بعد X يوم (0 للدائمة)</span></div></div><div class=\"pt-2 border-t border-slate-200/80\"><div class=\"flex-between items-center mb-1\"><label class=\"form-label m-0 font-bold text-xs\">باقة بوابة الذكاء الاصطناعي (AI Gateway Plan) <span class=\"text-danger\">*</span></label> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if data.GatewayURL != "" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<span class=\"text-2xs text-primary font-semibold\">(مزامنة من ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var63 string
+					templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(data.GatewayURL)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 617, Col: 97}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, ")</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</div><select name=\"ai_plan_id\" x-model=\"form.ai_plan\" class=\"form-input text-xs font-semibold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, gp := range data.GatewayPlans {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var64 string
+					templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.ResolveAttributeValue(gp.ID)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 622, Col: 32}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var64)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var65 string
+					templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(gp.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 623, Col: 21}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, " (")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var66 string
+					templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(gp.ID)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 623, Col: 32}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, ") — ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var67 string
+					templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 623, Col: 98}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</option>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "</select></div></div><!-- Section 4: Entitlements & Features Checklist --><div class=\"d-flex flex-col gap-2.5 pt-2 border-t border-slate-100\"><div class=\"text-xs font-extrabold text-primary d-flex items-center gap-1.5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconTag("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<span>صلاحيات وميزات المنظومة المتضمنة:</span></div><label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-emerald-200/60 bg-emerald-50/40\"><input type=\"checkbox\" name=\"feature_market_discounts\" value=\"1\" x-model=\"form.feat_market\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">(خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong> <span class=\"text-2xs text-secondary font-medium\">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-indigo-200/60 bg-indigo-50/40\"><input type=\"checkbox\" name=\"feature_compare_tool\" value=\"1\" x-model=\"form.feat_compare\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">(خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات وتحليل العروض</strong> <span class=\"text-2xs text-secondary font-medium\">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-sky-200/60 bg-sky-50/40\"><input type=\"checkbox\" name=\"feature_bulk_import\" value=\"1\" x-model=\"form.feat_import\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">إتاحة استيراد وتحديث الكتالوجات بالجملة (Bulk Ingest)</strong> <span class=\"text-2xs text-secondary font-medium\">معالجة وتحديث كميات وأسعار الأصناف من ملفات Excel و CSV</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-purple-200/60 bg-purple-50/40\"><input type=\"checkbox\" name=\"feature_analytics\" value=\"1\" x-model=\"form.feat_analytics\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">إتاحة لوحة التحليلات المتقدمة والتقارير المالية</strong> <span class=\"text-2xs text-secondary font-medium\">إحصائيات تفصيلية ومؤشرات الأداء للأعمال والمبيعات</span></div></label></div><!-- Section 5: Default & Status Switches --><div class=\"d-flex flex-col gap-2.5 pt-2 border-t border-slate-100\"><label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-amber-200/60 bg-amber-50/40\"><input type=\"checkbox\" name=\"is_default\" value=\"1\" x-model=\"form.is_default\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong> <span class=\"text-2xs text-secondary font-medium\">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-slate-200/80 bg-surface-sunken\"><input type=\"checkbox\" name=\"is_active\" value=\"1\" x-model=\"form.is_active\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">الباقة نشطة ومتاحة للاشتراك والتجديد</strong> <span class=\"text-2xs text-secondary font-medium\">عند التعطيل لن يتمكن المشتركون الجدد من اختيار هذه الباقة</span></div></label></div></div><!-- Modal Actions --><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"document.getElementById('admin-plan-modal').close()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 149, "<span x-text=\"isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'\"></span></button></div></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{
+				ID:       "admin-plan-modal",
+				Title:    "????? ???? ????????",
+				Subtitle: "????? ???????? ???? ??????? ?????????? ???????? ?????? ???? ?????? ????????? ??????? ?????.",
+				Size:     "lg",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var62), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "</button></form></div><form :action=\"formAction\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-4\"><!-- Section 1: Identity & Names --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">المعرّف الفريد (Slug) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"slug\" x-model=\"form.slug\" required class=\"form-input text-xs font-mono\" placeholder=\"e.g. basic, pro, enterprise\" dir=\"ltr\"></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">اسم الباقة (عربي) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required class=\"form-input text-xs font-bold\" placeholder=\"مثال: الباقة الاحترافية\"></div></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">اسم الباقة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" class=\"form-input text-xs\" placeholder=\"e.g. Professional Plan\" dir=\"ltr\"></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">فترة الصلاحية (أيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"duration_days\" x-model=\"form.duration\" class=\"form-input tabular-nums text-xs\" min=\"1\" required></div></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">وصف الباقة ومزاياها للمشتركين</label> <textarea name=\"description_ar\" x-model=\"form.desc_ar\" rows=\"2\" class=\"form-input text-xs\" placeholder=\"اكتب نبذة توضيحية عن ميزات الباقة...\"></textarea></div><!-- Section 2: Pricing (Monthly & Yearly) --><div class=\"bg-surface-sunken border border-slate-200/80 rounded-xl p-4\"><div class=\"text-xs font-extrabold text-primary mb-3 d-flex items-center gap-1.5\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCreditCard("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "<span>تسعير الباقة (شهري وسنوي)</span></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-3\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">السعر الشهري (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" name=\"price_month\" x-model=\"form.price_month\" class=\"form-input tabular-nums text-xs font-bold\" placeholder=\"0.00\" required> <span class=\"text-2xs text-muted mt-1 d-block font-medium\">ضع 0 للباقات المجانية</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">السعر السنوي (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" name=\"price_year\" x-model=\"form.price_year\" class=\"form-input tabular-nums text-xs font-bold\" placeholder=\"0.00\" required> <span class=\"text-2xs text-muted mt-1 d-block font-medium\">سعر الدفع السنوي المجمع</span></div></div></div><!-- Section 3: Limits & AI Gateway Plan --><div class=\"bg-surface-sunken border border-slate-200/80 rounded-xl p-4 d-flex flex-col gap-3\"><div class=\"text-xs font-extrabold text-primary d-flex items-center gap-1.5\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconShield("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span></div><div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-3\"><div><label class=\"form-label font-bold text-xs d-block mb-1\">الجلسات المتزامنة <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_login_sessions\" x-model=\"form.sessions\" class=\"form-input tabular-nums text-xs\" min=\"1\" max=\"500\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">مطبقة على إجمالي المنشأة</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">الأجهزة المسموح بها <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_devices\" x-model=\"form.devices\" class=\"form-input tabular-nums text-xs\" min=\"1\" max=\"500\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">أقصى أجهزة مسجلة</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">كشوف المقارنة المسموحة <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_compare_files\" x-model=\"form.max_compare_files\" class=\"form-input tabular-nums text-xs font-bold\" min=\"0\" max=\"500\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">أقصى كشوف موردين (0 لغير محدود)</span></div><div><label class=\"form-label font-bold text-xs d-block mb-1\">صلاحية ملفات المقارنة (بالأيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"compare_file_retention_days\" x-model=\"form.compare_file_retention_days\" class=\"form-input tabular-nums text-xs font-bold\" min=\"0\" max=\"3650\" required> <span class=\"text-2xs text-secondary mt-1 d-block font-medium\">مسح آلي بعد X يوم (0 للدائمة)</span></div></div><div class=\"pt-2 border-t border-slate-200/80\"><div class=\"flex-between items-center mb-1\"><label class=\"form-label m-0 font-bold text-xs\">باقة بوابة الذكاء الاصطناعي (AI Gateway Plan) <span class=\"text-danger\">*</span></label> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.GatewayURL != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<span class=\"text-2xs text-primary font-semibold\">(مزامنة من ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var62 string
-				templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(data.GatewayURL)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 632, Col: 97}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, ")</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</div><select name=\"ai_plan_id\" x-model=\"form.ai_plan\" class=\"form-input text-xs font-semibold\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, gp := range data.GatewayPlans {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var63 string
-				templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.ResolveAttributeValue(gp.ID)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 637, Col: 32}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var63)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var64 string
-				templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(gp.Name)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 638, Col: 21}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, " (")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var65 string
-				templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(gp.ID)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 638, Col: 32}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, ") — ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var66 string
-				templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 638, Col: 98}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "</select></div></div><!-- Section 4: Entitlements & Features Checklist --><div class=\"d-flex flex-col gap-2.5 pt-2 border-t border-slate-100\"><div class=\"text-xs font-extrabold text-primary d-flex items-center gap-1.5\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconTag("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<span>صلاحيات وميزات المنظومة المتضمنة:</span></div><label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-emerald-200/60 bg-emerald-50/40\"><input type=\"checkbox\" name=\"feature_market_discounts\" value=\"1\" x-model=\"form.feat_market\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">(خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong> <span class=\"text-2xs text-secondary font-medium\">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-indigo-200/60 bg-indigo-50/40\"><input type=\"checkbox\" name=\"feature_compare_tool\" value=\"1\" x-model=\"form.feat_compare\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">(خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات وتحليل العروض</strong> <span class=\"text-2xs text-secondary font-medium\">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-sky-200/60 bg-sky-50/40\"><input type=\"checkbox\" name=\"feature_bulk_import\" value=\"1\" x-model=\"form.feat_import\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">إتاحة استيراد وتحديث الكتالوجات بالجملة (Bulk Ingest)</strong> <span class=\"text-2xs text-secondary font-medium\">معالجة وتحديث كميات وأسعار الأصناف من ملفات Excel و CSV</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-purple-200/60 bg-purple-50/40\"><input type=\"checkbox\" name=\"feature_analytics\" value=\"1\" x-model=\"form.feat_analytics\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">إتاحة لوحة التحليلات المتقدمة والتقارير المالية</strong> <span class=\"text-2xs text-secondary font-medium\">إحصائيات تفصيلية ومؤشرات الأداء للأعمال والمبيعات</span></div></label></div><!-- Section 5: Default & Status Switches --><div class=\"d-flex flex-col gap-2.5 pt-2 border-t border-slate-100\"><label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-amber-200/60 bg-amber-50/40\"><input type=\"checkbox\" name=\"is_default\" value=\"1\" x-model=\"form.is_default\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong> <span class=\"text-2xs text-secondary font-medium\">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span></div></label> <label class=\"d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-slate-200/80 bg-surface-sunken\"><input type=\"checkbox\" name=\"is_active\" value=\"1\" x-model=\"form.is_active\"><div><strong class=\"text-primary d-block text-xs font-extrabold\">الباقة نشطة ومتاحة للاشتراك والتجديد</strong> <span class=\"text-2xs text-secondary font-medium\">عند التعطيل لن يتمكن المشتركون الجدد من اختيار هذه الباقة</span></div></label></div></div><!-- Modal Actions --><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" onclick=\"document.getElementById('admin-plan-modal').close()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 149, "<span x-text=\"isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'\"></span></button></div></form></div></dialog></div><!-- Clean Client-Side State Manager without inline string interpolation bugs --> <script>\n\t\t\tfunction adminPlansManager() {\n\t\t\t\treturn {\n\t\t\t\t\tisEdit: false,\n\t\t\t\t\tformAction: '/admin/plans',\n\t\t\t\t\tform: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tslug: '',\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tdesc_ar: '',\n\t\t\t\t\t\tdesc_en: '',\n\t\t\t\t\t\tprice_month: '0.00',\n\t\t\t\t\t\tprice_year: '0.00',\n\t\t\t\t\t\tduration: 30,\n\t\t\t\t\t\tsessions: 3,\n\t\t\t\t\t\tdevices: 3,\n\t\t\t\t\t\tmax_compare_files: 10,\n\t\t\t\t\t\tcompare_file_retention_days: 30,\n\t\t\t\t\t\tai_plan: 'plan-dev',\n\t\t\t\t\t\tis_default: false,\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tfeat_market: false,\n\t\t\t\t\t\tfeat_compare: false,\n\t\t\t\t\t\tfeat_import: false,\n\t\t\t\t\t\tfeat_analytics: false\n\t\t\t\t\t},\n\t\t\t\t\topenCreateModal() {\n\t\t\t\t\t\tthis.isEdit = false;\n\t\t\t\t\t\tthis.formAction = '/admin/plans';\n\t\t\t\t\t\tthis.form = {\n\t\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\t\tslug: '',\n\t\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\t\tdesc_ar: '',\n\t\t\t\t\t\t\tdesc_en: '',\n\t\t\t\t\t\t\tprice_month: '0.00',\n\t\t\t\t\t\t\tprice_year: '0.00',\n\t\t\t\t\t\t\tduration: 30,\n\t\t\t\t\t\t\tsessions: 3,\n\t\t\t\t\t\t\tdevices: 3,\n\t\t\t\t\t\t\tmax_compare_files: 10,\n\t\t\t\t\t\t\tcompare_file_retention_days: 30,\n\t\t\t\t\t\t\tai_plan: 'plan-dev',\n\t\t\t\t\t\t\tis_default: false,\n\t\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\t\tfeat_market: false,\n\t\t\t\t\t\t\tfeat_compare: false,\n\t\t\t\t\t\t\tfeat_import: false,\n\t\t\t\t\t\t\tfeat_analytics: false\n\t\t\t\t\t\t};\n\t\t\t\t\t\tconst modal = document.getElementById('admin-plan-modal');\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t\t},\n\t\t\t\t\topenEditFromDataset(btnEl) {\n\t\t\t\t\t\tif (!btnEl || !btnEl.dataset) return;\n\t\t\t\t\t\tconst ds = btnEl.dataset;\n\t\t\t\t\t\tthis.isEdit = true;\n\t\t\t\t\t\tthis.formAction = '/admin/plans/' + ds.id + '/update';\n\t\t\t\t\t\tthis.form = {\n\t\t\t\t\t\t\tid: parseInt(ds.id, 10) || 0,\n\t\t\t\t\t\t\tslug: ds.slug || '',\n\t\t\t\t\t\t\tname_ar: ds.nameAr || '',\n\t\t\t\t\t\t\tname_en: ds.nameEn || '',\n\t\t\t\t\t\t\tdesc_ar: ds.descAr || '',\n\t\t\t\t\t\t\tdesc_en: ds.descEn || '',\n\t\t\t\t\t\t\tprice_month: ds.priceMonth || '0.00',\n\t\t\t\t\t\t\tprice_year: ds.priceYear || '0.00',\n\t\t\t\t\t\t\tduration: parseInt(ds.duration, 10) || 30,\n\t\t\t\t\t\t\tsessions: parseInt(ds.sessions, 10) || 3,\n\t\t\t\t\t\t\tdevices: parseInt(ds.devices, 10) || 3,\n\t\t\t\t\t\t\tmax_compare_files: typeof ds.maxCompareFiles !== 'undefined' ? parseInt(ds.maxCompareFiles, 10) : 10,\n\t\t\t\t\t\t\tcompare_file_retention_days: typeof ds.compareRetention !== 'undefined' ? parseInt(ds.compareRetention, 10) : 30,\n\t\t\t\t\t\t\tai_plan: ds.aiPlan || 'plan-dev',\n\t\t\t\t\t\t\tis_default: ds.isDefault === 'true',\n\t\t\t\t\t\t\tis_active: ds.isActive === 'true',\n\t\t\t\t\t\t\tfeat_market: ds.featMarket === 'true',\n\t\t\t\t\t\t\tfeat_compare: ds.featCompare === 'true',\n\t\t\t\t\t\t\tfeat_import: ds.featImport === 'true',\n\t\t\t\t\t\t\tfeat_analytics: ds.featAnalytics === 'true'\n\t\t\t\t\t\t};\n\t\t\t\t\t\tconst modal = document.getElementById('admin-plan-modal');\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 150, "</div><!-- Clean Client-Side State Manager without inline string interpolation bugs --> <script>\r\n\t\t\tfunction adminPlansManager() {\r\n\t\t\t\treturn {\r\n\t\t\t\t\tisEdit: false,\r\n\t\t\t\t\tformAction: '/admin/plans',\r\n\t\t\t\t\tform: {\r\n\t\t\t\t\t\tid: 0,\r\n\t\t\t\t\t\tslug: '',\r\n\t\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\t\tname_en: '',\r\n\t\t\t\t\t\tdesc_ar: '',\r\n\t\t\t\t\t\tdesc_en: '',\r\n\t\t\t\t\t\tprice_month: '0.00',\r\n\t\t\t\t\t\tprice_year: '0.00',\r\n\t\t\t\t\t\tduration: 30,\r\n\t\t\t\t\t\tsessions: 3,\r\n\t\t\t\t\t\tdevices: 3,\r\n\t\t\t\t\t\tmax_compare_files: 10,\r\n\t\t\t\t\t\tcompare_file_retention_days: 30,\r\n\t\t\t\t\t\tai_plan: 'plan-dev',\r\n\t\t\t\t\t\tis_default: false,\r\n\t\t\t\t\t\tis_active: true,\r\n\t\t\t\t\t\tfeat_market: false,\r\n\t\t\t\t\t\tfeat_compare: false,\r\n\t\t\t\t\t\tfeat_import: false,\r\n\t\t\t\t\t\tfeat_analytics: false\r\n\t\t\t\t\t},\r\n\t\t\t\t\topenCreateModal() {\r\n\t\t\t\t\t\tthis.isEdit = false;\r\n\t\t\t\t\t\tthis.formAction = '/admin/plans';\r\n\t\t\t\t\t\tthis.form = {\r\n\t\t\t\t\t\t\tid: 0,\r\n\t\t\t\t\t\t\tslug: '',\r\n\t\t\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\t\t\tname_en: '',\r\n\t\t\t\t\t\t\tdesc_ar: '',\r\n\t\t\t\t\t\t\tdesc_en: '',\r\n\t\t\t\t\t\t\tprice_month: '0.00',\r\n\t\t\t\t\t\t\tprice_year: '0.00',\r\n\t\t\t\t\t\t\tduration: 30,\r\n\t\t\t\t\t\t\tsessions: 3,\r\n\t\t\t\t\t\t\tdevices: 3,\r\n\t\t\t\t\t\t\tmax_compare_files: 10,\r\n\t\t\t\t\t\t\tcompare_file_retention_days: 30,\r\n\t\t\t\t\t\t\tai_plan: 'plan-dev',\r\n\t\t\t\t\t\t\tis_default: false,\r\n\t\t\t\t\t\t\tis_active: true,\r\n\t\t\t\t\t\t\tfeat_market: false,\r\n\t\t\t\t\t\t\tfeat_compare: false,\r\n\t\t\t\t\t\t\tfeat_import: false,\r\n\t\t\t\t\t\t\tfeat_analytics: false\r\n\t\t\t\t\t\t};\r\n\t\t\t\t\t\tconst modal = document.getElementById('admin-plan-modal');\r\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t\t},\r\n\t\t\t\t\topenEditFromDataset(btnEl) {\r\n\t\t\t\t\t\tif (!btnEl || !btnEl.dataset) return;\r\n\t\t\t\t\t\tconst ds = btnEl.dataset;\r\n\t\t\t\t\t\tthis.isEdit = true;\r\n\t\t\t\t\t\tthis.formAction = '/admin/plans/' + ds.id + '/update';\r\n\t\t\t\t\t\tthis.form = {\r\n\t\t\t\t\t\t\tid: parseInt(ds.id, 10) || 0,\r\n\t\t\t\t\t\t\tslug: ds.slug || '',\r\n\t\t\t\t\t\t\tname_ar: ds.nameAr || '',\r\n\t\t\t\t\t\t\tname_en: ds.nameEn || '',\r\n\t\t\t\t\t\t\tdesc_ar: ds.descAr || '',\r\n\t\t\t\t\t\t\tdesc_en: ds.descEn || '',\r\n\t\t\t\t\t\t\tprice_month: ds.priceMonth || '0.00',\r\n\t\t\t\t\t\t\tprice_year: ds.priceYear || '0.00',\r\n\t\t\t\t\t\t\tduration: parseInt(ds.duration, 10) || 30,\r\n\t\t\t\t\t\t\tsessions: parseInt(ds.sessions, 10) || 3,\r\n\t\t\t\t\t\t\tdevices: parseInt(ds.devices, 10) || 3,\r\n\t\t\t\t\t\t\tmax_compare_files: typeof ds.maxCompareFiles !== 'undefined' ? parseInt(ds.maxCompareFiles, 10) : 10,\r\n\t\t\t\t\t\t\tcompare_file_retention_days: typeof ds.compareRetention !== 'undefined' ? parseInt(ds.compareRetention, 10) : 30,\r\n\t\t\t\t\t\t\tai_plan: ds.aiPlan || 'plan-dev',\r\n\t\t\t\t\t\t\tis_default: ds.isDefault === 'true',\r\n\t\t\t\t\t\t\tis_active: ds.isActive === 'true',\r\n\t\t\t\t\t\t\tfeat_market: ds.featMarket === 'true',\r\n\t\t\t\t\t\t\tfeat_compare: ds.featCompare === 'true',\r\n\t\t\t\t\t\t\tfeat_import: ds.featImport === 'true',\r\n\t\t\t\t\t\t\tfeat_analytics: ds.featAnalytics === 'true'\r\n\t\t\t\t\t\t};\r\n\t\t\t\t\t\tconst modal = document.getElementById('admin-plan-modal');\r\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

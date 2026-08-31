@@ -220,10 +220,10 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 	}
 
 	samples := [][]any{
-		{"بانادول اكسترا 500 مجم أقراص", "PAN-EXT-24", 50, 48.50},
-		{"كونجستال أقراص للبرد", "CONG-TAB-20", 30, 29.00},
-		{"أوجمنتين 1 جم أقراص 14 قرص", "AUG-1G-14", 20, 110.00},
-		{"أنتينال 200 مجم كبسول", "ANT-200-24", 40, 32.00},
+		{i18n.TDefault("w4_ui.500_69"), "PAN-EXT-24", 50, 48.50},
+		{i18n.TDefault("w4_ui.s_70_70"), "CONG-TAB-20", 30, 29.00},
+		{i18n.TDefault("w4_ui.1_14_71"), "AUG-1G-14", 20, 110.00},
+		{i18n.TDefault("w4_ui.200_72"), "ANT-200-24", 40, 32.00},
 	}
 
 	for rIdx, row := range samples {

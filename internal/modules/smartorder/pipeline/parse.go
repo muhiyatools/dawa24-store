@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -31,10 +32,10 @@ var TargetFields = []struct {
 	LabelAR  string
 	Required bool
 }{
-	{"product_name", "اسم الصنف", true},
-	{"sku", "كود الصنف", false},
-	{"barcode", "الباركود", false},
-	{"quantity", "الكمية", false},
+	{"product_name", i18n.TDefault("w4_ui.s_53_53"), true},
+	{"sku", i18n.TDefault("w4_ui.s_52_52"), false},
+	{"barcode", i18n.TDefault("w4_ui.s_84_84"), false},
+	{"quantity", i18n.TDefault("w4_mod.s_368_368"), false},
 }
 
 // ParsedFile is what step 2 needs to render the mapping screen.
@@ -133,7 +134,7 @@ func translateMapping(m *productmatch.Mapping) (map[int]string, map[string]float
 //
 // Rows the mapping cannot give a product identity are dropped rather than staged
 // as blanks — a spreadsheet's trailing empty rows and its subtotal line are not
-// order lines, and staging them would put "المجموع" in front of the matcher.
+// order lines, and staging them would put i18n.TDefault("w4_ui.s_91_91") in front of the matcher.
 func Stage(content []byte, filename string, m *smartorder.Mapping,
 	runID, orgID int64) ([]*smartorder.Line, error) {
 
@@ -224,7 +225,7 @@ func rawOf(row []string) map[string]string {
 //
 // Pharmacy exports with multiple sheets or sections repeat the header at each
 // section boundary. Left in, these become lines whose raw_name is "Item
-// Description" or "اسم الصنف", which the matcher dutifully tries to resolve.
+// Description" or i18n.TDefault("w4_ui.s_53_53"), which the matcher dutifully tries to resolve.
 // They dilute the stats, waste an AI slot, and confuse the buyer's review.
 func isRepeatedHeader(row []string, headers []string) bool {
 	if len(headers) == 0 || len(row) == 0 {

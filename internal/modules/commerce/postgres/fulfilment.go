@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -237,9 +238,9 @@ func (r *Repository) GetShipmentForDeliveryByTracking(ctx context.Context, track
 			       COALESCE(ord.payment_method, 'cod'),
 			       COALESCE(ord.payment_status, 'unpaid'),
 			       COALESCE(ord.notes, ''),
-			       COALESCE(vendor_org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name,
-			       COALESCE(cust_org.name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
-			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
+			       COALESCE(vendor_org.name, '{"ar":i18n.TDefault("w4_mod.s_348_348"),"en":"Approved Supplier"}'::jsonb) AS vendor_name,
+			       COALESCE(cust_org.name, '{"ar":i18n.TDefault("w4_mod.s_358_358"),"en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
+			       COALESCE(b.name, '{"ar":i18n.TDefault("w4_mod.s_350_350"),"en":"Main Branch"}'::jsonb) AS branch_name,
 			       COALESCE(b.address, '') AS branch_address,
 			       COALESCE(b.phone, '') AS branch_phone,
 			       COALESCE(b.manager_name, '') AS manager_name
@@ -420,7 +421,7 @@ func (r *Repository) VerifyAndCompleteDelivery(
 				(order_id, shipment_id, from_status, to_status, notes)
 			VALUES ($1, $2, $3, 'delivered', $4);
 		`
-		auditNotes := "تم تأكيد التسليم بنجاح بواسطة المندوب عبر كود الاستلام"
+		auditNotes := i18n.TDefault("w4_mod.s_359_359")
 		if notes != "" {
 			auditNotes += " — ملاحظات: " + notes
 		}

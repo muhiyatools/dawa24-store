@@ -118,7 +118,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سجل استهلاك وعمليات الذكاء الاصطناعي</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة استدعاءات بوابات الذكاء الاصطناعي، وتتبع استهلاك الحصة ومعدل التوكنز للعمليات التشغيلية</p></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><div class=\"d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs\" style=\"background:var(--surface-sunken);\"><span class=\"text-secondary font-bold\">معرّف البوابة:</span> <code dir=\"ltr\" class=\"font-bold text-brand font-mono\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">سجل استهلاك وعمليات الذكاء الاصطناعي</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة استدعاءات بوابات الذكاء الاصطناعي، وتتبع استهلاك الحصة ومعدل التوكنز للعمليات التشغيلية</p></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><div class=\"d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs\"><span class=\"text-secondary font-bold\">معرّف البوابة:</span> <code dir=\"ltr\" class=\"font-bold text-brand font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -188,7 +188,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			return templ_7745c5c3_Err
 		}
 		if data.HasBudget {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"width:100%; height:7px; background:var(--surface-sunken); border-radius:4px; margin-top:0.5rem; overflow:hidden;\"><div style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div><div style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -281,7 +281,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">استهلاك الرموز للعمليات التشغيلية</div></div></div><!-- Main Search, Filter Toolbar & Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><!-- Instant Filter & Search Bar --><div class=\"p-4 border-b flex-between items-center gap-3 flex-wrap\"><!-- Search Input --><div class=\"flex-1\" style=\"min-width:240px;\"><input type=\"text\" id=\"ai-logs-search\" placeholder=\"ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج...\" class=\"form-input text-xs w-full\" oninput=\"filterAILogs()\"></div><!-- Feature Filter --><select id=\"ai-logs-feature-filter\" class=\"form-input text-xs\" style=\"width:200px;\" onchange=\"filterAILogs()\"><option value=\"\">كافة مواضع الاستخدام</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">استهلاك الرموز للعمليات التشغيلية</div></div></div><!-- Main Search, Filter Toolbar & Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><!-- Instant Filter & Search Bar --><div class=\"p-4 border-b flex-between items-center gap-3 flex-wrap\"><!-- Search Input --><div class=\"flex-1\"><input type=\"text\" id=\"ai-logs-search\" placeholder=\"ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج...\" class=\"form-input text-xs w-full\" oninput=\"filterAILogs()\"></div><!-- Feature Filter --><select id=\"ai-logs-feature-filter\" class=\"form-input text-xs\" onchange=\"filterAILogs()\"><option value=\"\">كافة مواضع الاستخدام</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -296,7 +296,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</select><!-- Status Filter --><select id=\"ai-logs-status-filter\" class=\"form-input text-xs\" style=\"width:140px;\" onchange=\"filterAILogs()\"><option value=\"\">كافة الحالات</option> <option value=\"success\">ناجح</option> <option value=\"cached\">ذاكرة سريعة</option> <option value=\"completed\">مكتمل</option> <option value=\"failed\">غير مكتمل</option></select></div><!-- AI Logs Data Table -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</select><!-- Status Filter --><select id=\"ai-logs-status-filter\" class=\"form-input text-xs\" onchange=\"filterAILogs()\"><option value=\"\">كافة الحالات</option> <option value=\"success\">ناجح</option> <option value=\"cached\">ذاكرة سريعة</option> <option value=\"completed\">مكتمل</option> <option value=\"failed\">غير مكتمل</option></select></div><!-- AI Logs Data Table -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -387,14 +387,14 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" style=\"border-bottom:1px solid var(--border); transition:background 0.15s ease;\"><!-- Request ID & Timestamp --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.15rem;\"><code dir=\"ltr\" style=\"font-size:0.8rem; font-weight:800; color:var(--primary);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><!-- Request ID & Timestamp --><td><div><code dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(log.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 197, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 197, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -413,14 +413,14 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div></td><!-- Feature Name & Context --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.2rem;\"><strong style=\"font-size:0.875rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div></td><!-- Feature Name & Context --><td><div><strong>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(log.FeatureName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 205, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 205, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -431,7 +431,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 						return templ_7745c5c3_Err
 					}
 					if log.SourceContext != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span style=\"font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; gap:0.3rem;\"><span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -457,14 +457,14 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></td><!-- Model & Tier --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div class=\"inline-row-04\"><code dir=\"ltr\" class=\"text-xs fw-700\" style=\"background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></td><!-- Model & Tier --><td><div class=\"inline-row-04\"><code dir=\"ltr\" class=\"text-xs fw-700\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(log.ModelText())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 218, Col: 197}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 218, Col: 67}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -485,7 +485,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></td><!-- Tokens (Clean In / Out format - No '0 tokens' badge) --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div class=\"tabular-nums\" dir=\"ltr\" style=\"font-family:monospace; font-size:0.825rem; font-weight:700; color:var(--text);\">In: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></td><!-- Tokens (Clean In / Out format - No '0 tokens' badge) --><td><div class=\"tabular-nums\" dir=\"ltr\">In: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -511,7 +511,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></td><!-- Latency --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><span class=\"tabular-nums text-xs\" style=\"color:var(--text-secondary); font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></td><!-- Latency --><td><span class=\"tabular-nums text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -524,7 +524,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></td><!-- Status Badge --><td style=\"padding:0.75rem 1rem; vertical-align:middle; text-align:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></td><!-- Status Badge --><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -597,7 +597,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Client-side Filtering Script --><script>\n\t\tfunction filterAILogs() {\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\n\n\t\t\trows.forEach(row => {\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\n\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\n\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\n\t\t\t\t\trow.style.display = '';\n\t\t\t\t} else {\n\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Client-side Filtering Script --><script>\r\n\t\tfunction filterAILogs() {\r\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\r\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\r\n\r\n\t\t\trows.forEach(row => {\r\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\r\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\r\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\r\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\r\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\r\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\r\n\r\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\r\n\t\t\t\t\trow.style.display = '';\r\n\t\t\t\t} else {\r\n\t\t\t\t\trow.style.display = 'none';\r\n\t\t\t\t}\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -65,7 +65,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					<!-- Main Filter Row -->
 					<div class="d-flex items-center gap-3 flex-wrap">
 						<!-- Search Input -->
-						<div class="flex-1" style="min-width: 240px;">
+						<div class="flex-1">
 							<input
 								type="text"
 								name="q"
@@ -76,7 +76,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Supplier Select -->
-						<div style="min-width: 180px;">
+						<div>
 							<select name="supplier" class="form-input text-xs w-full" onchange="this.form.submit()">
 								<option value="">كافة الشركات ({ fmt.Sprintf("%d", len(result.AvailableSuppliers)) })</option>
 								for _, sup := range result.AvailableSuppliers {
@@ -86,7 +86,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Sort Order -->
-						<div style="min-width: 160px;">
+						<div>
 							<select name="sort" class="form-input text-xs w-full" onchange="this.form.submit()">
 								<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً </option>
 								<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً </option>
@@ -97,7 +97,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						</div>
 
 						<!-- Page Size Limit -->
-						<div style="min-width: 110px;">
+						<div>
 							<select name="limit" class="form-input text-xs w-full" onchange="this.form.submit()">
 								<option value="24" selected?={ filter.Limit == 24 || filter.Limit == 0 }>24 عنصر</option>
 								<option value="48" selected?={ filter.Limit == 48 }>48 عنصر</option>
@@ -150,7 +150,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					</div>
 
 					<!-- Collapsible Advanced Range Filters -->
-					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="pt-3 border-t" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="pt-3 border-t">
 						<!-- Price Range -->
 						<div>
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
@@ -222,11 +222,11 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 			} else {
 				<!-- 1. LIST VIEW -->
-				<div x-show="currentView === 'list'" x-cloak style="display: flex; flex-direction: column; gap: 0.75rem;">
+				<div x-show="currentView === 'list'" x-cloak>
 					for _, item := range result.Items {
 						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
 							<!-- Right: Product Name & SKU -->
-							<div style="min-width:240px; flex:1;">
+							<div>
 								<h3 class="text-base font-black text-primary m-0 mb-1 leading-snug">
 									{ item.ProductName }
 								</h3>
@@ -246,7 +246,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 
 							<!-- Center: Warehouse Pill & Date -->
-							<div class="text-center" style="min-width:180px;">
+							<div class="text-center">
 								<div class="badge badge-primary text-xs font-bold py-1 px-3">
 									{ item.SupplierName }
 								</div>
@@ -256,7 +256,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 
 							<!-- Left: Discount Pill + Public Price & Total Price -->
-							<div class="d-flex items-center gap-4 justify-end" style="min-width:200px;">
+							<div class="d-flex items-center gap-4 justify-end">
 								<!-- Discount Badge Pill -->
 								<div>
 									if item.DiscountPercent >= 40 {
@@ -310,7 +310,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 
 				<!-- 2. GRID VIEW -->
-				<div x-show="currentView === 'grid'" x-cloak style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+				<div x-show="currentView === 'grid'" x-cloak>
 					for _, item := range result.Items {
 						<div class="glass-panel p-5 d-flex flex-col justify-between gap-4">
 							<div>

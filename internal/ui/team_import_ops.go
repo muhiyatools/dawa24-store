@@ -132,14 +132,14 @@ func DetectTeamColumns(headers []string, sampleRows [][]string) TeamDetectedCols
 		NotesCol:    -1,
 	}
 
-	nameKeywords := []string{"اسم الموظف", "اسم العامل", "الاسم بالكامل", "الاسم", "الموظف", "العامل", "اسم", "employee name", "staff name", "full name", "name", "username"}
-	emailKeywords := []string{i18n.T("ar", "excel.col.email"), "البريد الالكتروني", "البريد", "الايميل", "الإيميل", "ايميل", "email", "e-mail", "mail"}
-	phoneKeywords := []string{i18n.T("ar", "excel.col.phone"), "رقم الموبايل", "الهاتف", "الموبايل", "الجوال", "التليفون", "تليفون", "موبايل", "هاتف", "phone", "mobile", "tel", "cellphone"}
-	roleKeywords := []string{"الدور", "الصلاحية", "الصلاحيات", "نوع الحساب", "نوع الدور", "المسمى الوظيفي / الدور", "role", "roles", "permission", "user role"}
-	jobTitleKeywords := []string{i18n.T("ar", "excel.col.job_title"), "الوظيفة", "المهنة", "المنصب", "job title", "position", "title", "designation"}
-	branchKeywords := []string{"الفرع", "المخزن", "المستودع", "مكان العمل", "فرع", "مخزن", "branch", "warehouse", "store", "location"}
-	codeKeywords := []string{i18n.T("ar", "excel.col.emp_code"), "الرقم الوظيفي", "كود", "الكود", "رمز الموظف", "الرقم التعريفي", "employee code", "emp code", "code", "staff id", "employee id", "emp id"}
-	notesKeywords := []string{"ملاحظات", "ملاحظة", "الرقم القومي", "بطاقة الرقم القومي", "notes", "remarks", "national id"}
+	nameKeywords := []string{i18n.TDefault("w4_ui.s_105_105"), i18n.TDefault("w4_ui.s_106_106"), i18n.TDefault("w4_ui.s_107_107"), i18n.TDefault("w4_ui.s_108_108"), i18n.TDefault("w4_ui.s_109_109"), i18n.TDefault("w4_ui.s_110_110"), i18n.TDefault("w4_ui.s_30_30"), "employee name", "staff name", "full name", "name", "username"}
+	emailKeywords := []string{i18n.T("ar", "excel.col.email"), i18n.TDefault("w4_ui.s_111_111"), i18n.TDefault("w4_ui.s_112_112"), i18n.TDefault("w4_ui.s_113_113"), i18n.TDefault("w4_ui.s_114_114"), i18n.TDefault("w4_ui.s_115_115"), "email", "e-mail", "mail"}
+	phoneKeywords := []string{i18n.T("ar", "excel.col.phone"), i18n.TDefault("w4_ui.s_116_116"), i18n.TDefault("w4_ui.s_117_117"), i18n.TDefault("w4_ui.s_118_118"), i18n.TDefault("w4_ui.s_119_119"), i18n.TDefault("w4_ui.s_120_120"), i18n.TDefault("w4_ui.s_121_121"), i18n.TDefault("w4_ui.s_122_122"), i18n.TDefault("w4_ui.s_123_123"), "phone", "mobile", "tel", "cellphone"}
+	roleKeywords := []string{i18n.TDefault("w4_ui.s_124_124"), i18n.TDefault("w4_ui.s_125_125"), i18n.TDefault("w4_ui.s_126_126"), i18n.TDefault("w4_ui.s_127_127"), i18n.TDefault("w4_ui.s_128_128"), i18n.TDefault("w4_ui.s_129_129"), "role", "roles", "permission", "user role"}
+	jobTitleKeywords := []string{i18n.T("ar", "excel.col.job_title"), i18n.TDefault("w4_ui.s_130_130"), i18n.TDefault("w4_ui.s_131_131"), i18n.TDefault("w4_ui.s_132_132"), "job title", "position", "title", "designation"}
+	branchKeywords := []string{i18n.TDefault("w4_ui.s_133_133"), i18n.TDefault("w4_ui.s_134_134"), i18n.TDefault("w4_ui.s_135_135"), i18n.TDefault("w4_ui.s_136_136"), i18n.TDefault("w4_ui.s_137_137"), i18n.TDefault("w4_ui.s_138_138"), "branch", "warehouse", "store", "location"}
+	codeKeywords := []string{i18n.T("ar", "excel.col.emp_code"), i18n.TDefault("w4_ui.s_139_139"), i18n.TDefault("w4_ui.s_2_2"), i18n.TDefault("w4_ui.s_140_140"), i18n.TDefault("w4_ui.s_141_141"), i18n.TDefault("w4_ui.s_142_142"), "employee code", "emp code", "code", "staff id", "employee id", "emp id"}
+	notesKeywords := []string{i18n.TDefault("w4_ui.s_56_56"), i18n.TDefault("w4_ui.s_143_143"), i18n.TDefault("w4_ui.s_144_144"), i18n.TDefault("w4_ui.s_145_145"), "notes", "remarks", "national id"}
 
 	matchesHeader := func(header string, keywords []string) bool {
 		normH := normalizeArabicText(header)
@@ -262,19 +262,19 @@ func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption, langOptional
 	}
 	patterns := []rolePattern{
 		{
-			keywords: []string{"صيدلي", "دكتور صيدلي", "مساعد صيدلي", "صيدلاني", "pharmacist", "pharmacy"},
+			keywords: []string{i18n.TDefault("w4_ui.s_146_146"), i18n.TDefault("w4_ui.s_147_147"), i18n.TDefault("w4_ui.s_148_148"), i18n.TDefault("w4_ui.s_149_149"), "pharmacist", "pharmacy"},
 			keys:     []string{"org_pharmacist", "pharmacist", "staff_pharmacist"},
 		},
 		{
-			keywords: []string{"مدير", "مشرف", "مسؤول", "ادمن", "إدارة", "manager", "admin", "supervisor", "lead"},
+			keywords: []string{i18n.TDefault("w4_ui.s_150_150"), i18n.TDefault("w4_ui.s_151_151"), i18n.TDefault("w4_ui.s_152_152"), i18n.TDefault("w4_ui.s_153_153"), i18n.TDefault("w4_ui.s_154_154"), "manager", "admin", "supervisor", "lead"},
 			keys:     []string{"org_admin", "admin", "branch_manager", "manager"},
 		},
 		{
-			keywords: []string{"مالك", "صاحب", "مؤسس", "owner", "partner"},
+			keywords: []string{i18n.TDefault("w4_ui.s_155_155"), i18n.TDefault("w4_ui.s_156_156"), i18n.TDefault("w4_ui.s_157_157"), "owner", "partner"},
 			keys:     []string{"org_owner", "owner"},
 		},
 		{
-			keywords: []string{"موظف", "كاشير", "مبيعات", "محاسب", "مندوب", "عامل", "employee", "cashier", "sales", "accountant", "staff"},
+			keywords: []string{i18n.TDefault("w4_ui.s_158_158"), i18n.TDefault("w4_ui.s_159_159"), i18n.TDefault("w4_ui.s_160_160"), i18n.TDefault("w4_ui.s_161_161"), i18n.TDefault("w4_ui.s_162_162"), i18n.TDefault("w4_ui.s_163_163"), "employee", "cashier", "sales", "accountant", "staff"},
 			keys:     []string{"org_employee", "employee", "staff"},
 		},
 	}

@@ -13,8 +13,8 @@ import (
 // This used to be a private detector that walked the headers left to right and
 // gave each column to the first field whose keyword it contained. It carried
 // exactly the bug productmatch was written to eliminate: the item-code rule
-// tested for "كود", which is a substring of "باركود", and it ran before the
-// name rule — so a column headed "الباركود" became the item code and the real
+// tested for i18n.TDefault("w4_ui.s_2_2"), which is a substring of i18n.TDefault("w4_ui.s_3_3"), and it ran before the
+// name rule — so a column headed i18n.TDefault("w4_ui.s_84_84") became the item code and the real
 // code column, further right, was never looked at. Whatever the header rules
 // left unassigned was then handed the next unused column outright, which is how
 // a price column could be read as a product name.

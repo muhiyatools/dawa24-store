@@ -104,7 +104,7 @@ type MatchMemory interface {
 // Supplier files repeat themselves — the same product listed per warehouse, per
 // batch, per pack — and every repetition asks the identical question. They are
 // collapsed onto one openRow before retrieval runs, so a file that names
-// "بانادول اكسترا" forty times retrieves once, asks once, and pays once. The
+// i18n.TDefault("w4_mod.s_381_381") forty times retrieves once, asks once, and pays once. The
 // rows that asked are carried in SourceRows and all receive the answer.
 type openRow struct {
 	// row is the parsed spreadsheet row this question was built from, which the
@@ -212,7 +212,7 @@ func NewEnhancement(ai Enhancer, memory MatchMemory, index *productmatch.Index,
 // It also decides which rows are worth asking about at all, which is the single
 // largest saving available in this stage. A row whose best retrieved candidate
 // is implausible has no answer for the model to choose from: the product is not
-// in the shared catalogue, and "لم يُطابق" is already the honest outcome. On a
+// in the shared catalogue, and i18n.TDefault("w4_mod.s_382_382") is already the honest outcome. On a
 // live smart order of the same shape — 8,790 rows of cosmetics against a
 // pharmaceutical catalogue — sending them anyway cost thirty requests, the
 // ceiling, and five and a half minutes to improve 156 rows out of 7,939.

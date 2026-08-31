@@ -323,10 +323,10 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 	case attachments.DocSyndicateCard:
 		typeNameAr = i18n.T("ar", "doc.type.syndicate_card")
 	default:
-		typeNameAr = "مستند ترخيص وتوثيق رسمي"
+		typeNameAr = i18n.TDefault("w4_ui.s_73_73")
 	}
 
-	statusText := "قيد التدقيق الإداري"
+	statusText := i18n.TDefault("w4_ui.s_74_74")
 	statusColor := "#0284c7"
 	statusBg := "#e0f2fe"
 	if doc.Status == attachments.StatusVerified {
@@ -334,12 +334,12 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 		statusColor = "#16a34a"
 		statusBg = "#dcfce7"
 	} else if doc.Status == attachments.StatusRejected {
-		statusText = "مرفوض - بانتظار إعادة الرفع"
+		statusText = i18n.TDefault("w4_ui.s_75_75")
 		statusColor = "#dc2626"
 		statusBg = "#fee2e2"
 	}
 
-	orgIDStr := "عام"
+	orgIDStr := i18n.TDefault("w4_ui.s_76_76")
 	if doc.OrganizationID != nil && *doc.OrganizationID > 0 {
 		orgIDStr = fmt.Sprintf("منشأة #%d", *doc.OrganizationID)
 	}

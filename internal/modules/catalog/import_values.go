@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"errors"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strconv"
 	"strings"
 
@@ -15,7 +16,7 @@ import (
 // because a silent rounding in the ledger is how money goes missing. That is
 // the right rule for an order total typed into a form. It is the wrong rule for
 // a supplier price list, where the same column legitimately arrives as
-// "1,234.50", "1.234,50", "٢٥٫٥٠", "115.00 ج.م", "42 EGP" and "35".
+// "1,234.50", "1.234,50", i18n.TDefault("w4_mod.s_299_299"), i18n.TDefault("w4_mod.115_00_300"), "42 EGP" and "35".
 //
 // So the strictness stays, and this layer sits in front of it: it decides what
 // the human meant, produces a canonical decimal string, and reports what it had
@@ -32,11 +33,11 @@ var (
 )
 
 // currencyNoise is stripped before numeric parsing. Order matters: longer
-// tokens come first, so "ج.م" is removed before a bare "م" could be.
+// tokens come first, so i18n.TDefault("w4_ui.s_50_50") is removed before a bare i18n.TDefault("w4_mod.s_301_301") could be.
 var currencyNoise = []string{
-	"ج.م.", "ج.م", "جنيه مصري", "جنيه", "جم", "egp", "l.e.", "l.e", "le",
-	"pound", "pounds", "ر.س", "sar", "usd", "$", "€", "£", "ريال", "دولار",
-	"pcs", "قطعة", "قطع", "علبة", "vat", "incl", "excl",
+	"ج.م.", i18n.TDefault("w4_ui.s_50_50"), i18n.TDefault("w4_mod.s_302_302"), i18n.TDefault("w4_ui.s_87_87"), i18n.TDefault("w4_ui.s_51_51"), "egp", "l.e.", "l.e", "le",
+	"pound", "pounds", i18n.TDefault("w4_mod.s_303_303"), "sar", "usd", "$", "€", "£", i18n.TDefault("w4_mod.s_304_304"), i18n.TDefault("w4_mod.s_305_305"),
+	"pcs", i18n.TDefault("w4_mod.s_306_306"), i18n.TDefault("w4_mod.s_307_307"), i18n.TDefault("w4_ui.s_14_14"), "vat", "incl", "excl",
 }
 
 // NumericResult reports what CoerceDecimal made of a cell.
@@ -68,7 +69,7 @@ func CoerceDecimal(raw string) (NumericResult, error) {
 	// cell blank. They mean "no value", not "bad value".
 	switch s {
 	case "-", "--", "n/a", "na", "#n/a", "null", "nil", "none",
-		"#value!", "#div/0!", "#ref!", "لا يوجد", "غير متاح":
+		"#value!", "#div/0!", "#ref!", i18n.TDefault("w4_mod.s_308_308"), i18n.TDefault("w4_ui.s_175_175"):
 		return NumericResult{}, ErrNoValue
 	}
 
@@ -76,13 +77,13 @@ func CoerceDecimal(raw string) (NumericResult, error) {
 		s = strings.ReplaceAll(s, tok, " ")
 	}
 
-	percent := strings.Contains(s, "%") || strings.Contains(s, "٪")
+	percent := strings.Contains(s, "%") || strings.Contains(s, i18n.TDefault("w4_mod.s_309_309"))
 	s = strings.NewReplacer(
-		"%", "", "٪", "", " ", "", "٬", "", "’", "", "_", "",
+		"%", "", i18n.TDefault("w4_mod.s_309_309"), "", " ", "", i18n.TDefault("w4_mod.s_310_310"), "", "’", "", "_", "",
 	).Replace(s)
 
 	// U+066B is the Arabic decimal separator; it always means a decimal point.
-	s = strings.ReplaceAll(s, "٫", ".")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_49_49"), ".")
 
 	neg := false
 	// Accounting exports write a negative as "(12.50)".
@@ -268,7 +269,7 @@ func CoerceMoney(raw string) (money.Amount, NumericResult, error) {
 }
 
 // CoerceInt reads a cell as a whole number, truncating any fraction.
-// Quantities arrive as "45", "45.00" and "45 علبة".
+// Quantities arrive as "45", "45.00" and i18n.TDefault("w4_mod.45_311").
 func CoerceInt(raw string) (int64, error) {
 	res, err := CoerceDecimal(raw)
 	if err != nil {
@@ -291,7 +292,7 @@ func CoerceInt(raw string) (int64, error) {
 //
 // The catalogue no longer has a review queue: a product an administrator
 // imports is approved by the act of importing it, because the administrator is
-// the approving authority. A file that carries "قيد المراجعة" in its status
+// the approving authority. A file that carries i18n.TDefault("w4_mod.s_312_312") in its status
 // column is describing the supplier's own workflow, not instructing ours, and
 // honouring it used to park the row where no matching engine could ever see it.
 // Those words now read as "active", which is what the importer meant by
@@ -300,12 +301,12 @@ func CoerceStatus(raw string) (ProductStatus, bool) {
 	switch NormalizeKey(raw) {
 	case "":
 		return "", false
-	case "active", "enabled", "published", "مفعل", "نشط", "فعال", "متاح", "1", "yes", "نعم",
-		"pending", "review", "معلق", "قيدالمراجعه", "قيدالتدقيق", "مراجعه", "تدقيق", "منتظر":
+	case "active", "enabled", "published", i18n.TDefault("w4_mod.s_313_313"), i18n.TDefault("w4_mod.s_314_314"), i18n.TDefault("w4_mod.s_315_315"), i18n.TDefault("w4_mod.s_316_316"), "1", "yes", i18n.TDefault("w4_mod.s_317_317"),
+		"pending", "review", i18n.TDefault("w4_mod.s_318_318"), i18n.TDefault("w4_mod.s_319_319"), i18n.TDefault("w4_mod.s_320_320"), i18n.TDefault("w4_mod.s_321_321"), i18n.TDefault("w4_mod.s_322_322"), i18n.TDefault("w4_mod.s_323_323"):
 		return StatusActive, true
-	case "inactive", "disabled", "hidden", "معطل", "غيرنشط", "موقوف", "غيرمتاح", "0", "no", "لا":
+	case "inactive", "disabled", "hidden", i18n.TDefault("w4_mod.s_324_324"), i18n.TDefault("w4_mod.s_325_325"), i18n.TDefault("w4_mod.s_326_326"), i18n.TDefault("w4_mod.s_327_327"), "0", "no", i18n.TDefault("w4_mod.s_328_328"):
 		return StatusInactive, true
-	case "rejected", "refused", "مرفوض", "ملغي", "ملغى":
+	case "rejected", "refused", i18n.TDefault("w4_mod.s_329_329"), i18n.TDefault("w4_mod.s_330_330"), i18n.TDefault("w4_mod.s_331_331"):
 		return StatusRejected, true
 	}
 	return "", false

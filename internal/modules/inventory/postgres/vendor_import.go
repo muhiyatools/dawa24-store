@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -197,11 +198,11 @@ func stockFailureMessage(err error) string {
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "stocks_quantity_non_negative"):
-		return "الكمية الناتجة سالبة؛ لا يمكن أن يقل الرصيد عن صفر"
+		return i18n.TDefault("w4_mod.s_402_402")
 	case strings.Contains(msg, "violates foreign key"):
-		return "المخزن أو الصنف المرتبط غير موجود"
+		return i18n.TDefault("w4_mod.s_403_403")
 	case strings.Contains(msg, "duplicate key"):
-		return "تعارض في تحديث الرصيد؛ أعد المحاولة"
+		return i18n.TDefault("w4_mod.s_404_404")
 	}
 	return "تعذر تحديث الرصيد بسبب خطأ غير متوقع؛ أعد المحاولة، وإن تكرر راجع الدعم الفني."
 }

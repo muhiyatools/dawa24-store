@@ -164,7 +164,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					for _, req := range data.Requests {
 						if req != nil {
 							<div class="p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4">
-								<div style="max-width:600px;">
+								<div>
 									<div class="d-flex items-center gap-2 flex-wrap mb-1">
 										<strong class="text-sm font-extrabold text-primary">{ req.Title }</strong>
 										if req.Status == attachments.DocReqFulfilled {
@@ -192,7 +192,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 										<form action="/documents/upload" method="POST" enctype="multipart/form-data" class="d-flex gap-2 items-center flex-wrap m-0">
 											<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", req.ID) } />
 											<input type="hidden" name="document_type" value={ string(req.DocumentType) } />
-											<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required class="form-input text-xs" style="max-width:220px;" />
+											<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required class="form-input text-xs" />
 											<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1">
 												@components.IconUpload("icon-xs")
 												<span>رفع المستند</span>
@@ -236,7 +236,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 						{{ doc := data.LatestFor(req.DocType) }}
 						<div class="p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4">
 							<!-- Document Info -->
-							<div class="d-flex items-start gap-3" style="max-width:640px;">
+							<div class="d-flex items-start gap-3">
 								<div class="user-avatar-badge text-lg mt-1">
 									if doc != nil && doc.Status == attachments.StatusVerified {
 										<span class="text-success">@components.IconCheck("icon-sm")</span>
@@ -349,7 +349,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 											accept=".pdf,.png,.jpg,.jpeg,.webp"
 											required
 											class="form-input text-xs"
-											style="max-width:180px;"
+										
 										/>
 										<button type="submit" class="btn btn-primary btn-sm font-bold text-xs">
 											<span>رفع المستند</span>
@@ -366,18 +366,18 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 	</div>
 
 	<!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) -->
-	<div id="doc-viewer-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);">
-		<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:980px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;">
+	<div id="doc-viewer-modal">
+		<div>
 			<!-- Modal Header -->
-			<div style="padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); flex-wrap:wrap; gap:0.75rem;">
+			<div>
 				<div>
 					<div class="d-flex items-center gap-2">
-						<span style="font-size:1.25rem;">@components.IconFileText("icon-sm")</span>
-						<h3 id="modal-doc-title" style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+						<span>@components.IconFileText("icon-sm")</span>
+						<h3 id="modal-doc-title">
 							معاينة المستند الرسمي
 						</h3>
 					</div>
-					<div id="modal-doc-filename" style="font-size:0.775rem; color:var(--text-muted); font-family:monospace; margin-top:2px;" dir="ltr">
+					<div id="modal-doc-filename" dir="ltr">
 						filename.pdf
 					</div>
 				</div>
@@ -388,7 +388,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 						href="#"
 						target="_blank"
 						class="btn btn-secondary btn-sm fw-700"
-						style="gap:0.35rem;"
+					
 					>
 						@components.IconExternalLink("icon-xs")
 						<span>فتح في نافذة جديدة ↗</span>
@@ -397,7 +397,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 						id="modal-doc-download-btn"
 						href="#"
 						class="btn btn-primary btn-sm fw-800"
-						style="gap:0.35rem;"
+					
 					>
 						@components.IconDownload("icon-xs")
 						<span>تحميل الملف</span>
@@ -405,7 +405,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					<button
 						type="button"
 						onclick="closeDocViewer()"
-						style="background:none; border:none; font-size:1.4rem; color:var(--text-muted); cursor:pointer; padding:0 0.5rem; line-height:1;"
+					
 					>
 						@components.IconX("icon-sm")
 					</button>
@@ -413,28 +413,28 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			</div>
 
 			<!-- Dynamic Interactive Viewer Viewport -->
-			<div id="modal-doc-viewport" style="width:100%; height:72vh; background:var(--surface-sunken); overflow:auto; display:flex; align-items:center; justify-content:center; position:relative; padding:0.5rem;">
+			<div id="modal-doc-viewport">
 				<!-- Mode 1: PDF Viewer Iframe -->
 				<iframe
 					id="modal-doc-iframe"
 					src="about:blank"
-					style="width:100%; height:100%; border:none; border-radius:var(--radius-md); display:none;"
+				
 					loading="lazy"
 				></iframe>
 
 				<!-- Mode 2: Image Viewer -->
-				<div id="modal-doc-img-container" style="display:none; width:100%; height:100%; align-items:center; justify-content:center; overflow:auto;">
+				<div id="modal-doc-img-container">
 					<img
 						id="modal-doc-img"
 						src=""
 						alt="معاينة المستند"
-						style="max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);"
+					
 					/>
 				</div>
 			</div>
 
 			<!-- Modal Footer -->
-			<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.5rem; border-top:1px solid var(--border); background:var(--surface); font-size:0.8rem; color:var(--text-muted);">
+			<div>
 				<span>مستند رقمي مشفر ومحمي لمنشأتك فقط</span>
 				<button
 					type="button"
@@ -448,17 +448,17 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 	</div>
 
 	<!-- Modal: Replace Document Modal with Replacement Reason -->
-	<div id="replace-doc-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);">
-		<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column;">
+	<div id="replace-doc-modal">
+		<div>
 			<!-- Header -->
-			<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
+			<div>
 				<div class="inline-row-06">
-					<span style="font-size:1.4rem;">@components.IconRefresh("icon-sm")</span>
+					<span>@components.IconRefresh("icon-sm")</span>
 					<div>
-						<h3 id="replace-modal-title" style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 id="replace-modal-title">
 							استبدال وتحديث المستند
 						</h3>
-						<div id="replace-modal-subtitle" style="font-size:0.775rem; color:var(--text-muted); margin-top:2px;">
+						<div id="replace-modal-subtitle">
 							رفع نسخة جديدة مع توضيح سبب الاستبدال
 						</div>
 					</div>
@@ -466,26 +466,26 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 				<button
 					type="button"
 					onclick="closeReplaceDocModal()"
-					style="background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer; padding:0 0.4rem; line-height:1;"
+				
 				>
 					@components.IconX("icon-sm")
 				</button>
 			</div>
 
 			<!-- Body Form -->
-			<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;">
+			<form action="/documents/upload" method="POST" enctype="multipart/form-data">
 				<input type="hidden" name="document_type" id="replace-doc-type" value="" />
 				<input type="hidden" name="existing_doc_id" id="replace-existing-id" value="" />
 
 				<!-- Current File Info Box -->
-				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; font-size:0.825rem;">
-					<span style="color:var(--text-secondary); font-weight:700;">الملف الحالي المسجل:</span>
-					<span id="replace-modal-current-file" style="font-weight:800; color:var(--primary); font-family:monospace;" dir="ltr">file.pdf</span>
+				<div>
+					<span>الملف الحالي المسجل:</span>
+					<span id="replace-modal-current-file" dir="ltr">file.pdf</span>
 				</div>
 
 				<!-- New File Upload Field -->
 				<div>
-					<label class="form-label" style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
+					<label class="form-label">
 						اختر ملف المستند الجديد <span class="text-rose fw-800">*</span>
 					</label>
 					<input
@@ -494,16 +494,16 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 						required
 						accept=".pdf,.png,.jpg,.jpeg,.webp"
 						class="form-control"
-						style="padding:0.5rem 0.75rem; font-size:0.85rem; width:100%; border-radius:var(--radius-lg);"
+					
 					/>
-					<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;">
+					<span>
 						الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.
 					</span>
 				</div>
 
 				<!-- Replacement Reason Field -->
 				<div>
-					<label class="form-label" style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
+					<label class="form-label">
 						سبب استبدال / تحديث المستند <span class="text-rose fw-800">*</span>
 					</label>
 					<textarea
@@ -513,12 +513,12 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 						rows="3"
 						class="form-control"
 						placeholder="يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)"
-						style="width:100%; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-lg); resize:vertical;"
+					
 					></textarea>
 				</div>
 
 				<!-- Footer Actions -->
-				<div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); margin-top:0.25rem;">
+				<div>
 					<button
 						type="button"
 						class="btn btn-secondary"
@@ -529,7 +529,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					<button
 						type="submit"
 						class="btn btn-primary"
-						style="font-weight:850; padding:0 1.5rem; gap:0.4rem;"
+					
 					>
 						<span>تأكيد واستبدال المستند </span>
 					</button>

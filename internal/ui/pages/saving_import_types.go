@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -120,7 +121,7 @@ type SavingImportView struct {
 	// AIAvailable says whether the platform can actually run the AI stage. The
 	// switch renders disabled with a reason when it cannot, rather than
 	// offering a toggle that ticks and then does nothing — which is what the
-	// old strategy dropdown did, promising "ذكاء اصطناعي" from an engine that
+	// old strategy dropdown did, promising i18n.TDefault("w4m_ui.s_4_4") from an engine that
 	// had none.
 	AIAvailable         bool
 	AIUnavailableReason string

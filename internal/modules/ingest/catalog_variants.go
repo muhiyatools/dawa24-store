@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -80,20 +81,20 @@ func packKey(productID int64, unit, batch string) string {
 func (idx *variantIndex) resolve(row *productmatch.Row, productID int64) (int64, string) {
 	if key := sheet.NormalizeKey(row.SKU); key != "" {
 		if id, ok := idx.bySKU[key]; ok {
-			return id, "مطابقة بكود الصنف لديك"
+			return id, i18n.TDefault("w4_mod.s_392_392")
 		}
 	}
 	if code := sheet.DigitsOnly(row.Barcode); code != "" {
 		if id, ok := idx.byBarcode[code]; ok {
-			return id, "مطابقة بالباركود"
+			return id, i18n.TDefault("w4_mod.s_333_333")
 		}
 	}
 	if productID > 0 {
 		if id, ok := idx.byProductPack[packKey(productID, row.Unit, row.BatchNumber)]; ok {
-			return id, "مطابقة بالصنف والعبوة ورقم التشغيلة"
+			return id, i18n.TDefault("w4_mod.s_393_393")
 		}
 		if id, ok := idx.byProduct[productID]; ok {
-			return id, "مطابقة بالصنف المرتبط"
+			return id, i18n.TDefault("w4_mod.s_394_394")
 		}
 	}
 	return 0, ""

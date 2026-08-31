@@ -653,7 +653,7 @@ func (r *Repository) ArchiveAllProducts(ctx context.Context, orgID int64) (int64
 //
 // Handing the model the platform's own categories and brands by id is what stops
 // an import from fragmenting the taxonomy: it classifies into what exists rather
-// than inventing a fifth spelling of "جلاكسو".
+// than inventing a fifth spelling of i18n.TDefault("w4_mod.s_267_267").
 func (r *Repository) ImportVocabulary(ctx context.Context, orgID int64) (catalog.EnrichVocabulary, error) {
 	var vocab catalog.EnrichVocabulary
 

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -18,7 +19,7 @@ type ImportBindingRow struct {
 	Field      string
 	Confidence string
 	// Sample is what that column actually holds. A binding is judged by its
-	// values, not by its header: "السعر" bound to a column of dates is obvious
+	// values, not by its header: i18n.TDefault("w4m_ui.s_2_2") bound to a column of dates is obvious
 	// here and invisible without it.
 	Sample string
 }

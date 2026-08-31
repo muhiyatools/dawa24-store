@@ -144,7 +144,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width:1100px; margin:0 auto; padding:2rem 1rem;\"><!-- Hero Gating Banner --><div class=\"glass-panel text-center p-8 mb-8\" style=\"background:linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-2xl);\"><div class=\"d-inline-flex items-center justify-center mb-4 text-brand\" style=\"width:72px; height:72px; background:rgba(59, 130, 246, 0.12); border:1px solid rgba(59, 130, 246, 0.3); border-radius:var(--radius-full);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Hero Gating Banner --><div class=\"glass-panel text-center p-8 mb-8\"><div class=\"d-inline-flex items-center justify-center mb-4 text-brand\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -173,7 +173,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-sm md:text-base text-secondary max-w-2xl mx-auto mb-6\" style=\"line-height:1.6;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-sm md:text-base text-secondary max-w-2xl mx-auto mb-6\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -199,7 +199,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 			return templ_7745c5c3_Err
 		}
 		if len(props.Plans) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"mb-6\"><div class=\"text-center mb-6\"><h2 class=\"text-xl font-extrabold text-primary mb-1\">الباقات المتاحة التي تتضمن هذه الميزة</h2><p class=\"text-xs text-secondary\">اختر الباقة المناسبة لمنشأتك للوصول الفوري لكافة الصلاحيات والأدوات المتقدمة</p></div><div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"mb-6\"><div class=\"text-center mb-6\"><h2 class=\"text-xl font-extrabold text-primary mb-1\">الباقات المتاحة التي تتضمن هذه الميزة</h2><p class=\"text-xs text-secondary\">اختر الباقة المناسبة لمنشأتك للوصول الفوري لكافة الصلاحيات والأدوات المتقدمة</p></div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -222,12 +222,12 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" style=\"position:relative;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if p.Slug == "pro" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"badge badge-primary font-extrabold text-2xs d-inline-flex items-center gap-1 shadow-2xs\" style=\"position:absolute; top:-10px; left:50%; transform:translateX(-50%);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"badge badge-primary font-extrabold text-2xs d-inline-flex items-center gap-1 shadow-2xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -266,7 +266,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code></span></div><p class=\"text-xs text-secondary mb-4 font-medium\" style=\"min-height:36px; line-height:1.4;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code></span></div><p class=\"text-xs text-secondary mb-4 font-medium\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

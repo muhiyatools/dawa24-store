@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/jackc/pgx/v5"
 
@@ -49,7 +50,7 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 
 		var totalGMVCents int64
 		_ = tx.QueryRow(txCtx, `SELECT COALESCE(SUM(total_amount), 0) FROM commerce.orders WHERE status NOT IN ('cancelled', 'rejected');`).Scan(&totalGMVCents)
-		out.TotalGMV = fmt.Sprintf("%.2f ج.م", float64(totalGMVCents)/100.0)
+		out.TotalGMV = fmt.Sprintf(i18n.TDefault("w4_mod.2f_425"), float64(totalGMVCents)/100.0)
 
 		scanGroup := func(query string) (map[string]int, error) {
 			m := map[string]int{}
@@ -65,7 +66,7 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 					return m, err
 				}
 				if key == "" {
-					key = "غير محدد"
+					key = i18n.TDefault("w4_ui.s_178_178")
 				}
 				m[key] = n
 			}

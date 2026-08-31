@@ -16,6 +16,7 @@ package ingest
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -76,7 +77,7 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 
 	// Progress is persisted rather than held in memory, so a vendor who closes
 	// the tab and comes back sees where the run actually is.
-	s.note(ctx, session, 10, "جارٍ قراءة الملف ومطابقة الأصناف")
+	s.note(ctx, session, 10, i18n.TDefault("w4_mod.s_387_387"))
 
 	result, err := productmatch.Process(book, analysis.Layout, analysis.Mapping, opts,
 		func(batch []*productmatch.Row) error { return run.stage(ctx, batch) })
@@ -88,7 +89,7 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	// nothing is published here that would jump backwards over it. What this
 	// marks is the deterministic pass finishing, which is the point a vendor
 	// with AI switched off sees the run reach.
-	s.note(ctx, session, 45, "اكتملت المطابقة الحتمية")
+	s.note(ctx, session, 45, i18n.TDefault("w4_mod.s_388_388"))
 	run.enhance(ctx)
 
 	session.Stats = result.Stats
@@ -301,7 +302,7 @@ func (r *stagingRun) enhance(ctx context.Context) {
 		return
 	}
 
-	r.progress(ctx, 45, "جارٍ تجهيز الأصناف غير المطابقة للمراجعة الذكية")
+	r.progress(ctx, 45, i18n.TDefault("w4_mod.s_389_389"))
 
 	enh := NewEnhancement(s.enhancer, s.memory, r.index, s.log)
 	enh.Stats.CeilingHit = r.ceilingHit
@@ -310,7 +311,7 @@ func (r *stagingRun) enhance(ctx context.Context) {
 			return
 		}
 		r.progress(ctx, 50+(done*45)/total,
-			fmt.Sprintf("المطابقة الذكية: %d من %d صنف", done, total))
+			fmt.Sprintf(i18n.TDefault("w4_mod.d_d_390"), done, total))
 	}
 
 	// Retrieval is deliberately outside the streaming loop and outside the

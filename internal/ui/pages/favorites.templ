@@ -9,17 +9,17 @@ import (
 
 templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 	@layouts.CustomerShell("الأدوية والمستلزمات المفضلة", "favorites", lang, dir, nil) {
-		<div style="max-width:100%; margin:0 0 3rem 0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+		<div>
+			<div>
 				<div class="row-center-sm">
-					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+					<div>
 						@components.IconHeart("icon-sm")
 					</div>
 					<div>
-						<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
+						<h2>
 							الأدوية والمستلزمات المفضلة
 						</h2>
-						<p style="font-size:0.875rem; color:var(--neutral-500); margin:0;">
+						<p>
 							قائمة الأصناف المحفوظة للطلب السريع
 						</p>
 					</div>
@@ -37,23 +37,23 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 					ActionLabel: "تصفح الكتالوج الدوائي",
 				})
 			} else {
-				<div class="product-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.5rem;">
+				<div class="product-grid">
 					for _, p := range products {
-						<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;">
+						<div class="card hover-lift">
 							<div>
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+								<div>
 									<span class="badge badge-slate text-xs">
 										@components.IconPill("icon-xs")
 										<span>{ p.DosageForm }</span>
 									</span>
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/remove", p.ID)) } class="m-0">
-										<button type="submit" class="btn btn-secondary btn-icon" style="color:var(--danger); border-color:var(--danger-border); width:32px; height:32px;" title="إزالة من المفضلة">
+										<button type="submit" class="btn btn-secondary btn-icon" title="إزالة من المفضلة">
 											@components.IconTrash("icon-xs")
 										</button>
 									</form>
 								</div>
 
-								<h3 style="font-size:1.1rem; font-weight:800; margin-bottom:0.25rem; color:var(--neutral-900); line-height:1.4;">
+								<h3>
 									if p.Name["ar"] != "" {
 										{ p.Name["ar"] }
 									} else {
@@ -62,19 +62,19 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 								</h3>
 
 								if p.ScientificName != "" {
-									<p style="font-size:0.8rem; color:var(--neutral-500); margin-bottom:0.5rem;">
+									<p>
 										{ p.ScientificName }
 									</p>
 								}
 								if p.ManufacturingCompanies != "" {
-									<div style="font-size:0.8rem; color:var(--neutral-600);">
+									<div>
 										الشركة: { p.ManufacturingCompanies }
 									</div>
 								}
 							</div>
 
-							<div style="margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary btn-sm" style="width:100%; font-size:0.85rem; font-weight:700; justify-content:center;">
+							<div>
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)) } class="btn btn-primary btn-sm">
 									@components.IconFileText("icon-xs")
 									<span>التفاصيل والطلب</span>
 								</a>

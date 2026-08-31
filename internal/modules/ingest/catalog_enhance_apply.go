@@ -28,6 +28,7 @@ package ingest
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -132,7 +133,7 @@ func (e *Enhancement) resolve(r *openRow, productID int64, confidence float64, r
 func aiReason(reason string) string {
 	reason = strings.TrimSpace(reason)
 	if reason == "" {
-		return "مطابقة بالذكاء الاصطناعي بين المرشحين"
+		return i18n.TDefault("w4_mod.s_383_383")
 	}
 	return aiReasonPrefix + reason
 }

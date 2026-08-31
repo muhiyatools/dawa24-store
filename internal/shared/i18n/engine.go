@@ -46,6 +46,11 @@ func T(lang any, key string, args ...any) string {
 	return globalEngine.translate(l, key, args...)
 }
 
+// TDefault translates a key into the default language (Arabic).
+func TDefault(key string, args ...any) string {
+	return globalEngine.translate(Default, key, args...)
+}
+
 func (e *engine) translate(lang Lang, key string, args ...any) string {
 	e.mu.RLock()
 	// 1. Check custom overrides

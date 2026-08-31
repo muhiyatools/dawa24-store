@@ -100,7 +100,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 		pName := it.ProductName
 		if len(pName) == 0 {
-			pName = i18n.Text{"ar": "صنف دوائي معتمد", "en": "Certified Medicine"}
+			pName = i18n.Text{"ar": i18n.TDefault("w4_ui.s_67_67"), "en": "Certified Medicine"}
 		}
 		items = append(items, commerce.CheckoutLineItem{
 			VendorOrgID:      vOrgID,

@@ -157,10 +157,10 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	# Ceiling lowered to 2170 in Phase 5 Wave 3 (Wave 3 vendor operations pages conversion).
+	# Ceiling lowered to 81 in Phase 5 Wave 4 (completed Wave 4 conversions across all pages).
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 2170 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 2170)."; \
+	if [ "$$n" -gt 81 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 81)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,7 +170,7 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 2170)"
+	echo "OK: $$n inline styles (ceiling 81)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -191,8 +191,8 @@ check-file-size-count: ## Fail if the number of oversized Go files grows
 
 .PHONY: check-hardcoded-arabic
 check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
-	# Ceiling lowered to 966 in Phase 5 Wave 3 (257 user-facing domain/service/UI literals extracted to i18n).
-	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 966 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 966). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 966)"
+	# Ceiling lowered to 132 in Phase 5 Wave 4 (extracted remaining user-facing literals to i18n, leaving only algorithmic token/column dictionaries).
+	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 132 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 132). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 132)"
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow
@@ -274,14 +274,14 @@ check-modal-legacy: ## Fail if legacy modal-overlay or window.openModal appears
 .PHONY: check-modal-handwritten
 check-modal-handwritten: ## Fail if raw <dialog in pages exceeds ratchet ceiling
 	@echo "==> checking raw <dialog in page templates"
-	# Ceiling lowered from 31 to 20 in Phase 5 Wave 3 (Wave 3 vendor operations modals migrated to components.Modal).
+	# Ceiling lowered from 20 to 0 in Phase 5 Wave 4 (all page modals migrated to components.Modal).
 	@n=$$(grep -rn '<dialog' internal/ui/pages/*.templ 2>/dev/null | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 20 ]; then \
-	  echo "FAIL: $$n raw <dialog elements in pages (ceiling 20). Every modal must go through components.Modal."; \
+	if [ "$$n" -gt 0 ]; then \
+	  echo "FAIL: $$n raw <dialog elements in pages (ceiling 0). Every modal must go through components.Modal."; \
 	  grep -rn '<dialog' internal/ui/pages/*.templ 2>/dev/null; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n raw <dialog elements (ceiling 20)"
+	echo "OK: $$n raw <dialog elements (ceiling 0)"
 
 .PHONY: check-css-layered
 check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade

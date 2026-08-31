@@ -230,7 +230,7 @@ func (h *UIHandler) notifyDocumentVerified(ctx context.Context, orgID int64, doc
 		return
 	}
 	if docName == "" {
-		docName = "المستند الرسمي"
+		docName = i18n.TDefault("w4_ui.s_78_78")
 	}
 	var title, body string
 	if verified {
@@ -252,7 +252,7 @@ func (h *UIHandler) notifySpecialOfferStatus(ctx context.Context, vendorOrgID in
 		return
 	}
 	if offerTitle == "" {
-		offerTitle = "العرض الخاص"
+		offerTitle = i18n.TDefault("w4_ui.s_79_79")
 	}
 	var title, body string
 	if approved {
@@ -274,7 +274,7 @@ func (h *UIHandler) notifySponsorshipStatus(ctx context.Context, vendorOrgID int
 		return
 	}
 	if pkgTitle == "" {
-		pkgTitle = "باقة الرعاية"
+		pkgTitle = i18n.TDefault("w4_ui.s_80_80")
 	}
 	var title, body string
 	if approved {
@@ -296,7 +296,7 @@ func (h *UIHandler) notifyAdStatus(ctx context.Context, vendorOrgID int64, adTit
 		return
 	}
 	if adTitle == "" {
-		adTitle = "الإعلان الترويجي"
+		adTitle = i18n.TDefault("w4_ui.s_81_81")
 	}
 	var title, body string
 	if approved {

@@ -3,6 +3,7 @@ package inventory
 import (
 	"context"
 	"errors"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Bulk stock writing for the vendor catalogue import.
@@ -39,11 +40,11 @@ const (
 func (m StockMode) Label() string {
 	switch m {
 	case StockAdd:
-		return "إضافة الكميات إلى الرصيد الحالي"
+		return i18n.TDefault("w4_mod.s_399_399")
 	case StockKeep:
-		return "عدم المساس بالأرصدة الحالية"
+		return i18n.TDefault("w4_mod.s_400_400")
 	default:
-		return "استبدال الرصيد بالكمية الواردة في الملف"
+		return i18n.TDefault("w4_mod.s_401_401")
 	}
 }
 

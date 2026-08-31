@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strconv"
 	"strings"
 
@@ -207,7 +208,7 @@ func (r *Repository) SaveManualDecision(ctx context.Context, orgID, userID int64
 		return nil
 	}
 	if reason == "" {
-		reason = "قرار يدوي مؤكد من المستخدم"
+		reason = i18n.TDefault("w4_mod.s_347_347")
 	}
 	decKey := "manual:" + normName
 

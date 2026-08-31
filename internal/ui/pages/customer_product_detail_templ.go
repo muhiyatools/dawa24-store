@@ -62,7 +62,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></nav><!-- 1. Hero Variant Details Card --><div class=\"glass-panel p-6 mb-6\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem; align-items:start;\"><!-- Col 1: Product Image Gallery --><div class=\"d-flex flex-col gap-4\"><div class=\"p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden\" style=\"height:280px;\"><div class=\"position-absolute\" style=\"top:12px; inset-inline-start:12px;\"><span class=\"badge badge-emerald text-xs font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></nav><!-- 1. Hero Variant Details Card --><div class=\"glass-panel p-6 mb-6\"><div><!-- Col 1: Product Image Gallery --><div class=\"d-flex flex-col gap-4\"><div class=\"p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden\"><div class=\"position-absolute\"><span class=\"badge badge-emerald text-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -101,12 +101,12 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" style=\"max-height:200px; max-width:100%; object-fit:contain;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"user-avatar-badge text-3xl mb-3\" style=\"width:80px; height:80px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"user-avatar-badge text-3xl mb-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -178,7 +178,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><!-- Master Attributes Grid --><div class=\"p-4 rounded-xl bg-surface-sunken border text-xs\" style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><!-- Master Attributes Grid --><div class=\"p-4 rounded-xl bg-surface-sunken border text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -899,7 +899,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 						return templ_7745c5c3_Err
 					}
 					if off.CanAddToCart {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<form method=\"POST\" action=\"/cart/add\" style=\"display:inline-flex; gap:0.35rem; margin:0;\"><input type=\"hidden\" name=\"variant_id\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<form method=\"POST\" action=\"/cart/add\"><input type=\"hidden\" name=\"variant_id\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -977,12 +977,12 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800; border-radius:var(--radius-lg); font-size:0.8rem;\"><span>أضف للسلة</span></button></form>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\"><span>أضف للسلة</span></button></form>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "<button type=\"button\" disabled class=\"btn btn-secondary btn-sm\" style=\"opacity:0.5; font-size:0.75rem;\">غير متاح</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "<button type=\"button\" disabled class=\"btn btn-secondary btn-sm\">غير متاح</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

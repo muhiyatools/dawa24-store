@@ -66,19 +66,19 @@ type CoverageView struct {
 // Validate ensures weekly coverage fields are valid.
 func (c *WeeklyCoverage) Validate() error {
 	if c.BranchID <= 0 {
-		return apperr.Validation("coverage.branch_required", "Branch ID is required.", map[string]string{"branch_id": "الفرع مطلوب"})
+		return apperr.Validation("coverage.branch_required", "Branch ID is required.", map[string]string{"branch_id": i18n.TDefault("w4s_mod.s_7_7")})
 	}
 	if c.DayOfWeek < 0 || c.DayOfWeek > 6 {
-		return apperr.Validation("coverage.day_invalid", "Day of week must be between 0 (Sunday) and 6 (Saturday).", map[string]string{"day_of_week": "يوم الأسبوع غير صالح"})
+		return apperr.Validation("coverage.day_invalid", "Day of week must be between 0 (Sunday) and 6 (Saturday).", map[string]string{"day_of_week": i18n.TDefault("w4s_mod.s_8_8")})
 	}
 	if c.DistanceMeters <= 0 || c.DistanceMeters > 500000 {
-		return apperr.Validation("coverage.distance_invalid", "Distance must be between 1 and 500,000 meters.", map[string]string{"distance_meters": "نطاق التغطية يجب أن يكون بين 1 و 500,000 متر"})
+		return apperr.Validation("coverage.distance_invalid", "Distance must be between 1 and 500,000 meters.", map[string]string{"distance_meters": i18n.TDefault("w4s_mod.1_500_000_9")})
 	}
 	if c.Latitude != nil && (*c.Latitude < -90 || *c.Latitude > 90) {
-		return apperr.Validation("coverage.latitude_invalid", "Latitude must be between -90 and 90.", map[string]string{"latitude": "خط العرض غير صالح"})
+		return apperr.Validation("coverage.latitude_invalid", "Latitude must be between -90 and 90.", map[string]string{"latitude": i18n.TDefault("w4s_mod.s_10_10")})
 	}
 	if c.Longitude != nil && (*c.Longitude < -180 || *c.Longitude > 180) {
-		return apperr.Validation("coverage.longitude_invalid", "Longitude must be between -180 and 180.", map[string]string{"longitude": "خط الطول غير صالح"})
+		return apperr.Validation("coverage.longitude_invalid", "Longitude must be between -180 and 180.", map[string]string{"longitude": i18n.TDefault("w4s_mod.s_11_11")})
 	}
 	if !validTimeOfDay(c.CoverageFrom) {
 		return apperr.Validation("coverage.from_invalid", "Coverage start time must be HH:MM.", map[string]string{"coverage_from": "وقت البداية يجب أن يكون بصيغة HH:MM"})
@@ -88,11 +88,11 @@ func (c *WeeklyCoverage) Validate() error {
 	}
 	// A half-open window is meaningless: either both ends are set or neither is.
 	if (c.CoverageFrom == nil) != (c.CoverageTo == nil) {
-		return apperr.Validation("coverage.window_incomplete", "Provide both start and end time, or neither.", map[string]string{"coverage_from": "يجب تحديد وقت البداية والنهاية معاً أو تركهما فارغين"})
+		return apperr.Validation("coverage.window_incomplete", "Provide both start and end time, or neither.", map[string]string{"coverage_from": i18n.TDefault("w4s_mod.s_12_12")})
 	}
 	if c.CoverageFrom != nil && c.CoverageTo != nil && *c.CoverageFrom >= *c.CoverageTo {
 		// Zero-padded HH:MM compares correctly as a string.
-		return apperr.Validation("coverage.window_inverted", "Start time must be before end time.", map[string]string{"coverage_to": "وقت النهاية يجب أن يكون بعد وقت البداية"})
+		return apperr.Validation("coverage.window_inverted", "Start time must be before end time.", map[string]string{"coverage_to": i18n.TDefault("w4s_mod.s_13_13")})
 	}
 	return nil
 }

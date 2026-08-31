@@ -23,12 +23,12 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 			<!-- 1. Hero Variant Details Card -->
 			<div class="glass-panel p-6 mb-6">
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem; align-items:start;">
+				<div>
 				
 				<!-- Col 1: Product Image Gallery -->
 				<div class="d-flex flex-col gap-4">
-					<div class="p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden" style="height:280px;">
-						<div class="position-absolute" style="top:12px; inset-inline-start:12px;">
+					<div class="p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden">
+						<div class="position-absolute">
 							<span class="badge badge-emerald text-xs font-bold">
 								@components.IconCheck("icon-xs")
 								<span>صنف معتمد 100%</span>
@@ -36,9 +36,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</div>
 
 						if product.Image != "" {
-							<img src={ product.Image } alt={ productTitle(product) } style="max-height:200px; max-width:100%; object-fit:contain;" />
+							<img src={ product.Image } alt={ productTitle(product) } />
 						} else {
-							<div class="user-avatar-badge text-3xl mb-3" style="width:80px; height:80px;">
+							<div class="user-avatar-badge text-3xl mb-3">
 								@components.IconPill("icon-sm")
 							</div>
 							<div class="font-extrabold text-sm text-primary">العبوة الرسمية المسجلة</div>
@@ -69,7 +69,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					</div>
 
 					<!-- Master Attributes Grid -->
-					<div class="p-4 rounded-xl bg-surface-sunken border text-xs" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div class="p-4 rounded-xl bg-surface-sunken border text-xs">
 						if product.ScientificName != "" {
 							<div>
 								<span class="text-muted d-block text-xs mb-1">الاسم العلمي / التركيز:</span>
@@ -351,19 +351,19 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										<!-- Action -->
 										<td class="text-center">
 											if off.CanAddToCart {
-												<form method="POST" action="/cart/add" style="display:inline-flex; gap:0.35rem; margin:0;">
+												<form method="POST" action="/cart/add">
 													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />
 													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 													<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
 													<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
 													<input type="hidden" name="offer_price" value={ off.Price.String() } />
 													<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) } />
-													<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg); font-size:0.8rem;">
+													<button type="submit" class="btn btn-primary btn-sm">
 														<span>أضف للسلة</span>
 													</button>
 												</form>
 											} else {
-												<button type="button" disabled class="btn btn-secondary btn-sm" style="opacity:0.5; font-size:0.75rem;">
+												<button type="button" disabled class="btn btn-secondary btn-sm">
 													غير متاح
 												</button>
 											}

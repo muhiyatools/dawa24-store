@@ -889,7 +889,7 @@ func importRowsCard(view ImportReviewView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" placeholder=\"بحث بالاسم أو الكود...\" style=\"width:14rem;\"> <button type=\"submit\" class=\"wiz-chip\">بحث</button></form></div><div class=\"table-container m-0 mt-4 wiz-scroll\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:70px; text-align:center;\">الصف</th><th style=\"width:120px;\">الإجراء</th><th>الصنف</th><th>التفاصيل والمطابقة</th><th>الملاحظات</th><th style=\"width:110px; text-align:center;\">تضمين</th></tr></thead> <tbody id=\"import-rows-tbody\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" placeholder=\"بحث بالاسم أو الكود...\"> <button type=\"submit\" class=\"wiz-chip\">بحث</button></form></div><div class=\"table-container m-0 mt-4 wiz-scroll\"><table class=\"data-table m-0\"><thead><tr><th>الصف</th><th>الإجراء</th><th>الصنف</th><th>التفاصيل والمطابقة</th><th>الملاحظات</th><th>تضمين</th></tr></thead> <tbody id=\"import-rows-tbody\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1391,7 +1391,7 @@ func importRowsPager(view ImportReviewView) templ.Component {
 			templ_7745c5c3_Var69 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div class=\"wiz-toolbar\" style=\"margin-top:0.9rem;\"><span class=\"wiz-row-meta\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div class=\"wiz-toolbar\"><span class=\"wiz-row-meta\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1556,7 +1556,7 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if view.ModeIsDestructive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<label class=\"wiz-switch\" style=\"margin-bottom:0.75rem;\"><span class=\"wiz-switch-icon\" aria-hidden=\"true\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<label class=\"wiz-switch\"><span class=\"wiz-switch-icon\" aria-hidden=\"true\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1767,7 +1767,7 @@ func importProgressCard(view ImportReviewView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "</ol><p class=\"wiz-sub\" style=\"margin-top:1rem;\">يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج والمراجعة تلقائياً عند اكتمال المعالجة. لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.</p><script>\n\t\t\t(function() {\n\t\t\t\tconst sessionEl = document.getElementById('import-progress');\n\t\t\t\tconst sessionID = sessionEl ? sessionEl.dataset.session : null;\n\t\t\t\tif (!sessionID) return;\n\n\t\t\t\tconst fill = document.getElementById('import-progress-fill');\n\t\t\t\tconst msg = document.getElementById('import-progress-message');\n\t\t\t\tconst count = document.getElementById('import-progress-count');\n\n\t\t\t\tconst poll = setInterval(async () => {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch('/admin/products/import/' + sessionID + '/progress');\n\t\t\t\t\t\tif (!res.ok) return;\n\t\t\t\t\t\tconst data = await res.json();\n\t\t\t\t\t\tif (msg && data.message) msg.textContent = data.message;\n\t\t\t\t\t\tif (count && data.total > 0) {\n\t\t\t\t\t\t\tcount.textContent = Number(data.current).toLocaleString() + ' / ' + Number(data.total).toLocaleString();\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (fill) {\n\t\t\t\t\t\t\tif (data.percent >= 0) {\n\t\t\t\t\t\t\t\tfill.classList.remove('is-indeterminate');\n\t\t\t\t\t\t\t\tfill.style.width = data.percent + '%';\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tfill.classList.add('is-indeterminate');\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (data.done) {\n\t\t\t\t\t\t\tclearInterval(poll);\n\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t}, 400);\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('progress poll failed', e);\n\t\t\t\t\t}\n\t\t\t\t}, 1500);\n\t\t\t})();\n\t\t</script></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "</ol><p class=\"wiz-sub\">يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج والمراجعة تلقائياً عند اكتمال المعالجة. لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.</p><script>\r\n\t\t\t(function() {\r\n\t\t\t\tconst sessionEl = document.getElementById('import-progress');\r\n\t\t\t\tconst sessionID = sessionEl ? sessionEl.dataset.session : null;\r\n\t\t\t\tif (!sessionID) return;\r\n\r\n\t\t\t\tconst fill = document.getElementById('import-progress-fill');\r\n\t\t\t\tconst msg = document.getElementById('import-progress-message');\r\n\t\t\t\tconst count = document.getElementById('import-progress-count');\r\n\r\n\t\t\t\tconst poll = setInterval(async () => {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tconst res = await fetch('/admin/products/import/' + sessionID + '/progress');\r\n\t\t\t\t\t\tif (!res.ok) return;\r\n\t\t\t\t\t\tconst data = await res.json();\r\n\t\t\t\t\t\tif (msg && data.message) msg.textContent = data.message;\r\n\t\t\t\t\t\tif (count && data.total > 0) {\r\n\t\t\t\t\t\t\tcount.textContent = Number(data.current).toLocaleString() + ' / ' + Number(data.total).toLocaleString();\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (fill) {\r\n\t\t\t\t\t\t\tif (data.percent >= 0) {\r\n\t\t\t\t\t\t\t\tfill.classList.remove('is-indeterminate');\r\n\t\t\t\t\t\t\t\tfill.style.width = data.percent + '%';\r\n\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\tfill.classList.add('is-indeterminate');\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (data.done) {\r\n\t\t\t\t\t\t\tclearInterval(poll);\r\n\t\t\t\t\t\t\tsetTimeout(() => {\r\n\t\t\t\t\t\t\t\twindow.location.reload();\r\n\t\t\t\t\t\t\t}, 400);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t} catch (e) {\r\n\t\t\t\t\t\tconsole.error('progress poll failed', e);\r\n\t\t\t\t\t}\r\n\t\t\t\t}, 1500);\r\n\t\t\t})();\r\n\t\t</script></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

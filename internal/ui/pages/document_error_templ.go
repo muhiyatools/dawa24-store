@@ -62,7 +62,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:var(--bg-app);\"><div class=\"card\" style=\"max-width:580px; width:100%; border:1px solid var(--border); border-radius:var(--radius-xl); padding:2rem; background:var(--surface-raised); box-shadow:0 12px 36px rgba(0,0,0,0.08); text-align:center;\"><!-- Icon Badge --><div style=\"width:64px; height:64px; border-radius:var(--radius-full); background:rgba(239, 68, 68, 0.1); color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:1.85rem; margin:0 auto 1.25rem auto; border:1px solid rgba(239, 68, 68, 0.2);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div class=\"card\"><!-- Icon Badge --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -70,7 +70,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Main Title & Reason --><h1 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">تعذر فتح المستند — الملف غير متوفر</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); line-height:1.6; margin:0 0 1.5rem 0;\">لم يتم العثور على الملف الرقمي الفعلي لهذا المستند على وسائط التخزين السحابي، أو قد تم حذفه أو نقله أثناء تحديث البيئة.</p><!-- Document Meta Details Box --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; text-align:start; margin-bottom:1.5rem; display:flex; flex-direction:column; gap:0.75rem; font-size:0.85rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.5rem;\"><span class=\"text-muted\">نوع المستند:</span> <strong class=\"text-body\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Main Title & Reason --><h1>تعذر فتح المستند — الملف غير متوفر</h1><p>لم يتم العثور على الملف الرقمي الفعلي لهذا المستند على وسائط التخزين السحابي، أو قد تم حذفه أو نقله أثناء تحديث البيئة.</p><!-- Document Meta Details Box --><div><div><span class=\"text-muted\">نوع المستند:</span> <strong class=\"text-body\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,14 +83,14 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</strong></div><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.5rem;\"><span class=\"text-muted\">اسم الملف الأصلي:</span> <span dir=\"ltr\" class=\"tabular-nums\" style=\"font-weight:700; color:var(--primary); font-family:var(--font-mono, monospace);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</strong></div><div><span class=\"text-muted\">اسم الملف الأصلي:</span> <span dir=\"ltr\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.OriginalName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/document_error.templ`, Line: 51, Col: 150}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/document_error.templ`, Line: 51, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -101,7 +101,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 			if data.OrgName != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.5rem;\"><span class=\"text-muted\">المنشأة التابع لها:</span> <strong class=\"text-body\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div><span class=\"text-muted\">المنشأة التابع لها:</span> <strong class=\"text-body\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -120,7 +120,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				}
 			}
 			if data.UploadDate != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.5rem;\"><span class=\"text-muted\">تاريخ الرفع والتسجيل:</span> <span class=\"tabular-nums text-body\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div><span class=\"text-muted\">تاريخ الرفع والتسجيل:</span> <span class=\"tabular-nums text-body\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -138,14 +138,14 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"display:flex; justify-content:space-between; align-items:center;\"><span class=\"text-muted\">رقم المستند بالنظام:</span> <code style=\"background:var(--surface-raised); padding:0.15rem 0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border); font-weight:700; color:var(--text);\">#")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div><span class=\"text-muted\">رقم المستند بالنظام:</span> <code>#")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.DocID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/document_error.templ`, Line: 70, Col: 210}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/document_error.templ`, Line: 70, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -156,17 +156,17 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 				return templ_7745c5c3_Err
 			}
 			if data.IsAdmin {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div style=\"background:rgba(2, 132, 199, 0.08); border:1px solid rgba(2, 132, 199, 0.2); border-radius:var(--radius-md); padding:0.85rem 1rem; text-align:start; margin-bottom:1.5rem; font-size:0.8rem; color:var(--text-secondary); line-height:1.5;\"><strong style=\"color:var(--accent);\">توجيه للإدارة:</strong> يمكنك مراسلة المنشأة أو إرسال طلب رسمي لإعادة رفع المستند عبر تبويب <strong>\"طلبات المستندات\"</strong> في لوحة الموافقات.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div><strong>توجيه للإدارة:</strong> يمكنك مراسلة المنشأة أو إرسال طلب رسمي لإعادة رفع المستند عبر تبويب <strong>\"طلبات المستندات\"</strong> في لوحة الموافقات.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"background:rgba(2, 132, 199, 0.08); border:1px solid rgba(2, 132, 199, 0.2); border-radius:var(--radius-md); padding:0.85rem 1rem; text-align:start; margin-bottom:1.5rem; font-size:0.8rem; color:var(--text-secondary); line-height:1.5;\"><strong style=\"color:var(--accent);\">تنبيه:</strong> يمكنك إعادة رفع المستند المحدث مباشرة عبر صفحة <strong>\"المستندات والتراخيص\"</strong> في حسابك.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><strong>تنبيه:</strong> يمكنك إعادة رفع المستند المحدث مباشرة عبر صفحة <strong>\"المستندات والتراخيص\"</strong> في حسابك.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Action Buttons --><div style=\"display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;\"><a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Action Buttons --><div><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -179,7 +179,7 @@ func DocumentUnavailablePage(data DocumentUnavailableView, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.5rem; border-radius:var(--radius-md); display:inline-flex; align-items:center; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"btn btn-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

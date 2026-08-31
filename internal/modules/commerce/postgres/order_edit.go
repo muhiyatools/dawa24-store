@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -278,7 +279,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		if changedByUserID > 0 {
 			userPtr = &changedByUserID
 		}
-		_, _ = tx.Exec(txCtx, historyQuery, order.ID, shipmentIDPtr, currentStatus, currentStatus, "تم تعديل كميات وتفاصيل أصناف الطلب من قِبل الصيدلية وإعادة احتساب الإجماليات والخصومات والضرائب بنجاح", userPtr)
+		_, _ = tx.Exec(txCtx, historyQuery, order.ID, shipmentIDPtr, currentStatus, currentStatus, i18n.TDefault("w4_mod.s_361_361"), userPtr)
 
 		return nil
 	})

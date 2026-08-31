@@ -397,7 +397,7 @@ func AdminUserDetailPage(v AdminUserDetailView, lang, dir string) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</p></div><a href=\"/admin/users\" class=\"btn btn-secondary btn-sm font-bold text-xs\">العودة لدليل المستخدمين</a></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;\"><div><div class=\"text-xs text-secondary font-bold\">البريد الإلكتروني</div><div class=\"tabular-nums text-sm font-bold text-primary mt-1 font-mono\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</p></div><a href=\"/admin/users\" class=\"btn btn-secondary btn-sm font-bold text-xs\">العودة لدليل المستخدمين</a></div><div><div><div class=\"text-xs text-secondary font-bold\">البريد الإلكتروني</div><div class=\"tabular-nums text-sm font-bold text-primary mt-1 font-mono\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -511,7 +511,7 @@ func adminUserRoleForm(v AdminUserDetailView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"d-flex items-center gap-3\"><select name=\"role\" class=\"form-input\" style=\"max-width:320px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"d-flex items-center gap-3\"><select name=\"role\" class=\"form-input\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1050,7 +1050,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, ">المخازن والمستودعات</option></select></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs px-4 shadow-sm\" style=\"height: 38px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, ">المخازن والمستودعات</option></select></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs px-4 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1063,7 +1063,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 				return templ_7745c5c3_Err
 			}
 			if data.SearchQuery != "" || data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SelectedAction != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<a href=\"/admin/employee-activities\" class=\"btn btn-secondary btn-sm text-xs font-bold\" style=\"height: 38px; display: inline-flex; align-items: center;\">إلغاء</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<a href=\"/admin/employee-activities\" class=\"btn btn-secondary btn-sm text-xs font-bold\">إلغاء</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1086,7 +1086,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-center ps-4\" style=\"width: 70px;\"># ID</th><th class=\"py-3 text-start\">التوقيت والتاريخ</th><th class=\"py-3 text-start\">الموظف المنفذ</th><th class=\"py-3 text-start\">المنشأة التابع لها</th><th class=\"py-3 text-start\">نوع الإجراء</th><th class=\"py-3 text-start\">القسم / العنصر</th><th class=\"py-3 text-start\">معرف الصنف</th><th class=\"text-center py-3\">عنوان IP</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-center ps-4\"># ID</th><th class=\"py-3 text-start\">التوقيت والتاريخ</th><th class=\"py-3 text-start\">الموظف المنفذ</th><th class=\"py-3 text-start\">المنشأة التابع لها</th><th class=\"py-3 text-start\">نوع الإجراء</th><th class=\"py-3 text-start\">القسم / العنصر</th><th class=\"py-3 text-start\">معرف الصنف</th><th class=\"text-center py-3\">عنوان IP</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1169,7 +1169,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 						return templ_7745c5c3_Err
 					}
 					if e.ActorEmail != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<div class=\"text-2xs text-muted tabular-nums\" dir=\"ltr\" style=\"text-align: start;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<div class=\"text-2xs text-muted tabular-nums\" dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1417,7 +1417,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "<span class=\"btn btn-primary btn-sm font-black tabular-nums text-xs\" style=\"min-width:32px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "<span class=\"btn btn-primary btn-sm font-black tabular-nums text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1464,7 +1464,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</div><!-- Details & JSON Diff Modal --><div x-show=\"isDetailsOpen\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs\" style=\"position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem; margin: 0;\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-2xl max-w-2xl w-full bg-white relative mx-auto my-auto overflow-hidden\" style=\"max-height: 90vh; overflow-y: auto; margin: auto;\"><div class=\"flex-between items-center pb-3 mb-4 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 142, "</div><!-- Details & JSON Diff Modal --><div x-show=\"isDetailsOpen\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs\" @keydown.escape.window=\"isDetailsOpen = false\"><div @click.outside=\"isDetailsOpen = false\" class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-2xl max-w-2xl w-full bg-white relative mx-auto my-auto overflow-hidden\"><div class=\"flex-between items-center pb-3 mb-4 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1480,7 +1480,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "</button></div><template x-if=\"selected\"><div class=\"d-flex flex-col gap-4\"><div class=\"d-grid grid-cols-2 gap-3 p-3.5 bg-surface-sunken rounded-xl border border-slate-200/80 text-xs\"><div><span class=\"text-muted d-block text-2xs\">الموظف المنفذ:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.actor_name\"></strong></div><div><span class=\"text-muted d-block text-2xs\">المنشأة:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.organization_name\"></strong></div><div><span class=\"text-muted d-block text-2xs\">عنوان IP:</span> <code class=\"font-mono text-secondary\" x-text=\"selected.ip_address || 'داخلي'\"></code></div><div><span class=\"text-muted d-block text-2xs\">التوقيت:</span> <span class=\"tabular-nums font-bold text-secondary\" x-text=\"selected.created_at\"></span></div></div><!-- Before / After JSON Payloads --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"p-3 bg-rose-50/40 rounded-xl border border-rose-100\"><div class=\"text-2xs font-extrabold text-rose-800 mb-1.5\">البيانات السابقة (Before):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700\" style=\"max-height: 180px;\" x-text=\"JSON.stringify(selected.before || {}, null, 2)\"></pre></div><div class=\"p-3 bg-emerald-50/40 rounded-xl border border-emerald-100\"><div class=\"text-2xs font-extrabold text-emerald-800 mb-1.5\">البيانات بعد التعديل (After):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-emerald-200 overflow-x-auto text-slate-700\" style=\"max-height: 180px;\" x-text=\"JSON.stringify(selected.after || {}, null, 2)\"></pre></div></div></div></template><div class=\"flex-between items-center pt-3 mt-4 border-t border-slate-100\"><span></span> <button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-sm font-bold px-6\">إغلاق</button></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "</button></div><template x-if=\"selected\"><div class=\"d-flex flex-col gap-4\"><div class=\"d-grid grid-cols-2 gap-3 p-3.5 bg-surface-sunken rounded-xl border border-slate-200/80 text-xs\"><div><span class=\"text-muted d-block text-2xs\">الموظف المنفذ:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.actor_name\"></strong></div><div><span class=\"text-muted d-block text-2xs\">المنشأة:</span> <strong class=\"text-primary font-bold\" x-text=\"selected.organization_name\"></strong></div><div><span class=\"text-muted d-block text-2xs\">عنوان IP:</span> <code class=\"font-mono text-secondary\" x-text=\"selected.ip_address || 'داخلي'\"></code></div><div><span class=\"text-muted d-block text-2xs\">التوقيت:</span> <span class=\"tabular-nums font-bold text-secondary\" x-text=\"selected.created_at\"></span></div></div><!-- Before / After JSON Payloads --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"p-3 bg-rose-50/40 rounded-xl border border-rose-100\"><div class=\"text-2xs font-extrabold text-rose-800 mb-1.5\">البيانات السابقة (Before):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700\" x-text=\"JSON.stringify(selected.before || {}, null, 2)\"></pre></div><div class=\"p-3 bg-emerald-50/40 rounded-xl border border-emerald-100\"><div class=\"text-2xs font-extrabold text-emerald-800 mb-1.5\">البيانات بعد التعديل (After):</div><pre class=\"text-2xs font-mono bg-white p-2.5 rounded-lg border border-emerald-200 overflow-x-auto text-slate-700\" x-text=\"JSON.stringify(selected.after || {}, null, 2)\"></pre></div></div></div></template><div class=\"flex-between items-center pt-3 mt-4 border-t border-slate-100\"><span></span> <button type=\"button\" @click=\"isDetailsOpen = false\" class=\"btn btn-secondary btn-sm font-bold px-6\">إغلاق</button></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -362,7 +362,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		coreFields := view.CoreFields()
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"glass-panel p-4 mb-4\" style=\"background:var(--bg-surface-raised); border:1px solid var(--border-subtle);\"><div class=\"flex-between items-center mb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-base\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"glass-panel p-4 mb-4\"><div class=\"flex-between items-center mb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-base\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -383,7 +383,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:220px;\">الحقل المطلوب</th><th style=\"width:280px;\">العمود في الملف</th><th>عيّنة من القيم</th><th style=\"width:100px; text-align:center;\">دقة المطابقة</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الحقل المطلوب</th><th>العمود في الملف</th><th>عيّنة من القيم</th><th>دقة المطابقة</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -398,7 +398,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		pharmaFields := view.PharmaFields()
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"glass-panel p-4 mb-4\" style=\"background:var(--bg-surface-raised); border:1px solid var(--border-subtle);\"><div class=\"flex-between items-center mb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-base\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"glass-panel p-4 mb-4\"><div class=\"flex-between items-center mb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-base\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -419,7 +419,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:220px;\">الحقل المطلوب</th><th style=\"width:280px;\">العمود في الملف</th><th>عيّنة من القيم</th><th style=\"width:100px; text-align:center;\">دقة المطابقة</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الحقل المطلوب</th><th>العمود في الملف</th><th>عيّنة من القيم</th><th>دقة المطابقة</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -434,7 +434,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		pricingFields := view.PricingTaxonomyFields()
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"glass-panel p-4 mb-0\" style=\"background:var(--bg-surface-raised); border:1px solid var(--border-subtle);\"><div class=\"flex-between items-center mb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-base\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center mb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-base\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -455,7 +455,7 @@ func importMappingCard(view ImportMappingView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:220px;\">الحقل المطلوب</th><th style=\"width:280px;\">العمود في الملف</th><th>عيّنة من القيم</th><th style=\"width:100px; text-align:center;\">دقة المطابقة</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الحقل المطلوب</th><th>العمود في الملف</th><th>عيّنة من القيم</th><th>دقة المطابقة</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

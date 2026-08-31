@@ -27,11 +27,11 @@ func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Reques
 		i18n.T("ar", "ingest.col.name_ar"),
 		i18n.T("ar", "ingest.col.name_en"),
 		i18n.T("ar", "ingest.col.scientific_name"),
-		"المادة الفعالة",
+		i18n.TDefault("w4_ui.s_164_164"),
 		i18n.T("ar", "ingest.col.dosage_form"),
 		i18n.T("ar", "ingest.col.manufacturer"),
-		"سعر التوريد",
-		"الرصيد",
+		i18n.TDefault("w4_ui.s_165_165"),
+		i18n.TDefault("w4_ui.s_166_166"),
 		i18n.T("ar", "ingest.col.batch_no"),
 		i18n.T("ar", "ingest.col.expiry_date"),
 	}
@@ -42,11 +42,11 @@ func (h *UIHandler) VendorIngestSampleXLSX(w http.ResponseWriter, r *http.Reques
 	}
 
 	sampleRows := [][]string{
-		{"6221142001234", "بانادول إكسترا 24 قرص", "Panadol Extra 24 Tab", "Paracetamol + Caffeine", "Paracetamol 500mg", "أقراص", "GSK", "48.50", "250", "BN-94812", "2027-12-31"},
-		{"6221142005678", "أوجمنتين 1 جم 14 قرص", "Augmentin 1g 14 Tab", "Amoxicillin + Clavulanate", "Amoxicillin 875mg", "أقراص", "GlaxoSmithKline", "132.00", "120", "BN-88219", "2026-11-30"},
-		{"6221142009999", "كتفاست 50 مجم فوار", "Catafast 50mg Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", "فوار", "Novartis", "58.00", "300", "BN-77192", "2028-05-31"},
-		{"6221142003322", "كونجستال 20 قرص", "Congestal 20 Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "Eva Pharma", "25.00", "500", "BN-10293", "2027-08-31"},
-		{"6221142004455", "أنتينال 24 كبسولة", "Antinal 24 Capsules", "Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "Amoun", "30.00", "180", "BN-22194", "2027-10-31"},
+		{"6221142001234", i18n.TDefault("w4_ui.24_167"), "Panadol Extra 24 Tab", "Paracetamol + Caffeine", "Paracetamol 500mg", i18n.TDefault("w4_ui.s_13_13"), "GSK", "48.50", "250", "BN-94812", "2027-12-31"},
+		{"6221142005678", i18n.TDefault("w4_ui.1_14_168"), "Augmentin 1g 14 Tab", "Amoxicillin + Clavulanate", "Amoxicillin 875mg", i18n.TDefault("w4_ui.s_13_13"), "GlaxoSmithKline", "132.00", "120", "BN-88219", "2026-11-30"},
+		{"6221142009999", i18n.TDefault("w4_ui.50_169"), "Catafast 50mg Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", i18n.TDefault("w4_ui.s_170_170"), "Novartis", "58.00", "300", "BN-77192", "2028-05-31"},
+		{"6221142003322", i18n.TDefault("w4_ui.20_59"), "Congestal 20 Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", i18n.TDefault("w4_ui.s_13_13"), "Eva Pharma", "25.00", "500", "BN-10293", "2027-08-31"},
+		{"6221142004455", i18n.TDefault("w4_ui.24_171"), "Antinal 24 Capsules", "Nifuroxazide", "Nifuroxazide 200mg", i18n.TDefault("w4_ui.s_21_21"), "Amoun", "30.00", "180", "BN-22194", "2027-10-31"},
 	}
 
 	for rIdx, row := range sampleRows {
@@ -77,22 +77,22 @@ func (h *UIHandler) VendorIngestSampleCSV(w http.ResponseWriter, r *http.Request
 		i18n.T("ar", "ingest.col.name_ar"),
 		i18n.T("ar", "ingest.col.name_en"),
 		i18n.T("ar", "ingest.col.scientific_name"),
-		"المادة الفعالة",
+		i18n.TDefault("w4_ui.s_164_164"),
 		i18n.T("ar", "ingest.col.dosage_form"),
 		i18n.T("ar", "ingest.col.manufacturer"),
-		"سعر التوريد",
-		"الرصيد",
+		i18n.TDefault("w4_ui.s_165_165"),
+		i18n.TDefault("w4_ui.s_166_166"),
 		i18n.T("ar", "ingest.col.batch_no"),
 		i18n.T("ar", "ingest.col.expiry_date"),
 	}
 	_ = writer.Write(headers)
 
 	sampleRows := [][]string{
-		{"6221142001234", "بانادول إكسترا 24 قرص", "Panadol Extra 24 Tab", "Paracetamol + Caffeine", "Paracetamol 500mg", "أقراص", "GSK", "48.50", "250", "BN-94812", "2027-12-31"},
-		{"6221142005678", "أوجمنتين 1 جم 14 قرص", "Augmentin 1g 14 Tab", "Amoxicillin + Clavulanate", "Amoxicillin 875mg", "أقراص", "GlaxoSmithKline", "132.00", "120", "BN-88219", "2026-11-30"},
-		{"6221142009999", "كتفاست 50 مجم فوار", "Catafast 50mg Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", "فوار", "Novartis", "58.00", "300", "BN-77192", "2028-05-31"},
-		{"6221142003322", "كونجستال 20 قرص", "Congestal 20 Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "Eva Pharma", "25.00", "500", "BN-10293", "2027-08-31"},
-		{"6221142004455", "أنتينال 24 كبسولة", "Antinal 24 Capsules", "Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "Amoun", "30.00", "180", "BN-22194", "2027-10-31"},
+		{"6221142001234", i18n.TDefault("w4_ui.24_167"), "Panadol Extra 24 Tab", "Paracetamol + Caffeine", "Paracetamol 500mg", i18n.TDefault("w4_ui.s_13_13"), "GSK", "48.50", "250", "BN-94812", "2027-12-31"},
+		{"6221142005678", i18n.TDefault("w4_ui.1_14_168"), "Augmentin 1g 14 Tab", "Amoxicillin + Clavulanate", "Amoxicillin 875mg", i18n.TDefault("w4_ui.s_13_13"), "GlaxoSmithKline", "132.00", "120", "BN-88219", "2026-11-30"},
+		{"6221142009999", i18n.TDefault("w4_ui.50_169"), "Catafast 50mg Sachets", "Diclofenac Potassium", "Diclofenac Potassium 50mg", i18n.TDefault("w4_ui.s_170_170"), "Novartis", "58.00", "300", "BN-77192", "2028-05-31"},
+		{"6221142003322", i18n.TDefault("w4_ui.20_59"), "Congestal 20 Tablets", "Paracetamol + Pseudoephedrine", "Paracetamol 500mg", i18n.TDefault("w4_ui.s_13_13"), "Eva Pharma", "25.00", "500", "BN-10293", "2027-08-31"},
+		{"6221142004455", i18n.TDefault("w4_ui.24_171"), "Antinal 24 Capsules", "Nifuroxazide", "Nifuroxazide 200mg", i18n.TDefault("w4_ui.s_21_21"), "Amoun", "30.00", "180", "BN-22194", "2027-10-31"},
 	}
 
 	for _, row := range sampleRows {
@@ -118,7 +118,7 @@ func (h *UIHandler) VendorIngestExport(w http.ResponseWriter, r *http.Request) {
 	writer := csv.NewWriter(w)
 	defer writer.Flush()
 
-	headers := []string{"الباركود / SKU", "اسم الصنف الدوائي", "سعر التوريد (ج.م)", "الرصيد المتاح (عبوة)", i18n.T("ar", "ingest.col.batch_no"), i18n.T("ar", "ingest.col.expiry_date"), "الحالة"}
+	headers := []string{"الباركود / SKU", i18n.TDefault("w4_ui.s_172_172"), "سعر التوريد (ج.م)", "الرصيد المتاح (عبوة)", i18n.T("ar", "ingest.col.batch_no"), i18n.T("ar", "ingest.col.expiry_date"), i18n.TDefault("w4_ui.s_173_173")}
 	_ = writer.Write(headers)
 
 	if h.catSvc != nil {
@@ -134,9 +134,9 @@ func (h *UIHandler) VendorIngestExport(w http.ResponseWriter, r *http.Request) {
 					if v.ExpiryDate != nil {
 						expStr = v.ExpiryDate.Format("2006-01-02")
 					}
-					status := "متاح للطلب"
+					status := i18n.TDefault("w4_ui.s_174_174")
 					if v.Status != catalog.StatusActive && v.Status != "" {
-						status = "غير متاح"
+						status = i18n.TDefault("w4_ui.s_175_175")
 					}
 					_ = writer.Write([]string{
 						v.SKU,

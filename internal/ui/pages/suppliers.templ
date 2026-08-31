@@ -81,7 +81,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		<div class="glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4">
 			
 			<!-- Search Form -->
-			<form method="GET" action="/suppliers" class="d-flex gap-2 flex-1" style="min-width:280px; max-width:540px;">
+			<form method="GET" action="/suppliers" class="d-flex gap-2 flex-1">
 				<div class="position-relative flex-1">
 					<input
 						type="text"
@@ -125,7 +125,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		</div>
 
 		<!-- View 1: List / Grid View -->
-		<div id="suppliers-list-view" style={ templ.KV("display:none;", data.ActiveTab == "map") }>
+		<div id="suppliers-list-view" class={ templ.KV("d-none", data.ActiveTab == "map") }>
 			if len(data.Suppliers) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
 					Title:       "لا يوجد موردون مطابقون للبحث",
@@ -134,7 +134,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 					ActionURL:   "/suppliers",
 				})
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:1.25rem;">
+				<div>
 					for _, s := range data.Suppliers {
 						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
 							<div>
@@ -186,7 +186,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 											<span class="text-xs text-secondary font-bold">{ s.StatusNote }</span>
 										</div>
 
-										<span class="badge badge-slate text-xs" style="direction:ltr;">
+										<span class="badge badge-slate text-xs">
 											2-8°C مبرد
 										</span>
 									</div>
@@ -256,27 +256,27 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		</div>
 
 		<!-- View 2: Interactive Map View -->
-		<div id="suppliers-map-view" style={ templ.KV("display:none;", data.ActiveTab != "map") }>
-			<div style="display:grid; grid-template-columns:360px 1fr; gap:1.25rem; align-items:stretch; min-height:620px;">
+		<div id="suppliers-map-view" class={ templ.KV("d-none", data.ActiveTab != "map") }>
+			<div>
 				
 				<!-- Map Side Panel: Quick List & Focus -->
-				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; max-height:680px; overflow-y:auto;">
-					<div style="margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+				<div class="card">
+					<div>
+						<h3>
 							مواقع مخازن التوزيع الدوائي
 						</h3>
-						<span style="font-size:0.775rem; color:var(--text-muted);">انقر على أي مورد للتركيز عليه على الخريطة</span>
+						<span>انقر على أي مورد للتركيز عليه على الخريطة</span>
 					</div>
 
-					<div style="display:flex; flex-direction:column; gap:0.65rem;">
+					<div>
 						for idx, s := range data.Suppliers {
 							<div
 								class="map-supplier-item"
 								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%f, %f, %d)", s.Latitude, s.Longitude, idx)} }
-								style="padding:0.75rem 0.9rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); cursor:pointer; transition:all 0.2s ease;"
+							
 							>
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.3rem;">
-									<strong style="font-size:0.9rem; color:var(--text);">
+								<div>
+									<strong>
 										if s.Org.TradeName.Get(i18n.Lang(lang)) != "" {
 											{ s.Org.TradeName.Get(i18n.Lang(lang)) }
 										} else {
@@ -289,7 +289,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 										<span class="badge badge-slate text-xs">مغلق</span>
 									}
 								</div>
-								<div style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem;">
+								<div>
 									<span>⏱</span>
 									<span>{ s.WorkingHours }</span>
 								</div>
@@ -299,8 +299,8 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				</div>
 
 				<!-- Map Container -->
-				<div class="card" style="margin:0; padding:0; border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; position:relative; min-height:600px;">
-					<div id="suppliers-leaflet-map" style="width:100%; height:100%; min-height:600px; z-index:1;"></div>
+				<div class="card">
+					<div id="suppliers-leaflet-map"></div>
 				</div>
 
 			</div>
@@ -344,9 +344,9 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			return L.divIcon({
 				className: 'supplier-active-pin-container',
 				html: `
-					<div class="supplier-active-pin" style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center;">
-						<div style="position:absolute; inset:-8px; border-radius:50%; background:rgba(37,99,235,0.35); animation:supplier-pulse-ring 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);"></div>
-						<div style="background:linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0284c7 100%); color:#fff; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; border:3.5px solid #ffffff; box-shadow:0 8px 24px rgba(37,99,235,0.6); position:relative; z-index:2;">@components.IconBuilding("icon-sm")</div>
+					<div class="supplier-active-pin">
+						<div></div>
+						<div>@components.IconBuilding("icon-sm")</div>
 					</div>
 				`,
 				iconSize: [56, 56],
@@ -388,14 +388,14 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 
 				const marker = L.marker([parseFloat(s.lat), parseFloat(s.lng)], { icon: customIcon }).addTo(mapInstance);
 
-				const linkHtml = '<a href="/suppliers/' + s.id + '" style="display:block; text-align:center; background:#2563eb; color:#fff; padding:7px 14px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:800; box-shadow:0 2px 8px rgba(37,99,235,0.3);">عرض الكتالوج والطلب ↗</a>';
-				const popupContent = '<div style="font-family:inherit; direction:rtl; text-align:right; min-width:240px; padding:0.4rem;">' +
-					'<div style="font-size:15px; font-weight:900; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:0.4rem;"><span></span> ' + s.name + '</div>' +
-					'<div style="font-size:12px; margin-bottom:8px;"><span style="background:' + (s.isOpen ? '#dcfce7' : '#f1f5f9') + '; color:' + (s.isOpen ? '#15803d' : '#475569') + '; padding:3px 10px; border-radius:6px; font-weight:800;">' + statusText + '</span></div>' +
-					'<div style="font-size:12px; color:#475569; margin-bottom:5px;">⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
-					'<div style="font-size:12px; color:#475569; margin-bottom:6px;"><strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
-					(s.address ? '<div style="font-size:12px; color:#64748b; margin-bottom:8px;">' + s.address + '</div>' : '') +
-					'<div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:8px;">' + linkHtml + '</div>' +
+				const linkHtml = '<a href="/suppliers/' + s.id + '">عرض الكتالوج والطلب ↗</a>';
+				const popupContent = '<div>' +
+					'<div><span></span> ' + s.name + '</div>' +
+					'<div><span>' + statusText + '</span></div>' +
+					'<div>⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
+					'<div><strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
+					(s.address ? '<div>' + s.address + '</div>' : '') +
+					'<div>' + linkHtml + '</div>' +
 				'</div>';
 
 				marker.bindPopup(popupContent);
@@ -495,12 +495,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 		<div class="sp-container">
 			
 			<!-- Breadcrumbs -->
-			<nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.8125rem; color:var(--text-muted); margin-bottom:0.25rem;">
-				<a href="/" style="color:var(--text-secondary); text-decoration:none;">الرئيسية</a>
+			<nav>
+				<a href="/">الرئيسية</a>
 				<span>/</span>
-				<a href="/suppliers" style="color:var(--text-secondary); text-decoration:none;">دليل الموردين</a>
+				<a href="/suppliers">دليل الموردين</a>
 				<span>/</span>
-				<span style="color:var(--text); font-weight:700;">{ data.Org.TradeName.Get(i18n.Lang(lang)) }</span>
+				<span>{ data.Org.TradeName.Get(i18n.Lang(lang)) }</span>
 			</nav>
 
 			<!-- 1. Verified Supplier Flagship Header Banner -->
@@ -536,11 +536,11 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								<span class="text-xs text-muted">(مورد معتمد موثق)</span>
 							}
 							if data.Org.CommercialRegister != "" {
-								<span style="color:var(--border);">•</span>
+								<span>•</span>
 								<span class="tabular-nums">السجل التجاري: <strong class="text-primary">{ data.Org.CommercialRegister }</strong></span>
 							}
 							if data.Org.TaxNumber != "" {
-								<span style="color:var(--border);">•</span>
+								<span>•</span>
 								<span class="tabular-nums">البطاقة الضريبية: <strong class="text-primary">{ data.Org.TaxNumber }</strong></span>
 							}
 						</div>
@@ -553,26 +553,26 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						type="button"
 						class="btn btn-primary"
 						data-modal-open={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }
-						style="width:100%; justify-content:center; font-weight:700; font-size:0.875rem; border-radius:var(--radius-md);"
+					
 					>
 						@components.IconPlus("icon-xs")
 						<span>طلب عرض أسعار خاص</span>
 					</button>
 
-					<div class="row-center-sm" style="display:flex; gap:0.5rem;">
-						<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="flex:1; justify-content:center; font-weight:700; color:var(--success-text); border-radius:var(--radius-md);">
+					<div class="row-center-sm">
+						<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
 							@components.IconWhatsApp("icon-xs")
 							<span>واتساب</span>
 						</a>
 
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) } style="flex:1; margin:0;">
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", data.Org.ID)) }>
 							if data.IsFollowing {
-								<button type="submit" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--danger-text); border-radius:var(--radius-md);">
+								<button type="submit" class="btn btn-secondary btn-sm">
 									@components.IconHeart("icon-xs")
 									<span>إلغاء المتابعة</span>
 								</button>
 							} else {
-								<button type="submit" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; color:var(--accent); border-radius:var(--radius-md);">
+								<button type="submit" class="btn btn-secondary btn-sm">
 									@components.IconHeart("icon-xs")
 									<span>متابعة</span>
 								</button>
@@ -592,13 +592,13 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					<div class="sp-ops-content">
 						<div class="sp-ops-label">
 							if data.IsOpenNow {
-								<span class="badge badge-emerald text-xs fw-700" style="padding:0.15rem 0.5rem; gap:0.3rem;">
-									<span style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+								<span class="badge badge-emerald text-xs fw-700">
+									<span></span>
 									<span>مفتوح الآن</span>
 								</span>
 							} else {
-								<span class="badge badge-slate text-xs fw-700" style="padding:0.15rem 0.5rem; gap:0.3rem;">
-									<span style="width:6px; height:6px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
+								<span class="badge badge-slate text-xs fw-700">
+									<span></span>
 									<span>مغلق حالياً</span>
 								</span>
 							}
@@ -630,7 +630,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						</div>
 						<div class="sp-ops-content">
 							<div class="sp-ops-label">المناطق المشمولة</div>
-							<div class="sp-ops-val" style="font-size:0.8125rem;">
+							<div class="sp-ops-val">
 								{ strings.Join(data.CoverageAreas, "، ") }
 							</div>
 						</div>
@@ -686,29 +686,29 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 4. Tab 1: Catalog & Batches Content -->
-			<div id="tab-content-catalog" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
+			<div id="tab-content-catalog" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
 				
 				<!-- Catalog Controls Toolbar -->
 				<div class="sp-catalog-toolbar">
 					<form method="GET" class="sp-catalog-search">
-						<div style="position:relative; flex:1;">
+						<div>
 							<input
 								type="text"
 								name="q"
 								value={ data.SearchQuery }
 								placeholder="ابحث في أصناف وتشغيلات المورد بالاسم أو الباركود أو المادة الفعالة..."
 								class="form-input input-sm"
-								style="width:100%; padding-inline-start:2.25rem; border-radius:var(--radius-md);"
+							
 							/>
-							<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+							<div>
 								@components.IconSearch("icon-xs")
 							</div>
 						</div>
-						<button type="submit" class="btn btn-primary btn-sm fw-700" style="border-radius:var(--radius-md);">
+						<button type="submit" class="btn btn-primary btn-sm fw-700">
 							بحث
 						</button>
 						if data.SearchQuery != "" {
-							<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", data.Org.ID)) } class="btn btn-secondary btn-sm" style="border-radius:var(--radius-md);">
+							<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", data.Org.ID)) } class="btn btn-secondary btn-sm">
 								إعادة تعيين
 							</a>
 						}
@@ -718,11 +718,11 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						<span class="badge badge-sky text-xs fw-700">
 							{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
 						</span>
-						<div style="display:flex; align-items:center; background:var(--surface-sunken); padding:0.2rem; border-radius:var(--radius-md); border:1px solid var(--border);">
-							<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" style="padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:var(--radius-sm);" title="عرض الجدول التفصيلي">
+						<div>
+							<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" title="عرض الجدول التفصيلي">
 								جدول
 							</button>
-							<button type="button" id="cat-view-grid-btn" onclick="switchCatalogView('grid')" class="btn btn-sm btn-secondary" style="padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:var(--radius-sm);" title="عرض البطاقات">
+							<button type="button" id="cat-view-grid-btn" onclick="switchCatalogView('grid')" class="btn btn-sm btn-secondary" title="عرض البطاقات">
 								⊞ بطاقات
 							</button>
 						</div>
@@ -730,9 +730,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				</div>
 
 				if len(data.Variants) == 0 {
-					<div class="card" style="padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+					<div class="card">
 						@components.IconPill("icon-lg")
-						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0.85rem 0 0.35rem 0;">لا توجد أصناف مطابقة للبحث</h3>
+						<h3>لا توجد أصناف مطابقة للبحث</h3>
 						<p class="text-sm text-muted m-0">يقوم المورد بتحديث قائمة الأدوية والأسعار بانتظام.</p>
 					</div>
 				} else {
@@ -784,17 +784,17 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 													}
 													<div class="sp-badges-row">
 														if form := data.GetDosageForm(v); form != "" {
-															<span class="badge badge-slate" style="font-size:0.7rem; padding:0.1rem 0.45rem;">
+															<span class="badge badge-slate">
 																{ form }
 															</span>
 														}
 														if conc := data.GetConcentration(v); conc != "" {
-															<span class="badge badge-secondary" style="font-size:0.7rem; padding:0.1rem 0.45rem;">
+															<span class="badge badge-secondary">
 																{ conc }
 															</span>
 														}
 														if v.Unit != "" {
-															<span class="badge badge-sky" style="font-size:0.7rem; padding:0.1rem 0.45rem;">
+															<span class="badge badge-sky">
 																{ v.Unit }
 															</span>
 														}
@@ -805,7 +805,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- Batch & Expiry -->
 										<td>
-											<div style="display:flex; flex-direction:column; gap:0.25rem; font-size:0.8125rem;">
+											<div>
 												if v.BatchNumber != "" {
 													<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
 												}
@@ -821,12 +821,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										<!-- 1. Retail Public Price (سعر الجمهور) -->
 										<td>
 											if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() {
-												<div style="font-size:0.95rem; font-weight:700; color:var(--text);" class="tabular-nums">
-													{ p.PublicPrice().String() } <span style="font-size:0.75rem; color:var(--text-secondary);">ج.م</span>
+												<div class="tabular-nums">
+													{ p.PublicPrice().String() } <span>ج.م</span>
 												</div>
 											} else if v.Price.IsPositive() {
-												<div style="font-size:0.95rem; font-weight:700; color:var(--text);" class="tabular-nums">
-													{ v.Price.String() } <span style="font-size:0.75rem; color:var(--text-secondary);">ج.م</span>
+												<div class="tabular-nums">
+													{ v.Price.String() } <span>ج.م</span>
 												</div>
 											} else {
 												<span class="text-xs text-muted">-</span>
@@ -844,7 +844,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												}
 											}}
 											if discPct > 0 {
-												<span class="badge badge-emerald tabular-nums" style="font-size:0.825rem; font-weight:800; padding:0.2rem 0.55rem;">
+												<span class="badge badge-emerald tabular-nums">
 													{ fmt.Sprintf("%.0f%%", discPct) }
 												</span>
 											} else {
@@ -854,10 +854,10 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- 3. Price After Discount (السعر بعد الخصم) -->
 										<td>
-											<div style="display:flex; flex-direction:column; gap:0.15rem;">
-												<div style="font-size:1.1rem; font-weight:900; color:var(--primary-600);" class="tabular-nums">
+											<div>
+												<div class="tabular-nums">
 													if v.Price.IsPositive() {
-														{ v.Price.String() } <span style="font-size:0.8rem; font-weight:600;">ج.م</span>
+														{ v.Price.String() } <span>ج.م</span>
 													} else {
 														<span class="text-sm text-muted">حسب الكمية</span>
 													}
@@ -867,18 +867,18 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- 4. Stock & Coverage Status -->
 										<td>
-											<div style="display:flex; flex-direction:column; gap:0.3rem;">
+											<div>
 												if availStock > 0 {
-													<span class="badge badge-emerald text-xs font-bold tabular-nums" style="width:fit-content;">
+													<span class="badge badge-emerald text-xs font-bold tabular-nums">
 														متوفر ({ fmt.Sprintf("%d", availStock) } عبوة)
 													</span>
 												} else {
-													<span class="badge badge-rose text-xs font-bold" style="width:fit-content;">
+													<span class="badge badge-rose text-xs font-bold">
 														نفد من المخزون
 													</span>
 												}
 												if !isCovered {
-													<span class="badge badge-rose text-xs font-bold" style="width:fit-content;" title={ data.GetCoverageReason(v) }>
+													<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
 														خارج التغطية
 													</span>
 												} else {
@@ -901,7 +901,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 													@submit="loading = true"
 													@htmx:after-request="loading = false; added = true; setTimeout(() => added = false, 2500)"
 													class="sp-stepper-form"
-													style="justify-content:center;"
+												
 												>
 													<input type="hidden" name="return_to" value={ fmt.Sprintf("/suppliers/%d", data.Org.ID) } />
 													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
@@ -923,19 +923,19 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 														type="submit"
 														:disabled="loading"
 														class="btn btn-primary btn-sm fw-700"
-														style="padding:0.4rem 0.85rem; border-radius:var(--radius-md); font-size:0.8125rem; gap:0.35rem;"
+													
 													>
 														<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
 														<span x-show="!loading && !added">+ إضافة للسلة</span>
-														<span x-show="loading" style="display:none;">⏳ جارٍ الإضافة...</span>
-														<span x-show="added" style="display:none;" class="text-emerald font-bold">تمت الإضافة!</span>
+														<span x-show="loading">⏳ جارٍ الإضافة...</span>
+														<span x-show="added" class="text-emerald font-bold">تمت الإضافة!</span>
 													</button>
-													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" style="border-radius:var(--radius-md);" title="تفاصيل الصنف">
+													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
 														@components.IconArrowLeft("icon-xs")
 													</a>
 												</form>
 											} else {
-												<div class="row-center-xs" style="justify-content:center; gap:0.5rem;">
+												<div class="row-center-xs">
 													if !isCovered {
 														<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
 															غير مغطى
@@ -949,7 +949,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 															غير متاح للطلب
 														</span>
 													}
-													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" style="border-radius:var(--radius-md);" title="تفاصيل الصنف">
+													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
 														@components.IconArrowLeft("icon-xs")
 													</a>
 												</div>
@@ -962,7 +962,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</div>
 
 					<!-- Compact Grid View (Hidden by Default) -->
-					<div id="catalog-grid-view" style="display:none; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); gap:1rem;">
+					<div id="catalog-grid-view">
 						for _, v := range data.Variants {
 							{{
 								availStock := data.GetAvailableStock(v)
@@ -970,18 +970,18 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								canAdd := data.CanAddToCart(v)
 								minOrderQty := data.GetMinOrderQty(v)
 							}}
-							<div class="card hover-lift" style="display:flex; flex-direction:column; justify-content:space-between; margin:0; padding:1.15rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-xs);">
+							<div class="card hover-lift">
 								<div>
 									<!-- Top Row: Thumbnail + Dosage Badge -->
-									<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; gap:0.5rem;">
-										<div class="sp-product-thumb" style="width:44px; height:44px;">
+									<div>
+										<div class="sp-product-thumb">
 											if img := data.GetProductImage(v); img != "" {
 												<img src={ img } alt={ v.Name.Get(i18n.Lang(lang)) } loading="lazy" />
 											} else {
 												<span>{ dosageFormIcon(data.GetDosageForm(v)) }</span>
 											}
 										</div>
-										<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.2rem;">
+										<div>
 											if form := data.GetDosageForm(v); form != "" {
 												<span class="badge badge-slate text-xs">{ form }</span>
 											}
@@ -991,8 +991,8 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										</div>
 									</div>
 
-									<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0; line-height:1.35;">
-										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } style="color:inherit; text-decoration:none;">
+									<h4>
+										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) }>
 											if v.Name.Get(i18n.Lang(lang)) != "" {
 												{ v.Name.Get(i18n.Lang(lang)) }
 											} else {
@@ -1002,11 +1002,11 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</h4>
 
 									if sci := data.GetScientificName(v); sci != "" {
-										<div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem; font-style:italic;">{ sci }</div>
+										<div>{ sci }</div>
 									}
 
 									<!-- Batch & Expiry Tag -->
-									<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.4rem 0.65rem; margin-bottom:0.75rem; font-size:0.75rem; display:flex; flex-direction:column; gap:0.15rem;">
+									<div>
 										if v.BatchNumber != "" {
 											<div><span class="text-muted">تشغيلة:</span> <strong class="tabular-nums text-primary">{ v.BatchNumber }</strong></div>
 										}
@@ -1016,7 +1016,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</div>
 
 									<!-- Stock & Coverage Pills -->
-									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.35rem;">
+									<div>
 										if availStock > 0 {
 											<span class="badge badge-emerald text-xs font-bold tabular-nums">
 												متوفر ({ fmt.Sprintf("%d", availStock) })
@@ -1034,11 +1034,11 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</div>
 
 									<!-- Pricing Row -->
-									<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem;">
-										<span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">سعر التوريد:</span>
-										<div style="font-size:1.15rem; font-weight:900; color:var(--primary-600);" class="tabular-nums">
+									<div>
+										<span>سعر التوريد:</span>
+										<div class="tabular-nums">
 											if v.Price.IsPositive() {
-												{ v.Price.String() } <span style="font-size:0.8rem; font-weight:600;">ج.م</span>
+												{ v.Price.String() } <span>ج.م</span>
 											} else {
 												<span class="text-sm text-muted">حسب الكمية</span>
 											}
@@ -1047,7 +1047,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								</div>
 
 								<!-- Action Form -->
-								<div style="border-top:1px solid var(--border); padding-top:0.75rem;">
+								<div>
 									if canAdd {
 										<form
 											action="/cart/add"
@@ -1057,7 +1057,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											x-data="{ added: false, loading: false }"
 											@submit="loading = true"
 											@htmx:after-request="loading = false; added = true; setTimeout(() => added = false, 2500)"
-											style="display:flex; gap:0.4rem; margin:0;"
+										
 										>
 											<input type="hidden" name="return_to" value={ fmt.Sprintf("/suppliers/%d", data.Org.ID) } />
 											<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
@@ -1072,23 +1072,23 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												max={ fmt.Sprintf("%d", availStock) }
 												value={ fmt.Sprintf("%d", minOrderQty) }
 												class="sp-stepper-input tabular-nums"
-												style="width:50px; height:36px;"
+											
 												title={ fmt.Sprintf("الكمية المطلوبة (المتاح بالمخزن: %d)", availStock) }
 											/>
 											<button
 												type="submit"
 												:disabled="loading"
 												class="btn btn-primary btn-sm fw-700"
-												style="flex:1; justify-content:center; font-size:0.8125rem; border-radius:var(--radius-md); gap:0.25rem;"
+											
 											>
 												<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
 												<span x-show="!loading && !added">إضافة للسلة</span>
-												<span x-show="loading" style="display:none;">⏳...</span>
-												<span x-show="added" style="display:none;" class="text-emerald font-bold">أضيف!</span>
+												<span x-show="loading">⏳...</span>
+												<span x-show="added" class="text-emerald font-bold">أضيف!</span>
 											</button>
 										</form>
 									} else {
-										<div class="row-center-xs" style="justify-content:center; gap:0.4rem;">
+										<div class="row-center-xs">
 											if !isCovered {
 												<span class="badge badge-rose text-xs font-bold w-full text-center py-2" title={ data.GetCoverageReason(v) }>
 													خارج نطاق التغطية
@@ -1111,18 +1111,18 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 					<!-- Pagination Bar -->
 					if data.TotalPages > 1 {
-						<div style="display:flex; justify-content:center; align-items:center; gap:0.75rem; padding:1.25rem 0; border-top:1px solid var(--border); margin-top:1.25rem;">
+						<div>
 							if data.CurrentPage > 1 {
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage-1)) } class="btn btn-secondary btn-sm" style="border-radius:var(--radius-md);">
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage-1)) } class="btn btn-secondary btn-sm">
 									@components.IconArrowRight("icon-xs")
 									<span>الصفحة السابقة</span>
 								</a>
 							}
-							<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:700;" class="tabular-nums">
+							<span class="tabular-nums">
 								صفحة { fmt.Sprintf("%d", data.CurrentPage) } من { fmt.Sprintf("%d", data.TotalPages) }
 							</span>
 							if data.CurrentPage < data.TotalPages {
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage+1)) } class="btn btn-secondary btn-sm" style="border-radius:var(--radius-md);">
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage+1)) } class="btn btn-secondary btn-sm">
 									<span>الصفحة التالية</span>
 									@components.IconArrowLeft("icon-xs")
 								</a>
@@ -1135,27 +1135,27 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 			<!-- 5. Tab 2: About & Highlights -->
 			if len(data.Sections) > 0 {
-				<div id="tab-content-sections" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "sections") }>
-					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
+				<div id="tab-content-sections" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "sections") }>
+					<div>
 						for _, s := range data.Sections {
 							if s.IsActive {
-								<div class="card hover-lift" style="margin:0; padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-xs);">
-									<div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:1rem;">
+								<div class="card hover-lift">
+									<div>
 										<div style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
 											{ sectionTypeIcon(s.SectionType) }
 										</div>
-										<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+										<h3>
 											{ s.Title.Get(i18n.Lang(lang)) }
 										</h3>
 									</div>
-									<div style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75; white-space:pre-line; margin-bottom:1.25rem; max-height:120px; overflow:hidden;">
+									<div>
 										{ s.Description.Get(i18n.Lang(lang)) }
 									</div>
 									<button
 										type="button"
 										class="btn btn-secondary btn-sm fw-700"
 										data-modal-open={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-										style="width:100%; justify-content:center; border-radius:var(--radius-md);"
+									
 									>
 										<span>عرض التفاصيل الكاملة ←</span>
 									</button>
@@ -1167,34 +1167,34 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			}
 
 			<!-- 6. Tab 3: Supply Policies -->
-			<div id="tab-content-policies" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "policies") }>
+			<div id="tab-content-policies" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "policies") }>
 				if len(data.Policies) == 0 {
-					<div class="card" style="padding:2rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-						<div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.75rem;">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="card">
+						<div>
+							<div>
 								@components.IconShield("icon-sm")
 							</div>
-							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+							<h3>
 								الشروط والسياسات القياسية المعتمدة
 							</h3>
 						</div>
-						<p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75; margin:0;">
+						<p>
 							تخضع كافة طلبيات التوريد الصادرة عبر المنصة لضوابط ومعايير هيئة الدواء المصرية، مع الالتزام بتوفير فواتير ضريبية إلكترونية معتمدة وضمان سلامة سلسلة التبريد وسرعة التوصيل خلال المواعيد المحددة.
 						</p>
 					</div>
 				} else {
-					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.25rem;">
+					<div>
 						for _, pol := range data.Policies {
-							<div class="card" style="margin:0; padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-xs);">
-								<div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.85rem;">
-									<div style="width:34px; height:34px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="card">
+								<div>
+									<div>
 										@components.IconShield("icon-xs")
 									</div>
-									<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+									<h4>
 										{ pol.Title }
 									</h4>
 								</div>
-								<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.75; white-space:pre-line;">
+								<p>
 									{ pol.Content }
 								</p>
 							</div>
@@ -1204,28 +1204,28 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 7. Tab 4: Branches & Warehouses -->
-			<div id="tab-content-branches" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "branches") }>
+			<div id="tab-content-branches" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "branches") }>
 				if len(data.Branches) == 0 {
-					<div class="card" style="padding:2.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+					<div class="card">
 						@components.IconBuilding("icon-lg")
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0.75rem 0 0.25rem 0;">المخزن الرئيسي للمورد</h3>
+						<h3>المخزن الرئيسي للمورد</h3>
 						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
 					</div>
 				} else {
-					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.25rem;">
+					<div>
 						for _, b := range data.Branches {
-							<div class="card" style="margin:0; padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-xs);">
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
-									<div style="display:flex; align-items:center; gap:0.65rem;">
-										<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+							<div class="card">
+								<div>
+									<div>
+										<div>
 											@components.IconBuilding("icon-sm")
 										</div>
 										<div>
-											<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+											<h4>
 												{ b.Name.Get(i18n.Lang(lang)) }
 											</h4>
 											if b.IsMain {
-												<span class="badge badge-primary text-xs" style="margin-top:2px;">المخزن الرئيسي</span>
+												<span class="badge badge-primary text-xs">المخزن الرئيسي</span>
 											}
 										</div>
 									</div>
@@ -1234,7 +1234,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									}
 								</div>
 
-								<div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.8125rem; color:var(--text-secondary); margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+								<div>
 									if b.Address != "" {
 										<div><span class="text-muted">العنوان:</span> <strong>{ b.Address }</strong></div>
 									}
@@ -1255,22 +1255,22 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 8. Tab 5: Reviews -->
-			<div id="tab-content-reviews" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "reviews") }>
+			<div id="tab-content-reviews" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
-					<div class="card" style="padding:3rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-						<div style="font-size:2rem; margin-bottom:0.5rem;">@components.IconStar("icon-sm")</div>
-						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.25rem 0;">مورد معتمد موثق</h3>
+					<div class="card">
+						<div>@components.IconStar("icon-sm")</div>
+						<h3>مورد معتمد موثق</h3>
 						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
 					</div>
 				} else {
-					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
+					<div>
 						for _, rv := range data.Reviews {
-							<div class="card" style="margin:0; padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-xs);">
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-									<strong style="font-size:0.875rem; color:var(--text);">صيدلية معتمدة</strong>
+							<div class="card">
+								<div>
+									<strong>صيدلية معتمدة</strong>
 									@components.RatingStars(float64(rv.Rating), 0)
 								</div>
-								<p style="font-size:0.8125rem; color:var(--text-secondary); margin:0; line-height:1.6;">
+								<p>
 									{ rv.ReviewText }
 								</p>
 							</div>
@@ -1280,20 +1280,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- Universal Quote Request Modal -->
-			<dialog id={ fmt.Sprintf("quote-modal-%d", data.Org.ID) } class="modal" aria-labelledby={ fmt.Sprintf("quote-title-%d", data.Org.ID) }>
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<h3 id={ fmt.Sprintf("quote-title-%d", data.Org.ID) } class="modal-title">
-							طلب عرض سعر مخصص من المورد
-						</h3>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:    fmt.Sprintf("quote-modal-%d", data.Org.ID),
+				Title: "??? ??? ??? ???? ?? ??????",
+				Size:  "md",
+			}) {
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-3">
 							<div class="form-group mb-0">
 								<label class="form-label font-bold text-xs" for="q-product">اختر الصنف الدوائي (اختياري)</label>
@@ -1332,54 +1324,24 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- Featured Section Modals -->
 			for _, s := range data.Sections {
-				<dialog
-					id={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-					class="modal"
-					aria-labelledby={ fmt.Sprintf("sec-title-%d", s.ID) }
-				>
-					<div class="modal-box modal-md">
-						<div style={ fmt.Sprintf("position:absolute; top:0; left:0; right:0; height:4px; background:%s;", s.Color) }></div>
-
-						<div class="modal-header">
-							<div class="d-flex items-center gap-3">
-								<div style={ fmt.Sprintf("width:40px; height:40px; border-radius:var(--radius-xl); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.25rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
-									{ sectionTypeIcon(s.SectionType) }
-								</div>
-								<h3 id={ fmt.Sprintf("sec-title-%d", s.ID) } class="modal-title">
-									{ s.Title.Get(i18n.Lang(lang)) }
-								</h3>
-							</div>
-							<form method="dialog">
-								<button
-									type="submit"
-									class="modal-close"
-									aria-label="إغلاق"
-								>
-									@components.IconClose("icon-xs")
-								</button>
-							</form>
-						</div>
-
-						<div class="modal-body p-4 text-base leading-relaxed bg-surface-sunken rounded-xl border max-h-55vh overflow-y-auto">
-							{ s.Description.Get(i18n.Lang(lang)) }
-						</div>
-
-						<div class="modal-footer">
-							<button
-								type="button"
-								class="btn btn-primary font-bold px-6"
-								data-modal-close={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-							>
-								إغلاق
-							</button>
-						</div>
+				@components.Modal(components.ModalProps{
+					ID:    fmt.Sprintf("supplier-sec-modal-%d", s.ID),
+					Title: s.Title.Get(i18n.Lang(lang)),
+					Size:  "md",
+				}) {
+					<div class="p-4 text-base leading-relaxed bg-surface-sunken rounded-xl border max-h-55vh overflow-y-auto">
+						{ s.Description.Get(i18n.Lang(lang)) }
 					</div>
-				</dialog>
+					<div class="modal-footer mt-4">
+						<form method="dialog">
+							<button type="submit" class="btn btn-secondary font-bold">?????</button>
+						</form>
+					</div>
+				}
 			}
 
 		</div>

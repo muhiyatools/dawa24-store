@@ -52,7 +52,7 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 		},
 	})
 
-	headers := []string{"كود الصنف", "اسم الصنف", "السعر", "الخصم", "ملاحظات"}
+	headers := []string{i18n.TDefault("w4_ui.s_52_52"), i18n.TDefault("w4_ui.s_53_53"), i18n.TDefault("w4_ui.s_54_54"), i18n.TDefault("w4_ui.s_55_55"), i18n.TDefault("w4_ui.s_56_56")}
 	for i, hName := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		_ = f.SetCellValue(sheetName, cell, hName)
@@ -61,16 +61,16 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 
 	// 10 realistic pharmaceutical sample records
 	samples := [][]any{
-		{"1001", "بانادول اكسترا 24 قرص", 45.00, 18.5, i18n.T("ar", "sample.notes.large_stock")},
-		{"1002", "اوجمنتين 1 جم 14 قرص", 135.00, 12.0, i18n.T("ar", "sample.notes.extra_discount")},
-		{"1003", "كونجستال 20 قرص", 31.00, 20.0, i18n.T("ar", "sample.notes.seasonal_offer")},
-		{"1004", "كتافلام 50 مجم 20 قرص", 58.50, 15.0, i18n.T("ar", "sample.notes.fresh_expiry")},
-		{"1005", "انتوسيد 20 قرص", 22.00, 25.0, i18n.T("ar", "sample.notes.highest_discount")},
-		{"1006", "بروفين 400 مجم 30 قرص", 48.00, 14.5, i18n.T("ar", "sample.notes.fast_delivery")},
-		{"1007", "اومفيل 20 كبسولة", 35.00, 16.0, "صلاحية 2027"},
-		{"1008", "سيتال 500 مجم 20 قرص", 18.00, 22.5, i18n.T("ar", "sample.notes.pharmacy_offer")},
-		{"1009", "ازيثرودوز 500 مجم 3 كبسولات", 52.00, 15.0, i18n.T("ar", "sample.notes.factory_direct")},
-		{"1010", "كولد اند فلو 20 قرص", 28.00, 19.0, i18n.T("ar", "sample.notes.free_shipping")},
+		{"1001", i18n.TDefault("w4_ui.24_57"), 45.00, 18.5, i18n.T("ar", "sample.notes.large_stock")},
+		{"1002", i18n.TDefault("w4_ui.1_14_58"), 135.00, 12.0, i18n.T("ar", "sample.notes.extra_discount")},
+		{"1003", i18n.TDefault("w4_ui.20_59"), 31.00, 20.0, i18n.T("ar", "sample.notes.seasonal_offer")},
+		{"1004", i18n.TDefault("w4_ui.50_20_60"), 58.50, 15.0, i18n.T("ar", "sample.notes.fresh_expiry")},
+		{"1005", i18n.TDefault("w4_ui.20_61"), 22.00, 25.0, i18n.T("ar", "sample.notes.highest_discount")},
+		{"1006", i18n.TDefault("w4_ui.400_30_62"), 48.00, 14.5, i18n.T("ar", "sample.notes.fast_delivery")},
+		{"1007", i18n.TDefault("w4_ui.20_63"), 35.00, 16.0, "صلاحية 2027"},
+		{"1008", i18n.TDefault("w4_ui.500_20_64"), 18.00, 22.5, i18n.T("ar", "sample.notes.pharmacy_offer")},
+		{"1009", i18n.TDefault("w4_ui.500_3_65"), 52.00, 15.0, i18n.T("ar", "sample.notes.factory_direct")},
+		{"1010", i18n.TDefault("w4_ui.20_66"), 28.00, 19.0, i18n.T("ar", "sample.notes.free_shipping")},
 	}
 
 	for rowIdx, row := range samples {

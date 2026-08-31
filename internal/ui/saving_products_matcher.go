@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"math"
 	"regexp"
 	"strconv"
@@ -50,8 +51,8 @@ const (
 // The previous engine compared a Levenshtein-and-token blend against 0.75. That
 // figure is not on the same scale as the shared scorer's and carrying it across
 // would have meant nothing: the same real row — a pharmacy's
-// "فيم فريش غسول انتميت سكير 250 مل" against the catalogue's
-// "فيم فريش غسول يومي للمناطق الحساسة 250 مل" — scores 0.55 here, is ranked
+// i18n.TDefault("w4_ui.250_85") against the catalogue's
+// i18n.TDefault("w4_ui.250_86") — scores 0.55 here, is ranked
 // first, and has both its concentration and its dosage form corroborated. It is
 // the same product, and a borrowed threshold would refuse it.
 //
@@ -332,7 +333,7 @@ func ParseFlexibleMoney(raw string) (money.Amount, bool) {
 	}
 	s = NormalizeDigitsOnly(s)
 	s = strings.ReplaceAll(s, ",", "")
-	for _, unit := range []string{"ج.م", "جم", "جنيه", "egp", "EGP", "le", "LE", "$"} {
+	for _, unit := range []string{i18n.TDefault("w4_ui.s_50_50"), i18n.TDefault("w4_ui.s_51_51"), i18n.TDefault("w4_ui.s_87_87"), "egp", "EGP", "le", "LE", "$"} {
 		s = strings.ReplaceAll(s, unit, "")
 	}
 	s = strings.TrimSpace(s)
@@ -353,7 +354,7 @@ func ParseFlexibleMoney(raw string) (money.Amount, bool) {
 
 // summaryWords are the labels a spreadsheet's footer uses.
 var summaryWords = []string{
-	"اجمالي", "الاجمالي", "مجموع", "المجموع", "المجموع الكلي", "العدد",
+	i18n.TDefault("w4_ui.s_88_88"), i18n.TDefault("w4_ui.s_89_89"), i18n.TDefault("w4_ui.s_90_90"), i18n.TDefault("w4_ui.s_91_91"), i18n.TDefault("w4_ui.s_92_92"), i18n.TDefault("w4_ui.s_93_93"),
 	"total", "grand total", "subtotal", "sum", "summary", "count",
 }
 

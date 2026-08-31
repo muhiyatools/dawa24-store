@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -43,7 +44,7 @@ func (s *Service) runImport(ctx context.Context, session *Session) error {
 	// deterministic.
 	analysis.Complete()
 
-	if err := s.imports.Progress(ctx, session.ID, 1, "جارٍ تحميل الكتالوج المركزي"); err != nil {
+	if err := s.imports.Progress(ctx, session.ID, 1, i18n.TDefault("w4_mod.s_385_385")); err != nil {
 		s.log.WarnContext(ctx, "import progress not recorded", "import", session.PublicID, "error", err)
 	}
 
@@ -149,7 +150,7 @@ func (s *Service) retireAbsent(ctx context.Context, session *Session, w *importW
 			"import", session.PublicID, "errors", w.counts.errors)
 		return nil
 	}
-	if err := s.imports.Progress(ctx, session.ID, 99, "جارٍ إيقاف الأصناف غير الموجودة في الملف"); err != nil {
+	if err := s.imports.Progress(ctx, session.ID, 99, i18n.TDefault("w4_mod.s_386_386")); err != nil {
 		s.log.WarnContext(ctx, "import progress not recorded", "import", session.PublicID, "error", err)
 	}
 	retired, err := s.catalog.DeactivateVariantsExcept(ctx, session.OrganizationID, w.touched)
@@ -194,8 +195,7 @@ func parseOptionsFrom(s Settings) productmatch.ParseOptions {
 // importFailureMessage renders a run failure for the vendor.
 //
 // A domain error already carries a message written for them; anything else is
-// ours and is prefixed rather than dressed up, because a vendor reading "تعذر
-// إتمام الاستيراد" needs to know it was not their file.
+// ours and is prefixed rather than dressed up, because a vendor reading i18n.TDefault("w4m_mod.s_13_13") needs to know it was not their file.
 func importFailureMessage(err error) string {
 	if err == nil {
 		return ""

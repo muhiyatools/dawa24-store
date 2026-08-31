@@ -50,7 +50,7 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"text-align:center; margin-bottom:1.5rem;\"><h2 style=\"font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin:0 0 0.5rem;\">خطط مقارنة الخصومات</h2><p style=\"color:var(--neutral-500); font-size:0.9rem;\">قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><h2>خطط مقارنة الخصومات</h2><p>قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -64,38 +64,38 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, p := range plans {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card hover-lift\" style=\"margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between;\"><div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--neutral-900); margin:0 0 0.25rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card hover-lift\"><div><h3>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_plans.templ`, Line: 29, Col: 130}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_plans.templ`, Line: 29, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h3><p style=\"font-size:0.85rem; color:var(--neutral-600); margin:0 0 0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h3><p>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(p.Description.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_plans.templ`, Line: 30, Col: 119}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_plans.templ`, Line: 30, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p><div style=\"font-size:1.3rem; font-weight:900; color:var(--primary-700);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -103,7 +103,7 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span style=\"font-size:0.8rem; color:var(--neutral-500);\">/ شهرياً</span></div><div style=\"font-size:0.9rem; color:var(--neutral-600); margin-top:0.25rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>/ شهرياً</span></div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -111,7 +111,7 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span style=\"font-size:0.8rem; color:var(--neutral-500);\">/ سنوياً</span></div></div><div style=\"margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;\"><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>/ سنوياً</span></div></div><div><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -124,7 +124,7 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; justify-content:center;\">اشترك الآن</button></form></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary\">اشترك الآن</button></form></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

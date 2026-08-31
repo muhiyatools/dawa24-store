@@ -37,7 +37,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"min-width:320px; max-width:380px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);\"><div class=\"row-center-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div><div class=\"row-center-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,7 +45,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span style=\"font-weight:800; color:var(--neutral-900); font-size:0.9rem;\">الإشعارات</span></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>الإشعارات</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -73,7 +73,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 			return templ_7745c5c3_Err
 		}
 		if len(logs) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div style=\"padding:2rem 1rem; text-align:center; color:var(--neutral-500); font-size:0.875rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -86,60 +86,60 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"max-height:300px; overflow-y:auto;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, n := range logs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-50); display:flex; gap:0.6rem; align-items:flex-start;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if !n.IsRead {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span style=\"width:8px; height:8px; border-radius:50%; background:var(--primary-600); margin-top:0.4rem; flex-shrink:0;\"></span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span style=\"width:8px; height:8px; margin-top:0.4rem; flex-shrink:0;\"></span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex-1\"><div style=\"font-weight:700; color:var(--neutral-900); font-size:0.875rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex-1\"><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(n.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 40, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 40, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div style=\"font-size:0.8rem; color:var(--neutral-600); margin-top:0.15rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(n.Body)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 41, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 41, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div style=\"font-size:0.72rem; color:var(--neutral-400); margin-top:0.25rem;\" class=\"tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(RelTime(n.CreatedAt))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 42, Col: 128}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 42, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -155,12 +155,12 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div style=\"display:flex; border-top:1px solid var(--neutral-100); background:var(--neutral-50);\"><a href=\"/notifications\" style=\"flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.825rem; font-weight:700; color:var(--neutral-700);\">عرض كل الإشعارات</a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div><a href=\"/notifications\">عرض كل الإشعارات</a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if unread > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<form method=\"POST\" action=\"/notifications/read-all\" hx-post=\"/notifications/read-all\" hx-target=\"closest .dropdown-menu\" style=\"margin:0; flex:1; border-inline-start:1px solid var(--neutral-200);\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" style=\"width:100%; border:none; background:none; color:var(--primary-700); font-size:0.825rem; font-weight:700; justify-content:center;\">تعليم الكل كمقروء</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<form method=\"POST\" action=\"/notifications/read-all\" hx-post=\"/notifications/read-all\" hx-target=\"closest .dropdown-menu\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\">تعليم الكل كمقروء</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -196,7 +196,7 @@ func NotificationsUnreadBadge(unread int) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if unread > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-rose tabular-nums\" style=\"position:absolute; top:-4px; inset-inline-end:-4px; padding:0.15rem 0.4rem; font-size:0.7rem; font-weight:800; border-radius:var(--radius-full);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-rose tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

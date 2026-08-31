@@ -291,7 +291,7 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	// 3. AI Gateway key.
 	//
 	// A failure here used to be a WARN line in the process log and nothing
-	// else: the administrator saw "تم التفعيل", the منشأة had no Gateway user
+	// else: the administrator saw i18n.TDefault("w4_ui.s_1_1"), the منشأة had no Gateway user
 	// and no key, and every AI call its staff made was silently billed to the
 	// platform's own identity. Four approved organisations on the live database
 	// were in that state before anyone noticed. It is recorded where an

@@ -45,8 +45,8 @@ var stepTitles = map[Step]struct{ icon, title string }{
 	StepColumns:  {"🔗", i18n.T("ar", "wizard.step.columns")},
 	StepSettings: {"⚙️", i18n.T("ar", "wizard.step.settings")},
 	StepReview:   {"📋", i18n.T("ar", "wizard.step.review")},
-	StepResults:  {"📊", "النتائج"},
-	StepOrder:    {"🛒", "الطلب"},
+	StepResults:  {"📊", i18n.TDefault("w4_ui.s_196_196")},
+	StepOrder:    {"🛒", i18n.TDefault("w4_ui.s_197_197")},
 }
 
 // WizardStep is one node on the rail.
@@ -143,13 +143,13 @@ var ToggleGroupOrder = []ToggleGroup{GroupMode, GroupMatching, GroupEnrichment, 
 func (g ToggleGroup) Label() string {
 	switch g {
 	case GroupMode:
-		return "الاستيراد"
+		return i18n.TDefault("w4_ui.s_198_198")
 	case GroupMatching:
-		return "المطابقة"
+		return i18n.TDefault("w4_ui.s_199_199")
 	case GroupEnrichment:
-		return "الإثراء"
+		return i18n.TDefault("w4_ui.s_200_200")
 	default:
-		return "الذكاء الاصطناعي"
+		return i18n.TDefault("w4_ui.s_201_201")
 	}
 }
 
@@ -190,7 +190,7 @@ func AIToggle(name string, checked, available bool, unavailableReason string) Wi
 		Group: GroupAI,
 		Name:  name,
 		Icon:  "🤖",
-		Title: "تفعيل المطابقة الذكية للأصناف الصعبة",
+		Title: i18n.TDefault("w4_ui.s_202_202"),
 		Description: "تعمل المطابقة الحتمية أولاً دائماً، ولا يصل إلى الذكاء الاصطناعي إلا ما تعذّر " +
 			"حسمه — وهو عادةً عشرات الأسطر من آلاف. لا يمسّ أي مطابقة مؤكدة، ولا يختار إلا من " +
 			"أصناف الكتالوج المعروضة عليه، ويُعاد فحص كل اقتراح قبل تطبيقه.",

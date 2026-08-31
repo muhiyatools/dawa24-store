@@ -108,7 +108,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 					action="/admin/brands"
 					class="d-flex gap-3 items-center flex-wrap mb-6"
 				>
-					<div class="flex-1" style="min-width:220px;">
+					<div class="flex-1">
 						<input
 							type="text"
 							name="q"
@@ -118,7 +118,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						/>
 					</div>
 
-					<div style="min-width:140px;">
+					<div>
 						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
@@ -126,7 +126,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</select>
 					</div>
 
-					<div style="min-width:140px;">
+					<div>
 						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="25" selected?={ pageSize == 25 }>25 شركة لكل صفحة</option>
 							<option value="50" selected?={ pageSize == 50 }>50 شركة لكل صفحة</option>
@@ -157,43 +157,43 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th style="width:64px;" class="text-center">الشعار</th>
-									<th style="width:26%;">اسم الشركة المصنعة</th>
-									<th style="width:30%;">الوصف ونبذة التعريف</th>
-									<th style="width:16%;" class="text-center">الأصناف المرتبطة</th>
-									<th style="width:12%;" class="text-center">الحالة</th>
-									<th style="width:16%;" class="text-end">الإجراءات</th>
+									<th class="text-center">الشعار</th>
+									<th>اسم الشركة المصنعة</th>
+									<th>الوصف ونبذة التعريف</th>
+									<th class="text-center">الأصناف المرتبطة</th>
+									<th class="text-center">الحالة</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, item := range brands {
 									<tr id={ fmt.Sprintf("brand-row-%d", item.Brand.ID) }>
 										<td class="text-center">
-											<div class="user-avatar-badge text-sm" style="width:40px; height:40px;">
+											<div class="user-avatar-badge text-sm">
 												if item.Brand.Image != "" {
-													<img src={ item.Brand.Image } alt={ item.Brand.Name.Get("ar") } style="width:100%; height:100%; object-fit:contain;" />
+													<img src={ item.Brand.Image } alt={ item.Brand.Name.Get("ar") } />
 												} else {
 													@components.IconTag("icon-xs")
 												}
 											</div>
 										</td>
-										<td style="text-align:start;">
+										<td>
 											<div class="fw-800 text-primary text-base">
 												{ item.Brand.Name.Get("ar") }
 											</div>
 											if item.Brand.Name.Get("en") != "" {
-												<div style="font-size:0.775rem; color:var(--text-secondary); direction:ltr; text-align:right;">
+												<div>
 													{ item.Brand.Name.Get("en") }
 												</div>
 											}
 										</td>
-										<td style="text-align:start;">
+										<td>
 											if item.Brand.Description.Get("ar") != "" {
-												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;">
+												<div>
 													{ item.Brand.Description.Get("ar") }
 												</div>
 											} else if item.Brand.Description.Get("en") != "" {
-												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; direction:ltr; text-align:right;">
+												<div>
 													{ item.Brand.Description.Get("en") }
 												</div>
 											} else {
@@ -205,7 +205,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												type="button"
 												@click={ fmt.Sprintf("openProductsModal(%d, '%s', '%s', %d)", item.Brand.ID, templateEscape(item.Brand.Name.Get("ar")), templateEscape(item.Brand.Name.Get("en")), item.ProductCount) }
 												class="badge badge-sky fw-700 cursor-pointer"
-												style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; font-size:0.825rem; border:none; cursor:pointer;"
+											
 												title="عرض الأصناف المرتبطة"
 											>
 												@components.IconLayers("icon-xs")
@@ -220,7 +220,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 											}
 										</td>
 										<td class="text-end">
-											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;">
+											<div>
 												<!-- Edit Trigger -->
 												<button
 													type="button"
@@ -234,11 +234,11 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												<!-- Status Toggle -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/brands/%d/toggle", item.Brand.ID)) } class="m-0">
 													if item.Brand.Status == "active" {
-														<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning);" title="تعطيل الشركة">
+														<button type="submit" class="btn btn-secondary btn-icon" title="تعطيل الشركة">
 															@components.IconMinus("icon-xs")
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success);" title="تفعيل الشركة">
+														<button type="submit" class="btn btn-secondary btn-icon" title="تفعيل الشركة">
 															@components.IconCheck("icon-xs")
 														</button>
 													}
@@ -246,7 +246,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 
 												<!-- Delete Button -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/brands/%d/delete", item.Brand.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذه الشركة المصنعة؟');">
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--danger);" title="حذف الشركة">
+													<button type="submit" class="btn btn-secondary btn-icon" title="حذف الشركة">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -260,18 +260,18 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
-							<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+						<div>
+							<div>
 								{ fmt.Sprintf("عرض %d - %d من إجمالي %d شركة مصنعة", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 							</div>
 
 							<!-- Page navigation numbers -->
-							<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+							<div>
 								if currentPage > 1 {
 									<a
 										href={ templ.SafeURL(buildAdminBrandsPageURL(1, pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.65rem; font-weight:700;"
+									
 										title="الصفحة الأولى"
 									>
 										«
@@ -279,7 +279,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 									<a
 										href={ templ.SafeURL(buildAdminBrandsPageURL(currentPage-1, pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.75rem; font-weight:700;"
+									
 									>
 										السابق
 									</a>
@@ -289,7 +289,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 									if pNum == currentPage {
 										<span
 											class="btn btn-primary btn-sm"
-											style="padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;"
+										
 										>
 											{ fmt.Sprintf("%d", pNum) }
 										</span>
@@ -297,7 +297,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 										<a
 											href={ templ.SafeURL(buildAdminBrandsPageURL(pNum, pageSize, searchQuery, statusFilter)) }
 											class="btn btn-secondary btn-sm"
-											style="padding:0.4rem 0.85rem; font-weight:700;"
+										
 										>
 											{ fmt.Sprintf("%d", pNum) }
 										</a>
@@ -308,14 +308,14 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 									<a
 										href={ templ.SafeURL(buildAdminBrandsPageURL(currentPage+1, pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.75rem; font-weight:700;"
+									
 									>
 										التالي
 									</a>
 									<a
 										href={ templ.SafeURL(buildAdminBrandsPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.65rem; font-weight:700;"
+									
 										title="الصفحة الأخيرة"
 									>
 										»
@@ -328,31 +328,12 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			</div>
 
 			<!-- Brand Associated Products Modal -->
-			<dialog
-				id="brand-products-modal"
-				class="modal"
-				aria-labelledby="brand-products-title"
-			>
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2">
-							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-								@components.IconLayers("icon-xs")
-							</div>
-							<div>
-								<h3 id="brand-products-title" class="modal-title" x-text="'الأصناف المرتبطة: ' + selectedBrand.name_ar"></h3>
-								<span class="text-xs text-secondary" x-text="selectedBrand.name_en"></span>
-							</div>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<div class="modal-body">
-						<div class="d-flex flex-col gap-4 text-start">
+			@components.Modal(components.ModalProps{
+				ID:    "brand-products-modal",
+				Title: "??????? ????????",
+				Size:  "md",
+			}) {
+				<div class="d-flex flex-col gap-4 text-start">
 							<div class="bg-surface-sunken p-4 rounded-xl border text-center">
 								<div class="text-xs text-secondary font-bold mb-1">إجمالي الأصناف المعتمدة المسجلة لهذه الشركة</div>
 								<div class="text-2xl font-black text-primary tabular-nums" x-text="selectedBrand.count + ' صنف'"></div>
@@ -375,40 +356,20 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 								</a>
 							</div>
 						</div>
-					</div>
-
-					<div class="modal-footer">
-						<form method="dialog">
-							<button type="submit" class="btn btn-secondary">إغلاق</button>
-						</form>
-					</div>
+				<div class="modal-footer mt-4">
+					<form method="dialog">
+						<button type="submit" class="btn btn-secondary font-bold">?????</button>
+					</form>
 				</div>
-			</dialog>
+			}
 
 			<!-- Create Brand Modal -->
-			<dialog
-				id="brand-create-modal"
-				class="modal"
-				aria-labelledby="brand-create-title"
-			>
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2">
-							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-								@components.IconPlus("icon-xs")
-							</div>
-							<h3 id="brand-create-title" class="modal-title">
-								إضافة شركة مصنعة / ماركة جديدة
-							</h3>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:    "brand-create-modal",
+				Title: "????? ???? ????? / ????? ?????",
+				Size:  "md",
+			}) {
+				<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-3">
 							<div class="d-grid grid-cols-2 gap-3">
 								<div class="form-group m-0">
@@ -459,33 +420,15 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- Edit Brand Modal -->
-			<dialog
-				id="brand-edit-modal"
-				class="modal"
-				aria-labelledby="brand-edit-title"
-			>
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2">
-							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-								@components.IconEdit("icon-xs")
-							</div>
-							<h3 id="brand-edit-title" class="modal-title">
-								تعديل بيانات الشركة المصنعة
-							</h3>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:    "brand-edit-modal",
+				Title: "????? ?????? ?????? ???????",
+				Size:  "md",
+			}) {
+				<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-3">
 							<div class="d-grid grid-cols-2 gap-3">
 								<div class="form-group m-0">
@@ -536,8 +479,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 		</div>
 	}

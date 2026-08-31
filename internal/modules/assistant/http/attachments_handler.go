@@ -37,7 +37,7 @@ func (h *Handler) AssistantUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(files) > 5 {
-		http.Error(w, `{"error":"too_many_files","message":"الحد الأقصى للمرفقات هو 5 ملفات لكل رسالة"}`, http.StatusBadRequest)
+		http.Error(w, `{"error":"too_many_files","message":i18n.TDefault("w4_mod.5_231")}`, http.StatusBadRequest)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *Handler) AssistantUpload(w http.ResponseWriter, r *http.Request) {
 	var results []handleResp
 	for _, fh := range files {
 		if fh.Size > 10<<20 {
-			http.Error(w, `{"error":"file_too_large","message":"حجم الملف يتجاوز الحد المسموح"}`, http.StatusRequestEntityTooLarge)
+			http.Error(w, `{"error":"file_too_large","message":i18n.TDefault("w4_mod.s_232_232")}`, http.StatusRequestEntityTooLarge)
 			return
 		}
 

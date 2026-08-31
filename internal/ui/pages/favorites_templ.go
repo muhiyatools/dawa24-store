@@ -48,7 +48,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:100%; margin:0 0 3rem 0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;\"><div class=\"row-center-sm\"><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-50); color:var(--primary-700); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div><div class=\"row-center-sm\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -56,7 +56,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 style=\"font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;\">الأدوية والمستلزمات المفضلة</h2><p style=\"font-size:0.875rem; color:var(--neutral-500); margin:0;\">قائمة الأصناف المحفوظة للطلب السريع</p></div></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2>الأدوية والمستلزمات المفضلة</h2><p>قائمة الأصناف المحفوظة للطلب السريع</p></div></div><a href=\"/catalog\" class=\"btn btn-secondary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,12 +78,12 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"product-grid\" style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"product-grid\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, p := range products {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card hover-lift\" style=\"display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; margin-bottom:0;\"><div><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><span class=\"badge badge-slate text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card hover-lift\"><div><div><span class=\"badge badge-slate text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -117,7 +117,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" style=\"color:var(--danger); border-color:var(--danger-border); width:32px; height:32px;\" title=\"إزالة من المفضلة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"إزالة من المفضلة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -125,7 +125,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</button></form></div><h3 style=\"font-size:1.1rem; font-weight:800; margin-bottom:0.25rem; color:var(--neutral-900); line-height:1.4;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</button></form></div><h3>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -155,7 +155,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 						return templ_7745c5c3_Err
 					}
 					if p.ScientificName != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p style=\"font-size:0.8rem; color:var(--neutral-500); margin-bottom:0.5rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<p>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -174,7 +174,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 						}
 					}
 					if p.ManufacturingCompanies != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"font-size:0.8rem; color:var(--neutral-600);\">الشركة: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div>الشركة: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -192,7 +192,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div style=\"margin-top:1.5rem; border-top:1px solid var(--neutral-100); padding-top:1rem;\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -205,7 +205,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"btn btn-primary btn-sm\" style=\"width:100%; font-size:0.85rem; font-weight:700; justify-content:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"btn btn-primary btn-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -154,7 +154,7 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 			BranchID:           &branchID,
 			Items:              items,
 			VendorShippingFees: vendorShippingFees,
-			Notes:              "طلب ذكي",
+			Notes:              i18n.TDefault("w4_mod.s_476_476"),
 		})
 		if err != nil {
 			return 0, err

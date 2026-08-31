@@ -34,21 +34,21 @@ templ TenantSessionsPage(lang, dir string, data TenantSessionsViewData) {
 }
 
 templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
-	<div class="page-container" style="max-width:980px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;">
+	<div class="page-container">
 		
 		<!-- Compact Page Header -->
-		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+		<div>
 			<div>
-				<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
+				<h1>
 					@components.IconShield("icon-sm")
 					<span>الأجهزة والجلسات النشطة</span>
 				</h1>
-				<p style="color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;">
+				<p>
 					إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة ({ data.PlanName })
 				</p>
 			</div>
 
-			<div style="display:flex; gap:0.5rem; align-items:center;">
+			<div>
 				<a
  href={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa", "/customer/mfa")) }
  class="btn btn-secondary btn-sm font-bold rounded-lg"
@@ -74,12 +74,12 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		<!-- Flash Notices -->
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				<div class="alert alert-danger" style="border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+				<div class="alert alert-danger">
 					@components.IconAlert("icon-xs")
 					<span>{ data.NoticeMessage }</span>
 				</div>
 			} else {
-				<div class="alert alert-success" style="border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+				<div class="alert alert-success">
 					@components.IconCheckCircle("icon-xs")
 					<span>{ data.NoticeMessage }</span>
 				</div>
@@ -87,18 +87,18 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		}
 
 		<!-- Compact Metrics Bar -->
-		<div class="card p-4" style="border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);">
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.25rem; align-items:center;">
+		<div class="card p-4">
+			<div>
 				<div>
-					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">الجلسات المتصلة</div>
-					<div style="font-size:1.4rem; font-weight:800; color:var(--text); margin-top:0.15rem;" class="tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Sessions)) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">/ { fmt.Sprintf("%d", data.MaxLoginSessions) } مسموحة</span>
+					<div>الجلسات المتصلة</div>
+					<div class="tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Sessions)) } <span>/ { fmt.Sprintf("%d", data.MaxLoginSessions) } مسموحة</span>
 					</div>
 				</div>
 
 				<div>
-					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">حالة السعة</div>
-					<div style="margin-top:0.25rem;">
+					<div>حالة السعة</div>
+					<div>
 						if len(data.Sessions) >= data.MaxLoginSessions {
 							<span class="badge badge-amber font-bold text-xs">الحد الأقصى مستنفد</span>
 						} else {
@@ -108,15 +108,15 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 				</div>
 
 				<div>
-					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">حد الأجهزة المعتمدة</div>
-					<div style="font-size:1.15rem; font-weight:800; color:var(--text); margin-top:0.15rem;" class="tabular-nums">
+					<div>حد الأجهزة المعتمدة</div>
+					<div class="tabular-nums">
 						{ fmt.Sprintf("%d", data.MaxDevices) } أجهزة
 					</div>
 				</div>
 
 				<div>
-					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">باقة المنشأة</div>
-					<div style="font-size:1rem; font-weight:800; color:var(--brand); margin-top:0.15rem;">
+					<div>باقة المنشأة</div>
+					<div>
 						{ data.PlanName }
 					</div>
 				</div>
@@ -124,16 +124,16 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		</div>
 
 		<!-- Active Sessions List -->
-		<div class="card p-5" style="border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
-				<h2 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+		<div class="card p-5">
+			<div>
+				<h2>
 					الأجهزة المتصلة حالياً ({ fmt.Sprintf("%d", len(data.Sessions)) })
 				</h2>
 
 				if len(data.Sessions) > 1 {
 					<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');">
 						<input type="hidden" name="current_token" value={ data.CurrentToken } />
-						<button type="submit" class="btn btn-outline-danger btn-xs font-bold" style="padding:0.35rem 0.75rem;">
+						<button type="submit" class="btn btn-outline-danger btn-xs font-bold">
 							@components.IconLogout("icon-xs")
 							<span>إنهاء الجلسات الأخرى</span>
 						</button>
@@ -147,15 +147,15 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					Message: "لم يتم العثور على أي جلسات متصلة حالياً.",
 				})
 			} else {
-				<div style="display:flex; flex-direction:column; gap:0.6rem;">
+				<div>
 					for _, sess := range data.Sessions {
 						<div
 							style={ fmt.Sprintf("display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid %s; background:%s; flex-wrap:wrap; gap:0.75rem;",
 								ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--border)"),
 								ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--surface-sunken)")) }
 						>
-							<div style="display:flex; align-items:center; gap:0.75rem; min-width:240px;">
-								<span style="font-size:1.35rem; line-height:1; flex-shrink:0;">
+							<div>
+								<span>
 									if sess.Icon != "" {
 										{ sess.Icon }
 									} else {
@@ -164,7 +164,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 								</span>
 								<div>
 									<div class="inline-row-wrap">
-										<span style="font-weight:700; font-size:0.9rem; color:var(--text);">
+										<span>
 											if sess.DeviceName != "" {
 												{ sess.DeviceName }
 											} else {
@@ -172,12 +172,12 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 											}
 										</span>
 										if sess.Token == data.CurrentToken {
-											<span class="badge badge-emerald text-xs font-bold" style="padding:0.15rem 0.5rem;">
+											<span class="badge badge-emerald text-xs font-bold">
 												جهازك الحالي
 											</span>
 										}
 									</div>
-									<div style="display:flex; align-items:center; gap:0.75rem; margin-top:0.2rem; font-size:0.75rem; color:var(--text-secondary); flex-wrap:wrap;" class="tabular-nums">
+									<div class="tabular-nums">
 										<span>{ sess.Email }</span>
 										if sess.IP != "" {
 											<span>• { sess.IP }</span>
@@ -190,19 +190,19 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 							<div>
 								if sess.Token == data.CurrentToken {
 									<form action="/auth/logout" method="POST" class="m-0">
-										<button type="submit" class="btn btn-secondary btn-xs font-semibold" style="padding:0.35rem 0.75rem;">
+										<button type="submit" class="btn btn-secondary btn-xs font-semibold">
 											<span>تسجيل الخروج</span>
 										</button>
 									</form>
 								} else if sess.UserID == data.CurrentUserID || data.IsSuperAdmin {
 									<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء جلسة هذا الجهاز؟');">
 										<input type="hidden" name="token" value={ sess.Token } />
-										<button type="submit" class="btn btn-outline-danger btn-xs font-semibold" style="padding:0.35rem 0.75rem;">
+										<button type="submit" class="btn btn-outline-danger btn-xs font-semibold">
 											<span>إنهاء</span>
 										</button>
 									</form>
 								} else {
-									<span class="badge badge-slate text-xs font-medium" style="padding:0.25rem 0.5rem;">
+									<span class="badge badge-slate text-xs font-medium">
 										مستخدم آخر
 									</span>
 								}
@@ -214,12 +214,12 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		</div>
 
 		<!-- Password Security Form -->
-		<div class="card p-5" style="border-radius:var(--radius-xl); background:var(--surface); max-width:650px;">
-			<div style="margin-bottom:1rem;">
-				<h2 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+		<div class="card p-5">
+			<div>
+				<h2>
 					تحديث كلمة المرور
 				</h2>
-				<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+				<p>
 					تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً
 				</p>
 			</div>
@@ -241,8 +241,8 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					</div>
 				</div>
 
-				<div style="margin-top:0.75rem;">
-					<button type="submit" class="btn btn-primary btn-sm font-bold" style="padding:0.45rem 1.25rem;">
+				<div>
+					<button type="submit" class="btn btn-primary btn-sm font-bold">
 						@components.IconCheck("icon-xs")
 						<span>حفظ التغييرات</span>
 					</button>

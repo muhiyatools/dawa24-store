@@ -1,6 +1,7 @@
 package catalog
 
 import "fmt"
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 // Result types for the bulk write, shared between the repository that produces
 // them and the admin screen that renders them.
@@ -31,11 +32,11 @@ const (
 
 // MatchLabels renders a match reason in the admin's language.
 var MatchLabels = map[MatchReason]string{
-	MatchSKU:     "مطابقة بكود الصنف",
-	MatchBarcode: "مطابقة بالباركود",
-	MatchName:    "مطابقة باسم الصنف",
-	MatchSimilar: "مطابقة بالتشابه — راجعها",
-	MatchAI:      "مطابقة بالذكاء الاصطناعي — راجعها",
+	MatchSKU:     i18n.TDefault("w4_mod.s_332_332"),
+	MatchBarcode: i18n.TDefault("w4_mod.s_333_333"),
+	MatchName:    i18n.TDefault("w4_mod.s_334_334"),
+	MatchSimilar: i18n.TDefault("w4_mod.s_335_335"),
+	MatchAI:      i18n.TDefault("w4_mod.s_336_336"),
 }
 
 // WriteFailure identifies one product the database refused, by its position in
@@ -75,7 +76,7 @@ func (r BulkWriteResult) Error() string {
 	if len(r.Failures) == 0 {
 		return ""
 	}
-	msg := fmt.Sprintf("تعذر حفظ %d صنف", len(r.Failures))
+	msg := fmt.Sprintf(i18n.TDefault("w4_mod.d_337"), len(r.Failures))
 	shown := r.Failures
 	if len(shown) > 3 {
 		shown = shown[:3]

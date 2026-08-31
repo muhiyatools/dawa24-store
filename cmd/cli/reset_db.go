@@ -68,7 +68,7 @@ BEGIN
     VALUES (
         'admin@dawa24.com',
         admin_hash,
-        '{"ar":"مدير المنصة العام","en":"Platform Super Admin"}'::jsonb,
+        '{"ar":i18n.TDefault("w4_mod.s_456_456"),"en":"Platform Super Admin"}'::jsonb,
         'super_admin',
         'active',
         'ar',
@@ -76,7 +76,7 @@ BEGIN
     )
     ON CONFLICT (email) WHERE deleted_at IS NULL DO UPDATE SET
         password_hash = admin_hash,
-        name          = '{"ar":"مدير المنصة العام","en":"Platform Super Admin"}'::jsonb,
+        name          = '{"ar":i18n.TDefault("w4_mod.s_456_456"),"en":"Platform Super Admin"}'::jsonb,
         role          = 'super_admin',
         status        = 'active',
         deleted_at    = NULL,
@@ -86,7 +86,7 @@ BEGIN
     VALUES (
         'admin@dawa24.test',
         admin_hash,
-        '{"ar":"مدير المنصة العام","en":"Platform Super Admin"}'::jsonb,
+        '{"ar":i18n.TDefault("w4_mod.s_456_456"),"en":"Platform Super Admin"}'::jsonb,
         'super_admin',
         'active',
         'ar',
@@ -94,7 +94,7 @@ BEGIN
     )
     ON CONFLICT (email) WHERE deleted_at IS NULL DO UPDATE SET
         password_hash = admin_hash,
-        name          = '{"ar":"مدير المنصة العام","en":"Platform Super Admin"}'::jsonb,
+        name          = '{"ar":i18n.TDefault("w4_mod.s_456_456"),"en":"Platform Super Admin"}'::jsonb,
         role          = 'super_admin',
         status        = 'active',
         deleted_at    = NULL,

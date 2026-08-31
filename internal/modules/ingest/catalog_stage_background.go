@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -65,7 +66,7 @@ func (s *Service) StageInBackground(ctx context.Context, session *Session) error
 		s.runs.release(session.PublicID)
 		return err
 	}
-	if err := s.imports.Progress(ctx, session.ID, 1, "جارٍ تجهيز الملف والكتالوج المركزي"); err != nil {
+	if err := s.imports.Progress(ctx, session.ID, 1, i18n.TDefault("w4_mod.s_391_391")); err != nil {
 		s.log.WarnContext(ctx, "import progress not recorded", "import", session.PublicID, "error", err)
 	}
 

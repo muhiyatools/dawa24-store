@@ -143,7 +143,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Filter / Search Bar --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/admin/chat/history\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><div class=\"flex-1\" style=\"min-width:240px;\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<!-- Filter / Search Bar --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/admin/chat/history\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -249,14 +249,14 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 						return templ_7745c5c3_Err
 					}
 					if c.UserRole != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-slate\" style=\"font-size:0.68rem; margin-top:0.15rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-slate\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(c.UserRole)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 126, Col: 102}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 126, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -304,30 +304,30 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><td><div style=\"font-weight:600; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><td><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(c.OrganizationName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 135, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 135, Col: 35}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div style=\"display:flex; align-items:center; gap:0.4rem; margin-top:0.15rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.OrganizationType == "vendor" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span class=\"badge badge-sky\" style=\"font-size:0.68rem;\">مورد</span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span class=\"badge badge-sky\">مورد</span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if c.OrganizationType == "customer" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-emerald\" style=\"font-size:0.68rem;\">صيدلية</span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-emerald\">صيدلية</span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -345,7 +345,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></div></td><td><div style=\"max-width:280px; font-size:0.875rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></div></td><td><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -363,14 +363,14 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" style=\"color:var(--text); text-decoration:none; font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\" title=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" title=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 148, Col: 235}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 148, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 						if templ_7745c5c3_Err != nil {
@@ -394,7 +394,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span style=\"color:var(--text-muted); font-style:italic;\">محادثة بدون عنوان</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>محادثة بدون عنوان</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -477,7 +477,7 @@ func AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"btn btn-secondary btn-sm fw-700\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -543,7 +543,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"page-container\" style=\"max-width: 1050px; margin: 0 auto;\"><!-- Header Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"badge badge-sky text-xs font-black\">جلسة كبسولة AI</span> <strong class=\"text-primary text-base tabular-nums font-mono font-black\">#")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"page-container\"><!-- Header Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"badge badge-sky text-xs font-black\">جلسة كبسولة AI</span> <strong class=\"text-primary text-base tabular-nums font-mono font-black\">#")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -746,7 +746,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 				}
 				for _, m := range msgs {
 					if m.Role == "user" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<!-- User Bubble --> <div class=\"d-flex justify-start\"><div class=\"p-4 bg-surface-sunken border rounded-2xl\" style=\"max-width: 85%;\"><div class=\"flex-between items-center gap-4 mb-2 pb-1 border-b text-xs text-muted\"><div class=\"d-flex items-center gap-1.5 font-extrabold text-primary\"><span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<!-- User Bubble --> <div class=\"d-flex justify-start\"><div class=\"p-4 bg-surface-sunken border rounded-2xl\"><div class=\"flex-between items-center gap-4 mb-2 pb-1 border-b text-xs text-muted\"><div class=\"d-flex items-center gap-1.5 font-extrabold text-primary\"><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -780,14 +780,14 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></div><div class=\"text-xs text-primary leading-relaxed\" style=\"white-space: pre-wrap; word-break: break-word;\" dir=\"auto\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></div><div class=\"text-xs text-primary leading-relaxed\" dir=\"auto\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var42 string
 						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(m.Content)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 271, Col: 137}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 271, Col: 82}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 						if templ_7745c5c3_Err != nil {
@@ -803,7 +803,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 								return templ_7745c5c3_Err
 							}
 							for _, att := range m.Attachments {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div class=\"border rounded-lg overflow-hidden bg-surface-raised\" style=\"max-width: 240px;\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div class=\"border rounded-lg overflow-hidden bg-surface-raised\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -847,7 +847,7 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" class=\"w-full object-cover d-block\" style=\"height: 120px;\"></a>")
+									templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" class=\"w-full object-cover d-block\"></a>")
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -965,14 +965,14 @@ func AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assis
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</span></div></div><div class=\"text-xs text-primary leading-relaxed\" style=\"white-space: pre-wrap; word-break: break-word;\" dir=\"auto\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</span></div></div><div class=\"text-xs text-primary leading-relaxed\" dir=\"auto\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var52 string
 						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(m.Content)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 316, Col: 137}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_chat_history.templ`, Line: 316, Col: 82}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 						if templ_7745c5c3_Err != nil {

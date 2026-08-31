@@ -141,7 +141,7 @@ func (m *Matcher) Score(lines []*smartorder.Line) []Review {
 // not in the catalogue. Sending it anyway is what run 43 did — 8,790 rows of
 // cosmetics against a pharmaceutical catalogue, 7,939 lines sent, 156 improved,
 // thirty requests, the ceiling hit, and 345 seconds of wall clock against 1.6
-// seconds of deterministic work. "غير مطابق" was already the right answer for
+// seconds of deterministic work. i18n.TDefault("w4_mod.s_364_364") was already the right answer for
 // almost all of them, and it was the answer they got, five minutes later.
 //
 // Returned rather than filtered in place, so the caller keeps the full review

@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -152,11 +153,11 @@ func (s *Service) SetProductsStatus(ctx context.Context, ids []int64, status Pro
 //
 // The product form offers a category first and then only that category's
 // brands. Nothing constrained the pair before, so a product could sit in
-// "مستحضرات تجميل" with a brand that only makes medical supplies.
+// i18n.TDefault("w4_mod.s_338_338") with a brand that only makes medical supplies.
 func (s *Service) ListBrandsByCategory(ctx context.Context, categoryID int64) ([]*Brand, error) {
 	if categoryID <= 0 {
 		return nil, apperr.Validation("catalog.category_required",
-			"Category is required.", map[string]string{"category_id": "التصنيف مطلوب"})
+			"Category is required.", map[string]string{"category_id": i18n.TDefault("w4_mod.s_339_339")})
 	}
 	return s.repo.ListBrandsByCategory(ctx, categoryID)
 }
@@ -174,7 +175,7 @@ func (s *Service) BrandInCategory(ctx context.Context, categoryID, brandID int64
 func (s *Service) SetBrandCategories(ctx context.Context, brandID int64, categoryIDs []int64) error {
 	if brandID <= 0 {
 		return apperr.Validation("catalog.brand_required",
-			"Brand is required.", map[string]string{"brand_id": "الشركة المصنعة مطلوبة"})
+			"Brand is required.", map[string]string{"brand_id": i18n.TDefault("w4_mod.s_340_340")})
 	}
 	return s.repo.SetBrandCategories(ctx, brandID, categoryIDs)
 }

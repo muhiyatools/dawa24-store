@@ -77,7 +77,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tisCreateModalOpen: false,\n\t\t\t\tisEditModalOpen: false,\n\t\t\t\tisProductsModalOpen: false,\n\t\t\t\tselectedBrand: { id: 0, name_ar: '', name_en: '', count: 0 },\n\t\t\t\teditData: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\timage: '',\n\t\t\t\t\tstatus: 'active'\n\t\t\t\t},\n\t\t\t\topenEdit(id, nameAr, nameEn, descAr, descEn, img, status) {\n\t\t\t\t\tthis.editData = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tdescription_ar: descAr || '',\n\t\t\t\t\t\tdescription_en: descEn || '',\n\t\t\t\t\t\timage: img || '',\n\t\t\t\t\t\tstatus: status || 'active'\n\t\t\t\t\t};\n\t\t\t\t\tconst modal = document.getElementById('brand-edit-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t},\n\t\t\t\topenProductsModal(id, nameAr, nameEn, count) {\n\t\t\t\t\tthis.selectedBrand = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tcount: count || 0\n\t\t\t\t\t};\n\t\t\t\t\tconst modal = document.getElementById('brand-products-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t}\n\t\t\t}\"><!-- Page Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\r\n\t\t\t\tisCreateModalOpen: false,\r\n\t\t\t\tisEditModalOpen: false,\r\n\t\t\t\tisProductsModalOpen: false,\r\n\t\t\t\tselectedBrand: { id: 0, name_ar: '', name_en: '', count: 0 },\r\n\t\t\t\teditData: {\r\n\t\t\t\t\tid: 0,\r\n\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\tname_en: '',\r\n\t\t\t\t\tdescription_ar: '',\r\n\t\t\t\t\tdescription_en: '',\r\n\t\t\t\t\timage: '',\r\n\t\t\t\t\tstatus: 'active'\r\n\t\t\t\t},\r\n\t\t\t\topenEdit(id, nameAr, nameEn, descAr, descEn, img, status) {\r\n\t\t\t\t\tthis.editData = {\r\n\t\t\t\t\t\tid: id,\r\n\t\t\t\t\t\tname_ar: nameAr || '',\r\n\t\t\t\t\t\tname_en: nameEn || '',\r\n\t\t\t\t\t\tdescription_ar: descAr || '',\r\n\t\t\t\t\t\tdescription_en: descEn || '',\r\n\t\t\t\t\t\timage: img || '',\r\n\t\t\t\t\t\tstatus: status || 'active'\r\n\t\t\t\t\t};\r\n\t\t\t\t\tconst modal = document.getElementById('brand-edit-modal');\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t},\r\n\t\t\t\topenProductsModal(id, nameAr, nameEn, count) {\r\n\t\t\t\t\tthis.selectedBrand = {\r\n\t\t\t\t\t\tid: id,\r\n\t\t\t\t\t\tname_ar: nameAr || '',\r\n\t\t\t\t\t\tname_en: nameEn || '',\r\n\t\t\t\t\t\tcount: count || 0\r\n\t\t\t\t\t};\r\n\t\t\t\t\tconst modal = document.getElementById('brand-products-modal');\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t}\r\n\t\t\t}\"><!-- Page Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -106,7 +106,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إضافة شركة مصنعة جديدة +</span></button></div></div></div><div class=\"glass-panel p-6 mb-6\"><!-- Search and Filter Bar --><form method=\"GET\" action=\"/admin/brands\" class=\"d-flex gap-3 items-center flex-wrap mb-6\"><div class=\"flex-1\" style=\"min-width:220px;\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إضافة شركة مصنعة جديدة +</span></button></div></div></div><div class=\"glass-panel p-6 mb-6\"><!-- Search and Filter Bar --><form method=\"GET\" action=\"/admin/brands\" class=\"d-flex gap-3 items-center flex-wrap mb-6\"><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,7 +119,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"ابحث باسم الشركة بالعربية أو الإنجليزية...\" class=\"form-input text-xs w-full\"></div><div style=\"min-width:140px;\"><select name=\"status\" class=\"form-select text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" placeholder=\"ابحث باسم الشركة بالعربية أو الإنجليزية...\" class=\"form-input text-xs w-full\"></div><div><select name=\"status\" class=\"form-select text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,7 +149,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ">معطل (Inactive)</option></select></div><div style=\"min-width:140px;\"><select name=\"limit\" class=\"form-select text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"25\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ">معطل (Inactive)</option></select></div><div><select name=\"limit\" class=\"form-select text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"25\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -217,7 +217,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:64px;\" class=\"text-center\">الشعار</th><th style=\"width:26%;\">اسم الشركة المصنعة</th><th style=\"width:30%;\">الوصف ونبذة التعريف</th><th style=\"width:16%;\" class=\"text-center\">الأصناف المرتبطة</th><th style=\"width:12%;\" class=\"text-center\">الحالة</th><th style=\"width:16%;\" class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">الشعار</th><th>اسم الشركة المصنعة</th><th>الوصف ونبذة التعريف</th><th class=\"text-center\">الأصناف المرتبطة</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -235,7 +235,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"><td class=\"text-center\"><div class=\"user-avatar-badge text-sm\" style=\"width:40px; height:40px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"><td class=\"text-center\"><div class=\"user-avatar-badge text-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -266,7 +266,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" style=\"width:100%; height:100%; object-fit:contain;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -276,7 +276,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></td><td style=\"text-align:start;\"><div class=\"fw-800 text-primary text-base\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></td><td><div class=\"fw-800 text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -294,7 +294,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						return templ_7745c5c3_Err
 					}
 					if item.Brand.Name.Get("en") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div style=\"font-size:0.775rem; color:var(--text-secondary); direction:ltr; text-align:right;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -312,12 +312,12 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td><td style=\"text-align:start;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.Brand.Description.Get("ar") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div style=\"font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -335,7 +335,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							return templ_7745c5c3_Err
 						}
 					} else if item.Brand.Description.Get("en") != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div style=\"font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; direction:ltr; text-align:right;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -371,7 +371,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"badge badge-sky fw-700 cursor-pointer\" style=\"display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; font-size:0.825rem; border:none; cursor:pointer;\" title=\"عرض الأصناف المرتبطة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"badge badge-sky fw-700 cursor-pointer\" title=\"عرض الأصناف المرتبطة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -407,7 +407,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td><td class=\"text-end\"><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;\"><!-- Edit Trigger --><button type=\"button\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td><td class=\"text-end\"><div><!-- Edit Trigger --><button type=\"button\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -446,7 +446,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						return templ_7745c5c3_Err
 					}
 					if item.Brand.Status == "active" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<button type=\"submit\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px; color:var(--warning);\" title=\"تعطيل الشركة\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"تعطيل الشركة\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -459,7 +459,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<button type=\"submit\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px; color:var(--success);\" title=\"تفعيل الشركة\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"تفعيل الشركة\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -485,7 +485,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الشركة المصنعة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px; color:var(--danger);\" title=\"حذف الشركة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الشركة المصنعة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"حذف الشركة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -503,7 +503,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					return templ_7745c5c3_Err
 				}
 				if totalCount > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);\"><div style=\"font-size:0.875rem; color:var(--text-secondary); font-weight:600;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -516,7 +516,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><!-- Page navigation numbers --><div style=\"display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><!-- Page navigation numbers --><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -534,7 +534,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.4rem 0.65rem; font-weight:700;\" title=\"الصفحة الأولى\">«</a> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "\" class=\"btn btn-secondary btn-sm\" title=\"الصفحة الأولى\">«</a> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -547,14 +547,14 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.4rem 0.75rem; font-weight:700;\">السابق</a> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"btn btn-secondary btn-sm\">السابق</a> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 					for _, pNum := range calculateAdminPageNumbers(currentPage, totalPages(totalCount, pageSize)) {
 						if pNum == currentPage {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span class=\"btn btn-primary btn-sm\" style=\"padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span class=\"btn btn-primary btn-sm\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -585,7 +585,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.4rem 0.85rem; font-weight:700;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" class=\"btn btn-secondary btn-sm\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -618,7 +618,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.4rem 0.75rem; font-weight:700;\">التالي</a> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" class=\"btn btn-secondary btn-sm\">التالي</a> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -631,7 +631,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.4rem 0.65rem; font-weight:700;\" title=\"الصفحة الأخيرة\">»</a>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"btn btn-secondary btn-sm\" title=\"الصفحة الأخيرة\">»</a>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -642,87 +642,129 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div><!-- Brand Associated Products Modal --><dialog id=\"brand-products-modal\" class=\"modal\" aria-labelledby=\"brand-products-title\"><div class=\"modal-box modal-md\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div><!-- Brand Associated Products Modal -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconLayers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"d-flex flex-col gap-4 text-start\"><div class=\"bg-surface-sunken p-4 rounded-xl border text-center\"><div class=\"text-xs text-secondary font-bold mb-1\">إجمالي الأصناف المعتمدة المسجلة لهذه الشركة</div><div class=\"text-2xl font-black text-primary tabular-nums\" x-text=\"selectedBrand.count + ' صنف'\"></div></div><div class=\"d-flex gap-3 justify-center flex-wrap\"><a :href=\"'/admin/products?brand_id=' + selectedBrand.id\" class=\"btn btn-primary font-bold flex-1 justify-center\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconLayers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span>تصفح كافة الأصناف في الكتالوج المركزي</span></a> <a :href=\"'/admin/products?new=1&brand_id=' + selectedBrand.id\" class=\"btn btn-secondary font-bold flex-1 justify-center\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<span>إضافة صنف دوائي جديد</span></a></div></div><div class=\"modal-footer mt-4\"><form method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">?????</button></form></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{
+				ID:    "brand-products-modal",
+				Title: "??????? ????????",
+				Size:  "md",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div><div><h3 id=\"brand-products-title\" class=\"modal-title\" x-text=\"'الأصناف المرتبطة: ' + selectedBrand.name_ar\"></h3><span class=\"text-xs text-secondary\" x-text=\"selectedBrand.name_en\"></span></div></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<!-- Create Brand Modal -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Var26 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<form method=\"POST\" action=\"/admin/brands/new\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة المصنعة (عربي) *</label> <input type=\"text\" name=\"name_ar\" required class=\"form-input\" placeholder=\"إيفا فارما\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة (إنجليزي) *</label> <input type=\"text\" name=\"name_en\" required class=\"form-input\" dir=\"ltr\" placeholder=\"Eva Pharma\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">شعار أو صورة الشركة (ملف)</label> <input type=\"file\" name=\"brand_image\" accept=\".png,.jpg,.jpeg,.webp\" class=\"form-input p-2\"></div><div class=\"form-group m-0\"><label class=\"form-label\">أو رابط الصورة (URL)</label> <input type=\"text\" name=\"image_url\" class=\"form-input\" dir=\"ltr\" placeholder=\"https://...\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف والنبذة التعريفية (عربي)</label> <textarea name=\"description_ar\" rows=\"2\" class=\"form-input\" placeholder=\"نبذة عن الشركة، التراخيص والمقر الرئيسي...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\" placeholder=\"About the company, headquarters and certifications...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة الأولية</label> <select name=\"status\" class=\"form-select\"><option value=\"active\">نشط ومفعل (Active)</option> <option value=\"inactive\">معطل (Inactive)</option></select></div></div><div class=\"modal-footer\"><button type=\"button\" onclick=\"document.getElementById('brand-create-modal').close()\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span>حفظ وإضافة الشركة المصنعة</span></button></div></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{
+				ID:    "brand-create-modal",
+				Title: "????? ???? ????? / ????? ?????",
+				Size:  "md",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</button></form></div><div class=\"modal-body\"><div class=\"d-flex flex-col gap-4 text-start\"><div class=\"bg-surface-sunken p-4 rounded-xl border text-center\"><div class=\"text-xs text-secondary font-bold mb-1\">إجمالي الأصناف المعتمدة المسجلة لهذه الشركة</div><div class=\"text-2xl font-black text-primary tabular-nums\" x-text=\"selectedBrand.count + ' صنف'\"></div></div><div class=\"d-flex gap-3 justify-center flex-wrap\"><a :href=\"'/admin/products?brand_id=' + selectedBrand.id\" class=\"btn btn-primary font-bold flex-1 justify-center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<!-- Edit Brand Modal -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconLayers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Var27 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<form :action=\"'/admin/brands/' + editData.id + '/edit'\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة المصنعة (عربي) *</label> <input type=\"text\" name=\"name_ar\" x-model=\"editData.name_ar\" required class=\"form-input\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة (إنجليزي) *</label> <input type=\"text\" name=\"name_en\" x-model=\"editData.name_en\" required class=\"form-input\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">تغيير الشعار أو الصورة</label> <input type=\"file\" name=\"brand_image\" accept=\".png,.jpg,.jpeg,.webp\" class=\"form-input p-2\"></div><div class=\"form-group m-0\"><label class=\"form-label\">أو رابط الصورة (URL)</label> <input type=\"text\" name=\"image_url\" x-model=\"editData.image\" class=\"form-input\" dir=\"ltr\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف والنبذة التعريفية (عربي)</label> <textarea name=\"description_ar\" x-model=\"editData.description_ar\" rows=\"2\" class=\"form-input\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" x-model=\"editData.description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة</label> <select name=\"status\" x-model=\"editData.status\" class=\"form-select\"><option value=\"active\">نشط ومفعل (Active)</option> <option value=\"inactive\">معطل (Inactive)</option></select></div></div><div class=\"modal-footer\"><button type=\"button\" onclick=\"document.getElementById('brand-edit-modal').close()\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span>حفظ التعديلات</span></button></div></form>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{
+				ID:    "brand-edit-modal",
+				Title: "????? ?????? ?????? ???????",
+				Size:  "md",
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<span>تصفح كافة الأصناف في الكتالوج المركزي</span></a> <a :href=\"'/admin/products?new=1&brand_id=' + selectedBrand.id\" class=\"btn btn-secondary font-bold flex-1 justify-center\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span>إضافة صنف دوائي جديد</span></a></div></div></div><div class=\"modal-footer\"><form method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary\">إغلاق</button></form></div></div></dialog><!-- Create Brand Modal --><dialog id=\"brand-create-modal\" class=\"modal\" aria-labelledby=\"brand-create-title\"><div class=\"modal-box modal-md\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</div><h3 id=\"brand-create-title\" class=\"modal-title\">إضافة شركة مصنعة / ماركة جديدة</h3></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</button></form></div><form method=\"POST\" action=\"/admin/brands/new\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة المصنعة (عربي) *</label> <input type=\"text\" name=\"name_ar\" required class=\"form-input\" placeholder=\"إيفا فارما\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة (إنجليزي) *</label> <input type=\"text\" name=\"name_en\" required class=\"form-input\" dir=\"ltr\" placeholder=\"Eva Pharma\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">شعار أو صورة الشركة (ملف)</label> <input type=\"file\" name=\"brand_image\" accept=\".png,.jpg,.jpeg,.webp\" class=\"form-input p-2\"></div><div class=\"form-group m-0\"><label class=\"form-label\">أو رابط الصورة (URL)</label> <input type=\"text\" name=\"image_url\" class=\"form-input\" dir=\"ltr\" placeholder=\"https://...\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف والنبذة التعريفية (عربي)</label> <textarea name=\"description_ar\" rows=\"2\" class=\"form-input\" placeholder=\"نبذة عن الشركة، التراخيص والمقر الرئيسي...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\" placeholder=\"About the company, headquarters and certifications...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة الأولية</label> <select name=\"status\" class=\"form-select\"><option value=\"active\">نشط ومفعل (Active)</option> <option value=\"inactive\">معطل (Inactive)</option></select></div></div><div class=\"modal-footer\"><button type=\"button\" onclick=\"document.getElementById('brand-create-modal').close()\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span>حفظ وإضافة الشركة المصنعة</span></button></div></form></div></dialog><!-- Edit Brand Modal --><dialog id=\"brand-edit-modal\" class=\"modal\" aria-labelledby=\"brand-edit-title\"><div class=\"modal-box modal-md\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconEdit("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</div><h3 id=\"brand-edit-title\" class=\"modal-title\">تعديل بيانات الشركة المصنعة</h3></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</button></form></div><form :action=\"'/admin/brands/' + editData.id + '/edit'\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة المصنعة (عربي) *</label> <input type=\"text\" name=\"name_ar\" x-model=\"editData.name_ar\" required class=\"form-input\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الشركة (إنجليزي) *</label> <input type=\"text\" name=\"name_en\" x-model=\"editData.name_en\" required class=\"form-input\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label\">تغيير الشعار أو الصورة</label> <input type=\"file\" name=\"brand_image\" accept=\".png,.jpg,.jpeg,.webp\" class=\"form-input p-2\"></div><div class=\"form-group m-0\"><label class=\"form-label\">أو رابط الصورة (URL)</label> <input type=\"text\" name=\"image_url\" x-model=\"editData.image\" class=\"form-input\" dir=\"ltr\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف والنبذة التعريفية (عربي)</label> <textarea name=\"description_ar\" x-model=\"editData.description_ar\" rows=\"2\" class=\"form-input\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الوصف (إنجليزي)</label> <textarea name=\"description_en\" x-model=\"editData.description_en\" rows=\"2\" class=\"form-input\" dir=\"ltr\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\">الحالة</label> <select name=\"status\" x-model=\"editData.status\" class=\"form-select\"><option value=\"active\">نشط ومفعل (Active)</option> <option value=\"inactive\">معطل (Inactive)</option></select></div></div><div class=\"modal-footer\"><button type=\"button\" onclick=\"document.getElementById('brand-edit-modal').close()\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<span>حفظ التعديلات</span></button></div></form></div></dialog></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

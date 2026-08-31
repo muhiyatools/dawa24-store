@@ -3,6 +3,7 @@ package ingest
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
@@ -128,7 +129,7 @@ func (w *importWriter) reportProgress(ctx context.Context) {
 	if total > 0 {
 		percent = w.processed * 100 / total
 	}
-	note := fmt.Sprintf("تمت معالجة %d صنف", w.processed)
+	note := fmt.Sprintf(i18n.TDefault("w4_mod.d_384"), w.processed)
 	if err := w.svc.imports.Progress(ctx, w.session.ID, percent, note); err != nil {
 		w.svc.log.WarnContext(ctx, "import progress not recorded",
 			"import", w.session.PublicID, "error", err)

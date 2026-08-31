@@ -46,7 +46,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 			<!-- Filter Strip -->
 			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action="/admin/audit" class="d-flex gap-3 items-center flex-wrap m-0">
-					<div class="flex-1" style="min-width:220px;">
+					<div class="flex-1">
 						<input
 							type="text"
 							name="q"
@@ -56,7 +56,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						/>
 					</div>
 
-					<div style="min-width:160px;">
+					<div>
 						<select name="severity" class="form-select text-xs w-full">
 							<option value="">كافة درجات الأهمية</option>
 							<option value="info" selected?={ values.Severity == "info" }>عادي (Info)</option>
@@ -65,7 +65,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						</select>
 					</div>
 
-					<div style="min-width:170px;">
+					<div>
 						<select name="action" class="form-select text-xs w-full">
 							<option value="">كافة الأقسام والعمليات</option>
 							<option value="user" selected?={ values.ActionFilter == "user" }>المستخدمين والصلاحيات</option>
@@ -98,18 +98,18 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container m-0">
-						<table class="data-table m-0" style="min-width:1100px;">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th style="width:6%;" class="text-center">المعرف</th>
-									<th style="width:11%;">التوقيت</th>
-									<th style="width:15%;">المستخدم</th>
-									<th style="width:12%;">المنظمة</th>
-									<th style="width:16%;">القسم والإجراء</th>
-									<th style="width:22%;">العنوان والوصف</th>
-									<th style="width:8%; text-align:center;">الأهمية</th>
-									<th style="width:10%; text-align:start;">عنوان IP</th>
-									<th style="width:6%; text-align:center;">الإجراءات</th>
+									<th class="text-center">المعرف</th>
+									<th>التوقيت</th>
+									<th>المستخدم</th>
+									<th>المنظمة</th>
+									<th>القسم والإجراء</th>
+									<th>العنوان والوصف</th>
+									<th>الأهمية</th>
+									<th>عنوان IP</th>
+									<th>الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -118,17 +118,17 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 										
 										<!-- 1. المعرف -->
 										<td class="text-center">
-											<span class="tabular-nums" style="font-family:monospace; font-weight:800; color:var(--text-muted); font-size:0.8rem;">
+											<span class="tabular-nums">
 												#{ fmt.Sprintf("%d", e.ID) }
 											</span>
 										</td>
 
 										<!-- 2. التوقيت -->
 										<td class="text-start">
-											<div class="tabular-nums" style="font-weight:700; font-size:0.825rem; color:var(--text);">
+											<div class="tabular-nums">
 												{ e.CreatedAt.Format("2006-01-02") }
 											</div>
-											<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+											<div class="tabular-nums">
 												{ e.CreatedAt.Format("15:04:05") }
 											</div>
 										</td>
@@ -139,7 +139,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 												{ e.ActorName }
 											</div>
 											if e.ActorEmail != "" {
-												<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start; margin-top:2px;">
+												<div>
 													{ e.ActorEmail }
 												</div>
 											}
@@ -147,18 +147,18 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 
 										<!-- 4. المنظمة -->
 										<td class="text-start">
-											<div style="font-weight:600; color:var(--text); font-size:0.825rem;">
+											<div>
 												{ e.OrganizationName }
 											</div>
 										</td>
 
 										<!-- 5. القسم والإجراء -->
 										<td class="text-start">
-											<div style="display:flex; flex-direction:column; gap:0.25rem;">
-												<span class={ "badge", auditBadgeClass(e.Action) } style="font-weight:700; font-size:0.75rem; align-self:flex-start; white-space:nowrap;">
+											<div>
+												<span class={ "badge", auditBadgeClass(e.Action) }>
 													{ e.ActionLabelAr }
 												</span>
-												<span style="font-size:0.725rem; color:var(--text-muted);">
+												<span>
 													القسم: <strong class="text-secondary">{ e.Module }</strong>
 												</span>
 											</div>
@@ -169,25 +169,25 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 											<div class="fw-700 text-primary text-sm">
 												{ e.Title }
 											</div>
-											<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:3px; line-height:1.4;">
+											<div>
 												{ e.Description }
 											</div>
 										</td>
 
 										<!-- 7. الأهمية -->
 										<td class="text-center">
-											<span class={ "badge", severityBadgeClass(e.Severity) } style="font-size:0.725rem; font-weight:700;">
+											<span class={ "badge", severityBadgeClass(e.Severity) }>
 												{ e.Severity }
 											</span>
 										</td>
 
 										<!-- 8. عنوان IP -->
 										<td class="text-start">
-											<div class="tabular-nums" style="font-size:0.775rem; font-family:monospace; color:var(--text); direction:ltr; text-align:start;">
+											<div class="tabular-nums">
 												{ e.IPAddress }
 											</div>
 											if e.Route != "" {
-												<div style="font-size:0.7rem; color:var(--text-muted); direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:120px; white-space:nowrap; margin-top:2px;">
+												<div>
 													{ e.Route }
 												</div>
 											}
@@ -198,7 +198,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm"
-												style="padding:0.35rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
+											
 												@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
 												title="عرض تفاصيل العملية وفروقات البيانات"
 											>
@@ -215,30 +215,12 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 			</div>
 
 			<!-- Inspection & Details Diff Modal -->
-			<dialog
-				id="audit-details-modal"
-				class="modal"
-				aria-labelledby="audit-details-title"
-			>
-				<div class="modal-box modal-lg">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2">
-							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-								@components.IconClock("icon-sm")
-							</div>
-							<div>
-								<h3 id="audit-details-title" class="modal-title" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
-								<div class="text-xs text-muted mt-0.5" x-text="selected ? selected.title : ''"></div>
-							</div>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<div class="modal-body">
+			@components.Modal(components.ModalProps{
+				ID:    "audit-details-modal",
+				Title: "?????? ??????? ??????? ????????",
+				Size:  "lg",
+			}) {
+				
 						<template x-if="selected">
 							<div class="d-flex flex-col gap-4">
 								
@@ -304,17 +286,14 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 
 							</div>
 						</template>
-					</div>
-
-					<div class="modal-footer">
+					<div class="modal-footer mt-4">
 						<form method="dialog">
 							<button type="submit" class="btn btn-secondary font-bold px-6">
 								إغلاق
 							</button>
 						</form>
 					</div>
-				</div>
-			</dialog>
+			}
 
 			<!-- Embedded JSON Data Store for Modal -->
 			for _, e := range values.Entries {

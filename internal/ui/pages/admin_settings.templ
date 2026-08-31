@@ -30,7 +30,7 @@ type AdminSettingsValues struct {
 templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 	@layouts.AdminShell("إعدادات المنصة والمنظومة | Platform Settings", "settings", lang, dir) {
 		<div
-			style="max-width:1100px; margin:0 auto;"
+		
 			x-data="{
 				activeTab: 'features',
 				isMethodModalOpen: false,
@@ -124,16 +124,16 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 		>
 			
 			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+			<div>
 				<div class="row-center">
-					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div>
 						@components.IconSettings("icon-md")
 					</div>
 					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
+						<h2 class="card-title">
 							إعدادات المنصة والمنظومة
 						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+						<p>
 							إدارة الهوية البصرية، بيانات التواصل، بوابة الذكاء الاصطناعي، السياسات، ومفاتيح الميزات
 						</p>
 					</div>
@@ -190,23 +190,23 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				
 				<!-- Feature Flags -->
 				<div class="card mb-0">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+					<div>
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+							<h3 class="card-title">
 								مفاتيح تشغيل الميزات والأنظمة (Feature Flags)
 							</h3>
-							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+							<p>
 								التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، العروض، والخدمات
 							</p>
 						</div>
 					</div>
 
-					<div style="display:grid; gap:0.75rem;">
+					<div>
 						for _, flag := range values.FeatureFlags {
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<div>
 								<div>
 									<div class="row-center-sm">
-										<strong style="font-size:0.9rem; color:var(--text);">
+										<strong>
 											if flag.Name["ar"] != "" {
 												{ flag.Name["ar"] }
 											} else {
@@ -218,9 +218,9 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										} else {
 											<span class="badge badge-slate text-xs">معطل حالياً</span>
 										}
-										<span class="badge badge-sky" style="font-family:monospace; font-size:10px;">{ flag.Key }</span>
+										<span class="badge badge-sky">{ flag.Key }</span>
 									</div>
-									<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:3px;">
+									<div>
 										if flag.Description["ar"] != "" {
 											{ flag.Description["ar"] }
 										} else {
@@ -236,7 +236,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										<button
 											type="submit"
 											class="btn btn-sm"
-											style="min-width:120px; justify-content:center; background:#10b981; color:#ffffff; border:1px solid #059669; font-weight:700; border-radius:var(--radius-full);"
+										
 											title="انقر لتعطيل الميزة"
 										>
 											@components.IconCheck("icon-xs")
@@ -246,7 +246,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										<button
 											type="submit"
 											class="btn btn-sm btn-secondary"
-											style="min-width:120px; justify-content:center; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); font-weight:600; border-radius:var(--radius-full);"
+										
 											title="انقر لتفعيل الميزة"
 										>
 											<span>معطل (Disabled)</span>
@@ -260,9 +260,9 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<!-- Financial & General Config -->
 				<div class="card mb-0">
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+					<div>
 						@components.IconSettings("icon-md")
-						<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+						<h3 class="card-title">
 							الإعدادات المالية والمنظومة
 						</h3>
 					</div>
@@ -271,11 +271,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						<div class="form-grid-2">
 							<div class="form-group m-0">
 								<label class="form-label">العملة الافتراضية للمعاملات</label>
-								<input type="text" value="EGP (الجنيه المصري)" disabled class="form-input" style="background:var(--surface-sunken); color:var(--text-muted);"/>
+								<input type="text" value="EGP (الجنيه المصري)" disabled class="form-input"/>
 							</div>
 							<div class="form-group m-0">
 								<label class="form-label">اللغات المعتمدة في النظام</label>
-								<input type="text" value="العربية (الرئيسية)، English" disabled class="form-input" style="background:var(--surface-sunken); color:var(--text-muted);"/>
+								<input type="text" value="العربية (الرئيسية)، English" disabled class="form-input"/>
 							</div>
 						</div>
 
@@ -290,8 +290,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							</div>
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+						<div>
+							<button type="submit" class="btn btn-primary">
 								@components.IconCheck("icon-xs")
 								<span>حفظ إعدادات المنصة</span>
 							</button>
@@ -308,7 +308,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 				
 				<div class="card mb-0" x-data="{ siteSubTab: 'contact' }">
 					
-					<div style="display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.5rem; padding-bottom:0.75rem;">
+					<div>
 						<button
 							type="button"
 							class="btn btn-sm fw-700"
@@ -384,8 +384,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								<input type="text" name="address" value={ values.SiteSettings.Address } class="form-input" placeholder="القاهرة، جمهورية مصر العربية"/>
 							</div>
 
-							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+							<div>
+								<button type="submit" class="btn btn-primary">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتحديث بيانات التواصل</span>
 								</button>
@@ -398,7 +398,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 						<form action="/admin/settings/site" method="POST" class="stack-115">
 							<input type="hidden" name="section" value="socials"/>
 
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.5rem 0;">
+							<p>
 								سيتم حفظ هذه الروابط في قاعدة البيانات وعكسها تلقائياً في الفوتر وكافة الأقسام الرسمية للموقع.
 							</p>
 
@@ -446,8 +446,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								</div>
 							</div>
 
-							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+							<div>
+								<button type="submit" class="btn btn-primary">
 									@components.IconCheck("icon-xs")
 									<span>حفظ روابط التواصل الاجتماعي</span>
 								</button>
@@ -459,19 +459,19 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					<div x-show="siteSubTab === 'branding'" x-data="{ logoPreview: '' }">
 						<form action="/admin/settings/branding" method="POST" enctype="multipart/form-data" class="stack-lg">
 							
-							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
-								<div style="width:120px; height:80px; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; padding:0.5rem; overflow:hidden;">
+							<div>
+								<div>
 									<img
 										:src="logoPreview || '/static/img/logo.png'"
 										alt="Logo Preview"
-										style="max-width:100%; max-height:100%; object-fit:contain;"
+									
 									/>
 								</div>
 								<div>
 									<h4 class="text-base fw-800 text-primary m-0">
 										الشعار الرسمي للمنصة (Platform Logo)
 									</h4>
-									<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+									<p>
 										عند تغيير الشعار، سيتم تطبيقه فورياً على كافة واجهات الهيدر والفوتر والصفحات والشاشات.
 									</p>
 								</div>
@@ -506,8 +506,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 								<input type="text" name="favicon_url" value={ values.SiteSettings.FaviconURL } class="form-input" dir="ltr" placeholder="/static/img/logo.png"/>
 							</div>
 
-							<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+							<div>
+								<button type="submit" class="btn btn-primary">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتطبيق الهوية البصرية</span>
 								</button>
@@ -536,12 +536,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<div x-show="activeTab === 'payment_methods'" x-cloak class="stack-lg">
 				
 				<div class="card mb-0">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+					<div>
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.25rem; font-weight:800;">
+							<h3 class="card-title">
 								قنوات وطرق الدفع والتحويل البنكي للمنصة
 							</h3>
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+							<p>
 								إدارة الحسابات البنكية الرسمية، معرفات إنستاباي، بوابات الدفع الإلكتروني، وتحديد قنوات الإيداع والسداد المتاحة للصيدليات والموردين
 							</p>
 						</div>
@@ -558,12 +558,12 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					</div>
 
 					if len(values.PlatformPaymentMethods) == 0 {
-						<div style="padding:3.5rem 1.5rem; text-align:center; border:2px dashed var(--border); border-radius:var(--radius-xl); background:var(--surface-sunken);">
-							<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
+						<div>
+							<div>
 								@components.IconWallet("icon-md")
 							</div>
-							<h4 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">لا توجد قنوات دفع مهيأة</h4>
-							<p style="font-size:0.85rem; color:var(--text-muted); max-width:420px; margin:0 auto 1.5rem auto;">
+							<h4>لا توجد قنوات دفع مهيأة</h4>
+							<p>
 								أضف الحسابات البنكية ومعرفات إنستاباي المعتمدة لمنصة دواء 24 لتظهر للصيدليات والموردين عند شحن المحفظة وسداد الطلبيات.
 							</p>
 							<button type="button" class="btn btn-primary fw-800" @click="openNewMethodModal()">
@@ -574,11 +574,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					} else {
 						<div class="stack-lg">
 							for _, pm := range values.PlatformPaymentMethods {
-								<div style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; background:var(--surface-sunken); display:flex; flex-direction:column; gap:1rem;">
+								<div>
 									<!-- Card Header -->
-									<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-										<div style="display:flex; align-items:center; gap:0.85rem;">
-											<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+									<div>
+										<div>
+											<div>
 												if pm.ProviderType == "bank" {
 													@components.IconBuilding("icon-sm")
 												} else if pm.ProviderType == "instapay" {
@@ -589,10 +589,10 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 											</div>
 											<div>
 												<div class="inline-row-wrap">
-													<strong style="font-size:1.05rem; color:var(--text);">{ pm.Name.Get(i18n.Lang(lang)) }</strong>
-													<code style="font-size:0.75rem; background:var(--surface-raised); padding:0.15rem 0.45rem; border-radius:4px; border:1px solid var(--border);" dir="ltr">#{ pm.ID }</code>
+													<strong>{ pm.Name.Get(i18n.Lang(lang)) }</strong>
+													<code dir="ltr">#{ pm.ID }</code>
 												</div>
-												<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
+												<div>
 													{ pm.Name.Get("en") }
 												</div>
 											</div>
@@ -615,62 +615,62 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 									</div>
 
 									<!-- Card Details Grid -->
-									<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; font-size:0.875rem;">
+									<div>
 										if pm.ProviderType == "bank" {
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">اسم البنك</span>
+											<div>
+												<span>اسم البنك</span>
 												<strong class="text-primary">{ pm.BankName }</strong>
 											</div>
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">اسم صاحب الحساب</span>
+											<div>
+												<span>اسم صاحب الحساب</span>
 												<strong class="text-primary">{ pm.AccountName }</strong>
 											</div>
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">رقم الحساب</span>
+											<div>
+												<span>رقم الحساب</span>
 												<strong class="text-accent tabular-nums" dir="ltr">{ pm.AccountNumber }</strong>
 											</div>
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">الآيبان الدولي (IBAN)</span>
+											<div>
+												<span>الآيبان الدولي (IBAN)</span>
 												<strong class="text-primary tabular-nums" dir="ltr">{ pm.IBAN }</strong>
 											</div>
 										} else if pm.ProviderType == "instapay" || pm.ProviderType == "wallet" {
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">عنوان الدفع اللحظي (IPA)</span>
+											<div>
+												<span>عنوان الدفع اللحظي (IPA)</span>
 												<strong class="text-accent tabular-nums" dir="ltr">{ pm.InstaPayHandle }</strong>
 											</div>
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">رقم الهاتف المرتبط</span>
+											<div>
+												<span>رقم الهاتف المرتبط</span>
 												<strong class="text-primary tabular-nums" dir="ltr">{ pm.PhoneNumber }</strong>
 											</div>
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">اسم الحساب / المحفظة</span>
+											<div>
+												<span>اسم الحساب / المحفظة</span>
 												<strong class="text-primary">{ pm.AccountName }</strong>
 											</div>
 										} else {
-											<div style="padding:0.75rem 1rem; background:var(--surface-raised); border-radius:var(--radius-md); border:1px solid var(--border);">
-												<span style="font-size:0.75rem; color:var(--text-muted); display:block;">بوابة الدفع</span>
+											<div>
+												<span>بوابة الدفع</span>
 												<strong class="text-primary">{ pm.BankName }</strong>
 											</div>
 										}
 									</div>
 
 									if pm.Description.Get("ar") != "" {
-										<div style="font-size:0.825rem; color:var(--text-secondary); background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+										<div>
 											<strong>التعليمات للصيدليات:</strong> { pm.Description.Get("ar") }
 										</div>
 									}
 
 									<!-- Card Actions -->
-									<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:0.85rem;">
+									<div>
 										<form method="POST" action="/admin/settings/payment-methods/toggle" class="m-0">
 											<input type="hidden" name="id" value={ pm.ID } />
 											<input type="hidden" name="enabled" value={ ternaryStr(pm.IsActive, "0", "1") } />
 											if pm.IsActive {
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--warning-text); border-color:var(--warning-border);">
+												<button type="submit" class="btn btn-secondary btn-sm">
 													تعطيل القناة مؤقتاً
 												</button>
 											} else {
-												<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--success-text); border-color:var(--success-border);">
+												<button type="submit" class="btn btn-secondary btn-sm">
 													تفعيل القناة
 												</button>
 											}
@@ -686,7 +686,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 										</button>
 
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/settings/payment-methods/%s/delete", pm.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف وسيلة الدفع هذه نهائياً من المنصة؟');">
-											<button type="submit" class="btn btn-secondary btn-sm btn-icon" style="color:var(--danger); border-color:var(--danger-border);" title="حذف وسيلة الدفع">
+											<button type="submit" class="btn btn-secondary btn-sm btn-icon" title="حذف وسيلة الدفع">
 												@components.IconTrash("icon-xs")
 											</button>
 										</form>

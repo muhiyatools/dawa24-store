@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -55,7 +56,7 @@ func (h *Handler) presign(w http.ResponseWriter, r *http.Request) {
 
 	var req attachments.PresignRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "بيانات الطلب غير صالحة", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_244_244"), nil))
 		return
 	}
 
@@ -73,7 +74,7 @@ func (h *Handler) confirm(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "معرف المستند غير صالح", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_245_245"), nil))
 		return
 	}
 
@@ -94,7 +95,7 @@ func (h *Handler) downloadURL(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "معرف المستند غير صالح", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_245_245"), nil))
 		return
 	}
 
@@ -102,15 +103,15 @@ func (h *Handler) downloadURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if appErr, ok := apperr.As(err); ok {
 			if appErr.Kind == apperr.KindNotFound {
-				httpx.Error(w, r, h.log, apperr.NotFound("المستند المطلوب غير موجود"))
+				httpx.Error(w, r, h.log, apperr.NotFound(i18n.TDefault("w4_mod.s_246_246")))
 				return
 			}
 			if appErr.Kind == apperr.KindForbidden {
-				httpx.Error(w, r, h.log, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية الوصول لهذا المستند"))
+				httpx.Error(w, r, h.log, apperr.Forbidden("document.access_denied", i18n.TDefault("w4_mod.s_236_236")))
 				return
 			}
 		}
-		httpx.Error(w, r, h.log, apperr.NotFound("تعذر العثور على رابط المستند المطلوب"))
+		httpx.Error(w, r, h.log, apperr.NotFound(i18n.TDefault("w4_mod.s_247_247")))
 		return
 	}
 
@@ -128,7 +129,7 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "معرف المستند غير صالح", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_245_245"), nil))
 		return
 	}
 
@@ -192,19 +193,19 @@ func (h *Handler) adminVerify(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "معرف المستند غير صالح", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_245_245"), nil))
 		return
 	}
 
 	var req verifyRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "بيانات غير صالحة", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_248_248"), nil))
 		return
 	}
 
 	status := attachments.DocumentStatus(req.Status)
 	if status != attachments.StatusVerified && status != attachments.StatusRejected {
-		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", "حالة الاعتماد غير صالحة", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("request.invalid", i18n.TDefault("w4_mod.s_249_249"), nil))
 		return
 	}
 

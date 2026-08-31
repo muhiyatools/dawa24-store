@@ -2,6 +2,7 @@ package smartorder
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strconv"
 	"strings"
 )
@@ -9,7 +10,7 @@ import (
 // Quantity parsing.
 //
 // A pharmacy's spreadsheet does not contain numbers. It contains "2", " 3 ",
-// "٥", "5 علبة", "2-3", "12.0", "-1", and empty cells that mean "I did not
+// i18n.TDefault("w4_ui.s_44_44"), i18n.TDefault("w4_mod.5_434"), "2-3", "12.0", "-1", and empty cells that mean "I did not
 // decide yet". Every one of those has to become either a quantity or an honest
 // admission that it could not be read.
 //
@@ -31,12 +32,12 @@ type QtyResult struct {
 // arabicIndicDigits maps Arabic-Indic and Eastern Arabic-Indic numerals onto
 // ASCII. Egyptian systems export both, sometimes in the same column.
 var arabicIndicDigits = strings.NewReplacer(
-	"٠", "0", "١", "1", "٢", "2", "٣", "3", "٤", "4",
-	"٥", "5", "٦", "6", "٧", "7", "٨", "8", "٩", "9",
-	"۰", "0", "۱", "1", "۲", "2", "۳", "3", "۴", "4",
-	"۵", "5", "۶", "6", "۷", "7", "۸", "8", "۹", "9",
-	"٫", ".", // Arabic decimal separator
-	"،", "", // Arabic comma used as a thousands separator
+	i18n.TDefault("w4_ui.s_39_39"), "0", i18n.TDefault("w4_ui.s_40_40"), "1", i18n.TDefault("w4_ui.s_41_41"), "2", i18n.TDefault("w4_ui.s_42_42"), "3", i18n.TDefault("w4_ui.s_43_43"), "4",
+	i18n.TDefault("w4_ui.s_44_44"), "5", i18n.TDefault("w4_ui.s_45_45"), "6", i18n.TDefault("w4_ui.s_46_46"), "7", i18n.TDefault("w4_ui.s_47_47"), "8", i18n.TDefault("w4_ui.s_48_48"), "9",
+	i18n.TDefault("w4_mod.s_435_435"), "0", i18n.TDefault("w4_mod.s_436_436"), "1", i18n.TDefault("w4_mod.s_437_437"), "2", i18n.TDefault("w4_mod.s_438_438"), "3", i18n.TDefault("w4_mod.s_439_439"), "4",
+	i18n.TDefault("w4_mod.s_440_440"), "5", i18n.TDefault("w4_mod.s_441_441"), "6", i18n.TDefault("w4_mod.s_442_442"), "7", i18n.TDefault("w4_mod.s_443_443"), "8", i18n.TDefault("w4_mod.s_444_444"), "9",
+	i18n.TDefault("w4_ui.s_49_49"), ".", // Arabic decimal separator
+	i18n.TDefault("w4_mod.s_445_445"), "", // Arabic comma used as a thousands separator
 )
 
 // ParseQuantity reads a spreadsheet cell as a requested quantity.
@@ -54,12 +55,12 @@ func ParseQuantity(raw string) QtyResult {
 		return validateQty(v, raw)
 	}
 
-	// A range: "2-3", "2 - 3", "٢-٣". Ambiguous by construction.
+	// A range: "2-3", "2 - 3", i18n.TDefault("w4_mod.s_446_446"). Ambiguous by construction.
 	if isRange(s) {
 		return QtyResult{Note: fmt.Sprintf("cell %q is a range; enter a single quantity", raw)}
 	}
 
-	// A number with a unit: "5 علبة", "5 boxes", "5pcs". The number is usable,
+	// A number with a unit: i18n.TDefault("w4_mod.5_434"), "5 boxes", "5pcs". The number is usable,
 	// but the unit may not be the unit the supplier sells in, so it is recorded.
 	if v, unit, ok := numberWithUnit(s); ok {
 		res := validateQty(v, raw)
@@ -89,7 +90,7 @@ func validateQty(v float64, raw string) QtyResult {
 // isRange reports whether the cell looks like "2-3" rather than a negative
 // number or a hyphenated code.
 func isRange(s string) bool {
-	for _, sep := range []string{"-", "–", "—", "to", "الى", "إلى"} {
+	for _, sep := range []string{"-", "–", "—", "to", i18n.TDefault("w4_mod.s_447_447"), i18n.TDefault("w4_mod.s_448_448")} {
 		idx := strings.Index(s, sep)
 		if idx <= 0 || idx+len(sep) >= len(s) {
 			continue
@@ -147,11 +148,11 @@ func ApplyQuantities(cfg *Config, lines []*Line) {
 
 // summaryWords are the labels a spreadsheet's own footer rows carry.
 //
-// A pharmacy's file usually ends with a total line, and "المجموع" is not a
+// A pharmacy's file usually ends with a total line, and i18n.TDefault("w4_ui.s_91_91") is not a
 // product. Staging it would put it in front of the matcher, which would dutifully
 // find the nearest medicine to the word "total".
 var summaryWords = []string{
-	"المجموع", "الاجمالي", "الإجمالي", "اجمالي", "إجمالي", "المجموع الكلي",
+	i18n.TDefault("w4_ui.s_91_91"), i18n.TDefault("w4_ui.s_89_89"), i18n.TDefault("w4_mod.s_449_449"), i18n.TDefault("w4_ui.s_88_88"), i18n.TDefault("w4_mod.s_450_450"), i18n.TDefault("w4_ui.s_92_92"),
 	"total", "subtotal", "grand total", "sum",
 }
 

@@ -80,7 +80,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 					action="/admin/categories"
 					class="d-flex gap-3 items-center flex-wrap mb-6"
 				>
-					<div class="flex-1" style="min-width:220px;">
+					<div class="flex-1">
 						<input
 							type="text"
 							name="q"
@@ -90,7 +90,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						/>
 					</div>
 
-					<div style="min-width:140px;">
+					<div>
 						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
@@ -98,7 +98,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						</select>
 					</div>
 
-					<div style="min-width:140px;">
+					<div>
 						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="25" selected?={ pageSize == 25 }>25 فئة لكل صفحة</option>
 							<option value="50" selected?={ pageSize == 50 }>50 فئة لكل صفحة</option>
@@ -129,14 +129,14 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th style="width:60px; text-align:center;">#</th>
-									<th style="width:24%; text-align:start;">اسم الفئة</th>
-									<th style="width:20%; text-align:start;">الفئة الأب (Parent)</th>
-									<th style="width:22%; text-align:start;">الوصف</th>
-									<th style="width:14%; text-align:center;">الأصناف المرتبطة</th>
-									<th style="width:8%; text-align:center;">ترتيب</th>
-									<th style="width:10%; text-align:center;">الحالة</th>
-									<th style="width:12%; text-align:end;">الإجراءات</th>
+									<th>#</th>
+									<th>اسم الفئة</th>
+									<th>الفئة الأب (Parent)</th>
+									<th>الوصف</th>
+									<th>الأصناف المرتبطة</th>
+									<th>ترتيب</th>
+									<th>الحالة</th>
+									<th>الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -144,35 +144,35 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 									{{ c := item.Category }}
 									{{ parentName := getParentCategoryName(c.ParentID, allCategories) }}
 									<tr id={ fmt.Sprintf("category-row-%d", c.ID) }>
-										<td class="tabular-nums" style="text-align:center; font-weight:700; color:var(--text-muted);">
+										<td class="tabular-nums">
 											#{ fmt.Sprintf("%d", c.ID) }
 										</td>
-										<td style="text-align:start;">
+										<td>
 											<div class="fw-800 text-primary text-base">
 												{ c.Name.Get("ar") }
 											</div>
 											if c.Name.Get("en") != "" {
-												<div style="font-size:0.775rem; color:var(--text-secondary); direction:ltr; text-align:right;">
+												<div>
 													{ c.Name.Get("en") }
 												</div>
 											}
 										</td>
-										<td style="text-align:start;">
+										<td>
 											if parentName != "" {
 												<span class="badge badge-slate fw-700">
 													{ parentName }
 												</span>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.825rem;">-- رئيسية (مستوى أول) --</span>
+												<span>-- رئيسية (مستوى أول) --</span>
 											}
 										</td>
-										<td style="text-align:start; max-width:240px;">
+										<td>
 											if c.Description.Get("ar") != "" {
-												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;">
+												<div>
 													{ c.Description.Get("ar") }
 												</div>
 											} else if c.Description.Get("en") != "" {
-												<div style="font-size:0.825rem; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; direction:ltr; text-align:right;">
+												<div>
 													{ c.Description.Get("en") }
 												</div>
 											} else {
@@ -183,7 +183,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/admin/products?category_id=%d", c.ID)) }
 												class="badge badge-indigo fw-700"
-												style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; font-size:0.825rem; cursor:pointer;"
+											
 												title="عرض كافة أصناف هذه الفئة"
 											>
 												@components.IconLayers("icon-xs")
@@ -201,7 +201,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 											}
 										</td>
 										<td class="text-end">
-											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;">
+											<div>
 												<button
 													type="button"
 													class="btn btn-secondary btn-icon size-8"
@@ -214,18 +214,18 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/toggle", c.ID)) } class="m-0">
 													if c.Status == "active" || c.Status == "" {
-														<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning);" title="تعطيل الفئة">
+														<button type="submit" class="btn btn-secondary btn-icon" title="تعطيل الفئة">
 															@components.IconMinus("icon-xs")
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success);" title="تفعيل الفئة">
+														<button type="submit" class="btn btn-secondary btn-icon" title="تفعيل الفئة">
 															@components.IconCheck("icon-xs")
 														</button>
 													}
 												</form>
 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/delete", c.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف فئة المنتجات هذه؟');">
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--danger);" title="حذف الفئة">
+													<button type="submit" class="btn btn-secondary btn-icon" title="حذف الفئة">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -236,7 +236,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 													Title: fmt.Sprintf("تعديل فئة: %s", c.Name.Get("ar")),
 													Size:  "md",
 												}) {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/edit", c.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/edit", c.ID)) }>
 														<div class="form-grid-2">
 															<div class="form-group m-0">
 																<label class="form-label">اسم الفئة (عربي) *</label>
@@ -316,18 +316,18 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
-							<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+						<div>
+							<div>
 								{ fmt.Sprintf("عرض %d - %d من إجمالي %d فئة منتجات", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 							</div>
 
 							<!-- Page navigation numbers -->
-							<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+							<div>
 								if currentPage > 1 {
 									<a
 										href={ templ.SafeURL(buildAdminCategoriesPageURL(1, pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.65rem; font-weight:700;"
+									
 										title="الصفحة الأولى"
 									>
 										«
@@ -335,7 +335,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 									<a
 										href={ templ.SafeURL(buildAdminCategoriesPageURL(currentPage-1, pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.75rem; font-weight:700;"
+									
 									>
 										السابق
 									</a>
@@ -345,7 +345,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 									if pNum == currentPage {
 										<span
 											class="btn btn-primary btn-sm"
-											style="padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;"
+										
 										>
 											{ fmt.Sprintf("%d", pNum) }
 										</span>
@@ -353,7 +353,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 										<a
 											href={ templ.SafeURL(buildAdminCategoriesPageURL(pNum, pageSize, searchQuery, statusFilter)) }
 											class="btn btn-secondary btn-sm"
-											style="padding:0.4rem 0.85rem; font-weight:700;"
+										
 										>
 											{ fmt.Sprintf("%d", pNum) }
 										</a>
@@ -364,14 +364,14 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 									<a
 										href={ templ.SafeURL(buildAdminCategoriesPageURL(currentPage+1, pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.75rem; font-weight:700;"
+									
 									>
 										التالي
 									</a>
 									<a
 										href={ templ.SafeURL(buildAdminCategoriesPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.65rem; font-weight:700;"
+									
 										title="الصفحة الأخيرة"
 									>
 										»
@@ -391,7 +391,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 			Title: "إضافة فئة منتجات جديدة",
 			Size:  "md",
 		}) {
-			<form method="POST" action="/admin/categories/new" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+			<form method="POST" action="/admin/categories/new">
 				<div class="form-grid-2">
 					<div class="form-group m-0">
 						<label class="form-label">اسم الفئة (عربي) *</label>

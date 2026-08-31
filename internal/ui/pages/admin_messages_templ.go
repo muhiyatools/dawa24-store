@@ -115,7 +115,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><td class=\"tabular-nums\" style=\"font-weight:700; color:var(--neutral-500);\">#")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><td class=\"tabular-nums\">#")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -146,7 +146,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 						return templ_7745c5c3_Err
 					}
 					if m.Email != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"font-size:0.8rem; color:var(--neutral-500); margin-top:2px;\" dir=\"ltr\"><a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div dir=\"ltr\"><a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -159,7 +159,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" style=\"color:var(--accent); text-decoration:none;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -178,7 +178,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 						}
 					}
 					if m.Phone != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"font-size:0.8rem; color:var(--neutral-600); margin-top:2px; display:flex; align-items:center; gap:0.35rem;\" dir=\"ltr\" class=\"tabular-nums\"><span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div dir=\"ltr\" class=\"tabular-nums\"><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -210,7 +210,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--success-text); font-size:0.75rem; font-weight:700; text-decoration:none;\" title=\"محادثة واتساب\">(واتساب )</a>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" target=\"_blank\" rel=\"noopener\" title=\"محادثة واتساب\">(واتساب )</a>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -233,7 +233,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></td><td><div style=\"max-width:320px; font-size:0.875rem; color:var(--text); line-height:1.6; white-space:pre-wrap; word-break:break-word;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></td><td><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -266,7 +266,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--neutral-500);\"><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td class=\"tabular-nums\"><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -279,20 +279,20 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div style=\"font-size:0.75rem; color:var(--neutral-400);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(m.CreatedAt.Format("15:04:05"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_messages.templ`, Line: 114, Col: 101}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_messages.templ`, Line: 114, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></td><td class=\"text-end\"><div class=\"table-actions\" style=\"justify-content:flex-end; gap:0.4rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></td><td class=\"text-end\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -3,6 +3,7 @@ package catalog
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 )
 
@@ -159,7 +160,7 @@ func unmatchedSuffix(unmatched int) string {
 	if unmatched == 0 {
 		return ""
 	}
-	return fmt.Sprintf("، و%d قيمة بلا مقابل", unmatched)
+	return fmt.Sprintf(i18n.TDefault("w4_mod.d_264"), unmatched)
 }
 
 // resolveColumnMapping is the first AI request: it reads the header and a few

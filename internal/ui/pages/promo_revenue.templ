@@ -726,31 +726,15 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<!-- ========================================== -->
 			<!-- MODAL: Add New Package                     -->
 			<!-- ========================================== -->
-			<dialog
-				:open="showAddModal"
-				x-cloak
-				class="modal"
-				@keydown.escape.window="showAddModal = false"
-				@click.self="showAddModal = false"
-			>
-				<div class="modal-box modal-lg">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2.5">
-							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center shadow-2xs">
-								@components.IconPlus("icon-xs")
-							</div>
-							<div>
-								<h3 class="text-base font-black text-primary m-0">إضافة باقة رعاية وترويج جديدة</h3>
-								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">إنشاء باقة اشتراك جديدة تتيح للموردين تثبيت منتجاتهم وعروضهم</p>
-							</div>
-						</div>
-						<button type="button" class="btn btn-secondary btn-icon btn-xs" @click="showAddModal = false">
-							@components.IconClose("icon-2xs")
-						</button>
-					</div>
-
-					<form method="POST" action="/admin/offers-packages/new" class="p-6 space-y-4 m-0">
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+			@components.Modal(components.ModalProps{
+				ID:         "add-package-modal",
+				AlpineOpen: "showAddModal",
+				Title:      "????? ???? ????? ?????? ?????",
+				Subtitle:   "????? ???? ?????? ????? ???? ???????? ????? ???????? ???????",
+				Size:       "lg",
+			}) {
+				<form method="POST" action="/admin/offers-packages/new" class="p-6 space-y-4 m-0">
+						<div>
 							<!-- Name AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
@@ -764,7 +748,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+						<div>
 							<!-- Desc AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
@@ -778,7 +762,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+						<div>
 							<!-- Price -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
@@ -798,7 +782,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+						<div>
 							<!-- Tier Level -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
@@ -827,7 +811,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" class="pt-2 border-t border-slate-100">
+						<div class="pt-2 border-t border-slate-100">
 							<!-- Sort Order -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
@@ -857,40 +841,20 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- ========================================== -->
 			<!-- MODAL: Edit Existing Package               -->
 			<!-- ========================================== -->
-			<dialog
-				:open="showEditModal"
-				x-cloak
-				class="modal"
-				@keydown.escape.window="showEditModal = false"
-				@click.self="showEditModal = false"
-			>
-				<div class="modal-box modal-lg">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2.5">
-							<div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shadow-2xs">
-								@components.IconEdit("icon-xs")
-							</div>
-							<div>
-								<h3 class="text-base font-black text-primary m-0">
-									<span>تعديل باقة الرعاية: </span>
-									<span x-text="editPkg.name_ar || ('#' + editPkg.id)" class="text-brand"></span>
-								</h3>
-								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تحديث أسعار ورصيد ومستوى أولوية باقة الرعاية</p>
-							</div>
-						</div>
-						<button type="button" class="btn btn-secondary btn-icon btn-xs" @click="showEditModal = false">
-							@components.IconClose("icon-2xs")
-						</button>
-					</div>
-
-					<form method="POST" :action="'/admin/offers-packages/' + editPkg.id + '/edit'" class="p-6 space-y-4 m-0">
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+			@components.Modal(components.ModalProps{
+				ID:         "edit-package-modal",
+				AlpineOpen: "showEditModal",
+				Title:      "????? ???? ??????? ????????",
+				Subtitle:   "????? ????? ????? ?????? ?????? ???? ???????",
+				Size:       "lg",
+			}) {
+				<form method="POST" :action="'/admin/offers-packages/' + editPkg.id + '/edit'" class="p-6 space-y-4 m-0">
+						<div>
 							<!-- Name AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
@@ -904,7 +868,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+						<div>
 							<!-- Desc AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
@@ -918,7 +882,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+						<div>
 							<!-- Price -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
@@ -938,7 +902,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+						<div>
 							<!-- Tier Level -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
@@ -967,7 +931,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" class="pt-2 border-t border-slate-100">
+						<div class="pt-2 border-t border-slate-100">
 							<!-- Sort Order -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
@@ -997,30 +961,18 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- ========================================== -->
 			<!-- MODAL: Reject Sponsorship Request          -->
 			<!-- ========================================== -->
-			<dialog
-				:open="showRejectModal"
-				x-cloak
-				class="modal"
-				@keydown.escape.window="showRejectModal = false"
-				@click.self="showRejectModal = false"
-			>
-				<div class="modal-box modal-md">
-					<div class="modal-header bg-rose-50/50">
-						<div class="d-flex items-center gap-2 text-rose-700 font-black text-sm">
-							@components.IconAlertCircle("icon-xs")
-							<span>تأكيد رفض طلب الرعاية</span>
-						</div>
-						<button type="button" class="btn btn-secondary btn-icon btn-xs" @click="showRejectModal = false">
-							@components.IconClose("icon-2xs")
-						</button>
-					</div>
-					<form method="POST" :action="rejectActionUrl" class="p-6 m-0 space-y-4">
+			@components.Modal(components.ModalProps{
+				ID:         "reject-package-modal",
+				AlpineOpen: "showRejectModal",
+				Title:      "????? ??? ??? ???????",
+				Size:       "md",
+			}) {
+				<form method="POST" :action="rejectActionUrl" class="p-6 m-0 space-y-4">
 						<p class="text-xs text-secondary leading-relaxed m-0">
 							سيتم رفض طلب الرعاية وإرجاع الرصيد المستهلك إلى محفظة / رصيد المورد تلقائياً.
 						</p>
@@ -1036,8 +988,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 		</div>
 	}
 }

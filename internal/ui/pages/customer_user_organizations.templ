@@ -18,17 +18,17 @@ type CustomerUserOrgData struct {
 
 templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, perms []string) {
 	@layouts.CustomerShell("المستخدم-المنظمة | My organizations", "user_organization", lang, dir, perms) {
-		<div style="max-width:1280px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3.5rem;">
+		<div>
 
 			<!-- Notice Banner -->
 			if data != nil && data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="card" style="margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); color:var(--rose); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
+					<div class="card">
 						<span>@components.IconAlert("icon-sm")</span>
 						<strong>{ data.NoticeMsg }</strong>
 					</div>
 				} else {
-					<div class="card" style="margin:0; padding:1rem 1.25rem; background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-xl); color:var(--emerald-dark, #065f46); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
+					<div class="card">
 						<span>@components.IconCheckCircle("icon-sm")</span>
 						<strong>{ data.NoticeMsg }</strong>
 					</div>
@@ -36,33 +36,33 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 			}
 
 			<!-- Top Header Banner matching old system -->
-			<div class="card" style="margin:0; padding:1.5rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-xs);">
+			<div class="card">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-						<div style="width:42px; height:42px; border-radius:var(--radius-xl); background:rgba(37, 99, 235, 0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.3rem; border:1px solid rgba(37, 99, 235, 0.2);">
+					<div>
+						<div>
 							@components.IconBuilding("icon-sm")
 						</div>
 						<div>
-							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+							<h1>
 								My organizations (منظماتي المرتبطة)
 							</h1>
-							<span style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">Manage organization memberships & vendor connections</span>
+							<span>Manage organization memberships & vendor connections</span>
 						</div>
 					</div>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+					<p>
 						ربط الصيدلية بالموردين والشركات داخل المنصة باستخدام رقم المنظمة (Organization Number) للحصول على الأسعار المعتمدة والتسهيلات المباشرة.
 					</p>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/customer/dashboard" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.4rem;">
+				<div>
+					<a href="/customer/dashboard" class="btn btn-secondary btn-sm">
 						<span>العودة إلى لوحة التحكم ←</span>
 					</a>
 					<button
 						type="button"
 						class="btn btn-primary btn-sm fw-800"
 						data-modal-open="add-customer-user-org-modal"
-						style="gap:0.4rem; padding:0.5rem 1rem;"
+					
 					>
 						@components.IconPlus("icon-xs")
 						<span>Add organization + (إضافة منظمة)</span>
@@ -76,7 +76,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				Title: "إضافة وربط منظمة / مورد جديد",
 				Size:  "md",
 			}) {
-				<form method="POST" action="/customer/user-organization/new" style="display:flex; flex-direction:column; gap:1.2rem; text-align:start; margin:0;">
+				<form method="POST" action="/customer/user-organization/new">
 					<!-- Live AJAX Vendor Search with Debouncing -->
 					<div class="form-group m-0 relative">
 						<label class="form-label" for="customer-uo-vendor-search">
@@ -87,11 +87,11 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						<input type="hidden" id="customer-selected-vendor-id" name="vendor_org_id" required value="" />
 
 						<!-- Selected Vendor Chip Card (shown once a vendor is chosen) -->
-						<div id="customer-selected-vendor-chip" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); margin-bottom:0.5rem; justify-content:space-between; align-items:center;">
+						<div id="customer-selected-vendor-chip">
 							<div class="inline-row-06">
-								<span style="font-size:1.2rem;">@components.IconBuilding("icon-sm")</span>
+								<span>@components.IconBuilding("icon-sm")</span>
 								<div>
-									<strong id="customer-selected-vendor-name" style="color:var(--text); font-size:0.9rem;"></strong>
+									<strong id="customer-selected-vendor-name"></strong>
 									<div id="customer-selected-vendor-details" class="meta-muted" dir="ltr"></div>
 								</div>
 							</div>
@@ -108,11 +108,11 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								placeholder="ابحث باسم المورد، الشركة، أو رقم السجل..."
 								autocomplete="off"
 								class="form-control fw-700"
-								style="font-size:0.9rem; padding-inline-end:2.2rem;"
+							
 								oninput="handleCustomerVendorSearch(this.value)"
 								onfocus="handleCustomerVendorSearch(this.value)"
 							/>
-							<div id="customer-vendor-search-spinner" style="position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); display:none; font-size:0.8rem;">
+							<div id="customer-vendor-search-spinner">
 								⏳
 							</div>
 						</div>
@@ -120,7 +120,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						<!-- Autocomplete Results Dropdown -->
 						<div
 							id="customer-vendor-search-dropdown"
-							style="display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; z-index:1050; max-height:220px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-top:4px;"
+						
 						></div>
 					</div>
 
@@ -135,10 +135,10 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 							required
 							placeholder="مثال: NUM10001 أو 010645645..."
 							class="form-control fw-700"
-							style="font-family:var(--font-mono, monospace); font-size:0.95rem;"
+						
 							dir="ltr"
 						/>
-						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem; display:block;">
+						<span>
 							كود حساب الصيدلية أو رقم التعريف المسجل به لدى هذا المورد.
 						</span>
 					</div>
@@ -153,7 +153,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 							rows="2"
 							placeholder="أي تفاصيل أو ملاحظات للمورد..."
 							class="form-control"
-							style="font-size:0.85rem;"
+						
 						></textarea>
 					</div>
 
@@ -165,7 +165,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						>
 							إلغاء
 						</button>
-						<button type="submit" class="btn btn-primary fw-800" style="padding:0 1.5rem;">
+						<button type="submit" class="btn btn-primary fw-800">
 							حفظ وإرسال الطلب للمورد
 						</button>
 					</div>
@@ -179,21 +179,21 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 					Message: "يمكنك إضافة وربط حسابك بالموردين والشركات بالضغط على 'Add organization +'.",
 				})
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
+				<div>
 					for _, uo := range data.UserOrgs {
 						if uo != nil {
 							<div
 								class="card"
-								style="margin:0; padding:1.35rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.2rem; box-shadow:0 4px 16px rgba(0,0,0,0.04); transition:transform 0.2s ease, box-shadow 0.2s ease;"
+							
 							>
 								<!-- Card Header -->
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem;">
+								<div>
 									<div class="d-flex items-center gap-3">
-										<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0;">
+										<div>
 											@components.IconBuilding("icon-sm")
 										</div>
 										<div>
-											<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+											<h3>
 												{ uo.VendorOrgName }
 											</h3>
 											<span class="label-strong">
@@ -206,36 +206,36 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 									<div>
 										switch uo.Status {
 											case org.UserOrgStatusApproved:
-												<span class="badge badge-emerald text-xs fw-800" style="padding:0.35rem 0.65rem;">Approval </span>
+												<span class="badge badge-emerald text-xs fw-800">Approval </span>
 											case org.UserOrgStatusRejected:
-												<span class="badge badge-rose text-xs fw-800" style="padding:0.35rem 0.65rem;">مرفوض </span>
+												<span class="badge badge-rose text-xs fw-800">مرفوض </span>
 											default:
-												<span class="badge badge-amber text-xs fw-800" style="padding:0.35rem 0.65rem;">قيد الانتظار</span>
+												<span class="badge badge-amber text-xs fw-800">قيد الانتظار</span>
 										}
 									</div>
 								</div>
 
 								<!-- Card Body: Organization Number Display -->
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; text-align:center;">
-									<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
+								<div>
+									<div>
 										رقم المنظمة (Organization Number)
 									</div>
-									<div class="tabular-nums fw-900" style="font-size:1.4rem; color:var(--primary); font-family:var(--font-mono, monospace); letter-spacing:0.05em;" dir="ltr">
+									<div class="tabular-nums fw-900" dir="ltr">
 										{ uo.OrganizationNumber }
 									</div>
 									if uo.Notes != "" {
-										<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.4rem; border-top:1px dashed var(--border); padding-top:0.4rem;">
+										<div>
 											{ uo.Notes }
 										</div>
 									}
 								</div>
 
 								<!-- Card Footer: Actions & Date -->
-								<div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.6rem; border-top:1px solid var(--border-subtle);">
+								<div>
 									<div class="inline-row-04">
 										<!-- Delete Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
-											<button type="submit" class="btn btn-secondary btn-sm" style="padding:0.35rem 0.5rem; color:var(--rose);" title="حذف الربط">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
+											<button type="submit" class="btn btn-secondary btn-sm" title="حذف الربط">
 												@components.IconTrash("icon-xs")
 											</button>
 										</form>
@@ -244,7 +244,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 										<button
 											type="button"
 											class="btn btn-secondary btn-sm"
-											style="padding:0.35rem 0.5rem;"
+										
 											title="تعديل رقم المنظمة"
 											data-modal-open={ fmt.Sprintf("edit-uo-modal-%d", uo.ID) }
 										>
@@ -263,7 +263,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 									Title: fmt.Sprintf("تعديل بيانات الربط مع %s", uo.VendorOrgName),
 									Size:  "md",
 								}) {
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start; margin:0;">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)) }>
 										<div class="form-group m-0">
 											<label class="form-label" for={ fmt.Sprintf("edit-uo-num-%d", uo.ID) }>
 												رقم المنظمة (Organization Number) *
@@ -275,7 +275,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 												value={ uo.OrganizationNumber }
 												required
 												class="form-control fw-700"
-												style="font-family:var(--font-mono, monospace); font-size:0.95rem;"
+											
 												dir="ltr"
 											/>
 										</div>
@@ -289,7 +289,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 												name="notes"
 												rows="2"
 												class="form-control"
-												style="font-size:0.85rem;"
+											
 											>{ uo.Notes }</textarea>
 										</div>
 
@@ -341,7 +341,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						.then(vendors => {
 							if (spinner) spinner.style.display = 'none';
 							if (!vendors || vendors.length === 0) {
-								dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.85rem; text-align:center;">لا توجد شركات أو موردين مطابقين</div>';
+								dropdown.innerHTML = '<div>لا توجد شركات أو موردين مطابقين</div>';
 								dropdown.style.display = 'block';
 								return;
 							}
@@ -355,12 +355,12 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								html += `
 									<div
 										onclick="selectCustomerVendor(${v.id}, '${safeName}', '${safeLegal}', '${safeOrgNum}', '${safeTax}')"
-										style="padding:0.65rem 0.9rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; transition:background 0.15s;"
+									
 										onmouseenter="this.style.background='var(--surface-sunken)'"
 										onmouseleave="this.style.background='transparent'"
 									>
 										<div>
-											<strong style="font-size:0.875rem; color:var(--text);">${v.name}</strong>
+											<strong>${v.name}</strong>
 											<div class="meta-muted" dir="ltr">${v.organization_number ? 'كود: ' + v.organization_number + ' • ' : ''}${v.tax_number ? 'ب.ض: ' + v.tax_number : ''}</div>
 										</div>
 										<span class="badge badge-sky text-xs">#${v.id}</span>
@@ -372,7 +372,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						})
 						.catch(err => {
 							if (spinner) spinner.style.display = 'none';
-							dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--danger); font-size:0.85rem; text-align:center;">حدث خطأ أثناء البحث</div>';
+							dropdown.innerHTML = '<div>حدث خطأ أثناء البحث</div>';
 							dropdown.style.display = 'block';
 						});
 				}, 250);

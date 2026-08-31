@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -73,7 +74,7 @@ type SupplierOffer struct {
 	DistanceKM       float64
 	DistanceText     string
 	IsCovered        bool
-	CoverageReason   string // e.g. "مفيش فرع بيوصل لموقعك للمنتج ده"
+	CoverageReason   string // e.g. i18n.TDefault("w4m_ui.s_3_3")
 	CanAddToCart     bool
 	IsNegotiable     bool
 	IsSponsored      bool // promoted via sponsorship package

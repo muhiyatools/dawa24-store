@@ -409,7 +409,7 @@ func (r *Repository) ListUserOrganizations(ctx context.Context, userID int64) ([
 func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
 	maxSessions = 3
 	maxDevices = 3
-	planName = "الباقة الأساسية"
+	planName = i18n.TDefault("w4_mod.s_378_378")
 
 	err = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		if orgID > 0 {

@@ -1,12 +1,12 @@
 package ui
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"os"
 	"path/filepath"
 	"sort"
@@ -225,7 +225,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 		localPath := filepath.Join(prodUploadDir, fileName)
 		if err := os.WriteFile(localPath, imgData, 0644); err != nil {
 			itemRow.Status = "download_failed"
-			itemRow.ErrorMsg = "تعذر حفظ الصورة على السيرفر"
+			itemRow.ErrorMsg = i18n.TDefault("w4_ui.s_7_7")
 			errorCount++
 			outRows = append(outRows, itemRow)
 			continue

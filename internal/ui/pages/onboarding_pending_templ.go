@@ -49,12 +49,12 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);\"><div class=\"card hover-lift\" style=\"width:100%; max-width:520px; padding:2.5rem; text-align:center; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl);\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.5rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><div class=\"card hover-lift\"><a href=\"/\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\"></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if rejected {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"width:64px; height:64px; border-radius:var(--radius-xl); margin:0 auto 1.25rem; display:flex; align-items:center; justify-content:center; background:var(--danger-light); color:var(--danger);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -67,7 +67,7 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div style=\"width:64px; height:64px; border-radius:var(--radius-xl); margin:0 auto 1.25rem; display:flex; align-items:center; justify-content:center; background:var(--warning-light); color:var(--warning);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -81,7 +81,7 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 				}
 			}
 			if rejected {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<h1 style=\"font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;\">تم رفض طلب الانضمام</h1><p style=\"color:var(--neutral-600); line-height:1.7; margin-bottom:1.5rem;\">عذراً، لم يتم اعتماد حساب مؤسستك في الوقت الحالي. تواصل مع فريق الدعم لمعرفة السبب واستكمال أي مستندات ناقصة.</p><a href=\"/contact\" class=\"btn btn-primary\" style=\"justify-content:center;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<h1>تم رفض طلب الانضمام</h1><p>عذراً، لم يتم اعتماد حساب مؤسستك في الوقت الحالي. تواصل مع فريق الدعم لمعرفة السبب واستكمال أي مستندات ناقصة.</p><a href=\"/contact\" class=\"btn btn-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -94,7 +94,7 @@ func OnboardingPending(lang, dir string, rejected bool) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<h1 style=\"font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;\">حسابك قيد المراجعة</h1><p style=\"color:var(--neutral-600); line-height:1.7; margin-bottom:1.5rem;\">تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دواء 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب لتبدأ العمل على المنصة.</p><div style=\"background:var(--neutral-50); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem; text-align:start;\"><div style=\"font-weight:700; color:var(--neutral-800); margin-bottom:0.35rem;\">ماذا يحدث بعد ذلك؟</div><ul style=\"margin:0; padding-inline-start:1.25rem; color:var(--neutral-600); font-size:0.9rem; line-height:1.9;\"><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><a href=\"/\" class=\"btn btn-secondary\" style=\"justify-content:center;\">العودة للصفحة الرئيسية</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<h1>حسابك قيد المراجعة</h1><p>تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دواء 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب لتبدأ العمل على المنصة.</p><div><div>ماذا يحدث بعد ذلك؟</div><ul><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><a href=\"/\" class=\"btn btn-secondary\">العودة للصفحة الرئيسية</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

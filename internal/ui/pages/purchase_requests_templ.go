@@ -58,7 +58,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء والتوريد</h1><p class=\"text-sm text-secondary m-0 mt-1\">اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج الأصناف، أو تجهيز طلب ذكي من ملف.</p></div></div></div></div></div><!-- 3 Direct Options Grid --><div class=\"dashboard-grid-3col mb-0\"><!-- Option 1: By Supplier --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/suppliers'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\" style=\"width:64px; height:64px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء والتوريد</h1><p class=\"text-sm text-secondary m-0 mt-1\">اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج الأصناف، أو تجهيز طلب ذكي من ملف.</p></div></div></div></div></div><!-- 3 Direct Options Grid --><div class=\"dashboard-grid-3col mb-0\"><!-- Option 1: By Supplier --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/suppliers'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -74,7 +74,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</a></div><!-- Option 2: By Products --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/catalog'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\" style=\"width:64px; height:64px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</a></div><!-- Option 2: By Products --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer\" onclick=\"window.location='/catalog'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -90,7 +90,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</a></div><!-- Option 3: Smart Ordering --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer border-brand\" onclick=\"window.location='/customer/smart-order/new'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\" style=\"width:64px; height:64px; background:var(--accent-subtle); color:var(--accent);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</a></div><!-- Option 3: Smart Ordering --><div class=\"glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer border-brand\" onclick=\"window.location='/customer/smart-order/new'\"><div><div class=\"user-avatar-badge text-2xl mx-auto mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -472,7 +472,7 @@ func VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purchas
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"d-flex flex-col gap-6 m-0\"><div class=\"glass-panel p-6 mb-0\"><h2 class=\"text-base font-extrabold text-primary m-0 mb-4 pb-3 border-b\">الأصناف المطلوبة</h2><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف</th><th class=\"text-center\">الكمية</th><th class=\"text-end\">السعر المستهدف</th><th class=\"text-center\">الخصم المطلوب</th><th class=\"text-end\" style=\"width:130px;\">السعر المعروض</th><th class=\"text-center\" style=\"width:110px;\">الخصم المعروض %</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"d-flex flex-col gap-6 m-0\"><div class=\"glass-panel p-6 mb-0\"><h2 class=\"text-base font-extrabold text-primary m-0 mb-4 pb-3 border-b\">الأصناف المطلوبة</h2><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف</th><th class=\"text-center\">الكمية</th><th class=\"text-end\">السعر المستهدف</th><th class=\"text-center\">الخصم المطلوب</th><th class=\"text-end\">السعر المعروض</th><th class=\"text-center\">الخصم المعروض %</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -599,7 +599,7 @@ func VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purchas
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div></div><div class=\"glass-panel p-6 mb-0\"><div class=\"mb-4\"><label class=\"form-label text-xs font-bold text-primary mb-1\">القرار والحالة</label> <select name=\"status\" class=\"form-input text-xs\" style=\"max-width:300px;\"><option value=\"approved\">قبول وتأكيد الطلب</option> <option value=\"processing\">قبول وقيد التجهيز</option> <option value=\"cancelled\">اعتذار / رفض الطلب</option></select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1\">ملاحظات التوريد الموجهة للصيدلية</label> <textarea name=\"vendor_notes\" rows=\"3\" class=\"form-input text-xs w-full\" placeholder=\"اكتب أية شروط أو ملاحظات للمشتري...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div></div><div class=\"glass-panel p-6 mb-0\"><div class=\"mb-4\"><label class=\"form-label text-xs font-bold text-primary mb-1\">القرار والحالة</label> <select name=\"status\" class=\"form-input text-xs\"><option value=\"approved\">قبول وتأكيد الطلب</option> <option value=\"processing\">قبول وقيد التجهيز</option> <option value=\"cancelled\">اعتذار / رفض الطلب</option></select></div><div><label class=\"form-label text-xs font-bold text-primary mb-1\">ملاحظات التوريد الموجهة للصيدلية</label> <textarea name=\"vendor_notes\" rows=\"3\" class=\"form-input text-xs w-full\" placeholder=\"اكتب أية شروط أو ملاحظات للمشتري...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

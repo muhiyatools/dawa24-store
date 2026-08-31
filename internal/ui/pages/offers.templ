@@ -53,7 +53,7 @@ templ OffersPage(lang, dir string, offers []*OfferCardData) {
 }
 
 templ OffersContent(lang string, offers []*OfferCardData) {
-	<div class="page-container py-6" style="max-width:1300px; margin:0 auto; padding-bottom:3rem;">
+	<div class="page-container py-6">
 
 		<!-- Header Banner -->
 		<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
@@ -142,7 +142,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 									</div>
 
 									if o.OrganizationName != "" {
-										<span class="badge badge-slate text-xs font-bold text-truncate shadow-2xs" style="max-width:150px;">
+										<span class="badge badge-slate text-xs font-bold text-truncate shadow-2xs">
 											{ o.OrganizationName }
 										</span>
 									}
@@ -159,7 +159,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 								</p>
 
 								<!-- Key Offer Metrics Strip -->
-								<div class="d-grid gap-2 p-3 bg-surface-sunken rounded-xl border border-slate-200/70 mb-4 text-xs" style="grid-template-columns: 1fr 1fr;">
+								<div class="d-grid gap-2 p-3 bg-surface-sunken rounded-xl border border-slate-200/70 mb-4 text-xs">
 									<div>
 										<span class="text-muted d-block mb-1 font-semibold">الأصناف المشمولة:</span>
 										<strong class="text-primary font-bold tabular-nums">
@@ -215,7 +215,7 @@ templ OfferDetail(lang, dir string, data OfferDetailPageData) {
 }
 
 templ OfferDetailContent(lang string, data OfferDetailPageData) {
-	<div class="page-container py-6" style="max-width:1150px; margin:0 auto; padding-bottom:3rem;">
+	<div class="page-container py-6">
 		
 		<!-- Back Button & Breadcrumbs -->
 		<div class="mb-4">
@@ -271,7 +271,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 			</div>
 
 			<!-- Offer Validity & Summary Grid -->
-			<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border border-slate-200/70 mb-6 text-xs" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+			<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border border-slate-200/70 mb-6 text-xs">
 				<div>
 					<span class="text-muted font-bold d-block mb-1">المورد / المنشأة:</span>
 					<strong class="text-primary text-sm font-extrabold d-block">
@@ -328,13 +328,13 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 						<form action="/cart/add-offer" method="POST" class="m-0 d-flex items-center gap-3">
 							<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", data.Offer.ID) } />
 							<input type="hidden" name="quantity" value="1" />
-							<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm hover:shadow-md transition-all" style="border-radius: 10px;">
+							<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm hover:shadow-md transition-all">
 								@components.IconCart("icon-xs")
 								<span>إضافة العرض للسلة والشراء الآن</span>
 							</button>
 						</form>
 					} else {
-						<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)) } class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm" style="border-radius: 10px;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)) } class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm">
 							@components.IconShield("icon-xs")
 							<span>تسجيل الدخول كصيدلية لشراء العرض</span>
 						</a>
@@ -362,11 +362,11 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 							<thead>
 								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
 									<th class="py-3 text-start ps-4">اسم الصنف / الدواء</th>
-									<th style="width:140px;" class="text-center py-3">الكمية بالباقة</th>
-									<th style="width:140px;" class="text-end py-3">سعر الجمهور الأصلي</th>
-									<th style="width:130px;" class="text-center py-3">نسبة الخصم</th>
-									<th style="width:150px;" class="text-end py-3">سعر الصنف بالعرض</th>
-									<th style="width:150px;" class="text-end py-3 pe-4">الإجمالي الصافي</th>
+									<th class="text-center py-3">الكمية بالباقة</th>
+									<th class="text-end py-3">سعر الجمهور الأصلي</th>
+									<th class="text-center py-3">نسبة الخصم</th>
+									<th class="text-end py-3">سعر الصنف بالعرض</th>
+									<th class="text-end py-3 pe-4">الإجمالي الصافي</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">

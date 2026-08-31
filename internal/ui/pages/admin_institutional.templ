@@ -166,7 +166,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 
 			<!-- Search & Filter Controls -->
 			<div class="glass-panel p-4 mb-6 flex-between items-center gap-4 flex-wrap">
-				<div class="d-flex items-center gap-3 flex-1" style="max-width:480px;">
+				<div class="d-flex items-center gap-3 flex-1">
 					<input
 						type="text"
 						x-model="searchQuery"
@@ -200,22 +200,22 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 				<div class="table-container m-0">
 					<table class="data-table m-0">
 						<thead>
-							<tr style="background:var(--surface); border-bottom:1px solid var(--border); text-align:start;">
-								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">الكيان والنشاط التجاري</th>
-								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">التصنيف الأب</th>
-								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">الاتصالات المسموح بها (يتصل بـ)</th>
-								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">التغطية والتسعير</th>
-								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-align:center;">الحالة</th>
-								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-align:end;">الإجراءات</th>
+							<tr>
+								<th>الكيان والنشاط التجاري</th>
+								<th>التصنيف الأب</th>
+								<th>الاتصالات المسموح بها (يتصل بـ)</th>
+								<th>التغطية والتسعير</th>
+								<th>الحالة</th>
+								<th>الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
 							if len(allWorks) == 0 {
 								<tr>
-									<td colspan="6" style="padding:3rem; text-align:center; color:var(--text-muted);">
-										<div style="font-size:2.5rem; margin-bottom:0.5rem;">@components.IconBank("icon-sm")</div>
-										<div style="font-weight:700; font-size:1rem; color:var(--text);">لا توجد كيانات مؤسسية مسجلة حالياً</div>
-										<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
+									<td colspan="6">
+										<div>@components.IconBank("icon-sm")</div>
+										<div>لا توجد كيانات مؤسسية مسجلة حالياً</div>
+										<div>
 											اضغط على "إضافة كيان مؤسسي جديد" لإنشاء أول تصنيف في الهيكل.
 										</div>
 									</td>
@@ -223,7 +223,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 							} else {
 								for _, item := range allWorks {
 									<tr
-										style="border-bottom:1px solid var(--border); transition:background 150ms;"
+									
 										x-show={ fmt.Sprintf("(statusFilter === 'all' || (statusFilter === 'active' && %t)) && (searchQuery === '' || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase()))", item.IsActive, item.Title.Get("ar"), item.Title.Get("en")) }
 									>
 										<!-- 1. Title & Hierarchy -->
@@ -237,30 +237,30 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 												}
 												
 												<!-- Icon Graphic -->
-												<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+												<div>
 													@renderVisualIcon(item.Icon, "icon-xs")
 												</div>
 
 												<div>
 													<div class="inline-row-wrap">
-														<span style="font-weight:800; font-size:0.95rem; color:var(--text);">
+														<span>
 															{ item.Title.Get("ar") }
 														</span>
 														if item.Level == 0 {
-															<span class="badge badge-sky" style="font-size:0.65rem; padding:0.15rem 0.45rem;">فئة رئيسية</span>
+															<span class="badge badge-sky">فئة رئيسية</span>
 														} else {
-															<span class="badge badge-slate" style="font-size:0.65rem; padding:0.15rem 0.45rem;">
+															<span class="badge badge-slate">
 																{ fmt.Sprintf("مستوى %d", item.Level) }
 															</span>
 														}
 													</div>
 													if item.Title.Get("en") != "" {
-														<div style="font-size:0.775rem; color:var(--text-muted); margin-top:2px;">
+														<div>
 															{ item.Title.Get("en") }
 														</div>
 													}
 													if item.Description.Get("ar") != "" {
-														<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:4px; max-width:320px; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={ item.Description.Get("ar") }>
+														<div title={ item.Description.Get("ar") }>
 															{ item.Description.Get("ar") }
 														</div>
 													}
@@ -282,43 +282,43 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										<!-- 3. Allowed Connections (يتصل بـ) -->
 										<td class="p-card-sm">
 											if len(item.AllowedConnectionNames) > 0 {
-												<div style="display:flex; flex-wrap:wrap; gap:0.35rem; max-width:320px;">
+												<div>
 													for _, name := range item.AllowedConnectionNames {
-														<span class="badge badge-slate" style="font-size:0.7rem; font-weight:600; padding:0.2rem 0.5rem;">
+														<span class="badge badge-slate">
 															{ name }
 														</span>
 													}
 												</div>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.775rem;">لا توجد اتصالات محددة</span>
+												<span>لا توجد اتصالات محددة</span>
 											}
 										</td>
 
 										<!-- 4. View Type & Pricing -->
 										<td class="p-card-sm">
-											<div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;">
+											<div>
 												if item.ViewType == 2 {
-													<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700;">
+													<span class="badge badge-sky">
 														صيدلية (Pharmacy) - 2
 													</span>
 												} else {
-													<span class="badge badge-slate" style="font-size:0.7rem; font-weight:700;">
+													<span class="badge badge-slate">
 														تغطية عادية - 1
 													</span>
 												}
-												<span class={ "badge", pricingBadgeClass(string(item.PricingType)) } style="font-size:0.7rem; font-weight:700;">
+												<span class={ "badge", pricingBadgeClass(string(item.PricingType)) }>
 													{ pricingTypeAr(string(item.PricingType)) }
 												</span>
 											</div>
 										</td>
 
 										<!-- 5. Active Status Toggle -->
-										<td style="padding:1rem 1.25rem; text-align:center;">
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", item.ID)) } style="margin:0; display:inline-block;">
+										<td>
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", item.ID)) }>
 												<button
 													type="submit"
 													class={ "badge", templ.KV("badge-emerald", item.IsActive), templ.KV("badge-danger", !item.IsActive) }
-													style="cursor:pointer; border:none; padding:0.35rem 0.75rem; font-weight:800; font-size:0.75rem; display:inline-flex; align-items:center; gap:0.35rem;"
+												
 													title={ ternary(item.IsActive, "انقر للتعطيل", "انقر للتفعيل") }
 												>
 													if item.IsActive {
@@ -332,19 +332,19 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										</td>
 
 										<!-- 6. Actions -->
-										<td style="padding:1rem 1.25rem; text-align:end;">
-											<div style="display:flex; align-items:center; justify-content:flex-end; gap:0.4rem;">
+										<td>
+											<div>
 												<button
 													type="button"
 													class="btn btn-secondary btn-icon"
-													style="width:34px; height:34px; color:var(--accent);"
+												
 													title="تعديل الكيان"
 													@click={ fmt.Sprintf("openEditModal(%s)", entityToJSON(item)) }
 												>
 													@components.IconEdit("icon-xs")
 												</button>
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", item.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الكيان المؤسسي؟');">
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:34px; height:34px; color:var(--danger);" title="حذف">
+													<button type="submit" class="btn btn-secondary btn-icon" title="حذف">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -359,34 +359,12 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 			</div>
 
 			<!-- Unified Modal: Create / Edit Institutional Work (High-Craft) -->
-			<dialog
-				id="institutional-modal"
-				class="modal"
-				aria-labelledby="institutional-modal-title"
-			>
-				<div class="modal-box modal-lg">
-					<!-- Modal Header -->
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2">
-							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-								@components.IconBuilding("icon-sm")
-							</div>
-							<div>
-								<h3 id="institutional-modal-title" class="modal-title" x-text="isEdit ? 'تعديل بيانات الكيان المؤسسي' : 'إضافة كيان ونشاط مؤسسي جديد'"></h3>
-								<p class="text-xs text-muted m-0 mt-0.5">
-									تحديد الهيكل، التسعير، الأيقونة، وحالة التفعيل والاتصالات التجارية المسموح بها
-								</p>
-							</div>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<!-- Form -->
-					<form
+			@components.Modal(components.ModalProps{
+				ID:    "institutional-modal",
+				Title: "????? ?????? ??????? ???????",
+				Size:  "lg",
+			}) {
+				<form
 						:action="isEdit ? ('/admin/institutional/' + form.id) : '/admin/institutional/new'"
 						method="POST"
 						class="d-flex flex-col gap-4 m-0"
@@ -400,7 +378,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 								</div>
 								<label class="d-flex items-center gap-2 cursor-pointer m-0">
 									<span class="text-xs font-bold text-primary">الحالة نشطة</span>
-									<input type="checkbox" name="is_active" value="true" x-model="form.is_active" class="cursor-pointer" style="width:18px; height:18px; accent-color:var(--accent);"/>
+									<input type="checkbox" name="is_active" value="true" x-model="form.is_active" class="cursor-pointer"/>
 								</label>
 							</div>
 
@@ -473,7 +451,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 							<div class="form-group m-0">
 								<label class="form-label font-bold">اختيار أيقونة الكيان المؤسسي (Visual Icon Picker)</label>
 								<input type="hidden" name="icon" :value="form.icon"/>
-								<div class="d-grid gap-2 p-2 bg-surface-sunken border rounded-xl overflow-y-auto max-h-40" style="grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));">
+								<div class="d-grid gap-2 p-2 bg-surface-sunken border rounded-xl overflow-y-auto max-h-40">
 									<template x-for="ic in availableIcons" :key="ic.id">
 										<button
 											type="button"
@@ -500,7 +478,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 								</div>
 
 								if len(allWorks) > 0 {
-									<div class="d-grid gap-2 p-3 bg-surface-sunken border rounded-xl overflow-y-auto max-h-48" style="grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));">
+									<div class="d-grid gap-2 p-3 bg-surface-sunken border rounded-xl overflow-y-auto max-h-48">
 										for _, target := range allWorks {
 											<label
 												class="flex-between items-center p-2 bg-surface-raised border rounded-lg cursor-pointer gap-2"
@@ -523,7 +501,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 													:checked={ fmt.Sprintf("isConnectionSelected(%d)", target.ID) }
 													@change={ fmt.Sprintf("toggleConnection(%d)", target.ID) }
 													class="cursor-pointer"
-													style="width:16px; height:16px; accent-color:var(--accent);"
+												
 												/>
 											</label>
 										}
@@ -543,8 +521,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 		</div>
 

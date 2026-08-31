@@ -329,11 +329,11 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 										p.DosageForm,
 										p.Status) }
 								>
-									<td style="width:50px;">
+									<td>
 										if p.Image != "" {
-											<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } style="width:42px; height:42px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--surface-raised); padding:2px;" />
+											<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } />
 										} else {
-											<div style="width:42px; height:42px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); border:1px solid var(--border);">
+											<div>
 												@components.IconPill("icon-xs")
 											</div>
 										}
@@ -344,11 +344,11 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 											<div class="text-xs text-muted">{ p.Name.Get("en") }</div>
 										}
 										if p.Barcode != "" {
-											<div style="font-size:0.725rem; color:var(--text-secondary); margin-top:2px;" class="tabular-nums">EDA: { p.Barcode }</div>
+											<div class="tabular-nums">EDA: { p.Barcode }</div>
 										}
 									</td>
 									<td>
-										<div style="font-weight:700; color:var(--accent); font-size:0.875rem;">{ p.ScientificName }</div>
+										<div>{ p.ScientificName }</div>
 										if p.Active != "" {
 											<div class="text-xs text-secondary">{ p.Active }</div>
 										}
@@ -363,13 +363,13 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									</td>
 									<td>
 										if p.BrandID != nil && *p.BrandID > 0 {
-											<a href="/admin/brands" class="badge badge-sky" style="font-weight:700; text-decoration:none;" title="عرض تفاصيل الشركة المصنعة">
+											<a href="/admin/brands" class="badge badge-sky" title="عرض تفاصيل الشركة المصنعة">
 												{ getBrandLabel(p.BrandID, brands, p.ManufacturingCompanies) }
 											</a>
 										} else if p.ManufacturingCompanies != "" {
-											<span style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">{ p.ManufacturingCompanies }</span>
+											<span>{ p.ManufacturingCompanies }</span>
 										} else {
-											<span style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">غير محدد</span>
+											<span>غير محدد</span>
 										}
 									</td>
 									<td>
@@ -380,13 +380,13 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 										}
 									</td>
 									<td class="text-end">
-										<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
+										<div class="table-actions">
 											
 											<!-- Edit Button -->
 											<button
 												type="button"
 												class="btn btn-secondary btn-icon"
-												style="width:32px; height:32px; color:var(--accent);"
+											
 												title="تعديل بيانات الدواء"
 												@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d, %q, %q, %q, %q, %q, %q, %q)",
 													p.ID,
@@ -412,7 +412,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 											if p.Status == "pending" || p.Status == "inactive" || p.Status == "rejected" {
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)) } class="m-0">
 													<input type="hidden" name="status" value="active" />
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--success-text);" title="تفعيل الصنف">
+													<button type="submit" class="btn btn-secondary btn-icon" title="تفعيل الصنف">
 														@components.IconCheck("icon-xs")
 													</button>
 												</form>
@@ -420,7 +420,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 											if p.Status == "active" {
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)) } class="m-0">
 													<input type="hidden" name="status" value="inactive" />
-													<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--warning-text);" title="إيقاف الصنف">
+													<button type="submit" class="btn btn-secondary btn-icon" title="إيقاف الصنف">
 														@components.IconMinus("icon-xs")
 													</button>
 												</form>
@@ -428,7 +428,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 
 											<!-- Delete Button -->
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/delete", p.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الصنف الدوائي الأساسي؟');">
-												<button type="submit" class="btn btn-secondary btn-icon" style="width:32px; height:32px; color:var(--danger);" title="حذف الصنف">
+												<button type="submit" class="btn btn-secondary btn-icon" title="حذف الصنف">
 													@components.IconTrash("icon-xs")
 												</button>
 											</form>
@@ -442,18 +442,18 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 
 				<!-- Pagination Controls -->
 				if totalCount > 0 {
-					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
-						<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+					<div>
+						<div>
 							{ fmt.Sprintf("عرض %d - %d من إجمالي %d صنف معتمد", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 						</div>
 
 						<!-- Page navigation numbers -->
-						<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+						<div>
 							if currentPage > 1 {
 								<a
 									href={ templ.SafeURL(buildAdminProductsPageURL(1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
 									class="btn btn-secondary btn-sm"
-									style="padding:0.4rem 0.65rem; font-weight:700;"
+								
 									title="الصفحة الأولى"
 								>
 									«
@@ -461,7 +461,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								<a
 									href={ templ.SafeURL(buildAdminProductsPageURL(currentPage-1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
 									class="btn btn-secondary btn-sm"
-									style="padding:0.4rem 0.75rem; font-weight:700;"
+								
 								>
 									السابق
 								</a>
@@ -471,7 +471,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								if pNum == currentPage {
 									<span
 										class="btn btn-primary btn-sm"
-										style="padding:0.4rem 0.85rem; font-weight:800; pointer-events:none;"
+									
 									>
 										{ fmt.Sprintf("%d", pNum) }
 									</span>
@@ -479,7 +479,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 									<a
 										href={ templ.SafeURL(buildAdminProductsPageURL(pNum, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
 										class="btn btn-secondary btn-sm"
-										style="padding:0.4rem 0.85rem; font-weight:700;"
+									
 									>
 										{ fmt.Sprintf("%d", pNum) }
 									</a>
@@ -490,14 +490,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								<a
 									href={ templ.SafeURL(buildAdminProductsPageURL(currentPage+1, pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
 									class="btn btn-secondary btn-sm"
-									style="padding:0.4rem 0.75rem; font-weight:700;"
+								
 								>
 									التالي
 								</a>
 								<a
 									href={ templ.SafeURL(buildAdminProductsPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter, dosageFilter, brandFilterVal, catFilterVal)) }
 									class="btn btn-secondary btn-sm"
-									style="padding:0.4rem 0.65rem; font-weight:700;"
+								
 									title="الصفحة الأخيرة"
 								>
 									»
@@ -510,29 +510,12 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			</div>
 
 			<!-- Master Product Creation Modal -->
-			<dialog
-				id="product-create-modal"
-				class="modal"
-				aria-labelledby="product-create-title"
-			>
-				<div class="modal-box modal-lg">
-					<div class="modal-header">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
-								@components.IconPlus("icon-xs")
-							</div>
-							<h3 id="product-create-title" class="modal-title">
-								إضافة صنف دوائي معتمد جديد
-							</h3>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form action="/admin/products/new" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:    "product-create-modal",
+				Title: "????? ??? ????? ????? ????",
+				Size:  "lg",
+			}) {
+				<form action="/admin/products/new" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-4">
 							<div class="form-grid-2">
 								<div class="form-group m-0">
@@ -611,7 +594,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								</div>
 								<div class="form-group m-0">
 									<label class="form-label">صورة الصنف (رفع ملف)</label>
-									<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
+									<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" />
 								</div>
 							</div>
 
@@ -635,33 +618,15 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 			<!-- Master Product Edit Modal -->
-			<dialog
-				id="product-edit-modal"
-				class="modal"
-				aria-labelledby="product-edit-title"
-			>
-				<div class="modal-box modal-lg">
-					<div class="modal-header">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
-								@components.IconEdit("icon-xs")
-							</div>
-							<h3 id="product-edit-title" class="modal-title">
-								تعديل بيانات الصنف الدوائي المعتمد
-							</h3>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form :action="'/admin/products/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:    "product-edit-modal",
+				Title: "????? ?????? ????? ???????",
+				Size:  "lg",
+			}) {
+				<form :action="'/admin/products/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-4">
 							<div class="form-grid-2">
 								<div class="form-group m-0">
@@ -740,7 +705,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 								</div>
 								<div class="form-group m-0">
 									<label class="form-label">تغيير الصورة</label>
-									<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
+									<input type="file" name="product_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" />
 								</div>
 							</div>
 
@@ -778,8 +743,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 		</div>
 	}

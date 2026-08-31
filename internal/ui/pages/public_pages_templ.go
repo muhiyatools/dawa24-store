@@ -46,7 +46,7 @@ func PrivacyPolicy() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\" style=\"max-width:880px; margin:2rem auto; padding:2.5rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -54,7 +54,7 @@ func PrivacyPolicy() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;\">سياسة الخصوصية — دواء 24</h1></div><p style=\"color:var(--neutral-700); line-height:1.9; margin-bottom:1.5rem; font-size:0.95rem;\">نحن في منصة دواء 24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والمؤسسات الطبية المعتمدة.</p><h2 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin-top:1.75rem; margin-bottom:0.75rem;\">جمع واستخدام البيانات</h2><p style=\"color:var(--neutral-600); line-height:1.8; font-size:0.925rem;\">يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية ومطابقتها للمواصفات والقوانين المصرية.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h1>سياسة الخصوصية — دواء 24</h1></div><p>نحن في منصة دواء 24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والمؤسسات الطبية المعتمدة.</p><h2>جمع واستخدام البيانات</h2><p>يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية ومطابقتها للمواصفات والقوانين المصرية.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -101,7 +101,7 @@ func TermsOfService() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\" style=\"max-width:880px; margin:2rem auto; padding:2.5rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func TermsOfService() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<h1 style=\"font-size:1.65rem; font-weight:900; color:var(--neutral-900); margin:0;\">شروط الاستخدام والخدمة — دواء 24</h1></div><p style=\"color:var(--neutral-700); line-height:1.9; font-size:0.95rem;\">باستخدامك لمنصة دواء 24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية، والالتزام بمعايير الحفظ والتخزين والتسليم المعتمدة.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<h1>شروط الاستخدام والخدمة — دواء 24</h1></div><p>باستخدامك لمنصة دواء 24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية، والالتزام بمعايير الحفظ والتخزين والتسليم المعتمدة.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

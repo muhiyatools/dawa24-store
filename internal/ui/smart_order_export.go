@@ -14,7 +14,7 @@ import (
 
 // Exporting a run's results.
 //
-// The results screen has always offered "تصدير النتائج"; until now the link led
+// The results screen has always offered i18n.TDefault("w4_ui.s_101_101"); until now the link led
 // nowhere, which is the worst version of an export — a button a buyer clicks
 // when they need the data most.
 //

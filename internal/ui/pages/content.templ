@@ -9,23 +9,23 @@ import (
 // loaded directly from the platform_admin.policies database table.
 templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 	@layouts.PublicShell(title+" | دواء 24", lang, dir) {
-		<div style="max-width:920px; margin:2rem auto; padding:0 1rem;">
+		<div>
 			
 			<!-- Breadcrumbs -->
-			<div style="display:flex; align-items:center; gap:0.5rem; font-size:var(--text-xs); color:var(--text-muted); margin-bottom:1.25rem;">
-				<a href="/" style="color:var(--text-muted); text-decoration:none;">الرئيسية</a>
+			<div>
+				<a href="/">الرئيسية</a>
 				<span>/</span>
 				<span>السياسات والضوابط القانونية</span>
 				<span>/</span>
-				<span style="color:var(--text); font-weight:600;">{ title }</span>
+				<span>{ title }</span>
 			</div>
 
 			<!-- Quick Policy Switcher Bar -->
-			<div style="display:flex; gap:0.75rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap;">
+			<div>
 				<a
 					href="/terms"
 					class={ "btn", templ.KV("btn-primary", slug == "terms"), templ.KV("btn-secondary", slug != "terms") }
-					style="padding:0.5rem 1.25rem; font-weight:700; gap:0.4rem;"
+				
 				>
 					@components.IconFileText("icon-xs")
 					<span>الشروط والأحكام العامة</span>
@@ -33,7 +33,7 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 				<a
 					href="/privacy"
 					class={ "btn", templ.KV("btn-primary", slug == "privacy"), templ.KV("btn-secondary", slug != "privacy") }
-					style="padding:0.5rem 1.25rem; font-weight:700; gap:0.4rem;"
+				
 				>
 					@components.IconShield("icon-xs")
 					<span>سياسة الخصوصية وسرية البيانات</span>
@@ -41,12 +41,12 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 			</div>
 
 			<!-- Main Policy Card -->
-			<div class="card" style="padding:2.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm);">
+			<div class="card">
 				
 				<!-- Document Header -->
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+				<div>
 					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+						<div>
 							<div class="b2b-icon-box">
 								if slug == "privacy" {
 									@components.IconShield("icon-sm")
@@ -54,23 +54,23 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 									@components.IconFileText("icon-sm")
 								}
 							</div>
-							<h1 style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0;">
+							<h1>
 								{ title }
 							</h1>
 						</div>
-						<p style="font-size:var(--text-sm); color:var(--text-secondary); margin:0;">
+						<p>
 							الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24
 						</p>
 					</div>
 
 					<!-- Metadata Badges -->
-					<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem;">
-						<span class="badge badge-emerald" style="font-weight:700; font-size:var(--text-xs); padding:0.3rem 0.75rem;">
+					<div>
+						<span class="badge badge-emerald">
 							@components.IconCheck("icon-xs")
 							<span>سارية ومعتمدة رسمياً</span>
 						</span>
 						if version != "" || lastUpdated != "" {
-							<div style="font-size:var(--text-xs); color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;">
+							<div>
 								if version != "" {
 									<span>إصدار: { version }</span>
 								}
@@ -86,17 +86,17 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 				</div>
 
 				<!-- Document Body Content -->
-				<div style="color:var(--text); line-height:2; font-size:1rem; white-space:pre-line; word-break:break-word;">
+				<div>
 					{ body }
 				</div>
 
 				<!-- Official Compliance Footer Strip -->
-				<div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface); padding:1.25rem; border-radius:var(--radius-lg);">
-					<div style="display:flex; align-items:center; gap:0.5rem; color:var(--text-secondary); font-size:var(--text-xs);">
+				<div>
+					<div>
 						@components.IconShield("icon-xs")
 						<span>كافة البنود والتعاملات خاضعة للضوابط واللوائح الصيدلانية والتجارية المصرية السارية.</span>
 					</div>
-					<a href="/contact" class="btn btn-secondary btn-sm" style="font-weight:600; gap:0.35rem;">
+					<a href="/contact" class="btn btn-secondary btn-sm">
 						@components.IconHelpCircle("icon-xs")
 						<span>لديك استفسار قانوني؟ تواصل معنا</span>
 					</a>
@@ -111,10 +111,10 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 // CmsPage renders a database-driven content page from its bilingual title and body.
 templ CmsPage(lang, dir, title, body string) {
 	@layouts.PublicShell(title, lang, dir) {
-		<div style="max-width:860px; margin:2rem auto; padding:0 1rem;">
-			<div class="card" style="padding:2.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-				<h1 style="font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 1.25rem;">{ title }</h1>
-				<div style="color:var(--text-secondary); line-height:1.9; font-size:0.98rem; white-space:pre-line;">{ body }</div>
+		<div>
+			<div class="card">
+				<h1>{ title }</h1>
+				<div>{ body }</div>
 			</div>
 		</div>
 	}

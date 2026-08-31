@@ -284,7 +284,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" placeholder=\"بحث باسم الصنف كما ورد بملف الطلب/الكتالوج، أو اسم الصنف المعتمد...\" class=\"form-input text-xs w-full\"></div><div style=\"min-width:130px;\"><select name=\"limit\" onchange=\"this.form.submit()\" class=\"form-input text-xs w-full\"><option value=\"25\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" placeholder=\"بحث باسم الصنف كما ورد بملف الطلب/الكتالوج، أو اسم الصنف المعتمد...\" class=\"form-input text-xs w-full\"></div><div><select name=\"limit\" onchange=\"this.form.submit()\" class=\"form-input text-xs w-full\"><option value=\"25\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -347,7 +347,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</form></div><!-- Main Table Card --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:65px;\" class=\"text-center\">#</th><th style=\"min-width:240px;\">اسم الصنف الوارد</th><th style=\"min-width:280px;\">الصنف المعتمد بالكتالوج المركزي</th><th style=\"width:110px;\" class=\"text-center\">نسبة التطابق</th><th style=\"width:95px;\" class=\"text-center\">الاستخدامات</th><th style=\"min-width:220px;\">السبب / الملاحظات</th><th style=\"width:130px;\" class=\"text-center\">تاريخ الاستخدام</th><th style=\"width:90px;\" class=\"text-center\">إجراءات</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</form></div><!-- Main Table Card --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">#</th><th>اسم الصنف الوارد</th><th>الصنف المعتمد بالكتالوج المركزي</th><th class=\"text-center\">نسبة التطابق</th><th class=\"text-center\">الاستخدامات</th><th>السبب / الملاحظات</th><th class=\"text-center\">تاريخ الاستخدام</th><th class=\"text-center\">إجراءات</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -693,7 +693,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div><!-- Clear All Script --><script>\n\t\tfunction confirmClearMyDecisions() {\n\t\t\tif (confirm(\"هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\n\t\t\t\tvar form = document.createElement('form');\n\t\t\t\tform.method = 'POST';\n\t\t\t\tform.action = basePath + '/clear';\n\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\tform.submit();\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div><!-- Clear All Script --><script>\r\n\t\tfunction confirmClearMyDecisions() {\r\n\t\t\tif (confirm(\"هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\r\n\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\tform.method = 'POST';\r\n\t\t\t\tform.action = basePath + '/clear';\r\n\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\tform.submit();\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -122,7 +122,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>محرك المقارنة</span></a></div></div></div><!-- 2. Compact Filter Deck --><div class=\"glass-panel p-4 mb-0\"><form method=\"GET\" action=\"/market-discounts\" class=\"d-flex flex-col gap-3 m-0\" id=\"market-filter-form\"><input type=\"hidden\" name=\"view\" x-bind:value=\"currentView\"><!-- Main Filter Row --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Search Input --><div class=\"flex-1\" style=\"min-width: 240px;\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>محرك المقارنة</span></a></div></div></div><!-- 2. Compact Filter Deck --><div class=\"glass-panel p-4 mb-0\"><form method=\"GET\" action=\"/market-discounts\" class=\"d-flex flex-col gap-3 m-0\" id=\"market-filter-form\"><input type=\"hidden\" name=\"view\" x-bind:value=\"currentView\"><!-- Main Filter Row --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Search Input --><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -135,7 +135,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input text-xs w-full\" placeholder=\"بحث باسم الدواء، المادة الفعالة، SKU، الباركود...\"></div><!-- Supplier Select --><div style=\"min-width: 180px;\"><select name=\"supplier\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"\">كافة الشركات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input text-xs w-full\" placeholder=\"بحث باسم الدواء، المادة الفعالة، SKU، الباركود...\"></div><!-- Supplier Select --><div><select name=\"supplier\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"\">كافة الشركات (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -194,7 +194,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- Sort Order --><div style=\"min-width: 160px;\"><select name=\"sort\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"discount_desc\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div><!-- Sort Order --><div><select name=\"sort\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"discount_desc\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -244,7 +244,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">الأقدم</option></select></div><!-- Page Size Limit --><div style=\"min-width: 110px;\"><select name=\"limit\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"24\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">الأقدم</option></select></div><!-- Page Size Limit --><div><select name=\"limit\" class=\"form-input text-xs w-full\" onchange=\"this.form.submit()\"><option value=\"24\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -292,7 +292,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><!-- Collapsible Advanced Range Filters --><div x-show=\"showMoreFilters\" x-cloak x-transition.opacity class=\"pt-3 border-t\" style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;\"><!-- Price Range --><div><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">نطاق السعر الصافي بعد الخصم (ج.م)</label><div class=\"d-flex gap-2 items-center\"><input type=\"number\" step=\"0.5\" name=\"min_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><!-- Collapsible Advanced Range Filters --><div x-show=\"showMoreFilters\" x-cloak x-transition.opacity class=\"pt-3 border-t\"><!-- Price Range --><div><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">نطاق السعر الصافي بعد الخصم (ج.م)</label><div class=\"d-flex gap-2 items-center\"><input type=\"number\" step=\"0.5\" name=\"min_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -362,12 +362,12 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<!-- 1. LIST VIEW --> <div x-show=\"currentView === 'list'\" x-cloak style=\"display: flex; flex-direction: column; gap: 0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<!-- 1. LIST VIEW --> <div x-show=\"currentView === 'list'\" x-cloak>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, item := range result.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-4\"><!-- Right: Product Name & SKU --><div style=\"min-width:240px; flex:1;\"><h3 class=\"text-base font-black text-primary m-0 mb-1 leading-snug\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-4\"><!-- Right: Product Name & SKU --><div><h3 class=\"text-base font-black text-primary m-0 mb-1 leading-snug\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -427,7 +427,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Center: Warehouse Pill & Date --><div class=\"text-center\" style=\"min-width:180px;\"><div class=\"badge badge-primary text-xs font-bold py-1 px-3\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Center: Warehouse Pill & Date --><div class=\"text-center\"><div class=\"badge badge-primary text-xs font-bold py-1 px-3\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -453,7 +453,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</strong></div></div><!-- Left: Discount Pill + Public Price & Total Price --><div class=\"d-flex items-center gap-4 justify-end\" style=\"min-width:200px;\"><!-- Discount Badge Pill --><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</strong></div></div><!-- Left: Discount Pill + Public Price & Total Price --><div class=\"d-flex items-center gap-4 justify-end\"><!-- Discount Badge Pill --><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -571,7 +571,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><!-- 2. GRID VIEW --> <div x-show=\"currentView === 'grid'\" x-cloak style=\"display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><!-- 2. GRID VIEW --> <div x-show=\"currentView === 'grid'\" x-cloak>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

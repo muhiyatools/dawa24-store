@@ -94,7 +94,7 @@ func NotificationsContent(logs []*notifications.NotificationLog, unreadCount int
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl\" x-data=\"{ tab: 'all' }\"><!-- 1. Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3.5\"><div class=\"user-avatar-badge\" style=\"width:48px; height:48px; font-size:1.5rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl\" x-data=\"{ tab: 'all' }\"><!-- 1. Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3.5\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -302,7 +302,7 @@ func NotificationsList(logs []*notifications.NotificationLog) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\"><!-- Icon & Main Details --><div class=\"d-flex items-start gap-3.5 flex-1\" style=\"min-width: 260px;\"><!-- Icon Badge -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\"><!-- Icon & Main Details --><div class=\"d-flex items-start gap-3.5 flex-1\"><!-- Icon Badge -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

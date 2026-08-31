@@ -10,43 +10,43 @@ import (
 // a dashboard full of zeroes.
 templ OnboardingPending(lang, dir string, rejected bool) {
 	@layouts.Base("قيد المراجعة | Onboarding", lang, dir) {
-		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-50) 0%, var(--bg-app) 100%);">
-			<div class="card hover-lift" style="width:100%; max-width:520px; padding:2.5rem; text-align:center; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl);">
-				<a href="/" style="display:inline-block; margin-bottom:1.5rem;">
-					<img src="/static/img/logo.png" alt="DAWA24" style="height:54px; object-fit:contain;" />
+		<div>
+			<div class="card hover-lift">
+				<a href="/">
+					<img src="/static/img/logo.png" alt="DAWA24" />
 				</a>
 				if rejected {
-					<div style="width:64px; height:64px; border-radius:var(--radius-xl); margin:0 auto 1.25rem; display:flex; align-items:center; justify-content:center; background:var(--danger-light); color:var(--danger);">
+					<div>
 						@components.IconAlert("icon-lg")
 					</div>
 				} else {
-					<div style="width:64px; height:64px; border-radius:var(--radius-xl); margin:0 auto 1.25rem; display:flex; align-items:center; justify-content:center; background:var(--warning-light); color:var(--warning);">
+					<div>
 						@components.IconShield("icon-lg")
 					</div>
 				}
 				if rejected {
-					<h1 style="font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;">تم رفض طلب الانضمام</h1>
-					<p style="color:var(--neutral-600); line-height:1.7; margin-bottom:1.5rem;">
+					<h1>تم رفض طلب الانضمام</h1>
+					<p>
 						عذراً، لم يتم اعتماد حساب مؤسستك في الوقت الحالي. تواصل مع فريق الدعم لمعرفة السبب واستكمال أي مستندات ناقصة.
 					</p>
-					<a href="/contact" class="btn btn-primary" style="justify-content:center;">
+					<a href="/contact" class="btn btn-primary">
 						@components.IconInbox("icon-sm")
 						<span>التواصل مع الدعم</span>
 					</a>
 				} else {
-					<h1 style="font-size:1.5rem; font-weight:900; color:var(--neutral-900); margin-bottom:0.5rem;">حسابك قيد المراجعة</h1>
-					<p style="color:var(--neutral-600); line-height:1.7; margin-bottom:1.5rem;">
+					<h1>حسابك قيد المراجعة</h1>
+					<p>
 						تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دواء 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب لتبدأ العمل على المنصة.
 					</p>
-					<div style="background:var(--neutral-50); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem; text-align:start;">
-						<div style="font-weight:700; color:var(--neutral-800); margin-bottom:0.35rem;">ماذا يحدث بعد ذلك؟</div>
-						<ul style="margin:0; padding-inline-start:1.25rem; color:var(--neutral-600); font-size:0.9rem; line-height:1.9;">
+					<div>
+						<div>ماذا يحدث بعد ذلك؟</div>
+						<ul>
 							<li>مراجعة السجل التجاري وبيانات المنشأة</li>
 							<li>التحقق من ترخيص الصيدلي عند الحاجة</li>
 							<li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li>
 						</ul>
 					</div>
-					<a href="/" class="btn btn-secondary" style="justify-content:center;">العودة للصفحة الرئيسية</a>
+					<a href="/" class="btn btn-secondary">العودة للصفحة الرئيسية</a>
 				}
 			</div>
 		</div>

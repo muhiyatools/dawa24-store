@@ -388,7 +388,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, o := range data.Offers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<tr><!-- Offer Title & Info --><td><div style=\"display:flex; align-items:flex-start; gap:0.75rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<tr><!-- Offer Title & Info --><td><div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -396,7 +396,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><div style=\"font-weight:800; color:var(--text); font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -414,7 +414,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if !o.Description.IsEmpty() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:2px; max-width:260px; white-space:normal;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -432,7 +432,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div style=\"font-size:0.7rem; color:var(--text-secondary); margin-top:3px;\" class=\"tabular-nums\">#")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"tabular-nums\">#")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -458,7 +458,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div></div></td><!-- Supplier Org & Branch --><td><div style=\"font-weight:700; color:var(--accent); font-size:0.9rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div></div></td><!-- Supplier Org & Branch --><td><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -496,7 +496,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if o.BranchName != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:2px;\">فرع: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div>فرع: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -514,7 +514,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:2px;\">كافة الفروع</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div>كافة الفروع</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -524,18 +524,18 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if len(o.Products) == 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span style=\"color:var(--text-muted); font-size:0.8rem;\">عرض عام (بدون باقة مخصصة)</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>عرض عام (بدون باقة مخصصة)</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div style=\"display:flex; flex-direction:column; gap:0.25rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						for idx, p := range o.Products {
 							if idx < 3 {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div style=\"font-size:0.8rem; color:var(--text); display:flex; align-items:center; gap:0.35rem;\"><span class=\"badge badge-slate\" style=\"font-weight:800; padding:0.1rem 0.35rem; font-size:0.7rem;\" class=\"tabular-nums\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div><span class=\"badge badge-slate\" class=\"tabular-nums\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -548,7 +548,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</span> <span style=\"font-weight:600;\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</span> <span>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -611,7 +611,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							}
 						}
 						if len(o.Products) > 3 {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div style=\"font-size:0.75rem; color:var(--accent); font-weight:700;\">+ ")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div>+ ")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -634,7 +634,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</td><!-- Total Price Before Discount --><td><div class=\"tabular-nums\" style=\"font-weight:900; color:var(--emerald); font-size:1rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</td><!-- Total Price Before Discount --><td><div class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -652,7 +652,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if o.DiscountPercentage > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div style=\"font-size:0.85rem; color:var(--accent); font-weight:800;\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -670,7 +670,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div style=\"font-size:0.85rem; color:var(--accent); font-weight:800;\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -693,7 +693,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if !o.MinOrderAmount.IsZero() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"tabular-nums\" style=\"font-size:0.85rem; font-weight:700; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -711,7 +711,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span style=\"color:var(--text-muted); font-size:0.8rem;\">بدون حد أدنى</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span>بدون حد أدنى</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -726,7 +726,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div style=\"display:flex; flex-direction:column; gap:0.2rem;\"><div style=\"display:flex; align-items:center; gap:0.3rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div><div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -734,7 +734,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span style=\"font-weight:700; font-size:0.8rem; color:var(--sky);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -747,7 +747,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div><div style=\"font-size:0.75rem; color:var(--text-secondary);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div><div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -783,7 +783,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</td><!-- Status & Moderation Badges --><td><div style=\"display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;\"><!-- Admin Moderation Status -->")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</td><!-- Status & Moderation Badges --><td><div><!-- Admin Moderation Status -->")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -823,7 +823,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div></td><!-- Admin Action Buttons --><td class=\"text-end\"><div class=\"row-center-xs\" style=\"justify-content:flex-end; gap:0.4rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div></td><!-- Admin Action Buttons --><td class=\"text-end\"><div class=\"row-center-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

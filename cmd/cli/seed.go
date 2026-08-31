@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
@@ -48,9 +49,9 @@ func runSeed(ctx context.Context, db *database.DB, log *slog.Logger) error {
 			rate   float64
 			isDef  bool
 		}{
-			{"EGP", `{"ar":"جنيه مصري","en":"Egyptian Pound"}`, "ج.م", 1.0, true},
-			{"USD", `{"ar":"دولار أمريكي","en":"US Dollar"}`, "$", 48.5, false},
-			{"SAR", `{"ar":"ريال سعودي","en":"Saudi Riyal"}`, "ر.س", 12.9, false},
+			{"EGP", `{"ar":i18n.TDefault("w4_mod.s_302_302"),"en":"Egyptian Pound"}`, i18n.TDefault("w4_ui.s_50_50"), 1.0, true},
+			{"USD", `{"ar":i18n.TDefault("w4_mod.s_457_457"),"en":"US Dollar"}`, "$", 48.5, false},
+			{"SAR", `{"ar":i18n.TDefault("w4_mod.s_458_458"),"en":"Saudi Riyal"}`, i18n.TDefault("w4_mod.s_303_303"), 12.9, false},
 		}
 		for _, c := range currencies {
 			_, err := tx.Exec(txCtx, `
@@ -70,7 +71,7 @@ func runSeed(ctx context.Context, db *database.DB, log *slog.Logger) error {
 			dir   string
 			isDef bool
 		}{
-			{"ar", "العربية", "rtl", true},
+			{"ar", i18n.TDefault("w4_mod.s_459_459"), "rtl", true},
 			{"en", "English", "ltr", false},
 		}
 		for _, l := range languages {
@@ -88,7 +89,7 @@ func runSeed(ctx context.Context, db *database.DB, log *slog.Logger) error {
 		var countryID int64
 		err := tx.QueryRow(txCtx, `
 			INSERT INTO platform_admin.countries (code, name, phone_code, currency, is_active)
-			VALUES ('EG', '{"ar":"مصر","en":"Egypt"}'::jsonb, '+20', 'EGP', true)
+			VALUES ('EG', '{"ar":i18n.TDefault("w4_ui.s_176_176"),"en":"Egypt"}'::jsonb, '+20', 'EGP', true)
 			ON CONFLICT (code) DO UPDATE SET is_active = true
 			RETURNING id;
 		`).Scan(&countryID)
@@ -100,16 +101,16 @@ func runSeed(ctx context.Context, db *database.DB, log *slog.Logger) error {
 			ar string
 			en string
 		}{
-			{"القاهرة", "Cairo"},
-			{"الجيزة", "Giza"},
-			{"الإسكندرية", "Alexandria"},
-			{"المنصورة", "Mansoura"},
-			{"طنطا", "Tanta"},
-			{"أسيوط", "Asyut"},
-			{"سوهاج", "Sohag"},
-			{"بورسعيد", "Port Said"},
-			{"السويس", "Suez"},
-			{"الزقازيق", "Zagazig"},
+			{i18n.TDefault("w4_mod.s_460_460"), "Cairo"},
+			{i18n.TDefault("w4_mod.s_461_461"), "Giza"},
+			{i18n.TDefault("w4_mod.s_462_462"), "Alexandria"},
+			{i18n.TDefault("w4_mod.s_463_463"), "Mansoura"},
+			{i18n.TDefault("w4_mod.s_464_464"), "Tanta"},
+			{i18n.TDefault("w4_mod.s_465_465"), "Asyut"},
+			{i18n.TDefault("w4_mod.s_466_466"), "Sohag"},
+			{i18n.TDefault("w4_mod.s_467_467"), "Port Said"},
+			{i18n.TDefault("w4_mod.s_468_468"), "Suez"},
+			{i18n.TDefault("w4_mod.s_469_469"), "Zagazig"},
 		}
 
 		for _, city := range cities {

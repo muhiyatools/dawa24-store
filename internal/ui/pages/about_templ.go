@@ -59,7 +59,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"about-page-container\" style=\"max-width:1120px; margin:1.5rem auto 4rem auto; padding:0 1rem;\"><!-- Hero Banner --><section class=\"card mb-0\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center; margin-bottom:2.5rem;\"><div style=\"display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.85rem; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); font-weight:800; font-size:0.825rem; margin-bottom:1.25rem; border:1px solid var(--border);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"about-page-container\"><!-- Hero Banner --><section class=\"card mb-0\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -91,7 +91,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h1 style=\"font-size:2.4rem; font-weight:900; color:var(--text); margin-bottom:1rem; letter-spacing:-0.02em; line-height:1.3;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -111,7 +111,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h1><p style=\"color:var(--text-secondary); font-size:1.05rem; max-width:760px; margin:0 auto; line-height:1.9; white-space:pre-wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h1><p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -131,7 +131,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></section><!-- Mission and Vision Cards --><section style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-bottom:2.5rem;\"><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></section><!-- Mission and Vision Cards --><section><div class=\"card mb-0\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -139,7 +139,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><h3 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -159,7 +159,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0; white-space:pre-wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</h3><p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -179,7 +179,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p></div><div class=\"card mb-0\" style=\"padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><div style=\"width:48px; height:48px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p></div><div class=\"card mb-0\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -187,7 +187,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +207,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h3><p style=\"color:var(--text-secondary); font-size:0.925rem; line-height:1.8; margin:0; white-space:pre-wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h3><p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -227,7 +227,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div></section><!-- Strategic Pillars --><section class=\"card mb-0\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; margin-bottom:2.5rem;\"><div style=\"text-align:center; margin-bottom:2.5rem;\"><h2 style=\"font-size:1.75rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0;\">ركائز العمل في منصة دواء 24</h2><p class=\"text-sm text-secondary m-0\">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;\"><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div></section><!-- Strategic Pillars --><section class=\"card mb-0\"><div><h2>ركائز العمل في منصة دواء 24</h2><p class=\"text-sm text-secondary m-0\">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p></div><div><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -235,7 +235,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">توثيق التراخيص الرسمية</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><h4>توثيق التراخيص الرسمية</h4><p>فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p></div><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -243,7 +243,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">سلسلة تبريد معتمدة (Cold-Chain)</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><h4>سلسلة تبريد معتمدة (Cold-Chain)</h4><p>أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p></div><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,7 +251,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">تكامل الفاتورة الإلكترونية</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p></div><div style=\"padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);\"><div style=\"width:40px; height:40px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><h4>تكامل الفاتورة الإلكترونية</h4><p>ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p></div><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -259,7 +259,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><h4 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">دعم فني واستشارات 24/7</h4><p style=\"color:var(--text-secondary); font-size:0.825rem; line-height:1.7; margin:0;\">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Registration Banner --><section class=\"card mb-0\" style=\"background:var(--accent-subtle); border:1px solid var(--border); border-radius:var(--radius-xl); padding:3rem 2rem; text-align:center;\"><h2 style=\"font-size:1.85rem; font-weight:900; color:var(--text); margin:0 0 0.75rem 0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><h4>دعم فني واستشارات 24/7</h4><p>فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Registration Banner --><section class=\"card mb-0\"><h2>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -279,7 +279,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</h2><p style=\"color:var(--text-secondary); font-size:0.95rem; max-width:600px; margin:0 auto 1.75rem auto; line-height:1.8; white-space:pre-wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</h2><p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -299,7 +299,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p><div style=\"display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;\"><a href=\"/auth/register\" class=\"btn btn-primary\" style=\"font-size:0.95rem; font-weight:800; padding:0.65rem 1.75rem;\"><span>تسجيل صيدلية جديدة</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary\" style=\"font-size:0.95rem; font-weight:700; padding:0.65rem 1.75rem;\"><span>انضمام كشريك مورد</span></a></div></section></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p><div><a href=\"/auth/register\" class=\"btn btn-primary\"><span>تسجيل صيدلية جديدة</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary\"><span>انضمام كشريك مورد</span></a></div></section></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

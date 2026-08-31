@@ -91,7 +91,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " صنف)</span></button></form></div></div></div><!-- 4 KPI Stat Cards --><div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 mb-4\"><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " صنف)</span></button></form></div></div></div><!-- 4 KPI Stat Cards --><div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 mb-4\"><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -112,7 +112,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -133,7 +133,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -154,7 +154,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -278,7 +278,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" placeholder=\"بحث بالاسم أو الكود...\" class=\"form-input text-xs\" style=\"min-width:220px;\"> <select name=\"limit\" onchange=\"this.form.submit()\" class=\"form-select text-xs\" style=\"width:auto;\"><option value=\"10\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" placeholder=\"بحث بالاسم أو الكود...\" class=\"form-input text-xs\"> <select name=\"limit\" onchange=\"this.form.submit()\" class=\"form-select text-xs\"><option value=\"10\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -341,7 +341,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</form></div></div><!-- Table Container --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"saving-review-col-index text-center\" style=\"width:48px;\">#</th>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</form></div></div><!-- Table Container --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"saving-review-col-index text-center\">#</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -349,7 +349,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<th class=\"saving-review-col-product\" style=\"min-width:260px;\">الصنف المطابق بالكتالوج المركزي</th>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<th class=\"saving-review-col-product\">الصنف المطابق بالكتالوج المركزي</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -394,7 +394,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div></div><!-- Centered Modal for Linking Saving Product to Master Catalog --><div id=\"saving-catalog-match-modal\" class=\"modal-backdrop\" style=\"display:none; position:fixed; inset:0; width:100vw; height:100vh; margin:0; background:rgba(3,7,18,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:9999999; align-items:center; justify-content:center; padding:1.25rem;\"><div class=\"card\" style=\"margin:auto; width:100%; max-width:580px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; background:#0f172a; border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.75); padding:1.5rem;\"><div class=\"flex-between items-center pb-3 border-b mb-3\"><div><h3 class=\"text-lg font-black text-primary m-0\">الربط بالكتالوج المركزي</h3><p class=\"text-xs text-secondary m-0 mt-0.5 font-mono\" id=\"saving-modal-item-name\"></p></div><button type=\"button\" class=\"btn btn-secondary btn-xs\" onclick=\"closeSavingCatalogModal()\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div></div><!-- Centered Modal for Linking Saving Product to Master Catalog --><div id=\"saving-catalog-match-modal\" class=\"modal-backdrop\"><div class=\"card\"><div class=\"flex-between items-center pb-3 border-b mb-3\"><div><h3 class=\"text-lg font-black text-primary m-0\">الربط بالكتالوج المركزي</h3><p class=\"text-xs text-secondary m-0 mt-0.5 font-mono\" id=\"saving-modal-item-name\"></p></div><button type=\"button\" class=\"btn btn-secondary btn-xs\" onclick=\"closeSavingCatalogModal()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -402,7 +402,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</button></div><div class=\"mb-3\"><label class=\"form-label text-xs mb-1\">ابحث في الكتالوج المركزي:</label> <input type=\"text\" id=\"saving-modal-search-input\" class=\"form-input text-sm w-100\" placeholder=\"ابحث باسم الدواء، الكود، أو المادة الفعالة...\" autocomplete=\"off\"></div><div id=\"saving-modal-results\" class=\"flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2\" style=\"min-height:220px; max-height:360px;\"><div class=\"p-6 text-center text-muted text-xs\">اكتب للبحث في الكتالوج المركزي...</div></div><div id=\"saving-modal-unlink-section\" class=\"pt-3 border-t mt-3 flex-between items-center\" style=\"display:none;\"><form id=\"saving-modal-unlink-form\" method=\"POST\" action=\"\" class=\"m-0\"><input type=\"hidden\" name=\"product_id\" value=\"0\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger font-bold\">إلغاء الربط (جعله غير مرتبط)</button></form><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold\" onclick=\"closeSavingCatalogModal()\">إغلاق</button></div></div></div><script>\n\tvar currentSavingSearchURL = '';\n\tvar currentSavingActionURL = '';\n\tvar savingSearchDebounceTimer = null;\n\n\tfunction ensureSavingModalInBody() {\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\n\t\tif (modal && modal.parentElement !== document.body) {\n\t\t\tdocument.body.appendChild(modal);\n\t\t}\n\t}\n\n\tfunction openSavingCatalogModal(rowIndex, searchURL, actionURL, itemName, isLinked) {\n\t\tensureSavingModalInBody();\n\t\tcurrentSavingSearchURL = searchURL;\n\t\tcurrentSavingActionURL = actionURL;\n\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\n\t\tvar titleEl = document.getElementById('saving-modal-item-name');\n\t\tvar inputEl = document.getElementById('saving-modal-search-input');\n\t\tvar unlinkSec = document.getElementById('saving-modal-unlink-section');\n\t\tvar unlinkForm = document.getElementById('saving-modal-unlink-form');\n\n\t\tif (titleEl) titleEl.textContent = 'الصنف بالملف: ' + itemName;\n\t\tif (inputEl) {\n\t\t\tinputEl.value = itemName;\n\t\t\tinputEl.oninput = function() {\n\t\t\t\tclearTimeout(savingSearchDebounceTimer);\n\t\t\t\tsavingSearchDebounceTimer = setTimeout(function() {\n\t\t\t\t\tfetchSavingModalResults(inputEl.value);\n\t\t\t\t}, 200);\n\t\t\t};\n\t\t}\n\t\tif (unlinkSec && unlinkForm) {\n\t\t\tunlinkSec.style.display = isLinked ? 'flex' : 'none';\n\t\t\tunlinkForm.action = actionURL;\n\t\t}\n\n\t\tif (modal) modal.style.display = 'flex';\n\t\tsetTimeout(function() {\n\t\t\tif (inputEl) {\n\t\t\t\tinputEl.focus();\n\t\t\t\tinputEl.select();\n\t\t\t}\n\t\t\tfetchSavingModalResults(itemName);\n\t\t}, 50);\n\t}\n\n\tfunction closeSavingCatalogModal() {\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\n\t\tif (modal) modal.style.display = 'none';\n\t}\n\n\tfunction fetchSavingModalResults(query) {\n\t\tvar resultsEl = document.getElementById('saving-modal-results');\n\t\tif (!resultsEl) return;\n\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-muted text-xs\">جاري البحث في الكتالوج المركزي...</div>';\n\n\t\tfetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))\n\t\t\t.then(function(res) { return res.json(); })\n\t\t\t.then(function(data) {\n\t\t\t\tvar items = data.items || data.products || data || [];\n\t\t\t\tif (!items || items.length === 0) {\n\t\t\t\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-muted text-xs\">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tvar html = '';\n\t\t\t\titems.forEach(function(item) {\n\t\t\t\t\tvar name = item.name_ar || item.name_en || item.name || '';\n\t\t\t\t\tvar sku = item.sku || '';\n\t\t\t\t\tvar id = item.id;\n\t\t\t\t\tvar price = item.public_price || item.price || '';\n\t\t\t\t\tvar priceStr = price ? '<span class=\"badge badge-slate text-xs tabular-nums font-bold\">' + price + ' ج.م</span>' : '';\n\t\t\t\t\tvar skuStr = sku ? '<span class=\"text-xs text-muted font-mono\">' + escapeSavingHtml(sku) + '</span>' : '';\n\n\t\t\t\t\thtml += '<form method=\"POST\" action=\"' + currentSavingActionURL + '\" class=\"m-0\">' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"product_id\" value=\"' + id + '\" />' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_name\" value=\"' + escapeSavingHtml(name) + '\" />' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_sku\" value=\"' + escapeSavingHtml(sku) + '\" />' +\n\t\t\t\t\t\t'<button type=\"submit\" class=\"p-3 w-100 text-start flex-between items-center gap-3 border rounded-xl hover-lift cursor-pointer\" style=\"margin-bottom:0; background:rgba(30,41,59,0.7); border-color:rgba(59,130,246,0.25);\">' +\n\t\t\t\t\t\t'<div><div class=\"text-sm font-extrabold text-primary\">' + escapeSavingHtml(name) + '</div>' +\n\t\t\t\t\t\t'<div class=\"d-flex items-center gap-2 mt-1\">' + skuStr + priceStr + '</div></div>' +\n\t\t\t\t\t\t'<span class=\"btn btn-primary btn-xs font-bold shrink-0\">ربط </span>' +\n\t\t\t\t\t\t'</button>' +\n\t\t\t\t\t\t'</form>';\n\t\t\t\t});\n\t\t\t\tresultsEl.innerHTML = html;\n\t\t\t})\n\t\t\t.catch(function(err) {\n\t\t\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-danger text-xs\">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>';\n\t\t\t});\n\t}\n\n\tfunction escapeSavingHtml(text) {\n\t\tif (!text) return '';\n\t\treturn String(text)\n\t\t\t.replace(/&/g, \"&amp;\")\n\t\t\t.replace(/</g, \"&lt;\")\n\t\t\t.replace(/>/g, \"&gt;\")\n\t\t\t.replace(/\"/g, \"&quot;\")\n\t\t\t.replace(/'/g, \"&#039;\");\n\t}\n\n\tdocument.addEventListener('keydown', function(e) {\n\t\tif (e.key === 'Escape') {\n\t\t\tcloseSavingCatalogModal();\n\t\t}\n\t});\n\n\tif (document.readyState === 'loading') {\n\t\tdocument.addEventListener('DOMContentLoaded', ensureSavingModalInBody);\n\t} else {\n\t\tensureSavingModalInBody();\n\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</button></div><div class=\"mb-3\"><label class=\"form-label text-xs mb-1\">ابحث في الكتالوج المركزي:</label> <input type=\"text\" id=\"saving-modal-search-input\" class=\"form-input text-sm w-100\" placeholder=\"ابحث باسم الدواء، الكود، أو المادة الفعالة...\" autocomplete=\"off\"></div><div id=\"saving-modal-results\" class=\"flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2\"><div class=\"p-6 text-center text-muted text-xs\">اكتب للبحث في الكتالوج المركزي...</div></div><div id=\"saving-modal-unlink-section\" class=\"pt-3 border-t mt-3 flex-between items-center\"><form id=\"saving-modal-unlink-form\" method=\"POST\" action=\"\" class=\"m-0\"><input type=\"hidden\" name=\"product_id\" value=\"0\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger font-bold\">إلغاء الربط (جعله غير مرتبط)</button></form><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold\" onclick=\"closeSavingCatalogModal()\">إغلاق</button></div></div></div><script>\r\n\tvar currentSavingSearchURL = '';\r\n\tvar currentSavingActionURL = '';\r\n\tvar savingSearchDebounceTimer = null;\r\n\r\n\tfunction ensureSavingModalInBody() {\r\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\r\n\t\tif (modal && modal.parentElement !== document.body) {\r\n\t\t\tdocument.body.appendChild(modal);\r\n\t\t}\r\n\t}\r\n\r\n\tfunction openSavingCatalogModal(rowIndex, searchURL, actionURL, itemName, isLinked) {\r\n\t\tensureSavingModalInBody();\r\n\t\tcurrentSavingSearchURL = searchURL;\r\n\t\tcurrentSavingActionURL = actionURL;\r\n\r\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\r\n\t\tvar titleEl = document.getElementById('saving-modal-item-name');\r\n\t\tvar inputEl = document.getElementById('saving-modal-search-input');\r\n\t\tvar unlinkSec = document.getElementById('saving-modal-unlink-section');\r\n\t\tvar unlinkForm = document.getElementById('saving-modal-unlink-form');\r\n\r\n\t\tif (titleEl) titleEl.textContent = 'الصنف بالملف: ' + itemName;\r\n\t\tif (inputEl) {\r\n\t\t\tinputEl.value = itemName;\r\n\t\t\tinputEl.oninput = function() {\r\n\t\t\t\tclearTimeout(savingSearchDebounceTimer);\r\n\t\t\t\tsavingSearchDebounceTimer = setTimeout(function() {\r\n\t\t\t\t\tfetchSavingModalResults(inputEl.value);\r\n\t\t\t\t}, 200);\r\n\t\t\t};\r\n\t\t}\r\n\t\tif (unlinkSec && unlinkForm) {\r\n\t\t\tunlinkSec.style.display = isLinked ? 'flex' : 'none';\r\n\t\t\tunlinkForm.action = actionURL;\r\n\t\t}\r\n\r\n\t\tif (modal) modal.style.display = 'flex';\r\n\t\tsetTimeout(function() {\r\n\t\t\tif (inputEl) {\r\n\t\t\t\tinputEl.focus();\r\n\t\t\t\tinputEl.select();\r\n\t\t\t}\r\n\t\t\tfetchSavingModalResults(itemName);\r\n\t\t}, 50);\r\n\t}\r\n\r\n\tfunction closeSavingCatalogModal() {\r\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\r\n\t\tif (modal) modal.style.display = 'none';\r\n\t}\r\n\r\n\tfunction fetchSavingModalResults(query) {\r\n\t\tvar resultsEl = document.getElementById('saving-modal-results');\r\n\t\tif (!resultsEl) return;\r\n\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-muted text-xs\">جاري البحث في الكتالوج المركزي...</div>';\r\n\r\n\t\tfetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))\r\n\t\t\t.then(function(res) { return res.json(); })\r\n\t\t\t.then(function(data) {\r\n\t\t\t\tvar items = data.items || data.products || data || [];\r\n\t\t\t\tif (!items || items.length === 0) {\r\n\t\t\t\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-muted text-xs\">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';\r\n\t\t\t\t\treturn;\r\n\t\t\t\t}\r\n\t\t\t\tvar html = '';\r\n\t\t\t\titems.forEach(function(item) {\r\n\t\t\t\t\tvar name = item.name_ar || item.name_en || item.name || '';\r\n\t\t\t\t\tvar sku = item.sku || '';\r\n\t\t\t\t\tvar id = item.id;\r\n\t\t\t\t\tvar price = item.public_price || item.price || '';\r\n\t\t\t\t\tvar priceStr = price ? '<span class=\"badge badge-slate text-xs tabular-nums font-bold\">' + price + ' ج.م</span>' : '';\r\n\t\t\t\t\tvar skuStr = sku ? '<span class=\"text-xs text-muted font-mono\">' + escapeSavingHtml(sku) + '</span>' : '';\r\n\r\n\t\t\t\t\thtml += '<form method=\"POST\" action=\"' + currentSavingActionURL + '\" class=\"m-0\">' +\r\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"product_id\" value=\"' + id + '\" />' +\r\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_name\" value=\"' + escapeSavingHtml(name) + '\" />' +\r\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_sku\" value=\"' + escapeSavingHtml(sku) + '\" />' +\r\n\t\t\t\t\t\t'<button type=\"submit\" class=\"p-3 w-100 text-start flex-between items-center gap-3 border rounded-xl hover-lift cursor-pointer\">' +\r\n\t\t\t\t\t\t'<div><div class=\"text-sm font-extrabold text-primary\">' + escapeSavingHtml(name) + '</div>' +\r\n\t\t\t\t\t\t'<div class=\"d-flex items-center gap-2 mt-1\">' + skuStr + priceStr + '</div></div>' +\r\n\t\t\t\t\t\t'<span class=\"btn btn-primary btn-xs font-bold shrink-0\">ربط </span>' +\r\n\t\t\t\t\t\t'</button>' +\r\n\t\t\t\t\t\t'</form>';\r\n\t\t\t\t});\r\n\t\t\t\tresultsEl.innerHTML = html;\r\n\t\t\t})\r\n\t\t\t.catch(function(err) {\r\n\t\t\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-danger text-xs\">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>';\r\n\t\t\t});\r\n\t}\r\n\r\n\tfunction escapeSavingHtml(text) {\r\n\t\tif (!text) return '';\r\n\t\treturn String(text)\r\n\t\t\t.replace(/&/g, \"&amp;\")\r\n\t\t\t.replace(/</g, \"&lt;\")\r\n\t\t\t.replace(/>/g, \"&gt;\")\r\n\t\t\t.replace(/\"/g, \"&quot;\")\r\n\t\t\t.replace(/'/g, \"&#039;\");\r\n\t}\r\n\r\n\tdocument.addEventListener('keydown', function(e) {\r\n\t\tif (e.key === 'Escape') {\r\n\t\t\tcloseSavingCatalogModal();\r\n\t\t}\r\n\t});\r\n\r\n\tif (document.readyState === 'loading') {\r\n\t\tdocument.addEventListener('DOMContentLoaded', ensureSavingModalInBody);\r\n\t} else {\r\n\t\tensureSavingModalInBody();\r\n\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -450,7 +450,7 @@ func savingThSort(view SavingImportView, colKey, label string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"row-center-xs gap-xs\" style=\"color: inherit; text-decoration: none;\"><span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"row-center-xs gap-xs\"><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -469,18 +469,18 @@ func savingThSort(view SavingImportView, colKey, label string) templ.Component {
 		}
 		if isCurrent {
 			if view.Filter.SortOrder == "desc" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span style=\"font-size: 0.75rem;\">▼</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>▼</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span style=\"font-size: 0.75rem;\">▲</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>▲</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span style=\"font-size: 0.75rem; opacity: 0.4;\">⇅</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>⇅</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -637,7 +637,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" style=\"margin: 0;\"><input type=\"checkbox\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\"><input type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -673,7 +673,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\" class=\"form-input text-xs font-bold\" style=\"padding: 0.35rem 0.5rem;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1.5\" title=\"حفظ الاسم\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\" class=\"form-input text-xs font-bold\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1.5\" title=\"حفظ الاسم\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -872,7 +872,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" class=\"form-input text-center tabular-nums text-xs\" style=\"padding: 0.35rem 0.4rem; width: 60px;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1.5\" title=\"حفظ الكمية\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" class=\"form-input text-center tabular-nums text-xs\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1.5\" title=\"حفظ الكمية\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -906,7 +906,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" class=\"form-input text-center tabular-nums text-xs\" style=\"padding: 0.35rem 0.4rem; width: 75px;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1.5\" title=\"حفظ السعر\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" class=\"form-input text-center tabular-nums text-xs\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1.5\" title=\"حفظ السعر\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

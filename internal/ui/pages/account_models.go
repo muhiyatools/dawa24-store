@@ -87,11 +87,11 @@ func InvoiceBadgeClass(s billing.InvoiceStatus) string {
 func msgStatusLabel(s string) string {
 	switch s {
 	case "resolved":
-		return "تم الرد"
+		return i18n.TDefault("w4_ui.s_179_179")
 	case "read":
-		return "مقروءة"
+		return i18n.TDefault("w4_ui.s_180_180")
 	default:
-		return "جديدة"
+		return i18n.TDefault("w4_ui.s_181_181")
 	}
 }
 

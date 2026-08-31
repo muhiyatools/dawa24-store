@@ -109,7 +109,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 
 		<!-- Supplier Selector Form -->
 		<div class="glass-panel p-6 mb-6">
-			<form method="GET" action="/compare/market-benchmark" class="d-grid gap-4 items-end m-0" style="grid-template-columns: 1fr auto;">
+			<form method="GET" action="/compare/market-benchmark" class="d-grid gap-4 items-end m-0">
 				<div>
 					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
 						اختر ملف المورد المراد مقارنته مع السوق
@@ -185,7 +185,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 					<input type="hidden" name="file" value={ fmt.Sprintf("%d", data.FileID) } />
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
 
-					<div class="d-grid gap-3 items-end" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) 1.5fr auto;">
+					<div class="d-grid gap-3 items-end">
 						<div>
 							<label class="text-xs font-bold text-muted mb-1 d-block">
 								الحد الأدنى للسعر

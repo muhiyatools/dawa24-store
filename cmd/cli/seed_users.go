@@ -39,7 +39,7 @@ func runSeedUsers(ctx context.Context, db *database.DB, log *slog.Logger) error 
 	users := []seedUser{
 		{
 			email:  "admin@dawa24.test",
-			nameAr: "مدير المنصة",
+			nameAr: i18n.TDefault("w4_mod.s_470_470"),
 			nameEn: "Platform Admin",
 			// super_admin bypasses the granular permission checks in
 			// authctx.RequirePermission, so this account reaches every /admin/
@@ -48,19 +48,19 @@ func runSeedUsers(ctx context.Context, db *database.DB, log *slog.Logger) error 
 		},
 		{
 			email:   "vendor@dawa24.test",
-			nameAr:  "مورّد الاختبار",
+			nameAr:  i18n.TDefault("w4_mod.s_471_471"),
 			nameEn:  "Test Supplier",
 			role:    "user",
-			orgName: "شركة دواء للتوزيع",
+			orgName: i18n.TDefault("w4_mod.s_472_472"),
 			orgType: "vendor",
 			orgRole: "org_owner",
 		},
 		{
 			email:   "pharmacy@dawa24.test",
-			nameAr:  "صيدلية الاختبار",
+			nameAr:  i18n.TDefault("w4_mod.s_473_473"),
 			nameEn:  "Test Pharmacy",
 			role:    "user",
-			orgName: "صيدلية الشفاء",
+			orgName: i18n.TDefault("w4_mod.s_474_474"),
 			orgType: "customer",
 			orgRole: "org_owner",
 		},

@@ -6,8 +6,7 @@ package compare
 // written, and nothing has ever set it. MatchLadder existed and was called from
 // nowhere but its own tests, so every comparison the tool has ever produced was
 // made by joining supplier lines to each other on a normalised string — which
-// is why "بانادول اكسترا 24 قرص" from one supplier and "بانادول اكسترا سعر
-// جديد" from another appear as two different products in a price comparison.
+// is why i18n.TDefault("w4_ui.24_57") from one supplier and i18n.TDefault("w4m_mod.s_12_12") from another appear as two different products in a price comparison.
 //
 // This is that missing stage, and it is deliberately NOT a fifth
 // implementation of matching. It builds the same productmatch.Index the vendor
@@ -21,6 +20,7 @@ package compare
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -110,7 +110,7 @@ func (s *Service) MatchFileRows(
 		return stats, fmt.Errorf("compare: service not configured")
 	}
 	if s.catalog == nil {
-		return stats, fmt.Errorf("الكتالوج المركزي غير متاح حالياً، تعذّرت مطابقة الأصناف")
+		return stats, fmt.Errorf("%s", i18n.TDefault("w4_mod.s_362_362"))
 	}
 
 	rows, err := s.repo.ListFileRows(ctx, fileID, matchRowCap, 0)
@@ -214,7 +214,7 @@ func (s *Service) catalogIndex(ctx context.Context) (*productmatch.Index, error)
 		return nil, fmt.Errorf("تعذر تحميل الكتالوج المركزي: %w", err)
 	}
 	if len(products) == 0 {
-		return nil, fmt.Errorf("الكتالوج المركزي فارغ؛ لا يوجد ما تُطابَق عليه الأصناف")
+		return nil, fmt.Errorf("%s", i18n.TDefault("w4_mod.s_363_363"))
 	}
 	masters := make([]productmatch.MasterProduct, 0, len(products))
 	for _, p := range products {

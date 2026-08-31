@@ -48,20 +48,20 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:920px; margin:2rem auto; padding:0 1rem;\"><!-- Breadcrumbs --><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:var(--text-xs); color:var(--text-muted); margin-bottom:1.25rem;\"><a href=\"/\" style=\"color:var(--text-muted); text-decoration:none;\">الرئيسية</a> <span>/</span> <span>السياسات والضوابط القانونية</span> <span>/</span> <span style=\"color:var(--text); font-weight:600;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><!-- Breadcrumbs --><div><a href=\"/\">الرئيسية</a> <span>/</span> <span>السياسات والضوابط القانونية</span> <span>/</span> <span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/content.templ`, Line: 20, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/content.templ`, Line: 20, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><!-- Quick Policy Switcher Bar --><div style=\"display:flex; gap:0.75rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span></div><!-- Quick Policy Switcher Bar --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,7 +83,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" style=\"padding:0.5rem 1.25rem; font-weight:700; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -113,7 +113,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" style=\"padding:0.5rem 1.25rem; font-weight:700; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -121,7 +121,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>سياسة الخصوصية وسرية البيانات</span></a></div><!-- Main Policy Card --><div class=\"card\" style=\"padding:2.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm);\"><!-- Document Header --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1.5rem; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;\"><div class=\"b2b-icon-box\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>سياسة الخصوصية وسرية البيانات</span></a></div><!-- Main Policy Card --><div class=\"card\"><!-- Document Header --><div><div><div><div class=\"b2b-icon-box\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -136,7 +136,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><h1 style=\"font-size:1.65rem; font-weight:800; color:var(--text); margin:0;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,7 +149,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h1></div><p style=\"font-size:var(--text-sm); color:var(--text-secondary); margin:0;\">الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24</p></div><!-- Metadata Badges --><div style=\"display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem;\"><span class=\"badge badge-emerald\" style=\"font-weight:700; font-size:var(--text-xs); padding:0.3rem 0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h1></div><p>الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24</p></div><!-- Metadata Badges --><div><span class=\"badge badge-emerald\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -162,7 +162,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 				return templ_7745c5c3_Err
 			}
 			if version != "" || lastUpdated != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"font-size:var(--text-xs); color:var(--text-muted); display:flex; align-items:center; gap:0.4rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -215,7 +215,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div><!-- Document Body Content --><div style=\"color:var(--text); line-height:2; font-size:1rem; white-space:pre-line; word-break:break-word;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></div><!-- Document Body Content --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -228,7 +228,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><!-- Official Compliance Footer Strip --><div style=\"margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface); padding:1.25rem; border-radius:var(--radius-lg);\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--text-secondary); font-size:var(--text-xs);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><!-- Official Compliance Footer Strip --><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -236,7 +236,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>كافة البنود والتعاملات خاضعة للضوابط واللوائح الصيدلانية والتجارية المصرية السارية.</span></div><a href=\"/contact\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:600; gap:0.35rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>كافة البنود والتعاملات خاضعة للضوابط واللوائح الصيدلانية والتجارية المصرية السارية.</span></div><a href=\"/contact\" class=\"btn btn-secondary btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -292,27 +292,27 @@ func CmsPage(lang, dir, title, body string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div style=\"max-width:860px; margin:2rem auto; padding:0 1rem;\"><div class=\"card\" style=\"padding:2.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);\"><h1 style=\"font-size:1.6rem; font-weight:800; color:var(--text); margin:0 0 1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div><div class=\"card\"><h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/content.templ`, Line: 116, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/content.templ`, Line: 116, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</h1><div style=\"color:var(--text-secondary); line-height:1.9; font-size:0.98rem; white-space:pre-line;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</h1><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(body)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/content.templ`, Line: 117, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/content.templ`, Line: 117, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {

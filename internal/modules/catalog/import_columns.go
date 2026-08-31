@@ -12,8 +12,8 @@ import (
 //
 // The previous mapper walked the header left to right and gave a column to the
 // first field whose keyword it contained, first match winning. That is why a
-// column headed "الباركود الدولي" was bound to sku: the sku rule tested for
-// "كود", which is a substring of "باركود", and it ran before the barcode rule.
+// column headed i18n.TDefault("w4_mod.s_260_260") was bound to sku: the sku rule tested for
+// i18n.TDefault("w4_ui.s_2_2"), which is a substring of i18n.TDefault("w4_ui.s_3_3"), and it ran before the barcode rule.
 // The real barcode column was then unavailable and the real item-code column,
 // further right, was never looked at.
 //
@@ -47,27 +47,27 @@ const (
 )
 
 // FieldLabels are the Arabic names shown in the import report, so an admin
-// reading "لم يتم العثور على عمود: السعر" knows which column to add.
+// reading i18n.TDefault("w4_mod.s_261_261") knows which column to add.
 var FieldLabels = map[string]string{
 	FieldNameAR:        i18n.T("ar", "ingest.col.name_ar"),
 	FieldNameEN:        i18n.T("ar", "ingest.col.name_en"),
 	FieldSKU:           i18n.T("ar", "ingest.col.sku"),
 	FieldBarcode:       i18n.T("ar", "ingest.col.barcode"),
-	FieldPrice:         "السعر",
+	FieldPrice:         i18n.TDefault("w4_ui.s_54_54"),
 	FieldPublicPrice:   i18n.T("ar", "ingest.col.public_price"),
 	FieldCostPrice:     i18n.T("ar", "ingest.col.cost_price"),
-	FieldDiscount:      "الخصم",
-	FieldGenericName:   "الاسم العلمي",
-	FieldActive:        "المادة الفعالة",
+	FieldDiscount:      i18n.TDefault("w4_ui.s_55_55"),
+	FieldGenericName:   i18n.TDefault("w4_mod.s_257_257"),
+	FieldActive:        i18n.TDefault("w4_ui.s_164_164"),
 	FieldDosageForm:    i18n.T("ar", "ingest.col.dosage_form"),
 	FieldConcentration: i18n.T("ar", "ingest.col.concentration"),
 	FieldUnit:          i18n.T("ar", "ingest.col.unit"),
 	FieldManufacturer:  i18n.T("ar", "ingest.col.manufacturer"),
-	FieldDescriptionAR: "الوصف بالعربي",
-	FieldDescriptionEN: "الوصف بالإنجليزي",
+	FieldDescriptionAR: i18n.TDefault("w4_ui.s_10_10"),
+	FieldDescriptionEN: i18n.TDefault("w4_ui.s_11_11"),
 	FieldQuantity:      i18n.T("ar", "ingest.col.quantity"),
-	FieldStatus:        "الحالة",
-	FieldCategory:      "فئة المنتج",
+	FieldStatus:        i18n.TDefault("w4_ui.s_173_173"),
+	FieldCategory:      i18n.TDefault("w4_mod.s_262_262"),
 }
 
 // Match strengths. The gaps are wide on purpose: an exact header match must beat
@@ -133,7 +133,7 @@ type ColumnPlan struct {
 	// Bindings lists the same decisions with their evidence, ordered by column.
 	Bindings []ColumnBinding
 	// Unmapped holds header labels that matched no field. They are shown to the
-	// admin rather than dropped silently: an unmapped "سعر الجمهور" is the
+	// admin rather than dropped silently: an unmapped i18n.TDefault("w4m_mod.s_11_11") is the
 	// difference between a correct catalogue and a wrong one.
 	Unmapped []string
 	// Positional is true when no usable header was found and the plan falls back
@@ -187,7 +187,7 @@ func PlanColumns(headerRow []string, sample [][]string) ColumnPlan {
 			// The shared resolver scores 0..1; this module has always reported
 			// 0..100 and the review screen renders it that way. The bands below
 			// are the resolver's own confidence thresholds rescaled, so
-			// "مؤكد" means here exactly what it means on the vendor's screen.
+			// i18n.TDefault("w4_mod.s_263_263") means here exactly what it means on the vendor's screen.
 			Score: int(c.Score * 100),
 		})
 	}

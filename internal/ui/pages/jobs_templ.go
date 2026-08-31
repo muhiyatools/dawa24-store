@@ -89,7 +89,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-container\"><!-- Header Banner --><div class=\"jobs-header\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-container\"><!-- Header Banner --><div class=\"jobs-header\"><div><div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">شواغر وفرص العمل في القطاع الصيدلاني</h1></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:680px; line-height:1.6;\">بوابة التوظيف المعتمدة للصيادلة، مدراء الفروع، مسؤولي المشتريات، وسلاسل الإمداد الطبي الموثقة في مصر.</p></div><!-- Post Job Button (Shown for Pharmacies, Vendors & Admins) -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1>شواغر وفرص العمل في القطاع الصيدلاني</h1></div><p>بوابة التوظيف المعتمدة للصيادلة، مدراء الفروع، مسؤولي المشتريات، وسلاسل الإمداد الطبي الموثقة في مصر.</p></div><!-- Post Job Button (Shown for Pharmacies, Vendors & Admins) -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -115,7 +115,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"btn btn-primary btn-sm fw-700\" style=\"gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"btn btn-primary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -128,7 +128,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><!-- Metrics Summary Strip --><div class=\"jobs-metrics-grid\"><div class=\"jobs-metric-card\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">إجمالي الشواغر النشطة</div><div style=\"font-size:1.75rem; font-weight:800; color:var(--text);\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><!-- Metrics Summary Strip --><div class=\"jobs-metrics-grid\"><div class=\"jobs-metric-card\"><div>إجمالي الشواغر النشطة</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -141,7 +141,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " <span style=\"font-size:0.85rem; font-weight:600; color:var(--text-secondary);\">وظيفة متاحة</span></div></div><div class=\"jobs-metric-card\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">القطاعات والتخصصات</div><div style=\"font-size:1.05rem; font-weight:800; color:var(--accent);\">صيدليات • مخازن • توزيع</div></div><div class=\"jobs-metric-card\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">متوسط الرواتب المعلنة</div><div style=\"font-size:1.25rem; font-weight:800; color:var(--text);\" class=\"tabular-nums\">8,000 - 25,000 <span style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">ج.م</span></div></div><div class=\"jobs-metric-card\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">ضمان الاعتماد</div><div style=\"display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;\"><span class=\"badge badge-emerald text-xs fw-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " <span>وظيفة متاحة</span></div></div><div class=\"jobs-metric-card\"><div>القطاعات والتخصصات</div><div>صيدليات • مخازن • توزيع</div></div><div class=\"jobs-metric-card\"><div>متوسط الرواتب المعلنة</div><div class=\"tabular-nums\">8,000 - 25,000 <span>ج.م</span></div></div><div class=\"jobs-metric-card\"><div>ضمان الاعتماد</div><div><span class=\"badge badge-emerald text-xs fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -149,7 +149,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>100% جهات عمل معتمدة</span></span></div></div></div><!-- Instant Filter & Search Strip --><div class=\"jobs-filter-strip\"><!-- Search Input --><div style=\"position:relative; flex:1; min-width:260px;\"><input type=\"text\" id=\"jobs-search-input\" placeholder=\"ابحث بالمسمى الوظيفي، التخصص، أو جهة العمل...\" class=\"form-input input-sm w-full\" style=\"padding-inline-start:2rem;\" oninput=\"filterJobsList()\"><div style=\"position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>100% جهات عمل معتمدة</span></span></div></div></div><!-- Instant Filter & Search Strip --><div class=\"jobs-filter-strip\"><!-- Search Input --><div><input type=\"text\" id=\"jobs-search-input\" placeholder=\"ابحث بالمسمى الوظيفي، التخصص، أو جهة العمل...\" class=\"form-input input-sm w-full\" oninput=\"filterJobsList()\"><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -157,7 +157,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- City Filter --><select id=\"jobs-city-filter\" class=\"form-input input-sm\" style=\"width:190px;\" onchange=\"filterJobsList()\"><option value=\"\">كل المحافظات والمدن</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- City Filter --><select id=\"jobs-city-filter\" class=\"form-input input-sm\" onchange=\"filterJobsList()\"><option value=\"\">كل المحافظات والمدن</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -205,12 +205,12 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select><!-- Quick Type Filter Buttons --><div style=\"display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill active\" onclick=\"setJobTypeFilter('', this)\">الكل</button> <button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill\" onclick=\"setJobTypeFilter('دوام كامل', this)\">دوام كامل</button> <button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill\" onclick=\"setJobTypeFilter('دوام جزئي', this)\">دوام جزئي</button> <button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill\" onclick=\"setJobTypeFilter('شيفت', this)\">شيفتات</button></div></div><!-- Job Listings Grid -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select><!-- Quick Type Filter Buttons --><div><button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill active\" onclick=\"setJobTypeFilter('', this)\">الكل</button> <button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill\" onclick=\"setJobTypeFilter('دوام كامل', this)\">دوام كامل</button> <button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill\" onclick=\"setJobTypeFilter('دوام جزئي', this)\">دوام جزئي</button> <button type=\"button\" class=\"btn btn-secondary btn-xs fw-700 job-type-pill\" onclick=\"setJobTypeFilter('شيفت', this)\">شيفتات</button></div></div><!-- Job Listings Grid -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Jobs) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card\" style=\"padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"width:48px; height:48px; border-radius:50%; background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -218,7 +218,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">لا توجد فرص توظيف معلنة حالياً</h3><p class=\"text-sm text-muted m-0\">لم يتم نشر أي شواغر وظيفية جديدة في الوقت الراهن. يرجى مراجعة القسم لاحقاً.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3>لا توجد فرص توظيف معلنة حالياً</h3><p class=\"text-sm text-muted m-0\">لم يتم نشر أي شواغر وظيفية جديدة في الوقت الراهن. يرجى مراجعة القسم لاحقاً.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -268,7 +268,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"><div><!-- Header: Company Initials Avatar + Verification + Date --><div class=\"job-card-header\"><div style=\"display:flex; align-items:center; gap:0.65rem;\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.95rem; border:1px solid var(--border); flex-shrink:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"><div><!-- Header: Company Initials Avatar + Verification + Date --><div class=\"job-card-header\"><div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -281,7 +281,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div style=\"display:flex; flex-direction:column; gap:0.15rem;\"><span class=\"job-card-company\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div><span class=\"job-card-company\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -294,7 +294,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span><div style=\"display:flex; align-items:center; gap:0.35rem;\"><span class=\"badge badge-emerald text-xs fw-700\" style=\"padding:0.15rem 0.4rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span><div><span class=\"badge badge-emerald text-xs fw-700\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -315,7 +315,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></div><!-- Title --><h3 class=\"job-card-title\" style=\"margin-top:0.75rem;\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></div><!-- Title --><h3 class=\"job-card-title\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -395,7 +395,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if !item.Job.SalaryMin.IsZero() || !item.Job.SalaryMax.IsZero() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div style=\"font-size:0.95rem; font-weight:800; color:var(--accent);\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -418,7 +418,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span style=\"font-size:0.8rem; color:var(--text-muted); font-weight:600;\">الراتب يحدد بالمقابلة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>الراتب يحدد بالمقابلة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -441,7 +441,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"btn btn-primary btn-sm fw-700\" style=\"padding:0.4rem 0.85rem; font-size:0.825rem; gap:0.35rem;\"><span>التفاصيل والتقديم</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"btn btn-primary btn-sm fw-700\"><span>التفاصيل والتقديم</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -460,7 +460,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div><!-- Client-side filtering script --><script>\n\t\tlet activeJobTypeFilter = '';\n\n\t\tfunction setJobTypeFilter(typeVal, btnEl) {\n\t\t\tactiveJobTypeFilter = typeVal.toLowerCase();\n\t\t\tdocument.querySelectorAll('.job-type-pill').forEach(b => b.classList.remove('active'));\n\t\t\tif (btnEl) btnEl.classList.add('active');\n\t\t\tfilterJobsList();\n\t\t}\n\n\t\tfunction filterJobsList() {\n\t\t\tconst q = (document.getElementById('jobs-search-input')?.value || '').toLowerCase().trim();\n\t\t\tconst city = (document.getElementById('jobs-city-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst cards = document.querySelectorAll('#jobs-cards-grid .job-card');\n\n\t\t\tcards.forEach(card => {\n\t\t\t\tconst title = card.getAttribute('data-job-title') || '';\n\t\t\t\tconst loc = card.getAttribute('data-job-location') || '';\n\t\t\t\tconst desc = card.getAttribute('data-job-desc') || '';\n\n\t\t\t\tconst matchesQ = !q || title.includes(q) || desc.includes(q) || loc.includes(q);\n\t\t\t\tconst matchesCity = !city || loc.includes(city);\n\t\t\t\tconst matchesType = !activeJobTypeFilter || desc.includes(activeJobTypeFilter) || title.includes(activeJobTypeFilter);\n\n\t\t\t\tif (matchesQ && matchesCity && matchesType) {\n\t\t\t\t\tcard.style.display = 'flex';\n\t\t\t\t} else {\n\t\t\t\t\tcard.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div><!-- Client-side filtering script --><script>\r\n\t\tlet activeJobTypeFilter = '';\r\n\r\n\t\tfunction setJobTypeFilter(typeVal, btnEl) {\r\n\t\t\tactiveJobTypeFilter = typeVal.toLowerCase();\r\n\t\t\tdocument.querySelectorAll('.job-type-pill').forEach(b => b.classList.remove('active'));\r\n\t\t\tif (btnEl) btnEl.classList.add('active');\r\n\t\t\tfilterJobsList();\r\n\t\t}\r\n\r\n\t\tfunction filterJobsList() {\r\n\t\t\tconst q = (document.getElementById('jobs-search-input')?.value || '').toLowerCase().trim();\r\n\t\t\tconst city = (document.getElementById('jobs-city-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst cards = document.querySelectorAll('#jobs-cards-grid .job-card');\r\n\r\n\t\t\tcards.forEach(card => {\r\n\t\t\t\tconst title = card.getAttribute('data-job-title') || '';\r\n\t\t\t\tconst loc = card.getAttribute('data-job-location') || '';\r\n\t\t\t\tconst desc = card.getAttribute('data-job-desc') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || title.includes(q) || desc.includes(q) || loc.includes(q);\r\n\t\t\t\tconst matchesCity = !city || loc.includes(city);\r\n\t\t\t\tconst matchesType = !activeJobTypeFilter || desc.includes(activeJobTypeFilter) || title.includes(activeJobTypeFilter);\r\n\r\n\t\t\t\tif (matchesQ && matchesCity && matchesType) {\r\n\t\t\t\t\tcard.style.display = 'flex';\r\n\t\t\t\t} else {\r\n\t\t\t\t\tcard.style.display = 'none';\r\n\t\t\t\t}\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -490,7 +490,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			templ_7745c5c3_Var18 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"jobs-container\" style=\"max-width:1100px; margin:0 auto;\"><!-- Back Button & Breadcrumbs --><div style=\"display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"jobs-container\"><!-- Back Button & Breadcrumbs --><div><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -508,7 +508,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.4rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"btn btn-secondary btn-sm fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -516,7 +516,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span>العودة لكافة الوظائف والفرص</span></a><div style=\"font-size:0.775rem; color:var(--text-muted); font-weight:600;\"><span>كود الشاغر: </span> <span class=\"tabular-nums fw-700 text-primary\">REF-JOB-")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span>العودة لكافة الوظائف والفرص</span></a><div><span>كود الشاغر: </span> <span class=\"tabular-nums fw-700 text-primary\">REF-JOB-")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -529,7 +529,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></div></div><!-- 2-Column Responsive Grid --><div class=\"job-detail-grid\"><!-- Left Column: Details, Scope & Requirements --><div style=\"display:flex; flex-direction:column; gap:1.25rem;\"><!-- Hero Header Card --><div class=\"job-detail-card\"><div><div style=\"display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.65rem;\"><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-emerald text-xs fw-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></div></div><!-- 2-Column Responsive Grid --><div class=\"job-detail-grid\"><!-- Left Column: Details, Scope & Requirements --><div><!-- Hero Header Card --><div class=\"job-detail-card\"><div><div><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-emerald text-xs fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -550,7 +550,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--text); margin:0 0 0.5rem 0; line-height:1.35;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></div><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -563,7 +563,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</h1><div style=\"display:flex; align-items:center; gap:0.85rem; flex-wrap:wrap; color:var(--text-secondary); font-size:0.9rem; margin-top:0.5rem;\"><div style=\"display:flex; align-items:center; gap:0.35rem;\"><div style=\"width:24px; height:24px; border-radius:var(--radius-sm); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</h1><div><div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -594,7 +594,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Job.Location != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div style=\"display:flex; align-items:center; gap:0.35rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -620,7 +620,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><!-- Key Specs Matrix --><div class=\"job-specs-matrix\"><div class=\"job-spec-item\"><span class=\"job-spec-label\">نظام العمل</span> <span class=\"job-spec-value\">دوام كامل (Full-Time)</span></div><div class=\"job-spec-item\"><span class=\"job-spec-label\">الخبرة المطلوبة</span> <span class=\"job-spec-value\">1 - 3 سنوات في المجال</span></div><div class=\"job-spec-item\"><span class=\"job-spec-label\">المؤهل الدراسي</span> <span class=\"job-spec-value\">بكالوريوس صيدلة معتمد</span></div><div class=\"job-spec-item\"><span class=\"job-spec-label\">ترخيص المزاولة</span> <span class=\"job-spec-value\">كارنيه نقابة ساري</span></div></div></div><!-- Section: Job Description & Responsibilities --><div class=\"job-detail-card\"><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0; display:flex; align-items:center; gap:0.4rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><!-- Key Specs Matrix --><div class=\"job-specs-matrix\"><div class=\"job-spec-item\"><span class=\"job-spec-label\">نظام العمل</span> <span class=\"job-spec-value\">دوام كامل (Full-Time)</span></div><div class=\"job-spec-item\"><span class=\"job-spec-label\">الخبرة المطلوبة</span> <span class=\"job-spec-value\">1 - 3 سنوات في المجال</span></div><div class=\"job-spec-item\"><span class=\"job-spec-label\">المؤهل الدراسي</span> <span class=\"job-spec-value\">بكالوريوس صيدلة معتمد</span></div><div class=\"job-spec-item\"><span class=\"job-spec-label\">ترخيص المزاولة</span> <span class=\"job-spec-value\">كارنيه نقابة ساري</span></div></div></div><!-- Section: Job Description & Responsibilities --><div class=\"job-detail-card\"><h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -628,7 +628,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span>الوصف الوظيفي والمسؤوليات الأساسية</span></h3><div style=\"white-space:pre-line; color:var(--text-secondary); line-height:1.9; font-size:0.925rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span>الوصف الوظيفي والمسؤوليات الأساسية</span></h3><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -646,7 +646,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Job.Requirements != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"job-detail-card\"><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0; display:flex; align-items:center; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"job-detail-card\"><h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -654,7 +654,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span>المؤهلات والشروط المطلوبة</span></h3><div style=\"white-space:pre-line; color:var(--text-secondary); line-height:1.9; font-size:0.925rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span>المؤهلات والشروط المطلوبة</span></h3><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -672,7 +672,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<!-- Section: Benefits & Work Environment --><div class=\"job-detail-card\"><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0; display:flex; align-items:center; gap:0.4rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<!-- Section: Benefits & Work Environment --><div class=\"job-detail-card\"><h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -680,7 +680,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span>المزايا وبيئة العمل</span></h3><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.25rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);\"><span style=\"color:var(--success);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span>المزايا وبيئة العمل</span></h3><div><div><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -688,7 +688,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</span> <span>تأمينات اجتماعية وطبية شاملة</span></div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);\"><span style=\"color:var(--success);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</span> <span>تأمينات اجتماعية وطبية شاملة</span></div><div><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -696,7 +696,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</span> <span>حوافز شهرية ومكافآت أداء</span></div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);\"><span style=\"color:var(--success);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</span> <span>حوافز شهرية ومكافآت أداء</span></div><div><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -704,7 +704,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span> <span>إجازات سنوية ورسمية مدفوعة</span></div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);\"><span style=\"color:var(--success);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span> <span>إجازات سنوية ورسمية مدفوعة</span></div><div><span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -712,12 +712,12 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</span> <span>فرص ترقي وتطوير مهني مستمر</span></div></div></div></div><!-- Right Column: Sticky Application & Compensation Sidebar --><div style=\"display:flex; flex-direction:column; gap:1.25rem; position:sticky; top:calc(var(--header-height) + 1rem);\"><!-- Salary & Compensation Card --><div class=\"job-detail-card\" style=\"padding:1.35rem;\"><div style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;\">الراتب والمخصصات المقترحة:</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</span> <span>فرص ترقي وتطوير مهني مستمر</span></div></div></div></div><!-- Right Column: Sticky Application & Compensation Sidebar --><div><!-- Salary & Compensation Card --><div class=\"job-detail-card\"><div>الراتب والمخصصات المقترحة:</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if !data.Job.SalaryMin.IsZero() || !data.Job.SalaryMax.IsZero() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div style=\"font-size:1.45rem; font-weight:900; color:var(--accent);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -735,22 +735,22 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span style=\"font-size:0.85rem; font-weight:700; color:var(--text-secondary);\">/ شهرياً</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span>/ شهرياً</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div style=\"font-size:1.15rem; font-weight:800; color:var(--text);\">يحدد بناءً على المقابلة والخبرة</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div>يحدد بناءً على المقابلة والخبرة</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div><!-- Job Application Box --><div class=\"job-detail-card\" style=\"padding:1.5rem;\"><h3 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.85rem 0;\">التقديم على هذه الفرصة</h3>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div><!-- Job Application Box --><div class=\"job-detail-card\"><h3>التقديم على هذه الفرصة</h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Submitted {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div style=\"background:var(--accent-subtle); border:1px solid var(--accent); padding:1.25rem; border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:0.5rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--accent-text);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -758,12 +758,12 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<strong style=\"font-size:1rem;\">تم إرسال طلب التوظيف بنجاح!</strong></div><p style=\"font-size:0.825rem; color:var(--text-secondary); margin:0; line-height:1.6;\">تم استلام طلبك وإرفاق بياناتك بنجاح. سيقوم مسؤول التوظيف بمراجعة سيرتك الذاتية والتواصل معك في أقرب وقت.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<strong>تم إرسال طلب التوظيف بنجاح!</strong></div><p>تم استلام طلبك وإرفاق بياناتك بنجاح. سيقوم مسؤول التوظيف بمراجعة سيرتك الذاتية والتواصل معك في أقرب وقت.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if !data.IsLoggedIn {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<div style=\"text-align:center; padding:1.25rem; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg);\"><div style=\"width:40px; height:40px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -771,7 +771,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div><h4 style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin:0 0 0.25rem 0;\">التقديم متاح لحسابات (باحث عن عمل)</h4><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0 0 1rem 0; line-height:1.5;\">يرجى تسجيل الدخول بحساب باحث عن عمل لإرسال سيرتك الذاتية ومتابعة طلبك.</p><div style=\"display:flex; flex-direction:column; gap:0.4rem;\"><a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div><h4>التقديم متاح لحسابات (باحث عن عمل)</h4><p>يرجى تسجيل الدخول بحساب باحث عن عمل لإرسال سيرتك الذاتية ومتابعة طلبك.</p><div><a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -784,12 +784,12 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"btn btn-primary btn-sm fw-700\" style=\"justify-content:center;\"><span>تسجيل الدخول كباحث عن عمل</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary btn-sm\" style=\"justify-content:center;\"><span>إنشاء حساب باحث عن عمل</span></a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" class=\"btn btn-primary btn-sm fw-700\"><span>تسجيل الدخول كباحث عن عمل</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary btn-sm\"><span>إنشاء حساب باحث عن عمل</span></a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if !data.IsJobSeeker {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div style=\"text-align:center; padding:1.25rem; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg);\"><div style=\"font-size:1.5rem; margin-bottom:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -797,7 +797,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div><h4 style=\"font-weight:800; font-size:0.95rem; color:var(--text); margin:0 0 0.35rem 0;\">التقديم متاح فقط لحسابات (باحث عن عمل)</h4><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0 0 0.85rem 0; line-height:1.5;\">أنت مسجل حالياً بحساب منشأة. للتقديم على الوظائف الشاغرة كصيدلي أو كادر طبي، يرجى استخدام حساب باحث عن عمل.</p><a href=\"/auth/register\" class=\"btn btn-secondary btn-sm\" style=\"justify-content:center; width:100%;\"><span>إنشاء حساب باحث عن عمل جديد</span></a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div><h4>التقديم متاح فقط لحسابات (باحث عن عمل)</h4><p>أنت مسجل حالياً بحساب منشأة. للتقديم على الوظائف الشاغرة كصيدلي أو كادر طبي، يرجى استخدام حساب باحث عن عمل.</p><a href=\"/auth/register\" class=\"btn btn-secondary btn-sm\"><span>إنشاء حساب باحث عن عمل جديد</span></a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -815,7 +815,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:0.85rem;\"><div><label class=\"form-label label-sm-bold\">الاسم الثلاثي / المهني <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"applicant_name\" required value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" enctype=\"multipart/form-data\"><div><label class=\"form-label label-sm-bold\">الاسم الثلاثي / المهني <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"applicant_name\" required value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -854,7 +854,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" placeholder=\"01012345678\" class=\"form-input input-sm tabular-nums w-full\"></div><div><label class=\"form-label label-sm-bold\">إرفاق السيرة الذاتية (CV / PDF) <span class=\"text-danger\">*</span></label> <input type=\"file\" name=\"resume_file\" accept=\".pdf,.doc,.docx\" required class=\"form-input input-sm w-full\" style=\"padding:0.35rem; font-size:0.775rem;\"></div><div><label class=\"form-label label-sm-bold\">ملاحظات أو نبذة عن الخبرة (اختياري)</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"أبرز الخبرات والمهارات...\" class=\"form-input input-sm w-full\" style=\"resize:vertical;\"></textarea></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\" style=\"justify-content:center; padding:0.65rem; width:100%; margin-top:0.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" placeholder=\"01012345678\" class=\"form-input input-sm tabular-nums w-full\"></div><div><label class=\"form-label label-sm-bold\">إرفاق السيرة الذاتية (CV / PDF) <span class=\"text-danger\">*</span></label> <input type=\"file\" name=\"resume_file\" accept=\".pdf,.doc,.docx\" required class=\"form-input input-sm w-full\"></div><div><label class=\"form-label label-sm-bold\">ملاحظات أو نبذة عن الخبرة (اختياري)</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"أبرز الخبرات والمهارات...\" class=\"form-input input-sm w-full\"></textarea></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -867,7 +867,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><!-- Safety & Verification Notice --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; font-size:0.775rem; color:var(--text-muted); line-height:1.5;\"><div style=\"font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;\">ضمان الأمان والنزاهة</div>تضمن منصة دواء24 التحقق من كافة جهات العمل المنشورة. لا تطلب أي جهة معتمدة رسوماً مقابل التقديم للوظائف.</div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><!-- Safety & Verification Notice --><div><div>ضمان الأمان والنزاهة</div>تضمن منصة دواء24 التحقق من كافة جهات العمل المنشورة. لا تطلب أي جهة معتمدة رسوماً مقابل التقديم للوظائف.</div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -979,7 +979,7 @@ func JobsPage(data JobsPageData, lang string, dir string) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div style=\"max-width:1240px; margin:1.5rem auto 4rem auto; padding:0 1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1106,7 +1106,7 @@ func JobDetail(data JobDetailData, lang string, dir string) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div style=\"max-width:1100px; margin:1.5rem auto 4rem auto; padding:0 1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -96,7 +96,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 					</div>
 				</div>
 				<div class="d-flex items-center gap-3">
-					<div class="stat-card-3d p-3 px-4 border border-slate-200/80 rounded-xl bg-surface-sunken" style="min-width:180px;">
+					<div class="stat-card-3d p-3 px-4 border border-slate-200/80 rounded-xl bg-surface-sunken">
 						<div class="stat-card-label text-xs font-bold text-muted">رصيد محفظتك المتاح</div>
 						<div class="text-lg font-black text-primary tabular-nums mt-0.5">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
@@ -258,7 +258,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 				</div>
 			} else {
 				<!-- Horizontal Grid of Modern Pricing Cards -->
-				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: stretch;">
+				<div>
 					for _, p := range data.Plans {
 						{{ isCurrent := data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) }}
 						<div
@@ -293,7 +293,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 								</div>
 
 								<!-- Plan Short Description -->
-								<p class="text-xs text-secondary leading-relaxed mb-4 font-medium" style="min-height:38px;">
+								<p class="text-xs text-secondary leading-relaxed mb-4 font-medium">
 									{ p.Description.Get("ar") }
 								</p>
 
@@ -311,7 +311,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 									</div>
 
 									<!-- Annual Price View -->
-									<div x-show="planBillingPeriod === 'annual'" class="flex-between items-baseline" style="display: none;">
+									<div x-show="planBillingPeriod === 'annual'" class="flex-between items-baseline">
 										<div>
 											<span class="text-2xl font-black text-emerald-600 tabular-nums">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })
@@ -420,33 +420,13 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		</div>
 
 		<!-- In-App Wallet Checkout Modal -->
-		<dialog
-			:open="isCheckoutOpen"
-			x-cloak
-			class="modal"
-			@keydown.escape.window="isCheckoutOpen = false"
-			@click.self="isCheckoutOpen = false"
-		>
-			<div class="modal-box modal-md">
-				<!-- Modal Header -->
-				<div class="modal-header">
-					<div class="d-flex items-center gap-2.5">
-						<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
-							@components.IconCreditCard("icon-sm")
-						</div>
-						<div>
-							<h3 class="text-base font-black text-primary m-0">
-								تأكيد الاشتراك والدفع من المحفظة
-							</h3>
-							<p class="text-2xs text-secondary m-0 mt-0.5 font-medium" x-text="'الباقة المختارة: ' + selectedPlanName"></p>
-						</div>
-					</div>
-					<button type="button" class="btn btn-secondary btn-icon btn-sm" @click="isCheckoutOpen = false">
-						@components.IconClose("icon-xs")
-					</button>
-				</div>
-
-				<form
+		@components.Modal(components.ModalProps{
+			ID:         "checkout-plan-modal",
+			AlpineOpen: "isCheckoutOpen",
+			Title:      "????? ???????? ?????? ?? ???????",
+			Size:       "md",
+		}) {
+			<form
 					method="POST"
 					action={ templ.SafeURL(func() string { if orgType == "vendor" || orgType == "supplier" { return "/vendor/subscription/checkout" }; return "/customer/subscription/checkout" }()) }
 					class="m-0 d-flex flex-col gap-4"
@@ -479,7 +459,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 									<input type="radio" name="billing_cycle" value="annual" x-model="planBillingPeriod" class="form-check-input" />
 								</div>
 								<div class="text-sm font-black text-primary tabular-nums mt-1" x-text="(selectedPlanYearMinor / 100).toLocaleString('en-US', {minimumFractionDigits:2}) + ' ج.م / سنة'"></div>
-								<span class="badge badge-emerald font-extrabold text-2xs mt-1" style="align-self:flex-start;">وفر شهرين مجاناً</span>
+								<span class="badge badge-emerald font-extrabold text-2xs mt-1">وفر شهرين مجاناً</span>
 							</label>
 						</div>
 					</div>
@@ -560,8 +540,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 						</button>
 					</div>
 				</form>
-			</div>
-		</dialog>
+		}
 
 	</div>
 }

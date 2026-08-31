@@ -39,7 +39,7 @@ func (a *ingestEnhanceAdapter) EnhanceBatch(
 	req := aicapabilities.EnhanceRequest{
 		Catalog: make([]aicapabilities.CatalogEntry, 0, len(batch.Catalog)),
 		Items:   make([]aicapabilities.EnhanceItem, 0, len(batch.Items)),
-		// Attribution for the AI usage ledger: the vendor reads "استيراد الأصناف" on its usage log, not a capability name.
+		// Attribution for the AI usage ledger: the vendor reads i18n.TDefault("w4_mod.s_475_475") on its usage log, not a capability name.
 		Feature: matchflow.FeatureVendorImport,
 	}
 	for _, c := range batch.Catalog {

@@ -14,8 +14,8 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
@@ -406,7 +406,7 @@ func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config Mapp
 	}
 	if config.PriceCol == nil && config.DiscountCol == nil {
 		return apperr.Validation("mapping.price_or_discount_required", "يرجى تحديد عمود السعر أو الخصم على الأقل.", map[string]string{
-			"price_col": "السعر أو الخصم مطلوب لإجراء المقارنة",
+			"price_col": i18n.TDefault("w4_mod.s_374_374"),
 		})
 	}
 
@@ -443,7 +443,7 @@ func (s *Service) UploadAndProcessCompareFile(
 	allRows, err := sheet.ReadRows(fileBytes, originalFilename)
 	if err != nil || len(allRows) == 0 {
 		file.Status = FileFailed
-		file.ErrorMessage = "الملف فارغ أو تعذر قراءة الجداول بداخله"
+		file.ErrorMessage = i18n.TDefault("w4_mod.s_375_375")
 		_ = s.repo.UpdateFile(ctx, file)
 		return file, archived, nil
 	}
@@ -512,12 +512,12 @@ func (s *Service) UploadAndProcessCompareFile(
 		} else {
 			s.log.ErrorContext(ctx, "failed to insert compare file rows", "error", insertErr, "file_id", file.ID)
 			file.Status = FileFailed
-			file.ErrorMessage = "تعذر إدراج أصناف الملف في قاعدة البيانات"
+			file.ErrorMessage = i18n.TDefault("w4_mod.s_376_376")
 		}
 	} else {
 		file.RowCount = 0
 		file.Status = FileUploaded
-		file.ErrorMessage = "لم يتم العثور على صفوف أصناف صالحة"
+		file.ErrorMessage = i18n.TDefault("w4_mod.s_377_377")
 	}
 
 	_ = s.repo.UpdateFile(ctx, file)
@@ -759,20 +759,20 @@ func extractNumber(s string) (float64, error) {
 	}
 
 	// Convert Eastern Arabic numerals to standard digits
-	s = strings.ReplaceAll(s, "٠", "0")
-	s = strings.ReplaceAll(s, "١", "1")
-	s = strings.ReplaceAll(s, "٢", "2")
-	s = strings.ReplaceAll(s, "٣", "3")
-	s = strings.ReplaceAll(s, "٤", "4")
-	s = strings.ReplaceAll(s, "٥", "5")
-	s = strings.ReplaceAll(s, "٦", "6")
-	s = strings.ReplaceAll(s, "٧", "7")
-	s = strings.ReplaceAll(s, "٨", "8")
-	s = strings.ReplaceAll(s, "٩", "9")
-	s = strings.ReplaceAll(s, "٫", ".")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_39_39"), "0")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_40_40"), "1")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_41_41"), "2")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_42_42"), "3")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_43_43"), "4")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_44_44"), "5")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_45_45"), "6")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_46_46"), "7")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_47_47"), "8")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_48_48"), "9")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_49_49"), ".")
 	s = strings.ReplaceAll(s, "%", "")
-	s = strings.ReplaceAll(s, "ج.م", "")
-	s = strings.ReplaceAll(s, "جم", "")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_50_50"), "")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_51_51"), "")
 	s = strings.ReplaceAll(s, "EGP", "")
 	s = strings.ReplaceAll(s, "egp", "")
 	s = strings.ReplaceAll(s, "LE", "")

@@ -221,7 +221,7 @@ func (s *Service) assertBrandInCategory(ctx context.Context, p *Product) error {
 	if !ok {
 		return apperr.Validation("catalog.brand_category_mismatch",
 			"The selected manufacturer does not operate in the selected category.",
-			map[string]string{"brand_id": "الشركة المصنعة المختارة لا تعمل ضمن التصنيف المحدد"})
+			map[string]string{"brand_id": i18n.TDefault("w4_mod.s_341_341")})
 	}
 	return nil
 }

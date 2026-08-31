@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"crypto/rand"
 	"encoding/hex"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"net"
 	"net/http"
 	"strings"
@@ -172,9 +172,9 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 	}
 
 	if city == "" {
-		if strings.Contains(country, "مصر") {
+		if strings.Contains(country, i18n.TDefault("w4_ui.s_176_176")) {
 			city = i18n.T("ar", "geo.city.cairo")
-		} else if strings.Contains(country, "السعودية") {
+		} else if strings.Contains(country, i18n.TDefault("w4_ui.s_177_177")) {
 			city = i18n.T("ar", "geo.city.riyadh")
 		} else {
 			city = i18n.T("ar", "geo.city.main_center")
@@ -185,7 +185,7 @@ func detectCountryAndCity(r *http.Request) (country, city string) {
 
 func cleanCityName(raw string) string {
 	raw = strings.TrimSpace(raw)
-	if raw == "" || raw == "غير محدد" || strings.Contains(raw, "Local") {
+	if raw == "" || raw == i18n.TDefault("w4_ui.s_178_178") || strings.Contains(raw, "Local") {
 		return ""
 	}
 	switch strings.ToLower(raw) {

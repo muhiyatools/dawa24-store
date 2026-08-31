@@ -104,7 +104,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 						if p.OldPrice.IsPositive() {
 							{ p.OldPrice.String() } <span class="text-xs font-normal">?.?</span>
 						} else {
-							<span class="text-muted text-base font-normal">—</span>
+							<span class="text-muted text-base font-normal"></span>
 						}
 					</div>
 					<div class="stat-card-sub text-muted text-xs mt-1">
@@ -151,7 +151,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.ScientificName != "" {
 								{ p.ScientificName }
 							} else {
-								<span class="text-muted">—</span>
+								<span class="text-muted"></span>
 							}
 						</div>
 					</div>
@@ -162,7 +162,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.Active != "" {
 								{ p.Active }
 							} else {
-								<span class="text-muted">—</span>
+								<span class="text-muted"></span>
 							}
 						</div>
 					</div>
@@ -173,7 +173,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.DosageForm != "" {
 								{ p.DosageForm }
 							} else {
-								<span class="text-muted">—</span>
+								<span class="text-muted"></span>
 							}
 						</div>
 					</div>
@@ -184,7 +184,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.Concentration != "" {
 								{ p.Concentration }
 							} else {
-								<span class="text-muted">—</span>
+								<span class="text-muted"></span>
 							}
 						</div>
 					</div>
@@ -195,7 +195,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.Unit != "" {
 								{ p.Unit }
 							} else {
-								<span class="text-muted">—</span>
+								<span class="text-muted"></span>
 							}
 						</div>
 					</div>
@@ -206,7 +206,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.Pharmacology != "" {
 								{ p.Pharmacology }
 							} else {
-								<span class="text-muted">—</span>
+								<span class="text-muted"></span>
 							}
 						</div>
 					</div>
@@ -292,7 +292,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 											if v.ExpiryDate != nil {
 												{ v.ExpiryDate.Format("2006-01-02") }
 											} else {
-												<span>—</span>
+												<span></span>
 											}
 										</td>
 										<td>

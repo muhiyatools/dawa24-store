@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"errors"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"sync"
 	"time"
 )
@@ -41,21 +42,21 @@ const (
 func (p ImportPhase) Label() string {
 	switch p {
 	case ImportPhaseReading:
-		return "قراءة الملف وتحليل بنيته"
+		return i18n.TDefault("w4_mod.s_274_274")
 	case ImportPhaseParsing:
-		return "استخراج الأصناف من الصفوف"
+		return i18n.TDefault("w4_mod.s_275_275")
 	case ImportPhaseMapping:
-		return "مطابقة الأعمدة والتصنيفات"
+		return i18n.TDefault("w4_mod.s_276_276")
 	case ImportPhaseMatching:
-		return "مطابقة الأصناف مع الكتالوج الحالي"
+		return i18n.TDefault("w4_mod.s_277_277")
 	case ImportPhaseStaging:
-		return "تجهيز النتائج للمراجعة"
+		return i18n.TDefault("w4_mod.s_278_278")
 	case ImportPhaseDone:
-		return "اكتملت المعالجة"
+		return i18n.TDefault("w4_mod.s_279_279")
 	case ImportPhaseFailed:
-		return "تعذرت المعالجة"
+		return i18n.TDefault("w4_mod.s_280_280")
 	default:
-		return "في انتظار البدء"
+		return i18n.TDefault("w4_mod.s_281_281")
 	}
 }
 

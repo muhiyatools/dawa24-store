@@ -131,7 +131,7 @@ templ importMappingCard(view ImportMappingView) {
 
 		<!-- Section 1: Core Required Fields -->
 		{{ coreFields := view.CoreFields() }}
-		<div class="glass-panel p-4 mb-4" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
+		<div class="glass-panel p-4 mb-4">
 			<div class="flex-between items-center mb-3">
 				<div class="d-flex items-center gap-2">
 					<span class="text-base">@components.IconStar("icon-sm")</span>
@@ -145,10 +145,10 @@ templ importMappingCard(view ImportMappingView) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th style="width:220px;">الحقل المطلوب</th>
-							<th style="width:280px;">العمود في الملف</th>
+							<th>الحقل المطلوب</th>
+							<th>العمود في الملف</th>
 							<th>عيّنة من القيم</th>
-							<th style="width:100px; text-align:center;">دقة المطابقة</th>
+							<th>دقة المطابقة</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -162,7 +162,7 @@ templ importMappingCard(view ImportMappingView) {
 
 		<!-- Section 2: Pharmaceutical & Clinical Specs -->
 		{{ pharmaFields := view.PharmaFields() }}
-		<div class="glass-panel p-4 mb-4" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
+		<div class="glass-panel p-4 mb-4">
 			<div class="flex-between items-center mb-3">
 				<div class="d-flex items-center gap-2">
 					<span class="text-base">@components.IconPill("icon-sm")</span>
@@ -176,10 +176,10 @@ templ importMappingCard(view ImportMappingView) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th style="width:220px;">الحقل المطلوب</th>
-							<th style="width:280px;">العمود في الملف</th>
+							<th>الحقل المطلوب</th>
+							<th>العمود في الملف</th>
 							<th>عيّنة من القيم</th>
-							<th style="width:100px; text-align:center;">دقة المطابقة</th>
+							<th>دقة المطابقة</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -193,7 +193,7 @@ templ importMappingCard(view ImportMappingView) {
 
 		<!-- Section 3: Pricing, Inventory & Taxonomy -->
 		{{ pricingFields := view.PricingTaxonomyFields() }}
-		<div class="glass-panel p-4 mb-0" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
+		<div class="glass-panel p-4 mb-0">
 			<div class="flex-between items-center mb-3">
 				<div class="d-flex items-center gap-2">
 					<span class="text-base">@components.IconTag("icon-sm")</span>
@@ -207,10 +207,10 @@ templ importMappingCard(view ImportMappingView) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th style="width:220px;">الحقل المطلوب</th>
-							<th style="width:280px;">العمود في الملف</th>
+							<th>الحقل المطلوب</th>
+							<th>العمود في الملف</th>
 							<th>عيّنة من القيم</th>
-							<th style="width:100px; text-align:center;">دقة المطابقة</th>
+							<th>دقة المطابقة</th>
 						</tr>
 					</thead>
 					<tbody>

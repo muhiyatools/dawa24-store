@@ -14,6 +14,7 @@ func loadCatalogDefaults(e *engine) {
 	loadChatAndAttachmentsKeys(e)
 	loadErrorsAndValidationKeys(e)
 	loadWave3Keys(e)
+	loadWave4Keys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

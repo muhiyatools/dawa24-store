@@ -136,7 +136,7 @@ templ AdminUserDetailPage(v AdminUserDetailView, lang, dir string) {
 					<a href="/admin/users" class="btn btn-secondary btn-sm font-bold text-xs">العودة لدليل المستخدمين</a>
 				</div>
 
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
+				<div>
 					<div>
 						<div class="text-xs text-secondary font-bold">البريد الإلكتروني</div>
 						<div class="tabular-nums text-sm font-bold text-primary mt-1 font-mono">{ u.Email }</div>
@@ -181,7 +181,7 @@ templ adminUserRoleForm(v AdminUserDetailView) {
 				</p>
 			} else {
 				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/role", v.User.ID)) } class="d-flex items-center gap-3">
-					<select name="role" class="form-input" style="max-width:320px;">
+					<select name="role" class="form-input">
 						for _, role := range v.Roles {
 							<option value={ role.Key } selected?={ role.Selected }>
 								if role.IsStaff {
@@ -356,13 +356,13 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 								</select>
 							</div>
 
-							<button type="submit" class="btn btn-primary btn-sm font-black text-xs px-4 shadow-sm" style="height: 38px;">
+							<button type="submit" class="btn btn-primary btn-sm font-black text-xs px-4 shadow-sm">
 								@components.IconSearch("icon-xs")
 								<span>تصفية</span>
 							</button>
 
 							if data.SearchQuery != "" || data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SelectedAction != "" {
-								<a href="/admin/employee-activities" class="btn btn-secondary btn-sm text-xs font-bold" style="height: 38px; display: inline-flex; align-items: center;">
+								<a href="/admin/employee-activities" class="btn btn-secondary btn-sm text-xs font-bold">
 									إلغاء
 								</a>
 							}
@@ -386,7 +386,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 						<table class="data-table m-0 text-xs w-full">
 							<thead>
 								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
-									<th class="py-3 text-center ps-4" style="width: 70px;"># ID</th>
+									<th class="py-3 text-center ps-4"># ID</th>
 									<th class="py-3 text-start">التوقيت والتاريخ</th>
 									<th class="py-3 text-start">الموظف المنفذ</th>
 									<th class="py-3 text-start">المنشأة التابع لها</th>
@@ -433,7 +433,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 														{ e.ActorName }
 													</div>
 													if e.ActorEmail != "" {
-														<div class="text-2xs text-muted tabular-nums" dir="ltr" style="text-align: start;">
+														<div class="text-2xs text-muted tabular-nums" dir="ltr">
 															{ e.ActorEmail }
 														</div>
 													}
@@ -523,7 +523,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 									<button class="btn btn-secondary btn-sm text-xs" disabled>السابق</button>
 								}
 
-								<span class="btn btn-primary btn-sm font-black tabular-nums text-xs" style="min-width:32px;">
+								<span class="btn btn-primary btn-sm font-black tabular-nums text-xs">
 									{ fmt.Sprintf("%d", data.Page) }
 								</span>
 
@@ -549,13 +549,13 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 				x-cloak
 				x-transition.opacity
 				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem; margin: 0;"
+			
 				@keydown.escape.window="isDetailsOpen = false"
 			>
 				<div
 					@click.outside="isDetailsOpen = false"
 					class="glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-2xl max-w-2xl w-full bg-white relative mx-auto my-auto overflow-hidden"
-					style="max-height: 90vh; overflow-y: auto; margin: auto;"
+				
 				>
 					<div class="flex-between items-center pb-3 mb-4 border-b border-slate-100">
 						<div class="d-flex items-center gap-2.5">
@@ -597,11 +597,11 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
 								<div class="p-3 bg-rose-50/40 rounded-xl border border-rose-100">
 									<div class="text-2xs font-extrabold text-rose-800 mb-1.5">البيانات السابقة (Before):</div>
-									<pre class="text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700" style="max-height: 180px;" x-text="JSON.stringify(selected.before || {}, null, 2)"></pre>
+									<pre class="text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700" x-text="JSON.stringify(selected.before || {}, null, 2)"></pre>
 								</div>
 								<div class="p-3 bg-emerald-50/40 rounded-xl border border-emerald-100">
 									<div class="text-2xs font-extrabold text-emerald-800 mb-1.5">البيانات بعد التعديل (After):</div>
-									<pre class="text-2xs font-mono bg-white p-2.5 rounded-lg border border-emerald-200 overflow-x-auto text-slate-700" style="max-height: 180px;" x-text="JSON.stringify(selected.after || {}, null, 2)"></pre>
+									<pre class="text-2xs font-mono bg-white p-2.5 rounded-lg border border-emerald-200 overflow-x-auto text-slate-700" x-text="JSON.stringify(selected.after || {}, null, 2)"></pre>
 								</div>
 							</div>
 						</div>

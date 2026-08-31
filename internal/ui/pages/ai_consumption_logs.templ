@@ -42,7 +42,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</div>
 
 				<div class="d-flex items-center gap-3 flex-wrap">
-					<div class="d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs" style="background:var(--surface-sunken);">
+					<div class="d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs">
 						<span class="text-secondary font-bold">معرّف البوابة:</span>
 						<code dir="ltr" class="font-bold text-brand font-mono">{ data.AIUserID }</code>
 					</div>
@@ -69,7 +69,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</div>
 
 				if data.HasBudget {
-					<div style="width:100%; height:7px; background:var(--surface-sunken); border-radius:4px; margin-top:0.5rem; overflow:hidden;">
+					<div>
 						<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
 					</div>
 				}
@@ -118,7 +118,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			<!-- Instant Filter & Search Bar -->
 			<div class="p-4 border-b flex-between items-center gap-3 flex-wrap">
 				<!-- Search Input -->
-				<div class="flex-1" style="min-width:240px;">
+				<div class="flex-1">
 					<input
 						type="text"
 						id="ai-logs-search"
@@ -129,7 +129,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</div>
 
 				<!-- Feature Filter -->
-				<select id="ai-logs-feature-filter" class="form-input text-xs" style="width:200px;" onchange="filterAILogs()">
+				<select id="ai-logs-feature-filter" class="form-input text-xs" onchange="filterAILogs()">
 					<option value="">كافة مواضع الاستخدام</option>
 					if data.IsCustomer {
 						<option value="smart_order">الطلب الذكي (Smart Ordering)</option>
@@ -145,7 +145,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</select>
 
 				<!-- Status Filter -->
-				<select id="ai-logs-status-filter" class="form-input text-xs" style="width:140px;" onchange="filterAILogs()">
+				<select id="ai-logs-status-filter" class="form-input text-xs" onchange="filterAILogs()">
 					<option value="">كافة الحالات</option>
 					<option value="success">ناجح</option>
 					<option value="cached">ذاكرة سريعة</option>
@@ -189,22 +189,22 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 									data-log-feature={ strings.ToLower(log.FeatureKey + " " + log.FeatureName + " " + log.SourceContext) }
 									data-log-model={ strings.ToLower(log.ModelAlias) }
 									data-log-status={ log.Status }
-									style="border-bottom:1px solid var(--border); transition:background 0.15s ease;"
+								
 								>
 									<!-- Request ID & Timestamp -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle;">
-										<div style="display:flex; flex-direction:column; gap:0.15rem;">
-											<code dir="ltr" style="font-size:0.8rem; font-weight:800; color:var(--primary);">{ log.ID }</code>
+									<td>
+										<div>
+											<code dir="ltr">{ log.ID }</code>
 											<span class="tabular-nums text-xs text-muted">{ log.TimeFormatted }</span>
 										</div>
 									</td>
 
 									<!-- Feature Name & Context -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle;">
-										<div style="display:flex; flex-direction:column; gap:0.2rem;">
-											<strong style="font-size:0.875rem; color:var(--text);">{ log.FeatureName }</strong>
+									<td>
+										<div>
+											<strong>{ log.FeatureName }</strong>
 											if log.SourceContext != "" {
-												<span style="font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; gap:0.3rem;">
+												<span>
 													<span>@components.IconMapPin("icon-sm")</span>
 													<span>{ log.SourceContext }</span>
 												</span>
@@ -213,9 +213,9 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 									</td>
 
 									<!-- Model & Tier -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+									<td>
 										<div class="inline-row-04">
-											<code dir="ltr" class="text-xs fw-700" style="background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">{ log.ModelText() }</code>
+											<code dir="ltr" class="text-xs fw-700">{ log.ModelText() }</code>
 											if log.ModelTier == "quality" {
 												<span class="badge badge-purple text-xs">Quality</span>
 											} else if log.ModelTier == "fast" {
@@ -225,21 +225,21 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 									</td>
 
 									<!-- Tokens (Clean In / Out format - No '0 tokens' badge) -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle;">
-										<div class="tabular-nums" dir="ltr" style="font-family:monospace; font-size:0.825rem; font-weight:700; color:var(--text);">
+									<td>
+										<div class="tabular-nums" dir="ltr">
 											In: { fmt.Sprintf("%d", log.InputTokens) } · Out: { fmt.Sprintf("%d", log.OutputTokens) }
 										</div>
 									</td>
 
 									<!-- Latency -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle;">
-										<span class="tabular-nums text-xs" style="color:var(--text-secondary); font-weight:700;">
+									<td>
+										<span class="tabular-nums text-xs">
 											{ log.DurationText() }
 										</span>
 									</td>
 
 									<!-- Status Badge -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle; text-align:center;">
+									<td>
 										if log.Status == "success" || log.Status == "completed" {
 											<span class="badge badge-emerald text-xs fw-700">
 												@components.IconCheckCircle("icon-xs")

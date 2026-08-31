@@ -22,7 +22,7 @@ import (
 // The feature was originally written to hand the run to the River worker and
 // let the buyer watch progress. That is still the right shape when the worker is
 // deployed — but when it is not, the run sits in `queued` forever and the buyer
-// stares at "جاري المعالجة" that never finishes. There is no error to show and
+// stares at i18n.TDefault("w4_mod.s_477_477") that never finishes. There is no error to show and
 // nothing in the logs, because nothing went wrong: nobody was listening.
 //
 // So the server processes the run itself, in a goroutine, and the worker stays
@@ -203,7 +203,7 @@ func (b *serverEnhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.
 	req := aicapabilities.EnhanceRequest{
 		Catalog: make([]aicapabilities.CatalogEntry, 0, len(batch.Catalog)),
 		Items:   make([]aicapabilities.EnhanceItem, 0, len(batch.Items)),
-		// Attribution for the AI usage ledger: the pharmacy reads "الطلب الذكي" on its usage log, not a capability name.
+		// Attribution for the AI usage ledger: the pharmacy reads i18n.TDefault("w4_mod.s_478_478") on its usage log, not a capability name.
 		Feature: matchflow.FeatureSmartOrder,
 	}
 	for _, c := range batch.Catalog {

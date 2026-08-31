@@ -84,7 +84,7 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 					ID:        sr.ID,
 					Outcome:   OutcomeSkipped,
 					VariantID: nil,
-					Message:   "لم يتم تحديد صنف مطابق",
+					Message:   i18n.TDefault("w4_mod.s_379_379"),
 				})
 				continue
 			}
@@ -168,7 +168,7 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 					ID:        sr.row.ID,
 					Outcome:   outcome,
 					VariantID: &vidVal,
-					Message:   "تم بنجاح",
+					Message:   i18n.TDefault("w4_mod.s_380_380"),
 				})
 
 				if s.inventory != nil && session.Settings.WarehouseID > 0 &&

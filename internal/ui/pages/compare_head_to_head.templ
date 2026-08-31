@@ -113,7 +113,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 
 		<!-- Supplier Selector Form -->
 		<div class="glass-panel p-6 mb-6">
-			<form method="GET" action="/compare/head-to-head" class="d-grid gap-4 items-end m-0" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) auto;">
+			<form method="GET" action="/compare/head-to-head" class="d-grid gap-4 items-end m-0">
 				<div>
 					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
 						المورد الأساسي (كشفك / المصدر)
@@ -216,7 +216,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 					<input type="hidden" name="target" value={ fmt.Sprintf("%d", data.TargetFileID) } />
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
 
-					<div class="d-grid gap-3 items-end" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) 1.5fr auto;">
+					<div class="d-grid gap-3 items-end">
 						<!-- الحد الأدنى للسعر -->
 						<div>
 							<label class="text-xs font-bold text-muted mb-1 d-block">

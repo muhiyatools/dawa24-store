@@ -295,28 +295,28 @@ func detectTempWarehouseCols(headers []string, customCode, customName, customPri
 		norm = strings.ReplaceAll(norm, " ", "")
 
 		if codeCol == -1 {
-			if strings.Contains(norm, "كود") || strings.Contains(norm, "code") || strings.Contains(norm, "sku") ||
-				strings.Contains(norm, "باركود") || strings.Contains(norm, "barcode") || strings.Contains(norm, "رقمصنف") ||
+			if strings.Contains(norm, i18n.TDefault("w4_ui.s_2_2")) || strings.Contains(norm, "code") || strings.Contains(norm, "sku") ||
+				strings.Contains(norm, i18n.TDefault("w4_ui.s_3_3")) || strings.Contains(norm, "barcode") || strings.Contains(norm, i18n.TDefault("w4_ui.s_29_29")) ||
 				strings.Contains(norm, "itemcode") {
 				codeCol = i
 			}
 		}
 
 		if nameCol == -1 {
-			if strings.Contains(norm, "اسم") || strings.Contains(norm, "name") || strings.Contains(norm, "صنف") ||
-				strings.Contains(norm, "منتج") || strings.Contains(norm, "item") || strings.Contains(norm, "product") {
+			if strings.Contains(norm, i18n.TDefault("w4_ui.s_30_30")) || strings.Contains(norm, "name") || strings.Contains(norm, i18n.TDefault("w4_ui.s_31_31")) ||
+				strings.Contains(norm, i18n.TDefault("w4_ui.s_32_32")) || strings.Contains(norm, "item") || strings.Contains(norm, "product") {
 				nameCol = i
 			}
 		}
 
 		if priceCol == -1 {
-			if (strings.Contains(norm, "سعر") || strings.Contains(norm, "price") || strings.Contains(norm, "جمهور") || strings.Contains(norm, "رسمي")) && !strings.Contains(norm, "خصم") && !strings.Contains(norm, "صافي") {
+			if (strings.Contains(norm, i18n.TDefault("w4_ui.s_33_33")) || strings.Contains(norm, "price") || strings.Contains(norm, i18n.TDefault("w4_ui.s_34_34")) || strings.Contains(norm, i18n.TDefault("w4_ui.s_35_35"))) && !strings.Contains(norm, i18n.TDefault("w4_ui.s_36_36")) && !strings.Contains(norm, i18n.TDefault("w4_ui.s_37_37")) {
 				priceCol = i
 			}
 		}
 
 		if discountCol == -1 {
-			if strings.Contains(norm, "خصم") || strings.Contains(norm, "discount") || strings.Contains(norm, "%") || strings.Contains(norm, "نسبة") {
+			if strings.Contains(norm, i18n.TDefault("w4_ui.s_36_36")) || strings.Contains(norm, "discount") || strings.Contains(norm, "%") || strings.Contains(norm, i18n.TDefault("w4_ui.s_38_38")) {
 				discountCol = i
 			}
 		}
@@ -344,20 +344,20 @@ func parsePriceFloat(raw string) (float64, error) {
 	if s == "" {
 		return 0, fmt.Errorf("empty string")
 	}
-	s = strings.ReplaceAll(s, "٠", "0")
-	s = strings.ReplaceAll(s, "١", "1")
-	s = strings.ReplaceAll(s, "٢", "2")
-	s = strings.ReplaceAll(s, "٣", "3")
-	s = strings.ReplaceAll(s, "٤", "4")
-	s = strings.ReplaceAll(s, "٥", "5")
-	s = strings.ReplaceAll(s, "٦", "6")
-	s = strings.ReplaceAll(s, "٧", "7")
-	s = strings.ReplaceAll(s, "٨", "8")
-	s = strings.ReplaceAll(s, "٩", "9")
-	s = strings.ReplaceAll(s, "٫", ".")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_39_39"), "0")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_40_40"), "1")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_41_41"), "2")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_42_42"), "3")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_43_43"), "4")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_44_44"), "5")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_45_45"), "6")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_46_46"), "7")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_47_47"), "8")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_48_48"), "9")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_49_49"), ".")
 	s = strings.ReplaceAll(s, "%", "")
-	s = strings.ReplaceAll(s, "ج.م", "")
-	s = strings.ReplaceAll(s, "جم", "")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_50_50"), "")
+	s = strings.ReplaceAll(s, i18n.TDefault("w4_ui.s_51_51"), "")
 	s = strings.ReplaceAll(s, "EGP", "")
 	s = strings.ReplaceAll(s, "egp", "")
 	s = strings.ReplaceAll(s, "LE", "")

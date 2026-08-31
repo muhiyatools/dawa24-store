@@ -51,25 +51,25 @@ var ImportModeOptions = []ImportModeOption{
 	{
 		Mode:        ModeUpdateAndAdd,
 		Icon:        "⚡",
-		Title:       "تحديث المنتجات الحالية وإضافة الجديدة",
+		Title:       i18n.TDefault("w4_mod.s_289_289"),
 		Description: "الخيار الافتراضي؛ يحدّث أسعار وبيانات الأصناف المتطابقة، ويضيف أي صنف جديد غير مسجل.",
 	},
 	{
 		Mode:        ModeAddNewOnly,
 		Icon:        "➕",
-		Title:       "إضافة المنتجات الجديدة فقط",
+		Title:       i18n.TDefault("w4_mod.s_290_290"),
 		Description: "يضيف الأصناف الجديدة فقط، ولا يعدّل أي منتج موجود مسبقاً في الكتالوج.",
 	},
 	{
 		Mode:        ModeUpdateExistingOnly,
 		Icon:        "🔄",
-		Title:       "تحديث المنتجات الموجودة فقط",
+		Title:       i18n.TDefault("w4_mod.s_291_291"),
 		Description: "يحدّث تفاصيل وأسعار الأصناف الموجودة بالفعل، ولا يضيف أي صنف جديد.",
 	},
 	{
 		Mode:        ModeClearAndAdd,
 		Icon:        "🗑️",
-		Title:       "أرشفة الكتالوج الحالي ثم الإضافة",
+		Title:       i18n.TDefault("w4_mod.s_292_292"),
 		Description: "ينقل جميع الأصناف الحالية إلى الأرشيف (حذف قابل للاسترجاع)، ثم يستورد الملف كأصناف جديدة.",
 		Destructive: true,
 	},
@@ -196,11 +196,11 @@ const (
 func (a RowAction) Label() string {
 	switch a {
 	case ActionInsert:
-		return "إضافة"
+		return i18n.TDefault("w4_mod.s_293_293")
 	case ActionUpdate:
-		return "تحديث"
+		return i18n.TDefault("w4_mod.s_294_294")
 	default:
-		return "تخطي"
+		return i18n.TDefault("w4_mod.s_295_295")
 	}
 }
 

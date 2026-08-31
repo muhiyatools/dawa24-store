@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -247,18 +248,18 @@ func nullableID(id int64) *int64 {
 // logs through the run's failure record, not to the results screen.
 func writeFailureMessage(err error) string {
 	if database.IsNotFound(err) {
-		return "الصنف المطلوب تحديثه لم يعد موجوداً"
+		return i18n.TDefault("w4_mod.s_351_351")
 	}
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "duplicate key"):
-		return "كود الصنف مستخدم بالفعل لصنف آخر لدى نفس المنشأة"
+		return i18n.TDefault("w4_mod.s_352_352")
 	case strings.Contains(msg, "violates check constraint"):
-		return "إحدى القيم خارج النطاق المسموح به لهذا الحقل"
+		return i18n.TDefault("w4_mod.s_353_353")
 	case strings.Contains(msg, "violates foreign key"):
-		return "الصنف المرتبط أو الفرع المحدد غير موجود"
+		return i18n.TDefault("w4_mod.s_354_354")
 	case strings.Contains(msg, "numeric field overflow"):
-		return "قيمة السعر أكبر من الحد الذي يقبله النظام"
+		return i18n.TDefault("w4_mod.s_355_355")
 	}
 	return "تعذر حفظ الصنف بسبب خطأ غير متوقع؛ أعد المحاولة، وإن تكرر راجع الدعم الفني."
 }

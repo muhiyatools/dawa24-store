@@ -243,14 +243,14 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 							return templ_7745c5c3_Err
 						}
 						if uo.CustomerOrgName != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div style=\"font-size:0.75rem; color:var(--text-secondary);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var15 string
 							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(uo.CustomerOrgName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_user_organizations.templ`, Line: 102, Col: 93}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_user_organizations.templ`, Line: 102, Col: 37}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 							if templ_7745c5c3_Err != nil {
@@ -287,7 +287,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></td><td><span class=\"badge badge-sky text-xs fw-800 tabular-nums\" style=\"font-family:var(--font-mono, monospace);\" dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></td><td><span class=\"badge badge-sky text-xs fw-800 tabular-nums\" dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -321,7 +321,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td><td><span class=\"tabular-nums\" style=\"font-size:0.8rem; color:var(--text-muted);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td><td><span class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -339,14 +339,14 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 							return templ_7745c5c3_Err
 						}
 						if uo.Notes != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span style=\"font-size:0.8rem; color:var(--text-secondary);\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var20 string
 							templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_user_organizations.templ`, Line: 131, Col: 83}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_user_organizations.templ`, Line: 131, Col: 28}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 							if templ_7745c5c3_Err != nil {

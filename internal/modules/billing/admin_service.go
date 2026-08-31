@@ -2,6 +2,7 @@ package billing
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -69,7 +70,7 @@ func (s *Service) AdminApproveDeposit(ctx context.Context, depositID int64, revi
 // AdminRejectDeposit rejects a pending deposit request with an explanatory reason.
 func (s *Service) AdminRejectDeposit(ctx context.Context, depositID int64, reviewerID int64, reason string) (*WalletDeposit, error) {
 	if reason == "" {
-		reason = "لم يتم قبول إشعار أو بيانات التحويل المقدمة"
+		reason = i18n.TDefault("w4_mod.s_250_250")
 	}
 	dep, err := s.repo.AdminRejectDepositRequest(ctx, depositID, reviewerID, reason)
 	if err != nil {

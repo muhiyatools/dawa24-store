@@ -1,5 +1,7 @@
 package smartorder
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 // How far along a run is, as one number.
 //
 // A buyer watching an import wants one question answered — how much longer? —
@@ -50,23 +52,23 @@ func (s Stage) Band() (start, end int) {
 func (s Stage) Label() string {
 	switch s {
 	case StageParse:
-		return "قراءة الملف"
+		return i18n.TDefault("w4_mod.s_426_426")
 	case StageNormalize:
-		return "تجهيز الأصناف"
+		return i18n.TDefault("w4_mod.s_427_427")
 	case StageResolve:
-		return "مطابقة الأكواد والأسماء"
+		return i18n.TDefault("w4_mod.s_428_428")
 	case StageCandidates:
-		return "مطابقة الأصناف المتبقية"
+		return i18n.TDefault("w4_mod.s_429_429")
 	case StageInitialDone:
-		return "اكتملت المطابقة المبدئية"
+		return i18n.TDefault("w4_mod.s_430_430")
 	case StageAIEnhance, StageAdjudicate:
-		return "الذكاء الاصطناعي يحسّن المطابقات غير المؤكدة"
+		return i18n.TDefault("w4_mod.s_431_431")
 	case StageSelect:
-		return "البحث عن الموردين"
+		return i18n.TDefault("w4_mod.s_432_432")
 	case StageFinalize:
-		return "اكتملت المطابقة"
+		return i18n.TDefault("w4_mod.s_433_433")
 	}
-	return "جارٍ المعالجة"
+	return i18n.TDefault("w4_ui.s_189_189")
 }
 
 // Percent is how far through the whole run this event sits.

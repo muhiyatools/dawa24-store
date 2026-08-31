@@ -1,10 +1,10 @@
 package ui
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"sort"
 	"strings"
 
@@ -270,7 +270,7 @@ func (s *SavingImportSessionStore) FailSession(id string, errMsg string) {
 	if sess, ok := s.sessions[id]; ok {
 		sess.Status = SessionStateFailed
 		sess.Progress = 0
-		sess.ProgressPhase = "فشلت المعالجة"
+		sess.ProgressPhase = i18n.TDefault("w4_ui.s_95_95")
 		sess.ErrorMessage = errMsg
 	}
 }
@@ -295,7 +295,7 @@ func (s *SavingImportSessionStore) CommitSession(ctx context.Context, id string,
 	sess, ok := s.sessions[id]
 	if !ok || sess.OrgID != orgID || sess.Status != SessionStateReady {
 		s.mu.Unlock()
-		return 0, 0, fmt.Errorf("جلسة الاستيراد غير صالحة أو منتهية")
+		return 0, 0, fmt.Errorf("%s", i18n.TDefault("w4_ui.s_96_96"))
 	}
 
 	itemsToCommit := make([]*catalog.SavingProduct, 0, len(sess.Items))
@@ -316,7 +316,7 @@ func (s *SavingImportSessionStore) CommitSession(ctx context.Context, id string,
 	s.mu.Unlock()
 
 	if len(itemsToCommit) == 0 {
-		return 0, 0, fmt.Errorf("لم يتم اختيار أي أصناف للحفظ")
+		return 0, 0, fmt.Errorf("%s", i18n.TDefault("w4_ui.s_97_97"))
 	}
 
 	added, updated, err := catSvc.BatchUpsertSavingProducts(ctx, orgID, &userID, itemsToCommit)

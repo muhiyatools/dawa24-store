@@ -1,6 +1,7 @@
 package compare
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 	"unicode"
 
@@ -29,27 +30,27 @@ const (
 func ArabicLabel(f TargetField) string {
 	switch f {
 	case FieldProductID:
-		return "رقم الصنف"
+		return i18n.TDefault("w4_mod.s_365_365")
 	case FieldProductName:
-		return "اسم الصنف"
+		return i18n.TDefault("w4_ui.s_53_53")
 	case FieldDescription:
-		return "الوصف"
+		return i18n.TDefault("w4_mod.s_366_366")
 	case FieldPrice:
-		return "السعر"
+		return i18n.TDefault("w4_ui.s_54_54")
 	case FieldCostPrice:
-		return "سعر التكلفة"
+		return i18n.TDefault("w4_mod.s_367_367")
 	case FieldDiscount:
-		return "الخصم"
+		return i18n.TDefault("w4_ui.s_55_55")
 	case FieldQuantity:
-		return "الكمية"
+		return i18n.TDefault("w4_mod.s_368_368")
 	case FieldSKU:
-		return "رمز المنتج"
+		return i18n.TDefault("w4_mod.s_369_369")
 	case FieldUniqueID:
-		return "الرقم الفريد"
+		return i18n.TDefault("w4_mod.s_370_370")
 	case FieldBarcode:
-		return "الباركود"
+		return i18n.TDefault("w4_ui.s_84_84")
 	case FieldAlertPrice:
-		return "سعر التنبيه"
+		return i18n.TDefault("w4_mod.s_371_371")
 	case FieldAlertDiscount:
 		return "خصم التنبيه (%)"
 	default:

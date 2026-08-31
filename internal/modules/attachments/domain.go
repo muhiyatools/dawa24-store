@@ -3,6 +3,7 @@
 package attachments
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"encoding/json"
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
@@ -169,12 +170,12 @@ var allowedMIMEs = map[DocumentType][]string{
 // ValidatePresignRequest enforces strict server-side MIME and size rules before generating a presigned URL.
 func ValidatePresignRequest(req PresignRequest) error {
 	if req.DocumentType == "" {
-		return apperr.Validation("document.type_required", "نوع المستند مطلوب", map[string]string{"document_type": "مطلوب"})
+		return apperr.Validation("document.type_required", i18n.TDefault("w4s_mod.s_14_14"), map[string]string{"document_type": i18n.TDefault("w4s_mod.s_15_15")})
 	}
 
 	validMimes, ok := allowedMIMEs[req.DocumentType]
 	if !ok {
-		return apperr.Validation("document.type_invalid", "نوع المستند غير صالح", map[string]string{"document_type": "نوع غير مدعوم"})
+		return apperr.Validation("document.type_invalid", i18n.TDefault("w4s_mod.s_16_16"), map[string]string{"document_type": i18n.TDefault("w4s_mod.s_17_17")})
 	}
 
 	mimeClean := strings.ToLower(strings.TrimSpace(req.MimeType))
@@ -186,7 +187,7 @@ func ValidatePresignRequest(req PresignRequest) error {
 		}
 	}
 	if !mimeMatched {
-		return apperr.Validation("document.mime_unsupported", fmt.Sprintf("صيغة الملف غير مسموح بها (%s)", req.MimeType), map[string]string{"mime_type": "صيغة غير مدعومة"})
+		return apperr.Validation("document.mime_unsupported", fmt.Sprintf("صيغة الملف غير مسموح بها (%s)", req.MimeType), map[string]string{"mime_type": i18n.TDefault("w4s_mod.s_18_18")})
 	}
 
 	maxSize := int64(MaxDocumentSize)
@@ -197,7 +198,7 @@ func ValidatePresignRequest(req PresignRequest) error {
 	}
 
 	if req.SizeBytes > maxSize {
-		return apperr.Validation("document.size_exceeded", fmt.Sprintf("حجم الملف يتجاوز الحد الأقصى المسموح به (%d ميجابايت)", maxSize/(1024*1024)), map[string]string{"size_bytes": "حجم زائد"})
+		return apperr.Validation("document.size_exceeded", fmt.Sprintf("حجم الملف يتجاوز الحد الأقصى المسموح به (%d ميجابايت)", maxSize/(1024*1024)), map[string]string{"size_bytes": i18n.TDefault("w4s_mod.s_19_19")})
 	}
 
 	return nil

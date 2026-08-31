@@ -95,7 +95,7 @@ func (o LayoutOverrides) IsZero() bool {
 // header on its own evidence rather than by resembling the primary header.
 //
 // One confident binding scores 100, so this demands roughly two — enough that a
-// data row containing the word "سعر" in a product name cannot split the sheet.
+// data row containing the word i18n.TDefault("w4_ui.s_33_33") in a product name cannot split the sheet.
 const minHeaderScore = 150
 
 // AnalyzeLayout finds the header rows and data blocks in a worksheet.

@@ -265,9 +265,9 @@ func (v ImportReviewView) SourceSummary() string {
 		parts = append(parts, fmt.Sprintf("فاصل «%s»", delimiterLabel(v.Session.Delimiter)))
 	}
 	if v.Session.BlockCount > 1 {
-		parts = append(parts, fmt.Sprintf("%d كتلة بيانات", v.Session.BlockCount))
+		parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.d_186"), v.Session.BlockCount))
 	}
-	parts = append(parts, fmt.Sprintf("%d صف", v.Session.TotalRows))
+	parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.d_187"), v.Session.TotalRows))
 	return strings.Join(parts, " · ")
 }
 
@@ -326,17 +326,17 @@ func RowActionBadge(action catalog.RowAction) string {
 func SessionStatusLabel(status catalog.SessionStatus) string {
 	switch status {
 	case catalog.SessionDraft:
-		return "بانتظار مراجعة الأعمدة"
+		return i18n.TDefault("w4_ui.s_188_188")
 	case catalog.SessionProcessing:
-		return "جارٍ المعالجة"
+		return i18n.TDefault("w4_ui.s_189_189")
 	case catalog.SessionReady:
-		return "بانتظار التأكيد"
+		return i18n.TDefault("w4_ui.s_190_190")
 	case catalog.SessionCommitted:
-		return "تم الحفظ"
+		return i18n.TDefault("w4_ui.s_191_191")
 	case catalog.SessionCancelled:
-		return "ملغاة"
+		return i18n.TDefault("w4_ui.s_192_192")
 	case catalog.SessionFailed:
-		return "فشلت"
+		return i18n.TDefault("w4_ui.s_193_193")
 	default:
 		return string(status)
 	}

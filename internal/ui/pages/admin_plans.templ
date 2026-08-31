@@ -476,7 +476,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 											<!-- Secondary Action Strip: Quick Toggle, Set Default, Delete -->
 											<div class="d-flex items-center gap-2 pt-1">
 												<!-- Quick Toggle Active Status -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)) } style="flex:1; margin:0;">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)) }>
 													if p.IsActive {
 														<button type="submit" class="btn btn-outline-secondary btn-xs w-full" title="تعطيل الباقة مؤقتاً">
 															<span>إيقاف الباقة</span>
@@ -490,7 +490,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Set Default Plan -->
 												if !p.IsDefault {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) } style="flex:1; margin:0;">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) }>
 														<button type="submit" class="btn btn-outline-amber btn-xs w-full d-flex items-center justify-center gap-1" title="جعلها الباقة الافتراضية">
 															@components.IconShield("icon-2xs")
 															<span>تعيين كافتراضية</span>
@@ -500,7 +500,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 												<!-- Delete Plan (if not default) -->
 												if !p.IsDefault {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
 														<button type="submit" class="btn btn-outline-danger btn-xs btn-icon" title="حذف الباقة">
 															@components.IconTrash("icon-2xs text-rose-600")
 														</button>
@@ -523,28 +523,13 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- Create / Edit Plan Modal                   -->
 			<!-- ========================================== -->
-			<dialog
-				id="admin-plan-modal"
-				class="modal"
-				aria-labelledby="admin-plan-modal-title"
-			>
-				<div class="modal-box modal-lg">
-					<!-- Modal Header -->
-					<div class="modal-header">
-						<div>
-							<h3 id="admin-plan-modal-title" class="modal-title" x-text="isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'"></h3>
-							<p class="m-0 mt-0.5 text-xs text-secondary font-medium">
-								تحديد الأسعار، حدود الجلسات المتزامنة، وصلاحيات الوصول لحصص الذكاء الاصطناعي وخصومات السوق.
-							</p>
-						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
-					</div>
-
-					<form :action="formAction" method="POST" class="d-flex flex-col gap-4 m-0">
+			@components.Modal(components.ModalProps{
+				ID:       "admin-plan-modal",
+				Title:    "????? ???? ????????",
+				Subtitle: "????? ???????? ???? ??????? ?????????? ???????? ?????? ???? ?????? ????????? ??????? ?????.",
+				Size:     "lg",
+			}) {
+				<form :action="formAction" method="POST" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-4">
 							<!-- Section 1: Identity & Names -->
 							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -711,8 +696,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							</button>
 						</div>
 					</form>
-				</div>
-			</dialog>
+			}
 
 		</div>
 

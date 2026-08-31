@@ -8,9 +8,9 @@ import (
 // Text and number normalisation for spreadsheet import.
 //
 // Real supplier files are typed by humans across a decade of Windows machines.
-// The same manufacturer arrives as "جلاكسو", "جلاكسـو" (with tatweel), "جِلاكسو"
-// (with harakat) and "چلاكسو"; the same header arrives as "السعر", "السّعر",
-// "سعر البيع" and "Price ". Comparing those byte-for-byte is why the previous
+// The same manufacturer arrives as i18n.TDefault("w4_mod.s_267_267"), i18n.TDefault("w4_mod.s_268_268") (with tatweel), i18n.TDefault("w4_mod.s_269_269")
+// (with harakat) and i18n.TDefault("w4_mod.s_270_270"); the same header arrives as i18n.TDefault("w4_ui.s_54_54"), i18n.TDefault("w4_mod.s_271_271"),
+// i18n.TDefault("w4_mod.s_252_252") and "Price ". Comparing those byte-for-byte is why the previous
 // importer needed a hand-written contains() chain per field and still missed
 // most files. Normalising once, here, lets every comparison downstream be an
 // ordinary string equality.
@@ -127,7 +127,7 @@ func CleanCellString(s string) string {
 // collapse to the same key.
 //
 // Removing spaces is what makes the synonym table tractable: a supplier writing
-// "سعر الجمهور", "سعرالجمهور" or "سعر  الجمهور" produces one key, not three.
+// i18n.TDefault("w4_mod.s_253_253"), i18n.TDefault("w4_mod.s_272_272") or i18n.TDefault("w4_mod.s_273_273") produces one key, not three.
 func NormalizeKey(s string) string {
 	var b strings.Builder
 	b.Grow(len(s))

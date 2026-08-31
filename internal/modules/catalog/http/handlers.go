@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -193,7 +194,7 @@ func (h *Handler) ListBrandsByCategory(w http.ResponseWriter, r *http.Request) {
 	categoryID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || categoryID <= 0 {
 		httpx.Error(w, r, h.log, apperr.Validation("catalog.category_invalid",
-			"Category id is invalid.", map[string]string{"id": "معرف التصنيف غير صالح"}))
+			"Category id is invalid.", map[string]string{"id": i18n.TDefault("w4_mod.s_342_342")}))
 		return
 	}
 	brands, err := h.service.ListBrandsByCategory(r.Context(), categoryID)

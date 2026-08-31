@@ -113,7 +113,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 					</div>
 
 					<!-- Search Box -->
-					<div style="min-width:240px;">
+					<div>
 						<input
 							type="text"
 							x-model="searchQuery"
@@ -154,12 +154,12 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 										id={ fmt.Sprintf("content-row-%d", b.ID) }
 										x-show={ fmt.Sprintf("(activeTab === 'all' || (activeTab === 'page' && '%s' === 'page') || (activeTab === 'section' && ('%s' === 'section' || '%s' === 'banner')) || (activeTab === 'custom' && '%s' !== 'page' && '%s' !== 'section' && '%s' !== 'banner')) && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", b.Position, b.Position, b.Position, b.Position, b.Position, b.Position, b.Key, b.Title.Get("ar")) }
 									>
-										<td class="tabular-nums" style="font-weight:700; color:var(--neutral-500);">
+										<td class="tabular-nums">
 											#{ fmt.Sprintf("%d", b.ID) }
 										</td>
 										<td>
 											<div class="row-center-sm">
-												<code style="font-size:0.825rem; font-weight:700; color:var(--accent); background:var(--accent-subtle); padding:0.15rem 0.45rem; border-radius:var(--radius-sm); border:1px solid var(--border);" dir="ltr">
+												<code dir="ltr">
 													{ b.Key }
 												</code>
 											</div>
@@ -169,11 +169,11 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 												if b.Title.Get("ar") != "" {
 													{ b.Title.Get("ar") }
 												} else {
-													<span style="color:var(--neutral-400); font-size:0.85rem;">(بدون عنوان عربي)</span>
+													<span>(بدون عنوان عربي)</span>
 												}
 											</div>
 											if b.Title.Get("en") != "" {
-												<div style="font-size:0.8rem; color:var(--neutral-500); margin-top:0.15rem;" dir="ltr">
+												<div dir="ltr">
 													{ b.Title.Get("en") }
 												</div>
 											}
@@ -195,19 +195,19 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 										</td>
 										<td>
 											if b.Body.Get("ar") != "" {
-												<div style="font-size:0.85rem; color:var(--text-secondary); max-width:280px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+												<div>
 													{ b.Body.Get("ar") }
 												</div>
 											} else if b.Body.Get("en") != "" {
-												<div style="font-size:0.85rem; color:var(--text-secondary); max-width:280px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" dir="ltr">
+												<div dir="ltr">
 													{ b.Body.Get("en") }
 												</div>
 											} else {
-												<span style="color:var(--neutral-400); font-size:0.8rem;">-</span>
+												<span>-</span>
 											}
 										</td>
 										<td>
-											<span class="tabular-nums" style="font-weight:700; color:var(--neutral-700);">
+											<span class="tabular-nums">
 												{ fmt.Sprintf("%d", b.SortOrder) }
 											</span>
 										</td>
@@ -219,7 +219,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 											}
 										</td>
 										<td class="text-end">
-											<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+											<div class="table-actions">
 												if previewURL != "" {
 													<a
 														href={ templ.SafeURL(previewURL) }
@@ -227,7 +227,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 														rel="noopener"
 														class="btn btn-secondary btn-sm"
 														title="معاينة الصفحة العامة"
-														style="color:var(--accent); font-weight:700;"
+													
 													>
 														<span>معاينة ↗</span>
 													</a>
@@ -271,13 +271,13 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 													Title: fmt.Sprintf("تعديل محتوى: %s", b.Key),
 													Size:  "lg",
 												}) {
-													<form method="POST" action="/admin/content" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;">
+													<form method="POST" action="/admin/content">
 														<input type="hidden" name="id" value={ fmt.Sprintf("%d", b.ID) } />
 														
 														<div class="form-grid-2">
 															<div class="form-group m-0">
 																<label class="form-label">المفتاح التعريفي (Key) *</label>
-																<input type="text" name="key" value={ b.Key } required class="form-input" dir="ltr" style="font-family:var(--font-mono, monospace);" />
+																<input type="text" name="key" value={ b.Key } required class="form-input" dir="ltr" />
 															</div>
 															<div class="form-group m-0">
 																<label class="form-label">الموضع والتصنيف (Position) *</label>
@@ -361,7 +361,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 			Title: "إضافة كتلة محتوى / قسم جديد",
 			Size:  "lg",
 		}) {
-			<form method="POST" action="/admin/content" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start;" x-data="{ selectedPreset: '', customKey: '' }">
+			<form method="POST" action="/admin/content" x-data="{ selectedPreset: '', customKey: '' }">
 				<div class="form-grid-2">
 					<div class="form-group m-0">
 						<label class="form-label">اختيار مفتاح شائع أو كتابة مخصص *</label>
@@ -400,7 +400,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 							class="form-input"
 							placeholder="about, home-hero..."
 							dir="ltr"
-							style="font-family:var(--font-mono, monospace);"
+						
 						/>
 					</div>
 				</div>

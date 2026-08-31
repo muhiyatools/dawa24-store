@@ -257,7 +257,7 @@ func resolveDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 
 	err = tx.QueryRow(ctx, `
 		INSERT INTO org.organizations (name, type, status)
-		VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
+		VALUES ('{"ar":i18n.TDefault("w4_mod.24_343"),"en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
 		RETURNING id
 	`).Scan(&orgID)
 	if err != nil {
@@ -838,7 +838,7 @@ func explainWriteError(err error) string {
 
 	switch pgErr.Code {
 	case "23505": // unique_violation
-		return "يوجد صنف آخر بنفس كود الصنف أو الباركود في الكتالوج"
+		return i18n.TDefault("w4_mod.s_344_344")
 	case "23503": // foreign_key_violation
 		return "قيمة مرتبطة غير موجودة (التصنيف أو الشركة المصنعة أو الفرع)"
 	case "23514": // check_violation
@@ -846,11 +846,11 @@ func explainWriteError(err error) string {
 	case "23502": // not_null_violation
 		return fmt.Sprintf("قيمة مطلوبة مفقودة في العمود «%s»", pgErr.ColumnName)
 	case "22001": // string_data_right_truncation
-		return "قيمة أطول من الحد المسموح به للعمود"
+		return i18n.TDefault("w4_mod.s_345_345")
 	case "22003": // numeric_value_out_of_range
 		return "قيمة رقمية خارج النطاق المسموح به (الحد الأقصى للسعر 9,999,999,999.99)"
 	case "22P02": // invalid_text_representation
-		return "صيغة قيمة غير صالحة للعمود"
+		return i18n.TDefault("w4_mod.s_346_346")
 	default:
 		return fmt.Sprintf("%s (رمز الخطأ %s)", pgErr.Message, pgErr.Code)
 	}

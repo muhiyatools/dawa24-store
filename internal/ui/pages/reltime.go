@@ -1,8 +1,8 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 )
 

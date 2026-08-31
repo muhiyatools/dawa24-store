@@ -141,7 +141,7 @@ func OffersContent(lang string, offers []*OfferCardData) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\" style=\"max-width:1300px; margin:0 auto; padding-bottom:3rem;\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between flex-wrap gap-4 items-center\"><div><div class=\"d-flex items-center gap-2 mb-2\"><span class=\"badge badge-emerald font-bold text-xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm\"><div class=\"flex-between flex-wrap gap-4 items-center\"><div><div class=\"d-flex items-center gap-2 mb-2\"><span class=\"badge badge-emerald font-bold text-xs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -283,7 +283,7 @@ func OffersContent(lang string, offers []*OfferCardData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if o.OrganizationName != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-slate text-xs font-bold text-truncate shadow-2xs\" style=\"max-width:150px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-slate text-xs font-bold text-truncate shadow-2xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -340,7 +340,7 @@ func OffersContent(lang string, offers []*OfferCardData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p><!-- Key Offer Metrics Strip --><div class=\"d-grid gap-2 p-3 bg-surface-sunken rounded-xl border border-slate-200/70 mb-4 text-xs\" style=\"grid-template-columns: 1fr 1fr;\"><div><span class=\"text-muted d-block mb-1 font-semibold\">الأصناف المشمولة:</span> <strong class=\"text-primary font-bold tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p><!-- Key Offer Metrics Strip --><div class=\"d-grid gap-2 p-3 bg-surface-sunken rounded-xl border border-slate-200/70 mb-4 text-xs\"><div><span class=\"text-muted d-block mb-1 font-semibold\">الأصناف المشمولة:</span> <strong class=\"text-primary font-bold tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -546,7 +546,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			templ_7745c5c3_Var20 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"page-container py-6\" style=\"max-width:1150px; margin:0 auto; padding-bottom:3rem;\"><!-- Back Button & Breadcrumbs --><div class=\"mb-4\"><a href=\"/offers\" class=\"text-xs text-brand text-decoration-none font-bold d-inline-flex items-center gap-1.5 hover-underline\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"page-container py-6\"><!-- Back Button & Breadcrumbs --><div class=\"mb-4\"><a href=\"/offers\" class=\"text-xs text-brand text-decoration-none font-bold d-inline-flex items-center gap-1.5 hover-underline\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -679,7 +679,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><!-- Offer Validity & Summary Grid --><div class=\"d-grid gap-4 bg-surface-sunken p-4 rounded-xl border border-slate-200/70 mb-6 text-xs\" style=\"grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\"><div><span class=\"text-muted font-bold d-block mb-1\">المورد / المنشأة:</span> <strong class=\"text-primary text-sm font-extrabold d-block\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><!-- Offer Validity & Summary Grid --><div class=\"d-grid gap-4 bg-surface-sunken p-4 rounded-xl border border-slate-200/70 mb-6 text-xs\"><div><span class=\"text-muted font-bold d-block mb-1\">المورد / المنشأة:</span> <strong class=\"text-primary text-sm font-extrabold d-block\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -798,7 +798,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\"> <input type=\"hidden\" name=\"quantity\" value=\"1\"> <button type=\"submit\" class=\"btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm hover:shadow-md transition-all\" style=\"border-radius: 10px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\"> <input type=\"hidden\" name=\"quantity\" value=\"1\"> <button type=\"submit\" class=\"btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm hover:shadow-md transition-all\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -824,7 +824,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm\" style=\"border-radius: 10px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -868,7 +868,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"table-container m-0 border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">اسم الصنف / الدواء</th><th style=\"width:140px;\" class=\"text-center py-3\">الكمية بالباقة</th><th style=\"width:140px;\" class=\"text-end py-3\">سعر الجمهور الأصلي</th><th style=\"width:130px;\" class=\"text-center py-3\">نسبة الخصم</th><th style=\"width:150px;\" class=\"text-end py-3\">سعر الصنف بالعرض</th><th style=\"width:150px;\" class=\"text-end py-3 pe-4\">الإجمالي الصافي</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"table-container m-0 border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">اسم الصنف / الدواء</th><th class=\"text-center py-3\">الكمية بالباقة</th><th class=\"text-end py-3\">سعر الجمهور الأصلي</th><th class=\"text-center py-3\">نسبة الخصم</th><th class=\"text-end py-3\">سعر الصنف بالعرض</th><th class=\"text-end py-3 pe-4\">الإجمالي الصافي</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -73,20 +73,20 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 		<!-- Upload Dropzone Card -->
 		<div class="glass-panel p-6 mb-6">
 			<form method="POST" action="/admin/products/images/import/upload" enctype="multipart/form-data" class="stack-md">
-				<div style="text-align:center; padding:2.5rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-xl); background:var(--surface-sunken); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
-					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+				<div>
+					<div>
 						@components.IconImage("icon-lg")
 					</div>
 					<div>
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;">
+						<h3>
 							اختر ملف Excel أو CSV لصور المنتجات
 						</h3>
-						<p style="font-size:0.875rem; color:var(--text-muted);">
+						<p>
 							يجب أن يحتوي الملف على عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL)
 						</p>
 					</div>
-					<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" style="max-width:360px;" />
-					<button type="submit" class="btn btn-primary btn-md font-bold" style="min-width:220px;">
+					<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" />
+					<button type="submit" class="btn btn-primary btn-md font-bold">
 						@components.IconUpload("icon-sm")
 						<span>رفع الملف وبدء المطابقة ←</span>
 					</button>
@@ -118,8 +118,8 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 						<tbody>
 							for _, sess := range view.Sessions {
 								<tr>
-									<td style="font-weight:700; color:var(--text-primary);">{ sess.Filename }</td>
-									<td class="tabular-nums" style="font-size:0.8rem; color:var(--text-muted);">{ sess.CreatedAt.Format("2006-01-02 15:04") }</td>
+									<td>{ sess.Filename }</td>
+									<td class="tabular-nums">{ sess.CreatedAt.Format("2006-01-02 15:04") }</td>
 									<td class="tabular-nums font-bold">{ fmt.Sprintf("%d", sess.TotalRows) }</td>
 									<td><span class="badge badge-success">{ fmt.Sprintf("%d", sess.SuccessRows) }</span></td>
 									<td><span class="badge badge-amber">{ fmt.Sprintf("%d", sess.NotFoundRows) }</span></td>
@@ -134,11 +134,11 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 										}
 									</td>
 									<td>
-										<div class="row-center" style="gap:0.35rem;">
+										<div class="row-center">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s", sess.ID)) } class="btn btn-secondary btn-xs fw-700">
 												<span>فتح الجلسة ←</span>
 											</a>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة؟');">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة؟');">
 												<button type="submit" class="btn btn-danger btn-xs" title="حذف الجلسة">
 													@components.IconTrash("icon-xs")
 												</button>
@@ -156,18 +156,18 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 }
 
 templ adminImageMappingStage(view AdminProductImagesImportView) {
-	<div class="card" style="padding:1.75rem;">
+	<div class="card">
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/mapping", view.Session.ID)) } class="stack-lg">
 			<div>
-				<h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">
+				<h3>
 					تأكيد مطابقة أعمدة ملف الصور ({ view.Session.Filename })
 				</h3>
-				<p style="font-size:0.875rem; color:var(--text-muted);">
+				<p>
 					تحقق من تحديد عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL) بشكل صحيح لبدء التنزيل والربط.
 				</p>
 			</div>
 
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+			<div>
 				<div class="form-group">
 					<label class="form-label font-bold">عمود كود الصنف (SKU) *</label>
 					<select name="sku_col" class="form-input" required>
@@ -208,7 +208,7 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 								for _, row := range view.Session.SampleRows {
 									<tr>
 										for _, cell := range row {
-											<td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{ cell }</td>
+											<td>{ cell }</td>
 										}
 									</tr>
 								}
@@ -218,9 +218,9 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 				</div>
 			}
 
-			<div class="row-center" style="justify-content:flex-end; gap:0.75rem;">
+			<div class="row-center">
 				<a href="/admin/products/images/import" class="btn btn-secondary btn-md">إلغاء والعودة</a>
-				<button type="submit" class="btn btn-primary btn-md fw-800" style="min-width:200px;">
+				<button type="submit" class="btn btn-primary btn-md fw-800">
 					@components.IconImage("icon-sm")
 					<span>تأكيد وبدء تنزيل وربط الصور </span>
 				</button>
@@ -230,23 +230,23 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 }
 
 templ adminImageProcessingStage(view AdminProductImagesImportView) {
-	<div class="card" style="padding:2.5rem; text-align:center;" id="image-processing-card">
-		<div style="width:72px; height:72px; border-radius:var(--radius-full); background:var(--brand-surface); color:var(--brand-primary); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem auto;">
+	<div class="card" id="image-processing-card">
+		<div>
 			@components.IconRefresh("icon-lg")
 		</div>
-		<h3 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">
+		<h3>
 			جارٍ تنزيل الصور وحفظها وربطها بالكتالوج...
 		</h3>
-		<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem;" id="progress-note">
+		<p id="progress-note">
 			{ view.Session.ProgressNote }
 		</p>
 
 		<!-- Progress Bar -->
-		<div style="max-width:500px; margin:0 auto 1.5rem auto;">
-			<div style="background:var(--bg-surface-sunken); height:16px; border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border-subtle);">
+		<div>
+			<div>
 				<div id="progress-bar-fill" style={ "background:linear-gradient(90deg, var(--brand-primary), var(--accent)); height:100%; width:" + fmt.Sprintf("%d", view.Session.Progress) + "%; transition:width 0.3s ease;" }></div>
 			</div>
-			<div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
+			<div>
 				<span id="progress-percent-label">{ fmt.Sprintf("%d", view.Session.Progress) + "%" }</span>
 				<span>إجمالي { fmt.Sprintf("%d", view.Session.TotalRows) } صنفاً</span>
 			</div>
@@ -282,35 +282,35 @@ templ adminImageProcessingStage(view AdminProductImagesImportView) {
 templ adminImageCompletedStage(view AdminProductImagesImportView) {
 	<div class="stack-lg">
 		<!-- Stats Grid -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-			<div class="card" style="padding:1.25rem;">
-				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الصفوف المفحوصة</div>
-				<div style="font-size:1.6rem; font-weight:800; color:var(--text-primary);">{ fmt.Sprintf("%d", view.Session.TotalRows) }</div>
+		<div>
+			<div class="card">
+				<div>إجمالي الصفوف المفحوصة</div>
+				<div>{ fmt.Sprintf("%d", view.Session.TotalRows) }</div>
 			</div>
-			<div class="card" style="padding:1.25rem; border-inline-start:4px solid var(--success);">
-				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">تم تنزيلها وربطها بنجاح</div>
-				<div style="font-size:1.6rem; font-weight:800; color:var(--success);">{ fmt.Sprintf("%d", view.Session.SuccessRows) }</div>
+			<div class="card">
+				<div>تم تنزيلها وربطها بنجاح</div>
+				<div>{ fmt.Sprintf("%d", view.Session.SuccessRows) }</div>
 			</div>
-			<div class="card" style="padding:1.25rem; border-inline-start:4px solid var(--warning);">
-				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">أصناف غير موجودة بالكتالوج</div>
-				<div style="font-size:1.6rem; font-weight:800; color:var(--warning);">{ fmt.Sprintf("%d", view.Session.NotFoundRows) }</div>
+			<div class="card">
+				<div>أصناف غير موجودة بالكتالوج</div>
+				<div>{ fmt.Sprintf("%d", view.Session.NotFoundRows) }</div>
 			</div>
-			<div class="card" style="padding:1.25rem; border-inline-start:4px solid var(--danger);">
-				<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.25rem;">أخطاء في التنزيل / روابط تالفة</div>
-				<div style="font-size:1.6rem; font-weight:800; color:var(--danger);">{ fmt.Sprintf("%d", view.Session.ErrorRows) }</div>
+			<div class="card">
+				<div>أخطاء في التنزيل / روابط تالفة</div>
+				<div>{ fmt.Sprintf("%d", view.Session.ErrorRows) }</div>
 			</div>
 		</div>
 
 		<!-- Interactive Results Table -->
 		<div class="card">
-			<div class="card-header" style="padding:1.25rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+			<div class="card-header">
 				<div>
-					<h3 style="font-size:1.1rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">
+					<h3>
 						نتائج معالجة وتنزيل صور المنتجات
 					</h3>
-					<span style="font-size:0.8rem; color:var(--text-muted);">الملف: { view.Session.Filename }</span>
+					<span>الملف: { view.Session.Filename }</span>
 				</div>
-				<div class="row-center" style="gap:0.75rem;">
+				<div class="row-center">
 					<a href="/admin/products/images/import" class="btn btn-secondary btn-sm fw-700">
 						@components.IconRefresh("icon-xs")
 						<span>عملية استرداد جديدة</span>
@@ -326,8 +326,8 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th style="width:40px;">#</th>
-							<th style="width:80px;">الصورة</th>
+							<th>#</th>
+							<th>الصورة</th>
 							<th>كود الصنف (SKU)</th>
 							<th>المنتج المطابق بالكتالوج</th>
 							<th>رابط الصورة الأصلي</th>
@@ -341,23 +341,23 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 								<td class="tabular-nums font-mono">{ fmt.Sprintf("%d", r.Index) }</td>
 								<td>
 									if r.SavedImagePath != "" {
-										<img src={ r.SavedImagePath } alt={ r.SKU } style="width:44px; height:44px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border-subtle); background:var(--bg-surface-sunken);" />
+										<img src={ r.SavedImagePath } alt={ r.SKU } />
 									} else {
-										<div style="width:44px; height:44px; border-radius:var(--radius-md); background:var(--bg-surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.75rem;">-</div>
+										<div>-</div>
 									}
 								</td>
-								<td style="font-family:monospace; font-weight:700; color:var(--text-primary);">{ r.SKU }</td>
+								<td>{ r.SKU }</td>
 								<td>
 									if r.ProductID != nil && *r.ProductID > 0 {
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *r.ProductID)) } target="_blank" style="font-weight:700; color:var(--brand-primary); text-decoration:none;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *r.ProductID)) } target="_blank">
 											{ r.ProductName } ↗
 										</a>
 									} else {
 										<span class="text-muted">-</span>
 									}
 								</td>
-								<td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem; direction:ltr; text-align:right;">
-									<a href={ templ.SafeURL(r.ImageURL) } target="_blank" rel="noopener" style="color:var(--text-muted); text-decoration:underline;">
+								<td>
+									<a href={ templ.SafeURL(r.ImageURL) } target="_blank" rel="noopener">
 										{ r.ImageURL }
 									</a>
 								</td>
@@ -370,11 +370,11 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 										<span class="badge badge-danger">فشل التنزيل</span>
 									}
 								</td>
-								<td style="font-size:0.8rem; color:var(--text-secondary);">
+								<td>
 									if r.ErrorMsg != "" {
-										<span style="color:var(--danger);">{ r.ErrorMsg }</span>
+										<span>{ r.ErrorMsg }</span>
 									} else {
-										<span style="color:var(--success);">تم الحفظ بنجاح</span>
+										<span>تم الحفظ بنجاح</span>
 									}
 								</td>
 							</tr>

@@ -9,66 +9,21 @@ import (
 )
 
 templ CompareFileMappingModal(file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {
-	<dialog
-		id="compare-mapping-modal-backdrop"
-		class="modal"
-		open
-		aria-labelledby="compare-mapping-title"
-	>
-		<div class="modal-box modal-xl">
-			<!-- Modal Header & Stepper -->
-			<div class="modal-header">
-				<div class="d-flex items-center gap-3">
-					<div class="b2b-icon-box-sm">
-						if isSetup || total > 1 {
-							@components.IconSettings("icon-sm")
-						} else {
-							@components.IconFileText("icon-sm")
-						}
-					</div>
-					<div>
-						if isSetup || total > 1 {
-							<div class="d-flex items-center gap-2 mb-1 flex-wrap">
-								<span class="badge badge-emerald text-xs font-extrabold">
-									معالج ضبط الأعمدة (Setup Mode)
-								</span>
-								<span class="badge badge-sky text-xs font-bold">
-									{ fmt.Sprintf("ملف %d من %d", step, total) }
-								</span>
-							</div>
-						}
-						<h2 id="compare-mapping-title" class="modal-title">
-							ضبط وتأكيد أعمدة كشف المورد
-						</h2>
-						<p class="text-xs text-muted mt-1 m-0">
-							الملف المرفوع: <strong class="text-primary">{ file.OriginalFilename }</strong>
-							if file.RowCount > 0 {
-								<span> • { fmt.Sprintf("(%d صنف مسجل)", file.RowCount) }</span>
-							}
-						</p>
-					</div>
-				</div>
-
-				<form method="dialog">
-					<button
-						type="submit"
-						onclick="closeMappingModal()"
-						class="modal-close"
-						aria-label="إغلاق"
-					>
-						@components.IconClose("icon-xs")
-					</button>
-				</form>
-			</div>
+	@components.Modal(components.ModalProps{
+		ID:    "compare-mapping-modal-backdrop",
+		Title: "??? ?????? ????? ??? ??????",
+		Size:  "xl",
+		Open:  true,
+	}) {
 
 			<!-- Visual Progress Bar if in Multi-File Setup Mode -->
 			if (isSetup || total > 1) && total > 0 {
-				<div style="display:flex; flex-direction:column; gap:0.35rem; margin-top:-0.35rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); font-weight:700;">
+				<div>
+					<div>
 						<span>نسبة إنجاز ملفات الموردين</span>
 						<span class="tabular-nums">{ fmt.Sprintf("%d%%", (step*100)/total) }</span>
 					</div>
-					<div style="width:100%; height:6px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border);">
+					<div>
 						<div
 							style={ fmt.Sprintf("width:%d%%;", (step*100)/total) }
 							class="progress-bar-fill"
@@ -83,7 +38,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				method="POST"
 				action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) }
 				onsubmit="return submitMappingFormAsync(event)"
-				style="display:flex; flex-direction:column; gap:1.25rem; margin:0;"
+			
 			>
 				<input type="hidden" name="setup_queue" value={ remainingQueue } />
 				<input type="hidden" name="step" value={ fmt.Sprintf("%d", step) } />
@@ -91,10 +46,10 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				<input type="hidden" name="next_file_id" value={ fmt.Sprintf("%d", nextFileID) } />
 
 				<!-- Supplier Name Editable Field -->
-				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-					<div style="font-size:1.4rem;">@components.IconBuilding("icon-sm")</div>
-					<div style="flex:1; min-width:260px;">
-						<label class="form-label" style="font-weight:800; font-size:0.85rem; color:var(--text); margin-bottom:0.25rem; display:block;">
+				<div>
+					<div>@components.IconBuilding("icon-sm")</div>
+					<div>
+						<label class="form-label">
 							اسم المورد أو شركة التوزيع <span class="text-danger">*</span>
 						</label>
 						<input
@@ -102,34 +57,34 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							name="supplier_name"
 							value={ file.SupplierName }
 							class="form-input"
-							style="width:100%; height:40px; border-radius:var(--radius-lg); font-weight:700; font-size:0.9rem;"
+						
 							placeholder="مثال: شركة المتحدة للصيادلة / ابن سينا فارما"
 							required
 						/>
 					</div>
-					<div style="font-size:0.775rem; color:var(--text-muted); max-width:240px; line-height:1.4;">
+					<div>
 						سيظهر هذا الاسم في جداول المقارنة وأفضل العروض. يمكنك تعديله الآن.
 					</div>
 				</div>
 
 				<!-- Column Mapping Selectors Grid (2x2) -->
 				<div>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+					<div>
 						<div class="row-center-sm">
-							<span style="font-size:1rem;">@components.IconActivity("icon-sm")</span>
-							<strong style="font-size:0.9rem; color:var(--text);">تحديد أعمدة البيانات بالكشف:</strong>
+							<span>@components.IconActivity("icon-sm")</span>
+							<strong>تحديد أعمدة البيانات بالكشف:</strong>
 						</div>
-						<span class="badge badge-sky" style="font-weight:700; font-size:0.75rem;">
+						<span class="badge badge-sky">
 							{ fmt.Sprintf("%d عمود تم رصده في الملف", len(headers)) }
 						</span>
 					</div>
 
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1rem;">
+					<div>
 						
 						<!-- 1. Product Name (Required) -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div>
 							<div class="flex-between">
-								<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								<label>
 									اسم الصنف الدوائي <span class="text-danger">* (مطلوب للمطابقة)</span>
 								</label>
 								if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
@@ -140,7 +95,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 									}
 								}
 							</div>
-							<select name="name_col" required class="form-select" style="width:100%; border-radius:var(--radius-lg); font-weight:700; height:42px; font-size:0.875rem;">
+							<select name="name_col" required class="form-select">
 								<option value="">-- اختر عمود اسم الصنف --</option>
 								for idx, h := range headers {
 									if (file.MappingConfig.NameCol != nil && *file.MappingConfig.NameCol == idx) || (file.MappingConfig.NameCol == nil && detection != nil && detection.NameCol != nil && *detection.NameCol == idx) {
@@ -153,9 +108,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</div>
 
 						<!-- 2. Price -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div>
 							<div class="flex-between">
-								<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								<label>
 									سعر الجمهور الرسمي (Public Price)
 								</label>
 								if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
@@ -166,7 +121,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 									}
 								}
 							</div>
-							<select name="price_col" class="form-select" style="width:100%; border-radius:var(--radius-lg); font-weight:700; height:42px; font-size:0.875rem;">
+							<select name="price_col" class="form-select">
 								<option value="">-- اختر عمود السعر (اختياري) --</option>
 								for idx, h := range headers {
 									if (file.MappingConfig.PriceCol != nil && *file.MappingConfig.PriceCol == idx) || (file.MappingConfig.PriceCol == nil && detection != nil && detection.PriceCol != nil && *detection.PriceCol == idx) {
@@ -179,9 +134,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</div>
 
 						<!-- 3. Discount -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div>
 							<div class="flex-between">
-								<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								<label>
 									نسبة الخصم % (Discount)
 								</label>
 								if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
@@ -192,7 +147,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 									}
 								}
 							</div>
-							<select name="discount_col" class="form-select" style="width:100%; border-radius:var(--radius-lg); font-weight:700; height:42px; font-size:0.875rem;">
+							<select name="discount_col" class="form-select">
 								<option value="">-- اختر عمود الخصم (اختياري) --</option>
 								for idx, h := range headers {
 									if (file.MappingConfig.DiscountCol != nil && *file.MappingConfig.DiscountCol == idx) || (file.MappingConfig.DiscountCol == nil && detection != nil && detection.DiscountCol != nil && *detection.DiscountCol == idx) {
@@ -205,9 +160,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</div>
 
 						<!-- 4. Code / SKU -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+						<div>
 							<div class="flex-between">
-								<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+								<label>
 									كود الصنف / SKU (اختياري)
 								</label>
 								if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
@@ -218,7 +173,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 									}
 								}
 							</div>
-							<select name="code_col" class="form-select" style="width:100%; border-radius:var(--radius-lg); font-weight:700; height:42px; font-size:0.875rem;">
+							<select name="code_col" class="form-select">
 								<option value="">-- اختر عمود الكود (اختياري) --</option>
 								for idx, h := range headers {
 									if (file.MappingConfig.CodeCol != nil && *file.MappingConfig.CodeCol == idx) || (file.MappingConfig.CodeCol == nil && detection != nil && detection.CodeCol != nil && *detection.CodeCol == idx) {
@@ -235,22 +190,22 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 
 				<!-- Live Preview Table -->
 				if len(headers) > 0 && len(preview) > 0 {
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column; gap:0.6rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
-							<div style="font-weight:800; font-size:0.85rem; color:var(--text);">
+					<div>
+						<div>
+							<div>
 								عينة من بيانات الملف (الصفوف الأولى):
 							</div>
 							<span class="meta-muted">
 								{ fmt.Sprintf("%d صفوف للمعاينة", len(preview)) }
 							</span>
 						</div>
-						<div style="overflow-x:auto; max-height:160px; border-radius:var(--radius-lg); border:1px solid var(--border);">
-							<table class="data-table" style="font-size:0.785rem">
+						<div>
+							<table class="data-table">
 								<thead>
-									<tr style="background:var(--surface-raised); border-bottom:2px solid var(--border); color:var(--text-muted);">
+									<tr>
 										for idx, h := range headers {
-											<th style="padding:0.45rem 0.65rem; font-weight:800; white-space:nowrap; border-inline-end:1px solid var(--border);">
-												<div class="tabular-nums" style="font-size:0.7rem; color:var(--accent); font-weight:800;">#{ fmt.Sprintf("%d", idx+1) }</div>
+											<th>
+												<div class="tabular-nums">#{ fmt.Sprintf("%d", idx+1) }</div>
 												{ h }
 											</th>
 										}
@@ -258,9 +213,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 								</thead>
 								<tbody>
 									for _, row := range preview {
-										<tr style="border-bottom:1px solid var(--border); background:var(--surface-sunken);">
+										<tr>
 											for _, cell := range row {
-												<td style="padding:0.45rem 0.65rem; color:var(--text); white-space:nowrap; border-inline-end:1px solid var(--border);" class="tabular-nums">
+												<td class="tabular-nums">
 													{ cell }
 												</td>
 											}
@@ -273,7 +228,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				}
 
 				<!-- Actions Bar -->
-				<div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.15rem; flex-wrap:wrap;">
+				<div>
 					
 					<div class="d-flex items-center gap-2">
 						if isSetup || total > 1 {
@@ -285,7 +240,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 								data-total={ fmt.Sprintf("%d", total) }
 								onclick="handleSetupSkip(parseInt(this.dataset.fileId,10), this.dataset.queue, parseInt(this.dataset.step,10), parseInt(this.dataset.total,10))"
 								class="btn btn-secondary text-danger"
-								style="font-weight:700; padding:0.6rem 1.15rem; font-size:0.85rem;"
+							
 								title="حذف وتخطي هذا الملف والانتقال للملف التالي"
 							>
 								<span>⏩ تخطي هذا الملف</span>
@@ -296,7 +251,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							type="button"
 							onclick="closeMappingModal()"
 							class="btn btn-secondary"
-							style="font-weight:700; padding:0.6rem 1.15rem; font-size:0.85rem;"
+						
 						>
 							إلغاء
 						</button>
@@ -307,7 +262,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							type="submit"
 							id="mapping-submit-btn"
 							class="btn btn-primary"
-							style="font-weight:800; padding:0.65rem 1.85rem; gap:0.5rem; font-size:0.9rem; box-shadow:0 4px 14px rgba(16,185,129,0.35);"
+						
 						>
 							@components.IconCheck("icon-xs")
 							if nextFileID > 0 {
@@ -320,7 +275,6 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				</div>
 
 			</form>
-		</div>
 
 		<script>
 			if (typeof window.closeMappingModal !== 'function') {
@@ -345,8 +299,8 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 					const modal = document.getElementById('compare-mapping-modal-backdrop');
 					if (modal) {
 						modal.innerHTML = `
-							<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;">
-								<div style="font-size:2rem;">⏩</div>
+							<div class="card">
+								<div>⏩</div>
 								<div>جاري تخطي الملف والانتقال للملف التالي...</div>
 							</div>
 						`;
@@ -388,12 +342,12 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				};
 			}
 		</script>
-	</dialog>
+	}
 }
 
 templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {
 	@layouts.VendorShell("تعيين أعمدة الملف - "+file.SupplierName, "compare", lang, dir) {
-		<div style="max-width:920px; margin:0 auto; padding:1.5rem 0;">
+		<div>
 			@CompareFileMappingModal(file, headers, preview, detection, isSetup, step, total, remainingQueue, nextFileID)
 		</div>
 	}

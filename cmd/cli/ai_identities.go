@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"log/slog"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -69,7 +70,7 @@ func aiIdentities(ctx context.Context, db *database.DB, log *slog.Logger, args [
 			return fmt.Errorf("gateway administrator credentials rejected: %w", err)
 		}
 	} else {
-		fmt.Println("  ! بيانات اعتماد مدير البوابة غير مُهيّأة — سيتم إصلاح الاشتراكات فقط،")
+		fmt.Println(i18n.TDefault("w4_mod.s_455_455"))
 		fmt.Println("    وتخطّي إنشاء مستخدم ومفتاح الذكاء الاصطناعي. أدخلها في إعدادات المطوّرين ثم أعد التشغيل.")
 	}
 

@@ -102,7 +102,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width:1050px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;\" x-data=\"{\n\t\t\tactiveSection: 'transactions',\n\t\t\tisDepositModalOpen: false,\n\t\t\tisWithdrawModalOpen: false,\n\t\t\tisAddPaymentModalOpen: false,\n\t\t\tpaymentType: 'bank'\n\t\t}\"><!-- Compact Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\r\n\t\t\tactiveSection: 'transactions',\r\n\t\t\tisDepositModalOpen: false,\r\n\t\t\tisWithdrawModalOpen: false,\r\n\t\t\tisAddPaymentModalOpen: false,\r\n\t\t\tpaymentType: 'bank'\r\n\t\t}\"><!-- Compact Page Header --><div><div><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -110,7 +110,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>المحفظة والرصيد المالي</span></h1><p style=\"color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;\">إدارة الرصيد المتاح، شحن المحفظة، وسجل العمليات المالية وطرق الدفع</p></div><div style=\"display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"isWithdrawModalOpen = true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>المحفظة والرصيد المالي</span></h1><p>إدارة الرصيد المتاح، شحن المحفظة، وسجل العمليات المالية وطرق الدفع</p></div><div><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"isWithdrawModalOpen = true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -132,7 +132,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		}
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"alert alert-danger\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"alert alert-danger\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -158,7 +158,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"alert alert-success\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"alert alert-success\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -185,7 +185,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Financial Balance Bar --><div class=\"card p-5\" style=\"border-radius:var(--radius-xl); margin-bottom:1.75rem; background:var(--surface);\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; align-items:center;\"><!-- Card 1: Available Balance --><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">الرصيد الفعلي المتاح</div><div style=\"font-size:1.75rem; font-weight:900; color:var(--brand); margin-top:0.2rem;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Financial Balance Bar --><div class=\"card p-5\"><div><!-- Card 1: Available Balance --><div><div>الرصيد الفعلي المتاح</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -198,7 +198,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;\">جاهز لسداد الطلبيات والمسحوبات</div></div><!-- Card 2: Total Deposits --><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">إجمالي الإيداعات</div><div style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-top:0.2rem;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div>جاهز لسداد الطلبيات والمسحوبات</div></div><!-- Card 2: Total Deposits --><div><div>إجمالي الإيداعات</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -211,7 +211,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;\">مجموع المبالغ المودعة</div></div><!-- Card 3: Total Outflows --><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">إجمالي المدفوعات والمسحوبات</div><div style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-top:0.2rem;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div>مجموع المبالغ المودعة</div></div><!-- Card 3: Total Outflows --><div><div>إجمالي المدفوعات والمسحوبات</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -224,7 +224,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;\">سداد أوامر التوريد والمسحوبات</div></div><!-- Card 4: Operations Count --><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">إجمالي العمليات</div><div style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin-top:0.2rem;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div>سداد أوامر التوريد والمسحوبات</div></div><!-- Card 4: Operations Count --><div><div>إجمالي العمليات</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -237,7 +237,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " عملية</div><div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;\">مسجلة في دفتر الأستاذ</div></div></div></div><!-- Section Tabs Navigation --><div style=\"display:flex; gap:0.5rem; border-bottom:1px solid var(--border); margin-bottom:1.5rem; overflow-x:auto;\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'transactions' }\" @click=\"activeSection = 'transactions'\" style=\"font-size:0.9rem; font-weight:700; padding:0.6rem 1.1rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " عملية</div><div>مسجلة في دفتر الأستاذ</div></div></div></div><!-- Section Tabs Navigation --><div><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'transactions' }\" @click=\"activeSection = 'transactions'\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -258,7 +258,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'payments' }\" @click=\"activeSection = 'payments'\" style=\"font-size:0.9rem; font-weight:700; padding:0.6rem 1.1rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'payments' }\" @click=\"activeSection = 'payments'\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -279,7 +279,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'deposits' }\" @click=\"activeSection = 'deposits'\" style=\"font-size:0.9rem; font-weight:700; padding:0.6rem 1.1rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'deposits' }\" @click=\"activeSection = 'deposits'\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -300,12 +300,12 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, ")</span></button></div><!-- Section 1: Transactions Table --><div x-show=\"activeSection === 'transactions'\"><div class=\"card p-0\" style=\"border-radius:var(--radius-xl); overflow:hidden; background:var(--surface);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, ")</span></button></div><!-- Section 1: Transactions Table --><div x-show=\"activeSection === 'transactions'\"><div class=\"card p-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Transactions) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div style=\"padding:3rem 1.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -366,14 +366,14 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if tx.Type == billing.TxDeposit || tx.Type == billing.TxBonus || tx.Type == billing.TxRefund {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span style=\"color:var(--success);\">+")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>+")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 212, Col: 69}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 212, Col: 39}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -384,14 +384,14 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span style=\"color:var(--danger);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 214, Col: 67}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 214, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -415,7 +415,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " ج.م</td><td><div style=\"font-size:0.85rem; font-weight:600; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " ج.م</td><td><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -440,7 +440,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if tx.ReferenceType != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;\">مرجع: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div>مرجع: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -481,7 +481,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div></div><!-- Section 2: Saved Payment Methods --><div x-show=\"activeSection === 'payments'\" style=\"display:none;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div><h2 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">طرق الدفع والحسابات البنكية المعتمدة</h2><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">الحسابات والبطاقات المستخدمة في سداد الفواتير وشحن المحفظة وسحب المستحقات</p></div><button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"isAddPaymentModalOpen = true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div></div><!-- Section 2: Saved Payment Methods --><div x-show=\"activeSection === 'payments'\"><div><div><h2>طرق الدفع والحسابات البنكية المعتمدة</h2><p>الحسابات والبطاقات المستخدمة في سداد الفواتير وشحن المحفظة وسحب المستحقات</p></div><button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"isAddPaymentModalOpen = true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -494,7 +494,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(data.PaymentMethods) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"card p-6\" style=\"border-radius:var(--radius-xl); text-align:center; background:var(--surface);\"><div style=\"font-size:2rem; margin-bottom:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"card p-6\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -502,7 +502,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><h3 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">لم يتم حفظ أي وسيلة دفع</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 1rem 0;\">أضف حسابك البنكي أو محفظتك لتسهيل تسوية العمليات المالية وسحب الرصيد</p><button type=\"button\" class=\"btn btn-outline-brand btn-sm font-bold\" @click=\"isAddPaymentModalOpen = true\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><h3>لم يتم حفظ أي وسيلة دفع</h3><p>أضف حسابك البنكي أو محفظتك لتسهيل تسوية العمليات المالية وسحب الرصيد</p><button type=\"button\" class=\"btn btn-outline-brand btn-sm font-bold\" @click=\"isAddPaymentModalOpen = true\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -515,12 +515,12 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1rem; margin-bottom:2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, pm := range data.PaymentMethods {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"card p-4\" style=\"border-radius:var(--radius-xl); background:var(--surface); display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;\"><div style=\"display:flex; align-items:flex-start; gap:0.75rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"card p-4\"><div><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -545,7 +545,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><div><div class=\"inline-row-wrap\"><span style=\"font-size:0.9rem; font-weight:800; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><div><div class=\"inline-row-wrap\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -568,7 +568,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div><div style=\"font-size:0.8rem; color:var(--text-secondary); margin-top:0.35rem; font-family:monospace; direction:ltr; text-align:right;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -612,7 +612,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<!-- Official Platform Bank Details for Recharge --><div class=\"card p-5\" style=\"border-radius:var(--radius-xl); background:var(--surface-sunken); border:1px dashed var(--border); margin-top:1.5rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<!-- Official Platform Bank Details for Recharge --><div class=\"card p-5\"><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -620,12 +620,12 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span style=\"font-size:0.9rem; font-weight:800; color:var(--text);\">الحسابات الرسمية المعتمدة للتحويل والإيداع</span></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; font-size:0.85rem;\"><div style=\"padding:0.75rem; background:var(--surface); border-radius:var(--radius-md); border:1px solid var(--border);\"><div style=\"font-weight:700; color:var(--text);\">البنك التجاري الدولي (CIB)</div><div style=\"color:var(--text-secondary); margin-top:0.25rem;\">اسم الحساب: شركة دواء 24 للتجارة الإلكترونية</div><div style=\"font-family:monospace; color:var(--brand); font-weight:700; margin-top:0.25rem;\">EG1200100001234567890123</div></div><div style=\"padding:0.75rem; background:var(--surface); border-radius:var(--radius-md); border:1px solid var(--border);\"><div style=\"font-weight:700; color:var(--text);\">إنستاباي (InstaPay)</div><div style=\"color:var(--text-secondary); margin-top:0.25rem;\">عنوان الدفع اللحظي:</div><div style=\"font-family:monospace; color:var(--brand); font-weight:700; margin-top:0.25rem;\">dawa24@instapay</div></div><div style=\"padding:0.75rem; background:var(--surface); border-radius:var(--radius-md); border:1px solid var(--border);\"><div style=\"font-weight:700; color:var(--text);\">فودافون كاش (Vodafone Cash)</div><div style=\"color:var(--text-secondary); margin-top:0.25rem;\">رقم المحفظة المعتمد:</div><div style=\"font-family:monospace; color:var(--brand); font-weight:700; margin-top:0.25rem;\">01000000024</div></div></div></div></div><!-- Section 3: Pending Deposit Requests --><div x-show=\"activeSection === 'deposits'\" style=\"display:none;\"><div class=\"card p-0\" style=\"border-radius:var(--radius-xl); overflow:hidden; background:var(--surface);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span>الحسابات الرسمية المعتمدة للتحويل والإيداع</span></div><div><div><div>البنك التجاري الدولي (CIB)</div><div>اسم الحساب: شركة دواء 24 للتجارة الإلكترونية</div><div>EG1200100001234567890123</div></div><div><div>إنستاباي (InstaPay)</div><div>عنوان الدفع اللحظي:</div><div>dawa24@instapay</div></div><div><div>فودافون كاش (Vodafone Cash)</div><div>رقم المحفظة المعتمد:</div><div>01000000024</div></div></div></div></div><!-- Section 3: Pending Deposit Requests --><div x-show=\"activeSection === 'deposits'\"><div class=\"card p-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.DepositRequests) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div style=\"padding:3rem 1.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -672,14 +672,14 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><td class=\"font-bold tabular-nums\" style=\"color:var(--brand);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><td class=\"font-bold tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(dep.Amount.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 383, Col: 94}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 383, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -769,7 +769,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</div></div><!-- Deposit Modal --><div class=\"modal-backdrop\" x-show=\"isDepositModalOpen\" style=\"display:none;\" x-transition.opacity><div class=\"modal-container\" style=\"max-width:540px;\" @click.away=\"isDepositModalOpen = false\"><div class=\"modal-header\"><h3 class=\"modal-title font-black d-flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</div></div><!-- Deposit Modal --><div class=\"modal-backdrop\" x-show=\"isDepositModalOpen\" x-transition.opacity><div class=\"modal-container\" @click.away=\"isDepositModalOpen = false\"><div class=\"modal-header\"><h3 class=\"modal-title font-black d-flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -798,7 +798,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" method=\"POST\" enctype=\"multipart/form-data\" class=\"stack-sm p-5\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">مبلغ الإيداع (ج.م) *</label> <input type=\"number\" name=\"amount\" step=\"0.01\" min=\"1\" required class=\"form-input form-input-sm\" placeholder=\"مثال: 5000\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">وسيلة التحويل أو الإيداع *</label> <select name=\"payment_method\" required class=\"form-select form-select-sm\"><option value=\"bank_transfer\">تحويل بنكي (Bank Transfer - CIB/QNB)</option> <option value=\"instapay\">إنستاباي (InstaPay)</option> <option value=\"vodafone_cash\">فودافون كاش (Vodafone Cash)</option> <option value=\"credit_card\">بطاقة دفع إلكتروني (Visa / Mastercard)</option></select></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم العملية / مرجع التحويل *</label> <input type=\"text\" name=\"reference_number\" required class=\"form-input form-input-sm\" placeholder=\"رقم المعاملة أو مرجع الإيصال\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">صورة إيصال التحويل (اختياري)</label> <input type=\"file\" name=\"receipt\" accept=\"image/*,application/pdf\" class=\"form-input form-input-sm\"></div><div class=\"form-group mb-3\"><label class=\"form-label text-xs\">ملاحظات إضافية</label> <textarea name=\"notes\" rows=\"2\" class=\"form-input form-input-sm\" placeholder=\"أي تفاصيل خاصة بالعملية...\"></textarea></div><div style=\"display:flex; justify-content:flex-end; gap:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"isDepositModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">تأكيد طلب الشحن</button></div></form></div></div><!-- Withdraw Modal --><div class=\"modal-backdrop\" x-show=\"isWithdrawModalOpen\" style=\"display:none;\" x-transition.opacity><div class=\"modal-container\" style=\"max-width:500px;\" @click.away=\"isWithdrawModalOpen = false\"><div class=\"modal-header\"><h3 class=\"modal-title font-black d-flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" method=\"POST\" enctype=\"multipart/form-data\" class=\"stack-sm p-5\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">مبلغ الإيداع (ج.م) *</label> <input type=\"number\" name=\"amount\" step=\"0.01\" min=\"1\" required class=\"form-input form-input-sm\" placeholder=\"مثال: 5000\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">وسيلة التحويل أو الإيداع *</label> <select name=\"payment_method\" required class=\"form-select form-select-sm\"><option value=\"bank_transfer\">تحويل بنكي (Bank Transfer - CIB/QNB)</option> <option value=\"instapay\">إنستاباي (InstaPay)</option> <option value=\"vodafone_cash\">فودافون كاش (Vodafone Cash)</option> <option value=\"credit_card\">بطاقة دفع إلكتروني (Visa / Mastercard)</option></select></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم العملية / مرجع التحويل *</label> <input type=\"text\" name=\"reference_number\" required class=\"form-input form-input-sm\" placeholder=\"رقم المعاملة أو مرجع الإيصال\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">صورة إيصال التحويل (اختياري)</label> <input type=\"file\" name=\"receipt\" accept=\"image/*,application/pdf\" class=\"form-input form-input-sm\"></div><div class=\"form-group mb-3\"><label class=\"form-label text-xs\">ملاحظات إضافية</label> <textarea name=\"notes\" rows=\"2\" class=\"form-input form-input-sm\" placeholder=\"أي تفاصيل خاصة بالعملية...\"></textarea></div><div><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"isDepositModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">تأكيد طلب الشحن</button></div></form></div></div><!-- Withdraw Modal --><div class=\"modal-backdrop\" x-show=\"isWithdrawModalOpen\" x-transition.opacity><div class=\"modal-container\" @click.away=\"isWithdrawModalOpen = false\"><div class=\"modal-header\"><h3 class=\"modal-title font-black d-flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -827,7 +827,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" method=\"POST\" class=\"stack-sm p-5\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">مبلغ السحب (ج.م) *</label> <input type=\"number\" name=\"amount\" step=\"0.01\" min=\"1\" required class=\"form-input form-input-sm\" placeholder=\"أدخل المبلغ المطلوب سحبه\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">الحساب البنكي أو المحفظة المستلمة *</label> <input type=\"text\" name=\"destination_id\" required class=\"form-input form-input-sm\" placeholder=\"رقم الحساب / الآيبان / إنستاباي\"></div><div class=\"form-group mb-3\"><label class=\"form-label text-xs\">سبب السحب أو ملاحظات</label> <input type=\"text\" name=\"reason\" class=\"form-input form-input-sm\" placeholder=\"سحب مستحقات مبيعات / تسوية\"></div><div style=\"display:flex; justify-content:flex-end; gap:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"isWithdrawModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\">تأكيد طلب السحب</button></div></form></div></div><!-- Add Payment Method Modal --><div class=\"modal-backdrop\" x-show=\"isAddPaymentModalOpen\" style=\"display:none;\" x-transition.opacity><div class=\"modal-container\" style=\"max-width:520px;\" @click.away=\"isAddPaymentModalOpen = false\"><div class=\"modal-header\"><h3 class=\"modal-title font-black d-flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" method=\"POST\" class=\"stack-sm p-5\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">مبلغ السحب (ج.م) *</label> <input type=\"number\" name=\"amount\" step=\"0.01\" min=\"1\" required class=\"form-input form-input-sm\" placeholder=\"أدخل المبلغ المطلوب سحبه\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">الحساب البنكي أو المحفظة المستلمة *</label> <input type=\"text\" name=\"destination_id\" required class=\"form-input form-input-sm\" placeholder=\"رقم الحساب / الآيبان / إنستاباي\"></div><div class=\"form-group mb-3\"><label class=\"form-label text-xs\">سبب السحب أو ملاحظات</label> <input type=\"text\" name=\"reason\" class=\"form-input form-input-sm\" placeholder=\"سحب مستحقات مبيعات / تسوية\"></div><div><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"isWithdrawModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\">تأكيد طلب السحب</button></div></form></div></div><!-- Add Payment Method Modal --><div class=\"modal-backdrop\" x-show=\"isAddPaymentModalOpen\" x-transition.opacity><div class=\"modal-container\" @click.away=\"isAddPaymentModalOpen = false\"><div class=\"modal-header\"><h3 class=\"modal-title font-black d-flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -856,7 +856,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" method=\"POST\" class=\"stack-sm p-5\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">نوع وسيلة الدفع *</label> <select name=\"provider\" x-model=\"paymentType\" required class=\"form-select form-select-sm\"><option value=\"bank\">حساب بنكي رسمي (Bank Account)</option> <option value=\"instapay\">عنوان إنستاباي (InstaPay IPA)</option> <option value=\"vodafone_cash\">محفظة إلكترونية (فودافون كاش / أورنج / اتصالات)</option> <option value=\"card\">بطاقة بنكية (Credit/Debit Card)</option></select></div><!-- Bank specific fields --><div x-show=\"paymentType === 'bank'\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">اسم البنك *</label> <input type=\"text\" name=\"bank_name\" class=\"form-input form-input-sm\" placeholder=\"مثال: البنك التجاري الدولي CIB\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">اسم صاحب الحساب *</label> <input type=\"text\" name=\"account_holder\" class=\"form-input form-input-sm\" placeholder=\"الاسم المطابق للسجل التجاري\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم الحساب أو الآيبان (IBAN) *</label> <input type=\"text\" name=\"iban\" class=\"form-input form-input-sm\" placeholder=\"EG1234...\"></div></div><!-- InstaPay specific fields --><div x-show=\"paymentType === 'instapay'\" class=\"stack-sm\" style=\"display:none;\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">عنوان الدفع اللحظي (IPA) أو رقم الهاتف *</label> <input type=\"text\" name=\"instapay_handle\" class=\"form-input form-input-sm\" placeholder=\"username@instapay\"></div></div><!-- E-Wallet specific fields --><div x-show=\"paymentType === 'vodafone_cash' || paymentType === 'wallet'\" class=\"stack-sm\" style=\"display:none;\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم المحفظة الإلكترونية (11 رقم) *</label> <input type=\"text\" name=\"wallet_phone\" class=\"form-input form-input-sm\" placeholder=\"01012345678\"></div></div><!-- Card specific fields --><div x-show=\"paymentType === 'card'\" class=\"stack-sm\" style=\"display:none;\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم البطاقة (16 رقم) *</label> <input type=\"text\" name=\"card_number\" class=\"form-input form-input-sm\" placeholder=\"4111 2222 3333 4444\"></div></div><div class=\"form-check mt-2 mb-3\"><input type=\"checkbox\" id=\"pm-default\" name=\"is_default\" value=\"1\" class=\"form-check-input\"> <label for=\"pm-default\" class=\"form-check-label text-xs font-semibold\">تعيين كوسيلة دفع افتراضية للحساب</label></div><div style=\"display:flex; justify-content:flex-end; gap:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"isAddPaymentModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">حفظ وسيلة الدفع</button></div></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" method=\"POST\" class=\"stack-sm p-5\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">نوع وسيلة الدفع *</label> <select name=\"provider\" x-model=\"paymentType\" required class=\"form-select form-select-sm\"><option value=\"bank\">حساب بنكي رسمي (Bank Account)</option> <option value=\"instapay\">عنوان إنستاباي (InstaPay IPA)</option> <option value=\"vodafone_cash\">محفظة إلكترونية (فودافون كاش / أورنج / اتصالات)</option> <option value=\"card\">بطاقة بنكية (Credit/Debit Card)</option></select></div><!-- Bank specific fields --><div x-show=\"paymentType === 'bank'\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">اسم البنك *</label> <input type=\"text\" name=\"bank_name\" class=\"form-input form-input-sm\" placeholder=\"مثال: البنك التجاري الدولي CIB\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">اسم صاحب الحساب *</label> <input type=\"text\" name=\"account_holder\" class=\"form-input form-input-sm\" placeholder=\"الاسم المطابق للسجل التجاري\"></div><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم الحساب أو الآيبان (IBAN) *</label> <input type=\"text\" name=\"iban\" class=\"form-input form-input-sm\" placeholder=\"EG1234...\"></div></div><!-- InstaPay specific fields --><div x-show=\"paymentType === 'instapay'\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">عنوان الدفع اللحظي (IPA) أو رقم الهاتف *</label> <input type=\"text\" name=\"instapay_handle\" class=\"form-input form-input-sm\" placeholder=\"username@instapay\"></div></div><!-- E-Wallet specific fields --><div x-show=\"paymentType === 'vodafone_cash' || paymentType === 'wallet'\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم المحفظة الإلكترونية (11 رقم) *</label> <input type=\"text\" name=\"wallet_phone\" class=\"form-input form-input-sm\" placeholder=\"01012345678\"></div></div><!-- Card specific fields --><div x-show=\"paymentType === 'card'\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">رقم البطاقة (16 رقم) *</label> <input type=\"text\" name=\"card_number\" class=\"form-input form-input-sm\" placeholder=\"4111 2222 3333 4444\"></div></div><div class=\"form-check mt-2 mb-3\"><input type=\"checkbox\" id=\"pm-default\" name=\"is_default\" value=\"1\" class=\"form-check-input\"> <label for=\"pm-default\" class=\"form-check-label text-xs font-semibold\">تعيين كوسيلة دفع افتراضية للحساب</label></div><div><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"isAddPaymentModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">حفظ وسيلة الدفع</button></div></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

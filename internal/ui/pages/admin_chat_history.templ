@@ -66,7 +66,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 			<!-- Filter / Search Bar -->
 			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action="/admin/chat/history" class="d-flex gap-3 items-center flex-wrap m-0">
-					<div class="flex-1" style="min-width:240px;">
+					<div class="flex-1">
 						<input
 							type="text"
 							name="q"
@@ -123,7 +123,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 									<td>
 										<div class="fw-700 text-primary">{ c.UserName }</div>
 										if c.UserRole != "" {
-											<span class="badge badge-slate" style="font-size:0.68rem; margin-top:0.15rem;">{ c.UserRole }</span>
+											<span class="badge badge-slate">{ c.UserRole }</span>
 										}
 										if c.UserPhone != "" {
 											<div class="text-xs text-muted" dir="ltr">{ c.UserPhone }</div>
@@ -132,24 +132,24 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										}
 									</td>
 									<td>
-										<div style="font-weight:600; color:var(--text);">{ c.OrganizationName }</div>
-										<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.15rem;">
+										<div>{ c.OrganizationName }</div>
+										<div>
 											if c.OrganizationType == "vendor" {
-												<span class="badge badge-sky" style="font-size:0.68rem;">مورد</span>
+												<span class="badge badge-sky">مورد</span>
 											} else if c.OrganizationType == "customer" {
-												<span class="badge badge-emerald" style="font-size:0.68rem;">صيدلية</span>
+												<span class="badge badge-emerald">صيدلية</span>
 											}
 											<span class="text-xs text-muted">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
 										</div>
 									</td>
 									<td>
-										<div style="max-width:280px; font-size:0.875rem;">
+										<div>
 											if c.Title != "" {
-												<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } style="color:var(--text); text-decoration:none; font-weight:700; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={ c.Title }>
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } title={ c.Title }>
 													{ c.Title }
 												</a>
 											} else {
-												<span style="color:var(--text-muted); font-style:italic;">محادثة بدون عنوان</span>
+												<span>محادثة بدون عنوان</span>
 											}
 										</div>
 									</td>
@@ -167,7 +167,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										{ c.UpdatedAt.Format("2006-01-02 15:04") }
 									</td>
 									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm fw-700" style="gap:0.35rem;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm fw-700">
 											@components.IconEye("icon-xs")
 											<span>عرض المحادثة</span>
 										</a>
@@ -186,7 +186,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 // AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
 templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assistant.Message, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("محادثة ذكاء اصطناعي #%d", summary.ID), "chat_history", lang, dir) {
-		<div class="page-container" style="max-width: 1050px; margin: 0 auto;">
+		<div class="page-container">
 			
 			<!-- Header Card -->
 			<div class="glass-panel p-6 mb-0">
@@ -260,7 +260,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 							if m.Role == "user" {
 								<!-- User Bubble -->
 								<div class="d-flex justify-start">
-									<div class="p-4 bg-surface-sunken border rounded-2xl" style="max-width: 85%;">
+									<div class="p-4 bg-surface-sunken border rounded-2xl">
 										<div class="flex-between items-center gap-4 mb-2 pb-1 border-b text-xs text-muted">
 											<div class="d-flex items-center gap-1.5 font-extrabold text-primary">
 												<span>@components.IconUser("icon-sm")</span>
@@ -268,18 +268,18 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 											</div>
 											<span class="tabular-nums font-mono">{ m.CreatedAt.Format("15:04:05") }</span>
 										</div>
-										<div class="text-xs text-primary leading-relaxed" style="white-space: pre-wrap; word-break: break-word;" dir="auto">{ m.Content }</div>
+										<div class="text-xs text-primary leading-relaxed" dir="auto">{ m.Content }</div>
 										if len(m.Attachments) > 0 {
 											<div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-t">
 												for _, att := range m.Attachments {
-													<div class="border rounded-lg overflow-hidden bg-surface-raised" style="max-width: 240px;">
+													<div class="border rounded-lg overflow-hidden bg-surface-raised">
 														if strings.HasPrefix(att.MIMEType, "image/") || strings.HasPrefix(att.DataURL, "data:image/") {
 															<a href={ templ.SafeURL(att.DataURL) } target="_blank" title="عرض الصورة بالحجم الكامل">
 																<img 
 																	src={ att.DataURL } 
 																	alt={ att.Filename } 
 																	class="w-full object-cover d-block" 
-																	style="height: 120px;" 
+																 
 																/>
 															</a>
 														}
@@ -313,7 +313,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 												<span class="badge badge-slate text-xs font-mono font-bold">{ fmt.Sprintf("%d tokens", m.OutputTokens) }</span>
 											</div>
 										</div>
-										<div class="text-xs text-primary leading-relaxed" style="white-space: pre-wrap; word-break: break-word;" dir="auto">{ m.Content }</div>
+										<div class="text-xs text-primary leading-relaxed" dir="auto">{ m.Content }</div>
 									</div>
 								</div>
 							}

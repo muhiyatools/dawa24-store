@@ -278,7 +278,7 @@ func (h *UIHandler) AdminSponsorshipRequestApproveSubmit(w http.ResponseWriter, 
 		return
 	}
 	if req != nil && req.OrganizationID > 0 {
-		pkgName := "باقة الرعاية"
+		pkgName := i18n.TDefault("w4_ui.s_80_80")
 		if req.Package != nil {
 			pkgName = req.Package.Name.Get("ar")
 		}
@@ -307,7 +307,7 @@ func (h *UIHandler) AdminSponsorshipRequestRejectSubmit(w http.ResponseWriter, r
 		return
 	}
 	if req != nil && req.OrganizationID > 0 {
-		pkgName := "باقة الرعاية"
+		pkgName := i18n.TDefault("w4_ui.s_80_80")
 		if req.Package != nil {
 			pkgName = req.Package.Name.Get("ar")
 		}
@@ -341,7 +341,7 @@ func (h *UIHandler) AdminAdApproveSubmit(w http.ResponseWriter, r *http.Request)
 			adTitle = ad.Title
 		}
 		if adTitle == "" {
-			adTitle = "الإعلان الترويجي"
+			adTitle = i18n.TDefault("w4_ui.s_81_81")
 		}
 		go h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, true, notes)
 	}
@@ -373,7 +373,7 @@ func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) 
 			adTitle = ad.Title
 		}
 		if adTitle == "" {
-			adTitle = "الإعلان الترويجي"
+			adTitle = i18n.TDefault("w4_ui.s_81_81")
 		}
 		go h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, false, notes)
 	}

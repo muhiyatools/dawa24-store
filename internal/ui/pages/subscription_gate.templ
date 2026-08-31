@@ -37,11 +37,11 @@ templ SubscriptionGatePage(lang, dir string, props SubscriptionGateProps) {
 }
 
 templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
-	<div class="page-container" style="max-width:1100px; margin:0 auto; padding:2rem 1rem;">
+	<div class="page-container">
 		
 		<!-- Hero Gating Banner -->
-		<div class="glass-panel text-center p-8 mb-8" style="background:linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-2xl);">
-			<div class="d-inline-flex items-center justify-center mb-4 text-brand" style="width:72px; height:72px; background:rgba(59, 130, 246, 0.12); border:1px solid rgba(59, 130, 246, 0.3); border-radius:var(--radius-full);">
+		<div class="glass-panel text-center p-8 mb-8">
+			<div class="d-inline-flex items-center justify-center mb-4 text-brand">
 				@components.IconShield("icon-md")
 			</div>
 			
@@ -54,7 +54,7 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 				{ props.FeatureTitle }
 			</h1>
 			
-			<p class="text-sm md:text-base text-secondary max-w-2xl mx-auto mb-6" style="line-height:1.6;">
+			<p class="text-sm md:text-base text-secondary max-w-2xl mx-auto mb-6">
 				{ props.FeatureDesc }
 			</p>
 
@@ -81,12 +81,12 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 					</p>
 				</div>
 
-				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+				<div>
 					for _, p := range props.Plans {
-						<div class={ "glass-panel p-6 d-flex flex-col justify-between hover-lift rounded-2xl", templ.KV("border-2 border-brand-500", p.HasFeature(props.FeatureKey)) } style="position:relative;">
+						<div class={ "glass-panel p-6 d-flex flex-col justify-between hover-lift rounded-2xl", templ.KV("border-2 border-brand-500", p.HasFeature(props.FeatureKey)) }>
 							
 							if p.Slug == "pro" {
-								<div class="badge badge-primary font-extrabold text-2xs d-inline-flex items-center gap-1 shadow-2xs" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%);">
+								<div class="badge badge-primary font-extrabold text-2xs d-inline-flex items-center gap-1 shadow-2xs">
 									@components.IconSparkles("icon-2xs")
 									<span>الخيار الأكثر شيوعاً</span>
 								</div>
@@ -100,7 +100,7 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 									<span class="text-xs text-muted font-mono" dir="ltr"><code>{ p.Slug }</code></span>
 								</div>
 
-								<p class="text-xs text-secondary mb-4 font-medium" style="min-height:36px; line-height:1.4;">
+								<p class="text-xs text-secondary mb-4 font-medium">
 									{ p.Description.Get(i18n.Lang(lang)) }
 								</p>
 

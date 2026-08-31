@@ -3,6 +3,7 @@ package ui
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"sort"
 	"sync"
 	"time"
@@ -68,7 +69,7 @@ func (s *SavingImportSessionStore) NewSession(orgID, userID int64, filename stri
 		Status:        SessionStateProcessing,
 		Phase:         SavingPhaseReview,
 		Progress:      5,
-		ProgressPhase: "قراءة وتحليل ملف الإكسيل",
+		ProgressPhase: i18n.TDefault("w4_ui.s_94_94"),
 		TotalRows:     totalRows,
 		Items:         make([]*StagedSavingItem, 0, totalRows),
 		CreatedAt:     time.Now(),

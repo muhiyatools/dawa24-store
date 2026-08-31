@@ -15,8 +15,8 @@ import (
 // platform.normalize_arabic — settle a re-upload of the very same file and
 // almost nothing else. Measured on the live catalogue they resolved under a
 // tenth of a real supplier price list, because a supplier does not write
-// "ابكسيدون 0.5 مجم أقراص" the way the catalogue records it: they write
-// "ابكسيدون .5 مجم اقراص", or they put the strength in its own column, or they
+// i18n.TDefault("w4_mod.0_5_265") the way the catalogue records it: they write
+// i18n.TDefault("w4_mod.5_266"), or they put the strength in its own column, or they
 // append the pack count. Every one of those is a different string and the same
 // medicine.
 //

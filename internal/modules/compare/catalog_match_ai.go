@@ -33,7 +33,7 @@ func (s *Service) enhanceMatches(
 
 	// Retrieval first, and the plausibility gate with it. A row whose best
 	// retrieved candidate is a coincidence has no answer for a model to choose
-	// between, and "غير مطابق" is already the honest outcome — on a live file
+	// between, and i18n.TDefault("w4_mod.s_364_364") is already the honest outcome — on a live file
 	// that is most of the residue, and sending it anyway is what used to spend
 	// a run's whole budget to improve a handful of rows.
 	askable := make([]*openRow, 0, len(pending))

@@ -86,7 +86,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		user = &identity.User{
 			ID:    actor.UserID,
 			Email: "user@dawa24.eg",
-			Name:  i18n.Text{i18n.AR: "طبيب / صيدلي معتمد", i18n.EN: "Verified Pharmacist"},
+			Name:  i18n.Text{i18n.AR: i18n.TDefault("w4_ui.s_98_98"), i18n.EN: "Verified Pharmacist"},
 			Role:  actor.Role,
 		}
 	}

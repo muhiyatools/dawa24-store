@@ -45,7 +45,7 @@ func (h *UIHandler) enhanceSaving(
 // savingAIUnavailableReason explains a disabled switch.
 //
 // A toggle that ticks and then does nothing is worse than one that says why it
-// cannot: the old strategy dropdown promised "ذكاء اصطناعي" from an engine that
+// cannot: the old strategy dropdown promised i18n.TDefault("w4_ui.s_82_82") from an engine that
 // had none, and nobody could tell the promise was empty.
 func savingAIUnavailableReason(e matchflow.Enhancer, lang ...string) string {
 	if e != nil {
@@ -289,7 +289,7 @@ func planSavingQuestions(
 			}
 		}
 		if !plausible {
-			// Nothing in the catalogue is close. "غير مرتبط" is already the
+			// Nothing in the catalogue is close. i18n.TDefault("w4_ui.s_83_83") is already the
 			// honest answer and no model can improve on it.
 			continue
 		}

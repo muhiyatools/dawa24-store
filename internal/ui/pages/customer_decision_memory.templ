@@ -161,7 +161,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					/>
 				</div>
 
-				<div style="min-width:130px;">
+				<div>
 					<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
 						<option value="25" selected?={ data.PerPage == 25 }>25 عنصر</option>
 						<option value="50" selected?={ data.PerPage == 50 || data.PerPage == 0 }>50 عنصر</option>
@@ -188,14 +188,14 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th style="width:65px;" class="text-center">#</th>
-							<th style="min-width:240px;">اسم الصنف الوارد</th>
-							<th style="min-width:280px;">الصنف المعتمد بالكتالوج المركزي</th>
-							<th style="width:110px;" class="text-center">نسبة التطابق</th>
-							<th style="width:95px;" class="text-center">الاستخدامات</th>
-							<th style="min-width:220px;">السبب / الملاحظات</th>
-							<th style="width:130px;" class="text-center">تاريخ الاستخدام</th>
-							<th style="width:90px;" class="text-center">إجراءات</th>
+							<th class="text-center">#</th>
+							<th>اسم الصنف الوارد</th>
+							<th>الصنف المعتمد بالكتالوج المركزي</th>
+							<th class="text-center">نسبة التطابق</th>
+							<th class="text-center">الاستخدامات</th>
+							<th>السبب / الملاحظات</th>
+							<th class="text-center">تاريخ الاستخدام</th>
+							<th class="text-center">إجراءات</th>
 						</tr>
 					</thead>
 					<tbody>

@@ -94,7 +94,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 			<!-- Search & Filter Controls -->
 			<div class="glass-panel p-4 mb-0">
 				<form method="GET" action="/admin/translations" class="d-flex flex-wrap gap-3 items-center m-0">
-					<div class="flex-1" style="min-width:240px;">
+					<div class="flex-1">
 						<input
 							type="text"
 							name="q"
@@ -104,7 +104,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 						/>
 					</div>
 
-					<div style="min-width:180px;">
+					<div>
 						<select name="ns" class="form-select text-xs w-full">
 							<option value="">{ i18n.T(lang, "admin.translations_all_namespaces") }</option>
 							for _, ns := range data.Namespaces {
@@ -113,7 +113,7 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 						</select>
 					</div>
 
-					<div style="min-width:150px;">
+					<div>
 						<select name="custom" class="form-select text-xs w-full">
 							<option value="">{ i18n.T(lang, "common.all") }</option>
 							<option value="true" selected?={ data.CustomFilter == "true" }>{ i18n.T(lang, "admin.translations_custom_badge") }</option>
@@ -139,10 +139,10 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 					<table class="data-table m-0">
 						<thead>
 							<tr>
-								<th style="width:240px;">
+								<th>
 									{ i18n.T(lang, "admin.translations_key_col") }
 								</th>
-								<th style="width:130px;">
+								<th>
 									{ i18n.T(lang, "admin.translations_ns_col") }
 								</th>
 								<th>
@@ -151,10 +151,10 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 								<th>
 									{ i18n.T(lang, "admin.translations_en_col") }
 								</th>
-								<th style="width:110px;" class="text-center">
+								<th class="text-center">
 									{ i18n.T(lang, "admin.translations_type_col") }
 								</th>
-								<th style="width:130px;" class="text-end">
+								<th class="text-end">
 									{ i18n.T(lang, "common.actions") }
 								</th>
 							</tr>
@@ -232,8 +232,8 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 		</div>
 
 		<!-- Edit Translation Modal -->
-		<div id="edit-translation-modal" class="modal-backdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; margin:0; background:rgba(4,8,16,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1.25rem;">
-			<div class="glass-panel p-6" style="margin:auto; width:100%; max-width:580px; max-height:90vh; overflow-y:auto;">
+		<div id="edit-translation-modal" class="modal-backdrop">
+			<div class="glass-panel p-6">
 				<div class="flex-between items-center pb-3 border-b mb-4">
 					<h3 class="text-lg font-black text-primary m-0">
 						{ i18n.T(lang, "admin.translations_edit_modal") }

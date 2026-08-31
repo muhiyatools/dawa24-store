@@ -131,10 +131,10 @@ func detectImageImportColumns(headers []string) (skuCol, urlCol int) {
 
 	for idx, rawH := range headers {
 		h := strings.ToLower(strings.TrimSpace(rawH))
-		if skuCol == -1 && (strings.Contains(h, "sku") || strings.Contains(h, "كود") || strings.Contains(h, "باركود") || strings.Contains(h, "barcode") || strings.Contains(h, "رمز") || strings.Contains(h, "code")) {
+		if skuCol == -1 && (strings.Contains(h, "sku") || strings.Contains(h, i18n.TDefault("w4_ui.s_2_2")) || strings.Contains(h, i18n.TDefault("w4_ui.s_3_3")) || strings.Contains(h, "barcode") || strings.Contains(h, i18n.TDefault("w4_ui.s_4_4")) || strings.Contains(h, "code")) {
 			skuCol = idx
 		}
-		if urlCol == -1 && (strings.Contains(h, "url") || strings.Contains(h, "image") || strings.Contains(h, "صورة") || strings.Contains(h, "link") || strings.Contains(h, "رابط") || strings.Contains(h, "photo") || strings.Contains(h, "img")) {
+		if urlCol == -1 && (strings.Contains(h, "url") || strings.Contains(h, "image") || strings.Contains(h, i18n.TDefault("w4_ui.s_5_5")) || strings.Contains(h, "link") || strings.Contains(h, i18n.TDefault("w4_ui.s_6_6")) || strings.Contains(h, "photo") || strings.Contains(h, "img")) {
 			urlCol = idx
 		}
 	}

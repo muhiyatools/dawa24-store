@@ -238,11 +238,11 @@ func truncateSample(s string) string {
 func ConfidenceOf(score int) string {
 	switch {
 	case score >= scoreCertain:
-		return "مؤكد"
+		return i18n.TDefault("w4_mod.s_263_263")
 	case score >= scoreLikely:
-		return "مرجّح"
+		return i18n.TDefault("w4_mod.s_296_296")
 	default:
-		return "تخميني"
+		return i18n.TDefault("w4_mod.s_297_297")
 	}
 }
 
@@ -287,7 +287,7 @@ func OverridesFromColumns(columns map[string]int) map[string]int {
 // mapping screen's preview table.
 //
 // The preview shows the product the way the importer built it, not the raw
-// cell: an admin checking a mapping needs to see that "12.50 ج.م" became a
+// cell: an admin checking a mapping needs to see that i18n.TDefault("w4_mod.12_50_298") became a
 // price of 12.50 and that a name column really did produce names.
 func ProductFieldValue(p *Product, field string) string {
 	if p == nil {

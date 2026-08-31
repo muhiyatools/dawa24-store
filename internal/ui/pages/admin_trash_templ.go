@@ -416,7 +416,7 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:100px;\">المعرف (ID)</th><th>بيان وتفاصيل السجل المحذوف</th><th style=\"width:180px;\">تاريخ ووقت الحذف</th><th style=\"width:240px; text-align:end;\">الإجراءات والخيارات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المعرف (ID)</th><th>بيان وتفاصيل السجل المحذوف</th><th>تاريخ ووقت الحذف</th><th>الإجراءات والخيارات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

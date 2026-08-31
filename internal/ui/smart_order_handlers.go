@@ -358,7 +358,7 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 	if errors.As(err, &appErr) && appErr.Msg != "" {
 		msg := appErr.Msg
 		switch {
-		case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, "اختيار فرع"):
+		case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, i18n.TDefault("w4_ui.s_102_102")):
 			return i18n.T(lang, "smartorder.err_branch_required")
 		case strings.Contains(msg, "branch_no_location"):
 			return i18n.T(lang, "smartorder.err_branch_no_location")
@@ -374,9 +374,9 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 			return i18n.T(lang, "smartorder.err_missing_documents")
 		case strings.Contains(msg, "min_order_not_met"):
 			return i18n.T(lang, "smartorder.err_min_order_not_met")
-		case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, "لا يغطي"):
+		case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, i18n.TDefault("w4_ui.s_103_103")):
 			return i18n.T(lang, "smartorder.err_line_unavailable")
-		case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, "غير متوفر"):
+		case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, i18n.TDefault("w4_ui.s_104_104")):
 			return i18n.T(lang, "smartorder.err_out_of_stock")
 		case strings.Contains(msg, "insufficient_stock"):
 			return i18n.T(lang, "smartorder.err_insufficient_stock")
@@ -394,7 +394,7 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 
 	msg := err.Error()
 	switch {
-	case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, "اختيار فرع"):
+	case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, i18n.TDefault("w4_ui.s_102_102")):
 		return i18n.T(lang, "smartorder.err_branch_required")
 	case strings.Contains(msg, "branch_no_location"):
 		return i18n.T(lang, "smartorder.err_branch_no_location")
@@ -416,9 +416,9 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 		return i18n.T(lang, "smartorder.err_missing_documents")
 	case strings.Contains(msg, "min_order_not_met"):
 		return i18n.T(lang, "smartorder.err_min_order_not_met")
-	case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, "لا يغطي"):
+	case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, i18n.TDefault("w4_ui.s_103_103")):
 		return i18n.T(lang, "smartorder.err_line_unavailable")
-	case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, "غير متوفر"):
+	case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, i18n.TDefault("w4_ui.s_104_104")):
 		return i18n.T(lang, "smartorder.err_out_of_stock")
 	case strings.Contains(msg, "insufficient_stock"):
 		return i18n.T(lang, "smartorder.err_insufficient_stock")

@@ -49,7 +49,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"followed-suppliers-container\" style=\"max-width:100%;\"><!-- Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;\"><div style=\"width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"followed-suppliers-container\"><!-- Page Header --><div><div><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -57,7 +57,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 style=\"font-size:1.4rem; font-weight:800; color:var(--text); margin:0;\">الموردون المتابعون</h2></div><p style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.</p></div><a href=\"/suppliers\" class=\"btn btn-secondary fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2>الموردون المتابعون</h2></div><p>الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.</p></div><a href=\"/suppliers\" class=\"btn btn-secondary fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -79,12 +79,12 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, s := range suppliers {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"margin-bottom:0; padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-raised);\"><div><!-- Header with Emblem and Verified Badge --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;\"><div class=\"row-center\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\"><div><!-- Header with Emblem and Verified Badge --><div><div class=\"row-center\"><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -92,7 +92,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h3>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -105,7 +105,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><div style=\"display:flex; align-items:center; gap:0.35rem; margin-top:0.2rem;\"><span class=\"badge badge-emerald\" style=\"font-size:0.7rem; font-weight:700;\">مورد معتمد</span></div></div></div><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3><div><span class=\"badge badge-emerald\">مورد معتمد</span></div></div></div><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -118,7 +118,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"إلغاء المتابعة\" style=\"color:var(--danger); width:30px; height:30px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-icon\" title=\"إلغاء المتابعة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -126,12 +126,12 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</button></form></div><!-- Legal Info --><div style=\"font-size:0.8rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem; background:var(--surface-sunken); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</button></form></div><!-- Legal Info --><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"display:flex; justify-content:space-between; margin-bottom:0.25rem;\"><span class=\"text-muted\">الاسم القانوني:</span> <strong class=\"text-primary\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div><span class=\"text-muted\">الاسم القانوني:</span> <strong class=\"text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -150,7 +150,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 						}
 					}
 					if s.CommercialRegister != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"display:flex; justify-content:space-between;\"><span class=\"text-muted\">السجل التجاري:</span> <strong class=\"tabular-nums text-primary\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div><span class=\"text-muted\">السجل التجاري:</span> <strong class=\"tabular-nums text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -168,7 +168,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div><!-- Bottom Actions --><div style=\"border-top:1px solid var(--border); padding-top:0.85rem; display:flex; gap:0.5rem;\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div><!-- Bottom Actions --><div><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -181,7 +181,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"btn btn-primary btn-sm\" style=\"flex:1; justify-content:center; font-weight:700; font-size:0.825rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"btn btn-primary btn-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

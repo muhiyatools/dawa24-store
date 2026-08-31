@@ -116,7 +116,7 @@ func (h *UIHandler) SupplierMessageSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	c, err := h.chatSvc.StartConversation(ctx, actor.OrganizationID, supplierID, actor.UserID, i18n.New("استفسار", "Inquiry"), chat.ContextGeneral, nil)
+	c, err := h.chatSvc.StartConversation(ctx, actor.OrganizationID, supplierID, actor.UserID, i18n.New(i18n.TDefault("w4_ui.s_77_77"), "Inquiry"), chat.ContextGeneral, nil)
 	if err != nil {
 		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, lang))
 		return

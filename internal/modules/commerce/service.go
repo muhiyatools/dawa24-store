@@ -340,7 +340,7 @@ func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserI
 // strictly before it is accepted/confirmed or processed by the vendor.
 func (s *Service) UpdateCustomerPendingOrder(ctx context.Context, actor authctx.Actor, input UpdateCustomerOrderInput) (*Order, error) {
 	if input.OrderID <= 0 {
-		return nil, apperr.Validation("order.invalid_id", "معرف الطلب غير صالح", nil)
+		return nil, apperr.Validation("order.invalid_id", i18n.TDefault("w4_mod.s_356_356"), nil)
 	}
 
 	order, err := s.repo.GetOrderByID(ctx, input.OrderID)
@@ -354,7 +354,7 @@ func (s *Service) UpdateCustomerPendingOrder(ctx context.Context, actor authctx.
 	// Verify authorization: must belong to the customer
 	isOwner := actor.UserID == order.CustomerID || (order.OrganizationID != nil && *order.OrganizationID == actor.OrganizationID) || (order.OrganizationID != nil && *order.OrganizationID == actor.OrgID)
 	if !isOwner && !actor.IsPlatformAdmin() {
-		return nil, apperr.Forbidden("order.unauthorized", "غير مصرح لك بتعديل هذا الطلب")
+		return nil, apperr.Forbidden("order.unauthorized", i18n.TDefault("w4_mod.s_357_357"))
 	}
 
 	// Check lifecycle state: strictly only StatusPending can be edited

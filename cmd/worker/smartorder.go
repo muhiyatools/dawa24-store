@@ -133,7 +133,7 @@ func (b *enhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.Gatewa
 	req := aicapabilities.EnhanceRequest{
 		Catalog: make([]aicapabilities.CatalogEntry, 0, len(batch.Catalog)),
 		Items:   make([]aicapabilities.EnhanceItem, 0, len(batch.Items)),
-		// Attribution for the AI usage ledger: the pharmacy reads "الطلب الذكي" on its usage log, not a capability name.
+		// Attribution for the AI usage ledger: the pharmacy reads i18n.TDefault("w4_mod.s_478_478") on its usage log, not a capability name.
 		Feature: matchflow.FeatureSmartOrder,
 	}
 	for _, c := range batch.Catalog {

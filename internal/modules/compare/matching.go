@@ -3,6 +3,7 @@ package compare
 import (
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"math"
 	"strings"
 
@@ -52,7 +53,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 			ProductID:   nil,
 			Confidence:  0,
 			Method:      MatchMethodUnmatched,
-			MethodLabel: "غير مطابق",
+			MethodLabel: i18n.TDefault("w4_mod.s_364_364"),
 		}, nil
 	}
 
@@ -96,7 +97,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 					ProductID:   &c.ID,
 					Confidence:  100.0,
 					Method:      MatchMethodBarcode,
-					MethodLabel: "تطابق بالباركود",
+					MethodLabel: i18n.TDefault("w4_mod.s_372_372"),
 				}, nil
 			}
 		}
@@ -113,7 +114,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 				ProductID:   &c.ID,
 				Confidence:  100.0,
 				Method:      MatchMethodExactName,
-				MethodLabel: "تطابق تام بالاسم",
+				MethodLabel: i18n.TDefault("w4_mod.s_373_373"),
 			}, nil
 		}
 	}
@@ -230,7 +231,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 		ProductID:   nil,
 		Confidence:  0.0,
 		Method:      MatchMethodUnmatched,
-		MethodLabel: "غير مطابق",
+		MethodLabel: i18n.TDefault("w4_mod.s_364_364"),
 	}, nil
 }
 

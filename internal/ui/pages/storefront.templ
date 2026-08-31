@@ -65,7 +65,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 	@layouts.VendorShell("الأقسام المميزة وواجهة المتجر", "storefront", lang, dir) {
 		<div
 			class="page-container"
-			style="max-width: 1100px; margin: 0 auto;"
+		
 			x-data="{
 				isModalOpen: false,
 				modalMode: 'add',
@@ -222,13 +222,13 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 				x-show="isModalOpen"
 				x-cloak
 				x-transition.opacity
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
+			
 				@keydown.escape.window="isModalOpen = false"
 			>
 				<div
 					@click.outside="isModalOpen = false"
 					class="glass-panel p-6 w-full"
-					style="max-width: 620px; max-height: 90vh; overflow-y: auto;"
+				
 				>
 					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
@@ -277,11 +277,11 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 						<div class="d-grid grid-cols-2 gap-3">
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المحتوى والوصف (بالعربية) <span class="text-danger">*</span></label>
-								<textarea name="description_ar" x-model="currentSection.description_ar" rows="4" required placeholder="اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة..." class="form-input text-xs w-full" style="resize:vertical;"></textarea>
+								<textarea name="description_ar" x-model="currentSection.description_ar" rows="4" required placeholder="اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة..." class="form-input text-xs w-full"></textarea>
 							</div>
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المحتوى والوصف (بالإنجليزية)</label>
-								<textarea name="description_en" x-model="currentSection.description_en" rows="4" placeholder="Detailed content and description in English..." class="form-input text-xs w-full" dir="ltr" style="resize:vertical;"></textarea>
+								<textarea name="description_en" x-model="currentSection.description_en" rows="4" placeholder="Detailed content and description in English..." class="form-input text-xs w-full" dir="ltr"></textarea>
 							</div>
 						</div>
 

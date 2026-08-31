@@ -334,7 +334,7 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 	}
 
 	var productID int64
-	prodName := i18n.Text{"ar": "صنف دوائي للتفاوض", "en": "Negotiated Medicine"}
+	prodName := i18n.Text{"ar": i18n.TDefault("w4_ui.s_68_68"), "en": "Negotiated Medicine"}
 	if h.catSvc != nil && variantID > 0 {
 		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil {
 			productID = v.ProductID

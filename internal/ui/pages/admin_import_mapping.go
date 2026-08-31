@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -24,7 +25,7 @@ import (
 type ImportColumnOption struct {
 	// Value is the one-based column number submitted by the form.
 	Value int
-	// Label is what the admin reads: "B · اسم الصنف".
+	// Label is what the admin reads: i18n.TDefault("w4m_ui.b_1").
 	Label string
 	// Sample is the first value found in that column.
 	Sample string
@@ -269,10 +270,10 @@ func (v ImportMappingView) HeaderSummary() string {
 	case "csv":
 		parts = append(parts, fmt.Sprintf("فاصل «%s»", delimiterLabel(v.Structure.Delimiter)))
 	}
-	parts = append(parts, fmt.Sprintf("%s صف", FormatCount(v.Structure.TotalRows)))
-	parts = append(parts, fmt.Sprintf("%d عمود", v.Structure.Width))
+	parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_182"), FormatCount(v.Structure.TotalRows)))
+	parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.d_183"), v.Structure.Width))
 	if v.Structure.BlockCount > 1 {
-		parts = append(parts, fmt.Sprintf("%s كتلة بيانات", FormatCount(v.Structure.BlockCount)))
+		parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_184"), FormatCount(v.Structure.BlockCount)))
 	}
 	return strings.Join(parts, " · ")
 }
@@ -282,7 +283,7 @@ func (v ImportMappingView) HeaderSummary() string {
 // positionally is almost always a file read wrongly.
 func (v ImportMappingView) HeaderRowLabel() string {
 	if v.Structure.Positional || v.Structure.HeaderRow <= 0 {
-		return "لم يُعثر على صف عناوين — تُقرأ الأعمدة بترتيبها"
+		return i18n.TDefault("w4_ui.s_185_185")
 	}
 	return fmt.Sprintf("الصف %d", v.Structure.HeaderRow)
 }

@@ -1,11 +1,11 @@
 package catalog
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"bytes"
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"io"
 	"strings"
 	"unicode/utf16"
@@ -182,7 +182,7 @@ func readExcel(content []byte) (*SheetData, error) {
 
 	sheets := f.GetSheetList()
 	if len(sheets) == 0 {
-		return nil, errors.New("ملف Excel لا يحتوي على أي أوراق عمل")
+		return nil, errors.New(i18n.TDefault("w4_mod.excel_282"))
 	}
 
 	type score struct {
@@ -211,7 +211,7 @@ func readExcel(content []byte) (*SheetData, error) {
 	}
 
 	if best.cells == 0 {
-		return nil, errors.New("جميع أوراق العمل في ملف Excel فارغة. يرجى التأكد من أن البيانات محفوظة في الملف قبل رفعه")
+		return nil, errors.New(i18n.TDefault("w4_mod.excel_283"))
 	}
 
 	rows, err := readRowsCapped(f, best.name)
@@ -299,7 +299,7 @@ func readDelimited(content []byte, filename string) (*SheetData, error) {
 	// products — an admin who picks the wrong file deserves a refusal, not a
 	// catalogue full of mojibake.
 	if isBinary(content) {
-		return nil, errors.New("تعذر التعرف على نوع الملف. الصيغ المدعومة هي Excel (.xlsx) و CSV و الملفات النصية المفصولة بفواصل")
+		return nil, errors.New(i18n.TDefault("w4_mod.excel_xlsx_csv_284"))
 	}
 
 	delimiter, err := sniffDelimiter(content)
@@ -312,7 +312,7 @@ func readDelimited(content []byte, filename string) (*SheetData, error) {
 		return nil, fmt.Errorf("تعذر قراءة ملف CSV: %s", csvErrorHint(err, filename))
 	}
 	if len(rows) == 0 {
-		return nil, errors.New("ملف CSV لا يحتوي على أي صفوف")
+		return nil, errors.New(i18n.TDefault("w4_mod.csv_285"))
 	}
 
 	data := &SheetData{Rows: rows, Format: "csv", Delimiter: string(delimiter)}
@@ -364,7 +364,7 @@ func readCSVRows(content []byte, delimiter rune) ([][]string, error) {
 			gap := line - 1 - len(rows)
 			if gap > maxBlankLineGap {
 				return nil, fmt.Errorf(
-					"يحتوي الملف على فراغ يتجاوز %d سطراً عند السطر %d، ولا يمكن ضمان صحة أرقام الصفوف بعده. يرجى إزالة الأسطر الفارغة الزائدة وإعادة الرفع",
+					i18n.TDefault("w4_mod.d_d_286"),
 					maxBlankLineGap, line)
 			}
 			for len(rows) < line-1 {
@@ -486,7 +486,7 @@ func utf16ToUTF8(b []byte, little bool) []byte {
 func sniffDelimiter(content []byte) (rune, error) {
 	lines := sampleLines(content, 20)
 	if len(lines) == 0 {
-		return 0, errors.New("ملف CSV فارغ أو لا يحتوي على أسطر بيانات")
+		return 0, errors.New(i18n.TDefault("w4_mod.csv_287"))
 	}
 
 	type result struct {
@@ -542,7 +542,7 @@ func sampleLines(content []byte, max int) []string {
 }
 
 // countOutsideQuotes counts delimiters that are not inside a quoted field, so a
-// product name such as "بانادول, أقراص" does not inflate the comma count.
+// product name such as i18n.TDefault("w4_mod.s_288_288") does not inflate the comma count.
 func countOutsideQuotes(line string, delim rune) int {
 	n, inQuote := 0, false
 	for _, r := range line {

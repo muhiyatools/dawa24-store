@@ -122,7 +122,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width:980px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;\"><!-- Compact Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Compact Page Header --><div><div><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -130,7 +130,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>الأجهزة والجلسات النشطة</span></h1><p style=\"color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;\">إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>الأجهزة والجلسات النشطة</span></h1><p>إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -143,7 +143,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</p></div><div style=\"display:flex; gap:0.5rem; align-items:center;\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</p></div><div><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -201,7 +201,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		}
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"alert alert-danger\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"alert alert-danger\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -227,7 +227,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"alert alert-success\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"alert alert-success\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -254,7 +254,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- Compact Metrics Bar --><div class=\"card p-4\" style=\"border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.25rem; align-items:center;\"><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">الجلسات المتصلة</div><div style=\"font-size:1.4rem; font-weight:800; color:var(--text); margin-top:0.15rem;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- Compact Metrics Bar --><div class=\"card p-4\"><div><div><div>الجلسات المتصلة</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -267,20 +267,20 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " <span style=\"font-size:0.85rem; font-weight:600; color:var(--text-secondary);\">/ ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " <span>/ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxLoginSessions))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 95, Col: 171}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 95, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " مسموحة</span></div></div><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">حالة السعة</div><div style=\"margin-top:0.25rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " مسموحة</span></div></div><div><div>حالة السعة</div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -295,7 +295,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">حد الأجهزة المعتمدة</div><div style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin-top:0.15rem;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><div><div>حد الأجهزة المعتمدة</div><div class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -308,7 +308,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " أجهزة</div></div><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">باقة المنشأة</div><div style=\"font-size:1rem; font-weight:800; color:var(--brand); margin-top:0.15rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " أجهزة</div></div><div><div>باقة المنشأة</div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -321,7 +321,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div></div></div><!-- Active Sessions List --><div class=\"card p-5\" style=\"border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;\"><h2 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">الأجهزة المتصلة حالياً (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div></div></div><!-- Active Sessions List --><div class=\"card p-5\"><div><h2>الأجهزة المتصلة حالياً (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -365,7 +365,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-xs font-bold\" style=\"padding:0.35rem 0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -391,7 +391,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div style=\"display:flex; flex-direction:column; gap:0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -411,7 +411,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div style=\"display:flex; align-items:center; gap:0.75rem; min-width:240px;\"><span style=\"font-size:1.35rem; line-height:1; flex-shrink:0;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -431,7 +431,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span><div><div class=\"inline-row-wrap\"><span style=\"font-weight:700; font-size:0.9rem; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span><div><div class=\"inline-row-wrap\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -456,12 +456,12 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					return templ_7745c5c3_Err
 				}
 				if sess.Token == data.CurrentToken {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-emerald text-xs font-bold\" style=\"padding:0.15rem 0.5rem;\">جهازك الحالي</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-emerald text-xs font-bold\">جهازك الحالي</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-top:0.2rem; font-size:0.75rem; color:var(--text-secondary); flex-wrap:wrap;\" class=\"tabular-nums\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div class=\"tabular-nums\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -515,7 +515,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					return templ_7745c5c3_Err
 				}
 				if sess.Token == data.CurrentToken {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<form action=\"/auth/logout\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-semibold\" style=\"padding:0.35rem 0.75rem;\"><span>تسجيل الخروج</span></button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<form action=\"/auth/logout\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-semibold\"><span>تسجيل الخروج</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -546,12 +546,12 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-xs font-semibold\" style=\"padding:0.35rem 0.75rem;\"><span>إنهاء</span></button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-xs font-semibold\"><span>إنهاء</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span class=\"badge badge-slate text-xs font-medium\" style=\"padding:0.25rem 0.5rem;\">مستخدم آخر</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span class=\"badge badge-slate text-xs font-medium\">مستخدم آخر</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -566,7 +566,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div><!-- Password Security Form --><div class=\"card p-5\" style=\"border-radius:var(--radius-xl); background:var(--surface); max-width:650px;\"><div style=\"margin-bottom:1rem;\"><h2 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">تحديث كلمة المرور</h2><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً</p></div><form action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div><!-- Password Security Form --><div class=\"card p-5\"><div><h2>تحديث كلمة المرور</h2><p>تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً</p></div><form action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -579,7 +579,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" method=\"POST\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\" for=\"sess-current-password\">كلمة المرور الحالية</label> <input type=\"password\" id=\"sess-current-password\" name=\"current_password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><div class=\"form-grid-2 mb-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs\" for=\"sess-new-password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-new-password\" name=\"new_password\" required minlength=\"8\" class=\"form-input form-input-sm\" placeholder=\"8 أحرف كحد أدنى\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs\" for=\"sess-confirm-password\">تأكيد الجديدة</label> <input type=\"password\" id=\"sess-confirm-password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\" style=\"padding:0.45rem 1.25rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" method=\"POST\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\" for=\"sess-current-password\">كلمة المرور الحالية</label> <input type=\"password\" id=\"sess-current-password\" name=\"current_password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><div class=\"form-grid-2 mb-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs\" for=\"sess-new-password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-new-password\" name=\"new_password\" required minlength=\"8\" class=\"form-input form-input-sm\" placeholder=\"8 أحرف كحد أدنى\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs\" for=\"sess-confirm-password\">تأكيد الجديدة</label> <input type=\"password\" id=\"sess-confirm-password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div></div><div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

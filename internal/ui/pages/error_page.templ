@@ -7,8 +7,8 @@ import (
 
 templ ErrorPage(title, message, retryURL, lang, dir string) {
 	@layouts.Base(title, lang, dir) {
-		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:var(--bg-app);">
-			<div style="max-width:540px; width:100%;">
+		<div>
+			<div>
 				@components.ErrorState(components.ErrorStateProps{
 					Title:      title,
 					Message:    message,

@@ -393,7 +393,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					if (input.files.length === 1) {
 						const file = input.files[0];
 						const size = (file.size / 1024 / 1024).toFixed(2);
-						previewEl.innerHTML = `<span style="color:var(--accent); font-weight:800;">تم اختيار ملف:</span> <strong class="text-primary">${file.name}</strong> (${size} MB)`;
+						previewEl.innerHTML = `<span>تم اختيار ملف:</span> <strong class="text-primary">${file.name}</strong> (${size} MB)`;
 					} else {
 						let fileNames = [];
 						let totalSize = 0;
@@ -403,9 +403,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						}
 						const totalMb = (totalSize / 1024 / 1024).toFixed(2);
 						previewEl.innerHTML = `
-							<div style="background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border); text-align:start;">
-								<div style="color:var(--accent); font-weight:800; margin-bottom:0.25rem;">تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>
-								<div style="font-size:0.775rem; color:var(--text-secondary); max-height:80px; overflow-y:auto;">
+							<div>
+								<div>تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>
+								<div>
 									${fileNames.map(n => `• ${n}`).join('<br/>')}
 								</div>
 							</div>
@@ -519,7 +519,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				const resultsContainer = document.getElementById('instant-search-results');
 				if (!query || query.trim().length < 2) {
 					resultsContainer.innerHTML = `
-						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;">
+						<div>
 							اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.
 						</div>
 					`;
@@ -527,7 +527,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				}
 
 				resultsContainer.innerHTML = `
-					<div style="padding:1.5rem 1rem; text-align:center; color:var(--text-muted); font-size:0.85rem;">
+					<div>
 						⏳ جاري البحث عبر الكتالوج وكشوف الموردين...
 					</div>
 				`;
@@ -544,7 +544,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						const items = data.items || [];
 						if (items.length === 0) {
 							resultsContainer.innerHTML = `
-								<div style="padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;">
+								<div>
 									لم يتم العثور على أصناف مطابقة لـ "${query}".
 								</div>
 							`;
@@ -552,7 +552,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						}
 
 						let html = `
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.25rem 0.5rem; font-size:0.775rem; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:0.35rem;">
+							<div>
 								<span>تم العثور على <strong>${items.length}</strong> صنف</span>
 								<span>بالكتالوج: ${data.in_catalog_count || 0} | أصناف موردين: ${data.custom_items_count || 0}</span>
 							</div>
@@ -562,11 +562,11 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 							// 3-way status badge
 							let statusBadge = '';
 							if (item.catalog_status === 'catalog_and_suppliers') {
-								statusBadge = '<span class="badge badge-emerald" style="font-size:0.68rem; font-weight:700;">معتمد بالكتالوج ومتوفر</span>';
+								statusBadge = '<span class="badge badge-emerald">معتمد بالكتالوج ومتوفر</span>';
 							} else if (item.catalog_status === 'catalog_only') {
-								statusBadge = '<span class="badge badge-sky" style="font-size:0.68rem; font-weight:700;">مسجل بالكتالوج (غير متوفر بالكشوف)</span>';
+								statusBadge = '<span class="badge badge-sky">مسجل بالكتالوج (غير متوفر بالكشوف)</span>';
 							} else {
-								statusBadge = '<span class="badge badge-amber" style="font-size:0.68rem; font-weight:700;">صنف خاص بكشف المورد</span>';
+								statusBadge = '<span class="badge badge-amber">صنف خاص بكشف المورد</span>';
 							}
 
 							// Best price and supplier pill
@@ -574,17 +574,17 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 							if (item.best_net_price && parseFloat(item.best_net_price) > 0) {
 								bestPriceHtml = `
 									<div class="text-end">
-										<div style="font-weight:900; color:var(--accent); font-size:0.95rem;" class="tabular-nums">
+										<div class="tabular-nums">
 											${item.best_net_price} ج.م
 										</div>
-										<div style="font-size:0.725rem; color:var(--success-text); font-weight:700;">
+										<div>
 											${item.best_supplier || 'أفضل سعر'} (${item.best_discount || 0}%)
 										</div>
 									</div>
 								`;
 							} else {
 								bestPriceHtml = `
-									<div style="text-align:end; font-size:0.75rem; color:var(--text-muted);">
+									<div>
 										لا توجد عروض أسعار مرفوعة
 									</div>
 								`;
@@ -593,12 +593,12 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 							// Offers pill list
 							let offersHtml = '';
 							if (item.offers && Object.keys(item.offers).length > 0) {
-								offersHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.4rem;">';
+								offersHtml = '<div>';
 								for (const [sup, off] of Object.entries(item.offers)) {
 									const isBest = (sup === item.best_supplier);
 									const badgeClass = isBest ? 'badge-emerald' : 'badge-secondary';
 									offersHtml += `
-										<span class="badge ${badgeClass}" style="font-size:0.7rem; font-weight:600;">
+										<span class="badge ${badgeClass}">
 											${sup}: ${off.discount || 0}% (${off.price_after_discount || '--'} ج.م)
 										</span>
 									`;
@@ -608,17 +608,17 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 							let missingHtml = '';
 							if (item.missing_from_suppliers && item.missing_from_suppliers.length > 0 && Object.keys(item.offers || {}).length > 0) {
-								missingHtml = '<div style="font-size:0.7rem; color:var(--danger-text); margin-top:0.3rem;">' +
+								missingHtml = '<div>' +
 									'غير مدرج لدى: <strong>' + item.missing_from_suppliers.join('، ') + '</strong>' +
 								'</div>';
 							}
 
-							const skuHtml = item.sku ? ('<span style="font-size:0.725rem; color:var(--text-muted);" class="tabular-nums">كود: ' + item.sku + '</span>') : '';
-							html += '<div style="padding:0.75rem 0.85rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:0.25rem; transition:border-color 0.2s ease;">' +
-								'<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">' +
+							const skuHtml = item.sku ? ('<span class="tabular-nums">كود: ' + item.sku + '</span>') : '';
+							html += '<div>' +
+								'<div>' +
 									'<div>' +
-										'<div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.2rem;">' +
-											'<strong style="color:var(--text); font-size:0.875rem;">' + (item.product_name || 'صنف دوائي') + '</strong>' +
+										'<div>' +
+											'<strong>' + (item.product_name || 'صنف دوائي') + '</strong>' +
 											statusBadge +
 										'</div>' +
 										skuHtml +
@@ -633,7 +633,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						resultsContainer.innerHTML = html;
 					})
 					.catch(err => {
-						resultsContainer.innerHTML = '<div style="padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--danger-text); font-size:0.85rem;">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
+						resultsContainer.innerHTML = '<div>حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
 					});
 				}, 250);
 			}
@@ -651,11 +651,11 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				queue = queue || '';
 
 				root.innerHTML = `
-					<div style="position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);">
-						<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-							<div style="font-size:2.2rem;">@components.IconSettings("icon-sm")</div>
-							<div style="font-size:1.05rem;">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
-							<div style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">جاري قراءة البيانات وإعداد المعاينة الذكية</div>
+					<div>
+						<div class="card">
+							<div>@components.IconSettings("icon-sm")</div>
+							<div>معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
+							<div>جاري قراءة البيانات وإعداد المعاينة الذكية</div>
 						</div>
 					</div>
 				`;
@@ -683,9 +683,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 				isModalLoading = true;
 				root.innerHTML = `
-					<div style="position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);">
-						<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-							<div style="font-size:2rem;">⏳</div>
+					<div>
+						<div class="card">
+							<div>⏳</div>
 							<div>جاري قراءة أعمدة الملف ومعاينتها...</div>
 						</div>
 					</div>
@@ -758,9 +758,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				const root = document.getElementById('mapping-modal-root');
 				if (root) {
 					root.innerHTML = `
-						<div style="position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);">
-							<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;">
-								<div style="font-size:2rem;">⏩</div>
+						<div>
+							<div class="card">
+								<div>⏩</div>
 								<div>جاري تخطي الملف والانتقال للملف التالي...</div>
 							</div>
 						</div>

@@ -307,14 +307,14 @@ func AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p></div><a href=\"/admin/full-error-logs\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div><div class=\"mb-lg\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">Stack Trace:</h3><pre style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-md); overflow-x:auto; font-size:0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p></div><a href=\"/admin/full-error-logs\" class=\"btn btn-secondary btn-sm\">العودة للسجلات</a></div><div class=\"mb-lg\"><h3>Stack Trace:</h3><pre>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(l.StackTrace)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 93, Col: 146}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_monitoring.templ`, Line: 93, Col: 23}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func AdminSystemResourcesPage(systemName string, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ")</h2><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div class=\"text-sm text-secondary\">قاعدة البيانات PostgreSQL</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-emerald\">متصل ونشط</span></div></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div class=\"text-sm text-secondary\">بوابة الذكاء الاصطناعي AI Gateway</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-emerald\">جاهز للخدمة</span></div></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><div class=\"text-sm text-secondary\">نظام التخزين Storage S3/Local</div><div style=\"margin-top:0.5rem;\"><span class=\"badge badge-emerald\">يعمل بكفاءة</span></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ")</h2><div><div><div class=\"text-sm text-secondary\">قاعدة البيانات PostgreSQL</div><div><span class=\"badge badge-emerald\">متصل ونشط</span></div></div><div><div class=\"text-sm text-secondary\">بوابة الذكاء الاصطناعي AI Gateway</div><div><span class=\"badge badge-emerald\">جاهز للخدمة</span></div></div><div><div class=\"text-sm text-secondary\">نظام التخزين Storage S3/Local</div><div><span class=\"badge badge-emerald\">يعمل بكفاءة</span></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -498,7 +498,7 @@ func AdminFirstLookPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title\" style=\"margin-bottom:0.75rem;\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p style=\"font-size:0.95rem; line-height:1.6; color:var(--text-secondary); margin-bottom:1.5rem;\">تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p>تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

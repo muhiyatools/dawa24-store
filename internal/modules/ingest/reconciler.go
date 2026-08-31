@@ -101,7 +101,7 @@ func (s *Service) CommitSessionWithReconciliation(
 			actionUpdates = append(actionUpdates, RowActionUpdate{
 				RowID:        row.ID,
 				ImportAction: "skip",
-				ErrorDetails: "تم استبعاد الصنف يدوياً بواسطة المستخدم",
+				ErrorDetails: i18n.TDefault("w4_mod.s_395_395"),
 			})
 			outcome.Skipped++
 			continue
@@ -168,7 +168,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "error",
-					ErrorDetails: "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج",
+					ErrorDetails: i18n.TDefault("w4_mod.s_396_396"),
 				})
 				outcome.Errors++
 				continue
@@ -222,7 +222,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "error",
-					ErrorDetails: "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج",
+					ErrorDetails: i18n.TDefault("w4_mod.s_396_396"),
 				})
 				outcome.Errors++
 				continue
@@ -269,7 +269,7 @@ func (s *Service) CommitSessionWithReconciliation(
 					actionUpdates = append(actionUpdates, RowActionUpdate{
 						RowID:        row.ID,
 						ImportAction: "error",
-						ErrorDetails: "تعذر الإضافة: لم يتم تحديد الصنف المعتمد بالكتالوج",
+						ErrorDetails: i18n.TDefault("w4_mod.s_396_396"),
 					})
 					outcome.Errors++
 					continue

@@ -226,7 +226,7 @@ func (s *Service) ConfirmUpload(ctx context.Context, actor authctx.Actor, id int
 	// Verify actor ownership
 	if !actor.IsPlatformAdmin() {
 		if doc.UserID != nil && *doc.UserID != actor.UserID && (doc.OrganizationID == nil || *doc.OrganizationID != actor.OrgID) {
-			return nil, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية تأكيد هذا المستند")
+			return nil, apperr.Forbidden("document.access_denied", i18n.TDefault("w4_mod.s_233_233"))
 		}
 	}
 
@@ -235,7 +235,7 @@ func (s *Service) ConfirmUpload(ctx context.Context, actor authctx.Actor, id int
 		if err != nil {
 			s.log.Warn("confirm upload failed: object not found in storage", "id", id, "key", doc.FileURL, "error", err)
 			_ = s.repo.HardDelete(ctx, id)
-			return nil, apperr.Validation("document.not_in_storage", "لم يتم العثور على الملف في وحدة التخزين، يرجى إعادة المحاولة", map[string]string{"upload": "فشل الرفع"})
+			return nil, apperr.Validation("document.not_in_storage", i18n.TDefault("w4_mod.s_234_234"), map[string]string{"upload": i18n.TDefault("w4_mod.s_235_235")})
 		}
 		doc.SizeBytes = size
 	}
@@ -263,7 +263,7 @@ func (s *Service) GetDocumentByID(ctx context.Context, actor authctx.Actor, id i
 			hasAccess = true
 		}
 		if !hasAccess {
-			return nil, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية الوصول لهذا المستند")
+			return nil, apperr.Forbidden("document.access_denied", i18n.TDefault("w4_mod.s_236_236"))
 		}
 	}
 	return doc, nil
@@ -312,7 +312,7 @@ func (s *Service) GetDownloadURL(ctx context.Context, actor authctx.Actor, id in
 // VerifyDocument allows platform admins to approve or reject submitted certificates and licenses.
 func (s *Service) VerifyDocument(ctx context.Context, actor authctx.Actor, id int64, status DocumentStatus, notes string) error {
 	if !actor.IsPlatformAdmin() {
-		return apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام للتحقق من المستندات")
+		return apperr.Forbidden("document.admin_required", i18n.TDefault("w4_mod.s_237_237"))
 	}
 
 	var reviewerID *int64
@@ -336,7 +336,7 @@ func (s *Service) VerifyDocument(ctx context.Context, actor authctx.Actor, id in
 // VerifyDocumentWithType allows platform admins to assign category and approve or reject submitted documents.
 func (s *Service) VerifyDocumentWithType(ctx context.Context, actor authctx.Actor, id int64, docType DocumentType, status DocumentStatus, notes string) error {
 	if !actor.IsPlatformAdmin() {
-		return apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام للتحقق من المستندات")
+		return apperr.Forbidden("document.admin_required", i18n.TDefault("w4_mod.s_237_237"))
 	}
 
 	var reviewerID *int64
@@ -370,13 +370,13 @@ func (s *Service) VerifyDocumentWithType(ctx context.Context, actor authctx.Acto
 // CreateDocumentRequest issues an official document request from platform admin to an organization.
 func (s *Service) CreateDocumentRequest(ctx context.Context, actor authctx.Actor, orgID int64, docType DocumentType, title, description string, deadlineDays int) (*DocumentRequest, error) {
 	if !actor.IsPlatformAdmin() {
-		return nil, apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام لطلب مستندات رسمية")
+		return nil, apperr.Forbidden("document.admin_required", i18n.TDefault("w4_mod.s_238_238"))
 	}
 	if orgID <= 0 {
-		return nil, apperr.Validation("org_id.required", "يرجى تحديد المنشأة المطلوبة", nil)
+		return nil, apperr.Validation("org_id.required", i18n.TDefault("w4_mod.s_239_239"), nil)
 	}
 	if strings.TrimSpace(title) == "" {
-		return nil, apperr.Validation("title.required", "عنوان ومسمى المستند المطلوب إلزامي", nil)
+		return nil, apperr.Validation("title.required", i18n.TDefault("w4_mod.s_240_240"), nil)
 	}
 	if deadlineDays <= 0 {
 		deadlineDays = 30
@@ -405,13 +405,13 @@ func (s *Service) CreateDocumentRequest(ctx context.Context, actor authctx.Actor
 func (s *Service) ListDocumentRequests(ctx context.Context, actor authctx.Actor, orgID *int64) ([]*DocumentRequest, error) {
 	if orgID != nil && *orgID > 0 {
 		if !actor.IsPlatformAdmin() && actor.OrgID != *orgID {
-			return nil, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية استعراض طلبات هذه المنشأة")
+			return nil, apperr.Forbidden("document.access_denied", i18n.TDefault("w4_mod.s_241_241"))
 		}
 		return s.repo.ListRequestsByOrg(ctx, *orgID)
 	}
 
 	if !actor.IsPlatformAdmin() {
-		return nil, apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام")
+		return nil, apperr.Forbidden("document.admin_required", i18n.TDefault("w4_mod.s_242_242"))
 	}
 	return s.repo.ListAllRequests(ctx)
 }
@@ -419,7 +419,7 @@ func (s *Service) ListDocumentRequests(ctx context.Context, actor authctx.Actor,
 // CancelDocumentRequest cancels an administrative document request.
 func (s *Service) CancelDocumentRequest(ctx context.Context, actor authctx.Actor, reqID int64) error {
 	if !actor.IsPlatformAdmin() {
-		return apperr.Forbidden("document.admin_required", "يتطلب صلاحيات مدير النظام")
+		return apperr.Forbidden("document.admin_required", i18n.TDefault("w4_mod.s_242_242"))
 	}
 	return s.repo.UpdateRequestStatus(ctx, reqID, DocReqCancelled, nil)
 }
@@ -438,7 +438,7 @@ func (s *Service) Delete(ctx context.Context, actor authctx.Actor, id int64) err
 
 	if !actor.IsPlatformAdmin() {
 		if doc.UserID != nil && *doc.UserID != actor.UserID && (doc.OrganizationID == nil || *doc.OrganizationID != actor.OrgID) {
-			return apperr.Forbidden("document.access_denied", "ليس لديك صلاحية حذف هذا المستند")
+			return apperr.Forbidden("document.access_denied", i18n.TDefault("w4_mod.s_243_243"))
 		}
 	}
 

@@ -17,9 +17,9 @@ type SupplierDirectoryItem struct {
 	Branches       []*org.Branch
 	MainBranch     *org.Branch
 	Coverages      []*workflow.CoverageView
-	WorkingHours   string   // e.g. "09:00 ص - 06:00 م"
-	CoverageDays   string   // e.g. "السبت - الخميس"
-	CoverageAreas  []string // e.g. ["القاهرة", "الجيزة", "الإسكندرية"]
+	WorkingHours   string   // e.g. i18n.TDefault("w4m_ui.09_00_06_00_5")
+	CoverageDays   string   // e.g. i18n.TDefault("w4m_ui.s_6_6")
+	CoverageAreas  []string // e.g. [i18n.TDefault("w4m_ui.s_7_7"), i18n.TDefault("w4m_ui.s_8_8"), i18n.TDefault("w4m_ui.s_9_9")]
 	CoverageRadius int      // in km, e.g. 50
 	IsOpenNow      bool
 	StatusNote     string // e.g. "مفتوح الآن (يغلق 06:00 م)"
@@ -217,13 +217,13 @@ func (d *SupplierProfileData) GetConcentration(v *catalog.ProductVariant) string
 func OrgTypeLabel(t org.OrganizationType) string {
 	switch t {
 	case org.TypeVendor:
-		return "مورّد / شركة أدوية"
+		return i18n.TDefault("w4_ui.s_194_194")
 	case org.TypeCustomer:
-		return "صيدلية"
+		return i18n.TDefault("w4_ui.s_195_195")
 	case "supplier", "company", "agency":
-		return "مورّد / شركة أدوية"
+		return i18n.TDefault("w4_ui.s_194_194")
 	case "pharmacy", "chain_pharmacy", "individual":
-		return "صيدلية"
+		return i18n.TDefault("w4_ui.s_195_195")
 	default:
 		return string(t)
 	}

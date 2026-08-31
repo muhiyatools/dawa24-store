@@ -284,7 +284,7 @@ templ importRowsCard(view ImportReviewView) {
 					name="q"
 					value={ view.Filter.Search }
 					placeholder="بحث بالاسم أو الكود..."
-					style="width:14rem;"
+				
 				/>
 				<button type="submit" class="wiz-chip">بحث</button>
 			</form>
@@ -293,12 +293,12 @@ templ importRowsCard(view ImportReviewView) {
 			<table class="data-table m-0">
 				<thead>
 					<tr>
-						<th style="width:70px; text-align:center;">الصف</th>
-						<th style="width:120px;">الإجراء</th>
+						<th>الصف</th>
+						<th>الإجراء</th>
 						<th>الصنف</th>
 						<th>التفاصيل والمطابقة</th>
 						<th>الملاحظات</th>
-						<th style="width:110px; text-align:center;">تضمين</th>
+						<th>تضمين</th>
 					</tr>
 				</thead>
 				<tbody id="import-rows-tbody">
@@ -385,7 +385,7 @@ templ rowFilterChip(view ImportReviewView, key, label string) {
 }
 
 templ importRowsPager(view ImportReviewView) {
-	<div class="wiz-toolbar" style="margin-top:0.9rem;">
+	<div class="wiz-toolbar">
 		<span class="wiz-row-meta">
 			{ fmt.Sprintf("صفحة %d من %d", view.Page, view.Pages) }
 		</span>
@@ -436,7 +436,7 @@ templ importConfirmCard(view ImportReviewView) {
 			</form>
 			<form method="POST" action={ importAction(view, "commit") } hx-boost="false">
 				if view.ModeIsDestructive() {
-					<label class="wiz-switch" style="margin-bottom:0.75rem;">
+					<label class="wiz-switch">
 						<span class="wiz-switch-icon" aria-hidden="true">@components.IconTrash("icon-sm")</span>
 						<span class="wiz-switch-main">
 							<span class="wiz-switch-title">أؤكد أرشفة الكتالوج الحالي</span>
@@ -495,7 +495,7 @@ templ importProgressCard(view ImportReviewView) {
 				</li>
 			}
 		</ol>
-		<p class="wiz-sub" style="margin-top:1rem;">
+		<p class="wiz-sub">
 			يمكنك ترك هذه الصفحة مفتوحة؛ ستظهر النتائج والمراجعة تلقائياً عند اكتمال المعالجة.
 			لن يتم حفظ أي صنف في الكتالوج قبل مراجعتك وتأكيدك.
 		</p>

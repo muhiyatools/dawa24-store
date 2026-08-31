@@ -10,20 +10,20 @@ import (
 
 templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) {
 	@layouts.CustomerShell("الموردون المتابعون", "followed", lang, dir, nil) {
-		<div class="followed-suppliers-container" style="max-width:100%;">
+		<div class="followed-suppliers-container">
 			
 			<!-- Page Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+			<div>
 				<div>
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div>
+						<div>
 							@components.IconBuilding("icon-xs")
 						</div>
-						<h2 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0;">
+						<h2>
 							الموردون المتابعون
 						</h2>
 					</div>
-					<p style="color:var(--text-secondary); font-size:0.875rem; margin:0;">
+					<p>
 						الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.
 					</p>
 				</div>
@@ -41,43 +41,43 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 					ActionLabel: "تصفح دليل الموردين المعتمدين",
 				})
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
+				<div>
 					for _, s := range suppliers {
-						<div class="card" style="margin-bottom:0; padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-raised);">
+						<div class="card">
 							<div>
 								<!-- Header with Emblem and Verified Badge -->
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+								<div>
 									<div class="row-center">
-										<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid var(--border); flex-shrink:0;">
+										<div>
 											@components.IconBuilding("icon-md")
 										</div>
 										<div>
-											<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+											<h3>
 												{ s.TradeName.Get(i18n.Lang(lang)) }
 											</h3>
-											<div style="display:flex; align-items:center; gap:0.35rem; margin-top:0.2rem;">
-												<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:700;">مورد معتمد</span>
+											<div>
+												<span class="badge badge-emerald">مورد معتمد</span>
 											</div>
 										</div>
 									</div>
 
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } class="m-0">
-										<button type="submit" class="btn btn-secondary btn-icon" title="إلغاء المتابعة" style="color:var(--danger); width:30px; height:30px;">
+										<button type="submit" class="btn btn-secondary btn-icon" title="إلغاء المتابعة">
 											@components.IconHeart("icon-xs")
 										</button>
 									</form>
 								</div>
 
 								<!-- Legal Info -->
-								<div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem; background:var(--surface-sunken); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+								<div>
 									if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
-										<div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+										<div>
 											<span class="text-muted">الاسم القانوني:</span>
 											<strong class="text-primary">{ s.LegalName }</strong>
 										</div>
 									}
 									if s.CommercialRegister != "" {
-										<div style="display:flex; justify-content:space-between;">
+										<div>
 											<span class="text-muted">السجل التجاري:</span>
 											<strong class="tabular-nums text-primary">{ s.CommercialRegister }</strong>
 										</div>
@@ -86,8 +86,8 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 							</div>
 
 							<!-- Bottom Actions -->
-							<div style="border-top:1px solid var(--border); padding-top:0.85rem; display:flex; gap:0.5rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm" style="flex:1; justify-content:center; font-weight:700; font-size:0.825rem;">
+							<div>
+								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm">
 									@components.IconPackage("icon-xs")
 									<span>عرض الكتالوج والطلب</span>
 								</a>
