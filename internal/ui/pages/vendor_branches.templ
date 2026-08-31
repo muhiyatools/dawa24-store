@@ -97,10 +97,13 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- Responsive 2-Column Split: Left = Branch List, Right = Unified Form Panel -->
-			<div>
+			<!-- Two-column split. In RTL the first grid child sits on the right, so
+			     the list is declared first and the form lands on the left, which is
+			     where it is expected. The wrapper had no class at all, so there was
+			     no grid and the two panels simply stacked. -->
+			<div class="branches-split">
 				
-				<!-- Left Column: Branch Cards List -->
+				<!-- Branch cards list (right in RTL, left in LTR) -->
 				<div class="d-flex flex-col gap-4">
 					
 					<!-- Search Input -->
@@ -259,7 +262,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					}
 				</div>
 
-				<!-- Right Column: Sticky Form Panel with Add / Edit Modes -->
+				<!-- Sticky form panel, add and edit modes (left in RTL, right in LTR) -->
 				<div id="branch-form-panel" class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6">
 					
 					<!-- Form Header -->

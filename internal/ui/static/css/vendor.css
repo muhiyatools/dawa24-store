@@ -103,3 +103,21 @@
   border-bottom-color: var(--primary-600);
 }
 }
+
+@layer components {
+/* Branch management: list beside the add/edit form.
+   The wrapper previously carried no class, so the two panels stacked at every
+   width and the sticky form never had a column to stick inside. Logical
+   properties throughout: in RTL the first child is the list on the right and
+   the form lands on the left. */
+.branches-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .branches-split { grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 1fr); }
+}
+}

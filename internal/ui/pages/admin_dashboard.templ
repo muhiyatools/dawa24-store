@@ -80,7 +80,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						</div>
 
 						<!-- Quick Refresh Button -->
-						<a href="/admin/dashboard"class="btn btn-secondary btn-sm fw-800 text-xs gap-1 rounded-md">
+						<a href="/admin/dashboard" class="btn btn-secondary btn-sm fw-800 text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
 							<span>تحديث فوري</span>
 						</a>
@@ -162,7 +162,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					</div>
 					<div class="d-flex gap-2 items-baseline flex-wrap my-1">
 						if stats.PendingApprovals > 0 {
-							<a href="/admin/approvals"class="badge badge-amber font-bold text-xs rounded-md no-underline">
+							<a href="/admin/approvals" class="badge badge-amber font-bold text-xs rounded-md no-underline">
 								â³ { fmt.Sprintf("%d تراخيص معلقة", stats.PendingApprovals) }
 							</a>
 						} else {
@@ -172,7 +172,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						}
 
 						if stats.PendingDepositsCount > 0 {
-							<a href="/admin/finance?tab=deposits"class="badge badge-sky font-bold text-xs rounded-md no-underline">
+							<a href="/admin/finance?tab=deposits" class="badge badge-sky font-bold text-xs rounded-md no-underline">
 								{ fmt.Sprintf("%d شحن محفظة", stats.PendingDepositsCount) }
 							</a>
 						}
@@ -202,7 +202,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								رصد مباشر لتدفق طلبات الشراء بين الصيدليات والموردين
 							</p>
 						</div>
-						<a href="/admin/orders"class="btn btn-secondary btn-xs fw-800 gap-1">
+						<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800 gap-1">
 							<span>عرض الطلبات</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -299,7 +299,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								توزيع أجهزة التصفح وحالة خوادم التشغيل والخدمات السحابية
 							</p>
 						</div>
-						<a href="/admin/analytics"class="btn btn-secondary btn-xs fw-800 gap-1">
+						<a href="/admin/analytics" class="btn btn-secondary btn-xs fw-800 gap-1">
 							<span>تفاصيل الزوار</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -386,7 +386,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								فحص السجلات التجارية ومزاولة المهنة للصيدليات والموردين
 							</p>
 						</div>
-						<a href="/admin/approvals"class="btn btn-primary btn-xs fw-800 gap-1">
+						<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800 gap-1">
 							<span>قائمة التدقيق</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -425,7 +425,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											</div>
 										</div>
 									</div>
-									<a href="/admin/approvals"class="btn btn-primary btn-xs fw-800 rounded-md px-3 py-1.5">
+									<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800 rounded-md px-3 py-1.5">
 										فحص
 									</a>
 								</div>
@@ -446,7 +446,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								الصيدليات والموردين المسجلين حديثاً في شبكة إمداد دواء 24
 							</p>
 						</div>
-						<a href="/admin/organizations"class="btn btn-secondary btn-xs fw-800 gap-1">
+						<a href="/admin/organizations" class="btn btn-secondary btn-xs fw-800 gap-1">
 							<span>دليل المنشآت</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
@@ -501,33 +501,29 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 			<div class="bg-surface-sunken border rounded-2xl p-4">
 				<div class="text-xs font-bold text-secondary mb-2">الوصول السريع للأقسام التنفيذية:</div>
 				<div class="d-flex gap-2 flex-wrap items-center">
-					<a href="/admin/finance"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/finance" class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconWallet("icon-xs")
 						<span>الإدارة المالية والمحافظ</span>
 					</a>
-					<a href="/admin/approvals"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/approvals" class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconShield("icon-xs")
 						<span>اعتماد المنشآت والوثائق</span>
 					</a>
-					<a href="/admin/orders"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTruck("icon-xs")
 						<span>أوامر التوريد والشحنات</span>
 					</a>
-					<a href="/admin/products"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/products" class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconPackage("icon-xs")
 						<span>كتالوج الأدوية المعتمد</span>
 					</a>
-					<a href="/admin/plans"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/plans" class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTag("icon-xs")
 						<span>باقات وخطط الاشتراك</span>
 					</a>
-					<a href="/admin/users"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
+					<a href="/admin/users" class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconUsers("icon-xs")
 						<span>المستخدمون والحسابات</span>
-					</a>
-					<a href="/admin/settings"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
-						@components.IconSettings("icon-xs")
-						<span>إعدادات النظام العامة</span>
 					</a>
 				</div>
 			</div>
