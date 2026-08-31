@@ -36,7 +36,6 @@ import (
 )
 
 // aiReason renders the model's short justification for the review screen.
-const aiReasonPrefix = "مطابقة بالذكاء الاصطناعي: "
 
 // apply validates a batch's answers and records the ones that survive.
 //
@@ -135,7 +134,7 @@ func aiReason(reason string) string {
 	if reason == "" {
 		return i18n.TDefault("w4_mod.s_383_383")
 	}
-	return aiReasonPrefix + reason
+	return i18n.TDefault("ingest.ai_match_prefix") + reason
 }
 
 // refuse records a rejected decision and says why.

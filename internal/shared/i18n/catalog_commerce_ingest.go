@@ -2,6 +2,7 @@ package i18n
 
 func loadCommerceAndIngestKeys(e *engine) {
 	// --- Ingest & Vendor Catalog ---
+	addKey(e, "ingest.ai_match_prefix", "ingest", "مطابقة بالذكاء الاصطناعي: ", "AI match: ", "Prefix on an import row matched by the AI stage")
 	addKey(e, "ingest.upload_file", "ingest", "رفع الملف", "Upload File", "Step 1 of catalog import")
 	addKey(e, "ingest.column_mapping", "ingest", "ربط الأعمدة والتحقق", "Column Mapping & Validation", "Step 2 of catalog import")
 	addKey(e, "ingest.settings", "ingest", "إعدادات الاستيراد", "Import Settings", "Step 3 of catalog import")

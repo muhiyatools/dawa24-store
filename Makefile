@@ -190,9 +190,27 @@ check-file-size-count: ## Fail if the number of oversized Go files grows
 	@n=$$(find ./cmd ./internal -name '*.go' -not -name '*_templ.go' -exec wc -l {} + | grep -v " total$$" | awk '$$1>400' | wc -l | tr -d " "); if [ "$$n" -gt 0 ]; then echo "FAIL: $$n Go files over 400 lines (ceiling 0). check-file-size lists them."; exit 1; fi; echo "  ok: $$n oversized files (ceiling 0)"
 
 .PHONY: check-hardcoded-arabic
-check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
-	# Ceiling lowered to 226 in Phase 5 Wave 4 (extracted all user-facing domain/service/UI literals to i18n, leaving only algorithmic token/column dictionaries).
-	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 226 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 226). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 226)"
+check-hardcoded-arabic: ## Fail if user-facing Arabic is hardcoded in Go
+	@echo "==> checking for hardcoded user-facing Arabic"
+	@pat=$$(printf 'Ø'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null 	  | grep -v "_test\|_templ\|/i18n/" 	  | grep -vE "modules/(ingest/domain|compare/columns_data|compare/comparison(_split[0-9])?|catalog/import_rows(_split[0-9])?|smartorder/pipeline/query|assistant/prompt)\.go" 	  | awk -F: '{s+=$$2} END{print s+0}'); 	if [ "$$n" -gt 0 ]; then 	  echo "FAIL: $$n hardcoded Arabic strings in Go (ceiling 0)."; 	  echo "A string in a handler cannot be shown in English. Add a key to"; 	  echo "internal/shared/i18n and call i18n.T(lang, key)."; 	  exit 1; 	fi; 	echo "  ok: $$n user-facing Arabic literals in Go (ceiling 0)"
+
+# The excluded files are linguistic reference data, not user-facing text, and
+# translating them would break the product matcher rather than improve it:
+#
+#   ingest/domain.go, compare/columns_data.go   column-header dictionaries used
+#                                               to recognise Arabic headings in
+#                                               an uploaded spreadsheet
+#   catalog/import_rows.go                      dosage-form vocabulary
+#                                               ("غسول فم" -> mouthwash)
+#   compare/comparison.go                       Arabic->Latin brand map
+#                                               ("بانادول" -> panadol)
+#   smartorder/pipeline/query.go                Arabic tokenisation rules, mostly
+#                                               in comments
+#   assistant/prompt.go                         the assistant's Arabic system
+#                                               prompt
+#
+# These are inputs the platform matches against, not output it renders. See
+# ADR 0018.
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow
