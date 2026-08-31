@@ -194,17 +194,55 @@ func (h *Handler) TransitionStatus(w http.ResponseWriter, r *http.Request) {
 
 // ListVendorShipments returns shipments partitioned for a vendor.
 func (h *Handler) ListVendorShipments(w http.ResponseWriter, r *http.Request) {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	vendorIDStr := r.URL.Query().Get("vendor_id")
-	vendorID, err := strconv.ParseInt(vendorIDStr, 10, 64)
-	if err != nil || vendorID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("vendor_id.invalid", "Valid vendor_id query parameter required", nil))
+	var targetVendorID int64
+	if vendorIDStr != "" {
+		parsed, err := strconv.ParseInt(vendorIDStr, 10, 64)
+		if err != nil || parsed <= 0 {
+			httpx.Error(w, r, h.log, apperr.Validation("vendor_id.invalid", "Valid vendor_id query parameter required", nil))
+			return
+		}
+		targetVendorID = parsed
+	}
+
+	var vendorOrgID int64
+	if actor.IsStaff || actor.Can("commerce.admin") {
+		if targetVendorID <= 0 {
+			httpx.Error(w, r, h.log, apperr.Validation("vendor_id.required", "vendor_id query parameter is required for staff", nil))
+			return
+		}
+		vendorOrgID = targetVendorID
+	} else if actor.IsVendor() && actor.OrganizationID > 0 {
+		if targetVendorID > 0 && targetVendorID != actor.OrganizationID {
+			h.log.WarnContext(r.Context(), "vendor attempted to access another vendor's shipments",
+				"actor_user_id", actor.UserID,
+				"actor_org_id", actor.OrganizationID,
+				"requested_vendor_id", targetVendorID,
+			)
+			httpx.Error(w, r, h.log, apperr.Forbidden("shipments.unauthorized", "Not authorized to view shipments for another vendor"))
+			return
+		}
+		vendorOrgID = actor.OrganizationID
+	} else {
+		h.log.WarnContext(r.Context(), "non-vendor attempted to list vendor shipments",
+			"actor_user_id", actor.UserID,
+			"actor_org_id", actor.OrganizationID,
+			"requested_vendor_id", targetVendorID,
+		)
+		httpx.Error(w, r, h.log, apperr.Forbidden("shipments.unauthorized", "Not authorized to view vendor shipments"))
 		return
 	}
 
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 
-	shipments, err := h.service.ListVendorShipments(r.Context(), vendorID, limit, offset)
+	shipments, err := h.service.ListVendorShipments(r.Context(), vendorOrgID, limit, offset)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
