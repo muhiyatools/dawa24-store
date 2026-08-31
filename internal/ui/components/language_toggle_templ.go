@@ -64,7 +64,7 @@ func LanguageToggle(currentLang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" title=\"العربية\"><span style=\"display:inline-flex; align-items:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" title=\"العربية\" aria-label=\"تغيير اللغة إلى العربية\"><span style=\"display:inline-flex; align-items:center;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -101,13 +101,13 @@ func LanguageToggle(currentLang string) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:700; text-decoration:none !important; transition:all 0.15s ease;", templ.KV("background:var(--surface-raised); color:var(--text); box-shadow:var(--shadow-sm);", currentLang == "en"), templ.KV("color:var(--text-muted);", currentLang != "en"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/language_toggle.templ`, Line: 17, Col: 397}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/language_toggle.templ`, Line: 18, Col: 397}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" title=\"English\"><span style=\"display:inline-flex; align-items:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" title=\"English\" aria-label=\"Switch interface language to English\"><span style=\"display:inline-flex; align-items:center;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

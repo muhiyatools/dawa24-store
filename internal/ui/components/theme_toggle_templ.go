@@ -29,7 +29,7 @@ func ThemeToggle() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"theme-toggle-group\" style=\"display:inline-flex; align-items:center; background:var(--surface-sunken); padding:2px; border-radius:var(--radius-full); border:1px solid var(--border); gap:2px;\"><button type=\"button\" data-set-theme=\"light\" class=\"btn-theme-toggle\" title=\"المظهر الفاتح\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"theme-toggle-group\" style=\"display:inline-flex; align-items:center; background:var(--surface-sunken); padding:2px; border-radius:var(--radius-full); border:1px solid var(--border); gap:2px;\"><button type=\"button\" data-set-theme=\"light\" class=\"btn-theme-toggle\" title=\"المظهر الفاتح\" aria-label=\"تفعيل المظهر الفاتح\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -37,7 +37,7 @@ func ThemeToggle() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>فاتح</span></button> <button type=\"button\" data-set-theme=\"dark\" class=\"btn-theme-toggle\" title=\"المظهر الداكن\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>فاتح</span></button> <button type=\"button\" data-set-theme=\"dark\" class=\"btn-theme-toggle\" title=\"المظهر الداكن\" aria-label=\"تفعيل المظهر الداكن\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,7 +45,7 @@ func ThemeToggle() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>داكن</span></button> <button type=\"button\" data-set-theme=\"system\" class=\"btn-theme-toggle\" title=\"تلقائي حسب نظام الجهاز\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>داكن</span></button> <button type=\"button\" data-set-theme=\"system\" class=\"btn-theme-toggle\" title=\"تلقائي حسب نظام الجهاز\" aria-label=\"تفعيل المظهر التلقائي حسب نظام الجهاز\" style=\"border:none; padding:0.35rem 0.65rem; border-radius:var(--radius-full); cursor:pointer; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:0.35rem; transition:all 150ms var(--ease-default); background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

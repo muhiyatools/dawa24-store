@@ -8,7 +8,7 @@ import (
 
 // AdminComponentGalleryPage renders the Phase 3 component matrix gallery for visual regression capture.
 func (h *UIHandler) AdminComponentGalleryPage(w http.ResponseWriter, r *http.Request) {
-	lang, dir := h.resolveLangAndDir(r)
+	lang, dir := h.localeAndDir(r)
 	density := r.URL.Query().Get("density")
 	if density == "" {
 		density = "comfortable"
