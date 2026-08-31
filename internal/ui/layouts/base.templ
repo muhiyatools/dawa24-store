@@ -1,6 +1,7 @@
 package layouts
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -26,7 +27,7 @@ import (
 // GetSiteSettings never returns nil — it falls back to a complete default — so
 // the nil check that used to wrap this entire template could not fire. It has
 // been removed rather than left to imply a failure mode that does not exist.
-templ Base(title string, lang string, dir string) {
+templ Base(title string, lang string, dir string, extraCSS ...string) {
 	{{ site := GetSiteSettings(ctx) }}
 	<!DOCTYPE html>
 	<html lang={ lang } dir={ dir }>
@@ -67,13 +68,18 @@ templ Base(title string, lang string, dir string) {
 			<link rel="stylesheet" href={ Asset("/static/css/foundations.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/utilities.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/app.css") }/>
+			for _, cssPath := range extraCSS {
+				<link rel="stylesheet" href={ Asset(cssPath) }/>
+			}
 			<script defer src={ Asset("/static/vendor/htmx-1.9.10.min.js") }></script>
 			<script defer src={ Asset("/static/vendor/alpine-3.13.5.min.js") }></script>
 			<script defer src={ Asset("/static/js/app.js") }></script>
 		</head>
 		<body>
 			{ children... }
-			@components.CapsuleAssistant()
+			if actor, ok := authctx.From(ctx); ok && !actor.IsStaff && (actor.OrganizationID > 0 || actor.OrgID > 0) {
+				@components.CapsuleAssistantTrigger()
+			}
 		</body>
 	</html>
 }

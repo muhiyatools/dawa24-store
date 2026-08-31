@@ -7,7 +7,7 @@ import (
 
 templ VendorShell(title string, activeNav string, lang string, dir string) {
 	if site := GetSiteSettings(ctx); site != nil {
-		@Base(title, lang, dir) {
+		@Base(title, lang, dir, "/static/css/vendor.css") {
 			<div class="app-shell">
 				<!-- Sidebar -->
 				<aside class="sidebar">

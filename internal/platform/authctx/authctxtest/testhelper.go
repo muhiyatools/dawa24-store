@@ -1,6 +1,7 @@
-package authctx
+package authctxtest
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
@@ -13,7 +14,7 @@ import (
 // - Scope determines whether the role is resolved against ScopeVendor or ScopePharmacy.
 // - If scope is empty and role matches an org role, ScopeVendor is used as default.
 // - Permissions come from rbac.GrantsFor(role, scope).
-func ActorForRole(roleKey string, scope rbac.Scope) Actor {
+func ActorForRole(roleKey string, scope rbac.Scope) authctx.Actor {
 	c := rbac.Default()
 
 	// Check platform roles first
@@ -22,7 +23,7 @@ func ActorForRole(roleKey string, scope rbac.Scope) Actor {
 		if pRole.Owner {
 			perms = c.KeysFor(rbac.ScopeAdmin)
 		}
-		a := Actor{
+		a := authctx.Actor{
 			UserID:      1,
 			Role:        pRole.Key,
 			IsStaff:     pRole.IsStaff,
@@ -30,8 +31,7 @@ func ActorForRole(roleKey string, scope rbac.Scope) Actor {
 			Scope:       rbac.ScopeAdmin,
 			Permissions: perms,
 		}
-		set := rbac.NewSet(perms)
-		a.perms = &set
+		a.Grants(perms)
 		return a
 	}
 
@@ -48,7 +48,7 @@ func ActorForRole(roleKey string, scope rbac.Scope) Actor {
 		if scope == rbac.ScopeVendor {
 			orgType = "vendor"
 		}
-		a := Actor{
+		a := authctx.Actor{
 			UserID:         1,
 			OrganizationID: 1,
 			OrgID:          1,
@@ -59,13 +59,12 @@ func ActorForRole(roleKey string, scope rbac.Scope) Actor {
 			Scope:          scope,
 			Permissions:    perms,
 		}
-		set := rbac.NewSet(perms)
-		a.perms = &set
+		a.Grants(perms)
 		return a
 	}
 
 	// Fallback for user / customer / job_seeker
-	return Actor{
+	return authctx.Actor{
 		UserID: 1,
 		Role:   roleKey,
 		Scope:  scope,
@@ -74,13 +73,12 @@ func ActorForRole(roleKey string, scope rbac.Scope) Actor {
 
 // SyntheticActor creates an Actor with an explicit slice of permissions for tests
 // that test gate mechanics directly rather than declared RBAC roles.
-func SyntheticActor(userID int64, isStaff bool, perms ...string) Actor {
-	a := Actor{
+func SyntheticActor(userID int64, isStaff bool, perms ...string) authctx.Actor {
+	a := authctx.Actor{
 		UserID:      userID,
 		IsStaff:     isStaff,
 		Permissions: perms,
 	}
-	set := rbac.NewSet(perms)
-	a.perms = &set
+	a.Grants(perms)
 	return a
 }

@@ -5,12 +5,10 @@
 
 /* ---- Core Glass Containers ---- */
 .glass-panel {
-  background: var(--glass-surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
   border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
   transition: transform var(--duration-normal) var(--ease-smooth),
@@ -30,10 +28,8 @@
 }
 
 .glass-panel-high {
-  background: var(--glass-surface-high);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xl), 0 0 1px 1px var(--glass-border-light);
 }
@@ -188,10 +184,8 @@
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  background: var(--glass-surface-high);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-subtle, #e2e8f0);
   box-shadow: var(--shadow-xs);
 }
 
@@ -231,13 +225,11 @@
 }
 
 .tier-card-glass {
-  background: linear-gradient(165deg, var(--glass-surface-high) 0%, var(--glass-surface) 100%);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
   border-radius: var(--radius-3xl);
   padding: 1.75rem 1.5rem;
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--shadow-md);
   text-align: center;
   position: relative;
   display: flex;
@@ -245,7 +237,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  transition: all var(--duration-normal) var(--ease-spring);
+  transition: transform var(--duration-normal) var(--ease-spring),
+              box-shadow var(--duration-normal) var(--ease-smooth),
+              border-color var(--duration-normal) var(--ease-smooth);
 }
 
 .tier-card-glass:hover,
@@ -307,10 +301,8 @@
 
 /* ---- Glass Header Strip ---- */
 .glass-header-strip {
-  background: var(--glass-surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-border);
+  background: var(--bg-surface-raised, #ffffff);
+  border-bottom: 1px solid var(--border-subtle, #e2e8f0);
   padding: 0.9rem 1.5rem;
   display: flex;
   align-items: center;

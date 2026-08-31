@@ -1,0 +1,40 @@
+﻿/* ==========================================================================
+   DAWA 24 — ADMIN & MANAGEMENT PORTAL SURFACE STYLES (admin.css)
+   ========================================================================== */
+
+.admin-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xl);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-table-wrapper {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+  overflow-x: auto;
+}
+
+.admin-log-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-subtle);
+}

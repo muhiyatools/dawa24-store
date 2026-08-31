@@ -16,7 +16,7 @@ import (
 // catalogue shows.
 templ CustomerShell(title string, activeNav string, lang string, dir string, perms []string) {
 	if site := GetSiteSettings(ctx); site != nil {
-		@Base(title, lang, dir) {
+		@Base(title, lang, dir, "/static/css/customer.css") {
 			<div class="app-shell">
 				<!-- Sidebar -->
 				<aside class="sidebar">

@@ -194,7 +194,7 @@
   --glass-surface-high: rgba(255, 255, 255, 0.95);
   --glass-border:       rgba(2, 132, 199, 0.16);
   --glass-border-light: rgba(255, 255, 255, 0.85);
-  --glass-blur:         blur(6px);
+  --glass-blur:         none;
   --glass-shadow:       0 4px 20px -2px rgba(2, 132, 199, 0.08), 0 1px 4px 0 rgba(15, 23, 42, 0.04);
   --glass-shine:        linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 60%);
 }
@@ -261,7 +261,7 @@ body.dark {
   --glass-surface-high: rgba(17, 29, 53, 0.95);
   --glass-border:       rgba(56, 189, 248, 0.18);
   --glass-border-light: rgba(56, 189, 248, 0.25);
-  --glass-blur:         blur(6px);
+  --glass-blur:         none;
   --glass-shadow:       0 10px 32px 0 rgba(2, 6, 23, 0.55), 0 0 1px 1px rgba(56, 189, 248, 0.15);
   --glass-shine:        linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(255, 255, 255, 0.04) 50%, transparent 100%);
 }

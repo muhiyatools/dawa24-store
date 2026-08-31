@@ -3,8 +3,11 @@ package ui
 import (
 	"context"
 	"log/slog"
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
@@ -291,6 +294,7 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 // organizations (authctx.RequireApproved mounted): wallet, invoices, messaging,
 // notifications, employees, org member management, payment methods, sessions.
 func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
+	r.Get("/components/capsule-assistant", h.CapsuleAssistantPanel)
 	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
 
 	// Settings tabs & actions (approved only)
@@ -362,4 +366,9 @@ func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
 	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
 	r.Get("/vendor/invoices", h.InvoicesPage)
+}
+
+// CapsuleAssistantPanel renders the lazy-loaded Capsule AI assistant drawer over HTMX.
+func (h *UIHandler) CapsuleAssistantPanel(w http.ResponseWriter, r *http.Request) {
+	_ = components.CapsuleAssistantPanel().Render(r.Context(), w)
 }

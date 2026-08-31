@@ -11,7 +11,7 @@ import (
 // render it — they use the sidebar shells (Rebuild V2 §1.5).
 templ PublicShell(title string, lang string, dir string) {
 	if site := GetSiteSettings(ctx); site != nil {
-		@Base(title, lang, dir) {
+		@Base(title, lang, dir, "/static/css/public.css") {
 			<div x-data="{ mobileNav: false }" class="public-shell-root">
 				<!-- Top Modern Navbar -->
 				<header class="top-navbar public-navbar">

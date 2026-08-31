@@ -492,7 +492,7 @@
 .align-middle   { vertical-align: middle !important; }
 .shrink-0       { flex-shrink: 0 !important; }
 .grow           { flex-grow: 1 !important; }
-.transition-all { transition: all var(--duration-fast, 150ms) var(--ease-smooth, ease); }
+.transition-all { transition: background-color var(--duration-fast, 150ms) var(--ease-smooth, ease), border-color var(--duration-fast, 150ms) var(--ease-smooth, ease), color var(--duration-fast, 150ms) var(--ease-smooth, ease), opacity var(--duration-fast, 150ms) var(--ease-smooth, ease), transform var(--duration-fast, 150ms) var(--ease-smooth, ease), box-shadow var(--duration-fast, 150ms) var(--ease-smooth, ease); }
 
 .p-12  { padding: 3rem !important; }
 .px-5  { padding-inline: 1.25rem !important; }

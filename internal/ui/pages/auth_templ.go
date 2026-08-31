@@ -506,7 +506,20 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>إنشاء الحساب وبدء التفعيل</span></button></div></section></form><div style=\"text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:1.25rem;\">لديك حساب بالفعل؟ <a href=\"/auth/login\" style=\"font-weight:800; color:var(--accent);\">تسجيل الدخول</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>إنشاء الحساب وبدء التفعيل</span></button></div></section></form><div style=\"text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:1.25rem;\">لديك حساب بالفعل؟ <a href=\"/auth/login\" style=\"font-weight:800; color:var(--accent);\">تسجيل الدخول</a></div></div></div><script defer src=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var22 string
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Asset("/static/js/registration.js"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 396, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"></script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -536,12 +549,12 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var22 == nil {
-			templ_7745c5c3_Var22 = templ.NopComponent
+		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var23 == nil {
+			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var23 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var24 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -553,7 +566,7 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">استعادة كلمة المرور</h1><p style=\"color:var(--text-secondary); font-size:0.875rem; margin-top:0.35rem;\">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p></div><form method=\"POST\" action=\"/auth/forgot\" class=\"stack-115\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"forgot-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"forgot-email\" name=\"email\" required class=\"form-input tabular-nums\" placeholder=\"pharmacist@dawa24.eg\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">استعادة كلمة المرور</h1><p style=\"color:var(--text-secondary); font-size:0.875rem; margin-top:0.35rem;\">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p></div><form method=\"POST\" action=\"/auth/forgot\" class=\"stack-115\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"forgot-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"forgot-email\" name=\"email\" required class=\"form-input tabular-nums\" placeholder=\"pharmacist@dawa24.eg\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -561,13 +574,13 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>إرسال رابط الاستعادة</span></button></form><div style=\"text-align:center; margin-top:1.5rem; font-size:0.875rem;\"><a href=\"/auth/login\" style=\"font-weight:700; color:var(--accent);\">العودة لتسجيل الدخول</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>إرسال رابط الاستعادة</span></button></form><div style=\"text-align:center; margin-top:1.5rem; font-size:0.875rem;\"><a href=\"/auth/login\" style=\"font-weight:700; color:var(--accent);\">العودة لتسجيل الدخول</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("استعادة كلمة المرور", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("استعادة كلمة المرور", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -591,12 +604,12 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var24 == nil {
-			templ_7745c5c3_Var24 = templ.NopComponent
+		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var25 == nil {
+			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var26 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -608,20 +621,20 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">تعيين كلمة المرور</h1></div><form method=\"POST\" action=\"/auth/reset\" class=\"stack-115\"><input type=\"hidden\" name=\"token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">تعيين كلمة المرور</h1></div><form method=\"POST\" action=\"/auth/reset\" class=\"stack-115\"><input type=\"hidden\" name=\"token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(token)
+			var templ_7745c5c3_Var27 string
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(token)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 442, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 443, Col: 52}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reset-pass\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"reset-pass\" name=\"password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reset-pass\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"reset-pass\" name=\"password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -629,13 +642,13 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span>تحديث كلمة المرور والدخول</span></button></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span>تحديث كلمة المرور والدخول</span></button></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("تعيين كلمة المرور الجديدة", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("تعيين كلمة المرور الجديدة", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

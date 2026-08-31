@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx/authctxtest"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
@@ -19,12 +20,12 @@ func TestRequireAPIPermission(t *testing.T) {
 		_, _ = w.Write([]byte("OK"))
 	})
 
-	superAdmin := authctx.ActorForRole("super_admin", rbac.ScopeAdmin)
-	supportUser := authctx.ActorForRole("support", rbac.ScopeAdmin)
-	customerUser := authctx.ActorForRole("user", rbac.ScopePharmacy)
+	superAdmin := authctxtest.ActorForRole("super_admin", rbac.ScopeAdmin)
+	supportUser := authctxtest.ActorForRole("support", rbac.ScopeAdmin)
+	customerUser := authctxtest.ActorForRole("user", rbac.ScopePharmacy)
 
 	// Explicit synthetic actor testing exact staff permission grant
-	staffWithPerm := authctx.SyntheticActor(10, true, "commerce.admin")
+	staffWithPerm := authctxtest.SyntheticActor(10, true, "commerce.admin")
 
 	tests := []struct {
 		name       string
@@ -81,9 +82,9 @@ func TestRequireAPITenantPermission(t *testing.T) {
 		_, _ = w.Write([]byte("OK"))
 	})
 
-	superAdmin := authctx.ActorForRole("super_admin", rbac.ScopeAdmin)
-	vendorManager := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
-	vendorAccountant := authctx.ActorForRole("org_accountant", rbac.ScopeVendor)
+	superAdmin := authctxtest.ActorForRole("super_admin", rbac.ScopeAdmin)
+	vendorManager := authctxtest.ActorForRole("org_manager", rbac.ScopeVendor)
+	vendorAccountant := authctxtest.ActorForRole("org_accountant", rbac.ScopeVendor)
 
 	userNoOrg := authctx.Actor{
 		UserID:         2,
@@ -148,18 +149,18 @@ func TestRequireApprovedAPI(t *testing.T) {
 		_, _ = w.Write([]byte("OK"))
 	})
 
-	approvedActor := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
+	approvedActor := authctxtest.ActorForRole("org_manager", rbac.ScopeVendor)
 
-	pendingActor := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
+	pendingActor := authctxtest.ActorForRole("org_manager", rbac.ScopeVendor)
 	pendingActor.OrgStatus = "pending"
 
-	rejectedActor := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
+	rejectedActor := authctxtest.ActorForRole("org_manager", rbac.ScopeVendor)
 	rejectedActor.OrgStatus = "rejected"
 
-	suspendedActor := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
+	suspendedActor := authctxtest.ActorForRole("org_manager", rbac.ScopeVendor)
 	suspendedActor.OrgStatus = "suspended"
 
-	staffActor := authctx.ActorForRole("super_admin", rbac.ScopeAdmin)
+	staffActor := authctxtest.ActorForRole("super_admin", rbac.ScopeAdmin)
 
 	tests := []struct {
 		name       string
