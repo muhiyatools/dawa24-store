@@ -492,6 +492,44 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</div>
 		</section>
 
+		<!-- 4b. Promoted Deals & Offers Banners (Position: home_deals) -->
+		if len(stats.DealsAds) > 0 {
+			<section class="landing-section-block">
+				<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+					for _, ad := range stats.DealsAds {
+						if ad != nil {
+							<a
+								href={ templ.SafeURL(ad.ResolveClickURL()) }
+								class="glass-panel p-5 rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 hover:border-amber-400 transition-all text-decoration-none"
+							>
+								<div class="d-flex items-center gap-3.5">
+									if ad.MediaURL != "" && ad.MediaType != "video" {
+										<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0" />
+									} else if ad.MediaType == "video" {
+										<div class="w-16 h-16 rounded-xl bg-slate-900 text-white d-flex items-center justify-center text-xs font-black flex-shrink-0">فيديو</div>
+									}
+									<div class="stack-sm">
+										<div class="d-flex items-center gap-2">
+											<span class="badge badge-amber font-black text-2xs shadow-2xs">صفقة ترويجية مميزة</span>
+											<span class="badge badge-emerald text-2xs font-bold">خصم مباشر</span>
+										</div>
+										<h3 class="text-sm font-black text-primary m-0 mt-0.5">{ ad.DisplayTitle(lang) }</h3>
+										if ad.DisplayText(lang) != "" {
+											<p class="text-xs text-secondary m-0 line-clamp-1">{ ad.DisplayText(lang) }</p>
+										}
+									</div>
+								</div>
+								<div class="d-flex items-center gap-1.5 text-xs font-black text-amber-700 flex-shrink-0">
+									<span>تفاصيل العرض</span>
+									@components.IconArrowLeft("icon-xs")
+								</div>
+							</a>
+						}
+					}
+				</div>
+			</section>
+		}
+
 		<!-- 5. Active Live Special Offers & Promotions (If available in DB) -->
 		if len(offers) > 0 {
 			<section class="landing-section-block">
@@ -731,6 +769,44 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				</div>
 			</div>
 		</section>
+
+		<!-- 8b. Promoted Pre-Footer Banners (Position: home_bottom) -->
+		if len(stats.BottomAds) > 0 {
+			<section class="landing-section-block">
+				<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+					for _, ad := range stats.BottomAds {
+						if ad != nil {
+							<a
+								href={ templ.SafeURL(ad.ResolveClickURL()) }
+								class="glass-panel p-5 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-sky-50/70 via-indigo-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 hover:border-sky-400 transition-all text-decoration-none"
+							>
+								<div class="d-flex items-center gap-3.5">
+									if ad.MediaURL != "" && ad.MediaType != "video" {
+										<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0" />
+									} else if ad.MediaType == "video" {
+										<div class="w-16 h-16 rounded-xl bg-slate-900 text-white d-flex items-center justify-center text-xs font-black flex-shrink-0">فيديو</div>
+									}
+									<div class="stack-sm">
+										<div class="d-flex items-center gap-2">
+											<span class="badge badge-sky font-black text-2xs shadow-2xs">إعلان ترويجي موثق</span>
+											<span class="badge badge-indigo text-2xs font-bold">مورد معتمد</span>
+										</div>
+										<h3 class="text-sm font-black text-primary m-0 mt-0.5">{ ad.DisplayTitle(lang) }</h3>
+										if ad.DisplayText(lang) != "" {
+											<p class="text-xs text-secondary m-0 line-clamp-1">{ ad.DisplayText(lang) }</p>
+										}
+									</div>
+								</div>
+								<div class="d-flex items-center gap-1.5 text-xs font-black text-brand flex-shrink-0">
+									<span>زيارة المورد</span>
+									@components.IconArrowLeft("icon-xs")
+								</div>
+							</a>
+						}
+					}
+				</div>
+			</section>
+		}
 
 		<!-- 9. Masterpiece Call To Action Section -->
 		<section class="landing-cta-banner">

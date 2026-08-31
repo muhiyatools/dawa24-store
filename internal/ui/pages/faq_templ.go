@@ -102,7 +102,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"faq-page-container\" x-data=\"{ activeCategory: 'all' }\"><!-- Header --><div class=\"stack-sm\"><div class=\"stack-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"faq-page-container\" x-data=\"{ activeCategory: 'all' }\"><!-- Hero Header --><div class=\"faq-hero-card\"><div class=\"faq-hero-badge\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -110,7 +110,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز المساعدة والمعلومات</span></div><h1 class=\"page-title font-bold text-xl m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز المساعدة والمعلومات</span></div><h1 class=\"faq-hero-title\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -130,7 +130,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-sm text-secondary m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"faq-hero-subtitle\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -150,51 +150,51 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><!-- Category Filter Tabs --><div class=\"stack-sm\"><button type=\"button\" @click=\"activeCategory = 'all'\" class=\"btn btn-sm\" :class=\"activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'\">جميع الأسئلة</button> <button type=\"button\" @click=\"activeCategory = 'عام ونظرة عامة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'عام ونظرة عامة' ? 'btn-primary' : 'btn-secondary'\">عام ونظرة عامة</button> <button type=\"button\" @click=\"activeCategory = 'الطلبات والتوريد'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الطلبات والتوريد' ? 'btn-primary' : 'btn-secondary'\">الطلبات والتوريد</button> <button type=\"button\" @click=\"activeCategory = 'الشحن والجودة'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الشحن والجودة' ? 'btn-primary' : 'btn-secondary'\">الشحن وسلسلة التبريد</button> <button type=\"button\" @click=\"activeCategory = 'الدفع والفواتير'\" class=\"btn btn-sm\" :class=\"activeCategory === 'الدفع والفواتير' ? 'btn-primary' : 'btn-secondary'\">الدفع والفواتير</button> <button type=\"button\" @click=\"activeCategory = 'انضمام الموردين'\" class=\"btn btn-sm\" :class=\"activeCategory === 'انضمام الموردين' ? 'btn-primary' : 'btn-secondary'\">انضمام الموردين</button></div><!-- FAQ List Accordion --><div class=\"stack-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><!-- Category Filter Tabs --><div class=\"faq-tabs-nav\"><button type=\"button\" @click=\"activeCategory = 'all'\" class=\"faq-tab-btn\" :class=\"{ 'active': activeCategory === 'all' }\">جميع الأسئلة</button> <button type=\"button\" @click=\"activeCategory = 'عام ونظرة عامة'\" class=\"faq-tab-btn\" :class=\"{ 'active': activeCategory === 'عام ونظرة عامة' }\">عام ونظرة عامة</button> <button type=\"button\" @click=\"activeCategory = 'الطلبات والتوريد'\" class=\"faq-tab-btn\" :class=\"{ 'active': activeCategory === 'الطلبات والتوريد' }\">الطلبات والتوريد</button> <button type=\"button\" @click=\"activeCategory = 'الشحن والجودة'\" class=\"faq-tab-btn\" :class=\"{ 'active': activeCategory === 'الشحن والجودة' }\">الشحن وسلسلة التبريد</button> <button type=\"button\" @click=\"activeCategory = 'الدفع والفواتير'\" class=\"faq-tab-btn\" :class=\"{ 'active': activeCategory === 'الدفع والفواتير' }\">الدفع والفواتير</button> <button type=\"button\" @click=\"activeCategory = 'انضمام الموردين'\" class=\"faq-tab-btn\" :class=\"{ 'active': activeCategory === 'انضمام الموردين' }\">انضمام الموردين</button></div><!-- FAQ List Accordion --><div class=\"faq-accordion-list\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, item := range GetFAQs() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"card mb-0\" x-data=\"{ open: false }\" x-show=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"faq-accordion-item\" x-data=\"{ open: false }\" x-show=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue("activeCategory === 'all' || activeCategory === '" + item.Category + "'")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 155, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 148, Col: 87}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :style=\"open ? 'border-color:var(--accent);' : ''\"><div class=\"stack-sm\" @click=\"open = !open\"><div class=\"row-center\"><span class=\"badge badge-sky\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" :class=\"{ 'is-open': open }\"><div class=\"faq-accordion-header\" @click=\"open = !open\"><div class=\"faq-question-group\"><span class=\"badge badge-sky\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(item.Category)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 164, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 157, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span><h3 class=\"font-bold text-sm m-0\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span><h3 class=\"faq-question-title\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(item.Question)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 167, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 160, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3></div><div class=\"stack-sm\" :style=\"open ? 'transform: rotate(180deg)' : ''\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h3></div><div class=\"faq-chevron\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -202,14 +202,14 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"stack-sm\" x-show=\"open\" x-cloak x-collapse>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"faq-accordion-body\" x-show=\"open\" x-cloak x-collapse>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(item.Answer)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 180, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/faq.templ`, Line: 173, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func FAQPage(lang, dir, customTitle, customSubtitle string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Contact Support Card --><div class=\"card mb-0\"><h3 class=\"font-bold text-sm m-0\">لم تجد إجابة لاستفسارك؟</h3><p class=\"text-sm text-secondary m-0\">فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.</p><div class=\"stack-sm\"><a href=\"/contact\" class=\"btn btn-primary btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- Contact Support Card --><div class=\"faq-contact-card\"><h3 class=\"faq-contact-title\">لم تجد إجابة لاستفسارك؟</h3><p class=\"faq-contact-desc\">فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.</p><div class=\"faq-contact-actions\"><a href=\"/contact\" class=\"btn btn-primary btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -1,9 +1,9 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -215,7 +215,7 @@ templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 					if data.NoticeType == "success" {
 						@components.IconCheckCircle("icon-sm text-emerald-600 flex-shrink-0")
 					} else {
-						@components.IconAlertTriangle("icon-sm text-rose-600 flex-shrink-0")
+						@components.IconAlert("icon-sm text-rose-600 flex-shrink-0")
 					}
 					<span class="text-xs font-bold">{ data.NoticeMsg }</span>
 				</div>

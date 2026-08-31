@@ -49,9 +49,18 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 			offers = activeOffers
 			stats.TotalOffers = len(activeOffers)
 		}
-		// Fetch approved ads for the landing page advertising gallery.
-		if ads, err := h.promoSvc.ListActiveAds(ctx, "home_banner"); err == nil {
-			stats.Ads = ads
+		// Fetch approved ads for the landing page advertising gallery and banners.
+		if heroAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeHero); err == nil {
+			stats.Ads = append(stats.Ads, heroAds...)
+		}
+		if bannerAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBanner); err == nil {
+			stats.Ads = append(stats.Ads, bannerAds...)
+		}
+		if dealsAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeDeals); err == nil {
+			stats.DealsAds = dealsAds
+		}
+		if bottomAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBottom); err == nil {
+			stats.BottomAds = bottomAds
 		}
 	}
 

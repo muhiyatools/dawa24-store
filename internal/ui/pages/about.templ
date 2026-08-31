@@ -23,8 +23,8 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 		<div class="about-page-container">
 			
 			<!-- Hero Banner -->
-			<section class="card mb-0">
-    <div class="stack-sm">
+			<section class="about-hero-card">
+				<div class="faq-hero-badge">
 					@components.IconBuilding("icon-xs")
 					if data.HeroBadge != "" {
 						<span>{ data.HeroBadge }</span>
@@ -32,14 +32,14 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 						<span>شركة DAWA24 للتكنولوجيا وحلول الإمداد الدوائي</span>
 					}
 				</div>
-				<h1 class="page-title font-bold text-xl m-0">
+				<h1 class="faq-hero-title">
 					if data.HeroTitle != "" {
 						{ data.HeroTitle }
 					} else {
 						من نحن — منصة التوريد الدوائي الذكية
 					}
 				</h1>
-    <p class="text-sm text-secondary m-0">
+				<p class="faq-hero-subtitle">
 					if data.HeroSubtitle != "" {
 						{ data.HeroSubtitle }
 					} else {
@@ -49,19 +49,19 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 			</section>
 
 			<!-- Mission and Vision Cards -->
-			<section>
-				<div class="card mb-0">
-					<div class="stack-xs text-sm">
+			<section class="about-grid-2">
+				<div class="about-value-card">
+					<div class="about-value-icon">
 						@components.IconShield("icon-md")
 					</div>
-					<h3 class="font-bold text-sm m-0">
+					<h3 class="about-value-title">
 						if data.VisionTitle != "" {
 							{ data.VisionTitle }
 						} else {
 							رؤيتنا
 						}
 					</h3>
-     <p class="text-sm text-secondary m-0">
+					<p class="about-value-text">
 						if data.VisionText != "" {
 							{ data.VisionText }
 						} else {
@@ -70,18 +70,18 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 					</p>
 				</div>
 
-				<div class="card mb-0">
-					<div class="stack-xs text-sm">
+				<div class="about-value-card">
+					<div class="about-value-icon">
 						@components.IconTruck("icon-md")
 					</div>
-					<h3 class="font-bold text-sm m-0">
+					<h3 class="about-value-title">
 						if data.MissionTitle != "" {
 							{ data.MissionTitle }
 						} else {
 							رسالتنا
 						}
 					</h3>
-     <p class="text-sm text-secondary m-0">
+					<p class="about-value-text">
 						if data.MissionText != "" {
 							{ data.MissionText }
 						} else {
@@ -92,70 +92,70 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 			</section>
 
 			<!-- Strategic Pillars -->
-			<section class="card mb-0">
-    <div class="stack-sm">
-					<h2 class="card-title font-bold text-base m-0">
+			<section class="about-pillars-section">
+				<div class="about-pillars-header">
+					<h2 class="about-value-title">
 						ركائز العمل في منصة دواء 24
 					</h2>
-					<p class="text-sm text-secondary m-0">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p>
+					<p class="about-value-text">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p>
 				</div>
 
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<div class="stack-xs text-sm">
+				<div class="about-pillars-grid">
+					<div class="about-pillar-card">
+						<div class="about-pillar-icon">
 							@components.IconCheckCircle("icon-sm")
 						</div>
-						<h4 class="font-semibold text-sm m-0">توثيق التراخيص الرسمية</h4>
-						<p class="text-sm text-secondary m-0">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p>
+						<h4 class="about-pillar-title">توثيق التراخيص الرسمية</h4>
+						<p class="about-pillar-text">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p>
 					</div>
 
-     <div class="stack-sm">
-						<div class="stack-xs text-sm">
+					<div class="about-pillar-card">
+						<div class="about-pillar-icon">
 							@components.IconTruck("icon-sm")
 						</div>
-						<h4 class="font-semibold text-sm m-0">سلسلة تبريد معتمدة (Cold-Chain)</h4>
-						<p class="text-sm text-secondary m-0">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p>
+						<h4 class="about-pillar-title">سلسلة تبريد معتمدة (Cold-Chain)</h4>
+						<p class="about-pillar-text">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p>
 					</div>
 
-     <div class="stack-sm">
-						<div class="stack-xs text-sm">
+					<div class="about-pillar-card">
+						<div class="about-pillar-icon">
 							@components.IconFileText("icon-sm")
 						</div>
-						<h4 class="font-semibold text-sm m-0">تكامل الفاتورة الإلكترونية</h4>
-						<p class="text-sm text-secondary m-0">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p>
+						<h4 class="about-pillar-title">تكامل الفاتورة الإلكترونية</h4>
+						<p class="about-pillar-text">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p>
 					</div>
 
-     <div class="stack-sm">
-						<div class="stack-xs text-sm">
+					<div class="about-pillar-card">
+						<div class="about-pillar-icon">
 							@components.IconPhone("icon-sm")
 						</div>
-						<h4 class="font-semibold text-sm m-0">دعم فني واستشارات 24/7</h4>
-						<p class="text-sm text-secondary m-0">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p>
+						<h4 class="about-pillar-title">دعم فني واستشارات 24/7</h4>
+						<p class="about-pillar-text">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p>
 					</div>
 				</div>
 			</section>
 
 			<!-- Registration Banner -->
-			<section class="card mb-0">
-				<h2 class="card-title font-bold text-base m-0">
+			<section class="about-cta-card">
+				<h2 class="about-cta-title">
 					if data.BannerTitle != "" {
 						{ data.BannerTitle }
 					} else {
 						كن جزءاً من مستقبل التوريد الدوائي الذكي
 					}
 				</h2>
-    <p class="text-sm text-secondary m-0">
+				<p class="about-cta-desc">
 					if data.BannerText != "" {
 						{ data.BannerText }
 					} else {
 						سواء كنت صيدلية تسعى لتأمين احتياجاتها بأفضل الأسعار، أو مورداً يريد توسيع قاعدة عملائه، دواء 24 هو شريكك الاستراتيجي.
 					}
 				</p>
-    <div class="stack-sm">
-					<a href="/auth/register" class="btn btn-primary">
+				<div class="about-cta-actions">
+					<a href="/auth/register" class="btn btn-primary btn-sm font-bold">
 						<span>تسجيل صيدلية جديدة</span>
 					</a>
-					<a href="/auth/register" class="btn btn-secondary">
+					<a href="/auth/register" class="btn btn-secondary btn-sm font-bold">
 						<span>انضمام كشريك مورد</span>
 					</a>
 				</div>

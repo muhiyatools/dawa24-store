@@ -65,20 +65,20 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 	@layouts.PublicShell("الأسئلة الشائعة وإرشادات الاستخدام | FAQ", lang, dir) {
 		<div class="faq-page-container" x-data="{ activeCategory: 'all' }">
 			
-			<!-- Header -->
-   <div class="stack-sm">
-    <div class="stack-sm">
+			<!-- Hero Header -->
+			<div class="faq-hero-card">
+				<div class="faq-hero-badge">
 					@components.IconHelpCircle("icon-xs")
 					<span>مركز المساعدة والمعلومات</span>
 				</div>
-				<h1 class="page-title font-bold text-xl m-0">
+				<h1 class="faq-hero-title">
 					if customTitle != "" {
 						{ customTitle }
 					} else {
 						الأسئلة الشائعة وإرشادات الاستخدام
 					}
 				</h1>
-    <p class="text-sm text-secondary m-0">
+				<p class="faq-hero-subtitle">
 					if customSubtitle != "" {
 						{ customSubtitle }
 					} else {
@@ -88,94 +88,87 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 			</div>
 
 			<!-- Category Filter Tabs -->
-   <div class="stack-sm">
+			<div class="faq-tabs-nav">
 				<button
 					type="button"
 					@click="activeCategory = 'all'"
-					class="btn btn-sm"
-					:class="activeCategory === 'all' ? 'btn-primary' : 'btn-secondary'"
-				
+					class="faq-tab-btn"
+					:class="{ 'active': activeCategory === 'all' }"
 				>
 					جميع الأسئلة
 				</button>
 				<button
 					type="button"
 					@click="activeCategory = 'عام ونظرة عامة'"
-					class="btn btn-sm"
-					:class="activeCategory === 'عام ونظرة عامة' ? 'btn-primary' : 'btn-secondary'"
-				
+					class="faq-tab-btn"
+					:class="{ 'active': activeCategory === 'عام ونظرة عامة' }"
 				>
 					عام ونظرة عامة
 				</button>
 				<button
 					type="button"
 					@click="activeCategory = 'الطلبات والتوريد'"
-					class="btn btn-sm"
-					:class="activeCategory === 'الطلبات والتوريد' ? 'btn-primary' : 'btn-secondary'"
-				
+					class="faq-tab-btn"
+					:class="{ 'active': activeCategory === 'الطلبات والتوريد' }"
 				>
 					الطلبات والتوريد
 				</button>
 				<button
 					type="button"
 					@click="activeCategory = 'الشحن والجودة'"
-					class="btn btn-sm"
-					:class="activeCategory === 'الشحن والجودة' ? 'btn-primary' : 'btn-secondary'"
-				
+					class="faq-tab-btn"
+					:class="{ 'active': activeCategory === 'الشحن والجودة' }"
 				>
 					الشحن وسلسلة التبريد
 				</button>
 				<button
 					type="button"
 					@click="activeCategory = 'الدفع والفواتير'"
-					class="btn btn-sm"
-					:class="activeCategory === 'الدفع والفواتير' ? 'btn-primary' : 'btn-secondary'"
-				
+					class="faq-tab-btn"
+					:class="{ 'active': activeCategory === 'الدفع والفواتير' }"
 				>
 					الدفع والفواتير
 				</button>
 				<button
 					type="button"
 					@click="activeCategory = 'انضمام الموردين'"
-					class="btn btn-sm"
-					:class="activeCategory === 'انضمام الموردين' ? 'btn-primary' : 'btn-secondary'"
-				
+					class="faq-tab-btn"
+					:class="{ 'active': activeCategory === 'انضمام الموردين' }"
 				>
 					انضمام الموردين
 				</button>
 			</div>
 
 			<!-- FAQ List Accordion -->
-   <div class="stack-sm">
+			<div class="faq-accordion-list">
 				for _, item := range GetFAQs() {
 					<div
-						class="card mb-0"
-					
+						class="faq-accordion-item"
 						x-data="{ open: false }"
 						x-show={ "activeCategory === 'all' || activeCategory === '" + item.Category + "'" }
-						:style="open ? 'border-color:var(--accent);' : ''"
+						:class="{ 'is-open': open }"
 					>
-						<div class="stack-sm"
-						
+						<div
+							class="faq-accordion-header"
 							@click="open = !open"
 						>
-							<div class="row-center">
+							<div class="faq-question-group">
 								<span class="badge badge-sky">
 									{ item.Category }
 								</span>
-								<h3 class="font-bold text-sm m-0">
+								<h3 class="faq-question-title">
 									{ item.Question }
 								</h3>
 							</div>
-							<div class="stack-sm" :style="open ? 'transform: rotate(180deg)' : ''">
+							<div class="faq-chevron">
 								@components.IconChevronDown("icon-sm")
 							</div>
 						</div>
-						<div class="stack-sm"
+						<div
+							class="faq-accordion-body"
 							x-show="open"
 							x-cloak
 							x-collapse
-						
 						>
 							{ item.Answer }
 						</div>
@@ -184,14 +177,14 @@ templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 			</div>
 
 			<!-- Contact Support Card -->
-			<div class="card mb-0">
-				<h3 class="font-bold text-sm m-0">
+			<div class="faq-contact-card">
+				<h3 class="faq-contact-title">
 					لم تجد إجابة لاستفسارك؟
 				</h3>
-    <p class="text-sm text-secondary m-0">
+				<p class="faq-contact-desc">
 					فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.
 				</p>
-    <div class="stack-sm">
+				<div class="faq-contact-actions">
 					<a href="/contact" class="btn btn-primary btn-sm">
 						@components.IconMail("icon-xs")
 						<span>إرسال استفسار عبر نموذج التواصل</span>

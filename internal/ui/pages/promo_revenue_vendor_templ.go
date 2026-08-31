@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"encoding/json"
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -511,7 +511,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = components.IconAlertTriangle("icon-sm text-rose-600 flex-shrink-0").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.IconAlert("icon-sm text-rose-600 flex-shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

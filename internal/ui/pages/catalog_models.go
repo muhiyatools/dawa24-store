@@ -5,6 +5,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
