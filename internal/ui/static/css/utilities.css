@@ -10,7 +10,8 @@
    ========================================================================== */
 
 /* ---- Display & Flexbox Primitives ---- */
-.d-none         { display: none; }
+.d-none,
+.hidden         { display: none !important; }
 .d-block        { display: block; }
 .d-inline       { display: inline; }
 .d-inline-block { display: inline-block; }

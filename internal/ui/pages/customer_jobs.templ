@@ -28,90 +28,91 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 			<!-- Notice Toast -->
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="alert alert-danger mb-6 p-4 d-flex items-center gap-3">
-						<span class="text-xl">@components.IconAlert("icon-sm")</span>
+					<div class="alert alert-danger mb-4 p-4 d-flex items-center gap-2">
+						@components.IconAlert("icon-xs")
 						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
 					</div>
 				} else {
-					<div class="alert alert-success mb-6 p-4 d-flex items-center gap-3">
-						<span class="text-xl">@components.IconCheckCircle("icon-sm")</span>
+					<div class="alert alert-success mb-4 p-4 d-flex items-center gap-2">
+						@components.IconCheckCircle("icon-xs")
 						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
 					</div>
 				}
 			}
 
 			<!-- Top Header Banner -->
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between items-center flex-wrap gap-4">
-					<div class="stack-xs">
-						<div class="stat-label text-xs text-muted font-bold">
-							لوحة الصيدلية • إدارة الكوادر والتوظيف
+			<div class="card p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
+				<div>
+					<div class="d-flex items-center gap-2 mb-1">
+						<div class="user-avatar-badge">
+							@components.IconBriefcase("icon-sm")
 						</div>
-						<h1 class="page-title font-bold text-2xl text-primary m-0">
+						<h1 class="page-title font-bold text-xl m-0">
 							شواغر ووظائف الصيدلية
 						</h1>
-						<p class="text-sm text-secondary m-0 mt-1 max-w-2xl leading-relaxed">
-							نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
-						</p>
 					</div>
-					<button type="button" class="btn btn-primary font-bold px-5" onclick="openAddJobModal()">
-						@components.IconPlus("icon-xs")
-						<span>نشر وظيفة جديدة</span>
-					</button>
+					<p class="text-xs text-secondary m-0">
+						نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
+					</p>
 				</div>
+				<button type="button" class="btn btn-primary btn-sm font-bold gap-1 px-4" onclick="openAddJobModal()">
+					@components.IconPlus("icon-xs")
+					<span>نشر وظيفة جديدة</span>
+				</button>
 			</div>
 
 			<!-- Metric Stats Cards -->
-			<div class="dashboard-stat-grid cols-4 mb-6">
-				<!-- Card 1 -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي الوظائف</div>
-					<div class="stat-card-value text-primary tabular-nums">
+			<div class="wallet-stats-grid mb-4">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">إجمالي الوظائف</div>
+					<div class="wallet-stat-val text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
+					<div class="wallet-stat-note">كافة الشواغر المسجلة</div>
 				</div>
 
-				<!-- Card 2 -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label">الوظائف النشطة</div>
-					<div class="stat-card-value text-success tabular-nums">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">الوظائف النشطة</div>
+					<div class="wallet-stat-val text-success tabular-nums">
 						{ fmt.Sprintf("%d", data.PublishedCount) }
 					</div>
+					<div class="wallet-stat-note">متاحة لاستقبال التقديمات</div>
 				</div>
 
-				<!-- Card 3 -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label">الوظائف المغلقة</div>
-					<div class="stat-card-value text-muted tabular-nums">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">الوظائف المغلقة</div>
+					<div class="wallet-stat-val text-muted tabular-nums">
 						{ fmt.Sprintf("%d", data.ClosedCount) }
 					</div>
+					<div class="wallet-stat-note">تم الاكتفاء والتعيين</div>
 				</div>
 
-				<!-- Card 4 -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي المتقدمين</div>
-					<div class="stat-card-value text-sky tabular-nums">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">إجمالي المتقدمين</div>
+					<div class="wallet-stat-val text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalApplications) }
 					</div>
+					<div class="wallet-stat-note">السير الذاتية المستلمة</div>
 				</div>
 			</div>
 
 			<!-- Main Jobs Table Card -->
-			<div class="card p-0 overflow-hidden mb-6 shadow-xs">
-				<div class="p-5 border-b bg-surface-raised flex-between items-center">
-					<h3 class="font-bold text-base text-primary m-0">
+			<div class="card p-0 overflow-hidden mb-4">
+				<div class="p-4 border-bottom d-flex items-center justify-between">
+					<h3 class="font-bold text-sm text-primary m-0">
 						قائمة الوظائف المنشورة
 					</h3>
+					<span class="badge badge-sky text-2xs font-bold tabular-nums">{ fmt.Sprintf("%d وظائف", data.TotalCount) }</span>
 				</div>
 
 				if len(data.Jobs) == 0 {
-					<div class="p-10 text-center empty-state">
-						<div class="empty-state-icon">@components.IconBriefcase("icon-lg")</div>
+					<div class="p-8 text-center">
+						<div class="mb-2 text-2xl text-muted">@components.IconBriefcase("icon-lg")</div>
 						<h3 class="font-bold text-base text-primary mb-1">لم تقم بنشر أي وظائف حتى الآن</h3>
-						<p class="text-sm text-secondary m-0 max-w-md mx-auto mb-4">
+						<p class="text-xs text-secondary m-0 max-w-md mx-auto mb-3">
 							يمكنك نشر وظيفة جديدة الآن لاستقبال طلبات الصيادلة ومساعدي الصيادلة وإدارة التعيينات بكل سهولة.
 						</p>
-						<button type="button" class="btn btn-primary font-bold px-6" onclick="openAddJobModal()">
+						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="openAddJobModal()">
 							@components.IconPlus("icon-xs")
 							<span>نشر وظيفتك الأولى الآن</span>
 						</button>
@@ -126,23 +127,23 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 									<th>الراتب المقترح</th>
 									<th>المتقدمين</th>
 									<th>الحالة</th>
-									<th>الإجراءات</th>
+									<th class="text-center">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, item := range data.Jobs {
 									<tr>
 										<td>
-											<div class="stat-label text-sm text-secondary">
+											<div class="font-bold text-sm text-primary">
 												{ item.Job.Title.Get(i18n.ParseLang(lang)) }
 											</div>
-											<div class="stat-label text-sm text-secondary">
+											<div class="text-2xs text-muted tabular-nums">
 												{ item.Job.PublicID }
 											</div>
 										</td>
 										<td>
-           <div class="stack-sm">
-												<span>@components.IconMapPin("icon-sm")</span>
+											<div class="d-flex items-center gap-1.5 text-xs text-secondary">
+												@components.IconMapPin("icon-xs text-muted")
 												<span>
 													if item.Job.Location != "" {
 														{ item.Job.Location }
@@ -153,7 +154,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 											</div>
 										</td>
 										<td>
-           <div class="stack-sm">
+											<div class="text-xs font-semibold tabular-nums">
 												if !item.Job.SalaryMin.IsZero() || !item.Job.SalaryMax.IsZero() {
 													@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: item.Job.SalaryMin })
 													if !item.Job.SalaryMax.IsZero() {
@@ -168,31 +169,30 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 										<td>
 											<button
 												type="button"
-												class="btn btn-secondary btn-sm"
+												class="btn btn-secondary btn-xs font-bold gap-1"
 												onclick={ templ.ComponentScript{ Call: fmt.Sprintf("viewApplicants(%d, %q)", item.Job.ID, item.Job.Title.Get(i18n.ParseLang(lang))) } }
-											
 											>
-												<span>@components.IconUsers("icon-sm")</span>
-												<span>{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
+												@components.IconUsers("icon-xs")
+												<span class="tabular-nums">{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
 											</button>
 										</td>
 										<td>
 											if item.Job.Status == "published" {
-												<span class="badge badge-emerald">
+												<span class="badge badge-emerald text-2xs font-bold">
 													منشورة ومتاحة
 												</span>
 											} else {
-												<span class="badge badge-slate">
+												<span class="badge badge-slate text-2xs font-bold">
 													مغلقة
 												</span>
 											}
 										</td>
-										<td>
-           <div class="stack-sm">
+										<td class="text-center">
+											<div class="d-flex items-center justify-center gap-1">
 												<!-- Edit Button -->
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm btn-icon"
+													class="btn btn-secondary btn-icon btn-xs"
 													title="تعديل بيانات الوظيفة"
 													data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
 													data-title-ar={ item.Job.Title.Get(i18n.AR) }
@@ -205,27 +205,27 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 													data-reqs={ item.Job.Requirements }
 													onclick="openEditJobModalFromBtn(this)"
 												>
-													@components.IconEdit("icon-sm")
+													@components.IconEdit("icon-xs")
 												</button>
 
 												<!-- Toggle Status Form -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/toggle", item.Job.ID)) } class="m-0">
 													<button
 														type="submit"
-														class="btn btn-secondary btn-sm btn-icon"
+														class="btn btn-secondary btn-icon btn-xs"
 														title={ templ.EscapeString("تغيير حالة الوظيفة (نشر / إغلاق)") }
 													>
 														if item.Job.Status == "published" {
-															@components.IconShield("icon-sm")
+															@components.IconCheck("icon-xs")
 														} else {
-															🟢
+															@components.IconPlus("icon-xs")
 														}
 													</button>
 												</form>
 
 												<!-- Delete Form -->
 												<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟');">
-													<button type="submit" class="btn btn-outline-danger btn-sm btn-icon" title="حذف الوظيفة">
+													<button type="submit" class="btn btn-secondary btn-icon btn-xs text-danger" title="حذف الوظيفة">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>

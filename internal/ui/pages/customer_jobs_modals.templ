@@ -15,10 +15,10 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		Subtitle: "أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة",
 		Size:     "lg",
 	}) {
-		<form method="POST" action="/customer/jobs" class="stack-lg">
+		<form method="POST" action="/customer/jobs" class="d-flex flex-col gap-3 m-0">
 			<!-- Job Title Arabic & English -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="stack-xs">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 					</label>
@@ -26,19 +26,19 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 						type="text"
 						name="title_ar"
 						required
-						class="form-input"
+						class="form-control form-control-sm font-semibold"
 						placeholder="مثال: صيدلي أول / مساعد صيدلي"
 					/>
 				</div>
 
-				<div class="stack-xs">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						المسمى الوظيفي (بالإنجليزية)
 					</label>
 					<input
 						type="text"
 						name="title_en"
-						class="form-input"
+						class="form-control form-control-sm font-semibold"
 						placeholder="e.g. Pharmacist / Branch Manager"
 						dir="ltr"
 					/>
@@ -46,21 +46,21 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Location & Branch Selection -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="stack-xs">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						الفرع المخصص للشاغر <span class="text-danger">*</span>
 					</label>
 					if len(data.Branches) == 0 {
-						<div class="p-3 bg-surface-sunken border rounded-lg text-xs text-secondary">
-							<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/customer/branches" class="text-primary font-bold">إدارة الفروع ↗</a>.</span>
+						<div class="p-2.5 bg-surface-sunken border rounded-lg text-xs text-secondary">
+							<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/customer/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ↗</a>.</span>
 						</div>
 						<input type="hidden" name="location" value="الفرع الرئيسي" />
 					} else {
 						<select
 							name="branch_id"
 							required
-							class="form-select"
+							class="form-select form-select-sm font-semibold"
 						>
 							<option value="">-- اختر الفرع المتاح للوظيفة --</option>
 							for _, b := range data.Branches {
@@ -75,14 +75,14 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					}
 				</div>
 
-				<div class="stack-xs">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						حالة الوظيفة <span class="text-danger">*</span>
 					</label>
 					<select
 						name="status"
 						required
-						class="form-select"
+						class="form-select form-select-sm font-semibold"
 					>
 						<option value="published">منشورة ومتاحة للتقديم (Published)</option>
 						<option value="closed">مغلقة ومكتفية (Closed)</option>
@@ -92,60 +92,60 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Salary Range -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="stack-xs">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						الحد الأدنى للراتب (اختياري)
 					</label>
 					<input
 						type="number"
 						name="salary_min"
-						class="form-input tabular-nums font-mono"
+						class="form-control form-control-sm tabular-nums font-mono"
 						placeholder="8000"
 					/>
 				</div>
 
-				<div class="stack-xs">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						الحد الأقصى للراتب (اختياري)
 					</label>
 					<input
 						type="number"
 						name="salary_max"
-						class="form-input tabular-nums font-mono"
+						class="form-control form-control-sm tabular-nums font-mono"
 						placeholder="12000"
 					/>
 				</div>
 			</div>
 
 			<!-- Description -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					الوصف الوظيفي والمسؤوليات
 				</label>
 				<textarea
 					name="description"
 					rows="3"
-					class="form-input"
+					class="form-control form-control-sm"
 					placeholder="اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع..."
 				></textarea>
 			</div>
 
 			<!-- Requirements -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					المتطلبات والمؤهلات المطلوبة
 				</label>
 				<textarea
 					name="requirements"
 					rows="3"
-					class="form-input"
+					class="form-control form-control-sm"
 					placeholder="مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل..."
 				></textarea>
 			</div>
 
 			<!-- Form Actions -->
-			<div class="modal-footer pt-3 border-t flex-between items-center">
+			<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
 				<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
 					إلغاء
 				</button>
@@ -164,10 +164,10 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		Subtitle: "تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها",
 		Size:     "lg",
 	}) {
-		<form id="edit-job-form" method="POST" action="" class="stack-lg">
+		<form id="edit-job-form" method="POST" action="" class="d-flex flex-col gap-3 m-0">
 			<!-- Job Title Arabic & English -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="stack-xs">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 					</label>
@@ -176,11 +176,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 						name="title_ar"
 						id="edit-job-title-ar"
 						required
-						class="form-input"
+						class="form-control form-control-sm font-semibold"
 					/>
 				</div>
 
-				<div class="stack-xs">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						المسمى الوظيفي (بالإنجليزية)
 					</label>
@@ -188,15 +188,15 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 						type="text"
 						name="title_en"
 						id="edit-job-title-en"
-						class="form-input"
+						class="form-control form-control-sm font-semibold"
 						dir="ltr"
 					/>
 				</div>
 			</div>
 
 			<!-- Location & Status -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="stack-xs">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						الفرع المخصص للشاغر <span class="text-danger">*</span>
 					</label>
@@ -206,14 +206,14 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 							name="location"
 							id="edit-job-location"
 							readonly
-							class="form-input"
+							class="form-control form-control-sm bg-surface-sunken"
 						/>
 					} else {
 						<select
 							name="branch_id"
 							id="edit-job-branch-id"
 							required
-							class="form-select"
+							class="form-select form-select-sm font-semibold"
 						>
 							<option value="">-- اختر الفرع المتاح للوظيفة --</option>
 							for _, b := range data.Branches {
@@ -233,7 +233,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					}
 				</div>
 
-				<div class="stack-xs">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						حالة الوظيفة <span class="text-danger">*</span>
 					</label>
@@ -241,7 +241,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 						name="status"
 						id="edit-job-status"
 						required
-						class="form-select"
+						class="form-select form-select-sm font-semibold"
 					>
 						<option value="published">منشورة ومتاحة للتقديم (Published)</option>
 						<option value="closed">مغلقة ومكتفية (Closed)</option>
@@ -251,8 +251,8 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Salary Range -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="stack-xs">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						الحد الأدنى للراتب
 					</label>
@@ -260,11 +260,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 						type="number"
 						name="salary_min"
 						id="edit-job-salary-min"
-						class="form-input tabular-nums font-mono"
+						class="form-control form-control-sm tabular-nums font-mono"
 					/>
 				</div>
 
-				<div class="stack-xs">
+				<div class="form-group mb-0">
 					<label class="form-label font-bold text-xs">
 						الحد الأقصى للراتب
 					</label>
@@ -272,13 +272,13 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 						type="number"
 						name="salary_max"
 						id="edit-job-salary-max"
-						class="form-input tabular-nums font-mono"
+						class="form-control form-control-sm tabular-nums font-mono"
 					/>
 				</div>
 			</div>
 
 			<!-- Description -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					الوصف الوظيفي والمسؤوليات
 				</label>
@@ -286,12 +286,12 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					name="description"
 					id="edit-job-description"
 					rows="3"
-					class="form-input"
+					class="form-control form-control-sm"
 				></textarea>
 			</div>
 
 			<!-- Requirements -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					المتطلبات والمؤهلات المطلوبة
 				</label>
@@ -299,12 +299,12 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					name="requirements"
 					id="edit-job-requirements"
 					rows="3"
-					class="form-input"
+					class="form-control form-control-sm"
 				></textarea>
 			</div>
 
 			<!-- Form Actions -->
-			<div class="modal-footer pt-3 border-t flex-between items-center">
+			<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
 				<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
 					إلغاء
 				</button>
@@ -323,11 +323,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		Subtitle: "استعراض ملفات المتقدمين للشواغر الوظيفية",
 		Size:     "xl",
 	}) {
-		<div id="applicants-modal-subtitle" class="text-xs text-primary font-bold mb-4 pb-2 border-b">
+		<div id="applicants-modal-subtitle" class="text-xs text-primary font-bold mb-3 pb-2 border-bottom">
 			الوظيفة: -
 		</div>
 		<!-- Dynamic Content -->
-		<div class="stack-md" id="applicants-modal-content">
+		<div class="d-flex flex-col gap-3" id="applicants-modal-content">
 			<!-- Populated by JS -->
 		</div>
 	}
@@ -339,20 +339,20 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		Subtitle: "إضافة المتقدم مباشرة إلى طاقم العمل وتحديد صلاحياته",
 		Size:     "md",
 	}) {
-		<div id="onboard-modal-subtitle" class="text-xs text-muted font-bold mb-4 pb-2 border-b">
+		<div id="onboard-modal-subtitle" class="text-xs text-muted font-bold mb-3 pb-2 border-bottom">
 			المتقدم: -
 		</div>
 
-		<form class="stack-md" id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
+		<form class="d-flex flex-col gap-3 m-0" id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
 			<input type="hidden" id="onboard-job-id" value="" />
 			<input type="hidden" id="onboard-app-id" value="" />
 
 			<!-- Branch Selection -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					الفرع المخصص للعمل <span class="text-danger">*</span>
 				</label>
-				<select id="onboard-branch-id" required class="form-select">
+				<select id="onboard-branch-id" required class="form-select form-select-sm font-semibold">
 					if len(data.Branches) == 0 {
 						<option value="">الفرع الرئيسي</option>
 					} else {
@@ -369,11 +369,11 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Role / Permissions Selection -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 				</label>
-				<select id="onboard-role-key" required class="form-select">
+				<select id="onboard-role-key" required class="form-select form-select-sm font-semibold">
 					<option value="org_pharmacist">صيدلي مسؤول (طلبات، فواتير، استلام)</option>
 					<option value="org_manager">مدير فرع (صلاحيات كاملة للفرع)</option>
 					<option value="org_employee">موظف / كاشير (صلاحيات أساسية)</option>
@@ -383,7 +383,7 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Job Title -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					المسمى الوظيفي المعتمد <span class="text-danger">*</span>
 				</label>
@@ -391,39 +391,39 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 					type="text"
 					id="onboard-job-title"
 					required
-					class="form-input"
+					class="form-control form-control-sm font-semibold"
 					placeholder="مثال: صيدلي أول / مدير شفت مسائي"
 				/>
 			</div>
 
 			<!-- Salary -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					الراتب الأساسي (ج.م / شهرياً)
 				</label>
 				<input
 					type="text"
 					id="onboard-base-salary"
-					class="form-input tabular-nums font-mono"
+					class="form-control form-control-sm tabular-nums font-mono"
 					placeholder="مثال: 9500"
 				/>
 			</div>
 
 			<!-- Notes -->
-			<div class="stack-xs">
+			<div class="form-group mb-0">
 				<label class="form-label font-bold text-xs">
 					ملاحظات التعيين (اختياري)
 				</label>
 				<textarea
 					id="onboard-notes"
 					rows="2"
-					class="form-input"
+					class="form-control form-control-sm"
 					placeholder="ملاحظات حول موعد بدء العمل أو الشفت..."
 				></textarea>
 			</div>
 
 			<!-- Form Actions -->
-			<div class="modal-footer pt-3 border-t flex-between items-center">
+			<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
 				<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
 					إلغاء
 				</button>
@@ -435,3 +435,4 @@ templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
 		</form>
 	}
 }
+

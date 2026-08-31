@@ -88,10 +88,8 @@ func cbRoleBadgeClass(key string) string {
 		return "badge-sky"
 	case "org_accountant", "accountant":
 		return "badge-amber"
-	case "org_warehouse", "warehouse":
-		return "badge-slate"
 	default:
-		return "badge-secondary"
+		return "badge-slate"
 	}
 }
 
@@ -102,16 +100,16 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			<!-- Notice Feedback Banner -->
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="alert alert-danger mb-4 p-4 flex-between">
-						<div class="d-flex items-center gap-3 font-extrabold text-sm">
-							<span class="text-2xl">@components.IconAlert("icon-sm")</span>
+					<div class="alert alert-danger mb-4 p-4 d-flex items-center justify-between flex-wrap gap-2">
+						<div class="d-flex items-center gap-2 font-bold text-sm">
+							@components.IconAlert("icon-xs")
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
 				} else {
-					<div class="alert alert-success mb-4 p-4 flex-between">
-						<div class="d-flex items-center gap-3 font-extrabold text-sm">
-							<span class="text-2xl">@components.IconCheckCircle("icon-sm")</span>
+					<div class="alert alert-success mb-4 p-4 d-flex items-center justify-between flex-wrap gap-2">
+						<div class="d-flex items-center gap-2 font-bold text-sm">
+							@components.IconCheckCircle("icon-xs")
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
@@ -119,22 +117,27 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			}
 			
 			<!-- Header Banner -->
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between flex-wrap gap-4">
-     <div class="stack-sm">
-						<h2 class="text-2xl font-black text-primary m-0 mb-1">
-							إدارة الفروع ومستخدمي الصيدلية
-						</h2>
-						<p class="text-sm text-secondary m-0 max-w-2xl leading-relaxed">
+			<div class="card p-5 mb-4">
+				<div class="d-flex items-center justify-between flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-2 mb-1">
+							<div class="user-avatar-badge">
+								@components.IconBuilding("icon-sm")
+							</div>
+							<h1 class="page-title text-xl font-bold m-0">
+								إدارة الفروع ومستخدمي الصيدلية
+							</h1>
+						</div>
+						<p class="text-xs text-secondary m-0">
 							إدارة شبكة الفروع ومواقع الاستلام الجغرافية، وتعيين الموظفين والصيادلة لكل فرع وتحديد أدوارهم وصلاحياتهم.
 						</p>
 					</div>
-					<div class="d-flex items-center gap-3 flex-wrap">
-						<button type="button" class="btn btn-secondary btn-sm font-bold gap-2" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<button type="button" class="btn btn-secondary btn-sm font-bold gap-1" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
 							@components.IconUser("icon-xs")
 							<span>+ إضافة مستخدم / موظف</span>
 						</button>
-						<button type="button" class="btn btn-primary btn-sm font-bold gap-2" @click="resetToAddMode(); switchCustomerBranchTab('branches'); document.getElementById('new-branch-form').scrollIntoView({behavior:'smooth'});">
+						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" @click="resetToAddMode(); activeTab = 'branches'; document.getElementById('new-branch-form').scrollIntoView({behavior:'smooth'});">
 							@components.IconPlus("icon-xs")
 							<span>+ إضافة فرع جديد</span>
 						</button>
@@ -143,67 +146,63 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- Metrics Strip -->
-			<div class="dashboard-stat-grid mb-6">
-				<div class="stat-card-3d">
-					<div class="stat-card-label">
-						إجمالي الفروع المسجلة
+			<div class="wallet-stats-grid mb-4">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">إجمالي الفروع المسجلة</div>
+					<div class="wallet-stat-val text-primary tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Branches)) } <span class="text-xs font-normal text-muted">فروع</span>
 					</div>
-					<div class="stat-card-value text-primary tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Branches)) } <span class="text-xs font-semibold text-secondary">فروع</span>
-					</div>
+					<div class="wallet-stat-note">شبكة استلام الطلبيات</div>
 				</div>
 
-				<div class="stat-card-3d">
-					<div class="stat-card-label">
-						الفرع الرئيسي للاستلام
-					</div>
-					<div class="text-lg font-black text-brand truncate mt-1">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">الفرع الرئيسي للاستلام</div>
+					<div class="wallet-stat-val text-primary truncate text-base">
 						if mb := data.GetMainBranch(); mb != nil {
 							<span>{ mb.Name.Get(i18n.ParseLang(lang)) }</span>
 						} else {
 							<span>غير محدد</span>
 						}
 					</div>
+					<div class="wallet-stat-note">نقطة التسليم الافتراضية</div>
 				</div>
 
-				<div class="stat-card-3d">
-					<div class="stat-card-label">
-						الموظفون والصيادلة
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">الموظفون والصيادلة</div>
+					<div class="wallet-stat-val text-primary tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Employees)) } <span class="text-xs font-normal text-muted">مستخدمين</span>
 					</div>
-					<div class="stat-card-value text-primary tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Employees)) } <span class="text-xs font-semibold text-secondary">مستخدمين</span>
-					</div>
+					<div class="wallet-stat-note">كادر العمل بالصيدلية</div>
 				</div>
 
-				<div class="stat-card-3d">
-					<div class="stat-card-label">
-						حالة التغطية والشحن
-					</div>
-					<div class="d-flex items-center gap-2 mt-2">
-						<span class="badge badge-emerald text-xs font-bold gap-1">
-							@components.IconCheckCircle("icon-xs")
-							<span>جاهز لتلقي طلبيات التوريد</span>
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">حالة التغطية والشحن</div>
+					<div class="mt-1">
+						<span class="badge badge-emerald text-2xs font-bold">
+							@components.IconCheck("icon-xs")
+							<span>جاهز لتلقي التوريد</span>
 						</span>
 					</div>
+					<div class="wallet-stat-note">مفعل على مستوى المحافظات</div>
 				</div>
 			</div>
 
 			<!-- Navigation Tabs -->
-			<div class="cb-tabs-nav mb-6">
+			<div class="sp-tabs-nav mb-4">
 				<button
 					type="button"
-					id="cb-tab-btn-branches"
-					onclick="switchCustomerBranchTab('branches')"
-					class={ "cb-tab-btn", templ.KV("active", data.ActiveTab != "employees") }
+					class="sp-tab-btn"
+					:class="{ 'active': activeTab === 'branches' }"
+					@click="activeTab = 'branches'"
 				>
 					@components.IconBuilding("icon-xs")
 					<span>شبكة الفروع ومواقع الاستلام ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
 				</button>
 				<button
 					type="button"
-					id="cb-tab-btn-employees"
-					onclick="switchCustomerBranchTab('employees')"
-					class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "employees") }
+					class="sp-tab-btn"
+					:class="{ 'active': activeTab === 'employees' }"
+					@click="activeTab = 'employees'"
 				>
 					@components.IconUser("icon-xs")
 					<span>موظفو ومستخدمو الفروع والصلاحيات ({ fmt.Sprintf("%d", len(data.Employees)) })</span>
@@ -211,30 +210,30 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- TAB 1: Branches Network Content -->
-			<div id="cb-tab-panel-branches" class={ "tab-panel", templ.KV("hidden", data.ActiveTab == "employees") }>
-				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+			<div x-show="activeTab === 'branches'">
+				<div class="cb-split-grid">
 					
-					<!-- Left Column: Existing Pharmacy Branches List (7 cols) -->
-					<div class="lg:col-span-7 card p-5 shadow-xs">
-						<div class="flex-between items-center pb-4 mb-4 border-b">
-							<div class="d-flex items-center gap-2 font-bold text-base text-primary">
-								@components.IconBuilding("icon-sm")
+					<!-- Right Column (in RTL DOM): Existing Pharmacy Branches List -->
+					<div class="card p-5">
+						<div class="d-flex items-center justify-between flex-wrap gap-2 pb-3 mb-3 border-bottom">
+							<div class="d-flex items-center gap-2 font-bold text-sm text-primary">
+								@components.IconBuilding("icon-xs")
 								<span>فروع الصيدلية المعتمدة</span>
 							</div>
-							<span class="badge badge-sky text-xs font-bold">{ fmt.Sprintf("%d فروع", len(data.Branches)) }</span>
+							<span class="badge badge-sky text-2xs font-bold tabular-nums">{ fmt.Sprintf("%d فروع", len(data.Branches)) }</span>
 						</div>
 
 						if len(data.Branches) == 0 {
-							<div class="p-8 text-center empty-state">
-								<div class="empty-state-icon">@components.IconBuilding("icon-lg")</div>
-								<h3 class="font-bold text-base text-primary mb-1">لم تقم بإضافة فروع بعد</h3>
-								<p class="text-sm text-secondary m-0">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
+							<div class="p-6 text-center">
+								<div class="mb-2 text-2xl text-muted">@components.IconBuilding("icon-md")</div>
+								<h3 class="font-bold text-sm text-primary mb-1">لم تقم بإضافة فروع بعد</h3>
+								<p class="text-xs text-secondary m-0">أضف فرع صيدليتك لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
 							</div>
 						} else {
-							<div class="stack-md">
+							<div class="d-flex flex-col gap-3">
 								for _, b := range data.Branches {
-									<div class="p-4 bg-surface-sunken rounded-xl border hover:shadow-xs transition-shadow">
-										<div class="flex-between items-start gap-3 mb-3">
+									<div class="cb-branch-card">
+										<div class="d-flex items-start justify-between gap-3">
 											<div>
 												<div class="d-flex items-center gap-2 flex-wrap mb-1">
 													<strong class="text-sm font-bold text-primary">
@@ -245,20 +244,20 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 														}
 													</strong>
 													if b.IsMain {
-														<span class="badge badge-emerald text-xs font-bold">الفرع الرئيسي</span>
+														<span class="badge badge-emerald text-2xs font-bold">الفرع الرئيسي</span>
 													}
 													if b.Status == "inactive" {
-														<span class="badge badge-slate text-xs">معطل</span>
+														<span class="badge badge-slate text-2xs">معطل</span>
 													} else {
-														<span class="badge badge-emerald text-xs">نشط</span>
+														<span class="badge badge-emerald text-2xs">نشط</span>
 													}
 												</div>
 												if b.Code != "" {
-													<span class="badge badge-slate tabular-nums text-xs">كود: { b.Code }</span>
+													<span class="badge badge-slate tabular-nums text-2xs">كود: { b.Code }</span>
 												}
 											</div>
 
-											<div class="d-flex items-center gap-2">
+											<div class="d-flex items-center gap-1">
 												<!-- Edit Branch Button -->
 												<button
 													type="button"
@@ -294,40 +293,40 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											</div>
 										</div>
 
-										<div class="stack-2xs text-xs text-secondary mb-3">
+										<div class="d-flex flex-col gap-1 text-xs text-secondary">
 											if b.Address != "" {
-												<div><span class="text-muted font-bold">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
+												<div><span class="text-muted">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
 											}
 											if b.Phone != "" {
-												<div><span class="text-muted font-bold">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
+												<div><span class="text-muted">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
 											}
 											if b.OperatingHours != "" {
-												<div><span class="text-muted font-bold">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+												<div><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 											}
 										</div>
 
 										<!-- Badges Strip: Cold Storage & Staff Count -->
-										<div class="flex-between items-center pt-2 border-t text-xs">
-											<div class="d-flex items-center gap-2 flex-wrap">
+										<div class="d-flex items-center justify-between flex-wrap gap-2 pt-2 border-top text-xs">
+											<div class="d-flex items-center gap-1 flex-wrap">
 												if b.HasColdStorage {
-													<span class="badge badge-sky text-xs font-bold">مجهز بتبريد 2-8°C</span>
+													<span class="badge badge-sky text-2xs font-bold">مجهز بتبريد 2-8°C</span>
 												}
 											</div>
 
 											<div class="d-flex items-center gap-2">
 												<!-- Assigned Staff Pill -->
 												{{ branchEmps := data.GetBranchEmployees(b.ID) }}
-												<span class="badge badge-secondary text-xs font-bold">
+												<span class="badge badge-secondary text-2xs font-bold">
 													{ fmt.Sprintf("%d موظف بالفرع", len(branchEmps)) }
 												</span>
 
 												<!-- Google Maps Link -->
 												if b.GoogleMapsURL != "" {
-													<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" class="text-primary font-bold text-xs">
+													<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" class="text-primary font-bold text-xs text-decoration-none">
 														الخريطة ↗
 													</a>
 												} else if b.Latitude != nil && b.Longitude != nil {
-													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" class="text-primary font-bold text-xs">
+													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" class="text-primary font-bold text-xs text-decoration-none">
 														الخريطة ↗
 													</a>
 												}
@@ -339,12 +338,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						}
 					</div>
 
-					<!-- Right Column: Unified Pharmacy Branch Form (Add / Edit Modes) (5 cols) -->
-					<div class="lg:col-span-5 card p-6 shadow-xs" id="new-branch-form">
-						<div class="flex-between items-start gap-3 pb-4 mb-4 border-b">
-							<div class="stack-2xs">
+					<!-- Left Column (in RTL DOM): Unified Pharmacy Branch Form (Add / Edit Modes) -->
+					<div class="card p-5" id="new-branch-form">
+						<div class="d-flex items-start justify-between gap-3 pb-3 mb-3 border-bottom">
+							<div>
 								<h3 class="text-base font-bold text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع صيدلية جديد'"></h3>
-								<p class="text-xs text-secondary m-0" x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية'"></p>
+								<p class="text-xs text-secondary m-0 mt-0.5" x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية'"></p>
 							</div>
 
 							<!-- Exit Edit Mode Button -->
@@ -360,34 +359,34 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</template>
 						</div>
 
-						<form class="stack-md" method="POST" :action="formAction">
-							<div class="grid-halves">
-        <div class="stack-sm">
-									<label class="form-label label-sm-bold">
+						<form class="d-flex flex-col gap-3 m-0" method="POST" :action="formAction">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">
 										اسم الفرع بالعربية <span class="text-danger">*</span>
 									</label>
-									<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="صيدلية الأمل - المعادي" class="form-input input-sm w-full"/>
+									<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="صيدلية الأمل - المعادي" class="form-control form-control-sm font-semibold"/>
 								</div>
-        <div class="stack-sm">
-									<label class="form-label label-sm-bold">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">
 										اسم الفرع بالإنجليزية
 									</label>
-									<input type="text" name="name_en" x-model="form.name_en" placeholder="Al Amal - Maadi" class="form-input input-sm w-full"/>
+									<input type="text" name="name_en" x-model="form.name_en" placeholder="Al Amal - Maadi" class="form-control form-control-sm font-semibold"/>
 								</div>
 							</div>
 
-							<div class="grid-halves">
-        <div class="stack-sm">
-									<label class="form-label label-sm-bold">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">
 										كود الفرع الداخلي
 									</label>
-									<input type="text" name="code" x-model="form.code" placeholder="PH-01" class="form-input input-sm tabular-nums w-full"/>
+									<input type="text" name="code" x-model="form.code" placeholder="PH-01" class="form-control form-control-sm tabular-nums"/>
 								</div>
-        <div class="stack-sm">
-									<label class="form-label label-sm-bold">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">
 										المدينة / المحافظة <span class="text-danger">*</span>
 									</label>
-									<select name="city_id" x-model="form.city_id" required class="form-input input-sm w-full">
+									<select name="city_id" x-model="form.city_id" required class="form-select form-select-sm font-semibold">
 										<option value="">-- اختر المدينة / المحافظة --</option>
 										for _, c := range data.Cities {
 											<option
@@ -406,63 +405,63 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								</div>
 							</div>
 
-       <div class="stack-sm">
-								<label class="form-label label-sm-bold">
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold">
 									العنوان التفصيلي <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="address" x-model="form.address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input input-sm w-full"/>
+								<input type="text" name="address" x-model="form.address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-control form-control-sm font-semibold"/>
 							</div>
 
-							<div class="grid-halves">
-        <div class="stack-sm">
-									<label class="form-label label-sm-bold">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">
 										رقم هاتف الفرع
 									</label>
-									<input type="tel" name="phone" x-model="form.phone" placeholder="01012345678" class="form-input input-sm tabular-nums w-full"/>
+									<input type="tel" name="phone" x-model="form.phone" placeholder="01012345678" class="form-control form-control-sm tabular-nums"/>
 								</div>
-        <div class="stack-sm">
-									<label class="form-label label-sm-bold">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">
 										ساعات العمل
 									</label>
-									<input type="text" name="operating_hours" x-model="form.operating_hours" placeholder="9 صباحاً - 11 مساءً" class="form-input input-sm w-full"/>
+									<input type="text" name="operating_hours" x-model="form.operating_hours" placeholder="9 صباحاً - 11 مساءً" class="form-control form-control-sm font-semibold"/>
 								</div>
 							</div>
 
 							<!-- Leaflet Map Picker with Auto-Pan -->
-							<div class="stack-xs">
-        <label class="form-label">
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold">
 									موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)
 								</label>
-								<div class="stack-sm" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357">
-									<div class="map-container map-canvas"></div>
-         <div class="stack-sm">
-										<span data-map-coords-badge class="tabular-nums fw-700 text-primary">30.0444, 31.2357</span>
-										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">موقعي</button>
+								<div class="d-flex flex-col gap-2" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357">
+									<div class="map-container map-canvas map-canvas-sm rounded-lg border"></div>
+									<div class="d-flex items-center justify-between text-xs">
+										<span data-map-coords-badge class="tabular-nums font-bold text-primary">30.0444, 31.2357</span>
+										<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">موقعي الحالي</button>
 									</div>
 									<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude"/>
 									<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude"/>
 								</div>
 							</div>
 
-       <div class="stack-sm">
-								<label class="form-label">
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold">
 									رابط خرائط Google (اختياري)
 								</label>
-								<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input input-sm w-full text-xs"/>
+								<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-control form-control-sm text-xs font-semibold" dir="ltr"/>
 							</div>
 
-       <div class="stack-sm">
-        <label class="form-label">
-									<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage"/>
+							<div class="d-flex flex-col gap-2 pt-1">
+								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold">
+									<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" class="form-checkbox"/>
 									<span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
 								</label>
-        <label class="form-label">
-									<input type="checkbox" name="is_main" value="true" x-model="form.is_main"/>
+								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold">
+									<input type="checkbox" name="is_main" value="true" x-model="form.is_main" class="form-checkbox"/>
 									<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
 								</label>
 							</div>
 
-							<button type="submit" class="btn btn-primary btn-sm">
+							<button type="submit" class="btn btn-primary btn-sm font-bold w-full justify-center mt-2">
 								@components.IconCheck("icon-xs")
 								<span x-text="mode === 'edit' ? 'حفظ تعديلات الفرع' : 'حفظ وإضافة فرع الصيدلية'"></span>
 							</button>
@@ -471,7 +470,10 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				</div>
 			</div>
 
-			@CustomerEmployeesTab(data, lang, dir, perms)
+			<!-- TAB 2: Employees Content -->
+			<div x-show="activeTab === 'employees'">
+				@CustomerEmployeesTab(data, lang, dir, perms)
+			</div>
 		<script>
 			function switchCustomerBranchTab(tabName) {
 				const branchesBtn = document.getElementById('cb-tab-btn-branches');
@@ -558,6 +560,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 			function customerBranchManager() {
 				return {
+					activeTab: 'branches',
 					mode: 'add',
 					editId: 0,
 					formAction: '/customer/branches/new',
@@ -578,6 +581,10 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					},
 					init() {
 						const urlParams = new URLSearchParams(window.location.search);
+						const tabParam = urlParams.get('tab');
+						if (tabParam === 'employees') {
+							this.activeTab = 'employees';
+						}
 						const editParam = urlParams.get('edit');
 						if (editParam) {
 							const btn = document.querySelector(`[data-edit-branch-btn="${editParam}"]`);

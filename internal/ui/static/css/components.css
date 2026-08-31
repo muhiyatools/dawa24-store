@@ -4085,5 +4085,82 @@ body.modal-open {
   border-color: var(--primary, #0ea5e9);
   background: var(--primary-subtle, rgba(14, 165, 233, 0.08));
 }
+/* ==========================================================================
+   UNIFIED TAB NAVIGATION SYSTEM
+   ========================================================================== */
+.sp-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border-card, #e2e8f0);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
+
+.sp-tab-btn {
+  padding: 0.65rem 1.25rem;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  color: var(--text-secondary, #64748b);
+  background: transparent;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.sp-tab-btn:hover {
+  color: var(--text-primary, #0f172a);
+}
+
+.sp-tab-btn.active {
+  color: var(--primary, #0ea5e9);
+  border-bottom-color: var(--primary, #0ea5e9);
+}
+
+/* ==========================================================================
+   CUSTOMER & VENDOR BRANCHES 2-COLUMN SPLIT
+   ========================================================================== */
+.cb-split-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .cb-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cb-branch-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-xl, 0.875rem);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.15s ease;
+}
+
+.cb-branch-card:hover {
+  border-color: var(--primary-border, rgba(14, 165, 233, 0.4));
+  box-shadow: var(--shadow-sm);
+}
+
+.map-canvas-sm {
+  height: 180px !important;
+  min-height: 180px !important;
+}
+}
+
 

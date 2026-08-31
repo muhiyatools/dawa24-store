@@ -68,12 +68,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 		<div class="page-container max-w-4xl mx-auto py-4">
 			
 			<!-- Breadcrumb & Top Exit / Navigation Bar -->
-			<div class="glass-panel p-4 px-6 mb-6">
-				<div class="flex-between flex-wrap gap-4">
-     <div class="stack-sm">
+			<div class="card p-4 mb-4">
+				<div class="d-flex items-center justify-between flex-wrap gap-3">
+					<div>
 						<!-- Breadcrumbs -->
 						<div class="d-flex items-center gap-2 text-xs text-secondary mb-1">
-							<a href="/customer/branches" class="text-secondary text-none font-semibold">إدارة الفروع</a>
+							<a href="/customer/branches" class="text-secondary text-decoration-none font-semibold">إدارة الفروع</a>
 							<span>/</span>
 							if data.IsEdit {
 								<span class="text-primary font-bold">تعديل بيانات الفرع</span>
@@ -81,13 +81,13 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								<span class="text-primary font-bold">إضافة فرع جديد</span>
 							}
 						</div>
-						<h1 class="text-xl font-black text-primary m-0">
+						<h1 class="page-title text-lg font-bold text-primary m-0">
 							{ pageTitle }
 						</h1>
 					</div>
 
 					<!-- Prominent Exit Button (No Save) -->
-					<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold gap-2">
+					<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold gap-1">
 						@components.IconArrowRight("icon-xs")
 						<span>إلغاء والعودة لقائمة الفروع</span>
 					</a>
@@ -97,16 +97,16 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 			<!-- Notice Alert Banner (if any) -->
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="alert alert-danger mb-6 p-4 flex-between">
-						<div class="d-flex items-center gap-3 font-bold text-sm">
-							<span class="text-2xl">@components.IconAlert("icon-sm")</span>
+					<div class="alert alert-danger mb-4 p-4 d-flex items-center justify-between flex-wrap gap-2">
+						<div class="d-flex items-center gap-2 font-bold text-sm">
+							@components.IconAlert("icon-xs")
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
 				} else {
-					<div class="alert alert-success mb-6 p-4 flex-between">
-						<div class="d-flex items-center gap-3 font-bold text-sm">
-							<span class="text-2xl">@components.IconCheckCircle("icon-sm")</span>
+					<div class="alert alert-success mb-4 p-4 d-flex items-center justify-between flex-wrap gap-2">
+						<div class="d-flex items-center gap-2 font-bold text-sm">
+							@components.IconCheckCircle("icon-xs")
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
@@ -114,18 +114,18 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 			}
 
 			<!-- Full-Page Branch Form Card -->
-			<div class="glass-panel p-8">
-				<form method="POST" action={ templ.SafeURL(formAction) } class="d-flex flex-col gap-6">
+			<div class="card p-6">
+				<form method="POST" action={ templ.SafeURL(formAction) } class="d-flex flex-col gap-6 m-0">
 					
 					<!-- Section 1: Basic Identity -->
-     <div class="stack-sm">
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
-							<span class="text-brand">@components.IconBuilding("icon-sm")</span>
-							<h2 class="text-base font-extrabold text-primary m-0">1. البيانات الأساسية للفرع</h2>
+					<div>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+							@components.IconBuilding("icon-xs")
+							<h2 class="text-base font-bold text-primary m-0">1. البيانات الأساسية للفرع</h2>
 						</div>
 
-						<div class="d-grid gap-4">
-       <div class="stack-sm">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع بالعربية <span class="text-danger">*</span>
 								</label>
@@ -135,12 +135,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ nameAr }
 									required
 									placeholder="مثال: صيدلية الأمل - فرع المعادي"
-									class="form-input w-full"
+									class="form-control form-control-sm font-semibold"
 								/>
-								<span class="text-xs text-muted mt-1 d-block">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span>
+								<span class="text-2xs text-muted mt-1 d-block">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span>
 							</div>
 
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع بالإنجليزية (اختياري)
 								</label>
@@ -149,11 +149,11 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									name="name_en"
 									value={ nameEn }
 									placeholder="e.g. Al-Amal Pharmacy - Maadi"
-									class="form-input w-full"
+									class="form-control form-control-sm font-semibold"
 								/>
 							</div>
 
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الفرع الداخلي
 								</label>
@@ -162,16 +162,16 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									name="code"
 									value={ code }
 									placeholder="مثال: BR-CAI-01"
-									class="form-input tabular-nums w-full"
+									class="form-control form-control-sm tabular-nums"
 								/>
-								<span class="text-xs text-muted mt-1 d-block">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span>
+								<span class="text-2xs text-muted mt-1 d-block">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span>
 							</div>
 
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
-								<select name="city_id" required class="form-select w-full">
+								<select name="city_id" required class="form-select form-select-sm font-semibold">
 									<option value="">-- اختر المدينة / المحافظة --</option>
 									for _, c := range data.Cities {
 										<option
@@ -193,14 +193,14 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Section 2: Address & Contact -->
-     <div class="stack-sm">
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
-							<span class="text-brand">@components.IconLocation("icon-sm")</span>
-							<h2 class="text-base font-extrabold text-primary m-0">2. العنوان وبيانات الاتصال</h2>
+					<div>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+							@components.IconMapPin("icon-xs")
+							<h2 class="text-base font-bold text-primary m-0">2. العنوان وبيانات الاتصال</h2>
 						</div>
 
-						<div class="d-grid gap-4 mb-4">
-       <div class="stack-sm">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="form-group mb-0 md:col-span-2">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									العنوان التفصيلي وموقع الاستلام <span class="text-danger">*</span>
 								</label>
@@ -210,14 +210,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ address }
 									required
 									placeholder="مثال: شارع النصر الرئيسي، برج النور، بجوار مستشفى المعادي"
-									class="form-input w-full"
+									class="form-control form-control-sm font-semibold"
 								/>
-								<span class="text-xs text-muted mt-1 d-block">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span>
+								<span class="text-2xs text-muted mt-1 d-block">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span>
 							</div>
-						</div>
 
-						<div class="d-grid gap-4">
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم هاتف / محمول الفرع
 								</label>
@@ -226,22 +224,22 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									name="phone"
 									value={ phone }
 									placeholder="مثال: 01012345678"
-									class="form-input tabular-nums w-full"
+									class="form-control form-control-sm tabular-nums"
 								/>
 							</div>
 						</div>
 					</div>
 
 					<!-- Section 3: Interactive Map & Coordinates -->
-     <div class="stack-sm">
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
-							<span class="text-brand">@components.IconLocation("icon-sm")</span>
-							<h2 class="text-base font-extrabold text-primary m-0">3. الموقع الجغرافي على الخريطة</h2>
+					<div>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+							@components.IconMapPin("icon-xs")
+							<h2 class="text-base font-bold text-primary m-0">3. الموقع الجغرافي على الخريطة</h2>
 						</div>
 
-						<div class="stack-xs mb-4">
-							<div class="text-xs font-bold text-primary mb-2">
-								حدد موقع الفرع بدقة بالضغط على الخريطة أو استخدم زر "موقعي":
+						<div class="d-flex flex-col gap-2 mb-4">
+							<div class="text-xs font-bold text-primary">
+								حدد موقع الفرع بدقة بالضغط على الخريطة أو استخدم زر "تحديد موقعي":
 							</div>
 							
 							<div
@@ -251,12 +249,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative"
 							>
 								<div class="map-container map-canvas"></div>
-								<div class="flex-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2">
+								<div class="d-flex items-center justify-between p-3 bg-surface-raised border-top text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-2">
 										<span class="text-secondary font-bold">الإحداثيات المحددة:</span>
-										<span data-map-coords-badge class="tabular-nums font-black text-primary">{ defaultLat }, { defaultLon }</span>
+										<span data-map-coords-badge class="tabular-nums font-bold text-primary">{ defaultLat }, { defaultLon }</span>
 									</div>
-									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">
 										<span>تحديد موقعي الحالي GPS</span>
 									</button>
 								</div>
@@ -265,7 +263,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 							</div>
 						</div>
 
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								رابط خرائط Google (Google Maps URL)
 							</label>
@@ -275,61 +273,62 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								data-map-google-url
 								value={ gmapsURL }
 								placeholder={ fmt.Sprintf("https://maps.google.com/?q=%s,%s", defaultLat, defaultLon) }
-								class="form-input text-xs w-full"
+								class="form-control form-control-sm text-xs"
+								dir="ltr"
 							/>
 						</div>
 					</div>
 
 					<!-- Section 4: Storage & Branch Attributes -->
-     <div class="stack-sm">
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
-							<span class="text-brand">@components.IconTag("icon-sm")</span>
-							<h2 class="text-base font-extrabold text-primary m-0">4. خصائص الفرع وحالة التشغيل</h2>
+					<div>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+							@components.IconSliders("icon-xs")
+							<h2 class="text-base font-bold text-primary m-0">4. خصائص الفرع وحالة التشغيل</h2>
 						</div>
 
-						<div class="d-flex flex-col gap-3 bg-surface-sunken p-4 rounded-xl border">
-							<label class="d-flex items-start gap-2 cursor-pointer text-sm font-bold text-primary">
+						<div class="d-flex flex-col gap-3 p-4 rounded-xl border">
+							<label class="d-flex items-start gap-2 cursor-pointer text-xs font-bold text-primary m-0">
 								<input
 									type="checkbox"
 									name="has_cold_storage"
 									value="true"
 									checked?={ hasColdStorage }
-									class="mt-1"
+									class="form-checkbox mt-0.5"
 								/>
-        <div class="stack-sm">
+								<div>
 									<span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
-									<span class="d-block text-xs font-normal text-secondary mt-1">
+									<span class="d-block text-2xs font-normal text-secondary mt-0.5">
 										يتيح هذا الخيار للموردين توريد الأدوية الحيوية والأنسولين واللقاحات التي تتطلب سلسلة تبريد.
 									</span>
 								</div>
 							</label>
 
-							<label class="d-flex items-start gap-2 cursor-pointer text-sm font-bold text-primary">
+							<label class="d-flex items-start gap-2 cursor-pointer text-xs font-bold text-primary m-0">
 								<input
 									type="checkbox"
 									name="is_main"
 									value="true"
 									checked?={ isMain }
-									class="mt-1"
+									class="form-checkbox mt-0.5"
 								/>
-        <div class="stack-sm">
+								<div>
 									<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
-									<span class="d-block text-xs font-normal text-secondary mt-1">
+									<span class="d-block text-2xs font-normal text-secondary mt-0.5">
 										سيتم تعيين هذا الفرع كفرع افتراضي عند إنشاء الطلبيات وعمليات الطلب الذكي.
 									</span>
 								</div>
 							</label>
 
 							if data.IsEdit {
-								<div class="pt-3 border-t d-flex items-center gap-4 flex-wrap">
+								<div class="pt-3 border-top d-flex items-center gap-4 flex-wrap">
 									<span class="text-xs font-bold text-primary">حالة تشغيل الفرع:</span>
-									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer">
+									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer m-0">
 										<input type="radio" name="status" value="active" checked?={ status != "inactive" } />
-										<span class="badge badge-emerald text-xs font-bold">نشط وجاهز للاستلام</span>
+										<span class="badge badge-emerald text-2xs font-bold">نشط وجاهز للاستلام</span>
 									</label>
-									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer">
+									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer m-0">
 										<input type="radio" name="status" value="inactive" checked?={ status == "inactive" } />
-										<span class="badge badge-slate text-xs font-bold">معطل مؤقتاً</span>
+										<span class="badge badge-slate text-2xs font-bold">معطل مؤقتاً</span>
 									</label>
 								</div>
 							}
@@ -337,12 +336,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Bottom Action Footer -->
-					<div class="flex-between items-center pt-4 border-t flex-wrap gap-3">
+					<div class="d-flex items-center justify-between pt-4 border-top flex-wrap gap-3">
 						<a href="/customer/branches" class="btn btn-secondary font-bold">
 							إلغاء والعودة بدون حفظ
 						</a>
 
-						<button type="submit" class="btn btn-primary font-black px-6 py-2 gap-2">
+						<button type="submit" class="btn btn-primary font-bold px-6 py-2 gap-2">
 							@components.IconCheck("icon-xs")
 							if data.IsEdit {
 								<span>حفظ تحديثات الفرع</span>
