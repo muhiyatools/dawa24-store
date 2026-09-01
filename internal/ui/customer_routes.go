@@ -301,7 +301,7 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view", "pharmacy.dashboard.view"))
 		g.Get("/customer/sessions", h.TenantSessionsPage)
 		g.Get("/customer/mfa", h.CustomerMFAPage)
 		g.Post("/customer/mfa/setup", h.CustomerMFASetupSubmit)

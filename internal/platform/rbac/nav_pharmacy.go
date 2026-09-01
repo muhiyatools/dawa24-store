@@ -84,10 +84,10 @@ func pharmacyNav() []NavSection {
 					Perm: "pharmacy.ai_log.view"},
 				{Key: "sessions", Href: "/customer/sessions", Icon: "shield",
 					NameAr: "الأجهزة والجلسات النشطة", NameEn: "Active sessions",
-					Perm: "pharmacy.session.view"},
+					Perm: "pharmacy.dashboard.view"},
 				{Key: "mfa", Href: "/customer/mfa", Icon: "lock",
 					NameAr: "المصادقة الثنائية (MFA)", NameEn: "Two-Factor Auth (MFA)",
-					Perm: "pharmacy.session.view"},
+					Perm: "pharmacy.dashboard.view"},
 			},
 		},
 	}

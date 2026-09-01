@@ -56,6 +56,9 @@ func listAndDiscount(row *productmatch.Row) (list, discount money.Amount) {
 	if !list.IsPositive() {
 		return row.NetPrice, money.Zero
 	}
+	if row.DiscountBps > 0 {
+		return list, money.FromMinor(row.DiscountBps)
+	}
 	net := row.NetPrice
 	if !net.IsPositive() || net.Minor() >= list.Minor() {
 		return list, money.Zero
@@ -64,7 +67,8 @@ func listAndDiscount(row *productmatch.Row) (list, discount money.Amount) {
 	if err != nil {
 		return list, money.Zero
 	}
-	return list, diff
+	pctBps := diff.Minor() * 10000 / list.Minor()
+	return list, money.FromMinor(pctBps)
 }
 
 // variantName is what the vendor's own catalogue calls the row.

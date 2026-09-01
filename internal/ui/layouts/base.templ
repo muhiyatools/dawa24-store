@@ -68,6 +68,7 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			<link rel="stylesheet" href={ Asset("/static/css/components.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/foundations.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/utilities.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/wizard.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/app.css") }/>
 			for _, cssPath := range extraCSS {
 				<link rel="stylesheet" href={ Asset(cssPath) }/>

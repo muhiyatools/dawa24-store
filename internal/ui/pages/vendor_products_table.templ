@@ -94,21 +94,20 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 
 						<!-- Public Selling Price & Discount -->
 						<td>
-							<div class="tabular-nums font-black text-brand text-sm">
-								if v.Variant.Discount.IsPositive() {
-									{ v.Variant.Price.ApplyPercent(int64((100.0 - (float64(v.Variant.Discount.Minor())/100.0)) * 100)).String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
-								} else {
-									{ v.Variant.Price.String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
-								}
+							<div class="tabular-nums font-bold text-primary text-sm whitespace-nowrap">
+								<span>{ v.Variant.Price.String() }</span> <span class="text-xs font-semibold text-secondary">ج.م</span>
+								<span class="text-xs text-muted ms-1">(الجمهور)</span>
 							</div>
-							<div class="d-flex items-center gap-1 text-xs text-muted mt-1">
-								<span class="text-xs">الجمهور: { v.Variant.Price.String() }</span>
+							<div class="d-flex items-center gap-2 mt-1 whitespace-nowrap">
+								<span class="tabular-nums font-black text-brand text-sm">
+									{ v.Variant.EffectiveSellingPrice().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								</span>
 								if v.Variant.Discount.IsPositive() {
 									<span class="badge badge-emerald text-xs font-bold">-{ v.Variant.Discount.String() }%</span>
 								}
 							</div>
 							if v.Variant.MinOrderQty > 1 {
-								<div class="text-xs text-muted mt-0.5">
+								<div class="text-xs text-muted mt-0.5 whitespace-nowrap">
 									أقل طلب: { fmt.Sprintf("%d", v.Variant.MinOrderQty) }
 								</div>
 							}
@@ -117,32 +116,36 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						<!-- Cost Price & Cost Discount -->
 						<td>
 							if v.Variant.HasCostPrice() {
-								<div class="tabular-nums font-bold text-primary text-sm">
-									{ v.Variant.DiscountedCost().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+								<div class="tabular-nums font-bold text-primary text-sm whitespace-nowrap">
+									<span>{ v.Variant.CostPrice.String() }</span> <span class="text-xs font-semibold text-secondary">ج.م</span>
+									<span class="text-xs text-muted ms-1">(التكلفة)</span>
 								</div>
-								<div class="d-flex items-center gap-1 text-xs text-muted mt-1">
-									<span>الأصل: { v.Variant.CostPrice.String() }</span>
+								<div class="d-flex items-center gap-2 mt-1 whitespace-nowrap">
+									<span class="tabular-nums font-bold text-secondary text-sm">
+										{ v.Variant.DiscountedCost().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+									</span>
 									if v.Variant.CostDiscountPercentage > 0 {
 										<span class="badge badge-sky text-xs font-bold">-{ fmt.Sprintf("%.1f%%", v.Variant.CostDiscountPercentage) }</span>
 									}
 								</div>
 							} else {
-								<span class="badge badge-slate text-xs">غير محدد (ربح كامل)</span>
+								<span class="badge badge-slate text-xs whitespace-nowrap">غير محدد (ربح كامل)</span>
 							}
 						</td>
 
 						<!-- Net Profit & Margin -->
 						<td>
-							<div class="tabular-nums font-black text-success text-sm">
+							<div class="tabular-nums font-black text-success text-sm whitespace-nowrap">
 								+{ v.Variant.UnitNetProfit().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
 							</div>
-							<div class="text-xs text-brand font-bold mt-1">
-								هامش: { fmt.Sprintf("%.1f%%", v.Variant.ProfitMarginPercent()) }
+							<div class="d-flex items-center gap-1 text-xs text-brand font-bold mt-1 whitespace-nowrap">
+								<span>هامش:</span>
+								<span>%{ fmt.Sprintf("%.1f", v.Variant.ProfitMarginPercent()) }</span>
 							</div>
 						</td>
 
 						<!-- Stock Quantity -->
-						<td class="text-center">
+						<td class="text-center whitespace-nowrap">
 							if v.StockQuantity > 10 {
 								<span class="badge badge-emerald tabular-nums font-extrabold text-xs">
 									{ fmt.Sprintf("%d عبوة", v.StockQuantity) }
@@ -159,7 +162,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						</td>
 
 						<!-- Expiry Date -->
-						<td>
+						<td class="whitespace-nowrap">
 							if v.Variant.ExpiryDate != nil {
 								<div class="tabular-nums font-bold text-secondary text-xs">
 									{ v.Variant.ExpiryDate.Format("2006-01-02") }
@@ -170,7 +173,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						</td>
 
 						<!-- Shipping Branch / Warehouse -->
-						<td>
+						<td class="whitespace-nowrap">
 							if v.BranchName != "" {
 								<span class="badge badge-sky font-bold text-xs">
 									{ v.BranchName }
@@ -181,7 +184,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 						</td>
 
 						<!-- Actions -->
-						<td class="text-center">
+						<td class="text-center whitespace-nowrap">
 							<div class="d-flex items-center justify-center gap-1">
 								<button
 									type="button"

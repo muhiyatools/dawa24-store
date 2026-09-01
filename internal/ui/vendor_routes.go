@@ -114,7 +114,7 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.session.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.session.view", "vendor.dashboard.view"))
 		g.Get("/vendor/sessions", h.TenantSessionsPage)
 		g.Get("/vendor/mfa", h.VendorMFAPage)
 		g.Post("/vendor/mfa/setup", h.VendorMFASetupSubmit)

@@ -141,10 +141,10 @@ func vendorNav() []NavSection {
 					Perm: "vendor.dashboard.view"},
 				{Key: "sessions", Href: "/vendor/sessions", Icon: "shield",
 					NameAr: "الأجهزة والجلسات النشطة", NameEn: "Active sessions",
-					Perm: "vendor.session.view"},
+					Perm: "vendor.dashboard.view"},
 				{Key: "mfa", Href: "/vendor/mfa", Icon: "lock",
 					NameAr: "المصادقة الثنائية (MFA)", NameEn: "Two-Factor Auth (MFA)",
-					Perm: "vendor.session.view"},
+					Perm: "vendor.dashboard.view"},
 			},
 		},
 	}

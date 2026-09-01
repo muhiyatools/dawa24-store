@@ -213,16 +213,8 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 					خدمات وروابط المنصة
 				</h4>
 				<ul class="footer-link-list">
-					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() && actor.IsOrgApproved() {
-						<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
-						if features.Enabled(ctx, "offers.enabled") {
-							<li><a href="/offers">العروض والتخفيضات الحية</a></li>
-						}
-						<li><a href="/suppliers">دليل الموردين والمصانع</a></li>
-					} else {
-						<li><a href="/about">من نحن (عن دواء 24)</a></li>
-						<li><a href="/how-it-works">كيف تعمل المنصة؟</a></li>
-					}
+					<li><a href="/about">من نحن (عن دواء 24)</a></li>
+					<li><a href="/how-it-works">كيف تعمل المنصة؟</a></li>
 					if features.Enabled(ctx, "jobs.enabled") {
 						<li><a href="/jobs">شواغر التوظيف الطبي</a></li>
 					}

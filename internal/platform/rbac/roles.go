@@ -183,13 +183,13 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.purchase_request.view", "vendor.purchase_request.respond",
 			"vendor.invoice.view", "vendor.activity.view",
 			"vendor.document.view", "vendor.policy.view",
-			"vendor.job.view", "vendor.job.manage",
+			"vendor.job.view", "vendor.job.manage", "vendor.session.view",
 		},
 		"org_accountant": {
 			"vendor.dashboard.view",
 			"vendor.invoice.view", "vendor.payment.view", "vendor.earnings.view",
 			"vendor.wallet.view", "vendor.wallet.manage",
-			"vendor.order.view", "vendor.subscription.view",
+			"vendor.order.view", "vendor.subscription.view", "vendor.session.view",
 		},
 		"org_warehouse": {
 			"vendor.dashboard.view",
@@ -197,7 +197,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.ingest.view", "vendor.ingest.run",
 			"vendor.inventory.view", "vendor.inventory.adjust",
 			"vendor.warehouse.view", "vendor.warehouse.manage",
-			"vendor.order.view", "vendor.order.update",
+			"vendor.order.view", "vendor.order.update", "vendor.session.view",
 		},
 		"org_sales_rep": {
 			"vendor.dashboard.view",
@@ -205,13 +205,13 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.purchase_request.view", "vendor.purchase_request.respond",
 			"vendor.offer.view", "vendor.offer.manage",
 			"vendor.product.view", "vendor.pharmacy_coverage.view",
-			"vendor.market_discounts.view", "vendor.compare.use",
+			"vendor.market_discounts.view", "vendor.compare.use", "vendor.session.view",
 		},
 		"org_pharmacist": {
 			"vendor.dashboard.view", "vendor.product.view",
-			"vendor.order.view", "vendor.document.view",
+			"vendor.order.view", "vendor.document.view", "vendor.session.view",
 		},
-		"org_employee": {"vendor.dashboard.view", "vendor.order.view"},
+		"org_employee": {"vendor.dashboard.view", "vendor.order.view", "vendor.session.view"},
 	},
 	ScopePharmacy: {
 		"org_manager": {
@@ -225,21 +225,21 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"pharmacy.offer.view", "pharmacy.saving_product.view", "pharmacy.saving_product.manage",
 			"pharmacy.decision_memory.view", "pharmacy.supplier.view", "pharmacy.supplier.follow",
 			"pharmacy.document.view",
-			"pharmacy.job.view", "pharmacy.job.manage",
+			"pharmacy.job.view", "pharmacy.job.manage", "pharmacy.session.view",
 		},
 		"org_accountant": {
 			"pharmacy.dashboard.view", "pharmacy.order.view",
 			"pharmacy.wallet.view", "pharmacy.wallet.manage",
-			"pharmacy.subscription.view",
+			"pharmacy.subscription.view", "pharmacy.session.view",
 		},
 		"org_warehouse": {
 			"pharmacy.dashboard.view", "pharmacy.order.view",
 			"pharmacy.saving_product.view", "pharmacy.saving_product.manage",
-			"pharmacy.smart_order.view",
+			"pharmacy.smart_order.view", "pharmacy.session.view",
 		},
 		"org_sales_rep": {
 			"pharmacy.dashboard.view", "pharmacy.order.view",
-			"pharmacy.supplier.view", "pharmacy.offer.view",
+			"pharmacy.supplier.view", "pharmacy.offer.view", "pharmacy.session.view",
 		},
 		"org_pharmacist": {
 			"pharmacy.dashboard.view",
@@ -248,8 +248,9 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"pharmacy.order.view", "pharmacy.order.create", "pharmacy.order.update",
 			"pharmacy.cart.use", "pharmacy.offer.view", "pharmacy.supplier.view",
 			"pharmacy.saving_product.view", "pharmacy.favorite.view", "pharmacy.favorite.manage",
+			"pharmacy.session.view",
 		},
-		"org_employee": {"pharmacy.dashboard.view", "pharmacy.order.view"},
+		"org_employee": {"pharmacy.dashboard.view", "pharmacy.order.view", "pharmacy.session.view"},
 	},
 }
 

@@ -140,20 +140,20 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 				<!-- Search, Filter & Sort Toolbar -->
 				<div class="glass-panel p-4 mb-6">
-					<form method="GET" action="/vendor/products" id="vendor-products-filter-form" class="d-flex flex-col gap-4">
+					<form method="GET" action="/vendor/products" id="vendor-products-filter-form" class="m-0">
 						if data.Filter.PerPage > 0 {
 							<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.Filter.PerPage) } />
 						}
 
-						<div class="flex-between flex-wrap gap-4">
+						<div class="d-flex items-center justify-between flex-wrap gap-4">
 							<!-- Search Input -->
-							<div class="flex-1 min-w-0 max-w-xl position-relative d-flex gap-2">
+							<div class="d-flex items-center gap-2 flex-1 min-w-280">
 								<div class="position-relative flex-1">
 									<input
 										type="text"
 										name="q"
 										value={ data.Filter.Query }
-										placeholder="ابحث باسم الدواء، المادة الفعالة، رقم التشغيلة، الباركود أو SKU..."
+										placeholder="ابحث بالاسم، المادة الفعالة، التشغيلة، الباركود أو SKU..."
 										class="form-input ps-8"
 									/>
 									<div class="position-absolute start-3 top-half translate-middle-y text-muted pointer-events-none">
@@ -170,10 +170,47 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								}
 							</div>
 
+							<!-- Quick Stock & Expiry Filter Pills -->
+							<div class="d-flex items-center gap-1.5 flex-wrap">
+								<span class="text-xs text-muted font-bold me-1">
+									المخزون:
+								</span>
+								<a
+									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, false)) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterAny && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterAny || data.Filter.Expiring) }
+								>
+									الكل ({ fmt.Sprintf("%d", data.Stats.Total) })
+								</a>
+								<a
+									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterIn, false)) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterIn && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterIn || data.Filter.Expiring) }
+								>
+									متوفر ({ fmt.Sprintf("%d", data.Stats.InStock) })
+								</a>
+								<a
+									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterLow, false)) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterLow && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterLow || data.Filter.Expiring) }
+								>
+									منخفض ({ fmt.Sprintf("%d", data.Stats.LowStock) })
+								</a>
+								<a
+									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterOut, false)) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterOut && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterOut || data.Filter.Expiring) }
+								>
+									نفد ({ fmt.Sprintf("%d", data.Stats.OutOfStock) })
+								</a>
+								<a
+									href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, true)) }
+									class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Expiring), templ.KV("btn-secondary", !data.Filter.Expiring) }
+								>
+									⏳ وشيك ({ fmt.Sprintf("%d", data.Stats.Expiring) })
+								</a>
+							</div>
+
 							<!-- Sort Dropdown -->
 							<div class="d-flex items-center gap-2">
 								<label for="sort-select" class="text-xs text-secondary font-bold whitespace-nowrap">
-									ترتيب حسب:
+									ترتيب:
 								</label>
 								<select
 									id="sort-select"
@@ -188,46 +225,9 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									<option value="price_desc" selected?={ data.Filter.Sort == "price_desc" }>السعر: من الأعلى للأقل</option>
 									<option value="stock_asc" selected?={ data.Filter.Sort == "stock_asc" }>الرصيد: من الأقل للأعلى</option>
 									<option value="stock_desc" selected?={ data.Filter.Sort == "stock_desc" }>الرصيد: من الأعلى للأقل</option>
-									<option value="expiry" selected?={ data.Filter.Sort == "expiry" }>تاريخ الصلاحية الأقرب</option>
+									<option value="expiry" selected?={ data.Filter.Sort == "expiry" }>الصلاحية الأقرب</option>
 								</select>
 							</div>
-						</div>
-
-						<!-- Quick Stock & Expiry Filter Pills -->
-						<div class="d-flex items-center gap-2 flex-wrap border-t pt-3">
-							<span class="text-xs text-muted font-bold me-1">
-								تصفية المخزون:
-							</span>
-							<a
-								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, false)) }
-								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterAny && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterAny || data.Filter.Expiring) }
-							>
-								الكل ({ fmt.Sprintf("%d", data.Stats.Total) })
-							</a>
-							<a
-								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterIn, false)) }
-								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterIn && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterIn || data.Filter.Expiring) }
-							>
-								متوفر بالمخزن ({ fmt.Sprintf("%d", data.Stats.InStock) })
-							</a>
-							<a
-								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterLow, false)) }
-								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterLow && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterLow || data.Filter.Expiring) }
-							>
-								رصيد منخفض ({ fmt.Sprintf("%d", data.Stats.LowStock) })
-							</a>
-							<a
-								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterOut, false)) }
-								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterOut && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterOut || data.Filter.Expiring) }
-							>
-								نفد الرصيد ({ fmt.Sprintf("%d", data.Stats.OutOfStock) })
-							</a>
-							<a
-								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, true)) }
-								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Expiring), templ.KV("btn-secondary", !data.Filter.Expiring) }
-							>
-								⏳ قرب انتهاء الصلاحية ({ fmt.Sprintf("%d", data.Stats.Expiring) })
-							</a>
 						</div>
 					</form>
 				</div>

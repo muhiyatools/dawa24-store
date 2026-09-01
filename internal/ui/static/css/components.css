@@ -4253,8 +4253,8 @@ body.modal-open {
 .offer-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-md); }
 .order-card-item { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-md); }
 .parties-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); margin-block-end: var(--space-lg); }
-.party-column { display: flex; flex-direction: column; gap: var(--space-2xs); }
-.pharmacy-saving-row, .vendor-variant-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-xs) var(--space-sm); border-block-end: 1px solid var(--border-subtle); }
+.pharmacy-saving-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-xs) var(--space-sm); border-block-end: 1px solid var(--border-subtle); }
+.data-table tbody tr.vendor-variant-row { display: table-row; }
 .pharmacy-staged-row-cb, .vendor-staged-row-cb { accent-color: var(--primary); }
 
 /* B2B E-Commerce Catalog & Product Card System */

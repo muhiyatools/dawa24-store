@@ -147,10 +147,18 @@ func (v *ProductVariant) EffectiveSellingPrice() money.Amount {
 	if v == nil {
 		return money.Zero
 	}
-	if v.Discount.IsPositive() && v.Discount.Minor() < v.Price.Minor() {
-		eff, err := v.Price.Sub(v.Discount)
-		if err == nil {
-			return eff
+	if v.Discount.IsPositive() && v.Price.IsPositive() {
+		// In catalog schema, Discount stores the discount percentage (e.g. 26.40 for 26.40%).
+		pct := float64(v.Discount.Minor()) / 100.0
+		if pct > 0 && pct < 100 {
+			bps := int64((100.0 - pct) * 100)
+			return v.Price.ApplyPercent(bps)
+		}
+		if v.Discount.Minor() < v.Price.Minor() {
+			eff, err := v.Price.Sub(v.Discount)
+			if err == nil {
+				return eff
+			}
 		}
 	}
 	return v.Price

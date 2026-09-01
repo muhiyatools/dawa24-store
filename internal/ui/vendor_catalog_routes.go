@@ -15,6 +15,8 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.product.view"))
 		g.Get("/vendor/products", h.VendorProductsPage)
+		g.Get("/vendor/products/variants", h.VendorProductsPage)
+		g.Get("/vendor/variants", h.VendorProductsPage)
 		g.Get("/vendor/products/new", h.VendorVariantNewPage)
 		g.Get("/vendor/variants/new", h.VendorVariantNewPage)
 		g.Get("/vendor/catalog/select", h.VendorCatalogSelectPage)
