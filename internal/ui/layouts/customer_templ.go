@@ -86,7 +86,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"brand-text-lockup\"><span class=\"brand-name\">دواء 24</span></div></a></div><!-- Desktop Central Navigation Links --><nav class=\"public-nav-links\" aria-label=\"التنقل الرئيسي\"><a href=\"/\" class=\"public-nav-link\">الرئيسية</a> <a href=\"/catalog\" class=\"public-nav-link\">كتالوج الأدوية</a> <a href=\"/offers\" class=\"public-nav-link\">عروض الموردين</a> <a href=\"/how-it-works\" class=\"public-nav-link\">كيف تعمل المنصة</a> <a href=\"/about\" class=\"public-nav-link\">عن دواء 24</a> <a href=\"/contact\" class=\"public-nav-link\">تواصل معنا</a></nav><div class=\"site-header-actions\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"brand-text-lockup\"><span class=\"brand-name\">دواء 24</span></div></a></div><!-- Desktop Central Navigation Links --><nav class=\"public-nav-links\" aria-label=\"التنقل الرئيسي\"><a href=\"/how-it-works\" class=\"public-nav-link\">كيف تعمل المنصة</a> <a href=\"/about\" class=\"public-nav-link\">عن دواء 24</a> <a href=\"/contact\" class=\"public-nav-link\">تواصل معنا</a></nav><div class=\"site-header-actions\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

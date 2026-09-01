@@ -1,0 +1,234 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ HeroPlatformClone() {
+	<div class="hero-dashboard-preview-wrapper" x-data="{ activeFilter: 'all' }">
+		<div class="dashboard-preview-frame">
+			
+			<!-- macOS Window Bar -->
+			<div class="preview-window-topbar">
+				<div class="preview-window-dots">
+					<span class="dot dot-red"></span>
+					<span class="dot dot-yellow"></span>
+					<span class="dot dot-green"></span>
+				</div>
+				<div class="preview-window-title">
+					@components.IconActivity("icon-xs text-brand")
+					<span>منصة دواء 24 — إدارة التوريد الذكي والربط المباشر</span>
+				</div>
+				<div class="preview-window-status">
+					<span class="status-live-indicator"></span>
+					<span class="status-live-text">متصل حي بالشبكة الدوائية</span>
+				</div>
+			</div>
+
+			<!-- Workspace Header Bar -->
+			<div class="preview-workspace-bar">
+				<div class="preview-pharmacy-info">
+					<div class="preview-pharmacy-badge">
+						@components.IconBuilding("icon-xs text-brand")
+						<span>صيدلية النخبة المركزية — فرع الدقي</span>
+					</div>
+					<div class="preview-wallet-badge">
+						@components.IconWallet("icon-xs text-success")
+						<span>الرصيد المتاح: <strong>18,450.00 ج.م</strong></span>
+					</div>
+				</div>
+				
+				<!-- Interactive Filter Tabs -->
+				<div class="preview-tab-pills">
+					<button
+						type="button"
+						class="preview-tab-pill"
+						:class="{ 'active': activeFilter === 'all' }"
+						@click="activeFilter = 'all'"
+					>
+						@components.IconPill("icon-xs")
+						<span>كل الأصناف (8,340)</span>
+					</button>
+					<button
+						type="button"
+						class="preview-tab-pill"
+						:class="{ 'active': activeFilter === 'cold' }"
+						@click="activeFilter = 'cold'"
+					>
+						@components.IconShield("icon-xs")
+						<span>سلاسل التبريد (2°C-8°C)</span>
+					</button>
+					<button
+						type="button"
+						class="preview-tab-pill"
+						:class="{ 'active': activeFilter === 'deals' }"
+						@click="activeFilter = 'deals'"
+					>
+						@components.IconPercent("icon-xs")
+						<span>أعلى الخصومات</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Live Pharmaceutical Orders Table -->
+			<div class="preview-table-container">
+				<table class="preview-catalog-table">
+					<thead>
+						<tr>
+							<th>الصنف الدوائي والمواصفة</th>
+							<th>المورد المعتمد</th>
+							<th>نوع الشحن</th>
+							<th>السعر الرسمي</th>
+							<th>سعر التوريد والخصم</th>
+							<th>الحالة والمخزون</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- Row 1: Augmentin -->
+						<tr x-show="activeFilter === 'all' || activeFilter === 'cold' || activeFilter === 'deals'">
+							<td>
+								<div class="d-flex items-center gap-2">
+									<div class="table-drug-icon">
+										@components.IconPill("icon-xs text-brand")
+									</div>
+									<div>
+										<strong class="text-xs text-primary font-bold">أوجمنتين 1 جم أقراص (14 قرص)</strong>
+										<div class="text-2xs text-secondary font-mono">GSK • تشغيلة #EG-84920</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<span class="text-xs text-secondary">مخزن المتحدة للأدوية</span>
+							</td>
+							<td>
+								<span class="badge badge-sky text-2xs font-bold">تبريد 2°C-8°C</span>
+							</td>
+							<td class="text-xs text-muted font-mono tabular-nums">130.00 ج.م</td>
+							<td>
+								<div class="d-flex items-center gap-1.5">
+									<strong class="text-xs text-success font-black font-mono tabular-nums">101.40 ج.م</strong>
+									<span class="badge badge-emerald text-2xs font-bold">خصم 22%</span>
+								</div>
+							</td>
+							<td>
+								<span class="status-pill in-stock">متوفر (150 علبة)</span>
+							</td>
+						</tr>
+
+						<!-- Row 2: Panadol Extra -->
+						<tr x-show="activeFilter === 'all' || activeFilter === 'deals'">
+							<td>
+								<div class="d-flex items-center gap-2">
+									<div class="table-drug-icon">
+										@components.IconPill("icon-xs text-brand")
+									</div>
+									<div>
+										<strong class="text-xs text-primary font-bold">بانادول إكسترا أقراص (24 قرص)</strong>
+										<div class="text-2xs text-secondary font-mono">Haleon • تشغيلة #EG-39102</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<span class="text-xs text-secondary">مستودع ابن سينا فارما</span>
+							</td>
+							<td>
+								<span class="badge badge-slate text-2xs">شحن سريع</span>
+							</td>
+							<td class="text-xs text-muted font-mono tabular-nums">46.00 ج.م</td>
+							<td>
+								<div class="d-flex items-center gap-1.5">
+									<strong class="text-xs text-success font-black font-mono tabular-nums">37.70 ج.م</strong>
+									<span class="badge badge-emerald text-2xs font-bold">خصم 18%</span>
+								</div>
+							</td>
+							<td>
+								<span class="status-pill in-stock">متوفر (420 علبة)</span>
+							</td>
+						</tr>
+
+						<!-- Row 3: Concor 5mg -->
+						<tr x-show="activeFilter === 'all'">
+							<td>
+								<div class="d-flex items-center gap-2">
+									<div class="table-drug-icon">
+										@components.IconPill("icon-xs text-brand")
+									</div>
+									<div>
+										<strong class="text-xs text-primary font-bold">كونكور 5 مجم أقراص (30 قرص)</strong>
+										<div class="text-2xs text-secondary font-mono">Merck • تشغيلة #EG-55019</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<span class="text-xs text-secondary">فارما أوفرسيز</span>
+							</td>
+							<td>
+								<span class="badge badge-slate text-2xs">عادي</span>
+							</td>
+							<td class="text-xs text-muted font-mono tabular-nums">61.50 ج.م</td>
+							<td>
+								<div class="d-flex items-center gap-1.5">
+									<strong class="text-xs text-success font-black font-mono tabular-nums">52.20 ج.م</strong>
+									<span class="badge badge-emerald text-2xs font-bold">خصم 15%</span>
+								</div>
+							</td>
+							<td>
+								<span class="status-pill in-stock">متوفر (85 علبة)</span>
+							</td>
+						</tr>
+
+						<!-- Row 4: Lantus SoloStar -->
+						<tr x-show="activeFilter === 'all' || activeFilter === 'cold'">
+							<td>
+								<div class="d-flex items-center gap-2">
+									<div class="table-drug-icon">
+										@components.IconShield("icon-xs text-sky")
+									</div>
+									<div>
+										<strong class="text-xs text-primary font-bold">أنسولين لانتوس سولوستار 100 وحدة</strong>
+										<div class="text-2xs text-secondary font-mono">Sanofi • ثلاجة دقيقة</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<span class="text-xs text-secondary">مخزن الشرق الأوسط</span>
+							</td>
+							<td>
+								<span class="badge badge-sky text-2xs font-bold">ثلاجة فائقة 3.8°C</span>
+							</td>
+							<td class="text-xs text-muted font-mono tabular-nums">440.00 ج.م</td>
+							<td>
+								<div class="d-flex items-center gap-1.5">
+									<strong class="text-xs text-success font-black font-mono tabular-nums">390.00 ج.م</strong>
+									<span class="badge badge-emerald text-2xs font-bold">خصم 12%</span>
+								</div>
+							</td>
+							<td>
+								<span class="status-pill in-stock">متوفر (40 قلم)</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Live Order Summary Strip -->
+			<div class="preview-order-footer">
+				<div class="d-flex items-center gap-4 flex-wrap">
+					<div class="d-flex items-center gap-2">
+						@components.IconCart("icon-xs text-brand")
+						<span class="text-xs font-bold text-primary">السلة الموحدة: 4 أصناف محددة</span>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<span class="text-xs text-secondary">إجمالي التوفير:</span>
+						<strong class="text-xs text-success font-mono font-black">+890.00 ج.م</strong>
+					</div>
+				</div>
+				<a href="/auth/register" class="btn btn-primary btn-sm font-bold gap-2">
+					@components.IconZap("icon-xs")
+					<span>تأكيد وحجز الشحنة المبردة</span>
+				</a>
+			</div>
+
+		</div>
+	</div>
+}
