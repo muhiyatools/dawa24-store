@@ -108,16 +108,27 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 
-		// Also save locally as static fallback
+		// Fallback when object storage is not configured: write into the
+		// persistent uploads volume, not internal/ui/static. Static assets are
+		// served from the //go:embed snapshot taken at startup (see
+		// internal/ui/static.go), so a file written under internal/ui/static at
+		// runtime is never served and is wiped on the next image rebuild. The
+		// uploads directory is a mounted volume and is served by
+		// RegisterUploadRoutes.
 		if !uploadedToStorage {
-			savePath := "internal/ui/static/img/logo.png"
-			if out, err := os.Create(savePath); err != nil {
+			savePath := filepath.Join(GetUploadBaseDir(), "branding", fmt.Sprintf("logo_%d%s", time.Now().Unix(), ext))
+			if err := os.MkdirAll(filepath.Dir(savePath), 0o755); err != nil {
+				h.log.WarnContext(ctx, "branding: fallback logo mkdir", "error", err)
+			} else if out, err := os.Create(savePath); err != nil {
 				h.log.WarnContext(ctx, "branding: fallback logo create", "error", err)
 			} else {
 				defer out.Close()
 				_, _ = file.Seek(0, 0)
-				_, _ = io.Copy(out, file)
-				logoURL = "/static/img/logo.png"
+				if _, err := io.Copy(out, file); err != nil {
+					h.log.WarnContext(ctx, "branding: fallback logo write", "error", err)
+				} else {
+					logoURL = "/uploads/branding/" + filepath.Base(savePath)
+				}
 			}
 		}
 	}
@@ -135,6 +146,7 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 			contentType = "image/png"
 		}
 
+		uploadedToStorage := false
 		if h.storage != nil {
 			if err := h.storage.Put(ctx, key, file, header.Size, contentType); err != nil {
 				h.log.WarnContext(ctx, "branding: upload favicon to storage", "error", err)
@@ -144,6 +156,26 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 					pubURL = "/uploads/" + key
 				}
 				faviconURL = pubURL
+				uploadedToStorage = true
+			}
+		}
+
+		// Same reasoning as the logo fallback above: persist to the uploads
+		// volume when object storage is not configured.
+		if !uploadedToStorage {
+			savePath := filepath.Join(GetUploadBaseDir(), "branding", fmt.Sprintf("favicon_%d%s", time.Now().Unix(), ext))
+			if err := os.MkdirAll(filepath.Dir(savePath), 0o755); err != nil {
+				h.log.WarnContext(ctx, "branding: fallback favicon mkdir", "error", err)
+			} else if out, err := os.Create(savePath); err != nil {
+				h.log.WarnContext(ctx, "branding: fallback favicon create", "error", err)
+			} else {
+				defer out.Close()
+				_, _ = file.Seek(0, 0)
+				if _, err := io.Copy(out, file); err != nil {
+					h.log.WarnContext(ctx, "branding: fallback favicon write", "error", err)
+				} else {
+					faviconURL = "/uploads/branding/" + filepath.Base(savePath)
+				}
 			}
 		}
 	}

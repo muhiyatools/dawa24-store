@@ -35,6 +35,13 @@ x-app-env: &app-env
   DB_STATEMENT_TIMEOUT: ${DB_STATEMENT_TIMEOUT:-30s}
   REDIS_POOL_SIZE: ${REDIS_POOL_SIZE:-10}
 
+  # Where user uploads (licences, receipts, product images, import files, avatars)
+  # are written. This MUST point inside the `uploads` named volume below - it is
+  # the one directory whose contents have to outlive an image rebuild. Before
+  # this was set the files lived only in the container's writable layer and
+  # every `docker compose up --build` deploy discarded them.
+  DATA_DIR: /app/data
+
   # Object storage. Not yet used by any code path; required only from Phase 5.
   STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
   STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
@@ -75,6 +82,15 @@ x-build: &build
     args:
       VERSION: ${VERSION:-dev}
       COMMIT: ${COMMIT:-unknown}
+      # Embed cache metadata in the image so the next build's cache_from can
+      # reuse its layers. Universally supported, unlike build.cache_to.
+      BUILDKIT_INLINE_CACHE: "1"
+    # Reuse layers from the previously built image. On a webhook deploy that
+    # runs `docker compose build` this lets an unchanged dependency layer and a
+    # warm Go build cache carry over from the last deploy instead of rebuilding
+    # cold. A missing image on the first build is ignored.
+    cache_from:
+      - dawa24-store:local
 
 services:
   migrate:
@@ -113,6 +129,11 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    volumes:
+      # User uploads persist here, outside the image. DATA_DIR=/app/data (see
+      # x-app-env) makes the app write to /app/data/uploads, which is this
+      # volume. Rebuilding and recreating the container no longer wipes files.
+      - uploads:/app/data
     logging:
       driver: json-file
       options: { max-size: "10m", max-file: "3" }
@@ -126,6 +147,10 @@ services:
         condition: service_completed_successfully
     healthcheck:
       disable: true
+    volumes:
+      # The worker also writes into the uploads tree (image-import and compare
+      # jobs), so it mounts the same volume as the server.
+      - uploads:/app/data
     environment:
       <<: *app-env
       WORKER_IMPORTS: ${WORKER_IMPORTS:-2}
@@ -137,3 +162,10 @@ services:
     logging:
       driver: json-file
       options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  # Durable store for user uploads. A named volume lives on the host and is
+  # untouched by `docker compose up --build`; only an explicit `docker volume
+  # rm dawa24-store_uploads` removes it. Migrate off this onto S3/object
+  # storage (STORAGE_* in x-app-env) when that code path lands.
+  uploads:
