@@ -8,9 +8,8 @@ import (
 )
 
 templ publicMobileNav(site *platformadmin.SiteSettings) {
-	<!-- Mobile Slideover Navigation Drawer -->
 	<div
-		class="mobile-nav-backdrop"
+		class="nav-scrim"
 		x-show="mobileNav"
 		x-cloak
 		x-transition:enter="ease-out duration-200"
@@ -23,7 +22,7 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 	></div>
 
 	<div
-		class="mobile-nav-drawer"
+		class="nav-drawer"
 		x-show="mobileNav"
 		x-cloak
 		x-transition:enter="transform transition ease-in-out duration-300"
@@ -33,125 +32,140 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 		x-transition:leave-start="translate-x-0"
 		x-transition:leave-end="translate-x-full"
 	>
-		<div class="mobile-nav-header">
-			<div class="brand-lockup">
-				<span class="brand-name">دواء 24</span>
-			</div>
+		<div class="nav-drawer-head">
+			<span class="nav-brand-text">
+				<span class="nav-brand-name">دواء 24</span>
+				<span class="nav-brand-tag">Dawa·24 Supply</span>
+			</span>
 			<button
 				type="button"
 				@click="mobileNav = false"
-				class="btn btn-ghost btn-icon btn-sm"
+				class="nav-btn nav-btn--icon"
 				aria-label="إغلاق القائمة"
 			>
 				@components.IconX("icon-sm")
 			</button>
 		</div>
 
-		<div class="mobile-nav-body">
-			<nav class="mobile-nav-links">
-				if actor, ok := authctx.From(ctx); ok {
+		<div class="nav-drawer-body">
+			if actor, ok := authctx.From(ctx); ok {
+				<nav class="nav-drawer-section" aria-label="روابط الحساب">
+					<span class="nav-drawer-label">حسابي</span>
 					if actor.IsCustomer() && actor.IsOrgApproved() {
-						<a href="/customer/dashboard" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/customer/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconHome("icon-sm")
 							<span>لوحة تحكم الصيدلية</span>
 						</a>
-						<a href="/catalog" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/catalog" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconPill("icon-sm")
 							<span>كتالوج الأدوية الموحد</span>
 						</a>
 						if features.Enabled(ctx, "offers.enabled") {
-							<a href="/offers" class="mobile-nav-link" @click="mobileNav = false">
+							<a href="/offers" class="nav-drawer-link" @click="mobileNav = false">
 								@components.IconPercent("icon-sm")
 								<span>عروض وتخفيضات الموردين</span>
 							</a>
 						}
-						<a href="/suppliers" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/suppliers" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconBuilding("icon-sm")
 							<span>دليل الموردين والمصانع</span>
 						</a>
-						<a href="/cart" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/cart" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconCart("icon-sm")
 							<span>سلة المشتريات</span>
 						</a>
 					} else if actor.IsVendor() && actor.IsOrgApproved() {
-						<a href="/vendor/dashboard" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/vendor/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconHome("icon-sm")
 							<span>لوحة تحكم المورد</span>
 						</a>
-						<a href="/vendor/products" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/vendor/products" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconPackage("icon-sm")
 							<span>الأصناف والمخزون</span>
 						</a>
 					} else if actor.IsStaff {
-						<a href="/admin/dashboard" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/admin/dashboard" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconChart("icon-sm")
 							<span>لوحة التحكم الرئيسية</span>
 						</a>
 					} else {
-						<a href="/documents" class="mobile-nav-link" @click="mobileNav = false">
+						<a href="/documents" class="nav-drawer-link" @click="mobileNav = false">
 							@components.IconFile("icon-sm")
 							<span>السندات والمستندات</span>
 						</a>
 					}
-					if features.Enabled(ctx, "jobs.enabled") {
-						<a href="/jobs" class="mobile-nav-link" @click="mobileNav = false">
-							@components.IconBriefcase("icon-sm")
-							<span>وظائف التوظيف الصيدلي</span>
-						</a>
+				</nav>
+			}
+
+			<nav class="nav-drawer-section" aria-label="التنقل الرئيسي">
+				<span class="nav-drawer-label">المنصة</span>
+				@drawerLink("/how-it-works", "كيف تعمل المنصة") {
+					@components.IconZap("icon-sm")
+				}
+				@drawerLink("/about", "من نحن") {
+					@components.IconBuilding("icon-sm")
+				}
+				@drawerLink("/contact", "تواصل معنا") {
+					@components.IconPhone("icon-sm")
+				}
+				if features.Enabled(ctx, "jobs.enabled") {
+					@drawerLink("/jobs", "وظائف التوظيف الصيدلي") {
+						@components.IconBriefcase("icon-sm")
 					}
-				} else {
-					<a href="/auth/login" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconUser("icon-sm")
-						<span>تسجيل الدخول</span>
-					</a>
-					<a href="/auth/register" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconPlus("icon-sm")
-						<span>انضمام للمنصة</span>
-					</a>
+				}
+				@drawerLink("/faq", "الأسئلة الشائعة") {
+					@components.IconFileText("icon-sm")
 				}
 			</nav>
-
-			<div class="mobile-nav-divider"></div>
-
-			if actor, ok := authctx.From(ctx); ok {
-				<div class="mobile-nav-user-box">
-					<div class="account-name-lg">{ actor.DisplayName() }</div>
-					if actor.IsStaff {
-						<a href="/admin/dashboard" class="btn btn-primary btn-sm w-full mt-2">
-							@components.IconChart("icon-xs")
-							<span>لوحة التحكم الرئيسية</span>
-						</a>
-					} else if actor.IsVendor() {
-						<a href="/vendor/dashboard" class="btn btn-primary btn-sm w-full mt-2">
-							@components.IconChart("icon-xs")
-							<span>لوحة تحكم المورد</span>
-						</a>
-					} else if actor.IsOrgApproved() {
-						<a href="/customer/dashboard" class="btn btn-primary btn-sm w-full mt-2">
-							@components.IconHome("icon-xs")
-							<span>لوحة تحكم الصيدلية</span>
-						</a>
-					} else {
-						<a href="/documents" class="btn btn-primary btn-sm w-full mt-2">
-							@components.IconFile("icon-xs")
-							<span>السندات والمستندات</span>
-						</a>
-					}
-				</div>
-			} else {
-				<div class="mobile-nav-auth-stack">
-					<a href="/auth/login" class="btn btn-secondary w-full" @click="mobileNav = false">
-						@components.IconUser("icon-xs")
-						<span>تسجيل الدخول</span>
-					</a>
-					<a href="/auth/register" class="btn btn-primary w-full" @click="mobileNav = false">
-						@components.IconPlus("icon-xs")
-						<span>انضمام للمنصة</span>
-					</a>
-				</div>
-			}
 		</div>
+
+		if actor, ok := authctx.From(ctx); ok {
+			<div class="nav-drawer-foot">
+				<div class="nav-drawer-account">
+					<span class="nav-avatar" aria-hidden="true">{ components.Initials(actor.DisplayName()) }</span>
+					<span class="nav-menu-identity">
+						<span class="nav-menu-name">{ actor.DisplayName() }</span>
+						if actor.Email != "" {
+							<span class="nav-menu-detail">{ actor.Email }</span>
+						}
+					</span>
+				</div>
+				<form action="/auth/logout" method="POST" class="nav-menu-form">
+					<button type="submit" class="nav-btn nav-btn--outline">
+						@components.IconLogout("icon-xs")
+						<span>تسجيل الخروج</span>
+					</button>
+				</form>
+			</div>
+		} else {
+			<div class="nav-drawer-foot">
+				<a href="/auth/login" class="nav-btn nav-btn--outline" @click="mobileNav = false">
+					@components.IconUser("icon-xs")
+					<span>تسجيل الدخول</span>
+				</a>
+				<a href="/auth/register" class="nav-btn nav-btn--solid" @click="mobileNav = false">
+					<span>انضمام للمنصة</span>
+				</a>
+			</div>
+		}
 	</div>
+}
+
+// drawerLink is the ruled row used by the mobile sheet. It takes its icon as
+// children so the caller keeps naming the icon it wants without this template
+// growing a switch over icon names.
+templ drawerLink(href string, label string) {
+	<a
+		href={ templ.SafeURL(href) }
+		class={ "nav-drawer-link", templ.KV("is-active", IsCurrentPath(ctx, href)) }
+		@click="mobileNav = false"
+		if IsCurrentPath(ctx, href) {
+			aria-current="page"
+		}
+	>
+		{ children... }
+		<span>{ label }</span>
+	</a>
 }
 
 templ publicFooter(site *platformadmin.SiteSettings) {

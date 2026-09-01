@@ -12,14 +12,15 @@ import "github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 // The notifications bell.
 //
-// This markup lived only in the public marketing header, so a signed-in user on
-// a dashboard — the people who actually receive notifications — had no way to
-// see them without navigating to /notifications. It is a component now and both
-// headers render the same one.
+// Both the public header and the dashboard bar render this one component, and
+// it now uses the shared .nav-menu surface rather than the bespoke
+// .notification-panel it used to carry — the account menu, the branch selector
+// and this panel are the same object at three widths.
 //
 // The panel body is fetched on first open rather than with the page: the badge
 // polls a tiny endpoint every 60s, and the list itself is only worth loading if
-// somebody opens it.
+// somebody opens it. What renders below is the pre-fetch state, so it has to be
+// a legible empty panel rather than a spinner.
 func NotificationsBell(lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -41,14 +42,14 @@ func NotificationsBell(lang string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"dropdown notif-bell\" x-data=\"{ open: false }\" @click.outside=\"open = false\" @keydown.escape.window=\"open = false\"><button type=\"button\" title=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"nav-pop\" x-data=\"{ open: false }\" @click.outside=\"open = false\" @keydown.escape.window=\"open = false\"><button type=\"button\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "notifications.title"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 19, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 20, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -61,13 +62,13 @@ func NotificationsBell(lang string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "notifications.title"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 20, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 21, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" :aria-expanded=\"open ? 'true' : 'false'\" @click=\"open = !open\" hx-get=\"/notifications/dropdown\" hx-target=\"#notif-dropdown-content\" hx-trigger=\"click once\" hx-swap=\"innerHTML\" class=\"btn btn-secondary btn-icon btn-notification-wrap\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" :aria-expanded=\"open ? 'true' : 'false'\" @click=\"open = !open\" hx-get=\"/notifications/dropdown\" hx-target=\"#notif-dropdown-content\" hx-trigger=\"click once\" hx-swap=\"innerHTML\" class=\"nav-btn nav-btn--icon\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -75,28 +76,20 @@ func NotificationsBell(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"notification-indicator\" hx-get=\"/notifications/unread-badge\" hx-trigger=\"load, every 60s\" hx-swap=\"innerHTML\" hx-target=\"this\"></span></button><div class=\"dropdown-menu notification-menu\" id=\"notif-dropdown-content\" role=\"menu\" x-show=\"open\" x-cloak x-transition.origin.top.duration.150ms><div class=\"notification-panel\"><div class=\"notification-header\"><div class=\"row-center-sm\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = IconBell("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"notification-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button> <span class=\"nav-count-slot\" hx-get=\"/notifications/unread-badge\" hx-trigger=\"load, every 60s\" hx-swap=\"innerHTML\" hx-target=\"this\"></span><div class=\"nav-menu nav-menu--wide\" id=\"notif-dropdown-content\" role=\"menu\" x-show=\"open\" x-cloak x-transition.origin.top.duration.150ms><div class=\"nav-menu-head\"><span class=\"nav-menu-eyebrow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "notifications.title"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 50, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 48, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div></div><div class=\"notification-empty\"><div class=\"notification-empty-icon\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div class=\"nav-notif-empty\"><div class=\"nav-notif-empty-mark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -104,20 +97,20 @@ func NotificationsBell(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"stack-xs text-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><p class=\"nav-notif-empty-text\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "notifications.empty"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 57, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 54, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

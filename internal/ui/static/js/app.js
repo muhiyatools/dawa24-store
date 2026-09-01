@@ -189,7 +189,29 @@ document.addEventListener('DOMContentLoaded', () => {
   initSidebarToggle();
   initThemeSystem();
   initScrollReveal();
+  initNavScrollState();
 });
+
+// The public header lifts off the page once there is content behind it.
+//
+// A bar that carries a shadow at rest is carrying it for no reason -- the
+// shadow's whole job is to say "something is scrolling under me". A sentinel
+// and an IntersectionObserver do this without a scroll handler firing on every
+// frame; the observer fires twice per page, at the two crossings.
+function initNavScrollState() {
+  const bar = document.querySelector('[data-nav-scroll]');
+  if (!bar || typeof IntersectionObserver === 'undefined') return;
+
+  const sentinel = document.createElement('div');
+  sentinel.setAttribute('aria-hidden', 'true');
+  sentinel.className = 'nav-scroll-sentinel';
+  bar.parentNode.insertBefore(sentinel, bar);
+
+  new IntersectionObserver(
+    ([entry]) => bar.classList.toggle('is-scrolled', !entry.isIntersecting),
+    { threshold: 1 }
+  ).observe(sentinel);
+}
 
 // Theme Management System
 function initThemeSystem() {

@@ -1,36 +1,36 @@
 package components
 
+// The closing call to action, shared by the landing page, /about and
+// /how-it-works.
+//
+// It was a centred card with a gradient ground, a pill badge, a headline, a
+// paragraph and two large buttons — the block that made all three pages end the
+// same way as every other product page on the internet.
+//
+// It is the last entry in the record now: a heavy rule, the offer stated in one
+// line, and the two routes in as what they actually are — one for a pharmacy,
+// one for a supplier. Two weights of button, not two of the same button.
 templ PublicCTA(title, desc, lang string) {
-	<section class="unified-public-cta">
-		<div class="unified-cta-card">
-			<div class="unified-cta-badge">
-				@IconShield("icon-xs text-brand")
-				<span>انضمام فوري وآمن للصيدليات والموردين</span>
-			</div>
-			<h2 class="unified-cta-title">
+	<section class="mk-close">
+		<div class="mk-close-text">
+			<h2 class="mk-close-title">
 				if title != "" {
 					{ title }
 				} else {
-					انضم إلى مستقبل التوريد الدوائي الذكي في مصر اليوم
+					افتح حساباً وابدأ التوريد هذا الأسبوع
 				}
 			</h2>
-			<p class="unified-cta-desc">
+			<p class="mk-close-desc">
 				if desc != "" {
 					{ desc }
 				} else {
-					سجل حساب صيدليتك الآن للاستفادة من عروض التوريد والخصومات المباشرة وسلاسل الإمداد الموثقة مع تجربة إدارة طلبات فورية وشفافة.
+					التسجيل مجاني. التفعيل بعد مراجعة الترخيص، وعادةً خلال ساعات عمل قليلة.
 				}
 			</p>
-			<div class="unified-cta-actions">
-				<a href="/auth/register" class="btn btn-primary btn-lg font-extrabold hero-cta-btn">
-					@IconCheck("icon-sm")
-					<span>تسجيل صيدلية الآن</span>
-				</a>
-				<a href="/auth/register" class="btn btn-secondary btn-lg font-bold hero-cta-btn">
-					@IconBuilding("icon-sm")
-					<span>انضمام كمورد أو مصنع</span>
-				</a>
-			</div>
+		</div>
+		<div class="mk-close-actions">
+			<a href="/auth/register" class="mk-btn mk-btn--ink">تسجيل صيدلية</a>
+			<a href="/auth/register" class="mk-btn mk-btn--outline">انضمام كمورد</a>
 		</div>
 	</section>
 }

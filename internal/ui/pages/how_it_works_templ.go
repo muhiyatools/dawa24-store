@@ -13,6 +13,23 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// HowItWorksPage.
+//
+// The page was an alternating timeline: eight steps zig-zagging left and right
+// of a centre line, each with a four-line paragraph. Below 1024px the
+// alternation collapsed into a plain stack, so the zig-zag was decoration that
+// only existed on a desktop — and the copy was long enough that nobody read to
+// step four.
+//
+// It is a ledger now. One hairline runs down the inline-start edge, the step
+// numbers sit on it, and each step is one sentence beside a specimen: an actual
+// fragment of the product, with real figures set in tabular numerals. The
+// specimens were the good part of the old page and they are what survived; they
+// are flat panels rather than glass cards, so they read as screens rather than
+// as illustration.
+//
+// The role switcher is the same measure rail the navigation bar uses — two
+// items on a hairline, the active one inking its segment.
 func HowItWorksPage(lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -46,71 +63,7 @@ func HowItWorksPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"how-flow-container\" x-data=\"{ tab: 'pharmacy' }\"><!-- Simple & Punchy Hero --><div class=\"how-flow-hero\"><div class=\"how-hero-pill\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconZap("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>دورة التوريد السريعة والذكية</span></div><h1 class=\"how-flow-title\">كيف تعمل منصة دواء 24 — من النواقص إلى الرف في 4 خطوات</h1><p class=\"how-flow-subtitle\">منظومة متكاملة بدون تعقيدات أو وسطاء تقليديين، تربط صيدليتك مباشرة بمصادر الأدوية المعتمدة مع توفير حقيقي وسرعة توصيل.</p><!-- Creative Role Switcher --><div class=\"how-role-switcher\"><button type=\"button\" class=\"how-role-btn\" :class=\"{ 'active': tab === 'pharmacy' }\" @click=\"tab = 'pharmacy'\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconPill("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>مسار الصيدليات والمراكز الطبية</span></button> <button type=\"button\" class=\"how-role-btn\" :class=\"{ 'active': tab === 'supplier' }\" @click=\"tab = 'supplier'\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconBuilding("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>مسار الموردين ومستودعات الأدوية</span></button></div></div><!-- PHARMACY FLOW --><div class=\"how-timeline-wrapper\" x-show=\"tab === 'pharmacy'\" x-cloak><div class=\"timeline-track\"></div><!-- Step 1 --><div class=\"timeline-step\"><div class=\"timeline-marker\"><span>1</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الأولى</span><h3 class=\"timeline-heading\">ابحث وقارن عروض الأسعار والخصومات فورياً</h3><p class=\"timeline-desc\">اكتب اسم الدواء أو رقمه القومي لتظهر لك قائمة بجميع الموردين المتاحين حالياً، مع مقارنة حية لنسب الخصم، تاريخ الصلاحية، وسرعة الشحن.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-header\"><span class=\"widget-badge-live\">مقارنة حية</span> <span class=\"text-xs font-mono font-bold text-primary\">أوجمنتين 1 جم أقراص</span></div><div class=\"widget-offer-row best-offer\"><div class=\"d-flex items-center gap-2\"><div class=\"offer-dot\"></div><div><div class=\"text-xs font-bold text-primary\">مخزن المتحدة للأدوية</div><div class=\"text-2xs text-secondary\">تسليم خلال ساعتين • ثلاجة 2°C-8°C</div></div></div><div class=\"text-end\"><div class=\"text-xs font-black text-success\">101.40 ج.م</div><div class=\"badge badge-emerald text-2xs font-bold\">خصم 22%</div></div></div><div class=\"widget-offer-row\"><div class=\"d-flex items-center gap-2\"><div class=\"offer-dot subtle\"></div><div><div class=\"text-xs font-bold text-primary\">مستودع ابن سينا فارما</div><div class=\"text-2xs text-secondary\">تسليم خلال 4 ساعات • جاف</div></div></div><div class=\"text-end\"><div class=\"text-xs font-bold text-primary\">105.30 ج.م</div><div class=\"badge badge-slate text-2xs\">خصم 19%</div></div></div></div></div></div><!-- Step 2 --><div class=\"timeline-step reverse\"><div class=\"timeline-marker\"><span>2</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الثانية</span><h3 class=\"timeline-heading\">اطلب بضغطة زر أو ارفع كشف النواقص (Excel)</h3><p class=\"timeline-desc\">بدلاً من إرسال رسائل متفرقة على واتساب، ارفع ملف نواقص صيدليتك ليقوم الذكاء الاصطناعي بمطابقة كافة الأصناف وأفضل أسعارها خلال 5 ثوانٍ فقط.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-excel-box\"><div class=\"d-flex items-center gap-3\"><div class=\"excel-icon-pill\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconUpload("icon-sm text-emerald").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"d-flex flex-col\"><span class=\"text-xs font-bold text-primary\">order_pharmacy_august.xlsx</span> <span class=\"text-2xs text-success\">تمت مطابقة 42 من 42 صنف بنسبة 100%</span></div></div><span class=\"badge badge-emerald text-2xs font-black\">مطابقة ذكية مكتملة</span></div><div class=\"widget-stats-mini\"><div class=\"mini-stat\"><span class=\"text-2xs text-muted\">إجمالي التوفير</span> <span class=\"text-xs font-bold text-success\">+680 ج.م</span></div><div class=\"mini-stat\"><span class=\"text-2xs text-muted\">عدد الموردين</span> <span class=\"text-xs font-bold text-primary\">2 موردين</span></div><div class=\"mini-stat\"><span class=\"text-2xs text-muted\">حالة السلة</span> <span class=\"text-xs font-bold text-primary\">جاهزة للتأكيد</span></div></div></div></div></div><!-- Step 3 --><div class=\"timeline-step\"><div class=\"timeline-marker\"><span>3</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الثالثة</span><h3 class=\"timeline-heading\">شحن وتوصيل مجهز ومؤمن</h3><p class=\"timeline-desc\">شاحنات توزيع مرخصة ومجهزة لنقل الأدوية الحساسة والأنسولين والمضادات الحيوية، مع إشعار لحظي فور خروج الشحنة.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-dispatch-box\"><div class=\"d-flex items-center justify-between pb-2 border-b\"><div class=\"d-flex items-center gap-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconTruck("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"text-xs font-bold text-primary\">شحنة مبردة رقم #TRK-4921</span></div><span class=\"badge badge-sky text-2xs font-bold\">في الطريق للصيدلية</span></div><div class=\"d-flex items-center justify-between pt-2\"><div class=\"d-flex items-center gap-1.5 text-xs text-secondary\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconClock("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>موعد الوصول المتوقع: <strong>خلال 35 دقيقة</strong></span></div><span class=\"badge badge-emerald text-2xs font-bold\">شحنة مجهزة ومؤمنة</span></div></div></div></div></div><!-- Step 4 --><div class=\"timeline-step reverse\"><div class=\"timeline-marker\"><span>4</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الرابعة</span><h3 class=\"timeline-heading\">فحص الشحنة واستلام الفاتورة الرسمية</h3><p class=\"timeline-desc\">طابق التشغيلات وتواريخ الصلاحية عند باب الصيدلية، وسدد نقداً أو عبر التسهيلات الائتمانية مع استلام فاتورة رسمية مسجلة.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-invoice-box\"><div class=\"d-flex items-center justify-between\"><div class=\"d-flex items-center gap-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconShield("icon-xs text-emerald").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span class=\"text-xs font-bold text-primary\">فاتورة معتمدة</span></div><span class=\"text-2xs font-mono text-muted\">E-INV #EG-2026-904</span></div><div class=\"invoice-summary-line\"><span class=\"text-xs text-secondary\">إجمالي الطلبية المسددة</span> <strong class=\"text-sm text-primary tabular-nums\">3,420.00 ج.م</strong></div></div></div></div></div></div><!-- SUPPLIER FLOW --><div class=\"how-timeline-wrapper\" x-show=\"tab === 'supplier'\" x-cloak><div class=\"timeline-track\"></div><!-- Step 1 --><div class=\"timeline-step\"><div class=\"timeline-marker\"><span>1</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الأولى</span><h3 class=\"timeline-heading\">التسجيل وتوثيق ترخيص المنشأة الدوائية</h3><p class=\"timeline-desc\">سجل حساب مستودعك أو شركتك، وارفع صورة ترخيص هيئة الدواء المصرية والسجل التجاري ليتم تفعيل الحساب والتحقق خلال ساعات معدودة.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-verification-box\"><div class=\"d-flex items-center gap-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheckCircle("icon-sm text-emerald").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div><div class=\"text-xs font-bold text-primary\">مستودع أدوية معتمد وموثق</div><div class=\"text-2xs text-secondary\">مرخص رسمياً من هيئة الدواء المصرية</div></div></div></div></div></div></div><!-- Step 2 --><div class=\"timeline-step reverse\"><div class=\"timeline-marker\"><span>2</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الثانية</span><h3 class=\"timeline-heading\">رفع الكتالوج وتحديد نسب الخصم والبونص</h3><p class=\"timeline-desc\">ارفع قائمة أدويتك وأسعارها وتواريخ الصلاحية عبر Excel أو الربط المباشر مع نظام ERP الخاص بك، لتظهر فورياً لآلاف الصيدليات في منطقتك.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-catalog-box\"><div class=\"d-flex items-center justify-between pb-2 border-b\"><span class=\"text-xs font-bold text-primary\">تحديث المخزون الفوري</span> <span class=\"badge badge-sky text-2xs\">8,340 صنف نشط</span></div><div class=\"text-2xs text-secondary pt-2\">ظهور آلي للصيدليات المستهدفة بنطاق التغطية الجغرافية مع تحديث لحظي للكميات.</div></div></div></div></div><!-- Step 3 --><div class=\"timeline-step\"><div class=\"timeline-marker\"><span>3</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الثالثة</span><h3 class=\"timeline-heading\">استقبال أوامر الشراء المؤكدة وتوجيه التجهيز</h3><p class=\"timeline-desc\">استقبل طلبات الصيدليات لحظياً في لوحة تحكم مخصصة، واطبع أذون الصرف وجهز الشحنات لمندوب التوزيع أو سيارة النقل بضغطة زر.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-order-box\"><div class=\"d-flex items-center justify-between\"><div class=\"text-xs font-bold text-primary\">أمر توريد وارد #ORD-8920</div><span class=\"badge badge-emerald text-2xs\">مؤكد ومسدد</span></div><div class=\"text-2xs text-secondary mt-1\">صيدلية الدكتور أحمد — الجيزة • 6 أصناف دوائية جاهزة للصرف</div></div></div></div></div><!-- Step 4 --><div class=\"timeline-step reverse\"><div class=\"timeline-marker\"><span>4</span></div><div class=\"timeline-content\"><div class=\"timeline-text\"><span class=\"timeline-phase-label\">الخطوة الرابعة</span><h3 class=\"timeline-heading\">التحصيل السريع وتسوية الفواتير</h3><p class=\"timeline-desc\">استلم تحصيلاتك النقدية ومستحقات الشحنات دون تأخير، مع إصدار تلقائي للفواتير وإشعارات الخصم والمرتجع بكل شفافية.</p></div><div class=\"timeline-widget glass-panel\"><div class=\"widget-payout-box\"><div class=\"d-flex items-center justify-between\"><div class=\"text-xs font-bold text-primary\">تسوية التحصيل المالي</div><span class=\"text-xs font-black text-success tabular-nums\">+18,450.00 ج.م</span></div><div class=\"text-2xs text-secondary mt-1\">تم التحصيل وتوثيق إشعار الاستلام بنجاح.</div></div></div></div></div></div><!-- Unified Bottom CTA -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mk-page\" x-data=\"{ role: 'pharmacy' }\"><header class=\"mk-masthead\"><p class=\"mk-eyebrow\">دورة التوريد</p><h1 class=\"mk-title\">كيف تعمل منصة دواء 24</h1><p class=\"mk-lede\">من كشف النواقص إلى الرف، في أربع خطوات — بلا وسطاء وبسجل موثّق لكل خطوة.</p></header><div class=\"mk-switch\" role=\"tablist\" aria-label=\"اختر المسار\"><button type=\"button\" role=\"tab\" class=\"mk-switch-btn\" :class=\"{ 'is-on': role === 'pharmacy' }\" :aria-selected=\"role === 'pharmacy' ? 'true' : 'false'\" @click=\"role = 'pharmacy'\">مسار الصيدليات</button> <button type=\"button\" role=\"tab\" class=\"mk-switch-btn\" :class=\"{ 'is-on': role === 'supplier' }\" :aria-selected=\"role === 'supplier' ? 'true' : 'false'\" @click=\"role = 'supplier'\">مسار الموردين</button></div><div class=\"mk-steps\" x-show=\"role === 'pharmacy'\" x-cloak role=\"tabpanel\"><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">1</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">قارن كل العروض المتاحة في لحظة</h2><p class=\"mk-step-desc\">اكتب اسم الدواء أو رقمه القومي، فتظهر أسعار كل الموردين المتاحين الآن مرتّبة بالخصم وموعد التسليم.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">أوجمنتين 1 جم أقراص</span> <span class=\"mk-flag mk-flag--live\">مقارنة حيّة</span></div><div class=\"mk-panel-body\"><div class=\"mk-row is-best\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مخزن المتحدة للأدوية</span> <span class=\"mk-row-note\">تسليم خلال ساعتين · ثلاجة 2–8°</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">101.40</span> <span class=\"mk-delta\">−22%</span></div></div><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مستودع ابن سينا فارما</span> <span class=\"mk-row-note\">تسليم خلال 4 ساعات · جاف</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">105.30</span> <span class=\"mk-delta\">−19%</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">2</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">ارفع كشف النواقص بدل كتابته</h2><p class=\"mk-step-desc\">ملف Excel واحد يكفي: تُطابَق الأصناف آلياً على أفضل سعر متاح، وتصلك السلة جاهزة للمراجعة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-ref\">order_pharmacy_august.xlsx</span> <span class=\"mk-flag mk-flag--ok\">42 / 42 مطابَقة</span></div><div class=\"mk-tally\"><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">التوفير</span> <span class=\"mk-tally-val\">680.00</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">الموردون</span> <span class=\"mk-tally-val\">2</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">السلة</span> <span class=\"mk-tally-val\">جاهزة</span></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">3</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">تتبّع الشحنة حتى الباب</h2><p class=\"mk-step-desc\">سيارات مرخّصة ومجهّزة لنقل الأدوية الحساسة، وإشعار لحظي فور خروج الشحنة من المخزن.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">شحنة مبرّدة</span> <span class=\"mk-panel-ref\">TRK-4921</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">في الطريق إلى الصيدلية</span> <span class=\"mk-row-note\">آخر تحديث قبل 4 دقائق</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">35 دقيقة</span> <span class=\"mk-delta\">الوصول المتوقع</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">4</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">افحص، استلم، وسدّد</h2><p class=\"mk-step-desc\">طابق التشغيلات وتواريخ الصلاحية عند الباب، وادفع نقداً أو على الحساب مع فاتورة إلكترونية مسجّلة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">فاتورة معتمدة</span> <span class=\"mk-panel-ref\">EG-2026-904</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">إجمالي الطلبية المسدّدة</span> <span class=\"mk-row-note\">مسجّلة لدى مصلحة الضرائب</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">3,420.00</span> <span class=\"mk-delta\">ج.م</span></div></div></div></div></section></div><div class=\"mk-steps\" x-show=\"role === 'supplier'\" x-cloak role=\"tabpanel\"><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">1</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">وثّق ترخيص المنشأة</h2><p class=\"mk-step-desc\">ارفع ترخيص هيئة الدواء والسجل التجاري؛ تُراجَع المستندات ويُفعَّل الحساب خلال ساعات عمل قليلة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">حالة التوثيق</span> <span class=\"mk-flag mk-flag--ok\">معتمد</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مستودع أدوية موثّق</span> <span class=\"mk-row-note\">مرخّص من هيئة الدواء المصرية</span></div></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">2</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">ارفع الكتالوج مرة واحدة</h2><p class=\"mk-step-desc\">Excel أو ربط مباشر بنظام الـERP لديك — الأسعار والخصومات والصلاحيات تظهر فوراً للصيدليات في نطاق تغطيتك.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">المخزون النشط</span> <span class=\"mk-flag mk-flag--live\">تحديث لحظي</span></div><div class=\"mk-tally\"><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">أصناف</span> <span class=\"mk-tally-val\">8,340</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">التغطية</span> <span class=\"mk-tally-val\">جغرافية</span></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">3</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">استقبل أوامر الشراء وجهّزها</h2><p class=\"mk-step-desc\">الطلبات تصل لحظياً إلى لوحة تحكّمك، وأذون الصرف تُطبع للمندوب بضغطة واحدة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">أمر توريد وارد</span> <span class=\"mk-panel-ref\">ORD-8920</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">صيدلية الدكتور أحمد — الجيزة</span> <span class=\"mk-row-note\">6 أصناف جاهزة للصرف</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-flag mk-flag--ok\">مؤكد ومسدَّد</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">4</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">حصّل مستحقاتك دون تأخير</h2><p class=\"mk-step-desc\">تسوية آلية للفواتير وإشعارات الخصم والمرتجع، بسجل يمكن مراجعته سطراً سطراً.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">تسوية التحصيل</span> <span class=\"mk-panel-ref\">SET-1174</span></div><div class=\"mk-panel-body\"><div class=\"mk-row is-best\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">تم التحصيل وتوثيق الاستلام</span> <span class=\"mk-row-note\">دفعة هذا الأسبوع</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">18,450.00</span> <span class=\"mk-delta\">ج.م</span></div></div></div></div></section></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -118,13 +71,13 @@ func HowItWorksPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell("كيف تعمل المنصة — دورة التوريد الدوائي الذكية", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("كيف تعمل المنصة — دورة التوريد الدوائي", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

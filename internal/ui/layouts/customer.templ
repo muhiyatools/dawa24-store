@@ -8,71 +8,90 @@ import (
 // PublicShell is the marketing layout for pages a visitor may reach without
 // signing in: navbar + footer around the content. Authenticated screens never
 // render it — they use the sidebar shells (Rebuild V2 §1.5).
+//
+// The header is .nav-root from nav.css, the same shell the dashboard bar uses.
+// It differs in three things and nothing else: it is taller, it carries a brand
+// lockup instead of a page title, and it fills the middle region with the
+// measure rail — the ruled link group whose active item inks a segment of the
+// rail beneath it. Every control on the trailing edge (bell, account menu,
+// their popovers) is literally the same component the dashboard renders, so an
+// account menu opened from the marketing site and one opened from the dashboard
+// are the same object.
 templ PublicShell(title string, lang string, dir string) {
-	if site := GetSiteSettings(ctx); site != nil {
-		@Base(title, lang, dir, "/static/css/public.css") {
-			<div x-data="{ mobileNav: false }" class="public-shell-root">
-				<!-- Top Modern Navbar -->
-				<header class="site-header">
-					<div class="site-header-container">
-						<div class="site-header-brand">
-							<a href="/" class="brand-lockup" title="دواء 24 — الصفحة الرئيسية">
-								if site.LogoURL != "" {
-									<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
-								}
-								<div class="brand-text-lockup">
-									<span class="brand-name">دواء 24</span>
-								</div>
-							</a>
-						</div>
-
-						<!-- Desktop Central Navigation Links -->
-						<nav class="public-nav-links" aria-label="التنقل الرئيسي">
-							<a href="/how-it-works" class="public-nav-link">كيف تعمل المنصة</a>
-							<a href="/about" class="public-nav-link">عن دواء 24</a>
-							<a href="/contact" class="public-nav-link">تواصل معنا</a>
-						</nav>
-
-						<div class="site-header-actions">
-							if _, ok := authctx.From(ctx); ok {
-								@components.NotificationsBell(lang)
-								@components.UserMenu(lang, false)
-							} else {
-								<div class="d-flex items-center gap-2">
-									<a href="/auth/login" class="navbar-login-btn">
-										@components.IconUser("icon-xs")
-										<span>تسجيل الدخول</span>
-									</a>
-									<a href="/auth/register" class="navbar-register-btn">
-										@components.IconPlus("icon-xs")
-										<span>انضمام للمنصة</span>
-									</a>
-								</div>
+	{{ site := GetSiteSettings(ctx) }}
+	@Base(title, lang, dir, "/static/css/public.css", "/static/css/marketing.css") {
+		<div x-data="{ mobileNav: false }" class="public-shell-root">
+			<header class="nav-root nav-root--public" data-nav-scroll>
+				<div class="nav-inner">
+					<div class="nav-lead">
+						<a href="/" class="nav-brand" title="دواء 24 — الصفحة الرئيسية">
+							if site.LogoURL != "" {
+								<span class="nav-brand-mark">
+									<img src={ site.LogoURL } alt={ site.SiteName }/>
+								</span>
 							}
+							<span class="nav-brand-text">
+								<span class="nav-brand-name">دواء 24</span>
+								<span class="nav-brand-tag">Dawa·24 Supply</span>
+							</span>
+						</a>
+					</div>
 
-							<!-- Mobile Menu Hamburger Button -->
-							<button
-								type="button"
-								@click="mobileNav = true"
-								class="btn-ghost btn-icon show-mobile header-mobile-toggle"
-								aria-label="قائمة التصفح"
-							>
-								@components.IconMenu("icon-sm")
-							</button>
+					<nav class="nav-mid" aria-label="التنقل الرئيسي">
+						<div class="nav-links">
+							@publicNavLink("/how-it-works", "كيف تعمل المنصة")
+							@publicNavLink("/about", "من نحن")
+							@publicNavLink("/contact", "تواصل معنا")
 						</div>
+					</nav>
+
+					<div class="nav-trail">
+						if _, ok := authctx.From(ctx); ok {
+							@components.NotificationsBell(lang)
+							@components.UserMenu(lang, false)
+						} else {
+							<a href="/auth/login" class="nav-btn nav-btn--outline nav-desktop-only">
+								@components.IconUser("icon-xs")
+								<span>تسجيل الدخول</span>
+							</a>
+							<a href="/auth/register" class="nav-btn nav-btn--solid">
+								<span>انضمام للمنصة</span>
+							</a>
+						}
+
+						<button
+							type="button"
+							@click="mobileNav = true"
+							class="nav-btn nav-btn--icon nav-mobile-only"
+							aria-label="قائمة التصفح"
+						>
+							@components.IconMenu("icon-sm")
+						</button>
 					</div>
-				</header>
+				</div>
+			</header>
 
-				@publicMobileNav(site)
+			@publicMobileNav(site)
 
-				<main class="page-body">
-					<div class="page-container">
-						{ children... }
-					</div>
-				</main>
-			</div>
+			<main class="page-body">
+				<div class="page-container">
+					{ children... }
+				</div>
+			</main>
+		</div>
 
-			@publicFooter(site)
-		}
+		@publicFooter(site)
 	}
+}
+
+// publicNavLink is a rail item. It is a component rather than three copies of
+// the same anchor so that the active rule lives in one place.
+templ publicNavLink(href string, label string) {
+	<a
+		href={ templ.SafeURL(href) }
+		class={ "nav-link", templ.KV("is-active", IsCurrentPath(ctx, href)) }
+		if IsCurrentPath(ctx, href) {
+			aria-current="page"
+		}
+	>{ label }</a>
 }

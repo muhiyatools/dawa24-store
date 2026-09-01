@@ -8,6 +8,16 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+// The closing call to action, shared by the landing page, /about and
+// /how-it-works.
+//
+// It was a centred card with a gradient ground, a pill badge, a headline, a
+// paragraph and two large buttons — the block that made all three pages end the
+// same way as every other product page on the internet.
+//
+// It is the last entry in the record now: a heavy rule, the offer stated in one
+// line, and the two routes in as what they actually are — one for a pharmacy,
+// one for a supplier. Two weights of button, not two of the same button.
 func PublicCTA(title, desc, lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -29,15 +39,7 @@ func PublicCTA(title, desc, lang string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"unified-public-cta\"><div class=\"unified-cta-card\"><div class=\"unified-cta-badge\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = IconShield("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>انضمام فوري وآمن للصيدليات والموردين</span></div><h2 class=\"unified-cta-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"mk-close\"><div class=\"mk-close-text\"><h2 class=\"mk-close-title\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,19 +47,19 @@ func PublicCTA(title, desc, lang string) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 12, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 18, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "انضم إلى مستقبل التوريد الدوائي الذكي في مصر اليوم")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "افتح حساباً وابدأ التوريد هذا الأسبوع")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h2><p class=\"unified-cta-desc\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h2><p class=\"mk-close-desc\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -65,35 +67,19 @@ func PublicCTA(title, desc, lang string) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(desc)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 19, Col: 11}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 25, Col: 11}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "سجل حساب صيدليتك الآن للاستفادة من عروض التوريد والخصومات المباشرة وسلاسل الإمداد الموثقة مع تجربة إدارة طلبات فورية وشفافة.")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "التسجيل مجاني. التفعيل بعد مراجعة الترخيص، وعادةً خلال ساعات عمل قليلة.")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p><div class=\"unified-cta-actions\"><a href=\"/auth/register\" class=\"btn btn-primary btn-lg font-extrabold hero-cta-btn\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>تسجيل صيدلية الآن</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary btn-lg font-bold hero-cta-btn\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>انضمام كمورد أو مصنع</span></a></div></div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p></div><div class=\"mk-close-actions\"><a href=\"/auth/register\" class=\"mk-btn mk-btn--ink\">تسجيل صيدلية</a> <a href=\"/auth/register\" class=\"mk-btn mk-btn--outline\">انضمام كمورد</a></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

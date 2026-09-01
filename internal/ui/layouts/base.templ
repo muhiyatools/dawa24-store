@@ -67,6 +67,11 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			<link rel="stylesheet" href={ Asset("/static/css/base.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/layout.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/components.css") }/>
+			// nav.css carries the whole navigation visual system -- both bars, every
+			// popover, the mobile drawer. It loads on every page because the chrome
+			// is on every page, and it sits after components.css because it
+			// deliberately supersedes the header rules that used to live there.
+			<link rel="stylesheet" href={ Asset("/static/css/nav.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/foundations.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/utilities.css") }/>
 			<link rel="stylesheet" href={ Asset("/static/css/wizard.css") }/>

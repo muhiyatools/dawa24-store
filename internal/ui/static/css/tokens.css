@@ -162,7 +162,10 @@
     --brand-subtle:     var(--primary-subtle);
     --brand-border:     var(--primary-border);
 
-    --header-height:    4.25rem;
+    /* The public header's own height. nav.css sets --nav-h locally; this token
+       is what anything sticking below the bar (a sticky page spine, a filter
+       rail) offsets itself by, so the two must agree. */
+    --header-height:    4rem;
     --sidebar-width:    270px;
     --max-width:        1440px;
 

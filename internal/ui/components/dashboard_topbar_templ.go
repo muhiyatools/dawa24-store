@@ -15,21 +15,14 @@ import "github.com/muhiya/dawa24-store/internal/shared/i18n"
 // There were four of these. The public marketing navbar and the three dashboard
 // shells all rendered the same header class, and a single CSS rule listing both
 // that class and the public one set height, padding, sticky positioning and
-// shadow for all four at once.
+// shadow for all four at once. Splitting them fixed that, but left two
+// unrelated visual systems: the marketing bar and this one shared no tokens, so
+// the account menu changed shape depending on which page you opened it from.
 //
-// Those are not the same component. The marketing bar carries a brand lockup and
-// five nav links and wants room to breathe. A dashboard bar sits directly above a
-// data table and wants to be compact and quiet. Sharing height, padding, sticky
-// positioning and shadow between them meant every adjustment to one was a
-// regression in the other, which is why the dashboard bar ended up feeling wrong:
-// it was wearing the marketing bar's proportions.
-//
-// Then each shell hand-built its contents. Admin and vendor used
-// the start/end helper classes; pharmacy used inline styles for the same
-// job, so it did not even align with the other two.
-//
-// This is now the only dashboard bar. The public one is .site-header and shares
-// no rules with it.
+// Both bars are now .nav-root from nav.css. They differ only in the custom
+// properties the modifier sets — height, gap — and in what fills the three
+// regions. Every control inside them (menu trigger, icon button, popover) is
+// literally the same component with the same tokens.
 //
 // The contract is three regions and nothing else:
 //
@@ -80,7 +73,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var2 = []any{"dashboard-topbar", templ.KV("is-compact", props.Compact)}
+		var templ_7745c5c3_Var2 = []any{"nav-root", "nav-root--app", templ.KV("is-compact", props.Compact)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -98,14 +91,14 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"dashboard-topbar-lead\"><button type=\"button\" class=\"btn btn-icon dashboard-topbar-drawer-toggle\" data-drawer-toggle aria-controls=\"app-sidebar\" aria-expanded=\"false\" aria-label=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"nav-inner\"><div class=\"nav-lead\"><button type=\"button\" class=\"nav-btn nav-btn--icon nav-drawer-toggle\" data-drawer-toggle aria-controls=\"app-sidebar\" aria-expanded=\"false\" aria-label=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(props.Lang, "nav.open_menu"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 63, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 57, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -119,14 +112,14 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button><h1 class=\"dashboard-topbar-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button><h1 class=\"nav-title\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 67, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 61, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -137,7 +130,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if props.Context != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"dashboard-topbar-context\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"nav-context\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -150,7 +143,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"dashboard-topbar-actions\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"nav-trail\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -168,7 +161,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></header>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

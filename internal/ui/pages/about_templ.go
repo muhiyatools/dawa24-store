@@ -14,6 +14,11 @@ import (
 )
 
 // AboutPageData holds editable content for the About Us page.
+//
+// HeroBadge is still read from the CMS by the handler but no longer rendered:
+// the page opens with a filing label, not a pill badge with an icon in it, and
+// the label names the page rather than the company. The field stays on the
+// struct so existing content rows keep resolving.
 type AboutPageData struct {
 	HeroBadge    string
 	HeroTitle    string
@@ -26,6 +31,15 @@ type AboutPageData struct {
 	BannerText   string
 }
 
+// AboutPage.
+//
+// It was a hero card with a gradient bar, two icon-and-heading cards, four more
+// icon-and-heading cards, and a gradient call-to-action — five boxes, roughly
+// 600 words, and nothing a reader could point at and remember.
+//
+// It reads as a record now: a masthead, a ruled strip of three facts, three
+// indexed sections down a margin spine, and one closing band. The prose is cut
+// to roughly a third; what survived is the part that says something specific.
 func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -59,207 +73,127 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"about-page-container\"><!-- Hero Banner --><section class=\"about-hero-card\"><div class=\"faq-hero-badge\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mk-page\"><header class=\"mk-masthead\"><p class=\"mk-eyebrow\">من نحن</p><h1 class=\"mk-title\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconBuilding("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.HeroBadge != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			if data.HeroTitle != "" {
 				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroBadge)
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 30, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 42, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>شركة DAWA24 للتكنولوجيا وحلول الإمداد الدوائي</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "البنية التحتية الرقمية لتوريد الدواء في مصر")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h1 class=\"faq-hero-title\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h1><p class=\"mk-lede\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.HeroTitle != "" {
+			if data.HeroSubtitle != "" {
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroTitle)
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroSubtitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 37, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 49, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "من نحن — منصة التوريد الدوائي الذكية")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "نربط الصيدليات والمستشفيات والمراكز الطبية المرخصة مباشرةً بالمصانع والمخازن المعتمدة — بلا وسطاء، وبسجل موثّق لكل شحنة.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h1><p class=\"faq-hero-subtitle\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p><dl class=\"mk-record\"><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">Market</dt><dd class=\"mk-record-val\">جمهورية مصر العربية</dd></div><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">Parties</dt><dd class=\"mk-record-val\">صيدليات · مستشفيات · موردون</dd></div><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">Support</dt><dd class=\"mk-record-val\">متاح 24/7</dd></div></dl></header><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">01</span> <span class=\"mk-spine-label\">الاتجاه</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.HeroSubtitle != "" {
+			if data.VisionTitle != "" {
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroSubtitle)
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 44, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 78, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "دواء 24 هي المنظومة الرقمية الرائدة في جمهورية مصر العربية المصممة لربط الصيدليات، المستشفيات، والمراكز الطبية المرخصة مباشرة بمصانع وشركات ومخازن توزيع الأدوية المعتمدة، لخلق سوق دوائي موثوق، شفاف، وفائق الكفاءة.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "رؤيتنا")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></section><!-- Mission and Vision Cards --><section class=\"about-grid-2\"><div class=\"about-value-card\"><div class=\"about-value-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h2><p class=\"mk-text\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconShield("icon-md").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><h3 class=\"about-value-title\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.VisionTitle != "" {
+			if data.VisionText != "" {
 				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionTitle)
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionText)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 59, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 85, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "رؤيتنا")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "أن نكون البنية التحتية التي تعتمد عليها سلاسل الإمداد الدوائي في الشرق الأوسط: دواء متوفر، بسعر عادل، وبمصدر يمكن تتبّعه.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</h3><p class=\"about-value-text\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></div></section><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">02</span> <span class=\"mk-spine-label\">العمل</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.VisionText != "" {
+			if data.MissionTitle != "" {
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionText)
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 66, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 101, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "أن نكون البنية التحتية الرقمية الأكثر أماناً وموثوقية لسلاسل الإمداد والتوريد الدوائي في الشرق الأوسط وإفريقيا، وضمان توافر الدواء بجودة قياسية وأسعار عادلة لكل مريض عبر تمكين الصيدلي والمورد.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "رسالتنا")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p></div><div class=\"about-value-card\"><div class=\"about-value-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</h2><p class=\"mk-text\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconTruck("icon-md").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3 class=\"about-value-title\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.MissionTitle != "" {
+			if data.MissionText != "" {
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionTitle)
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionText)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 79, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 108, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "رسالتنا")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "نستبدل مكالمات التوريد ورسائل واتساب المتفرقة بمنصة واحدة: مقارنة أسعار حيّة، شراء مباشر، فاتورة إلكترونية معتمدة، وسلسلة تبريد لا تنقطع.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h3><p class=\"about-value-text\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.MissionText != "" {
-				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionText)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 86, Col: 25}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "القضاء على تعقيدات ونواقص التوريد التقليدي عبر توفير منصة إلكترونية ذكية تتيح مقارنة الأسعار، الشراء المباشر، الفواتير الإلكترونية المعتمدة، وسلاسل التبريد المتطورة بدعم تقني وصيدلي متواصل 24/7.")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div></section><!-- Strategic Pillars --><section class=\"about-pillars-section\"><div class=\"about-pillars-header\"><h2 class=\"about-value-title\">ركائز العمل في منصة دواء 24</h2><p class=\"about-value-text\">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p></div><div class=\"about-pillars-grid\"><div class=\"about-pillar-card\"><div class=\"about-pillar-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheckCircle("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><h4 class=\"about-pillar-title\">توثيق التراخيص الرسمية</h4><p class=\"about-pillar-text\">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p></div><div class=\"about-pillar-card\"><div class=\"about-pillar-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconTruck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><h4 class=\"about-pillar-title\">سلسلة تبريد معتمدة (Cold-Chain)</h4><p class=\"about-pillar-text\">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p></div><div class=\"about-pillar-card\"><div class=\"about-pillar-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><h4 class=\"about-pillar-title\">تكامل الفاتورة الإلكترونية</h4><p class=\"about-pillar-text\">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p></div><div class=\"about-pillar-card\"><div class=\"about-pillar-icon\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconPhone("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><h4 class=\"about-pillar-title\">دعم فني واستشارات 24/7</h4><p class=\"about-pillar-text\">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Unified Registration Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</p></div></section><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">03</span> <span class=\"mk-spine-label\">الضمانات</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">أربع ركائز يقوم عليها كل أمر توريد</h2><dl class=\"mk-list\"><div class=\"mk-item\"><span class=\"mk-item-index\">01</span><dt class=\"mk-item-term\">توثيق التراخيص</dt><dd class=\"mk-item-desc\">السجل التجاري وترخيص هيئة الدواء وقيد نقابة الصيادلة يُراجَعون قبل تفعيل أي حساب — للطرفين.</dd></div><div class=\"mk-item\"><span class=\"mk-item-index\">02</span><dt class=\"mk-item-term\">سلسلة تبريد معتمدة</dt><dd class=\"mk-item-desc\">حاويات مبرّدة ومجسّات حرارية على خط السير، للأنسولين والأمصال وكل ما لا يحتمل انقطاع التبريد.</dd></div><div class=\"mk-item\"><span class=\"mk-item-index\">03</span><dt class=\"mk-item-term\">فاتورة إلكترونية</dt><dd class=\"mk-item-desc\">ربط مباشر مع مصلحة الضرائب المصرية: الفاتورة الضريبية تصدر فور تسليم أمر التوريد، لا بعده بأسبوع.</dd></div><div class=\"mk-item\"><span class=\"mk-item-index\">04</span><dt class=\"mk-item-term\">دعم صيدلي</dt><dd class=\"mk-item-desc\">فريق متفرغ للطلبات العاجلة ومتابعة خطوط السير ونواقص السوق، على مدار الساعة.</dd></div></dl></div></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -267,13 +201,13 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell("من نحن — منصة التوريد والربط الدوائي الذكية", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("من نحن — منصة التوريد والربط الدوائي", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

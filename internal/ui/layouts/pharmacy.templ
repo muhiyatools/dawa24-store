@@ -61,56 +61,57 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 templ PharmacyBranchSelector(ctx context.Context) {
 	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-			<div class="custom-branch-dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+			<div class="nav-pop" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
 				<button
 					type="button"
-					class="custom-branch-trigger"
+					class="nav-trigger"
 					@click="open = !open"
 					:aria-expanded="open ? 'true' : 'false'"
+					aria-haspopup="menu"
 					title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
 				>
-					<span class="branch-trigger-pin">
-						@components.IconMapPin("icon-xs")
-					</span>
-					<span class="branch-trigger-text">
-						<span class="branch-trigger-label">الفرع:</span>
-						<strong class="branch-trigger-name">
+					@components.IconMapPin("icon-xs")
+					<span class="nav-trigger-text">
+						<span class="nav-trigger-label">BRANCH</span>
+						<span class="nav-trigger-value">
 							for _, b := range buying.Branches {
 								if buying.Active != nil && *buying.Active == b.ID {
 									{ b.Name }
 								}
 							}
-						</strong>
+						</span>
 					</span>
-					@components.IconChevronDown("icon-2xs branch-trigger-chevron")
+					@components.IconChevronDown("icon-2xs nav-trigger-chevron")
 				</button>
 				<div
-					class="custom-branch-menu"
+					class="nav-menu nav-menu--start"
+					role="menu"
 					x-show="open"
 					x-cloak
-					x-transition.opacity.duration.120ms
+					x-transition.origin.top.duration.150ms
 				>
-					<div class="branch-menu-header">
-						<span>اختر فرع التوريد النشط</span>
+					<div class="nav-menu-head">
+						<span class="nav-menu-eyebrow">اختر فرع التوريد النشط</span>
 					</div>
-					<div class="branch-menu-items">
-						for _, b := range buying.Branches {
-							<form method="POST" action="/customer/set-branch" class="m-0">
-								<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", b.ID) } />
-								<button
-									type="submit"
-									class={ "branch-menu-option", templ.KV("is-active", buying.Active != nil && *buying.Active == b.ID) }
-								>
-									<div class="d-flex items-center gap-2">
-										<span class="branch-dot"></span>
-										<span class="branch-option-name">{ b.Name }</span>
-									</div>
-									if buying.Active != nil && *buying.Active == b.ID {
-										@components.IconCheck("icon-xs text-brand")
-									}
-								</button>
-							</form>
-						}
+					<div class="nav-menu-body">
+						<div class="nav-menu-group">
+							for _, b := range buying.Branches {
+								<form method="POST" action="/customer/set-branch" class="nav-menu-form">
+									<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", b.ID) } />
+									<button
+										type="submit"
+										role="menuitem"
+										class={ "nav-menu-item", templ.KV("is-active", buying.Active != nil && *buying.Active == b.ID) }
+									>
+										<span class="nav-branch-dot"></span>
+										<span class="nav-branch-name">{ b.Name }</span>
+										if buying.Active != nil && *buying.Active == b.ID {
+											@components.IconCheck("icon-xs")
+										}
+									</button>
+								</form>
+							}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -123,7 +124,7 @@ templ PharmacyBranchSelector(ctx context.Context) {
 // hand-placed in the header, which is what made this shell drift out of
 // alignment with admin and vendor in the first place.
 templ pharmacyTopBarActions(lang string) {
-	<a href="/cart" class="btn btn-secondary btn-icon" title={ i18n.T(lang, "nav.cart") }>
+	<a href="/cart" class="nav-btn nav-btn--icon" title={ i18n.T(lang, "nav.cart") }>
 		@components.IconCart("icon-sm")
 	</a>
 }

@@ -35,7 +35,7 @@ func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 		if cachedSettings != nil && time.Since(cachedAt) < 10*time.Second {
 			s := cachedSettings
 			cacheMu.RUnlock()
-			next.ServeHTTP(w, r.WithContext(WithSiteSettings(ctx, s)))
+			next.ServeHTTP(w, r.WithContext(layouts.WithPath(WithSiteSettings(ctx, s), r.URL.Path)))
 			return
 		}
 		cacheMu.RUnlock()
@@ -57,7 +57,7 @@ func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 			h.idSvc.SetIdleTimeout(time.Duration(s.SessionIdleTimeoutMinutes) * time.Minute)
 		}
 
-		next.ServeHTTP(w, r.WithContext(layouts.WithSiteSettings(ctx, s)))
+		next.ServeHTTP(w, r.WithContext(layouts.WithPath(layouts.WithSiteSettings(ctx, s), r.URL.Path)))
 	})
 }
 

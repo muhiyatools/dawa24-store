@@ -47,3 +47,34 @@ func GetSiteSettings(ctx context.Context) *platformadmin.SiteSettings {
 		},
 	}
 }
+
+type requestPathKey struct{}
+
+// WithPath records the path being rendered so the navigation can mark its own
+// active item.
+//
+// The public bar used to have no active state at all: every link looked the
+// same on every page, so the header told a reader nothing about where they
+// were. Doing it in CSS was not an option — the bar is one template rendered
+// for every route — and doing it in JavaScript would have painted the wrong
+// link first. It is one string on the context instead.
+func WithPath(ctx context.Context, path string) context.Context {
+	return context.WithValue(ctx, requestPathKey{}, path)
+}
+
+// IsCurrentPath reports whether href is the page currently being rendered.
+// Exact match only: /catalog must not light up for /catalog-import, and the
+// public bar has no nested sections.
+func IsCurrentPath(ctx context.Context, href string) bool {
+	if ctx == nil {
+		return false
+	}
+	p, ok := ctx.Value(requestPathKey{}).(string)
+	if !ok {
+		return false
+	}
+	if len(p) > 1 && p[len(p)-1] == '/' {
+		p = p[:len(p)-1]
+	}
+	return p == href
+}

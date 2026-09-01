@@ -8,65 +8,63 @@ import (
 
 // NotificationsDropdownPanel is the bell dropdown content, returned as an
 // HTMX partial so the header stays light and the list is always fresh.
+//
+// It swaps into the .nav-menu element itself, so it renders the menu's regions
+// directly and no longer carries a panel wrapper of its own. That wrapper was
+// how the notifications panel ended up with a different radius, border and
+// shadow from the account menu sitting two pixels away from it.
+//
+// Unread is carried by weight, a tinted ground and a single dot — a ledger
+// marking an open line item — rather than by a coloured stripe down the side.
 templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread int) {
-	<div class="notification-panel">
-		<!-- Header -->
-		<div class="notification-header">
-			<div class="d-flex items-center gap-2">
-				@components.IconBell("icon-xs")
-				<span class="notification-title">الإشعارات</span>
-			</div>
-			if unread > 0 {
-				<span class="badge badge-rose text-2xs font-bold tabular-nums">{ fmt.Sprintf("%d غير مقروء", unread) }</span>
-			}
-		</div>
-
-		<!-- Feed / Content -->
-		if len(logs) == 0 {
-			<div class="notification-empty">
-				<div class="notification-empty-icon">
-					@components.IconBell("icon-sm")
-				</div>
-				<div class="text-xs text-muted font-bold">لا توجد إشعارات جديدة</div>
-			</div>
-		} else {
-			<div class="notification-feed">
-				for _, n := range logs {
-					<a href="/notifications" class={ "notification-card-row", templ.KV("is-unread", !n.IsRead), templ.KV("is-read", n.IsRead) }>
-						<div class={ "notif-card-icon", notifBadgeClass(n.Title, n.IsRead) }>
-							@notifIcon(n.Title)
-						</div>
-						<div class="notif-card-content">
-							<div class="notif-card-top">
-								<span class={ "notif-card-title", templ.KV("font-black text-primary", !n.IsRead), templ.KV("font-bold text-secondary", n.IsRead) }>{ n.Title }</span>
-								<span class="notif-card-time tabular-nums">{ RelTime(n.CreatedAt) }</span>
-							</div>
-							<div class="notif-card-desc">{ n.Body }</div>
-						</div>
-						if !n.IsRead {
-							<span class="notif-card-dot" title="إشعار غير مقروء"></span>
-						}
-					</a>
-				}
-			</div>
+	<div class="nav-menu-head">
+		<span class="nav-menu-eyebrow">الإشعارات</span>
+		if unread > 0 {
+			<span class="nav-notif-count">{ fmt.Sprintf("%d غير مقروء", unread) }</span>
 		}
-
-		<!-- Footer -->
-		<div class="notification-footer">
-			<a href="/notifications" class="notification-footer-link">عرض كل الإشعارات ↗</a>
-			if unread > 0 {
-				<form method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="#notif-dropdown-content" hx-swap="innerHTML" class="m-0">
-					<button type="submit" class="btn btn-secondary btn-xs font-bold">تعليم الكل كمقروء</button>
-				</form>
+	</div>
+	if len(logs) == 0 {
+		<div class="nav-notif-empty">
+			<div class="nav-notif-empty-mark">
+				@components.IconBell("icon-sm")
+			</div>
+			<p class="nav-notif-empty-text">لا توجد إشعارات جديدة</p>
+		</div>
+	} else {
+		<div class="nav-notif-list">
+			for _, n := range logs {
+				<a href="/notifications" class={ "nav-notif-item", templ.KV("is-unread", !n.IsRead) }>
+					<span class="nav-notif-icon">
+						@notifIcon(n.Title)
+					</span>
+					<span class="nav-notif-body">
+						<span class="nav-notif-title">{ n.Title }</span>
+						<span class="nav-notif-text">{ n.Body }</span>
+					</span>
+					<span class="nav-notif-meta">
+						<span class="nav-notif-time">{ RelTime(n.CreatedAt) }</span>
+						if !n.IsRead {
+							<span class="nav-notif-dot" title="إشعار غير مقروء"></span>
+						}
+					</span>
+				</a>
 			}
 		</div>
+	}
+	<div class="nav-menu-foot">
+		<a href="/notifications" class="nav-menu-link">عرض كل الإشعارات</a>
+		if unread > 0 {
+			<form method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="#notif-dropdown-content" hx-swap="innerHTML" class="nav-menu-form">
+				<button type="submit" class="nav-btn nav-btn--outline">تعليم الكل كمقروء</button>
+			</form>
+		}
 	</div>
 }
 
-// NotificationsUnreadBadge is the tiny polled badge on the bell.
+// NotificationsUnreadBadge is the tiny polled counter on the bell.
 templ NotificationsUnreadBadge(unread int) {
 	if unread > 0 {
-		<span class="notif-badge-pill tabular-nums">
+		<span class="nav-count">
 			{ fmt.Sprintf("%d", unread) }
 		</span>
 	}

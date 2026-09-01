@@ -6,6 +6,11 @@ import (
 )
 
 // AboutPageData holds editable content for the About Us page.
+//
+// HeroBadge is still read from the CMS by the handler but no longer rendered:
+// the page opens with a filing label, not a pill badge with an icon in it, and
+// the label names the page rather than the company. The field stays on the
+// struct so existing content rows keep resolving.
 type AboutPageData struct {
 	HeroBadge    string
 	HeroTitle    string
@@ -18,125 +23,137 @@ type AboutPageData struct {
 	BannerText   string
 }
 
+// AboutPage.
+//
+// It was a hero card with a gradient bar, two icon-and-heading cards, four more
+// icon-and-heading cards, and a gradient call-to-action — five boxes, roughly
+// 600 words, and nothing a reader could point at and remember.
+//
+// It reads as a record now: a masthead, a ruled strip of three facts, three
+// indexed sections down a margin spine, and one closing band. The prose is cut
+// to roughly a third; what survived is the part that says something specific.
 templ AboutPage(lang, dir string, data AboutPageData) {
-	@layouts.PublicShell("من نحن — منصة التوريد والربط الدوائي الذكية", lang, dir) {
-		<div class="about-page-container">
-			
-			<!-- Hero Banner -->
-			<section class="about-hero-card">
-				<div class="faq-hero-badge">
-					@components.IconBuilding("icon-xs")
-					if data.HeroBadge != "" {
-						<span>{ data.HeroBadge }</span>
-					} else {
-						<span>شركة DAWA24 للتكنولوجيا وحلول الإمداد الدوائي</span>
-					}
-				</div>
-				<h1 class="faq-hero-title">
+	@layouts.PublicShell("من نحن — منصة التوريد والربط الدوائي", lang, dir) {
+		<article class="mk-page">
+			<header class="mk-masthead">
+				<p class="mk-eyebrow">من نحن</p>
+				<h1 class="mk-title">
 					if data.HeroTitle != "" {
 						{ data.HeroTitle }
 					} else {
-						من نحن — منصة التوريد الدوائي الذكية
+						البنية التحتية الرقمية لتوريد الدواء في مصر
 					}
 				</h1>
-				<p class="faq-hero-subtitle">
+				<p class="mk-lede">
 					if data.HeroSubtitle != "" {
 						{ data.HeroSubtitle }
 					} else {
-						دواء 24 هي المنظومة الرقمية الرائدة في جمهورية مصر العربية المصممة لربط الصيدليات، المستشفيات، والمراكز الطبية المرخصة مباشرة بمصانع وشركات ومخازن توزيع الأدوية المعتمدة، لخلق سوق دوائي موثوق، شفاف، وفائق الكفاءة.
+						نربط الصيدليات والمستشفيات والمراكز الطبية المرخصة مباشرةً بالمصانع والمخازن المعتمدة — بلا وسطاء، وبسجل موثّق لكل شحنة.
 					}
 				</p>
-			</section>
-
-			<!-- Mission and Vision Cards -->
-			<section class="about-grid-2">
-				<div class="about-value-card">
-					<div class="about-value-icon">
-						@components.IconShield("icon-md")
+				<dl class="mk-record">
+					<div class="mk-record-cell">
+						<dt class="mk-record-key">Market</dt>
+						<dd class="mk-record-val">جمهورية مصر العربية</dd>
 					</div>
-					<h3 class="about-value-title">
+					<div class="mk-record-cell">
+						<dt class="mk-record-key">Parties</dt>
+						<dd class="mk-record-val">صيدليات · مستشفيات · موردون</dd>
+					</div>
+					<div class="mk-record-cell">
+						<dt class="mk-record-key">Support</dt>
+						<dd class="mk-record-val">متاح 24/7</dd>
+					</div>
+				</dl>
+			</header>
+
+			<section class="mk-section">
+				<div class="mk-spine">
+					<span class="mk-index">01</span>
+					<span class="mk-spine-label">الاتجاه</span>
+				</div>
+				<div class="mk-body">
+					<h2 class="mk-heading">
 						if data.VisionTitle != "" {
 							{ data.VisionTitle }
 						} else {
 							رؤيتنا
 						}
-					</h3>
-					<p class="about-value-text">
+					</h2>
+					<p class="mk-text">
 						if data.VisionText != "" {
 							{ data.VisionText }
 						} else {
-							أن نكون البنية التحتية الرقمية الأكثر أماناً وموثوقية لسلاسل الإمداد والتوريد الدوائي في الشرق الأوسط وإفريقيا، وضمان توافر الدواء بجودة قياسية وأسعار عادلة لكل مريض عبر تمكين الصيدلي والمورد.
+							أن نكون البنية التحتية التي تعتمد عليها سلاسل الإمداد الدوائي في الشرق الأوسط: دواء متوفر، بسعر عادل، وبمصدر يمكن تتبّعه.
 						}
 					</p>
 				</div>
+			</section>
 
-				<div class="about-value-card">
-					<div class="about-value-icon">
-						@components.IconTruck("icon-md")
-					</div>
-					<h3 class="about-value-title">
+			<section class="mk-section">
+				<div class="mk-spine">
+					<span class="mk-index">02</span>
+					<span class="mk-spine-label">العمل</span>
+				</div>
+				<div class="mk-body">
+					<h2 class="mk-heading">
 						if data.MissionTitle != "" {
 							{ data.MissionTitle }
 						} else {
 							رسالتنا
 						}
-					</h3>
-					<p class="about-value-text">
+					</h2>
+					<p class="mk-text">
 						if data.MissionText != "" {
 							{ data.MissionText }
 						} else {
-							القضاء على تعقيدات ونواقص التوريد التقليدي عبر توفير منصة إلكترونية ذكية تتيح مقارنة الأسعار، الشراء المباشر، الفواتير الإلكترونية المعتمدة، وسلاسل التبريد المتطورة بدعم تقني وصيدلي متواصل 24/7.
+							نستبدل مكالمات التوريد ورسائل واتساب المتفرقة بمنصة واحدة: مقارنة أسعار حيّة، شراء مباشر، فاتورة إلكترونية معتمدة، وسلسلة تبريد لا تنقطع.
 						}
 					</p>
 				</div>
 			</section>
 
-			<!-- Strategic Pillars -->
-			<section class="about-pillars-section">
-				<div class="about-pillars-header">
-					<h2 class="about-value-title">
-						ركائز العمل في منصة دواء 24
-					</h2>
-					<p class="about-value-text">معايير صارمة وضمانات متكاملة تضمن جودة كل شحنة دوائية</p>
+			<section class="mk-section">
+				<div class="mk-spine">
+					<span class="mk-index">03</span>
+					<span class="mk-spine-label">الضمانات</span>
 				</div>
-
-				<div class="about-pillars-grid">
-					<div class="about-pillar-card">
-						<div class="about-pillar-icon">
-							@components.IconCheckCircle("icon-sm")
+				<div class="mk-body">
+					<h2 class="mk-heading">أربع ركائز يقوم عليها كل أمر توريد</h2>
+					<dl class="mk-list">
+						<div class="mk-item">
+							<span class="mk-item-index">01</span>
+							<dt class="mk-item-term">توثيق التراخيص</dt>
+							<dd class="mk-item-desc">
+								السجل التجاري وترخيص هيئة الدواء وقيد نقابة الصيادلة يُراجَعون قبل تفعيل أي حساب — للطرفين.
+							</dd>
 						</div>
-						<h4 class="about-pillar-title">توثيق التراخيص الرسمية</h4>
-						<p class="about-pillar-text">فحص وتدقيق السجلات التجارية وتراخيص هيئة الدواء ونقابة الصيادلة لكافة الأطراف قبل تفعيل الحسابات.</p>
-					</div>
-
-					<div class="about-pillar-card">
-						<div class="about-pillar-icon">
-							@components.IconTruck("icon-sm")
+						<div class="mk-item">
+							<span class="mk-item-index">02</span>
+							<dt class="mk-item-term">سلسلة تبريد معتمدة</dt>
+							<dd class="mk-item-desc">
+								حاويات مبرّدة ومجسّات حرارية على خط السير، للأنسولين والأمصال وكل ما لا يحتمل انقطاع التبريد.
+							</dd>
 						</div>
-						<h4 class="about-pillar-title">سلسلة تبريد معتمدة (Cold-Chain)</h4>
-						<p class="about-pillar-text">أسطول مجهز بحاويات مبردة ومجسات حرارية لضمان وصول الأنسولين والأمصال بأعلى معايير الأمان الحيوي.</p>
-					</div>
-
-					<div class="about-pillar-card">
-						<div class="about-pillar-icon">
-							@components.IconFileText("icon-sm")
+						<div class="mk-item">
+							<span class="mk-item-index">03</span>
+							<dt class="mk-item-term">فاتورة إلكترونية</dt>
+							<dd class="mk-item-desc">
+								ربط مباشر مع مصلحة الضرائب المصرية: الفاتورة الضريبية تصدر فور تسليم أمر التوريد، لا بعده بأسبوع.
+							</dd>
 						</div>
-						<h4 class="about-pillar-title">تكامل الفاتورة الإلكترونية</h4>
-						<p class="about-pillar-text">ربط مباشر مع مصلحة الضرائب المصرية لإصدار الفواتير الضريبية المعتمدة فور تسليم أمر التوريد.</p>
-					</div>
-
-					<div class="about-pillar-card">
-						<div class="about-pillar-icon">
-							@components.IconPhone("icon-sm")
+						<div class="mk-item">
+							<span class="mk-item-index">04</span>
+							<dt class="mk-item-term">دعم صيدلي</dt>
+							<dd class="mk-item-desc">
+								فريق متفرغ للطلبات العاجلة ومتابعة خطوط السير ونواقص السوق، على مدار الساعة.
+							</dd>
 						</div>
-						<h4 class="about-pillar-title">دعم فني واستشارات 24/7</h4>
-						<p class="about-pillar-text">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p>
-					</div>
+					</dl>
 				</div>
 			</section>
 
-			<!-- Unified Registration Banner -->
 			@components.PublicCTA(data.BannerTitle, data.BannerText, lang)
-		</div>
+		</article>
 	}
 }
