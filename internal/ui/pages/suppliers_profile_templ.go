@@ -60,7 +60,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"sp-container\"><!-- Breadcrumbs --><nav><a href=\"/\">الرئيسية</a> <span>/</span> <a href=\"/suppliers\">دليل الموردين</a> <span>/</span> <span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"sp-container\"><!-- Breadcrumbs --><nav><a href=\"/customer/dashboard\">لوحة التحكم</a> <span>/</span> <a href=\"/suppliers\">دليل الموردين</a> <span>/</span> <span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2484,7 +2484,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), "suppliers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

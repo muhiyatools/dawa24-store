@@ -68,14 +68,14 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCatalogResults(data, lang)
 	} else {
-		@layouts.PublicShell("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", lang, dir) {
-			<div class="page-container py-6">
+		@layouts.CustomerShell("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", "catalog", lang, dir, nil) {
+			<div class="py-2">
 				
 				<!-- Page Header Strip -->
 				<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
 					<div class="stack-2xs">
 						<nav class="text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold">
-							<a href="/" class="text-secondary transition-colors">الرئيسية</a>
+							<a href="/customer/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
 							<span class="text-muted">/</span>
 							<span class="text-primary font-black">كتالوج التوريد الدوائي</span>
 						</nav>

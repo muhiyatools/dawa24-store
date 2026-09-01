@@ -49,7 +49,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Breadcrumb Navigation --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap font-bold\"><a href=\"/\" class=\"text-secondary transition-colors\">الرئيسية</a> <span>/</span> <a href=\"/catalog\" class=\"text-secondary transition-colors\">كتالوج عروض التوريد</a> <span>/</span> <span class=\"text-primary font-black\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"py-2\"><!-- Breadcrumb Navigation --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap font-bold\"><a href=\"/customer/dashboard\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span>/</span> <a href=\"/catalog\" class=\"text-secondary transition-colors\">كتالوج عروض التوريد</a> <span>/</span> <span class=\"text-primary font-black\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1011,7 +1011,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell(productTitle(product)+" | تفاصيل عرض التوريد", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell(productTitle(product)+" | تفاصيل عرض التوريد", "catalog", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

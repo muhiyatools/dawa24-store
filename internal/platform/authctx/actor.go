@@ -111,6 +111,20 @@ func (a Actor) IsVendor() bool {
 	return !a.IsStaff && a.DashboardScope() == rbac.ScopeVendor
 }
 
+// IsOrgApproved reports whether the actor's organization is approved, active, or verified,
+// or if the actor is platform staff.
+func (a Actor) IsOrgApproved() bool {
+	if a.IsStaff {
+		return true
+	}
+	switch a.OrgStatus {
+	case "approved", "active", "verified":
+		return true
+	default:
+		return false
+	}
+}
+
 // IsJobSeeker reports whether the actor has the job_seeker platform role.
 func (a Actor) IsJobSeeker() bool {
 	return a.Role == "job_seeker"

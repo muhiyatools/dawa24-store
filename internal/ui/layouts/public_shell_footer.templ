@@ -35,9 +35,7 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 	>
 		<div class="mobile-nav-header">
 			<div class="brand-lockup">
-				<span class="brand-name">
-					دواء <span class="text-accent">24</span>
-				</span>
+				<span class="brand-name">دواء 24</span>
 			</div>
 			<button
 				type="button"
@@ -52,7 +50,11 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 		<div class="mobile-nav-body">
 			<nav class="mobile-nav-links">
 				if actor, ok := authctx.From(ctx); ok {
-					if actor.IsCustomer() {
+					if actor.IsCustomer() && actor.IsOrgApproved() {
+						<a href="/customer/dashboard" class="mobile-nav-link" @click="mobileNav = false">
+							@components.IconHome("icon-sm")
+							<span>لوحة تحكم الصيدلية</span>
+						</a>
 						<a href="/catalog" class="mobile-nav-link" @click="mobileNav = false">
 							@components.IconPill("icon-sm")
 							<span>كتالوج الأدوية الموحد</span>
@@ -63,15 +65,15 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 								<span>عروض وتخفيضات الموردين</span>
 							</a>
 						}
-						<a href="/compare/results" class="mobile-nav-link" @click="mobileNav = false">
-							@components.IconSliders("icon-sm")
-							<span>مقارنة الخصومات الفورية</span>
-						</a>
 						<a href="/suppliers" class="mobile-nav-link" @click="mobileNav = false">
 							@components.IconBuilding("icon-sm")
 							<span>دليل الموردين والمصانع</span>
 						</a>
-					} else if actor.IsVendor() {
+						<a href="/cart" class="mobile-nav-link" @click="mobileNav = false">
+							@components.IconCart("icon-sm")
+							<span>سلة المشتريات</span>
+						</a>
+					} else if actor.IsVendor() && actor.IsOrgApproved() {
 						<a href="/vendor/dashboard" class="mobile-nav-link" @click="mobileNav = false">
 							@components.IconHome("icon-sm")
 							<span>لوحة تحكم المورد</span>
@@ -85,6 +87,11 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 							@components.IconChart("icon-sm")
 							<span>لوحة التحكم الرئيسية</span>
 						</a>
+					} else {
+						<a href="/documents" class="mobile-nav-link" @click="mobileNav = false">
+							@components.IconFile("icon-sm")
+							<span>السندات والمستندات</span>
+						</a>
 					}
 					if features.Enabled(ctx, "jobs.enabled") {
 						<a href="/jobs" class="mobile-nav-link" @click="mobileNav = false">
@@ -93,31 +100,13 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 						</a>
 					}
 				} else {
-					<a href="/" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconHome("icon-sm")
-						<span>الرئيسية</span>
+					<a href="/auth/login" class="mobile-nav-link" @click="mobileNav = false">
+						@components.IconUser("icon-sm")
+						<span>تسجيل الدخول</span>
 					</a>
-					<a href="/about" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconInfo("icon-sm")
-						<span>عن منصة دواء 24</span>
-					</a>
-					<a href="/how-it-works" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconSparkles("icon-sm")
-						<span>كيف تعمل المنصة؟</span>
-					</a>
-					if features.Enabled(ctx, "jobs.enabled") {
-						<a href="/jobs" class="mobile-nav-link" @click="mobileNav = false">
-							@components.IconBriefcase("icon-sm")
-							<span>شواغر التوظيف الطبي</span>
-						</a>
-					}
-					<a href="/faq" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconHelpCircle("icon-sm")
-						<span>الأسئلة الشائعة</span>
-					</a>
-					<a href="/contact" class="mobile-nav-link" @click="mobileNav = false">
-						@components.IconPhone("icon-sm")
-						<span>التواصل والدعم</span>
+					<a href="/auth/register" class="mobile-nav-link" @click="mobileNav = false">
+						@components.IconPlus("icon-sm")
+						<span>انضمام للمنصة</span>
 					</a>
 				}
 			</nav>
@@ -137,10 +126,15 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 							@components.IconChart("icon-xs")
 							<span>لوحة تحكم المورد</span>
 						</a>
-					} else {
+					} else if actor.IsOrgApproved() {
 						<a href="/customer/dashboard" class="btn btn-primary btn-sm w-full mt-2">
 							@components.IconHome("icon-xs")
 							<span>لوحة تحكم الصيدلية</span>
+						</a>
+					} else {
+						<a href="/documents" class="btn btn-primary btn-sm w-full mt-2">
+							@components.IconFile("icon-xs")
+							<span>السندات والمستندات</span>
 						</a>
 					}
 				</div>
@@ -169,7 +163,7 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 					<img src={ site.LogoURL } alt={ site.SiteName } class="footer-logo" />
 					<div class="stack-sm">
 						<div class="footer-brand-name">
-							دواء <span class="text-accent">24</span>
+							دواء 24
 						</div>
 						<div class="footer-brand-subtitle">
 							منظومة الربط والتوريد الدوائي المباشر
@@ -219,12 +213,11 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 					خدمات وروابط المنصة
 				</h4>
 				<ul class="footer-link-list">
-					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() && actor.IsOrgApproved() {
 						<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
 						if features.Enabled(ctx, "offers.enabled") {
 							<li><a href="/offers">العروض والتخفيضات الحية</a></li>
 						}
-						<li><a href="/compare/results">مقارنة الخصومات الفورية</a></li>
 						<li><a href="/suppliers">دليل الموردين والمصانع</a></li>
 					} else {
 						<li><a href="/about">من نحن (عن دواء 24)</a></li>

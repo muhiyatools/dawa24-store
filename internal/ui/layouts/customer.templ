@@ -2,7 +2,6 @@ package layouts
 
 import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -21,222 +20,22 @@ templ PublicShell(title string, lang string, dir string) {
 								<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
 							}
 							<div class="brand-text-lockup">
-								<span class="brand-name">
-									دواء <span class="text-accent">24</span>
-								</span>
+								<span class="brand-name">دواء 24</span>
 							</div>
 						</a>
-
-						<nav class="nav-links hide-mobile">
-							if actor, ok := authctx.From(ctx); ok {
-								if actor.IsCustomer() {
-									<a href="/catalog" class="nav-item-link">
-										@components.IconPill("icon-xs")
-										<span>كتالوج الأدوية</span>
-									</a>
-									if features.Enabled(ctx, "offers.enabled") {
-										<a href="/offers" class="nav-item-link">
-											@components.IconPercent("icon-xs")
-											<span>العروض والتخفيضات</span>
-										</a>
-									}
-									<a href="/compare/results" class="nav-item-link">
-										@components.IconSliders("icon-xs")
-										<span>مقارنة الخصومات</span>
-									</a>
-									<a href="/suppliers" class="nav-item-link">
-										@components.IconBuilding("icon-xs")
-										<span>دليل الموردين</span>
-									</a>
-								} else if actor.IsVendor() {
-									<a href="/vendor/dashboard" class="nav-item-link">
-										@components.IconHome("icon-xs")
-										<span>لوحة المورد</span>
-									</a>
-									<a href="/vendor/products" class="nav-item-link">
-										@components.IconPackage("icon-xs")
-										<span>الأصناف والمخزون</span>
-									</a>
-								} else if actor.IsStaff {
-									<a href="/admin/dashboard" class="nav-item-link">
-										@components.IconChart("icon-xs")
-										<span>لوحة التحكم</span>
-									</a>
-								}
-								if features.Enabled(ctx, "jobs.enabled") {
-									<a href="/jobs" class="nav-item-link">
-										@components.IconBriefcase("icon-xs")
-										<span>وظائف وصيادلة</span>
-									</a>
-								}
-							} else {
-								<a href="/" class="nav-item-link">
-									@components.IconHome("icon-xs")
-									<span>الرئيسية</span>
-								</a>
-								<a href="/about" class="nav-item-link">
-									@components.IconInfo("icon-xs")
-									<span>عن المنصة</span>
-								</a>
-								<a href="/how-it-works" class="nav-item-link">
-									@components.IconSparkles("icon-xs")
-									<span>كيف تعمل؟</span>
-								</a>
-								if features.Enabled(ctx, "jobs.enabled") {
-									<a href="/jobs" class="nav-item-link">
-										@components.IconBriefcase("icon-xs")
-										<span>شواغر التوظيف</span>
-									</a>
-								}
-								<a href="/faq" class="nav-item-link">
-									@components.IconHelpCircle("icon-xs")
-									<span>الأسئلة الشائعة</span>
-								</a>
-								<a href="/contact" class="nav-item-link">
-									@components.IconPhone("icon-xs")
-									<span>تواصل معنا</span>
-								</a>
-							}
-						</nav>
 					</div>
 
 					<div class="site-header-actions">
-						if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-							<div class="hide-mobile">
-								@PharmacyBranchSelector(ctx)
-							</div>
-						}
-						
-						<div class="hide-mobile">
-							@components.LanguageToggle(lang)
-						</div>
-						@components.ThemeToggle()
-
 						if actor, ok := authctx.From(ctx); ok {
-							<!-- Cart Button: customer-only surface -->
 							if actor.IsCustomer() {
-								<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
-									@components.IconCart("icon-md")
-								</a>
-							}
-
-							@components.NotificationsBell(lang)
-
-							<!-- User Avatar Dropdown -->
-							<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
-								<button
-									type="button"
-									@click="open = !open"
-									class="btn btn-secondary account-trigger"
-								>
-									<div class="account-avatar">
-										@components.IconUser("icon-xs")
-									</div>
-									<span class="account-name">
-										{ actor.DisplayName() }
-									</span>
-									@components.IconChevronDown("icon-xs")
-								</button>
-
-								<div
-									class="dropdown-menu account-menu"
-									x-show="open"
-									x-cloak
-									x-transition.origin.top.duration.150ms
-								>
-									<!-- User Header Card -->
-									<div class="account-header">
-										<div class="row-center">
-											<div class="account-avatar account-avatar-lg">
-												@components.IconUser("icon-sm")
-											</div>
-											<div class="account-details">
-												<div class="account-name account-name-lg">
-													{ actor.DisplayName() }
-												</div>
-												<div class="account-role">
-													if actor.IsStaff {
-														<span class="badge badge-sky badge-compact">فريق المنصة</span>
-													} else if actor.IsVendor() {
-														<span class="badge badge-emerald badge-compact">مورد معتمد</span>
-													} else {
-														<span class="badge badge-slate badge-compact">صيدلية معتمدة</span>
-													}
-												</div>
-											</div>
-										</div>
-									</div>
-
-									<!-- 1. Wallet Balance Snapshot -->
-									if !actor.IsStaff {
-										if actor.IsVendor() {
-											<a href="/vendor/wallet" class="dropdown-item wallet-item">
-												<div class="row-center-sm">
-													@components.IconWallet("icon-xs")
-													<span class="wallet-label">المحفظة</span>
-												</div>
-												<span class="dropdown-item-arrow">←</span>
-											</a>
-										} else {
-											<a href="/customer/wallet" class="dropdown-item wallet-item">
-												<div class="row-center-sm">
-													@components.IconWallet("icon-xs")
-													<span class="wallet-label">المحفظة</span>
-												</div>
-												<span class="dropdown-item-arrow">←</span>
-											</a>
-										}
-									}
-
-									<!-- 2. Dashboard -->
-									if actor.IsStaff {
-										<a href="/admin/dashboard" class="dropdown-item fw-600">
-											@components.IconChart("icon-xs")
-											<span>لوحة التحكم الرئيسية</span>
-										</a>
-									} else if actor.IsVendor() {
-										<a href="/vendor/dashboard" class="dropdown-item fw-600">
-											@components.IconChart("icon-xs")
-											<span>لوحة تحكم المورد</span>
-										</a>
-									} else {
-										<a href="/customer/dashboard" class="dropdown-item fw-600">
-											@components.IconHome("icon-xs")
-											<span>لوحة تحكم الصيدلية</span>
-										</a>
-									}
-
-									<!-- 3. Profile & Settings (Vendor sees Organization profile, Pharmacy sees pharmacy settings) -->
-									if actor.IsVendor() {
-										<a href="/vendor/organization" class="dropdown-item">
-											@components.IconBuilding("icon-xs")
-											<span>بيانات المنشأة والتراخيص</span>
-										</a>
-									} else if actor.IsStaff {
-										<a href="/admin/settings" class="dropdown-item">
-											@components.IconSettings("icon-xs")
-											<span>إعدادات النظام</span>
-										</a>
-									} else {
-										<a href="/settings" class="dropdown-item">
-											@components.IconSettings("icon-xs")
-											<span>الملف الشخصي للصيدلية</span>
-										</a>
-									}
-
-									<div class="dropdown-divider"></div>
-
-									<!-- 4. Sign Out -->
-									<form action="/auth/logout" method="POST" class="logout-form">
-										<button type="submit" class="dropdown-item text-danger dropdown-action">
-											@components.IconLogout("icon-xs")
-											<span>تسجيل الخروج</span>
-										</button>
-									</form>
+								<div class="hide-mobile">
+									@PharmacyBranchSelector(ctx)
 								</div>
-							</div>
+							}
+							@components.NotificationsBell(lang)
+							@components.UserMenu(lang)
 						} else {
-							<div class="row-center-xs hide-mobile">
+							<div class="row-center-xs">
 								<a href="/auth/login" class="btn btn-secondary btn-sm fw-700 navbar-auth-link">
 									@components.IconUser("icon-xs")
 									<span>تسجيل الدخول</span>
@@ -247,16 +46,6 @@ templ PublicShell(title string, lang string, dir string) {
 								</a>
 							</div>
 						}
-
-						<!-- Mobile Menu Toggle Button -->
-						<button
-							type="button"
-							@click="mobileNav = !mobileNav"
-							class="btn btn-secondary btn-icon show-mobile-only"
-							aria-label="القائمة الرئيسية"
-						>
-							@components.IconMenu("icon-sm")
-						</button>
 					</div>
 				</header>
 

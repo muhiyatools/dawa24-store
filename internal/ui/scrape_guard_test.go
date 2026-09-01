@@ -10,10 +10,11 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
-// guardedRouter mounts the real public route table with a live guard, which is
+// guardedRouter mounts the real route tables with a live guard, which is
 // the only way to test the thing that actually matters here: not what the guard
 // decides, but which routes it is mounted on.
 func guardedRouter() http.Handler {
@@ -29,7 +30,18 @@ func guardedRouter() http.Handler {
 
 	r := chi.NewRouter()
 	handler.RegisterPublicRoutes(r)
+	handler.RegisterCustomerRoutes(r)
 	return r
+}
+
+func customerActorReq(r *http.Request) *http.Request {
+	actor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 10,
+		OrgStatus:      "approved",
+		Permissions:    []string{"pharmacy.purchase_request.view", "pharmacy.supplier.view", "pharmacy.offer.view"},
+	}
+	return r.WithContext(authctx.WithActor(r.Context(), actor))
 }
 
 // scraperRequest is what the guard exists to refuse: a HTTP client that names
@@ -96,6 +108,7 @@ func TestCatalogStillServesABrowser(t *testing.T) {
 	r.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "+
 		"(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
 	r.Header.Set("Accept", "text/html,application/xhtml+xml")
+	r = customerActorReq(r)
 	rec := httptest.NewRecorder()
 
 	router.ServeHTTP(rec, r)
@@ -114,6 +127,7 @@ func TestGuardedPagesStillServeGooglebot(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, path, nil)
 		r.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
 		r.Header.Set("Accept", "text/html")
+		r = customerActorReq(r)
 		rec := httptest.NewRecorder()
 
 		router.ServeHTTP(rec, r)
@@ -142,6 +156,7 @@ func TestAssistantsPassAndTrainingCrawlersDoNot(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "/catalog", nil)
 		r.Header.Set("User-Agent", ua)
 		r.Header.Set("Accept", "text/html")
+		r = customerActorReq(r)
 		rec := httptest.NewRecorder()
 
 		router.ServeHTTP(rec, r)
@@ -181,6 +196,7 @@ func TestAbsentGuardChangesNothing(t *testing.T) {
 	)
 	r := chi.NewRouter()
 	handler.RegisterPublicRoutes(r)
+	handler.RegisterCustomerRoutes(r)
 
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, scraperRequest("/catalog"))

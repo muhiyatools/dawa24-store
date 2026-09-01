@@ -111,7 +111,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Page Header Strip --><div class=\"glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs\"><div class=\"stack-2xs\"><nav class=\"text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold\"><a href=\"/\" class=\"text-secondary transition-colors\">الرئيسية</a> <span class=\"text-muted\">/</span> <span class=\"text-primary font-black\">كتالوج التوريد الدوائي</span></nav><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">كتالوج عروض توريد الأدوية والمستلزمات الطبية</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة</p></div><div class=\"d-flex items-center gap-2.5 flex-wrap\"><a href=\"/customer/purchase-request\" class=\"btn btn-secondary btn-sm font-bold gap-2 shadow-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"py-2\"><!-- Page Header Strip --><div class=\"glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs\"><div class=\"stack-2xs\"><nav class=\"text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold\"><a href=\"/customer/dashboard\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span class=\"text-muted\">/</span> <span class=\"text-primary font-black\">كتالوج التوريد الدوائي</span></nav><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">كتالوج عروض توريد الأدوية والمستلزمات الطبية</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة</p></div><div class=\"d-flex items-center gap-2.5 flex-wrap\"><a href=\"/customer/purchase-request\" class=\"btn btn-secondary btn-sm font-bold gap-2 shadow-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1324,7 +1324,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.PublicShell("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.CustomerShell("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", "catalog", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

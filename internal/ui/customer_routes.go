@@ -36,8 +36,17 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
+		g.Use(h.scrape.Protect)
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view"))
+		g.Get("/catalog", h.CustomerCatalogPage)
+		g.Get("/customer/catalog", h.CustomerCatalogPage)
+	})
+
+	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view"))
 		g.Get("/customer/purchase-request", h.CustomerPurchaseRequestWizardPage)
+		g.Get("/catalog/{id}", h.CustomerProductDetailPage)
+		g.Get("/customer/catalog/{id}", h.CustomerProductDetailPage)
 		g.Get("/customer/purchase-request/products", h.CustomerPurchaseRequestProductsRedirect)
 		g.Get("/customer/purchase-request/previous", h.CustomerPurchaseRequestPreviousRedirect)
 		g.Get("/customer/purchase-request/supplier", h.CustomerPurchaseRequestSupplierRedirect)
@@ -138,8 +147,20 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 
 func (h *UIHandler) registerCustomerMarketRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
+		g.Use(h.scrape.Protect)
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.supplier.view"))
+		g.Get("/suppliers", h.SuppliersPage)
+		g.Get("/customer/suppliers", h.SuppliersPage)
+		g.Get("/suppliers/{id}", h.SupplierProfilePage)
+		g.Get("/customer/suppliers/{id}", h.SupplierProfilePage)
 		g.Get("/suppliers/followed", h.FollowedSuppliersPage)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.offer.view"))
+		g.Get("/offers", h.OffersPage)
+		g.Get("/customer/offers", h.OffersPage)
+		g.Get("/offers/{id}", h.OfferDetailPage)
+		g.Get("/customer/offers/{id}", h.OfferDetailPage)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.supplier.follow"))

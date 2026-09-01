@@ -41,14 +41,8 @@ type OfferDetailPageData struct {
 }
 
 templ OffersPage(lang, dir string, offers []*OfferCardData) {
-	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-		@layouts.CustomerShell("العروض المتاحة والتخفيضات | Pharmacy Offers", "offers", lang, dir, nil) {
-			@OffersContent(lang, offers)
-		}
-	} else {
-		@layouts.PublicShell("العروض الحصرية والتخفيضات | Exclusive Offers", lang, dir) {
-			@OffersContent(lang, offers)
-		}
+	@layouts.CustomerShell("العروض المتاحة والتخفيضات | Pharmacy Offers", "offers", lang, dir, nil) {
+		@OffersContent(lang, offers)
 	}
 }
 
@@ -203,14 +197,8 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 }
 
 templ OfferDetail(lang, dir string, data OfferDetailPageData) {
-	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-		@layouts.CustomerShell("تفاصيل العرض الدوائي | Offer Detail", "offers", lang, dir, nil) {
-			@OfferDetailContent(lang, data)
-		}
-	} else {
-		@layouts.PublicShell("تفاصيل العرض الدوائي | Offer Detail", lang, dir) {
-			@OfferDetailContent(lang, data)
-		}
+	@layouts.CustomerShell("تفاصيل العرض الدوائي | Offer Detail", "offers", lang, dir, nil) {
+		@OfferDetailContent(lang, data)
 	}
 }
 

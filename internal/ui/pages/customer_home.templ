@@ -53,46 +53,15 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					}
 				</p>
 
-				<!-- Live Catalog Search Capsule -->
-				<form action="/catalog" method="GET" class="hero-search-capsule">
-					<div class="hero-search-input-group">
-						<span class="text-muted flex-shrink-0">
-							@components.IconSearch("icon-sm")
-						</span>
-						<input
-							type="search"
-							name="q"
-							placeholder="ابحث بالاسم التجاري (مثل Panadol، Augmentin)، المادة الفعالة، أو اسم المورد..."
-							class="hero-search-input"
-							autocomplete="off"
-						/>
-					</div>
-					<button type="submit" class="btn btn-primary hero-search-btn">
-						@components.IconSearch("icon-xs")
-						<span>بحث في الكتالوج</span>
-					</button>
-				</form>
-
-				<!-- Quick Search Suggestion Tags -->
-				<div class="hero-quick-tags">
-					<span class="hero-tag-label">الأكثر طلباً:</span>
-					<a href="/catalog?q=Augmentin" class="hero-tag-pill">أوجمنتين</a>
-					<a href="/catalog?q=Panadol" class="hero-tag-pill">بنادول</a>
-					<a href="/catalog?q=Cataflam" class="hero-tag-pill">كتافلام</a>
-					<a href="/catalog?q=Congestal" class="hero-tag-pill">كونجستال</a>
-					<a href="/catalog?q=Insulin" class="hero-tag-pill">أنسولين وثلاجة</a>
-					<a href="/catalog?q=Antinal" class="hero-tag-pill">أنتينال</a>
-				</div>
-				
 				<!-- Direct Action CTAs -->
 				<div class="hero-cta-group">
 					<a href="/auth/register" class="btn btn-primary btn-lg font-extrabold hero-cta-btn">
 						@components.IconPlus("icon-sm")
 						<span>تسجيل صيدلية جديدة</span>
 					</a>
-					<a href="/catalog" class="btn btn-secondary btn-lg font-bold hero-cta-btn">
-						@components.IconPill("icon-sm")
-						<span>تصفح كتالوج الأدوية</span>
+					<a href="/auth/login" class="btn btn-secondary btn-lg font-bold hero-cta-btn">
+						@components.IconUser("icon-sm")
+						<span>تسجيل الدخول للمنظومة</span>
 					</a>
 					<a href="/auth/register" class="btn btn-ghost btn-lg font-bold hero-cta-btn">
 						@components.IconBuilding("icon-sm")
@@ -379,9 +348,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										</span>
 									</td>
 									<td class="text-end">
-										<a href="/catalog" class="btn btn-primary btn-xs font-bold">
-											@components.IconCart("icon-xs")
-											<span>توريد فوري</span>
+										<a href="/auth/login" class="btn btn-primary btn-xs font-bold">
+											@components.IconShield("icon-xs")
+											<span>دخول للطلب</span>
 										</a>
 									</td>
 								</tr>
@@ -404,9 +373,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										</span>
 									</td>
 									<td class="text-end">
-										<a href="/catalog" class="btn btn-primary btn-xs font-bold">
-											@components.IconCart("icon-xs")
-											<span>توريد فوري</span>
+										<a href="/auth/login" class="btn btn-primary btn-xs font-bold">
+											@components.IconShield("icon-xs")
+											<span>دخول للطلب</span>
 										</a>
 									</td>
 								</tr>
@@ -429,9 +398,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										</span>
 									</td>
 									<td class="text-end">
-										<a href="/catalog" class="btn btn-primary btn-xs font-bold">
-											@components.IconCart("icon-xs")
-											<span>توريد فوري</span>
+										<a href="/auth/login" class="btn btn-primary btn-xs font-bold">
+											@components.IconShield("icon-xs")
+											<span>دخول للطلب</span>
 										</a>
 									</td>
 								</tr>
@@ -743,86 +712,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</section>
 		}
 
-		<!-- 6. Featured Catalog Products for Direct Procurement -->
-		<section class="landing-section-block">
-			<div class="section-header-flex">
-    <div class="stack-sm">
-					<h2 class="section-main-title">
-						أصناف دوائية متوفرة للتوريد الفوري
-					</h2>
-					<p class="section-main-subtitle">
-						أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين والموزعين
-					</p>
-				</div>
-				<a href="/catalog" class="btn btn-secondary btn-sm font-bold">
-					<span>عرض الكتالوج الشامل</span>
-					@components.IconArrowLeft("icon-xs")
-				</a>
-			</div>
-			
-			if len(featured) == 0 {
-				<div class="glass-panel p-8 text-center empty-state-glass">
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "جاري تحديث قائمة الأصناف المميزة",
-						Message: "يمكنك استخدام شريط البحث أعلاه أو تصفح الكتالوج للوصول لكافة الأدوية.",
-					})
-				</div>
-			} else {
-				<div class="product-grid-wrapper">
-					for _, prod := range featured {
-						<div class="product-card-glass">
-       <div class="stack-sm">
-								<!-- Badges row -->
-								<div class="flex-between mb-3">
-									if prod.DosageForm != "" {
-										<span class="badge badge-sky text-xs font-bold gap-1">
-											@components.IconPill("icon-xs")
-											<span>{ prod.DosageForm }</span>
-										</span>
-									} else {
-										<span class="badge badge-slate text-xs">دوائي معتمد</span>
-									}
-									<span class="badge badge-emerald text-xs font-bold">متوفر للتوريد</span>
-								</div>
-								
-								<!-- Product Name -->
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", prod.ID)) } class="text-decoration-none">
-									<h3 class="product-card-title mb-1">
-										if prod.Name["ar"] != "" {
-											{ prod.Name["ar"] }
-										} else {
-											{ prod.Name["en"] }
-										}
-									</h3>
-								</a>
-								
-								<!-- Scientific Name / Active Ingredient -->
-								if prod.ScientificName != "" {
-									<div class="text-xs text-muted mb-1 text-truncate font-mono" dir="ltr">
-										{ prod.ScientificName }
-									</div>
-								}
 
-								<!-- Manufacturer -->
-								if prod.ManufacturingCompanies != "" {
-									<div class="text-xs text-secondary mb-2 text-truncate">
-										<span class="text-muted">الشركة:</span> { prod.ManufacturingCompanies }
-									</div>
-								}
-							</div>
-							
-							<!-- Action Footer -->
-							<div class="product-card-pricing-footer">
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", prod.ID)) } class="btn btn-primary btn-sm w-full justify-center font-extrabold gap-1">
-									@components.IconCart("icon-xs")
-									<span>عروض الموردين والطلب</span>
-								</a>
-							</div>
-						</div>
-					}
-				</div>
-			}
-		</section>
 
 		<!-- 7. Therapeutic Categories Grid -->
 		if len(categories) > 0 {

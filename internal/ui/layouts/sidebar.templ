@@ -2,6 +2,7 @@ package layouts
 
 import (
 	"context"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
@@ -63,7 +64,48 @@ func visibleNav(ctx context.Context, scope rbac.Scope) []rbac.NavSection {
 	if scope == "" {
 		return nil
 	}
-	return rbac.VisibleNav(scope, rbac.NewSet(actor.Permissions))
+	allSections := rbac.VisibleNav(scope, rbac.NewSet(actor.Permissions))
+	// For users who are logged in but not approved by the admin,
+	// hide all sidebar items except documents ("السندات").
+	if !actor.IsStaff && !actor.IsOrgApproved() {
+		var unapprovedSections []rbac.NavSection
+		for _, s := range allSections {
+			var keptItems []rbac.NavItem
+			for _, item := range s.Items {
+				if item.Key == "documents" || strings.Contains(item.Href, "document") {
+					keptItems = append(keptItems, item)
+				}
+			}
+			if len(keptItems) > 0 {
+				s.Items = keptItems
+				unapprovedSections = append(unapprovedSections, s)
+			}
+		}
+		if len(unapprovedSections) == 0 {
+			docHref := "/customer/documents"
+			if actor.IsVendor() {
+				docHref = "/vendor/documents"
+			}
+			unapprovedSections = []rbac.NavSection{
+				{
+					Key:    "documents_group",
+					NameAr: "السندات والمستندات",
+					NameEn: "Documents",
+					Items: []rbac.NavItem{
+						{
+							Key:    "documents",
+							Href:   docHref,
+							Icon:   "file",
+							NameAr: "السندات والتراخيص",
+							NameEn: "Documents & Licenses",
+						},
+					},
+				},
+			}
+		}
+		return unapprovedSections
+	}
+	return allSections
 }
 
 // CanSee reports whether the caller holds a permission. Pages use it to hide

@@ -75,18 +75,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		// product per request, /offers and /jobs are already bounded
 		// server-side, and the marketing pages have nothing to take. A request
 		// budget on /about buys nothing and costs a middleware on every render.
-		pub.Group(func(data chi.Router) {
-			data.Use(h.scrape.Protect)
-
-			data.Get("/catalog", h.CustomerCatalogPage)
-			data.Get("/suppliers", h.SuppliersPage)
-			data.Get("/suppliers/{id}", h.SupplierProfilePage)
-		})
-
-		// Unguarded, by instruction. Left registered exactly as they were.
-		pub.Get("/catalog/{id}", h.CustomerProductDetailPage)
-		pub.Get("/offers", h.OffersPage)
-		pub.Get("/offers/{id}", h.OfferDetailPage)
+		// Jobs board is open to guests (seekers and visitors)
 		pub.Get("/jobs", h.JobsPage)
 		pub.Get("/jobs/{id}", h.JobDetailPage)
 		pub.Get("/compare/search", h.CompareQuickSearch)

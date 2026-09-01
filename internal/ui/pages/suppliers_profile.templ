@@ -20,12 +20,12 @@ func calcDiscountPct(v *catalog.ProductVariant, p *catalog.Product) float64 {
 }
 
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
-	@layouts.PublicShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {
+	@layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), "suppliers", lang, dir, nil) {
 		<div class="sp-container">
 			
 			<!-- Breadcrumbs -->
 			<nav>
-				<a href="/">الرئيسية</a>
+				<a href="/customer/dashboard">لوحة التحكم</a>
 				<span>/</span>
 				<a href="/suppliers">دليل الموردين</a>
 				<span>/</span>
