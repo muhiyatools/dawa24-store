@@ -187,15 +187,13 @@ func TogglesInGroup(all []WizardToggle, g ToggleGroup) []WizardToggle {
 // now, because the promise has to be the same wherever it is made.
 func AIToggle(name string, checked, available bool, unavailableReason string) WizardToggle {
 	t := WizardToggle{
-		Group: GroupAI,
-		Name:  name,
-		Icon:  "🤖",
-		Title: i18n.TDefault("w4_ui.s_202_202"),
-		Description: i18n.TDefault("w4_ui.w4str_46_46") +
-			i18n.TDefault("w4_ui.w4str_47_47") +
-			i18n.TDefault("w4_ui.w4str_48_48"),
-		Checked: checked && available,
-		Note:    i18n.TDefault("w4_ui.w4str_49_49"),
+		Group:       GroupAI,
+		Name:        name,
+		Icon:        "🤖",
+		Title:       "تفعيل الذكاء الاصطناعي",
+		Description: "يُستخدم الذكاء الاصطناعي فقط لمساعدة الاستيراد في الحالات التي لم يتم حسمها بالطرق الأساسية. اختياري، والاستيراد يعمل بالكامل بدونه.",
+		Checked:     checked && available,
+		Note:        "",
 	}
 	if !available {
 		t.Disabled = true

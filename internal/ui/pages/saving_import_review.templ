@@ -155,7 +155,7 @@ templ savingReviewStage(view SavingImportView) {
 	</div>
 
 	<!-- Centered Modal for Linking Saving Product to Master Catalog -->
-	<div id="saving-catalog-match-modal" class="modal-backdrop">
+	<div id="saving-catalog-match-modal" class="modal-backdrop d-none" style="display: none !important;" aria-hidden="true">
 		<div class="glass-panel p-6">
 			<div class="flex-between items-center pb-3 border-b mb-3">
     <div class="stack-sm">
@@ -195,8 +195,14 @@ templ savingReviewStage(view SavingImportView) {
 
 	function ensureSavingModalInBody() {
 		var modal = document.getElementById('saving-catalog-match-modal');
-		if (modal && modal.parentElement !== document.body) {
-			document.body.appendChild(modal);
+		if (modal) {
+			if (modal.parentElement !== document.body) {
+				document.body.appendChild(modal);
+			}
+			if (!modal.classList.contains('is-open')) {
+				modal.classList.add('d-none');
+				modal.style.setProperty('display', 'none', 'important');
+			}
 		}
 	}
 
@@ -226,7 +232,11 @@ templ savingReviewStage(view SavingImportView) {
 			unlinkForm.action = actionURL;
 		}
 
-		if (modal) modal.style.display = 'flex';
+		if (modal) {
+			modal.classList.remove('d-none');
+			modal.classList.add('is-open');
+			modal.style.setProperty('display', 'flex', 'important');
+		}
 		setTimeout(function() {
 			if (inputEl) {
 				inputEl.focus();
@@ -238,7 +248,11 @@ templ savingReviewStage(view SavingImportView) {
 
 	function closeSavingCatalogModal() {
 		var modal = document.getElementById('saving-catalog-match-modal');
-		if (modal) modal.style.display = 'none';
+		if (modal) {
+			modal.classList.add('d-none');
+			modal.classList.remove('is-open');
+			modal.style.setProperty('display', 'none', 'important');
+		}
 	}
 
 	function fetchSavingModalResults(query) {

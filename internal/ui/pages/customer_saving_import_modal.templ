@@ -93,30 +93,33 @@ templ CustomerSavingImportModal(lang string) {
 						</div>
 
 						<!-- Match Strategy Selection -->
-      <div class="stack-sm">
-       <label class="form-label">
-								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
-							</label>
        <div class="stack-sm">
         <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="smart_auto" checked />
-         <div class="stack-sm">
-										<strong class="text-body">مطابقة ذكية شاملة (موصى بها)</strong>
-										<span>الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span>
+								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
+							</label>
+        <div class="stack-sm">
+         <label class="form-label">
+									<input type="radio" name="pharmacy_match_strategy" value="name_only" checked />
+          <div class="stack-sm">
+										<strong class="text-body">الاسم فقط</strong>
 									</div>
 								</label>
-        <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="sku_only" />
-         <div class="stack-sm">
-										<strong class="text-body">مطابقة عبر كود SKU / الباركود فقط</strong>
-										<span>المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span>
+         <label class="form-label">
+									<input type="radio" name="pharmacy_match_strategy" value="barcode_only" />
+          <div class="stack-sm">
+										<strong class="text-body">الباركود فقط</strong>
 									</div>
 								</label>
-        <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="name_only" />
-         <div class="stack-sm">
-										<strong class="text-body">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong>
-										<span>مثالي إذا كانت الصيدلية تستخدم أكواد كاشير داخلية خاصة تختلف عن أكواد الكتالوج العام.</span>
+         <label class="form-label">
+									<input type="radio" name="pharmacy_match_strategy" value="id_only" />
+          <div class="stack-sm">
+										<strong class="text-body">دواء 24 كود الصنف فقط</strong>
+									</div>
+								</label>
+         <label class="form-label">
+									<input type="radio" name="pharmacy_match_strategy" value="sku_barcode" />
+          <div class="stack-sm">
+										<strong class="text-body">الكود والباركود</strong>
 									</div>
 								</label>
 							</div>

@@ -35,14 +35,14 @@ import (
 type MatchStrategy string
 
 const (
-	// StrategySmartAuto runs every tier: id, code, then the scored index.
+	StrategyBarcodeOnly MatchStrategy = "barcode_only"
+	StrategyIDOnly      MatchStrategy = "id_only"
+	StrategyNameOnly    MatchStrategy = "name_only"
+	StrategySKUBarcode  MatchStrategy = "sku_barcode"
+
+	// Legacy aliases
 	StrategySmartAuto MatchStrategy = "smart_auto"
-	// StrategySKUOnly stops after the identifier tiers.
-	StrategySKUOnly MatchStrategy = "sku_only"
-	// StrategyNameOnly skips the identifiers and scores the name.
-	StrategyNameOnly MatchStrategy = "name_only"
-	// StrategyIDOnly accepts only a dawa24 product id stated in the file.
-	StrategyIDOnly MatchStrategy = "id_only"
+	StrategySKUOnly   MatchStrategy = "sku_only"
 )
 
 // A link is made when the engine calls the match settled, not when a score
@@ -166,7 +166,7 @@ func (e *SavingProductMatchEngine) Match(strategy MatchStrategy, productID *int6
 		return unlinked
 	}
 	if strategy == "" {
-		strategy = StrategySmartAuto
+		strategy = StrategyNameOnly
 	}
 
 	// A product id the file states outright, checked against the catalogue
@@ -183,24 +183,26 @@ func (e *SavingProductMatchEngine) Match(strategy MatchStrategy, productID *int6
 	opts := e.opts
 	code := strings.TrimSpace(rawSKU)
 
-	// The code goes in the code slot. It used to go in BOTH slots — the same
-	// value offered to the code tier and to the barcode tier — and the barcode
-	// tier does not consult the name at all: any eight-digit item number with
-	// one catalogue hit returned confidence 1.0 before scoring began. One
-	// column is one identifier, and which identifier it is, is the user's to
-	// state on the mapping screen.
 	switch strategy {
-	case StrategySKUOnly:
-		e.bindCode(row, code)
-		// The identifier tiers only. Scored matching is suppressed by putting
-		// the thresholds out of reach rather than by a second code path, so the
-		// strategies cannot drift apart.
+	case StrategyBarcodeOnly:
+		row.Barcode = code
+		opts.TrustBarcode = true
+		opts.TrustSupplierCode = false
 		opts.MinStrong, opts.MinReview = 1.01, 1.01
+	case StrategySKUBarcode, StrategySKUOnly:
+		e.bindCode(row, code)
+		opts.TrustBarcode = true
+		opts.TrustSupplierCode = true
+		opts.MinStrong, opts.MinReview = 1.01, 1.01
+	case StrategySmartAuto:
+		e.bindCode(row, code)
 	case StrategyNameOnly:
 		opts.TrustSupplierCode = false
 		opts.TrustBarcode = false
 	default:
-		e.bindCode(row, code)
+		// Default: match by name only
+		opts.TrustSupplierCode = false
+		opts.TrustBarcode = false
 	}
 	if row.Name == "" && row.SKU == "" && row.Barcode == "" {
 		return unlinked

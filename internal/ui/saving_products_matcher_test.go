@@ -151,6 +151,45 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		}
 	})
 
+	t.Run("Strategy: Default when empty is Name Only", func(t *testing.T) {
+		res := codeEngine.Match("", nil, "MY-POS-998877", "بانادول اكسترا 24 قرص")
+		if res.ProductID == nil || *res.ProductID != 101 {
+			t.Fatalf("expected product 101 with empty strategy defaulting to NameOnly, got %v", res.ProductID)
+		}
+	})
+
+	t.Run("Strategy: Barcode Only mode", func(t *testing.T) {
+		res := barcodeEngine.Match(StrategyBarcodeOnly, nil, "6221234567890", "اسم مختلف غير مطابق")
+		if res.ProductID == nil || *res.ProductID != 101 {
+			t.Fatalf("expected product 101 in BarcodeOnly mode, got %v", res.ProductID)
+		}
+		// When barcode does not match, does not match by name
+		resFail := barcodeEngine.Match(StrategyBarcodeOnly, nil, "0000000000000", "بانادول اكسترا 24 قرص")
+		if resFail.ProductID != nil {
+			t.Fatalf("expected no match for mismatched barcode in BarcodeOnly mode, got %v", resFail.ProductID)
+		}
+	})
+
+	t.Run("Strategy: SKU and Barcode mode", func(t *testing.T) {
+		res := codeEngine.Match(StrategySKUBarcode, nil, "PAN-24", "اسم مختلف تماماً")
+		if res.ProductID == nil || *res.ProductID != 101 {
+			t.Fatalf("expected product 101 in SKUBarcode mode, got %v", res.ProductID)
+		}
+	})
+
+	t.Run("Strategy: Dawa24 ID Only mode", func(t *testing.T) {
+		validID := int64(101)
+		res := engine.Match(StrategyIDOnly, &validID, "", "")
+		if res.ProductID == nil || *res.ProductID != 101 {
+			t.Fatalf("expected product 101 in IDOnly mode, got %v", res.ProductID)
+		}
+		invalidID := int64(999999)
+		resFail := engine.Match(StrategyIDOnly, &invalidID, "", "بانادول اكسترا 24 قرص")
+		if resFail.ProductID != nil {
+			t.Fatalf("expected no match in IDOnly mode for unknown ID, got %v", resFail.ProductID)
+		}
+	})
+
 	// The default engine is the one a caller gets before saying anything about
 	// the file. It must not settle a row on an identifier alone.
 	t.Run("Identifier tiers are off until the user maps and chooses", func(t *testing.T) {
