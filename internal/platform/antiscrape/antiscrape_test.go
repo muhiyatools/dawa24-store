@@ -59,6 +59,14 @@ func TestClassify(t *testing.T) {
 		{"headless chrome", "Mozilla/5.0 (X11; Linux x86_64) HeadlessChrome/120.0.0.0", "text/html", ClassAutomation},
 		{"ahrefs", "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)", "*/*", ClassAutomation},
 		{"gptbot", "Mozilla/5.0 (compatible; GPTBot/1.1; +https://openai.com/gptbot)", "*/*", ClassAutomation},
+		{"google-extended", "Mozilla/5.0 (compatible; Google-Extended)", "*/*", ClassAutomation},
+		{"meta training", "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)", "*/*", ClassAutomation},
+		// One substring apart from the four above, and on the other side of the
+		// line: these fetch because a person just asked something.
+		{"chatgpt-user", "Mozilla/5.0 ... ChatGPT-User/1.0; +https://openai.com/bot", "text/html", ClassCrawler},
+		{"oai-searchbot", "Mozilla/5.0 (compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)", "text/html", ClassCrawler},
+		{"perplexity-user", "Mozilla/5.0 (compatible; Perplexity-User/1.0)", "text/html", ClassCrawler},
+		{"claude-user", "Mozilla/5.0 (compatible; Claude-User/1.0)", "text/html", ClassCrawler},
 		{"no user agent", "", "text/html", ClassUnknown},
 		{"not a browser string", "SomeInternalTool/1.0", "text/html", ClassUnknown},
 		{"browser string, no accept", chromeUA, "", ClassUnknown},
@@ -197,13 +205,11 @@ func TestHoneypotPenaltyOutlivesTheRequestThatTrippedIt(t *testing.T) {
 	g := testGuard(t)
 	h := g.Protect(okHandler())
 
-	trip := browserRequest("/trap/catalog-export")
+	// The catalogue filter form carries a hidden field no person can see or tab
+	// into. Filling it is what the handler reports here.
+	trip := browserRequest("/catalog?company_tax_ref=1")
 	trip.RemoteAddr = "203.0.113.55:3333"
-	trapRec := httptest.NewRecorder()
-	g.Trap(trapRec, trip)
-	if trapRec.Code != http.StatusForbidden {
-		t.Fatalf("trap status = %d, want 403", trapRec.Code)
-	}
+	g.Penalize(trip, "honeypot_field")
 
 	after := browserRequest("/catalog")
 	after.RemoteAddr = "203.0.113.55:4444"
@@ -212,39 +218,6 @@ func TestHoneypotPenaltyOutlivesTheRequestThatTrippedIt(t *testing.T) {
 
 	if rec.Code != http.StatusForbidden {
 		t.Fatalf("status after honeypot = %d, want 403 - a penalty that expires with the request is no penalty", rec.Code)
-	}
-}
-
-func TestRequireSiteOrigin(t *testing.T) {
-	cases := []struct {
-		name    string
-		headers map[string]string
-		want    int
-	}{
-		{"same origin fetch", map[string]string{"Sec-Fetch-Site": "same-origin"}, http.StatusOK},
-		{"htmx", map[string]string{"HX-Request": "true"}, http.StatusOK},
-		{"pasted into the address bar", map[string]string{"Sec-Fetch-Site": "none"}, http.StatusForbidden},
-		{"another site", map[string]string{"Sec-Fetch-Site": "cross-site"}, http.StatusForbidden},
-		{"no signal at all", map[string]string{}, http.StatusForbidden},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := testGuard(t)
-			r := httptest.NewRequest(http.MethodGet, "/api/v1/compare/search?q=panadol", nil)
-			r.Header.Set("User-Agent", chromeUA)
-			r.Header.Set("Accept", "application/json")
-			for k, v := range tc.headers {
-				r.Header.Set(k, v)
-			}
-			rec := httptest.NewRecorder()
-
-			g.RequireSiteOrigin(okHandler()).ServeHTTP(rec, r)
-
-			if rec.Code != tc.want {
-				t.Fatalf("status = %d, want %d", rec.Code, tc.want)
-			}
-		})
 	}
 }
 

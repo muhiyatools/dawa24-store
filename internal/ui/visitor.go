@@ -10,6 +10,7 @@ import (
 	"time"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
 )
 
 const visitorCookieName = "dawa24_visitor"
@@ -30,6 +31,18 @@ func (h *UIHandler) visitorMiddleware(next http.Handler) http.Handler {
 // recordVisitor records the visitor if this is their first hit today, then
 // refreshes the cookie so the next hit is a no-op.
 func (h *UIHandler) recordVisitor(w http.ResponseWriter, r *http.Request) {
+	// A crawler is not a visitor.
+	//
+	// The de-duplication below is a cookie, and nothing that is not a browser
+	// keeps one, so every request from a bot was a fresh row: Googlebot showed
+	// up in the analytics as thousands of daily visitors, and a scraper the
+	// anti-scraping guard was about to refuse still cost a write on the way in.
+	// The counts are meant to answer "how many pharmacies came today", so this
+	// records browsers only.
+	if antiscrape.Classify(r) != antiscrape.ClassBrowser {
+		return
+	}
+
 	today := time.Now().Format("2006-01-02")
 
 	key := newVisitorKey()

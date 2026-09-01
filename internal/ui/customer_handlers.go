@@ -7,7 +7,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -16,10 +15,6 @@ import (
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
-		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
-		return
-	}
 	lang, dir := h.localeAndDir(r)
 
 	// 1. Security & Anti-Scraping / Bot Defense

@@ -20,13 +20,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// SupplierProfilePage renders a supplier's profile for authenticated users.
+// SupplierProfilePage renders a supplier's public profile.
 func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
-		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
-		return
-	}
 	lang, dir := h.localeAndDir(r)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)

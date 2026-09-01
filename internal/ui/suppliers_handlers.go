@@ -162,13 +162,9 @@ func resolveSupplierCoordinates(sID int64, branches []*org.Branch, coverages []*
 	return baseLat, baseLng, true
 }
 
-// SuppliersPage renders the supplier directory for authenticated users.
+// SuppliersPage renders the public supplier directory.
 func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
-		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
-		return
-	}
 	lang, dir := h.localeAndDir(r)
 	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
 	viewTab := r.URL.Query().Get("view")

@@ -1,9 +1,16 @@
 # Dawa24 — public marketplace pages are indexable; authenticated areas are not.
 #
-# robots.txt is a request, not a control. Everything below is also enforced in
-# code (internal/platform/antiscrape); this file exists so that well-behaved
-# crawlers never trip those defences, and so that a crawler which ignores it has
-# demonstrably chosen to.
+# robots.txt is a request, not a control. The paths enforced in code are
+# /catalog and /suppliers (internal/platform/antiscrape); everything else here
+# is ordinary crawler guidance. It exists so that well-behaved crawlers never
+# trip that defence, and so that a crawler which ignores it has demonstrably
+# chosen to.
+#
+# The line drawn here is the same one the code draws: a crawler that sends us a
+# buyer is welcome, a crawler that only takes the price list is not. Search
+# engines and user-triggered AI assistants are the first kind. Model-training
+# collectors and SEO backlink harvesters are the second, and are named
+# individually below.
 
 User-agent: *
 Disallow: /admin/
@@ -11,22 +18,47 @@ Disallow: /vendor/
 Disallow: /account/
 Disallow: /customer/
 Disallow: /api/
-Disallow: /compare/
-Disallow: /trap/
-# Faceted URLs multiply one listing into thousands of near-identical pages.
-# Crawling them wastes budget on our side and looks exactly like harvesting.
-Disallow: /*?*page=
-Disallow: /*?*page_size=
-Disallow: /*?*sort=
-Disallow: /*?*min_price=
-Disallow: /*?*max_price=
-Disallow: /*?*in_stock=
-Disallow: /*?*has_discount=
+# ...except the machine-readable description of that API. An agent that is told
+# to use the API instead of the pages has to be able to fetch the spec that
+# tells it how, so these two are carved back out of the /api/ block above.
+Allow: /api/v1/openapi.json
+Allow: /api/v1/openapi.yaml
+# The catalogue filters multiply one listing into thousands of near-identical
+# URLs. Crawling them wastes budget on our side and is indistinguishable from
+# harvesting. Scoped to /catalog: the same parameter names on other pages are
+# left alone.
+Disallow: /catalog?*page=
+Disallow: /catalog?*page_size=
+Disallow: /catalog?*sort=
+Disallow: /catalog?*min_price=
+Disallow: /catalog?*max_price=
+Disallow: /catalog?*in_stock=
+Disallow: /catalog?*has_discount=
 Allow: /
 Crawl-delay: 5
 
-# Commercial harvesters, SEO backlink crawlers and AI training collectors.
+# --- AI assistants answering a person's question -----------------------------
+# These fetch a page because somebody just asked something, and the answer cites
+# us. They are allowed, and the code allows them too (assistantAgents in
+# internal/platform/antiscrape/classify.go). Listed explicitly so that the
+# blanket training-crawler blocks below are never read as covering them.
+User-agent: ChatGPT-User
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: DuckAssistBot
+Allow: /
+
+# --- Model-training collectors and commercial harvesters ---------------------
 # None of them sends a pharmacy to a supplier; all of them take the price list.
+# This is the "Content-Signal: ai-train=no" below, spelled out per agent, and it
+# is enforced in code on /catalog and /suppliers.
 User-agent: AhrefsBot
 Disallow: /
 User-agent: SemrushBot
@@ -61,3 +93,31 @@ User-agent: Diffbot
 Disallow: /
 User-agent: omgili
 Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: Applebot-Extended
+Disallow: /
+User-agent: Meta-ExternalAgent
+Disallow: /
+User-agent: Meta-ExternalFetcher
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
+User-agent: cohere-ai
+Disallow: /
+User-agent: Timpibot
+Disallow: /
+
+# Content Signals: AI content usage preferences (https://contentsignals.org)
+#
+# ai-input=yes is deliberate and is the whole policy in one line: an assistant
+# may read a page to answer the question a person just asked, because that
+# answer cites us and sends a buyer. It may not keep the data to train on.
+# Declaring ai-input=no here while allowing ChatGPT-User and Perplexity-User
+# above would be telling compliant assistants to ignore the pages we just
+# opened to them.
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+# Sitemap Location
+Sitemap: https://dawa24-store-u74003.vm.elestio.app/sitemap.xml
+

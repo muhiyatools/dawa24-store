@@ -1,26 +1,30 @@
-// Package antiscrape refuses automated bulk collection of the public
-// marketplace data without getting in a pharmacist's way.
+// Package antiscrape refuses automated bulk collection of the catalogue
+// listing without getting in a pharmacist's way.
 //
-// What it defends is specific: /catalog and the other signed-out pages publish
-// supplier identity, net supply price, stock and expiry for the whole market.
-// That is the commercially valuable part of this platform, and a single
-// afternoon with a HTTP client is enough to take all of it.
+// What it defends is one route: GET /catalog. That listing publishes supplier
+// identity, net supply price, stock and expiry across the whole market in a
+// single paginated view, which is the commercially valuable part of this
+// platform and the one thing an afternoon with a HTTP client can take in full.
+// Its neighbours are deliberately not guarded — /catalog/{id} yields one
+// product per request, and /suppliers, /offers and /jobs are already bounded
+// server-side — so this costs one middleware on one route.
 //
-// The design is deliberately three cheap layers rather than one clever one:
+// The design is three cheap layers rather than one clever one:
 //
 //  1. classification — refuse callers that announce themselves as a HTTP
 //     library or a content harvester, and treat "not obviously a browser" as
 //     suspicious rather than as normal;
 //  2. budgets — a sliding request allowance per caller per window, so a patient
 //     scraper wearing a browser User-Agent still cannot outrun a human;
-//  3. penalties — a caller that trips a honeypot is put on the strict path for
-//     an hour.
+//  3. penalties — a caller that fills the listing's hidden honeypot field is
+//     put on the refused list for an hour.
 //
 // None of this is a bot-detection product and it is not trying to be. It raises
 // the cost of taking the catalogue from "trivial" to "deliberate", at the price
-// of one string scan and one Redis INCR per protected request. Fingerprinting,
-// JavaScript challenges and proof-of-work were considered and rejected: they
-// cost more in latency and support tickets than the marginal scraper they stop.
+// of one string scan and one Redis INCR per request to /catalog.
+// Fingerprinting, JavaScript challenges and proof-of-work were considered and
+// rejected: they cost more in latency and support tickets than the marginal
+// scraper they stop.
 package antiscrape
 
 import (
@@ -60,6 +64,13 @@ func (c Class) String() string {
 
 // searchCrawlers are the agents that may index the public marketplace.
 //
+// The line drawn through the whole of this file is not "bot or not a bot" — it
+// is **does this caller send a pharmacy back to us, or does it only take the
+// price list**. A search engine indexes the catalogue and returns buyers; an
+// assistant answering "where can I buy Augmentin" returns a buyer too. A
+// training crawler and an SEO backlink harvester return nothing, and take the
+// same data.
+//
 // The User-Agent is not verified by reverse DNS. Doing so costs a DNS lookup on
 // the request path to defend against a scraper who could simply have used a
 // browser string instead, so the allowance below is small on purpose: claiming
@@ -72,14 +83,47 @@ var searchCrawlers = []string{
 	"whatsapp", "telegrambot", "discordbot", "embedly", "slackbot",
 }
 
-// automationAgents are refused outright on data-heavy public routes.
+// assistantAgents fetch a page because a person just asked for it.
 //
-// Three groups, and all three are unwanted here for the same reason: none of
-// them is a pharmacist comparing prices.
+// These are the AI agents the platform wants to work with, and they are a
+// different thing from the training crawlers below even though both come from
+// the same companies. ChatGPT-User, Perplexity-User and Claude-User appear when
+// somebody types a question and the assistant goes to look; OAI-SearchBot and
+// friends build the index those answers cite. Both end in a person seeing
+// Dawa24 and a link back to it.
+//
+// The names are close enough to their training counterparts to matter:
+// "chatgpt-user" is not "gptbot", "claude-user" is not "claudebot", and
+// "perplexity-user" is not "perplexitybot". Classify checks this list first, so
+// a substring meant for a harvester can never swallow one of these.
+//
+// They are metered on the crawler budget, not the browser one: an assistant
+// fetching one page for one question fits easily, and a caller wearing the name
+// to walk the catalogue does not.
+var assistantAgents = []string{
+	"chatgpt-user", "oai-searchbot",
+	"perplexity-user",
+	"claude-user", "claude-searchbot",
+	"duckassistbot", "bingbot-assistant",
+	"youbot", "phindbot",
+}
+
+// automationAgents are refused outright on the guarded routes.
+//
+// Four groups, and all four are unwanted here for the same reason: none of them
+// ends with a pharmacy placing an order.
 //
 //   - generic HTTP clients and scraping frameworks (curl, requests, scrapy)
 //   - headless browser drivers (puppeteer, playwright, selenium)
-//   - commercial SEO, AI-training and site-mirroring harvesters
+//   - site mirroring tools
+//   - commercial SEO harvesters and AI *training* collectors
+//
+// The training collectors are the deliberate part. GPTBot, ClaudeBot, CCBot,
+// Bytespider and Google-Extended exist to copy the corpus into a model; they
+// send nobody here and the site's own robots.txt already declares
+// "Content-Signal: ai-train=no". Refusing them in code is that declaration
+// enforced. Their user-triggered siblings are in assistantAgents above and are
+// let through.
 //
 // A scraper that changes its User-Agent to Chrome defeats this list in one
 // line. It is still worth having: the overwhelming majority of scraping traffic
@@ -103,6 +147,9 @@ var automationAgents = []string{
 	"bytespider", "gptbot", "ccbot", "claudebot", "claude-web", "anthropic-ai",
 	"perplexitybot", "amazonbot", "omgili", "diffbot", "imagesiftbot",
 	"scrapingbee", "scraperapi", "brightdot", "dataprovider",
+	"google-extended", "applebot-extended", "meta-externalagent",
+	"meta-externalfetcher", "facebookbot", "cohere-ai", "cohere-training",
+	"timpibot", "webzio", "awario", "peer39", "img2dataset",
 	// Scanners; not scrapers, but nothing on a storefront wants them either
 	"zgrab", "masscan", "nmap", "nikto", "sqlmap", "wpscan",
 }
@@ -117,7 +164,10 @@ func Classify(r *http.Request) Class {
 		return ClassUnknown
 	}
 
-	if containsAny(ua, searchCrawlers) {
+	// Allowlists first, always. "chatgpt-user" must not be caught by a
+	// substring written for "gptbot", and "claude-user" must not be caught by
+	// one written for "claudebot".
+	if containsAny(ua, searchCrawlers) || containsAny(ua, assistantAgents) {
 		return ClassCrawler
 	}
 	if containsAny(ua, automationAgents) {
@@ -147,36 +197,4 @@ func containsAny(haystack string, needles []string) bool {
 		}
 	}
 	return false
-}
-
-// FromSite reports whether a request plausibly originates from a page of this
-// site rather than from a standalone client.
-//
-// It reads, in order of trustworthiness: the Fetch Metadata headers a modern
-// browser sets and a script normally does not, the htmx marker, and finally a
-// same-host Referer. Absence of every signal is a "no" — which is the point:
-// the JSON search endpoint is meant to serve the compare tool's own page, not
-// a caller with a URL.
-func FromSite(r *http.Request) bool {
-	switch strings.ToLower(r.Header.Get("Sec-Fetch-Site")) {
-	case "same-origin", "same-site":
-		return true
-	case "cross-site", "none":
-		// "none" is a direct navigation — someone pasting the endpoint into an
-		// address bar, or a client copying a browser's header set.
-		return false
-	}
-
-	if r.Header.Get("HX-Request") != "" {
-		return true
-	}
-
-	ref := r.Header.Get("Referer")
-	if ref == "" {
-		return false
-	}
-	host := r.Host
-	// Compare hosts rather than whole URLs: the scheme differs behind the
-	// proxy that terminates TLS.
-	return strings.Contains(ref, "://"+host+"/") || strings.HasSuffix(ref, "://"+host)
 }

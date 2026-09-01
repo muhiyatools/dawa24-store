@@ -31,6 +31,26 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
 		pub.Use(h.visitorMiddleware)
+		pub.Use(h.AgentDiscoveryLinkHeadersMiddleware)
+		pub.Use(h.MarkdownNegotiationMiddleware)
+
+		// Agent Discovery, OpenID / OAuth Discovery, MCP & Machine-Readable Capabilities
+		pub.Get("/sitemap.xml", h.SitemapXML)
+		pub.Get("/.well-known/api-catalog", h.APICatalogJSON)
+		pub.Get("/.well-known/ai-catalog.json", h.AICatalogJSON)
+		pub.Get("/.well-known/openid-configuration", h.OpenIDConfiguration)
+		pub.Get("/.well-known/oauth-authorization-server", h.OpenIDConfiguration)
+		pub.Get("/.well-known/oauth-protected-resource", h.OAuthProtectedResource)
+		pub.Get("/.well-known/jwks.json", h.JWKSJSON)
+		pub.Get("/.well-known/mcp/server-card.json", h.MCPServerCard)
+		pub.Get("/.well-known/agent-skills/index.json", h.AgentSkillsIndex)
+		pub.Get("/.well-known/agent-skills/{skill}/SKILL.md", h.AgentSkillDoc)
+		pub.Get("/.well-known/agent-skills/{skill}", h.AgentSkillDoc)
+		pub.Get("/auth.md", h.AuthMD)
+		pub.Get("/.well-known/auth.md", h.AuthMD)
+		pub.Get("/docs/api", h.APIDocsPage)
+		pub.Get("/api/v1/openapi.json", h.OpenAPISpecJSON)
+		pub.Get("/api/v1/openapi.yaml", h.OpenAPISpecJSON)
 
 		// Public & Auth (marketing, catalogue browsing, sign-in)
 		pub.Get("/", h.HomePage)
@@ -48,44 +68,42 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/onboarding", h.OnboardingPage)
 		pub.Get("/lang/{code}", h.SetLanguage)
 
-		// The bait path. It exists only to be followed: robots.txt forbids it
-		// and the single link to it is hidden from anyone using the page. A
-		// caller that fetches it has both ignored robots.txt and harvested
-		// every href in the HTML, which is the definition of the thing this
-		// guard is for, so it is put on the refused list for an hour.
-		pub.Get("/trap/*", h.ScrapeTrap)
-
-		// Everything below publishes marketplace data — supplier identity, net
-		// supply price, stock, expiry — to callers who have not signed in, and
-		// is therefore what a scraper comes for. The guard meters it; the rest
-		// of the public surface (marketing copy, the sign-in form) is left
-		// alone, because a request budget on /about buys nothing and costs a
-		// middleware on every render.
+		// The guarded routes: the catalogue listing and the supplier
+		// directory, and nothing else.
+		//
+		// These two are the whole business asset in list form. /catalog
+		// publishes supplier identity, net supply price, stock and expiry
+		// across the market in one paginated view; /suppliers publishes who
+		// every distributor is, where their branches are and what they cover.
+		// Taken together they are the answer to "who sells what, at what
+		// price, where" — which is the question this company exists to answer,
+		// and the one a competitor would otherwise get for the cost of an
+		// afternoon.
+		//
+		// The supplier profile is in the group with its listing: a directory is
+		// only worth taking in bulk, and the profiles are the payload the
+		// directory indexes.
+		//
+		// Everything else stays open on purpose. /catalog/{id} yields one
+		// product per request, /offers and /jobs are already bounded
+		// server-side, and the marketing pages have nothing to take. A request
+		// budget on /about buys nothing and costs a middleware on every render.
 		pub.Group(func(data chi.Router) {
 			data.Use(h.scrape.Protect)
 
-			// Public catalogue and directory
 			data.Get("/catalog", h.CustomerCatalogPage)
-			data.Get("/catalog/{id}", h.CustomerProductDetailPage)
 			data.Get("/suppliers", h.SuppliersPage)
 			data.Get("/suppliers/{id}", h.SupplierProfilePage)
-			data.Get("/offers", h.OffersPage)
-			data.Get("/offers/{id}", h.OfferDetailPage)
-			data.Get("/jobs", h.JobsPage)
-			data.Get("/jobs/{id}", h.JobDetailPage)
 		})
 
-		// The two search endpoints answer a bare URL with structured JSON,
-		// which makes them the cheapest thing here to harvest and the only
-		// ones that also have to prove they were called from a page of this
-		// site rather than from a script holding the URL.
-		pub.Group(func(search chi.Router) {
-			search.Use(h.scrape.Protect)
-			search.Use(h.scrape.RequireSiteOrigin)
-
-			search.Get("/compare/search", h.CompareQuickSearch)
-			search.Get("/api/v1/compare/search", h.CompareQuickSearch)
-		})
+		// Unguarded, by instruction. Left registered exactly as they were.
+		pub.Get("/catalog/{id}", h.CustomerProductDetailPage)
+		pub.Get("/offers", h.OffersPage)
+		pub.Get("/offers/{id}", h.OfferDetailPage)
+		pub.Get("/jobs", h.JobsPage)
+		pub.Get("/jobs/{id}", h.JobDetailPage)
+		pub.Get("/compare/search", h.CompareQuickSearch)
+		pub.Get("/api/v1/compare/search", h.CompareQuickSearch)
 
 		// Unlisted Courier Delivery Portal (Dedicated Delivery Representative Interface)
 		pub.Get("/delivery", h.CourierDeliveryPage)

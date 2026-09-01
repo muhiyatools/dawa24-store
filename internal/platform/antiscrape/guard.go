@@ -151,22 +151,6 @@ func (g *Guard) Protect(next http.Handler) http.Handler {
 	})
 }
 
-// RequireSiteOrigin refuses a request that did not come from a page of this
-// site. It guards the JSON endpoints, whose whole value to a scraper is that
-// they answer a bare URL with structured data.
-func (g *Guard) RequireSiteOrigin(next http.Handler) http.Handler {
-	if !g.Enabled() {
-		return next
-	}
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if _, authenticated := g.identify(r); authenticated || FromSite(r) {
-			next.ServeHTTP(w, r)
-			return
-		}
-		g.refuse(w, r, reasonOffSite, Classify(r))
-	})
-}
-
 // Penalize puts the caller behind this request on the refused list for the
 // penalty window. It is called when a caller does something no person does —
 // filling a hidden form field, or fetching a path that only exists as bait.
@@ -183,14 +167,6 @@ func (g *Guard) Penalize(r *http.Request, reason string) {
 		"user_agent", r.Header.Get("User-Agent"),
 		"for", g.penaltyTTL.String(),
 	)
-}
-
-// Trap is the handler for a bait path: a link no person can see, disallowed in
-// robots.txt, reachable only by something that reads the HTML and follows
-// everything in it.
-func (g *Guard) Trap(w http.ResponseWriter, r *http.Request) {
-	g.Penalize(r, "honeypot_path")
-	g.refuse(w, r, reasonPenalty, Classify(r))
 }
 
 // within reports whether one more request fits in the caller's allowance.

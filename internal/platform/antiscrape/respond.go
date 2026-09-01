@@ -15,7 +15,6 @@ import (
 const (
 	reasonAutomation = "automation_user_agent"
 	reasonBudget     = "request_budget_exceeded"
-	reasonOffSite    = "off_site_request"
 	reasonPenalty    = "penalised_caller"
 )
 
@@ -45,12 +44,17 @@ func (g *Guard) refuse(w http.ResponseWriter, r *http.Request, reason string, cl
 	)
 
 	h := w.Header()
-	// An error page must never become the indexed version of /catalog.
+	// An error page must never become the indexed version of a guarded route.
 	h.Set("X-Robots-Tag", "noindex, nofollow")
 	h.Set("Cache-Control", "no-store")
 	if status == http.StatusTooManyRequests {
 		h.Set("Retry-After", retryAfterSeconds)
 	}
+	// A refusal that is only a refusal is a dead end for a legitimate
+	// integrator. This platform publishes a documented API and an agent
+	// discovery surface, so the refusal says where to go instead — in a header
+	// a machine reads, and in prose a person reads.
+	h.Set("Link", `</api/v1/openapi.json>; rel="service-desc", </docs/api>; rel="help"`)
 
 	// The keys are spelled out on both branches rather than selected into a
 	// variable: i18n.T takes format arguments, so a non-constant key is a
@@ -68,8 +72,10 @@ func (g *Guard) refuse(w http.ResponseWriter, r *http.Request, reason string, cl
 		w.WriteHeader(status)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"error": map[string]string{
-				"code":    "request.refused",
-				"message": body,
+				"code":         "request.refused",
+				"message":      body,
+				"service_desc": "/api/v1/openapi.json",
+				"docs":         "/docs/api",
 			},
 		})
 		return
@@ -109,13 +115,17 @@ func refusalPage(lang, dir, title, body string) string {
 		`main{max-width:32rem;padding:2rem;text-align:center}` +
 		`h1{font-size:1.25rem;margin:0 0 .75rem}` +
 		`p{font-size:.875rem;line-height:1.7;color:#475569;margin:0 0 1.5rem}` +
-		`a{display:inline-block;padding:.6rem 1.25rem;border-radius:.75rem;` +
-		`background:#0284c7;color:#fff;text-decoration:none;font-weight:700}</style></head><body><main><h1>`)
+		`a{display:inline-block;margin:0 .25rem;padding:.6rem 1.25rem;border-radius:.75rem;` +
+		`background:#0284c7;color:#fff;text-decoration:none;font-weight:700}` +
+		`a.secondary{background:transparent;color:#0284c7;border:1px solid #cbd5e1}` +
+		`</style></head><body><main><h1>`)
 	b.WriteString(html.EscapeString(title))
 	b.WriteString(`</h1><p>`)
 	b.WriteString(html.EscapeString(body))
 	b.WriteString(`</p><a href="/">`)
 	b.WriteString(html.EscapeString(i18n.T(lang, "security.antiscrape.back_home")))
+	b.WriteString(`</a> <a class="secondary" href="/docs/api">`)
+	b.WriteString(html.EscapeString(i18n.T(lang, "security.antiscrape.use_the_api")))
 	b.WriteString(`</a></main></body></html>`)
 	return b.String()
 }

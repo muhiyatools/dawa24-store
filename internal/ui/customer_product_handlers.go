@@ -7,16 +7,11 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if _, ok := authctx.From(ctx); !ok {
-		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
-		return
-	}
 	lang, dir := h.localeAndDir(r)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)

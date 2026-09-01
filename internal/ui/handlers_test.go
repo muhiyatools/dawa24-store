@@ -128,18 +128,41 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 	}
 }
 
-func TestGuestAccessBlockedForCommercialPages(t *testing.T) {
+// The public marketplace pages stay open to signed-out visitors on purpose.
+//
+// They were briefly put behind a login redirect, and that redirect was removed:
+// a crawler that gets 303 to /auth/login indexes nothing, so gating these cost
+// the search-engine and AI-assistant traffic the catalogue exists to attract.
+// Scraping is answered instead by internal/platform/antiscrape, which refuses
+// the callers that only take data while letting people and search engines
+// through — see scrape_guard_test.go.
+func TestPublicMarketplacePagesAreOpenToGuests(t *testing.T) {
 	router := newTestRouter(nil)
 
-	protectedRoutes := []string{
-		"/catalog",
-		"/offers",
-		"/suppliers",
-		"/compare/results",
-		"/compare",
-	}
+	for _, path := range []string{"/catalog", "/offers", "/suppliers"} {
+		t.Run("Guest_Allowed_"+path, func(t *testing.T) {
+			req := httptest.NewRequest("GET", path, nil)
+			rec := httptest.NewRecorder()
 
-	for _, path := range protectedRoutes {
+			router.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusOK {
+				t.Errorf("GET %s as a guest returned %d, want 200", path, rec.Code)
+			}
+			if loc := rec.Header().Get("Location"); strings.Contains(loc, "/auth/login") {
+				t.Errorf("GET %s as a guest redirected to %q; the login wall on the public pages was removed deliberately", path, loc)
+			}
+		})
+	}
+}
+
+// The compare workspace is the opposite case and must stay gated: every page in
+// it reads the caller's own uploaded price lists, so there is nothing to show a
+// visitor who has not signed in.
+func TestCompareWorkspaceStillRequiresSignIn(t *testing.T) {
+	router := newTestRouter(nil)
+
+	for _, path := range []string{"/compare", "/compare/results"} {
 		t.Run("Guest_Blocked_"+path, func(t *testing.T) {
 			req := httptest.NewRequest("GET", path, nil)
 			rec := httptest.NewRecorder()
@@ -149,8 +172,7 @@ func TestGuestAccessBlockedForCommercialPages(t *testing.T) {
 			if rec.Code != http.StatusSeeOther && rec.Code != http.StatusFound && rec.Code != http.StatusTemporaryRedirect {
 				t.Errorf("GET %s for guest returned status %d, want redirect to login", path, rec.Code)
 			}
-			loc := rec.Header().Get("Location")
-			if !strings.Contains(loc, "/auth/login") {
+			if loc := rec.Header().Get("Location"); !strings.Contains(loc, "/auth/login") {
 				t.Errorf("GET %s redirected to %q, want /auth/login redirect", path, loc)
 			}
 		})
@@ -160,7 +182,7 @@ func TestGuestAccessBlockedForCommercialPages(t *testing.T) {
 func TestHTMXPartialHeaderHandling(t *testing.T) {
 	router := setupTestRouter()
 
-	// Authenticated request to catalog partial renders successfully
+	// The catalogue partial renders for whoever asks for it
 	req := httptest.NewRequest("GET", "/catalog", nil)
 	req.Header.Set("HX-Request", "true")
 	rec := httptest.NewRecorder()
