@@ -36,7 +36,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Employees Toolbar --><div class=\"card p-4 mb-4\"><div class=\"d-flex items-center justify-between flex-wrap gap-3\"><div class=\"d-flex items-center gap-3 flex-1 min-w-64 flex-wrap\"><div class=\"position-relative flex-1 min-w-48\"><input type=\"text\" id=\"cb-emp-search-input\" placeholder=\"ابحث باسم الموظف، البريد، أو الكود...\" class=\"form-control form-control-sm\" oninput=\"filterCustomerEmployees()\"></div><select id=\"cb-emp-branch-filter\" class=\"form-select form-select-sm min-w-36\" onchange=\"filterCustomerEmployees()\"><option value=\"\">كل الفروع</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Employees Toolbar --><div class=\"glass-panel p-4 mb-4\"><div class=\"d-flex items-center justify-between flex-wrap gap-3\"><div class=\"d-flex items-center gap-3 flex-1 min-w-64 flex-wrap\"><div class=\"position-relative flex-1 min-w-48\"><input type=\"text\" id=\"cb-emp-search-input\" placeholder=\"ابحث باسم الموظف، البريد، أو الكود...\" class=\"form-control\" oninput=\"filterCustomerEmployees()\"></div><select id=\"cb-emp-branch-filter\" class=\"form-select form-select-sm min-w-36\" onchange=\"filterCustomerEmployees()\"><option value=\"\">كل الفروع</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 			return templ_7745c5c3_Err
 		}
 		if len(data.Employees) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"p-8 text-center card\"><div class=\"mb-2 text-2xl text-muted\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"p-8 text-center glass-panel\"><div class=\"mb-2 text-2xl text-muted\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -110,7 +110,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"card p-0 overflow-hidden mb-4\"><div class=\"table-responsive\"><table class=\"data-table\" id=\"customer-employees-table\"><thead><tr><th>الموظف والبيانات الشخصية</th><th>الفرع المعين به</th><th>المسمى الوظيفي</th><th>الدور والصلاحيات</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"glass-panel p-0 overflow-hidden mb-4\"><div class=\"table-responsive\"><table class=\"data-table\" id=\"customer-employees-table\"><thead><tr><th>الموظف والبيانات الشخصية</th><th>الفرع المعين به</th><th>المسمى الوظيفي</th><th>الدور والصلاحيات</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -437,7 +437,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<form method=\"POST\" action=\"/customer/employees/new\" class=\"d-flex flex-col gap-3 m-0\"><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" required placeholder=\"د. أحمد محمد\" class=\"form-control form-control-sm font-semibold\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">البريد الإلكتروني <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"email\" required placeholder=\"ahmed@pharmacy.com\" class=\"form-control form-control-sm font-semibold\" dir=\"ltr\"></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">رقم الهاتف للتواصل</label> <input type=\"tel\" name=\"phone\" placeholder=\"01099887766\" class=\"form-control form-control-sm tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي</label> <input type=\"text\" name=\"job_title\" placeholder=\"صيدلي أول / مدير فرع\" class=\"form-control form-control-sm font-semibold\"></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">كود الموظف الداخلي</label> <input type=\"text\" name=\"employee_code\" placeholder=\"EMP-01\" class=\"form-control form-control-sm tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">كلمة المرور (اختياري)</label> <input type=\"password\" name=\"password\" placeholder=\"اتركه فارغاً للتوليد التلقائي\" class=\"form-control form-control-sm\"></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الفرع التابع له الموظف <span class=\"text-danger\">*</span></label> <select id=\"add-emp-branch-select\" name=\"branch_id\" class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- عام (كافة الفروع) --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<form method=\"POST\" action=\"/customer/employees/new\" class=\"d-flex flex-col gap-3 m-0\"><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" required placeholder=\"د. أحمد محمد\" class=\"form-control font-semibold\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">البريد الإلكتروني <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"email\" required placeholder=\"ahmed@pharmacy.com\" class=\"form-control font-semibold\" dir=\"ltr\"></div></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">رقم الهاتف للتواصل</label> <input type=\"tel\" name=\"phone\" placeholder=\"01099887766\" class=\"form-control tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي</label> <input type=\"text\" name=\"job_title\" placeholder=\"صيدلي أول / مدير فرع\" class=\"form-control font-semibold\"></div></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">كود الموظف الداخلي</label> <input type=\"text\" name=\"employee_code\" placeholder=\"EMP-01\" class=\"form-control tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">كلمة المرور (اختياري)</label> <input type=\"password\" name=\"password\" placeholder=\"اتركه فارغاً للتوليد التلقائي\" class=\"form-control\"></div></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الفرع التابع له الموظف <span class=\"text-danger\">*</span></label> <select id=\"add-emp-branch-select\" name=\"branch_id\" class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- عام (كافة الفروع) --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -485,7 +485,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الدور والصلاحيات (Role) <span class=\"text-danger\">*</span></label> <select name=\"role_key\" required class=\"form-select form-select-sm font-semibold\"><option value=\"org_pharmacist\">صيدلي مسؤول (طلب أدوية واستعراض)</option> <option value=\"org_manager\">مدير فرع (صلاحيات كاملة للفرع والمخزون)</option> <option value=\"org_accountant\">محاسب / مسؤول مشتريات (فواتير ومدفوعات)</option> <option value=\"org_warehouse\">أمين مخزن (استلام وجرد شحنات)</option> <option value=\"org_employee\">موظف صيدلية / فرع (تشغيل عام)</option> <option value=\"org_owner\">شريك / مالك المؤسسة (صلاحيات كاملة)</option></select></div></div><div class=\"modal-footer pt-3 border-top d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"document.getElementById('add-employee-modal').close()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الدور والصلاحيات (Role) <span class=\"text-danger\">*</span></label> <select name=\"role_key\" required class=\"form-select form-select-sm font-semibold\"><option value=\"org_pharmacist\">صيدلي مسؤول (طلب أدوية واستعراض)</option> <option value=\"org_manager\">مدير فرع (صلاحيات كاملة للفرع والمخزون)</option> <option value=\"org_accountant\">محاسب / مسؤول مشتريات (فواتير ومدفوعات)</option> <option value=\"org_warehouse\">أمين مخزن (استلام وجرد شحنات)</option> <option value=\"org_employee\">موظف صيدلية / فرع (تشغيل عام)</option> <option value=\"org_owner\">شريك / مالك المؤسسة (صلاحيات كاملة)</option></select></div></div><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"document.getElementById('add-employee-modal').close()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -538,7 +538,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"d-flex flex-col gap-3 m-0\"><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">اسم الموظف</label> <input type=\"text\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"d-flex flex-col gap-3 m-0\"><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">اسم الموظف</label> <input type=\"text\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -551,7 +551,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" disabled class=\"form-control form-control-sm bg-surface-sunken\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">البريد الإلكتروني</label> <input type=\"email\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" disabled class=\"form-control bg-surface-sunken\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">البريد الإلكتروني</label> <input type=\"email\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -564,7 +564,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" disabled class=\"form-control form-control-sm bg-surface-sunken\" dir=\"ltr\"></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي</label> <input type=\"text\" name=\"job_title\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" disabled class=\"form-control bg-surface-sunken\" dir=\"ltr\"></div></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي</label> <input type=\"text\" name=\"job_title\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -577,7 +577,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"form-control form-control-sm font-semibold\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">كود الموظف</label> <input type=\"text\" name=\"employee_code\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"form-control font-semibold\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">كود الموظف</label> <input type=\"text\" name=\"employee_code\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -590,7 +590,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" class=\"form-control form-control-sm tabular-nums\"></div></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الفرع التابع له الموظف</label> <select name=\"branch_id\" class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- عام (كافة الفروع) --</option> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" class=\"form-control tabular-nums\"></div></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الفرع التابع له الموظف</label> <select name=\"branch_id\" class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- عام (كافة الفروع) --</option> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -718,7 +718,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, " class=\"form-checkbox\"> <span>الموظف نشط ومصرح له بتسجيل الدخول والعمل على النظام</span></label></div><div class=\"modal-footer pt-3 border-top d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-emp-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, " class=\"form-checkbox\"> <span>الموظف نشط ومصرح له بتسجيل الدخول والعمل على النظام</span></label></div><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-emp-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

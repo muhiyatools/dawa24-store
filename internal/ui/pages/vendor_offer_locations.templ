@@ -48,7 +48,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 					</div>
 				</div>
 
-				<a href="/vendor/offers" class="btn btn-secondary btn-sm fw-700">
+				<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold">
 					<span>← العودة لجميع العروض</span>
 				</a>
 			</div>
@@ -155,7 +155,7 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 						<h3 class="text-lg fw-800 text-primary m-0">
 							النطاقات المسجلة لهذا العرض
 						</h3>
-						<span class="badge badge-sky tabular-nums fw-700">
+						<span class="badge badge-sky tabular-nums font-bold">
 							{ fmt.Sprintf("%d نطاقات", len(data.Locations)) }
 						</span>
 					</div>

@@ -12,7 +12,7 @@ import (
 templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
 	@layouts.PublicShell("خطط مقارنة الخصومات | Plans", lang, dir) {
   <div class="stack-sm">
-			<h2 class="card-title font-bold text-base m-0">خطط مقارنة الخصومات</h2>
+			<h2 class="font-bold text-base m-0">خطط مقارنة الخصومات</h2>
 			<p class="text-sm text-secondary m-0">قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p>
 		</div>
 		if len(plans) == 0 {
@@ -24,7 +24,7 @@ templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
 		} else {
    <div class="stack-sm">
 				for _, p := range plans {
-					<div class="card hover-lift">
+					<div class="glass-panel hover-lift">
       <div class="stack-sm">
 							<h3 class="font-bold text-sm m-0">{ p.Name.Get(i18n.Lang(lang)) }</h3>
 							<p class="text-sm text-secondary m-0">{ p.Description.Get(i18n.Lang(lang)) }</p>

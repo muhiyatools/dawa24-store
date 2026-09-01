@@ -205,7 +205,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 									</thead>
 									<tbody class="divide-y divide-slate-100">
 										for _, s := range data.Subscriptions {
-											<tr class="hover:bg-slate-50/50 transition-colors">
+											<tr class="transition-colors">
 												<td class="tabular-nums font-bold text-primary py-3 ps-4">{ fmt.Sprintf("SUB-%d", s.ID) }</td>
 												<td class="py-3">
 													if s.OrganizationID != nil && *s.OrganizationID > 0 {
@@ -259,9 +259,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								</button>
 							</div>
 						} else {
-							<div class="d-grid grid-cols-1 md:grid-cols-3 gap-6">
+							<div class="d-grid grid-auto-fit-sm gap-6">
 								for _, p := range data.Plans {
-									<div class={ "glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 transition-all d-flex flex-col justify-between", templ.KV("ring-2 ring-brand-500 shadow-md", p.IsDefault) }>
+									<div class={ "glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs transition-all d-flex flex-col justify-between", templ.KV("ring-2 ring-brand-500 shadow-md", p.IsDefault) }>
 										<!-- Card Top: Badges & Title -->
           <div class="stack-sm">
 											<!-- Header Badges -->
@@ -532,7 +532,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				<form :action="formAction" method="POST" class="d-flex flex-col gap-4 m-0">
 						<div class="modal-body d-flex flex-col gap-4">
 							<!-- Section 1: Identity & Names -->
-							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="d-grid grid-auto-fit-sm gap-4">
         <div class="stack-sm">
 									<label class="form-label font-bold text-xs d-block mb-1">المعرّف الفريد (Slug) <span class="text-danger">*</span></label>
 									<input type="text" name="slug" x-model="form.slug" required class="form-input text-xs font-mono" placeholder="e.g. basic, pro, enterprise" dir="ltr" />
@@ -543,7 +543,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								</div>
 							</div>
 
-							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="d-grid grid-auto-fit-sm gap-4">
         <div class="stack-sm">
 									<label class="form-label font-bold text-xs d-block mb-1">اسم الباقة (إنجليزي)</label>
 									<input type="text" name="name_en" x-model="form.name_en" class="form-input text-xs" placeholder="e.g. Professional Plan" dir="ltr" />
@@ -566,7 +566,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 									<span>تسعير الباقة (شهري وسنوي)</span>
 								</div>
 
-								<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
+								<div class="d-grid grid-auto-fit-sm gap-3">
          <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">السعر الشهري (ج.م) <span class="text-danger">*</span></label>
 										<input type="number" step="0.01" min="0" name="price_month" x-model="form.price_month" class="form-input tabular-nums text-xs font-bold" placeholder="0.00" required />
@@ -587,7 +587,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 									<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span>
 								</div>
 
-								<div class="d-grid grid-cols-1 md:grid-cols-3 gap-3">
+								<div class="d-grid grid-auto-fit-sm gap-3">
          <div class="stack-sm">
 										<label class="form-label font-bold text-xs d-block mb-1">الجلسات المتزامنة <span class="text-danger">*</span></label>
 										<input type="number" name="max_login_sessions" x-model="form.sessions" class="form-input tabular-nums text-xs" min="1" max="500" required />

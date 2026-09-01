@@ -89,7 +89,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					</p>
 				</div>
     <div class="stack-sm">
-					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary btn-sm fw-700">
+					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary btn-sm font-bold">
 						<span>← العودة لنتائج المطابقة</span>
 					</a>
 				</div>
@@ -157,7 +157,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 			}
 			for _, g := range data.Groups {
-				<div class="card">
+				<div class="glass-panel">
 					
 					<!-- Group Header Strip -->
      <div class="stack-sm">
@@ -239,7 +239,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 													/>
 													<button type="button" class="btn btn-ghost btn-xs" onclick="stepReviewQty(this, 1)">+</button>
 												</div>
-												<button type="submit" class="btn btn-secondary btn-xs fw-700" title="حفظ الكمية">
+												<button type="submit" class="btn btn-secondary btn-xs font-bold" title="حفظ الكمية">
 													تعديل
 												</button>
 											</form>
@@ -358,7 +358,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					</summary>
      <div class="stack-sm">
      <div class="stack-sm">
-						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=blocked", data.Run.PublicID)) } class="btn btn-secondary btn-xs fw-700">
+						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=blocked", data.Run.PublicID)) } class="btn btn-secondary btn-xs font-bold">
 							معالجة الأصناف ←
 						</a>
 					</div>
@@ -396,7 +396,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 											</span>
 										</td>
 										<td>
-											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?q=%s", data.Run.PublicID, l.RawName)) } class="btn btn-secondary btn-xs fw-700">
+											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?q=%s", data.Run.PublicID, l.RawName)) } class="btn btn-secondary btn-xs font-bold">
 												ربط الصنف
 											</a>
 										</td>
@@ -410,7 +410,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			}
 
 			<!-- Bottom Sticky Placement Action Bar -->
-			<div class="card">
+			<div class="glass-panel">
     <div class="stack-sm">
 					<div class="stack-xs text-sm">إجمالي الطلب الشامل:</div>
 					<div class="tabular-nums">
@@ -422,7 +422,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 
     <div class="stack-sm">
-					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary fw-700">
+					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary font-bold">
 						تعديل المطابقة
 					</a>
 					<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) }>

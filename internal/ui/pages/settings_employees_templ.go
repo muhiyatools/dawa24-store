@@ -59,7 +59,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"page-title font-bold text-xl m-0\">منظومة الموظفين ومدراء الفروع المعتمدين</h1><p class=\"text-sm text-secondary m-0\">إدارة حسابات الصيادلة والموظفين، وتعيين مدير مسؤول لكل فرع ونقطة توزيع.</p></div></div><div class=\"row-center\"><a href=\"/vendor/roles\" class=\"btn btn-secondary btn-sm fw-700\"><span>إدارة الأدوار والصلاحيات</span></a> <a href=\"#new-employee-panel\" class=\"btn btn-primary btn-sm fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"page-title font-bold text-xl m-0\">منظومة الموظفين ومدراء الفروع المعتمدين</h1><p class=\"text-sm text-secondary m-0\">إدارة حسابات الصيادلة والموظفين، وتعيين مدير مسؤول لكل فرع ونقطة توزيع.</p></div></div><div class=\"row-center\"><a href=\"/vendor/roles\" class=\"btn btn-secondary btn-sm font-bold\"><span>إدارة الأدوار والصلاحيات</span></a> <a href=\"#new-employee-panel\" class=\"btn btn-primary btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -447,14 +447,14 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div></td><td><div class=\"fw-700 text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div></td><td><div class=\"font-bold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(emp.Member.JobTitle)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_employees.templ`, Line: 294, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_employees.templ`, Line: 294, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {

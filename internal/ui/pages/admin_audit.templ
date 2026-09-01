@@ -135,7 +135,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 
 										<!-- 3. المستخدم -->
 										<td class="text-start">
-											<div class="text-sm fw-700 text-primary">
+											<div class="text-sm font-bold text-primary">
 												{ e.ActorName }
 											</div>
 											if e.ActorEmail != "" {
@@ -166,7 +166,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 
 										<!-- 6. العنوان والوصف -->
 										<td class="text-start">
-											<div class="fw-700 text-primary text-sm">
+											<div class="font-bold text-primary text-sm">
 												{ e.Title }
 											</div>
 											<div class="stack-xs text-sm">
@@ -244,7 +244,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 										<div class="text-xs text-muted">التوقيت والأهمية:</div>
 										<div class="text-sm font-bold text-primary" x-text="selected.created_at"></div>
 										<div class="mt-0.5">
-											<span class="badge" :class="selected.severity === 'حرج (Critical)' || selected.severity === 'critical' ? 'badge-rose' : (selected.severity === 'متوسط (Warning)' || selected.severity === 'warning' ? 'badge-amber' : 'badge-slate')" x-text="selected.severity"></span>
+											<span class="badge" :class="selected.severity === 'حرج (Critical)' || 'critical' ? 'badge-rose' : (selected.severity 'متوسط (Warning)' 'warning' 'badge-amber' 'badge-slate')" x-text="selected.severity"></span>
 										</div>
 									</div>
 								</div>

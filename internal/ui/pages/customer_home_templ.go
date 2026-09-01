@@ -446,7 +446,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><script>\n\t\t\t\t\tfunction heroAdSlider(total) {\n\t\t\t\t\t\treturn {\n\t\t\t\t\t\t\tcurrentSlide: 0,\n\t\t\t\t\t\t\ttotalSlides: total,\n\t\t\t\t\t\t\ttimer: null,\n\t\t\t\t\t\t\tstartAutoplay() {\n\t\t\t\t\t\t\t\tif (this.totalSlides <= 1) return;\n\t\t\t\t\t\t\t\tthis.pauseAutoplay();\n\t\t\t\t\t\t\t\tthis.timer = setInterval(() => {\n\t\t\t\t\t\t\t\t\tthis.nextSlide();\n\t\t\t\t\t\t\t\t}, 5000);\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\tpauseAutoplay() {\n\t\t\t\t\t\t\t\tif (this.timer) {\n\t\t\t\t\t\t\t\t\tclearInterval(this.timer);\n\t\t\t\t\t\t\t\t\tthis.timer = null;\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\tnextSlide() {\n\t\t\t\t\t\t\t\tthis.currentSlide = (this.currentSlide + 1) % this.totalSlides;\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\tprevSlide() {\n\t\t\t\t\t\t\t\tthis.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\tgoToSlide(idx) {\n\t\t\t\t\t\t\t\tthis.currentSlide = idx;\n\t\t\t\t\t\t\t\tthis.startAutoplay();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t};\n\t\t\t\t\t}\n\t\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><script>\r\n\t\t\t\t\tfunction heroAdSlider(total) {\r\n\t\t\t\t\t\treturn {\r\n\t\t\t\t\t\t\tcurrentSlide: 0,\r\n\t\t\t\t\t\t\ttotalSlides: total,\r\n\t\t\t\t\t\t\ttimer: null,\r\n\t\t\t\t\t\t\tstartAutoplay() {\r\n\t\t\t\t\t\t\t\tif (this.totalSlides <= 1) return;\r\n\t\t\t\t\t\t\t\tthis.pauseAutoplay();\r\n\t\t\t\t\t\t\t\tthis.timer = setInterval(() => {\r\n\t\t\t\t\t\t\t\t\tthis.nextSlide();\r\n\t\t\t\t\t\t\t\t}, 5000);\r\n\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t\tpauseAutoplay() {\r\n\t\t\t\t\t\t\t\tif (this.timer) {\r\n\t\t\t\t\t\t\t\t\tclearInterval(this.timer);\r\n\t\t\t\t\t\t\t\t\tthis.timer = null;\r\n\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t\tnextSlide() {\r\n\t\t\t\t\t\t\t\tthis.currentSlide = (this.currentSlide + 1) % this.totalSlides;\r\n\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t\tprevSlide() {\r\n\t\t\t\t\t\t\t\tthis.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;\r\n\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t\tgoToSlide(idx) {\r\n\t\t\t\t\t\t\t\tthis.currentSlide = idx;\r\n\t\t\t\t\t\t\t\tthis.startAutoplay();\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t};\r\n\t\t\t\t\t}\r\n\t\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -891,7 +891,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 				return templ_7745c5c3_Err
 			}
 			if len(stats.DealsAds) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<section class=\"landing-section-block\"><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<section class=\"landing-section-block\"><div class=\"d-grid grid-auto-fit-sm gap-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -910,7 +910,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" class=\"glass-panel p-5 rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 hover:border-amber-400 transition-all text-decoration-none\"><div class=\"d-flex items-center gap-3.5\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" class=\"glass-panel p-5 rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 transition-all text-decoration-none\"><div class=\"d-flex items-center gap-3.5\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1461,7 +1461,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 				return templ_7745c5c3_Err
 			}
 			if len(stats.BottomAds) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 162, "<section class=\"landing-section-block\"><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 162, "<section class=\"landing-section-block\"><div class=\"d-grid grid-auto-fit-sm gap-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1480,7 +1480,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 164, "\" class=\"glass-panel p-5 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-sky-50/70 via-indigo-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 hover:border-sky-400 transition-all text-decoration-none\"><div class=\"d-flex items-center gap-3.5\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 164, "\" class=\"glass-panel p-5 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-sky-50/70 via-indigo-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 transition-all text-decoration-none\"><div class=\"d-flex items-center gap-3.5\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

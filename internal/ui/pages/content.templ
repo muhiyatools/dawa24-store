@@ -57,7 +57,7 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 				<!-- Main Policy Content -->
 				<div class="policy-content-card">
 					<!-- Document Header -->
-					<div class="d-flex items-center justify-between flex-wrap gap-3 pb-3 border-bottom">
+					<div class="d-flex items-center justify-between flex-wrap gap-3 pb-3 border-b">
 						<div>
 							<h1 class="page-title font-bold text-xl m-0">
 								{ title }
@@ -67,7 +67,7 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 							</p>
 						</div>
 
-						<span class="badge badge-emerald text-xs fw-700">
+						<span class="badge badge-emerald text-xs font-bold">
 							@components.IconCheck("icon-xs")
 							<span>سارية ومعتمدة رسمياً</span>
 						</span>
@@ -116,7 +116,7 @@ templ CmsPage(lang, dir, title, body string) {
 	@layouts.PublicShell(title, lang, dir) {
 		<div class="policy-page-container">
 			<div class="policy-content-card">
-				<h1 class="page-title font-bold text-xl m-0 pb-3 border-bottom">{ title }</h1>
+				<h1 class="page-title font-bold text-xl m-0 pb-3 border-b">{ title }</h1>
 				<div class="policy-prose mt-3">{ body }</div>
 			</div>
 		</div>

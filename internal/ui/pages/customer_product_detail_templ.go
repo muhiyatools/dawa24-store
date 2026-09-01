@@ -49,7 +49,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Breadcrumb Navigation --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap font-bold\"><a href=\"/\" class=\"text-secondary hover:text-primary transition-colors\">الرئيسية</a> <span>/</span> <a href=\"/catalog\" class=\"text-secondary hover:text-primary transition-colors\">كتالوج عروض التوريد</a> <span>/</span> <span class=\"text-primary font-black\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Breadcrumb Navigation --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap font-bold\"><a href=\"/\" class=\"text-secondary transition-colors\">الرئيسية</a> <span>/</span> <a href=\"/catalog\" class=\"text-secondary transition-colors\">كتالوج عروض التوريد</a> <span>/</span> <span class=\"text-primary font-black\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -194,7 +194,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><!-- Master Attributes Grid --><div class=\"p-4 rounded-xl bg-surface-sunken border text-xs grid grid-cols-1 sm:grid-cols-2 gap-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><!-- Master Attributes Grid --><div class=\"d-grid grid-auto-fit-sm p-4 rounded-xl bg-surface-sunken border text-xs gap-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -17,13 +17,13 @@ type VendorVariantEditorData struct {
 
 templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 	@layouts.VendorShell("إضافة عرض توريد لصنف دوائي معتمد", "new_variant", lang, dir) {
-		<div class="card">
+		<div class="glass-panel">
    <div class="stack-sm">
 				<div class="stack-xs text-sm">
 					@components.IconPlus("icon-sm")
 				</div>
     <div class="stack-sm">
-					<h2 class="card-title font-bold text-base m-0">
+					<h2 class="font-bold text-base m-0">
 						إضافة عرض توريد لصنف دوائي
 					</h2>
      <p class="text-sm text-secondary m-0">

@@ -96,7 +96,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Tab 1: Profile -->
 			<div
 				id="tab-profile"
-				class="tab-pane card p-8"
+				class="tab-pane glass-panel p-8"
 				:class="{ 'active': activeTab === 'profile' }"
 				x-show="activeTab === 'profile'"
 			>
@@ -112,7 +112,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					x-data="{ avatarPreview: '', removeAvatar: false }"
 				>
 					<!-- Avatar Upload Section -->
-					<div class="d-flex items-center gap-6 p-5 bg-surface-sunken border rounded-xl flex-wrap sm:flex-nowrap">
+					<div class="d-flex items-center gap-6 p-5 bg-surface-sunken border rounded-xl flex-wrap">
 						<!-- Circular Avatar Preview -->
 						<div class="avatar-box w-20 h-20 rounded-full bg-accent-subtle text-accent d-flex items-center justify-center flex-shrink-0 border-2 border-accent overflow-hidden shadow-sm">
 							<template x-if="avatarPreview">
@@ -229,7 +229,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Tab 2: Organization & Licenses -->
 			<div
 				id="tab-organization"
-				class="tab-pane card p-8"
+				class="tab-pane glass-panel p-8"
 				:class="{ 'active': activeTab === 'organization' }"
 				x-show="activeTab === 'organization'"
 			>
@@ -282,7 +282,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Tab 3: Preferences -->
 			<div
 				id="tab-preferences"
-				class="tab-pane card p-8"
+				class="tab-pane glass-panel p-8"
 				:class="{ 'active': activeTab === 'preferences' }"
 				x-show="activeTab === 'preferences'"
 			>

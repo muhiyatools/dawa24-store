@@ -297,7 +297,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 			<!-- Filter Strip -->
 			<div class="glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
 				<form method="GET" action="/admin/employee-activities" class="d-flex flex-col gap-3 m-0">
-					<div class="d-grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+					<div class="d-grid grid-auto-fit-sm gap-3 items-end">
 						<!-- Search Query -->
       <div class="stack-sm">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">البحث العام</label>
@@ -400,7 +400,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 							<tbody class="divide-y divide-slate-100">
 								for _, e := range data.Entries {
 									{{ actionLabel, badgeClass := formatAuditAction(e.Action, e.ActionLabelAr) }}
-									<tr class="hover:bg-slate-50/50 transition-colors">
+									<tr class="transition-colors">
 										<!-- 1. ID -->
 										<td class="text-center ps-4">
 											<span class="tabular-nums font-mono font-bold text-muted">
@@ -548,7 +548,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 				x-show="isDetailsOpen"
 				x-cloak
 				x-transition.opacity
-				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"
+				class="fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60"
 			
 				@keydown.escape.window="isDetailsOpen = false"
 			>
@@ -594,7 +594,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 							</div>
 
 							<!-- Before / After JSON Payloads -->
-							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
+							<div class="d-grid grid-auto-fit-sm gap-3">
 								<div class="p-3 bg-rose-50/40 rounded-xl border border-rose-100">
 									<div class="text-2xs font-extrabold text-rose-800 mb-1.5">البيانات السابقة (Before):</div>
 									<pre class="text-2xs font-mono bg-white p-2.5 rounded-lg border border-rose-200 overflow-x-auto text-slate-700" x-text="JSON.stringify(selected.before || {}, null, 2)"></pre>

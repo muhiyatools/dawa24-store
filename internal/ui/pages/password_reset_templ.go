@@ -46,7 +46,7 @@ func PasswordReset() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><div class=\"card hover-lift\"><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><div class=\"glass-panel hover-lift\"><div class=\"stack-sm\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func PasswordResetConfirm(token string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"stack-sm\"><div class=\"card hover-lift\"><div class=\"stack-sm\"><h1 class=\"page-title font-bold text-xl m-0\">تعيين كلمة المرور الجديدة</h1></div><form action=\"/auth/reset\" method=\"POST\" class=\"stack-lg\"><input type=\"hidden\" name=\"token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"stack-sm\"><div class=\"glass-panel hover-lift\"><div class=\"stack-sm\"><h1 class=\"page-title font-bold text-xl m-0\">تعيين كلمة المرور الجديدة</h1></div><form action=\"/auth/reset\" method=\"POST\" class=\"stack-lg\"><input type=\"hidden\" name=\"token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

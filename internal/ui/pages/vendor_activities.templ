@@ -150,7 +150,7 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 							for _, e := range entries {
 								{{ actionLabel, badgeClass := formatAuditAction(e.Action, e.ActionLabelAr) }}
 								<tr
-									class="hover:bg-slate-50/50 transition-colors"
+									class="transition-colors"
 									x-show={ fmt.Sprintf("search === '' || '%s'.toLowerCase().includes(search.toLowerCase()) || '%s'.toLowerCase().includes(search.toLowerCase()) || '%s'.toLowerCase().includes(search.toLowerCase())", e.ActorName, actionLabel, e.EntityID) }
 								>
 									<!-- Actor Info -->

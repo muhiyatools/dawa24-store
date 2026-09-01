@@ -41,7 +41,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 			}
 
 			<!-- Top Header Banner -->
-			<div class="card p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
+			<div class="glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
 				<div>
 					<div class="d-flex items-center gap-2 mb-1">
 						<div class="user-avatar-badge">
@@ -62,43 +62,43 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 			</div>
 
 			<!-- Metric Stats Cards -->
-			<div class="wallet-stats-grid mb-4">
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">إجمالي الوظائف</div>
-					<div class="wallet-stat-val text-primary tabular-nums">
+			<div class="dashboard-stat-grid cols-4 mb-4">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الوظائف</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
-					<div class="wallet-stat-note">كافة الشواغر المسجلة</div>
+					<div class="stat-card-sub">كافة الشواغر المسجلة</div>
 				</div>
 
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">الوظائف النشطة</div>
-					<div class="wallet-stat-val text-success tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الوظائف النشطة</div>
+					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", data.PublishedCount) }
 					</div>
-					<div class="wallet-stat-note">متاحة لاستقبال التقديمات</div>
+					<div class="stat-card-sub">متاحة لاستقبال التقديمات</div>
 				</div>
 
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">الوظائف المغلقة</div>
-					<div class="wallet-stat-val text-muted tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الوظائف المغلقة</div>
+					<div class="stat-card-value text-muted tabular-nums">
 						{ fmt.Sprintf("%d", data.ClosedCount) }
 					</div>
-					<div class="wallet-stat-note">تم الاكتفاء والتعيين</div>
+					<div class="stat-card-sub">تم الاكتفاء والتعيين</div>
 				</div>
 
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">إجمالي المتقدمين</div>
-					<div class="wallet-stat-val text-primary tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي المتقدمين</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalApplications) }
 					</div>
-					<div class="wallet-stat-note">السير الذاتية المستلمة</div>
+					<div class="stat-card-sub">السير الذاتية المستلمة</div>
 				</div>
 			</div>
 
 			<!-- Main Jobs Table Card -->
-			<div class="card p-0 overflow-hidden mb-4">
-				<div class="p-4 border-bottom d-flex items-center justify-between">
+			<div class="glass-panel p-0 overflow-hidden mb-4">
+				<div class="p-4 border-b d-flex items-center justify-between">
 					<h3 class="font-bold text-sm text-primary m-0">
 						قائمة الوظائف المنشورة
 					</h3>

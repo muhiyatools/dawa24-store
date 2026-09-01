@@ -227,7 +227,7 @@ templ importStructureCard(view ImportReviewView) {
 // upload is still on the row, though, and the commonest cause is a mapping that
 // read nothing — so the way out is the mapping screen, not another upload.
 templ importFailedCard(view ImportReviewView) {
-	<div class="card mb-0">
+	<div class="glass-panel mb-0">
 		<h2 class="wiz-head">تعذرت معالجة الملف</h2>
 		<p class="wiz-sub">
 			لم يُحفظ أي صنف في الكتالوج. الملف المرفوع ما زال محفوظاً، ويمكنك تصحيح ربط الأعمدة
@@ -416,7 +416,7 @@ templ importRowsPager(view ImportReviewView) {
 }
 
 templ importConfirmCard(view ImportReviewView) {
-	<div class="card mb-0">
+	<div class="glass-panel mb-0">
 		<h2 class="wiz-head">تأكيد الحفظ في الكتالوج المعتمد</h2>
 		<p class="wiz-sub">
 			{ fmt.Sprintf("سيتم إضافة %s صنف وتحديث %s صنف. العملية تتم بالكامل أو لا تتم إطلاقاً.",
@@ -465,7 +465,7 @@ templ importConfirmCard(view ImportReviewView) {
 // into uselessness. When the run finishes the page reloads itself into the
 // review, so nobody has to know to press refresh.
 templ importProgressCard(view ImportReviewView) {
-	<div class="card mb-0" id="import-progress" data-session={ view.Session.PublicID }>
+	<div class="glass-panel mb-0" id="import-progress" data-session={ view.Session.PublicID }>
 		<h2 class="wiz-head">⏳ جارٍ معالجة وتحليل الملف</h2>
 		<p class="wiz-sub">{ view.SourceSummary() }</p>
 		<div class="wiz-progress">

@@ -781,11 +781,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 						if (app.status === 'accepted' || app.status === 'hired') {
 							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'المقر الرئيسي';
-							statusBadge = `<span class="badge badge-emerald text-xs fw-700">تم القبول والتعيين (${branchText})</span>`;
+							statusBadge = `<span class="badge badge-emerald text-xs font-bold">تم القبول والتعيين (${branchText})</span>`;
 						} else if (app.status === 'rejected') {
-							statusBadge = `<span class="badge badge-slate text-xs fw-700">تم رفض الطلب</span>`;
+							statusBadge = `<span class="badge badge-slate text-xs font-bold">تم رفض الطلب</span>`;
 						} else {
-							statusBadge = `<span class="badge badge-sky text-xs fw-700">⏳ قيد المراجعة</span>`;
+							statusBadge = `<span class="badge badge-sky text-xs font-bold">⏳ قيد المراجعة</span>`;
 							actionButtons = `
 								<div class="d-flex gap-1.5 items-center">
 									<button type="button" class="btn btn-primary btn-sm fw-800" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')" class="text-xs px-3 py-1.5 gap-1">

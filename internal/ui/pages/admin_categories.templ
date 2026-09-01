@@ -159,7 +159,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 										</td>
 										<td>
 											if parentName != "" {
-												<span class="badge badge-slate fw-700">
+												<span class="badge badge-slate font-bold">
 													{ parentName }
 												</span>
 											} else {
@@ -182,7 +182,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 										<td class="text-center">
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/admin/products?category_id=%d", c.ID)) }
-												class="badge badge-indigo fw-700"
+												class="badge badge-indigo font-bold"
 											
 												title="عرض كافة أصناف هذه الفئة"
 											>
@@ -195,9 +195,9 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 										</td>
 										<td class="text-center">
 											if c.Status == "active" || c.Status == "" {
-												<span class="badge badge-emerald fw-700">نشط</span>
+												<span class="badge badge-emerald font-bold">نشط</span>
 											} else {
-												<span class="badge badge-slate fw-700">معطل</span>
+												<span class="badge badge-slate font-bold">معطل</span>
 											}
 										</td>
 										<td class="text-end">

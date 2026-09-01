@@ -16,7 +16,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 						@components.IconHeart("icon-sm")
 					</div>
      <div class="stack-sm">
-						<h2 class="card-title font-bold text-base m-0">
+						<h2 class="font-bold text-base m-0">
 							الأدوية والمستلزمات المفضلة
 						</h2>
       <p class="text-sm text-secondary m-0">
@@ -24,7 +24,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 						</p>
 					</div>
 				</div>
-				<a href="/catalog" class="btn btn-secondary btn-sm fw-700">
+				<a href="/catalog" class="btn btn-secondary btn-sm font-bold">
 					@components.IconSearch("icon-xs")
 					<span>تصفح الكتالوج الدوائي</span>
 				</a>
@@ -39,7 +39,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 			} else {
 				<div class="product-grid">
 					for _, p := range products {
-						<div class="card hover-lift">
+						<div class="glass-panel hover-lift">
        <div class="stack-sm">
         <div class="stack-sm">
 									<span class="badge badge-slate text-xs">

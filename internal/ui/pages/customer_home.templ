@@ -634,12 +634,12 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		<!-- 4b. Promoted Deals & Offers Banners (Position: home_deals) -->
 		if len(stats.DealsAds) > 0 {
 			<section class="landing-section-block">
-				<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="d-grid grid-auto-fit-sm gap-4">
 					for _, ad := range stats.DealsAds {
 						if ad != nil {
 							<a
 								href={ templ.SafeURL(ad.ResolveClickURL()) }
-								class="glass-panel p-5 rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 hover:border-amber-400 transition-all text-decoration-none"
+								class="glass-panel p-5 rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 transition-all text-decoration-none"
 							>
 								<div class="d-flex items-center gap-3.5">
 									if ad.MediaURL != "" && ad.MediaType != "video" {
@@ -912,12 +912,12 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		<!-- 8b. Promoted Pre-Footer Banners (Position: home_bottom) -->
 		if len(stats.BottomAds) > 0 {
 			<section class="landing-section-block">
-				<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="d-grid grid-auto-fit-sm gap-4">
 					for _, ad := range stats.BottomAds {
 						if ad != nil {
 							<a
 								href={ templ.SafeURL(ad.ResolveClickURL()) }
-								class="glass-panel p-5 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-sky-50/70 via-indigo-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 hover:border-sky-400 transition-all text-decoration-none"
+								class="glass-panel p-5 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-sky-50/70 via-indigo-50/40 to-white shadow-xs d-flex items-center justify-between gap-4 transition-all text-decoration-none"
 							>
 								<div class="d-flex items-center gap-3.5">
 									if ad.MediaURL != "" && ad.MediaType != "video" {

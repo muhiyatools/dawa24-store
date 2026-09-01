@@ -33,10 +33,10 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 				</div>
 
 				<div class="row-center">
-					<a href="/vendor/roles" class="btn btn-secondary btn-sm fw-700">
+					<a href="/vendor/roles" class="btn btn-secondary btn-sm font-bold">
 						<span>إدارة الأدوار والصلاحيات</span>
 					</a>
-					<a href="#new-employee-panel" class="btn btn-primary btn-sm fw-700">
+					<a href="#new-employee-panel" class="btn btn-primary btn-sm font-bold">
 						@components.IconPlus("icon-xs")
 						<span>+ إضافة موظف جديد</span>
 					</a>
@@ -291,7 +291,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 											<div class="tabular-nums">{ emp.UserEmail } • { emp.UserPhone }</div>
 										</td>
 										<td>
-											<div class="fw-700 text-primary">{ emp.Member.JobTitle }</div>
+											<div class="font-bold text-primary">{ emp.Member.JobTitle }</div>
 											if emp.Member.EmployeeCode != "" {
 												<div class="stack-xs text-sm">{ emp.Member.EmployeeCode }</div>
 											}

@@ -98,7 +98,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 							<tbody class="divide-y divide-slate-100">
 								for _, req := range requests {
 									if req != nil {
-										<tr class="hover:bg-slate-50/50 transition-colors">
+										<tr class="transition-colors">
 											<td class="tabular-nums font-bold text-primary py-3 ps-4">{ fmt.Sprintf("#%d", req.OrganizationID) }</td>
 											<td class="py-3">
 												if req.ItemType == "product" {
@@ -234,7 +234,7 @@ templ AdminAdsListPage(lang, dir string, ads []*promo.Ad) {
 							<tbody class="divide-y divide-slate-100">
 								for _, ad := range ads {
 									if ad != nil {
-										<tr class="hover:bg-slate-50/50 transition-colors">
+										<tr class="transition-colors">
 											<td class="font-extrabold text-primary py-3 ps-4">{ ad.DisplayTitle(lang) }</td>
 											<td class="tabular-nums py-3">
 												if ad.OrganizationID != nil {

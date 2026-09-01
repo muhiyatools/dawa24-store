@@ -127,7 +127,7 @@ templ wizardFatal(message, detail string) {
 }
 
 templ importUploadCard() {
-	<div class="card mb-0">
+	<div class="glass-panel mb-0">
 		<h2 class="wiz-head">ملف الأصناف</h2>
 		<p class="wiz-sub">
 			Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة
@@ -161,7 +161,7 @@ templ importUploadCard() {
 }
 
 templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMode) {
-	<div class="card mb-0">
+	<div class="glass-panel mb-0">
 		<h2 class="wiz-head">طريقة وخطة معالجة الاستيراد</h2>
 		<p class="wiz-sub">حدد سلوك الاستيراد للأصناف المستخرجة</p>
 		<div class="wiz-choices">
@@ -190,7 +190,7 @@ templ importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMo
 }
 
 templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOption, defaultCategory int64, aiAvailable bool) {
-	<div class="card mb-0">
+	<div class="glass-panel mb-0">
 		<h2 class="wiz-head">استكمال بيانات الأصناف</h2>
 		<p class="wiz-sub">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p>
 		<div class="wiz-switches">
@@ -201,7 +201,7 @@ templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpt
 		if !aiAvailable {
 			<p class="wiz-sub mt-md">
 				خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من
-				<a href="/admin/developers?tab=ai" class="text-accent fw-700">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.
+				<a href="/admin/developers?tab=ai" class="text-accent font-bold">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.
 			</p>
 		}
 		if len(categories) > 0 {
@@ -265,7 +265,7 @@ templ importHistoryCard(sessions []*catalog.ImportSession) {
 						<tr>
 							<td>
 								if session.IsReviewable() {
-									<a href={ templ.SafeURL("/admin/products/import/" + session.PublicID) } class="text-accent fw-700">{ session.Filename }</a>
+									<a href={ templ.SafeURL("/admin/products/import/" + session.PublicID) } class="text-accent font-bold">{ session.Filename }</a>
 								} else {
 									{ session.Filename }
 								}

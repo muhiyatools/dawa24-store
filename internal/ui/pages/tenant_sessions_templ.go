@@ -254,7 +254,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- Compact Metrics Bar --><div class=\"card p-4 mb-4 shadow-xs\"><div class=\"wallet-stats-grid\"><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">الجلسات المتصلة</div><div class=\"wallet-stat-val text-primary tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- Compact Metrics Bar --><div class=\"glass-panel p-4 mb-4 shadow-xs\"><div class=\"dashboard-stat-grid cols-4\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">الجلسات المتصلة</div><div class=\"stat-card-value text-primary tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -280,7 +280,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " مسموحة</span></div></div><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">حالة السعة</div><div class=\"mt-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " مسموحة</span></div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">حالة السعة</div><div class=\"mt-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -295,7 +295,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">حد الأجهزة المعتمدة</div><div class=\"wallet-stat-val text-primary tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">حد الأجهزة المعتمدة</div><div class=\"stat-card-value text-primary tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -308,7 +308,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " <span class=\"text-xs font-normal text-muted\">أجهزة</span></div></div><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">باقة المنشأة</div><div class=\"font-bold text-sm text-primary mt-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " <span class=\"text-xs font-normal text-muted\">أجهزة</span></div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">باقة المنشأة</div><div class=\"font-bold text-sm text-primary mt-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -321,7 +321,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div></div></div><!-- Active Sessions List --><div class=\"card p-5 mb-4 shadow-xs\"><div class=\"d-flex items-center justify-between flex-wrap gap-3 pb-3 mb-3 border-bottom\"><h2 class=\"card-title font-bold text-base text-primary m-0\">الأجهزة المتصلة حالياً (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div></div></div><!-- Active Sessions List --><div class=\"glass-panel p-5 mb-4 shadow-xs\"><div class=\"d-flex items-center justify-between flex-wrap gap-3 pb-3 mb-3 border-b\"><h2 class=\"font-bold text-base text-primary m-0\">الأجهزة المتصلة حالياً (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -569,7 +569,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div><!-- Password Security Form --><div class=\"card p-5 shadow-xs\"><div class=\"mb-3 pb-2 border-bottom\"><h2 class=\"card-title font-bold text-base text-primary m-0\">تحديث كلمة المرور</h2><p class=\"text-xs text-secondary m-0 mt-1\">تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً</p></div><form action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div><!-- Password Security Form --><div class=\"glass-panel p-5 shadow-xs\"><div class=\"mb-3 pb-2 border-b\"><h2 class=\"font-bold text-base text-primary m-0\">تحديث كلمة المرور</h2><p class=\"text-xs text-secondary m-0 mt-1\">تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً</p></div><form action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -582,7 +582,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" method=\"POST\" class=\"d-flex flex-col gap-3 max-w-lg\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\" for=\"sess-current-password\">كلمة المرور الحالية</label> <input type=\"password\" id=\"sess-current-password\" name=\"current_password\" required class=\"form-input form-input-sm font-semibold\" placeholder=\"••••••••\"></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\" for=\"sess-new-password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-new-password\" name=\"new_password\" required minlength=\"8\" class=\"form-input form-input-sm font-semibold\" placeholder=\"8 أحرف كحد أدنى\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\" for=\"sess-confirm-password\">تأكيد كلمة المرور</label> <input type=\"password\" id=\"sess-confirm-password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input form-input-sm font-semibold\" placeholder=\"••••••••\"></div></div><div class=\"pt-1\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold px-6\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" method=\"POST\" class=\"d-flex flex-col gap-3 max-w-lg\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\" for=\"sess-current-password\">كلمة المرور الحالية</label> <input type=\"password\" id=\"sess-current-password\" name=\"current_password\" required class=\"form-input form-input-sm font-semibold\" placeholder=\"••••••••\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\" for=\"sess-new-password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-new-password\" name=\"new_password\" required minlength=\"8\" class=\"form-input form-input-sm font-semibold\" placeholder=\"8 أحرف كحد أدنى\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\" for=\"sess-confirm-password\">تأكيد كلمة المرور</label> <input type=\"password\" id=\"sess-confirm-password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input form-input-sm font-semibold\" placeholder=\"••••••••\"></div></div><div class=\"pt-1\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold px-6\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

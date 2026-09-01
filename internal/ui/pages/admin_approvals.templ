@@ -95,7 +95,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 
 				<div class="form-group m-0">
 					<label class="form-label" for="req-org-select">المنشأة المستهدفة (صيدلية / مورد) *</label>
-					<select id="req-org-select" name="organization_id" required class="form-select fw-700">
+					<select id="req-org-select" name="organization_id" required class="form-select font-bold">
 						<option value="" disabled selected>-- اختر المنشأة من القائمة --</option>
 						for _, orgItem := range data.AllOrganizations {
 							<option value={ fmt.Sprintf("%d", orgItem.ID) }>
@@ -494,7 +494,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 					for _, doc := range data.UploadedDocs {
 						<tr id={ fmt.Sprintf("doc-row-%d", doc.ID) }>
 							<td>
-								<span class="badge badge-sky fw-700">
+								<span class="badge badge-sky font-bold">
 									{ docTypeLabelAr(string(doc.DocumentType)) }
 								</span>
 							</td>
@@ -584,7 +584,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												<label class="form-label" for={ fmt.Sprintf("doc-audit-type-%d", doc.ID) }>
 													تأكيد / تعديل تصنيف نوع المستند *
 												</label>
-												<select id={ fmt.Sprintf("doc-audit-type-%d", doc.ID) } name="document_type" required class="form-select fw-700">
+												<select id={ fmt.Sprintf("doc-audit-type-%d", doc.ID) } name="document_type" required class="form-select font-bold">
 													<option value="pharmacy_license" selected?={ doc.DocumentType == attachments.DocPharmacyLicense }>ترخيص الصيدلية / المنشأة (Pharmacy License)</option>
 													<option value="pharmacist_license" selected?={ doc.DocumentType == attachments.DocPharmacistLicense }>ترخيص مزاولة المهنة للصيدلي (Pharmacist License)</option>
 													<option value="commercial_register" selected?={ doc.DocumentType == attachments.DocCommercialRegister }>السجل التجاري (Commercial Register)</option>
@@ -672,7 +672,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 				<label class="form-label" for="req-doc-org">
 					المنشأة المستهدفة (صيدلية أو مورد) *
 				</label>
-				<select id="req-doc-org" name="organization_id" required class="form-select fw-700">
+				<select id="req-doc-org" name="organization_id" required class="form-select font-bold">
 					<option value="">-- اختر المنشأة --</option>
 					for _, org := range data.AllOrganizations {
 						if org != nil {
@@ -688,7 +688,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 				<label class="form-label" for="req-doc-type">
 					نوع المستند المطلوب *
 				</label>
-				<select id="req-doc-type" name="document_type" required class="form-select fw-700">
+				<select id="req-doc-type" name="document_type" required class="form-select font-bold">
 					<option value="pharmacy_license">ترخيص الصيدلية / المنشأة (Pharmacy License)</option>
 					<option value="pharmacist_license">ترخيص مزاولة المهنة للصيدلي المدير (Pharmacist License)</option>
 					<option value="syndicate_card">كارنيه نقابة الصيادلة للعام الحالي (Syndicate Card)</option>

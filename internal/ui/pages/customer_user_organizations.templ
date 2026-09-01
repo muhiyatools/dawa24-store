@@ -36,7 +36,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 			}
 
 			<!-- Top Header Banner -->
-			<div class="card p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
+			<div class="glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
 				<div>
 					<div class="d-flex items-center gap-2 mb-1">
 						<div class="user-avatar-badge">
@@ -105,7 +105,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								id="customer-uo-vendor-search"
 								placeholder="ابحث باسم المورد، الشركة، أو رقم السجل..."
 								autocomplete="off"
-								class="form-control form-control-sm font-semibold"
+								class="form-control font-semibold"
 								oninput="handleCustomerVendorSearch(this.value)"
 								onfocus="handleCustomerVendorSearch(this.value)"
 							/>
@@ -131,7 +131,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 							name="organization_number"
 							required
 							placeholder="مثال: NUM10001 أو 010645645..."
-							class="form-control form-control-sm font-mono font-bold"
+							class="form-control font-mono font-bold"
 							dir="ltr"
 						/>
 						<span class="text-2xs text-muted mt-1 d-block">
@@ -148,11 +148,11 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 							name="notes"
 							rows="2"
 							placeholder="أي تفاصيل أو ملاحظات للمورد..."
-							class="form-control form-control-sm"
+							class="form-control"
 						></textarea>
 					</div>
 
-					<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
+					<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
 						<button
 							type="button"
 							class="btn btn-secondary font-bold"
@@ -169,7 +169,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 
 			<!-- Grid of Organization Cards -->
 			if data == nil || len(data.UserOrgs) == 0 {
-				<div class="card p-8 text-center">
+				<div class="glass-panel p-8 text-center">
 					<div class="mb-2 text-2xl text-muted">@components.IconBuilding("icon-lg")</div>
 					<h3 class="font-bold text-base text-primary mb-1">لا توجد منظمات مربوطة حالياً</h3>
 					<p class="text-xs text-secondary m-0 mb-3">يمكنك إضافة وربط حسابك بالموردين والشركات بالضغط على '+ إضافة وربط منظمة جديدة'.</p>
@@ -183,10 +183,10 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 					</button>
 				</div>
 			} else {
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div class="d-grid grid-auto-fit-sm gap-4">
 					for _, uo := range data.UserOrgs {
 						if uo != nil {
-							<div class="card p-4 d-flex flex-col justify-between">
+							<div class="glass-panel p-4 d-flex flex-col justify-between">
 								<!-- Card Header -->
 								<div>
 									<div class="d-flex items-start justify-between gap-3 mb-3">
@@ -195,7 +195,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 												@components.IconBuilding("icon-xs")
 											</div>
 											<div>
-												<h3 class="card-title text-sm font-bold text-primary m-0">
+												<h3 class="text-sm font-bold text-primary m-0">
 													{ uo.VendorOrgName }
 												</h3>
 												<span class="text-2xs text-muted">
@@ -226,7 +226,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 											{ uo.OrganizationNumber }
 										</div>
 										if uo.Notes != "" {
-											<div class="text-2xs text-secondary mt-1.5 pt-1.5 border-top">
+											<div class="text-2xs text-secondary mt-1.5 pt-1.5 border-t">
 												{ uo.Notes }
 											</div>
 										}
@@ -234,7 +234,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								</div>
 
 								<!-- Card Footer: Actions & Date -->
-								<div class="d-flex items-center justify-between pt-2 border-top">
+								<div class="d-flex items-center justify-between pt-2 border-t">
 									<div class="d-flex items-center gap-1">
 										<!-- Delete Form -->
 										<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
@@ -276,7 +276,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 												name="organization_number"
 												value={ uo.OrganizationNumber }
 												required
-												class="form-control form-control-sm font-mono font-bold"
+												class="form-control font-mono font-bold"
 												dir="ltr"
 											/>
 										</div>
@@ -289,11 +289,11 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 												id={ fmt.Sprintf("edit-uo-notes-%d", uo.ID) }
 												name="notes"
 												rows="2"
-												class="form-control form-control-sm"
+												class="form-control"
 											>{ uo.Notes }</textarea>
 										</div>
 
-										<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
+										<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
 											<button
 												type="button"
 												class="btn btn-secondary font-bold"

@@ -75,7 +75,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 				<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
 					<div class="stack-2xs">
 						<nav class="text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold">
-							<a href="/" class="text-secondary hover:text-primary transition-colors">الرئيسية</a>
+							<a href="/" class="text-secondary transition-colors">الرئيسية</a>
 							<span class="text-muted">/</span>
 							<span class="text-primary font-black">كتالوج التوريد الدوائي</span>
 						</nav>
@@ -106,7 +106,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							if ad != nil {
 								<a
 									href={ templ.SafeURL(ad.ResolveClickURL()) }
-									class="glass-panel p-4 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap hover:border-brand-400 transition-all text-decoration-none"
+									class="glass-panel p-4 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none"
 								>
 									<div class="d-flex items-center gap-3.5">
 										if ad.MediaURL != "" && ad.MediaType != "video" {
@@ -200,7 +200,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									الفلاتر والبحث المتقدم
 								</h2>
 							</div>
-							<a href="/catalog" class="text-xs font-bold text-rose hover:underline" title="تصفير الفلاتر">
+							<a href="/catalog" class="text-xs font-bold text-rose" title="تصفير الفلاتر">
 								تصفير
 							</a>
 						</div>
@@ -442,7 +442,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
-									<a href="/catalog" class="text-xs text-rose hover:underline ms-auto font-bold">
+									<a href="/catalog" class="text-xs text-rose ms-auto font-bold">
 										مسح جميع الفلاتر
 									</a>
 								</div>
@@ -525,7 +525,7 @@ templ CustomerNegotiationModal() {
 					<div class="text-xs text-secondary font-semibold">سعر التوريد الحالي المعلن: <strong id="neg-current-price" class="tabular-nums text-primary font-black">-</strong> ج.م</div>
 				</div>
 
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div class="d-grid grid-auto-fit-sm gap-3">
 					<div class="stack-xs">
 						<label class="form-label font-bold text-primary text-xs">السعر المقترح للعبوة (ج.م) <span class="text-danger">*</span></label>
 						<input type="number" step="0.01" min="0.01" name="proposed_price" id="neg-proposed-price" required placeholder="0.00" class="form-input tabular-nums font-black text-sm w-full" />

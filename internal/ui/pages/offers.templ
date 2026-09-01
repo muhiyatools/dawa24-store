@@ -119,9 +119,9 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 					</a>
 				</div>
 			} else {
-				<div class="d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+				<div class="d-grid grid-auto-fit-sm gap-5">
 					for _, o := range offers {
-						<div class="glass-panel p-5 d-flex flex-col justify-between border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 hover:shadow-md transition-all">
+						<div class="glass-panel p-5 d-flex flex-col justify-between border border-slate-200/80 rounded-2xl shadow-xs transition-all">
        <div class="stack-sm">
 								<!-- Header Badges -->
 								<div class="flex-between items-start gap-2 mb-3">
@@ -328,7 +328,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 						<form action="/cart/add-offer" method="POST" class="m-0 d-flex items-center gap-3">
 							<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", data.Offer.ID) } />
 							<input type="hidden" name="quantity" value="1" />
-							<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm hover:shadow-md transition-all">
+							<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm transition-all">
 								@components.IconCart("icon-xs")
 								<span>إضافة العرض للسلة والشراء الآن</span>
 							</button>
@@ -371,7 +371,7 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 							</thead>
 							<tbody class="divide-y divide-slate-100">
 								for _, p := range data.Products {
-									<tr class="hover:bg-slate-50/50 transition-colors">
+									<tr class="transition-colors">
 										<td class="py-3 ps-4">
 											<strong class="text-primary text-xs font-bold d-block">
 												if p.VariantName != "" {

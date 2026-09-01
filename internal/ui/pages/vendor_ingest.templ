@@ -22,7 +22,7 @@ templ VendorIngestPage(view VendorImportView, lang, dir string) {
 			Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
 		}) {
 			<div class="row-center">
-				<a href="/vendor/products" class="btn btn-secondary btn-sm fw-700">
+				<a href="/vendor/products" class="btn btn-secondary btn-sm font-bold">
 					@components.IconPackage("icon-xs")
 					<span>أصناف المورد</span>
 				</a>
@@ -70,7 +70,7 @@ templ importNotice(kind, message string) {
 }
 
 templ importFatal(message string, session *ingest.Session) {
-	<div class="card">
+	<div class="glass-panel">
 		<h2 class="wiz-head">تعذر قراءة الملف</h2>
 		<p class="wiz-sub">{ message }</p>
 		<div class="row-center">
@@ -88,7 +88,7 @@ templ importFatal(message string, session *ingest.Session) {
 
 templ importUploadStage(view VendorImportView) {
 	<form class="stack-md" method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
-		<div class="card">
+		<div class="glass-panel">
 			<h2 class="wiz-head">1. اختر ملف الكتالوج</h2>
 			<p class="wiz-sub">
 				الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML.
@@ -149,9 +149,9 @@ templ importUploadStage(view VendorImportView) {
 }
 
 templ importHistory(recent []*ingest.Session) {
-	<div class="card">
+	<div class="glass-panel">
 		<h2 class="wiz-head">عمليات الاستيراد السابقة</h2>
-		<div class="table-wrap">
+		<div class="table-container">
 			<table class="data-table">
 				<thead>
 					<tr>
@@ -167,7 +167,7 @@ templ importHistory(recent []*ingest.Session) {
 				<tbody>
 					for _, s := range recent {
 						<tr>
-							<td class="fw-700">{ s.Filename }</td>
+							<td class="font-bold">{ s.Filename }</td>
 							<td><span class="badge badge-slate text-xs">{ s.Phase.Label() }</span></td>
 							<td>{ fmt.Sprint(s.InsertedRows) }</td>
 							<td>{ fmt.Sprint(s.UpdatedRows) }</td>

@@ -113,7 +113,7 @@ func AdminProductsImportPage(lang, dir string, view ImportConfigureView) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><script>\n\t\t\tconst dropZone = document.getElementById('import-drop');\n\t\t\tconst fileInput = document.getElementById('import-file-input');\n\t\t\tconst titleEl = document.getElementById('import-drop-title');\n\t\t\tconst textEl = document.getElementById('import-drop-text');\n\n\t\t\tif (dropZone && fileInput) {\n\t\t\t\tfileInput.addEventListener('change', function(e) {\n\t\t\t\t\tif (this.files && this.files[0]) {\n\t\t\t\t\t\tconst f = this.files[0];\n\t\t\t\t\t\tconst sizeMb = (f.size / (1024 * 1024)).toFixed(2);\n\t\t\t\t\t\tif (titleEl) titleEl.textContent = '' + f.name;\n\t\t\t\t\t\tif (textEl) textEl.textContent = 'الحجم: ' + sizeMb + ' ميجابايت — جاهز للتحليل';\n\t\t\t\t\t\tdropZone.classList.add('is-over');\n\t\t\t\t\t}\n\t\t\t\t});\n\n\t\t\t\t['dragenter', 'dragover'].forEach(eventName => {\n\t\t\t\t\tdropZone.addEventListener(eventName, e => {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\te.stopPropagation();\n\t\t\t\t\t\tdropZone.classList.add('is-dragover');\n\t\t\t\t\t}, false);\n\t\t\t\t});\n\n\t\t\t\t['dragleave', 'drop'].forEach(eventName => {\n\t\t\t\t\tdropZone.addEventListener(eventName, e => {\n\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\te.stopPropagation();\n\t\t\t\t\t\tdropZone.classList.remove('is-dragover');\n\t\t\t\t\t}, false);\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction handleImportSubmit() {\n\t\t\t\tconst btn = document.getElementById('import-submit-btn');\n\t\t\t\tconst txt = document.getElementById('import-submit-text');\n\t\t\t\tif (btn && txt) {\n\t\t\t\t\tbtn.disabled = true;\n\t\t\t\t\ttxt.textContent = '⏳ جاري رفع الملف وقراءة أعمدته...';\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><script>\r\n\t\t\tconst dropZone = document.getElementById('import-drop');\r\n\t\t\tconst fileInput = document.getElementById('import-file-input');\r\n\t\t\tconst titleEl = document.getElementById('import-drop-title');\r\n\t\t\tconst textEl = document.getElementById('import-drop-text');\r\n\r\n\t\t\tif (dropZone && fileInput) {\r\n\t\t\t\tfileInput.addEventListener('change', function(e) {\r\n\t\t\t\t\tif (this.files && this.files[0]) {\r\n\t\t\t\t\t\tconst f = this.files[0];\r\n\t\t\t\t\t\tconst sizeMb = (f.size / (1024 * 1024)).toFixed(2);\r\n\t\t\t\t\t\tif (titleEl) titleEl.textContent = '' + f.name;\r\n\t\t\t\t\t\tif (textEl) textEl.textContent = 'الحجم: ' + sizeMb + ' ميجابايت — جاهز للتحليل';\r\n\t\t\t\t\t\tdropZone.classList.add('is-over');\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\t['dragenter', 'dragover'].forEach(eventName => {\r\n\t\t\t\t\tdropZone.addEventListener(eventName, e => {\r\n\t\t\t\t\t\te.preventDefault();\r\n\t\t\t\t\t\te.stopPropagation();\r\n\t\t\t\t\t\tdropZone.classList.add('is-dragover');\r\n\t\t\t\t\t}, false);\r\n\t\t\t\t});\r\n\r\n\t\t\t\t['dragleave', 'drop'].forEach(eventName => {\r\n\t\t\t\t\tdropZone.addEventListener(eventName, e => {\r\n\t\t\t\t\t\te.preventDefault();\r\n\t\t\t\t\t\te.stopPropagation();\r\n\t\t\t\t\t\tdropZone.classList.remove('is-dragover');\r\n\t\t\t\t\t}, false);\r\n\t\t\t\t});\r\n\t\t\t}\r\n\r\n\t\t\tfunction handleImportSubmit() {\r\n\t\t\t\tconst btn = document.getElementById('import-submit-btn');\r\n\t\t\t\tconst txt = document.getElementById('import-submit-text');\r\n\t\t\t\tif (btn && txt) {\r\n\t\t\t\t\tbtn.disabled = true;\r\n\t\t\t\t\ttxt.textContent = '⏳ جاري رفع الملف وقراءة أعمدته...';\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -213,7 +213,7 @@ func importUploadCard() templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">ملف الأصناف</h2><p class=\"wiz-sub\">Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة التي يتكرر فيها صف العناوين — وستراجع النتيجة بنفسك في الخطوة التالية قبل أي معالجة.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" id=\"import-file-input\" name=\"import_file\" accept=\".xlsx,.xlsm,.csv,.tsv,.txt\" required><div class=\"wiz-drop-icon\" aria-hidden=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">ملف الأصناف</h2><p class=\"wiz-sub\">Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة التي يتكرر فيها صف العناوين — وستراجع النتيجة بنفسك في الخطوة التالية قبل أي معالجة.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" id=\"import-file-input\" name=\"import_file\" accept=\".xlsx,.xlsm,.csv,.tsv,.txt\" required><div class=\"wiz-drop-icon\" aria-hidden=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -266,7 +266,7 @@ func importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMod
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">طريقة وخطة معالجة الاستيراد</h2><p class=\"wiz-sub\">حدد سلوك الاستيراد للأصناف المستخرجة</p><div class=\"wiz-choices\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">طريقة وخطة معالجة الاستيراد</h2><p class=\"wiz-sub\">حدد سلوك الاستيراد للأصناف المستخرجة</p><div class=\"wiz-choices\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -377,7 +377,7 @@ func importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpti
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"card mb-0\"><h2 class=\"wiz-head\">استكمال بيانات الأصناف</h2><p class=\"wiz-sub\">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p><div class=\"wiz-switches\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">استكمال بيانات الأصناف</h2><p class=\"wiz-sub\">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p><div class=\"wiz-switches\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -392,7 +392,7 @@ func importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpti
 			return templ_7745c5c3_Err
 		}
 		if !aiAvailable {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<p class=\"wiz-sub mt-md\">خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من <a href=\"/admin/developers?tab=ai\" class=\"text-accent fw-700\">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<p class=\"wiz-sub mt-md\">خدمة الذكاء الاصطناعي غير متصلة حالياً. يمكنك ضبط بوابة الذكاء الاصطناعي من <a href=\"/admin/developers?tab=ai\" class=\"text-accent font-bold\">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -628,14 +628,14 @@ func importHistoryCard(sessions []*catalog.ImportSession) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" class=\"text-accent fw-700\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" class=\"text-accent font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(session.Filename)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_wizard.templ`, Line: 268, Col: 126}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_wizard.templ`, Line: 268, Col: 129}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {

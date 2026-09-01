@@ -932,7 +932,7 @@ func importMappingActions(view ImportMappingView) templ.Component {
 			templ_7745c5c3_Var35 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لم يُحفظ أي صنف بعد. «تحديث المعاينة» يعيد قراءة الملف فقط، و«بدء المعالجة» يجهّز النتائج للمراجعة.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-secondary\" formaction=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"glass-panel mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لم يُحفظ أي صنف بعد. «تحديث المعاينة» يعيد قراءة الملف فقط، و«بدء المعالجة» يجهّز النتائج للمراجعة.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-secondary\" formaction=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

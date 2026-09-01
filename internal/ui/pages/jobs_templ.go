@@ -218,7 +218,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Jobs) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"card text-center p-8 bg-surface-raised rounded-2xl border shadow-xs\"><div class=\"mb-3 text-3xl text-muted\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"glass-panel text-center p-8 bg-surface-raised rounded-2xl border shadow-xs\"><div class=\"mb-3 text-3xl text-muted\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -302,7 +302,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span> <span class=\"badge badge-success-subtle badge-pill text-2xs fw-700\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span> <span class=\"badge badge-success-subtle badge-pill text-2xs font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -468,7 +468,7 @@ func JobsContent(data JobsPageData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Client-side zero-inline-style filtering script --><script>\n\t\tlet activeJobTypeFilter = '';\n\n\t\tfunction setJobTypeFilter(typeVal, btnEl) {\n\t\t\tactiveJobTypeFilter = typeVal.toLowerCase();\n\t\t\tdocument.querySelectorAll('.job-filter-pill').forEach(b => b.classList.remove('active'));\n\t\t\tif (btnEl) btnEl.classList.add('active');\n\t\t\tfilterJobsList();\n\t\t}\n\n\t\tfunction filterJobsList() {\n\t\t\tconst q = (document.getElementById('jobs-search-input')?.value || '').toLowerCase().trim();\n\t\t\tconst city = (document.getElementById('jobs-city-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst cards = document.querySelectorAll('#jobs-cards-grid .job-card');\n\n\t\t\tcards.forEach(card => {\n\t\t\t\tconst title = card.getAttribute('data-job-title') || '';\n\t\t\t\tconst loc = card.getAttribute('data-job-location') || '';\n\t\t\t\tconst desc = card.getAttribute('data-job-desc') || '';\n\n\t\t\t\tconst matchesQ = !q || title.includes(q) || desc.includes(q) || loc.includes(q);\n\t\t\t\tconst matchesCity = !city || loc.includes(city);\n\t\t\t\tconst matchesType = !activeJobTypeFilter || desc.includes(activeJobTypeFilter) || title.includes(activeJobTypeFilter);\n\n\t\t\t\tcard.classList.toggle('d-none', !(matchesQ && matchesCity && matchesType));\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Client-side zero-inline-style filtering script --><script>\r\n\t\tlet activeJobTypeFilter = '';\r\n\r\n\t\tfunction setJobTypeFilter(typeVal, btnEl) {\r\n\t\t\tactiveJobTypeFilter = typeVal.toLowerCase();\r\n\t\t\tdocument.querySelectorAll('.job-filter-pill').forEach(b => b.classList.remove('active'));\r\n\t\t\tif (btnEl) btnEl.classList.add('active');\r\n\t\t\tfilterJobsList();\r\n\t\t}\r\n\r\n\t\tfunction filterJobsList() {\r\n\t\t\tconst q = (document.getElementById('jobs-search-input')?.value || '').toLowerCase().trim();\r\n\t\t\tconst city = (document.getElementById('jobs-city-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst cards = document.querySelectorAll('#jobs-cards-grid .job-card');\r\n\r\n\t\t\tcards.forEach(card => {\r\n\t\t\t\tconst title = card.getAttribute('data-job-title') || '';\r\n\t\t\t\tconst loc = card.getAttribute('data-job-location') || '';\r\n\t\t\t\tconst desc = card.getAttribute('data-job-desc') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || title.includes(q) || desc.includes(q) || loc.includes(q);\r\n\t\t\t\tconst matchesCity = !city || loc.includes(city);\r\n\t\t\t\tconst matchesType = !activeJobTypeFilter || desc.includes(activeJobTypeFilter) || title.includes(activeJobTypeFilter);\r\n\r\n\t\t\t\tcard.classList.toggle('d-none', !(matchesQ && matchesCity && matchesType));\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

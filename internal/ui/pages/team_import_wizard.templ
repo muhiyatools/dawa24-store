@@ -115,7 +115,7 @@ templ teamUploadStage(view TeamImportView) {
 		</div>
 
 		<form class="stack-md" method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
-			<label class="dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-brand-500 hover:bg-brand-50/20 transition-all mb-4" id="team-dropzone">
+			<label class="dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer transition-all mb-4" id="team-dropzone">
 				<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" onchange="handleTeamFileSelect(this)" />
 				<div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center mb-3">
 					@components.IconUpload("icon-lg")
@@ -206,7 +206,7 @@ templ teamSessionsHistoryCard(view TeamImportView) {
 									}
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
 										onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة؟');" class="d-inline m-0">
-										<button type="submit" class="btn btn-ghost btn-xs text-rose-600 hover:text-rose-700">
+										<button type="submit" class="btn btn-ghost btn-xs text-rose-600">
 											حذف
 										</button>
 									</form>
@@ -231,7 +231,7 @@ templ teamMappingStage(view TeamImportView) {
 			</div>
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
 				onsubmit="return confirm('هل تريد إلغاء هذه الجلسة؟');" class="m-0">
-				<button type="submit" class="btn btn-ghost btn-xs text-rose-600 hover:text-rose-700">إلغاء الجلسة</button>
+				<button type="submit" class="btn btn-ghost btn-xs text-rose-600">إلغاء الجلسة</button>
 			</form>
 		</div>
 
@@ -243,7 +243,7 @@ templ teamMappingStage(view TeamImportView) {
 					<h3 class="text-sm font-black text-primary m-0">ربط أعمدة ملف الـ Excel بالبيانات</h3>
 				</div>
 
-				<div class="d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80">
+				<div class="d-grid grid-auto-fit-sm gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80">
 					<!-- Name Column -->
      <div class="stack-sm">
 						<label class="form-label text-xs font-bold">عمود اسم الموظف بالكامل <span class="text-danger">*</span></label>
@@ -335,7 +335,7 @@ templ teamMappingStage(view TeamImportView) {
 
 				if len(sess.ExcelRoles) > 0 {
 					<div class="p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-4">
-						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="d-grid grid-auto-fit-sm gap-4">
 							for _, er := range sess.ExcelRoles {
 								<div class="p-3 bg-surface-raised rounded-xl border border-slate-200 shadow-2xs">
 									<div class="flex-between items-center mb-2">
@@ -444,7 +444,7 @@ templ teamReviewStage(view TeamImportView) {
 		</div>
 
 		<!-- Metrics Cards -->
-		<div class="d-grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+		<div class="d-grid grid-auto-fit-sm gap-4 mb-6">
 			<!-- Total Staff -->
 			<div class="glass-panel p-4 border border-slate-200/80 rounded-xl d-flex items-center gap-3">
 				<div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shrink-0">
@@ -484,14 +484,14 @@ templ teamReviewStage(view TeamImportView) {
 			<!-- Table Toolbar -->
 			<div class="p-4 border-b flex-between items-center flex-wrap gap-3">
 				<div class="d-flex items-center gap-2">
-					<button type="button" @click="filterTab = 'all'" :class="{ 'btn-primary': filterTab === 'all', 'btn-secondary': filterTab !== 'all' }" class="btn btn-xs font-bold">
+					<button type="button" @click="filterTab = 'all'" :class="{ 'btn-primary': filterTab === 'all', 'btn-secondary': !== 'all' }" class="btn btn-xs font-bold">
 						كافة الصفوف ({ fmt.Sprint(len(sess.Rows)) })
 					</button>
-					<button type="button" @click="filterTab = 'valid'" :class="{ 'btn-primary': filterTab === 'valid', 'btn-secondary': filterTab !== 'valid' }" class="btn btn-xs font-bold">
+					<button type="button" @click="filterTab = 'valid'" :class="{ 'btn-primary': filterTab === 'valid', 'btn-secondary': !== 'valid' }" class="btn btn-xs font-bold">
 						الجاهزة فقط ({ fmt.Sprint(validCount) })
 					</button>
 					if invalidCount > 0 {
-						<button type="button" @click="filterTab = 'issues'" :class="{ 'btn-primary': filterTab === 'issues', 'btn-secondary': filterTab !== 'issues' }" class="btn btn-xs font-bold text-rose-600">
+						<button type="button" @click="filterTab = 'issues'" :class="{ 'btn-primary': filterTab === 'issues', 'btn-secondary': !== 'issues' }" class="btn btn-xs font-bold text-rose-600">
 							المستبعدة ({ fmt.Sprint(invalidCount) })
 						</button>
 					}

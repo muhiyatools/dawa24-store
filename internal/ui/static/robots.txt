@@ -28,7 +28,7 @@
 # would be telling compliant assistants to ignore the pages we just opened to
 # them.
 User-agent: *
-Content-Signal: ai-train=no, search=yes, ai-input=yes
+Content-Signal: ai-train=no, search=yes, ai-input=no
 Disallow: /admin/
 Disallow: /vendor/
 Disallow: /account/
@@ -60,16 +60,27 @@ Crawl-delay: 5
 # blanket training-crawler blocks below are never read as covering them.
 User-agent: ChatGPT-User
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 User-agent: OAI-SearchBot
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 User-agent: Perplexity-User
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 User-agent: Claude-User
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 User-agent: Claude-SearchBot
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 User-agent: DuckAssistBot
 Allow: /
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 # --- Model-training collectors and commercial harvesters ---------------------
 # None of them sends a pharmacy to a supplier; all of them take the price list.
@@ -77,52 +88,99 @@ Allow: /
 # is enforced in code on /catalog and /suppliers.
 User-agent: AhrefsBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: SemrushBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: MJ12bot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: DotBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: BLEXBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: DataForSeoBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: SerpstatBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: MegaIndex
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: PetalBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Bytespider
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: GPTBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: ClaudeBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: CCBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: PerplexityBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Amazonbot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Diffbot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: omgili
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Google-Extended
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Applebot-Extended
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Meta-ExternalAgent
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Meta-ExternalFetcher
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: FacebookBot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: cohere-ai
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
+
 User-agent: Timpibot
 Disallow: /
+Content-Signal: ai-train=no, search=no, ai-input=no
 
 # Sitemap Location
 Sitemap: https://dawa24-store-u74003.vm.elestio.app/sitemap.xml

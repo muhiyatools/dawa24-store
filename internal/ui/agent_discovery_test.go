@@ -17,6 +17,26 @@ func newTestAgentRouter() http.Handler {
 	return r
 }
 
+func TestLinkHeaders(t *testing.T) {
+	router := newTestAgentRouter()
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	resp := w.Result()
+	linkHeader := resp.Header.Get("Link")
+	if linkHeader == "" {
+		t.Fatalf("expected Link header on homepage, got none")
+	}
+
+	for _, rel := range []string{`rel="describedby"`, `rel="service-desc"`, `rel="service-doc"`} {
+		if !strings.Contains(linkHeader, rel) {
+			t.Errorf("expected relation %s in Link header, got: %s", rel, linkHeader)
+		}
+	}
+}
+
 func TestSitemap(t *testing.T) {
 	router := newTestAgentRouter()
 
@@ -38,6 +58,26 @@ func TestSitemap(t *testing.T) {
 	bodyStr := string(body)
 	if !strings.Contains(bodyStr, "<urlset") || !strings.Contains(bodyStr, "<loc>") {
 		t.Errorf("sitemap.xml missing urlset or loc tags: %s", bodyStr)
+	}
+}
+
+func TestLLMsTxtAndAgentsIndex(t *testing.T) {
+	router := newTestAgentRouter()
+
+	// 1. Test /llms.txt
+	req := httptest.NewRequest(http.MethodGet, "/llms.txt", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	if w.Result().StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 for /llms.txt, got %d", w.Result().StatusCode)
+	}
+
+	// 2. Test /.well-known/agents-index.json
+	req2 := httptest.NewRequest(http.MethodGet, "/.well-known/agents-index.json", nil)
+	w2 := httptest.NewRecorder()
+	router.ServeHTTP(w2, req2)
+	if w2.Result().StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 for /.well-known/agents-index.json, got %d", w2.Result().StatusCode)
 	}
 }
 

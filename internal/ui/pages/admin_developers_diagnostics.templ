@@ -14,7 +14,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				
 				<!-- Diagnostics Header Strip & Metrics -->
 				<div class="dashboard-stat-grid mb-4">
-					<div class="card mb-0 p-5 border-s-4 border-s-accent">
+					<div class="glass-panel mb-0 p-5 border-s-4 border-s-accent">
 						<div class="text-xs font-bold text-muted">إجمالي الاستثناءات المسجلة</div>
 						<div class="text-2xl font-black text-primary mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.Total) }
@@ -22,7 +22,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 						<div class="text-xs text-muted mt-0.5">سجل تشخيصي شامل</div>
 					</div>
 
-					<div class="card mb-0 p-5 border-s-4 border-s-danger">
+					<div class="glass-panel mb-0 p-5 border-s-4 border-s-danger">
 						<div class="text-xs font-bold text-muted">أخطاء حرجة (24 ساعة)</div>
 						<div class="text-2xl font-black text-danger mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.Critical24h) }
@@ -30,7 +30,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 						<div class="text-xs text-muted mt-0.5">تتطلب تدخلاً فورياً</div>
 					</div>
 
-					<div class="card mb-0 p-5 border-s-4 border-s-warning">
+					<div class="glass-panel mb-0 p-5 border-s-4 border-s-warning">
 						<div class="text-xs font-bold text-muted">أخطاء قيد المتابعة</div>
 						<div class="text-2xl font-black text-warning mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.Unresolved) }
@@ -38,7 +38,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 						<div class="text-xs text-muted mt-0.5">حالة New أو Investigating</div>
 					</div>
 
-					<div class="card mb-0 p-5 border-s-4 border-s-success">
+					<div class="glass-panel mb-0 p-5 border-s-4 border-s-success">
 						<div class="text-xs font-bold text-muted">المستخدمين المتأثرين</div>
 						<div class="text-2xl font-black text-primary mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.AffectedUsers) }
@@ -48,7 +48,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				</div>
 
 				<!-- Filter Strip -->
-				<div class="card mb-0 p-4">
+				<div class="glass-panel mb-0 p-4">
 					<form method="GET" action="/admin/developers" class="d-flex gap-3 items-center flex-wrap m-0">
 						<input type="hidden" name="tab" value="errors"/>
 
@@ -264,10 +264,10 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 			<!-- ========================================== -->
 			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()" x-cloak>
 				
-				<div class="card mb-0">
+				<div class="glass-panel mb-0">
 					<div class="flex-between items-center mb-4 pb-3 border-b">
       <div class="stack-sm">
-							<h3 class="card-title m-0 text-lg font-black">
+							<h3 class="m-0 text-lg font-black">
 								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.AuditEntries)) })
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 mb-0">

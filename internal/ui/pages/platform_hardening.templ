@@ -10,10 +10,10 @@ import (
 // AdminSessionPlansPage renders session plan management.
 templ AdminSessionPlansPage(lang, dir string) {
 	@layouts.AdminShell("خطط الجلسات والأجهزة (Session Plans)", "session_plans", lang, dir) {
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">خطط الجلسات المتعددة وتحديد الأجهزة</h2>
+					<h2 class="m-0 text-base font-bold text-primary">خطط الجلسات المتعددة وتحديد الأجهزة</h2>
 					<p class="subtitle">تحديد عدد الأجهزة المتزامنة المسموح بها لكل مستخدم حسب خطته.</p>
 				</div>
 				<a href="/admin/session-plan/requests" class="btn btn-secondary btn-sm">طلبات زيادة المقاعد</a>
@@ -26,10 +26,10 @@ templ AdminSessionPlansPage(lang, dir string) {
 // AdminSessionPlanRequestsPage renders session seat requests.
 templ AdminSessionPlanRequestsPage(lang, dir string) {
 	@layouts.AdminShell("طلبات زيادة الجلسات والأجهزة", "session_plans", lang, dir) {
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">طلبات زيادة عدد الأجهزة والجلسات</h2>
+					<h2 class="m-0 text-base font-bold text-primary">طلبات زيادة عدد الأجهزة والجلسات</h2>
 				</div>
 				<a href="/admin/session-plan" class="btn btn-secondary btn-sm">العودة للخطط</a>
 			</div>
@@ -41,8 +41,8 @@ templ AdminSessionPlanRequestsPage(lang, dir string) {
 // CustomerReportIssuePage renders issue form.
 templ CustomerReportIssuePage(lang, dir string) {
 	@layouts.CustomerShell("الإبلاغ عن مشكلة أو اقتراح", "support", lang, dir, nil) {
-		<div class="card max-w-xl mx-auto">
-			<h2 class="card-title mb-sm">الإبلاغ عن مشكلة أو إرسال اقتراح</h2>
+		<div class="glass-panel max-w-xl mx-auto">
+			<h2 class="mb-sm text-base font-bold text-primary">الإبلاغ عن مشكلة أو إرسال اقتراح</h2>
 			<p class="text-sm text-secondary m-0">فريق الدعم الفني يتابع بلاغاتك ويعمل على حلها فوراً.</p>
 
 			<form method="POST" action="/report-issue" class="stack-lg">
@@ -59,7 +59,7 @@ templ CustomerReportIssuePage(lang, dir string) {
 					<label class="form-label">تفاصيل البلاغ</label>
 					<textarea name="description" class="form-input" rows="5" placeholder="اشرح المشكلة بالتفصيل مع ذكر أي أرقام مرجعية ذات صلة..." required></textarea>
 				</div>
-				<div class="flex justify-end">
+				<div class="d-flex justify-end">
 					<button type="submit" class="btn btn-primary">إرسال البلاغ للدعم الفني</button>
 				</div>
 			</form>
@@ -70,10 +70,10 @@ templ CustomerReportIssuePage(lang, dir string) {
 // AdminReportIssuesPage renders admin issues review queue.
 templ AdminReportIssuesPage(lang, dir string) {
 	@layouts.AdminShell("بلاغات المستخدمين والدعم الفني (Report Issues)", "report_issues", lang, dir) {
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">قائمة بلاغات وشكاوى المستخدمين</h2>
+					<h2 class="m-0 text-base font-bold text-primary">قائمة بلاغات وشكاوى المستخدمين</h2>
 					<p class="subtitle">متابعة مشاكل العملاء والموردين وتوجيهها للفريق المختص.</p>
 				</div>
 			</div>

@@ -56,7 +56,7 @@ templ WizardRail(steps []WizardStep) {
 // heading over empty space.
 templ WizardToggles(all []WizardToggle, group ToggleGroup) {
 	if len(TogglesInGroup(all, group)) > 0 {
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">{ group.Label() }</h3>
 			<div class="wiz-switches">
 				for _, t := range TogglesInGroup(all, group) {

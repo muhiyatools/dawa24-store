@@ -93,10 +93,10 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<div x-show="activeTab === 'sql'" class="stack-lg" x-data="adminSQLManager()" x-cloak>
 				
-				<div class="card mb-0">
+				<div class="glass-panel mb-0">
 					<div class="flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2">
       <div class="stack-sm">
-							<h3 class="card-title m-0 text-lg font-black">
+							<h3 class="m-0 text-lg font-black">
 								وحدة استعلامات SQL التفاعلية
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 mb-0">
@@ -256,14 +256,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				x-cloak
 			>
 				
-				<div class="card mb-0">
+				<div class="glass-panel mb-0">
 					<div class="flex-between items-center mb-5 pb-3 border-b">
 						<div class="row-center">
 							<div class="b2b-icon-box">
 								@components.IconSparkles("icon-sm")
 							</div>
        <div class="stack-sm">
-								<h3 class="card-title m-0 text-lg font-black">
+								<h3 class="m-0 text-lg font-black">
 									بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)
 								</h3>
 								<p class="text-xs text-secondary mt-0.5 mb-0">
@@ -436,7 +436,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									<span x-show="isTesting">جاري فحص الاتصال...</span>
 								</button>
 								<div x-show="testResult" class="mt-2" x-cloak>
-									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : 'badge badge-rose'" class="w-full p-2 justify-center font-bold" x-text="testResult ? testResult.message : ''"></div>
+									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : badge-rose'" class="w-full p-2 justify-center font-bold" x-text="testResult ? testResult.message : ''"></div>
 								</div>
 							</div>
 

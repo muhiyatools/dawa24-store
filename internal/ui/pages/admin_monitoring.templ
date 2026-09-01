@@ -79,10 +79,10 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 // AdminFullErrorLogDetailPage renders single error log details and transition action.
 templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("تفاصيل الخطأ #%d", l.ID), "developers", lang, dir) {
-		<div class="card max-w-3xl mx-auto">
+		<div class="glass-panel max-w-3xl mx-auto">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">خطأ #{ fmt.Sprintf("%d", l.ID) }: { l.ErrorMessage }</h2>
+					<h2 class="m-0 text-base font-bold text-primary">خطأ #{ fmt.Sprintf("%d", l.ID) }: { l.ErrorMessage }</h2>
 					<p class="subtitle">مسار: <code>{ l.URLPath }</code> | خطورة: { l.ErrorLevel }</p>
 				</div>
 				<a href="/admin/full-error-logs" class="btn btn-secondary btn-sm">العودة للسجلات</a>
@@ -105,8 +105,8 @@ templ AdminFullErrorLogDetailPage(l *platformadmin.ErrorLog, lang, dir string) {
 // AdminNotificationsPage renders platform notifications oversight.
 templ AdminNotificationsPage(lang, dir string) {
 	@layouts.AdminShell("إدارة الإشعارات المركزية للمنصة", "notifications", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">الإشعارات العامة والتنبيهات الموجهة</h2>
+		<div class="glass-panel mb-0">
+			<h2 class="mb-lg text-base font-bold text-primary">الإشعارات العامة والتنبيهات الموجهة</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد تنبيهات عامة", Message: "يتم بث الإشعارات المركزية للمستخدمين والتطبيقات عند الأحداث الهامة."})
 		</div>
 	}
@@ -115,8 +115,8 @@ templ AdminNotificationsPage(lang, dir string) {
 // AdminSystemResourcesPage renders system health & resource availability.
 templ AdminSystemResourcesPage(systemName string, lang, dir string) {
 	@layouts.AdminShell("حالة موارد النظام والخدمات", "developers", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">موارد النظام وقدرات المنصة ({ systemName })</h2>
+		<div class="glass-panel mb-0">
+			<h2 class="mb-lg text-base font-bold text-primary">موارد النظام وقدرات المنصة ({ systemName })</h2>
    <div class="stack-sm">
     <div class="stack-sm">
 					<div class="text-sm text-secondary">قاعدة البيانات PostgreSQL</div>
@@ -138,8 +138,8 @@ templ AdminSystemResourcesPage(systemName string, lang, dir string) {
 // AdminFirstLookPage renders admin onboarding walkthrough.
 templ AdminFirstLookPage(lang, dir string) {
 	@layouts.AdminShell("جولة في لوحة التحكم (First Look)", "dashboard", lang, dir) {
-		<div class="card max-w-2xl mx-auto">
-			<h2 class="card-title">مرحباً بك في لوحة تحكم منصة دواء 24</h2>
+		<div class="glass-panel max-w-2xl mx-auto">
+			<h2 class="text-base font-bold text-primary">مرحباً بك في لوحة تحكم منصة دواء 24</h2>
    <p class="text-sm text-secondary m-0">
 				تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.
 			</p>

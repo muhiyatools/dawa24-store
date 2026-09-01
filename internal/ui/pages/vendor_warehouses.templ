@@ -173,7 +173,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-show="showAddModal"
 				x-cloak
 				x-transition.opacity
-				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"
+				class="fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
@@ -246,7 +246,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-show="editModal"
 				x-cloak
 				x-transition.opacity
-				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"
+				class="fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60"
 				@keydown.escape.window="editModal = false"
 			>
 				<div

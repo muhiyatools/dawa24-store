@@ -427,7 +427,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 
 							<div class="d-grid grid-cols-2 gap-1.5 mt-1">
 								for _, cat := range institutionalWorkCategories {
-									<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface-raised">
+									<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded">
 										<input type="checkbox" name="institutional_works" value={ cat.Key } x-model="form.institutional_works" class="form-checkbox"/>
 										<span>{ cat.Icon } { cat.LabelAr }</span>
 									</label>

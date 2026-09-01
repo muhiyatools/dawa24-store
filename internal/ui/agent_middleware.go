@@ -19,6 +19,15 @@ func (h *UIHandler) serveMarkdownDoc(w http.ResponseWriter, r *http.Request, tit
 	_, _ = w.Write([]byte(markdownContent))
 }
 
+// LinkResponseHeadersMiddleware injects RFC 8288 Link headers for agent discovery.
+func (h *UIHandler) LinkResponseHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		linkHeader := `</sitemap.xml>; rel="describedby", </sitemap.xml>; rel="service-desc", </about>; rel="service-doc", </llms.txt>; rel="describedby", </.well-known/agents-index.json>; rel="service-desc"`
+		w.Header().Set("Link", linkHeader)
+		next.ServeHTTP(w, r)
+	})
+}
+
 // MarkdownNegotiationMiddleware handles Content Negotiation for AI agents (Accept: text/markdown).
 func (h *UIHandler) MarkdownNegotiationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

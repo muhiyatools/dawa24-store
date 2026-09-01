@@ -260,7 +260,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
    <div class="stack-sm">
 				
 				<!-- Map Side Panel: Quick List & Focus -->
-				<div class="card">
+				<div class="glass-panel">
      <div class="stack-sm">
 						<h3 class="font-bold text-sm m-0">
 							مواقع مخازن التوزيع الدوائي
@@ -284,7 +284,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 										}
 									</strong>
 									if s.IsOpenNow {
-										<span class="badge badge-emerald text-xs fw-700">مفتوح</span>
+										<span class="badge badge-emerald text-xs font-bold">مفتوح</span>
 									} else {
 										<span class="badge badge-slate text-xs">مغلق</span>
 									}
@@ -299,7 +299,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				</div>
 
 				<!-- Map Container -->
-				<div class="card">
+				<div class="glass-panel">
 					<div class="stack-sm" id="suppliers-leaflet-map"></div>
 				</div>
 

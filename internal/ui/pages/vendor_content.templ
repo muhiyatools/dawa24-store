@@ -7,10 +7,10 @@ import (
 // VendorPoliciesPage renders policies editor.
 templ VendorPoliciesPage(policies map[string]string, lang, dir string) {
 	@layouts.VendorShell("سياسات التوريد والاسترجاع", "policies", lang, dir) {
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">سياسات التوريد والدفع والاسترجاع للمنشأة</h2>
+					<h2 class="m-0 text-base font-bold text-primary">سياسات التوريد والدفع والاسترجاع للمنشأة</h2>
 					<p class="subtitle">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p>
 				</div>
 			</div>
@@ -42,10 +42,10 @@ templ VendorPoliciesPage(policies map[string]string, lang, dir string) {
 // VendorSocialMediaPage renders social accounts editor.
 templ VendorSocialMediaPage(links map[string]string, lang, dir string) {
 	@layouts.VendorShell("وسائل التواصل الاجتماعي للمورد", "social_media", lang, dir) {
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">قنوات التواصل الاجتماعي للمنشأة</h2>
+					<h2 class="m-0 text-base font-bold text-primary">قنوات التواصل الاجتماعي للمنشأة</h2>
 					<p class="subtitle">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p>
 				</div>
 			</div>

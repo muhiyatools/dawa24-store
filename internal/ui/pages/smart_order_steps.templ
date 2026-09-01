@@ -171,7 +171,7 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 					<p class="so-progress-failed-detail">{ data.Message }</p>
 				</div>
 			} else {
-				<div class="card so-progress-card">
+				<div class="glass-panel so-progress-card">
 					<div class="so-ring" role="progressbar" aria-valuemin="0" aria-valuemax="100"
 						aria-valuenow={ fmt.Sprintf("%d", data.Percent) }
 						aria-label={ data.Caption }>

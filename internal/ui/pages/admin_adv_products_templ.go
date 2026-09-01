@@ -209,7 +209,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Header Banner --><div class=\"card p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><div class=\"user-avatar-badge\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Header Banner --><div class=\"glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><div class=\"user-avatar-badge\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -233,7 +233,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>+ إضافة رعاية يدوية لمنتج</span></button></div></div><!-- 4 Modern Executive Metric Cards --><div class=\"wallet-stats-grid mb-4\"><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">إجمالي المنتجات المروجة</div><div class=\"wallet-stat-val text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>+ إضافة رعاية يدوية لمنتج</span></button></div></div><!-- 4 Modern Executive Metric Cards --><div class=\"dashboard-stat-grid cols-4 mb-4\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">إجمالي المنتجات المروجة</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -246,7 +246,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"wallet-stat-note\">كافة طلبات وسجلات الرعاية</div></div><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">الرعايات النشطة حالياً</div><div class=\"wallet-stat-val text-success tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"stat-card-sub\">كافة طلبات وسجلات الرعاية</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">الرعايات النشطة حالياً</div><div class=\"stat-card-value text-success tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -259,7 +259,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"wallet-stat-note\">مثبتة في صدارة البحث والكاتالوج</div></div><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">طلبات بانتظار الموافقة</div><div class=\"wallet-stat-val text-amber tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"stat-card-sub\">مثبتة في صدارة البحث والكاتالوج</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">طلبات بانتظار الموافقة</div><div class=\"stat-card-value text-amber tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -272,7 +272,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"wallet-stat-note\">تتطلب تدقيق وموافقة الإدارة</div></div><div class=\"wallet-stat-card\"><div class=\"wallet-stat-label\">الرعايات المنتهية / المرفوضة</div><div class=\"wallet-stat-val text-muted tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stat-card-sub\">تتطلب تدقيق وموافقة الإدارة</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">الرعايات المنتهية / المرفوضة</div><div class=\"stat-card-value text-muted tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -285,7 +285,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"wallet-stat-note\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"stat-card-sub\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -298,11 +298,11 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Navigation Tabs matching platform design --><div class=\"sp-tabs-nav mb-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Navigation Tabs matching platform design --><div class=\"tab-list mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 = []any{"sp-tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "")}
+			var templ_7745c5c3_Var10 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -337,7 +337,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 = []any{"sp-tab-btn", templ.KV("active", data.ActiveTab == "active")}
+			var templ_7745c5c3_Var13 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "active")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -372,7 +372,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var16 = []any{"sp-tab-btn", templ.KV("active", data.ActiveTab == "pending")}
+			var templ_7745c5c3_Var16 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "pending")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -422,7 +422,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var19 = []any{"sp-tab-btn", templ.KV("active", data.ActiveTab == "expired")}
+			var templ_7745c5c3_Var19 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "expired")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var19...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -457,7 +457,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var22 = []any{"sp-tab-btn", templ.KV("active", data.ActiveTab == "rejected")}
+			var templ_7745c5c3_Var22 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "rejected")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var22...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -488,7 +488,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></a></div><!-- Filter & Live Search Toolbar --><div class=\"card p-3 mb-4\"><form method=\"GET\" action=\"/admin/adv-products\" class=\"d-flex items-center gap-3 flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></a></div><!-- Filter & Live Search Toolbar --><div class=\"glass-panel p-3 mb-4\"><form method=\"GET\" action=\"/admin/adv-products\" class=\"d-flex items-center gap-3 flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -522,7 +522,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"ابحث باسم المنتج، الكود، المورد، أو اسم الباقة...\" class=\"form-control form-control-sm font-semibold\"></div><!-- Package filter --><div class=\"min-w-xs\"><select name=\"package_id\" class=\"form-select form-select-sm font-semibold\" onchange=\"this.form.submit()\"><option value=\"0\">-- كافة باقات الرعاية --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"ابحث باسم المنتج، الكود، المورد، أو اسم الباقة...\" class=\"form-control font-semibold\"></div><!-- Package filter --><div class=\"min-w-xs\"><select name=\"package_id\" class=\"form-select form-select-sm font-semibold\" onchange=\"this.form.submit()\"><option value=\"0\">-- كافة باقات الرعاية --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -606,7 +606,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</form></div><!-- Main Sponsored Products Table Card --><div class=\"card p-0 overflow-hidden mb-4\"><div class=\"p-4 border-bottom d-flex items-center justify-between\"><h3 class=\"font-bold text-sm text-primary m-0 d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</form></div><!-- Main Sponsored Products Table Card --><div class=\"glass-panel p-0 overflow-hidden mb-4\"><div class=\"p-4 border-b d-flex items-center justify-between\"><h3 class=\"font-bold text-sm text-primary m-0 d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1355,7 +1355,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "</select></div><!-- Package Selection --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">باقة الرعاية <span class=\"text-danger\">*</span></label> <select name=\"package_id\" required class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- اختر الباقة --</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 136, "</select></div><!-- Package Selection --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">باقة الرعاية <span class=\"text-danger\">*</span></label> <select name=\"package_id\" required class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- اختر الباقة --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1406,7 +1406,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">مدة التثبيت (بالأيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"duration_days\" value=\"30\" min=\"1\" max=\"365\" required class=\"form-control form-control-sm font-bold tabular-nums\"></div></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-top d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-modal-close=\"add-adv-product-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">مدة التثبيت (بالأيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"duration_days\" value=\"30\" min=\"1\" max=\"365\" required class=\"form-control font-bold tabular-nums\"></div></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-modal-close=\"add-adv-product-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1429,7 +1429,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "<!-- ================= REJECT / REVOKE MODAL ================= --><div class=\"modal\" :class=\"{ 'open': rejectModalOpen }\" x-show=\"rejectModalOpen\" x-cloak><div class=\"modal-backdrop\" @click=\"rejectModalOpen = false\"></div><div class=\"modal-dialog max-w-md\"><div class=\"modal-content\"><div class=\"modal-header d-flex items-center justify-between pb-3 border-bottom\"><h3 class=\"modal-title text-base font-bold text-danger m-0 d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "<!-- ================= REJECT / REVOKE MODAL ================= --><div class=\"modal\" :class=\"{ 'open': rejectModalOpen }\" x-show=\"rejectModalOpen\" x-cloak><div class=\"modal-backdrop\" @click=\"rejectModalOpen = false\"></div><div class=\"modal-dialog max-w-md\"><div class=\"modal-content\"><div class=\"modal-header d-flex items-center justify-between pb-3 border-b\"><h3 class=\"modal-title text-base font-bold text-danger m-0 d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1445,7 +1445,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</button></div><form :action=\"rejectAction\" method=\"POST\" class=\"d-flex flex-col gap-3 m-0 p-4\"><p class=\"text-xs text-secondary m-0\">سيتم رفض طلب الرعاية وإيقاف ظهوره في الصدارة وإعادة رصيد الرعاية للمورد.</p><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">سبب الرفض أو الملاحظات للمورد</label> <textarea name=\"notes\" rows=\"3\" placeholder=\"اكتب سبب الرفض أو التوجيهات للمورد...\" class=\"form-control form-control-sm\"></textarea></div><div class=\"modal-footer pt-3 border-top d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" @click=\"rejectModalOpen = false\">تراجع</button> <button type=\"submit\" class=\"btn btn-danger font-bold px-6\">تأكيد الرفض والإلغاء</button></div></form></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</button></div><form :action=\"rejectAction\" method=\"POST\" class=\"d-flex flex-col gap-3 m-0 p-4\"><p class=\"text-xs text-secondary m-0\">سيتم رفض طلب الرعاية وإيقاف ظهوره في الصدارة وإعادة رصيد الرعاية للمورد.</p><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">سبب الرفض أو الملاحظات للمورد</label> <textarea name=\"notes\" rows=\"3\" placeholder=\"اكتب سبب الرفض أو التوجيهات للمورد...\" class=\"form-control\"></textarea></div><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" @click=\"rejectModalOpen = false\">تراجع</button> <button type=\"submit\" class=\"btn btn-danger font-bold px-6\">تأكيد الرفض والإلغاء</button></div></form></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

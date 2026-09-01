@@ -97,12 +97,12 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				return templ_7745c5c3_Err
 			}
 			if data.IsEnabled {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<input type=\"hidden\" name=\"enabled\" value=\"false\"> <button type=\"submit\" class=\"btn btn-outline-warning btn-sm fw-700\" onclick=\"return confirm('هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات بالكامل؟ لن تستخدم عمليات الاستيراد والطلب الذكي أي ذاكرة مخزنة حتى إعادة التفعيل.');\" title=\"إيقاف النظام مؤقتاً\">⏸️ إيقاف ذاكرة القرارات</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<input type=\"hidden\" name=\"enabled\" value=\"false\"> <button type=\"submit\" class=\"btn btn-outline-warning btn-sm font-bold\" onclick=\"return confirm('هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات بالكامل؟ لن تستخدم عمليات الاستيراد والطلب الذكي أي ذاكرة مخزنة حتى إعادة التفعيل.');\" title=\"إيقاف النظام مؤقتاً\">⏸️ إيقاف ذاكرة القرارات</button>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<input type=\"hidden\" name=\"enabled\" value=\"true\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\" title=\"تشغيل نظام ذاكرة القرارات\">▶️ تفعيل ذاكرة القرارات</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<input type=\"hidden\" name=\"enabled\" value=\"true\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\" title=\"تشغيل نظام ذاكرة القرارات\">▶️ تفعيل ذاكرة القرارات</button>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -112,7 +112,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				return templ_7745c5c3_Err
 			}
 			if data.Total > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<button type=\"button\" class=\"btn btn-outline-danger btn-sm fw-700\" onclick=\"confirmClearAllDecisions()\" title=\"مسح كافة القرارات المخزنة\">مسح الذاكرة بالكامل</button>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold\" onclick=\"confirmClearAllDecisions()\" title=\"مسح كافة القرارات المخزنة\">مسح الذاكرة بالكامل</button>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -130,12 +130,12 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span><div class=\"stack-xs\"><div class=\"font-bold\">نظام ذاكرة القرارات معطّل حالياً</div><div class=\"text-sm text-secondary\">جميع وحدات المنصة (الطلب الذكي، استيراد الكتالوج، أداة المقارنة، والتعرف التلقائي) لن تستخدم أي قرارات مخزنة مسبقاً ولن تقوم بحفظ قرارات جديدة حتى يتم إعادة التفعيل من هذا القسم.</div></div></div><form method=\"POST\" action=\"/admin/match-decisions/toggle-state\" class=\"m-0\"><input type=\"hidden\" name=\"enabled\" value=\"true\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\">تشغيل الآن</button></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span><div class=\"stack-xs\"><div class=\"font-bold\">نظام ذاكرة القرارات معطّل حالياً</div><div class=\"text-sm text-secondary\">جميع وحدات المنصة (الطلب الذكي، استيراد الكتالوج، أداة المقارنة، والتعرف التلقائي) لن تستخدم أي قرارات مخزنة مسبقاً ولن تقوم بحفظ قرارات جديدة حتى يتم إعادة التفعيل من هذا القسم.</div></div></div><form method=\"POST\" action=\"/admin/match-decisions/toggle-state\" class=\"m-0\"><input type=\"hidden\" name=\"enabled\" value=\"true\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">تشغيل الآن</button></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Stats Grid --><div class=\"dashboard-stat-grid mb-6\"><div class=\"card stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Stats Grid --><div class=\"dashboard-stat-grid mb-6\"><div class=\"glass-panel stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,7 +148,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"stat-label text-sm text-secondary\">إجمالي القرارات المخزنة</div></div><div class=\"card stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"stat-label text-sm text-secondary\">إجمالي القرارات المخزنة</div></div><div class=\"glass-panel stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -165,7 +165,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stat-label text-sm text-secondary\">مرات إعادة الاستخدام في الصفحة</div></div><div class=\"card stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stat-label text-sm text-secondary\">مرات إعادة الاستخدام في الصفحة</div></div><div class=\"glass-panel stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -180,7 +180,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"stat-label text-sm text-secondary\">حالة المفتاح العام للنظام</div></div></div><!-- Search & Filter Card --><div class=\"card mb-6\"><form method=\"GET\" action=\"/admin/match-decisions\" class=\"filter-bar d-flex items-center gap-3 flex-wrap p-4\"><div class=\"flex-1 min-w-48\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"stat-label text-sm text-secondary\">حالة المفتاح العام للنظام</div></div></div><!-- Search & Filter Card --><div class=\"glass-panel mb-6\"><form method=\"GET\" action=\"/admin/match-decisions\" class=\"filter-bar d-flex items-center gap-3 flex-wrap p-4\"><div class=\"flex-1 min-w-48\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -233,7 +233,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, ">200 عنصر</option></select></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\">بحث</button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, ">200 عنصر</option></select></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">بحث</button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -243,7 +243,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</form></div><!-- Main Table Card --><div class=\"card\"><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>#</th><th>المنشأة المربوطة</th><th>النص الوارد (Norm Name)</th><th>الصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>السبب / التفسير</th><th>تاريخ الاستخدام</th><th>إجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</form></div><!-- Main Table Card --><div class=\"glass-panel\"><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>#</th><th>المنشأة المربوطة</th><th>النص الوارد (Norm Name)</th><th>الصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>السبب / التفسير</th><th>تاريخ الاستخدام</th><th>إجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -643,7 +643,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div><!-- Clear All Modal / Confirmation Script --> <script>\n\t\t\tfunction confirmClearAllDecisions() {\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من رغبتك في مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف الجديدة من البداية.\")) {\n\t\t\t\t\tvar form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = '/admin/match-decisions/clear';\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div><!-- Clear All Modal / Confirmation Script --> <script>\r\n\t\t\tfunction confirmClearAllDecisions() {\r\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من رغبتك في مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف الجديدة من البداية.\")) {\r\n\t\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\t\tform.method = 'POST';\r\n\t\t\t\t\tform.action = '/admin/match-decisions/clear';\r\n\t\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\t\tform.submit();\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

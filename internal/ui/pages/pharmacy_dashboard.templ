@@ -426,13 +426,13 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				<div class="d-flex flex-col gap-6">
 					
 					<!-- Wallet Widget -->
-					<div class="card p-5">
-						<div class="d-flex items-center justify-between pb-3 mb-3 border-bottom">
+					<div class="glass-panel p-5">
+						<div class="d-flex items-center justify-between pb-3 mb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<div class="user-avatar-badge">
 									@components.IconWallet("icon-xs")
 								</div>
-								<h2 class="card-title text-sm font-bold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.wallet_card_title") }</h2>
+								<h2 class="text-sm font-bold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.wallet_card_title") }</h2>
 							</div>
 							<a href="/wallet" class="btn btn-secondary btn-xs font-bold">
 								{ i18n.T(lang, "pharmacy.dashboard.manage_wallet") }
@@ -446,7 +446,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance, Large: true })
 							</div>
 							if data.PendingDepositsCount > 0 {
-								<div class="text-2xs font-bold text-amber mt-2 pt-2 border-top border-dashed d-flex items-center justify-between">
+								<div class="text-2xs font-bold text-amber mt-2 pt-2 border-t border-dashed d-flex items-center justify-between">
 									<span>{ i18n.T(lang, "pharmacy.dashboard.pending_deposits") }</span>
 									<span class="tabular-nums">{ data.PendingDepositsTotal.String() } ج.م ({ fmt.Sprintf("%d", data.PendingDepositsCount) })</span>
 								</div>
@@ -491,13 +491,13 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					</div>
 
 					<!-- Branches Widget -->
-					<div class="card p-5">
-						<div class="d-flex items-center justify-between pb-3 mb-3 border-bottom">
+					<div class="glass-panel p-5">
+						<div class="d-flex items-center justify-between pb-3 mb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<div class="user-avatar-badge">
 									@components.IconBuilding("icon-xs")
 								</div>
-								<h2 class="card-title text-sm font-bold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.branches_card_title") }</h2>
+								<h2 class="text-sm font-bold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.branches_card_title") }</h2>
 							</div>
 							<a href="/customer/branches" class="btn btn-secondary btn-xs font-bold">
 								{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.manage_branches_btn"), data.TotalBranches) }
@@ -540,7 +540,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 					<!-- AI Gateway Consumption & Quota Widget -->
 					if data.Subscription != nil {
-						<div class="card p-5">
+						<div class="glass-panel p-5">
 							<div class="flex-between mb-4 pb-2 border-b">
 								<div class="inline-row-04">
 									<span class="text-accent">@components.IconSparkles("icon-sm")</span>
@@ -579,11 +579,11 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 					<!-- Suggested Offers Widget -->
 					if len(data.Offers) > 0 {
-						<div class="card p-5">
+						<div class="glass-panel p-5">
 							<div class="flex-between mb-4 pb-3 border-b">
 								<div class="inline-row-04">
 									<span class="text-danger">@components.IconMegaphone("icon-sm")</span>
-									<h2 class="card-title text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.suggested_offers_title") }</h2>
+									<h2 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.suggested_offers_title") }</h2>
 								</div>
 								<a href="/offers" class="btn btn-secondary btn-xs font-bold text-xs">{ i18n.T(lang, "pharmacy.dashboard.all_offers_link") }</a>
 							</div>

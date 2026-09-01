@@ -180,15 +180,15 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 										</td>
 										<td>
 											if b.Position == "page" {
-												<span class="badge badge-sky fw-700">
+												<span class="badge badge-sky font-bold">
 													{ getPositionBadgeLabel(b.Position) }
 												</span>
 											} else if b.Position == "section" || b.Position == "banner" {
-												<span class="badge badge-indigo fw-700">
+												<span class="badge badge-indigo font-bold">
 													{ getPositionBadgeLabel(b.Position) }
 												</span>
 											} else {
-												<span class="badge badge-slate fw-700">
+												<span class="badge badge-slate font-bold">
 													{ getPositionBadgeLabel(b.Position) }
 												</span>
 											}

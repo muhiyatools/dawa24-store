@@ -63,7 +63,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-boost=\"false\"><!-- Core Required Fields Status Overview --><div class=\"card\"><h2 class=\"wiz-head\">1. حالة الحقول الأساسية والمخزون</h2><p class=\"wiz-sub\">تحقق من ربط الحقول الإلزامية وحقل الكمية (المخزون). إذا لم يُكتشف أحد الحقول تلقائياً، يمكنك تحديده مباشرة من جدول الأعمدة أدناه.</p><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr><th>الحقل المطلوب</th><th>أهمية الحقل</th><th>حالة الربط بالملف</th><th>ملاحظة المخزون والتخزين</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" hx-boost=\"false\"><!-- Core Required Fields Status Overview --><div class=\"glass-panel\"><h2 class=\"wiz-head\">1. حالة الحقول الأساسية والمخزون</h2><p class=\"wiz-sub\">تحقق من ربط الحقول الإلزامية وحقل الكمية (المخزون). إذا لم يُكتشف أحد الحقول تلقائياً، يمكنك تحديده مباشرة من جدول الأعمدة أدناه.</p><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الحقل المطلوب</th><th>أهمية الحقل</th><th>حالة الربط بالملف</th><th>ملاحظة المخزون والتخزين</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -169,7 +169,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</tbody></table></div></div><!-- All Columns Mapping Table --><div class=\"card\"><h2 class=\"wiz-head\">2. راجع ربط الأعمدة في الملف</h2><p class=\"wiz-sub\">تم فحص جميع أعمدة ملفك. غيّر ما تريد لربط الحقول بدقة (مثل اختيار عمود الكمية، السعر، والاسم).</p><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr><th>العمود في ملفك</th><th>عينة من القيم</th><th>الحقل المربوط</th><th>الثقة والسبب</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</tbody></table></div></div><!-- All Columns Mapping Table --><div class=\"glass-panel\"><h2 class=\"wiz-head\">2. راجع ربط الأعمدة في الملف</h2><p class=\"wiz-sub\">تم فحص جميع أعمدة ملفك. غيّر ما تريد لربط الحقول بدقة (مثل اختيار عمود الكمية، السعر، والاسم).</p><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>العمود في ملفك</th><th>عينة من القيم</th><th>الحقل المربوط</th><th>الثقة والسبب</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -179,7 +179,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div></div><!-- Section 3: Manual / Default Stock Quantity Setting --><div class=\"card\"><div class=\"row-center-sm gap-sm mb-2\"><div class=\"stack-xs text-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div></div><!-- Section 3: Manual / Default Stock Quantity Setting --><div class=\"glass-panel\"><div class=\"row-center-sm gap-sm mb-2\"><div class=\"stack-xs text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -200,7 +200,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input tabular-nums fw-700 text-center\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form class=\"stack-md\" method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input tabular-nums font-bold text-center\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"glass-panel mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form class=\"stack-md\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -491,7 +491,7 @@ func importFindings(a *productmatch.Analysis) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(a.Mapping.Conflicts) > 0 || len(a.Mapping.Notes) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"card\"><h2 class=\"wiz-head\">التحقق</h2><p class=\"wiz-sub\">ما يجب أن تنظر إليه قبل المتابعة. لا شيء هنا يمنع الاستيراد إلا ما هو موسوم بـ«خطأ».</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"glass-panel\"><h2 class=\"wiz-head\">التحقق</h2><p class=\"wiz-sub\">ما يجب أن تنظر إليه قبل المتابعة. لا شيء هنا يمنع الاستيراد إلا ما هو موسوم بـ«خطأ».</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -605,7 +605,7 @@ func importFileSummary(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var26 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div class=\"card\"><div class=\"wiz-stats\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div class=\"glass-panel\"><div class=\"wiz-stats\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -729,7 +729,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" hx-boost=\"false\"><div class=\"card\"><h2 class=\"wiz-head\">3. إعدادات الاستيراد</h2><p class=\"wiz-sub\">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p><div class=\"stack-lg\"><div class=\"stack-sm\"><label class=\"form-label\">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class=\"text-danger\">*</span></label> <select name=\"warehouse_id\" class=\"form-input\" required><option value=\"\">— اختر المخزن —</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" hx-boost=\"false\"><div class=\"glass-panel\"><h2 class=\"wiz-head\">3. إعدادات الاستيراد</h2><p class=\"wiz-sub\">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p><div class=\"stack-lg\"><div class=\"stack-sm\"><label class=\"form-label\">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class=\"text-danger\">*</span></label> <select name=\"warehouse_id\" class=\"form-input\" required><option value=\"\">— اختر المخزن —</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -775,7 +775,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select><div class=\"text-xs text-muted mt-1\">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المخزن.</div></div></div></div><div class=\"card\"><h3 class=\"wiz-head\">ماذا نفعل بأصناف كتالوجك؟</h3><div class=\"wiz-choices\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select><div class=\"text-xs text-muted mt-1\">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المخزن.</div></div></div></div><div class=\"glass-panel\"><h3 class=\"wiz-head\">ماذا نفعل بأصناف كتالوجك؟</h3><div class=\"wiz-choices\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -857,7 +857,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div></div><div class=\"card\"><h3 class=\"wiz-head\">ماذا تعني الكمية في ملفك؟</h3><div class=\"wiz-choices\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div></div><div class=\"glass-panel\"><h3 class=\"wiz-head\">ماذا تعني الكمية في ملفك؟</h3><div class=\"wiz-choices\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -911,7 +911,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></div><div class=\"card\"><h3 class=\"wiz-head\">مراجعة الأصناف قبل الإضافة</h3><p class=\"wiz-sub\">لن يُضاف أي صنف تلقائياً إلى قاعدة البيانات. بعد معالجة الملف، ستنتقل إلى شاشة مراجعة تفاعلية منظمة تتيح لك معاينة كل صنف ودرجة تطابقه، وتعديل اسم الصنف أو سعره أو كميته، أو ربطه يدوياً بالكتالوج المركزي، وتحديد ما تريد استيراده أو استبعاده.</p></div><div class=\"card\"><h3 class=\"wiz-head\">المطابقة الذكية</h3><p class=\"wiz-sub\">نفس محرك المطابقة الذي يعمل في الطلب الذكي للصيدليات. تعمل المطابقة الحتمية أولاً دائماً، ولا يصل إلى الذكاء الاصطناعي إلا ما تعذّر حسمه — وهو عادةً عشرات الأسطر من آلاف.</p><div class=\"wiz-switches\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></div><div class=\"glass-panel\"><h3 class=\"wiz-head\">مراجعة الأصناف قبل الإضافة</h3><p class=\"wiz-sub\">لن يُضاف أي صنف تلقائياً إلى قاعدة البيانات. بعد معالجة الملف، ستنتقل إلى شاشة مراجعة تفاعلية منظمة تتيح لك معاينة كل صنف ودرجة تطابقه، وتعديل اسم الصنف أو سعره أو كميته، أو ربطه يدوياً بالكتالوج المركزي، وتحديد ما تريد استيراده أو استبعاده.</p></div><div class=\"glass-panel\"><h3 class=\"wiz-head\">المطابقة الذكية</h3><p class=\"wiz-sub\">نفس محرك المطابقة الذي يعمل في الطلب الذكي للصيدليات. تعمل المطابقة الحتمية أولاً دائماً، ولا يصل إلى الذكاء الاصطناعي إلا ما تعذّر حسمه — وهو عادةً عشرات الأسطر من آلاف.</p><div class=\"wiz-switches\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -929,7 +929,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div><ul class=\"wiz-notes text-xs text-muted\"><li>تُراجَع ذاكرة القرارات المشتركة أولاً؛ ما سبق حسمه — في ملفك أو في ملف غيرك — لا يُرسل ولا يُحتسب.</li><li>الأسطر المكررة والمرشحون المشتركون يُدمجون في طلب واحد، فالملف كاملاً بضعة طلبات مهما طال.</li><li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li></ul></div><div class=\"card\"><h3 class=\"wiz-head\">خيارات دقيقة</h3><div class=\"wiz-switches\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div><ul class=\"wiz-notes text-xs text-muted\"><li>تُراجَع ذاكرة القرارات المشتركة أولاً؛ ما سبق حسمه — في ملفك أو في ملف غيرك — لا يُرسل ولا يُحتسب.</li><li>الأسطر المكررة والمرشحون المشتركون يُدمجون في طلب واحد، فالملف كاملاً بضعة طلبات مهما طال.</li><li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li></ul></div><div class=\"glass-panel\"><h3 class=\"wiz-head\">خيارات دقيقة</h3><div class=\"wiz-switches\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1099,7 +1099,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\"></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-primary\">متابعة إلى مراجعة الأصناف ←</button></div></div></div></form><form class=\"stack-md\" method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\"></div><div class=\"glass-panel mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span><div class=\"row-center\"><button type=\"submit\" class=\"btn btn-primary\">متابعة إلى مراجعة الأصناف ←</button></div></div></div></form><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

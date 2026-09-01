@@ -135,7 +135,7 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 									</td>
 									<td>
 										<div class="row-center">
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s", sess.ID)) } class="btn btn-secondary btn-xs fw-700">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s", sess.ID)) } class="btn btn-secondary btn-xs font-bold">
 												<span>فتح الجلسة ←</span>
 											</a>
 											<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/cancel", sess.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة؟');">
@@ -156,7 +156,7 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 }
 
 templ adminImageMappingStage(view AdminProductImagesImportView) {
-	<div class="card">
+	<div class="glass-panel">
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/mapping", view.Session.ID)) } class="stack-lg">
    <div class="stack-sm">
 				<h3 class="font-bold text-sm m-0">
@@ -230,7 +230,7 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 }
 
 templ adminImageProcessingStage(view AdminProductImagesImportView) {
-	<div class="card" id="image-processing-card">
+	<div class="glass-panel" id="image-processing-card">
 		<div class="stack-xs text-sm">
 			@components.IconRefresh("icon-lg")
 		</div>
@@ -283,26 +283,26 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 	<div class="stack-lg">
 		<!-- Stats Grid -->
   <div class="stack-sm">
-			<div class="card">
+			<div class="glass-panel">
 				<div class="stack-xs text-sm">إجمالي الصفوف المفحوصة</div>
 				<div class="stack-xs text-sm">{ fmt.Sprintf("%d", view.Session.TotalRows) }</div>
 			</div>
-			<div class="card">
+			<div class="glass-panel">
 				<div class="stack-xs text-sm">تم تنزيلها وربطها بنجاح</div>
 				<div class="stack-xs text-sm">{ fmt.Sprintf("%d", view.Session.SuccessRows) }</div>
 			</div>
-			<div class="card">
+			<div class="glass-panel">
 				<div class="stack-xs text-sm">أصناف غير موجودة بالكتالوج</div>
 				<div class="stack-xs text-sm">{ fmt.Sprintf("%d", view.Session.NotFoundRows) }</div>
 			</div>
-			<div class="card">
+			<div class="glass-panel">
 				<div class="stack-xs text-sm">أخطاء في التنزيل / روابط تالفة</div>
 				<div class="stack-xs text-sm">{ fmt.Sprintf("%d", view.Session.ErrorRows) }</div>
 			</div>
 		</div>
 
 		<!-- Interactive Results Table -->
-		<div class="card">
+		<div class="glass-panel">
 			<div class="card-header">
     <div class="stack-sm">
 					<h3 class="font-bold text-sm m-0">
@@ -311,11 +311,11 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 					<span>الملف: { view.Session.Filename }</span>
 				</div>
 				<div class="row-center">
-					<a href="/admin/products/images/import" class="btn btn-secondary btn-sm fw-700">
+					<a href="/admin/products/images/import" class="btn btn-secondary btn-sm font-bold">
 						@components.IconRefresh("icon-xs")
 						<span>عملية استرداد جديدة</span>
 					</a>
-					<a href="/admin/products" class="btn btn-primary btn-sm fw-700">
+					<a href="/admin/products" class="btn btn-primary btn-sm font-bold">
 						@components.IconPackage("icon-xs")
 						<span>كتالوج الأدوية المعتمدة ←</span>
 					</a>

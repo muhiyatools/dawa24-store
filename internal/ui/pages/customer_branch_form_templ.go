@@ -102,7 +102,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl mx-auto py-4\"><!-- Breadcrumb & Top Exit / Navigation Bar --><div class=\"card p-4 mb-4\"><div class=\"d-flex items-center justify-between flex-wrap gap-3\"><div><!-- Breadcrumbs --><div class=\"d-flex items-center gap-2 text-xs text-secondary mb-1\"><a href=\"/customer/branches\" class=\"text-secondary text-decoration-none font-semibold\">إدارة الفروع</a> <span>/</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl mx-auto py-4\"><!-- Breadcrumb & Top Exit / Navigation Bar --><div class=\"glass-panel p-4 mb-4\"><div class=\"d-flex items-center justify-between flex-wrap gap-3\"><div><!-- Breadcrumbs --><div class=\"d-flex items-center gap-2 text-xs text-secondary mb-1\"><a href=\"/customer/branches\" class=\"text-secondary text-decoration-none font-semibold\">إدارة الفروع</a> <span>/</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -197,7 +197,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Full-Page Branch Form Card --><div class=\"card p-6\"><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Full-Page Branch Form Card --><div class=\"glass-panel p-6\"><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -210,7 +210,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"d-flex flex-col gap-6 m-0\"><!-- Section 1: Basic Identity --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-bottom\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"d-flex flex-col gap-6 m-0\"><!-- Section 1: Basic Identity --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-b\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -218,7 +218,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<h2 class=\"text-base font-bold text-primary m-0\">1. البيانات الأساسية للفرع</h2></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<h2 class=\"text-base font-bold text-primary m-0\">1. البيانات الأساسية للفرع</h2></div><div class=\"d-grid grid-auto-fit-sm gap-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -231,7 +231,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" required placeholder=\"مثال: صيدلية الأمل - فرع المعادي\" class=\"form-control form-control-sm font-semibold\"> <span class=\"text-2xs text-muted mt-1 d-block\">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع بالإنجليزية (اختياري)</label> <input type=\"text\" name=\"name_en\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" required placeholder=\"مثال: صيدلية الأمل - فرع المعادي\" class=\"form-control font-semibold\"> <span class=\"text-2xs text-muted mt-1 d-block\">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع بالإنجليزية (اختياري)</label> <input type=\"text\" name=\"name_en\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -244,7 +244,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" placeholder=\"e.g. Al-Amal Pharmacy - Maadi\" class=\"form-control form-control-sm font-semibold\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الفرع الداخلي</label> <input type=\"text\" name=\"code\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" placeholder=\"e.g. Al-Amal Pharmacy - Maadi\" class=\"form-control font-semibold\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الفرع الداخلي</label> <input type=\"text\" name=\"code\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -257,7 +257,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" placeholder=\"مثال: BR-CAI-01\" class=\"form-control form-control-sm tabular-nums\"> <span class=\"text-2xs text-muted mt-1 d-block\">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المدينة / المحافظة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" required class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- اختر المدينة / المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" placeholder=\"مثال: BR-CAI-01\" class=\"form-control tabular-nums\"> <span class=\"text-2xs text-muted mt-1 d-block\">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المدينة / المحافظة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" required class=\"form-select form-select-sm font-semibold\"><option value=\"\">-- اختر المدينة / المحافظة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -341,7 +341,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</select></div></div></div><!-- Section 2: Address & Contact --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-bottom\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</select></div></div></div><!-- Section 2: Address & Contact --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-b\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -349,7 +349,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<h2 class=\"text-base font-bold text-primary m-0\">2. العنوان وبيانات الاتصال</h2></div><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"form-group mb-0 md:col-span-2\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان التفصيلي وموقع الاستلام <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<h2 class=\"text-base font-bold text-primary m-0\">2. العنوان وبيانات الاتصال</h2></div><div class=\"d-grid grid-auto-fit-sm gap-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان التفصيلي وموقع الاستلام <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -362,7 +362,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" required placeholder=\"مثال: شارع النصر الرئيسي، برج النور، بجوار مستشفى المعادي\" class=\"form-control form-control-sm font-semibold\"> <span class=\"text-2xs text-muted mt-1 d-block\">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رقم هاتف / محمول الفرع</label> <input type=\"tel\" name=\"phone\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" required placeholder=\"مثال: شارع النصر الرئيسي، برج النور، بجوار مستشفى المعادي\" class=\"form-control font-semibold\"> <span class=\"text-2xs text-muted mt-1 d-block\">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رقم هاتف / محمول الفرع</label> <input type=\"tel\" name=\"phone\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -375,7 +375,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" placeholder=\"مثال: 01012345678\" class=\"form-control form-control-sm tabular-nums\"></div></div></div><!-- Section 3: Interactive Map & Coordinates --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-bottom\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" placeholder=\"مثال: 01012345678\" class=\"form-control tabular-nums\"></div></div></div><!-- Section 3: Interactive Map & Coordinates --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-b\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -409,7 +409,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\"></div><div class=\"d-flex items-center justify-between p-3 bg-surface-raised border-top text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-secondary font-bold\">الإحداثيات المحددة:</span> <span data-map-coords-badge class=\"tabular-nums font-bold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\"></div><div class=\"d-flex items-center justify-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-secondary font-bold\">الإحداثيات المحددة:</span> <span data-map-coords-badge class=\"tabular-nums font-bold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -487,7 +487,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"form-control form-control-sm text-xs\" dir=\"ltr\"></div></div><!-- Section 4: Storage & Branch Attributes --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-bottom\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"form-control text-xs\" dir=\"ltr\"></div></div><!-- Section 4: Storage & Branch Attributes --><div><div class=\"d-flex items-center gap-2 mb-4 pb-2 border-b\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -520,7 +520,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 				return templ_7745c5c3_Err
 			}
 			if data.IsEdit {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"pt-3 border-top d-flex items-center gap-4 flex-wrap\"><span class=\"text-xs font-bold text-primary\">حالة تشغيل الفرع:</span> <label class=\"d-flex items-center gap-1 text-xs font-bold cursor-pointer m-0\"><input type=\"radio\" name=\"status\" value=\"active\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"pt-3 border-t d-flex items-center gap-4 flex-wrap\"><span class=\"text-xs font-bold text-primary\">حالة تشغيل الفرع:</span> <label class=\"d-flex items-center gap-1 text-xs font-bold cursor-pointer m-0\"><input type=\"radio\" name=\"status\" value=\"active\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -545,7 +545,7 @@ func CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir string
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Bottom Action Footer --><div class=\"d-flex items-center justify-between pt-4 border-top flex-wrap gap-3\"><a href=\"/customer/branches\" class=\"btn btn-secondary font-bold\">إلغاء والعودة بدون حفظ</a> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2 gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Bottom Action Footer --><div class=\"d-flex items-center justify-between pt-4 border-t flex-wrap gap-3\"><a href=\"/customer/branches\" class=\"btn btn-secondary font-bold\">إلغاء والعودة بدون حفظ</a> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

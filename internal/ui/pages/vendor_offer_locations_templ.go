@@ -90,7 +90,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h1></div></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm fw-700\"><span>← العودة لجميع العروض</span></a></div><!-- Split Layout: Form on Left, List on Right --><div class=\"locations-grid\"><!-- Add New Location Coverage Form --><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">+ إضافة نطاق تغطية جغرافي جديد</h3><form class=\"stack-md\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h1></div></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold\"><span>← العودة لجميع العروض</span></a></div><!-- Split Layout: Form on Left, List on Right --><div class=\"locations-grid\"><!-- Add New Location Coverage Form --><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">+ إضافة نطاق تغطية جغرافي جديد</h3><form class=\"stack-md\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -183,7 +183,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>حفظ نطاق التغطية للعرض</span></button></form></div><!-- Existing Locations List --><div class=\"stack-sm\"><div class=\"stack-sm\"><h3 class=\"text-lg fw-800 text-primary m-0\">النطاقات المسجلة لهذا العرض</h3><span class=\"badge badge-sky tabular-nums fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>حفظ نطاق التغطية للعرض</span></button></form></div><!-- Existing Locations List --><div class=\"stack-sm\"><div class=\"stack-sm\"><h3 class=\"text-lg fw-800 text-primary m-0\">النطاقات المسجلة لهذا العرض</h3><span class=\"badge badge-sky tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

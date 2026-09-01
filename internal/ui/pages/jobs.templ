@@ -168,7 +168,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 
 		<!-- Job Listings Grid -->
 		if len(data.Jobs) == 0 {
-			<div class="card text-center p-8 bg-surface-raised rounded-2xl border shadow-xs">
+			<div class="glass-panel text-center p-8 bg-surface-raised rounded-2xl border shadow-xs">
 				<div class="mb-3 text-3xl text-muted">
 					@components.IconBriefcase("icon-lg")
 				</div>
@@ -194,7 +194,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 										</div>
 										<div class="job-card-company-meta">
 											<span class="job-card-company-name">{ item.CompanyName }</span>
-											<span class="badge badge-success-subtle badge-pill text-2xs fw-700">
+											<span class="badge badge-success-subtle badge-pill text-2xs font-bold">
 												@components.IconCheckCircle("icon-xs")
 												<span>معتمد</span>
 											</span>

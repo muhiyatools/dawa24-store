@@ -20,12 +20,12 @@ templ importMappingStage(view VendorImportView) {
 		<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
 			
 			<!-- Core Required Fields Status Overview -->
-			<div class="card">
+			<div class="glass-panel">
 				<h2 class="wiz-head">1. حالة الحقول الأساسية والمخزون</h2>
 				<p class="wiz-sub">
 					تحقق من ربط الحقول الإلزامية وحقل الكمية (المخزون). إذا لم يُكتشف أحد الحقول تلقائياً، يمكنك تحديده مباشرة من جدول الأعمدة أدناه.
 				</p>
-				<div class="table-wrap">
+				<div class="table-container">
 					<table class="data-table">
 						<thead>
 							<tr>
@@ -83,12 +83,12 @@ templ importMappingStage(view VendorImportView) {
 			</div>
 
 			<!-- All Columns Mapping Table -->
-			<div class="card">
+			<div class="glass-panel">
 				<h2 class="wiz-head">2. راجع ربط الأعمدة في الملف</h2>
 				<p class="wiz-sub">
 					تم فحص جميع أعمدة ملفك. غيّر ما تريد لربط الحقول بدقة (مثل اختيار عمود الكمية، السعر، والاسم).
 				</p>
-				<div class="table-wrap">
+				<div class="table-container">
 					<table class="data-table">
 						<thead>
 							<tr>
@@ -108,7 +108,7 @@ templ importMappingStage(view VendorImportView) {
 			</div>
 
 			<!-- Section 3: Manual / Default Stock Quantity Setting -->
-			<div class="card">
+			<div class="glass-panel">
 				<div class="row-center-sm gap-sm mb-2">
 					<div class="stack-xs text-sm">
 						@components.IconPackage("icon-sm")
@@ -127,14 +127,14 @@ templ importMappingStage(view VendorImportView) {
 					</label>
 					<input type="number" name="default_quantity" min="0" placeholder="مثال: 50 أو 100"
 						value={ defaultQuantityDisplay(view.Session) }
-						class="form-input tabular-nums fw-700 text-center"/>
+						class="form-input tabular-nums font-bold text-center"/>
 					<span class="text-xs text-muted">
 						(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.
 					</span>
 				</div>
 			</div>
 
-			<div class="card mb-0">
+			<div class="glass-panel mb-0">
 				<div class="wiz-actions">
 					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span>
 					<div class="row-center">
@@ -191,7 +191,7 @@ templ importColumnRow(col *productmatch.Column) {
 
 templ importFindings(a *productmatch.Analysis) {
 	if len(a.Mapping.Conflicts) > 0 || len(a.Mapping.Notes) > 0 {
-		<div class="card">
+		<div class="glass-panel">
 			<h2 class="wiz-head">التحقق</h2>
 			<p class="wiz-sub">ما يجب أن تنظر إليه قبل المتابعة. لا شيء هنا يمنع الاستيراد إلا ما هو موسوم بـ«خطأ».</p>
 			for _, c := range a.Mapping.Conflicts {
@@ -219,7 +219,7 @@ templ importFindings(a *productmatch.Analysis) {
 }
 
 templ importFileSummary(view VendorImportView) {
-	<div class="card">
+	<div class="glass-panel">
 		<div class="wiz-stats">
 			@importStat("الملف", view.Session.Filename)
 			@importStat("الصيغة", view.Session.Source.Format.Label())
@@ -243,7 +243,7 @@ templ importStat(label, value string) {
 
 templ importSettingsStage(view VendorImportView) {
 	<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/settings") } hx-boost="false">
-		<div class="card">
+		<div class="glass-panel">
 			<h2 class="wiz-head">3. إعدادات الاستيراد</h2>
 			<p class="wiz-sub">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p>
 			<div class="stack-lg">
@@ -261,7 +261,7 @@ templ importSettingsStage(view VendorImportView) {
 				</div>
 			</div>
 		</div>
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">ماذا نفعل بأصناف كتالوجك؟</h3>
 			<div class="wiz-choices">
 				for _, opt := range ImportModeOptions() {
@@ -281,7 +281,7 @@ templ importSettingsStage(view VendorImportView) {
 				}
 			</div>
 		</div>
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">ماذا تعني الكمية في ملفك؟</h3>
 			<div class="wiz-choices">
 				for _, mode := range StockModeOptions() {
@@ -295,14 +295,14 @@ templ importSettingsStage(view VendorImportView) {
 				}
 			</div>
 		</div>
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">مراجعة الأصناف قبل الإضافة</h3>
 			<p class="wiz-sub">
 				لن يُضاف أي صنف تلقائياً إلى قاعدة البيانات. بعد معالجة الملف، ستنتقل إلى شاشة مراجعة تفاعلية منظمة
 				تتيح لك معاينة كل صنف ودرجة تطابقه، وتعديل اسم الصنف أو سعره أو كميته، أو ربطه يدوياً بالكتالوج المركزي، وتحديد ما تريد استيراده أو استبعاده.
 			</p>
 		</div>
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">المطابقة الذكية</h3>
 			<p class="wiz-sub">
 				نفس محرك المطابقة الذي يعمل في الطلب الذكي للصيدليات. تعمل المطابقة الحتمية أولاً دائماً،
@@ -324,7 +324,7 @@ templ importSettingsStage(view VendorImportView) {
 				<li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li>
 			</ul>
 		</div>
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">خيارات دقيقة</h3>
 			<div class="wiz-switches">
 				@vendorImportSwitch("publish_immediately", "", "نشر الأصناف فور استيرادها",
@@ -387,7 +387,7 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 			<input type="hidden" name="duplicates" value={ string(view.Session.Settings.Duplicates) }/>
 		</div>
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="wiz-actions">
 				<span class="wiz-actions-note">ستنتقل إلى جدول المراجعة التفاعلي لفحص كل صنف وتعديله قبل الحفظ النهائي.</span>
 				<div class="row-center">

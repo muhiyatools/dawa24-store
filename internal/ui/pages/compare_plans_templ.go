@@ -50,7 +50,7 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><h2 class=\"card-title font-bold text-base m-0\">خطط مقارنة الخصومات</h2><p class=\"text-sm text-secondary m-0\">قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-sm\"><h2 class=\"font-bold text-base m-0\">خطط مقارنة الخصومات</h2><p class=\"text-sm text-secondary m-0\">قارن أسعار الموردين واحصل على أفضل صفقة لصيدليتك.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,7 +69,7 @@ func ComparePlansPage(lang, dir string, plans []*billing.Plan) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, p := range plans {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card hover-lift\"><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"glass-panel hover-lift\"><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

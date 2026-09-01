@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -35,6 +36,7 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 		{"/privacy", "0.5", "monthly"},
 		{"/auth/login", "0.6", "monthly"},
 		{"/auth/register", "0.6", "monthly"},
+		{"/llms.txt", "0.8", "weekly"},
 	}
 
 	var sb strings.Builder
@@ -56,4 +58,57 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "public, max-age=86400")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(sb.String()))
+}
+
+// LLMsTxt serves /llms.txt per https://llmstxt.org providing an LLM-friendly index of the site.
+func (h *UIHandler) LLMsTxt(w http.ResponseWriter, r *http.Request) {
+	baseURL := resolveBaseURL(r)
+	content := fmt.Sprintf(`# Dawa24 (دواء 24)
+
+> Unified B2B Marketplace connecting licensed pharmacies with verified pharmaceutical suppliers and warehouses in Egypt.
+
+## Core Information
+- Platform: Dawa24 B2B Pharmaceutical Marketplace
+- Scope: Arab Republic of Egypt
+- Website: %s
+
+## Public Sections
+- [About Dawa24](%s/about): Platform vision and mission.
+- [How It Works](%s/how-it-works): Pharmacy ordering and supplier dispatch workflows.
+- [Careers](%s/jobs): Open positions in technology, sales, and logistics.
+- [FAQ](%s/faq): Common inquiries about pharmaceutical licensing and fulfillment.
+- [Contact](%s/contact): Support hotline and contact information.
+- [Terms](%s/terms): Platform terms and conditions.
+- [Privacy Policy](%s/privacy): Data privacy policies.
+`, baseURL, baseURL, baseURL, baseURL, baseURL, baseURL, baseURL, baseURL)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(content))
+}
+
+// AgentsIndexJSON serves /.well-known/agents-index.json for DNS-AID HTTP discovery.
+func (h *UIHandler) AgentsIndexJSON(w http.ResponseWriter, r *http.Request) {
+	baseURL := resolveBaseURL(r)
+	resp := map[string]any{
+		"$schema":      "https://agents-index.org/schema/v1.json",
+		"version":      "1.0",
+		"organization": "Dawa24",
+		"domain":       r.Host,
+		"agents": []map[string]any{
+			{
+				"name":        "dawa24-web",
+				"protocol":    "https",
+				"endpoint":    baseURL,
+				"description": "Dawa24 B2B Pharmaceutical Marketplace Web Interface",
+			},
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(resp)
 }

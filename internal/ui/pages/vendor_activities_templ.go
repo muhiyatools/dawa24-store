@@ -253,7 +253,7 @@ func tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, l
 			}
 			for _, e := range entries {
 				actionLabel, badgeClass := formatAuditAction(e.Action, e.ActionLabelAr)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<tr class=\"hover:bg-slate-50/50 transition-colors\" x-show=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<tr class=\"transition-colors\" x-show=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

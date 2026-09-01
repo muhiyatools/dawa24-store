@@ -17,8 +17,8 @@ templ MessagesPage(lang, dir string, data MessagesData) {
 
 templ MessagesContent(lang, dir string, data MessagesData) {
  <div class="stack-sm">
-			<aside class="card">
-				<h2 class="card-title">المحادثات</h2>
+			<aside class="glass-panel">
+				<h2 class="text-base font-bold text-primary">المحادثات</h2>
 				if len(data.Items) == 0 {
 					<p class="text-sm text-secondary m-0">لا توجد محادثات بعد.</p>
 				} else {
@@ -33,12 +33,12 @@ templ MessagesContent(lang, dir string, data MessagesData) {
 				}
 			</aside>
 
-			<section class="card">
+			<section class="glass-panel">
 				if data.Active == nil {
 					<div class="stack-xs text-sm">اختر محادثة من القائمة</div>
 				} else {
      <div class="stack-sm">
-						<h2 class="card-title m-0">{ data.ActiveOther.Get(i18n.Lang(lang)) }</h2>
+						<h2 class="m-0 text-base font-bold text-primary">{ data.ActiveOther.Get(i18n.Lang(lang)) }</h2>
 					</div>
      <div class="stack-sm">
 						for _, m := range data.Thread {

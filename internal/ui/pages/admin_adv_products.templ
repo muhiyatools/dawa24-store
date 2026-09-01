@@ -129,7 +129,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			}
 
 			<!-- Top Header Banner -->
-			<div class="card p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
+			<div class="glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
 				<div>
 					<div class="d-flex items-center gap-2 mb-1">
 						<div class="user-avatar-badge">
@@ -161,61 +161,61 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			</div>
 
 			<!-- 4 Modern Executive Metric Cards -->
-			<div class="wallet-stats-grid mb-4">
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">إجمالي المنتجات المروجة</div>
-					<div class="wallet-stat-val text-primary tabular-nums">
+			<div class="dashboard-stat-grid cols-4 mb-4">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي المنتجات المروجة</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
-					<div class="wallet-stat-note">كافة طلبات وسجلات الرعاية</div>
+					<div class="stat-card-sub">كافة طلبات وسجلات الرعاية</div>
 				</div>
 
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">الرعايات النشطة حالياً</div>
-					<div class="wallet-stat-val text-success tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الرعايات النشطة حالياً</div>
+					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", data.ActiveCount) }
 					</div>
-					<div class="wallet-stat-note">مثبتة في صدارة البحث والكاتالوج</div>
+					<div class="stat-card-sub">مثبتة في صدارة البحث والكاتالوج</div>
 				</div>
 
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">طلبات بانتظار الموافقة</div>
-					<div class="wallet-stat-val text-amber tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">طلبات بانتظار الموافقة</div>
+					<div class="stat-card-value text-amber tabular-nums">
 						{ fmt.Sprintf("%d", data.PendingCount) }
 					</div>
-					<div class="wallet-stat-note">تتطلب تدقيق وموافقة الإدارة</div>
+					<div class="stat-card-sub">تتطلب تدقيق وموافقة الإدارة</div>
 				</div>
 
-				<div class="wallet-stat-card">
-					<div class="wallet-stat-label">الرعايات المنتهية / المرفوضة</div>
-					<div class="wallet-stat-val text-muted tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الرعايات المنتهية / المرفوضة</div>
+					<div class="stat-card-value text-muted tabular-nums">
 						{ fmt.Sprintf("%d", data.ExpiredCount + data.RejectedCount) }
 					</div>
-					<div class="wallet-stat-note">
+					<div class="stat-card-sub">
 						{ fmt.Sprintf("%d منتهية • %d مرفوضة", data.ExpiredCount, data.RejectedCount) }
 					</div>
 				</div>
 			</div>
 
 			<!-- Navigation Tabs matching platform design -->
-			<div class="sp-tabs-nav mb-4">
+			<div class="tab-list mb-4">
 				<a
 					href="/admin/adv-products?tab=all"
-					class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }
+					class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }
 				>
 					<span>كافة الرعايات</span>
 					<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.TotalCount) }</span>
 				</a>
 				<a
 					href="/admin/adv-products?tab=active"
-					class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "active") }
+					class={ "tab-btn", templ.KV("active", data.ActiveTab == "active") }
 				>
 					<span>النشطة والمعتمدة</span>
 					<span class="badge badge-emerald text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ActiveCount) }</span>
 				</a>
 				<a
 					href="/admin/adv-products?tab=pending"
-					class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "pending") }
+					class={ "tab-btn", templ.KV("active", data.ActiveTab == "pending") }
 				>
 					<span>بانتظار الموافقة</span>
 					if data.PendingCount > 0 {
@@ -226,14 +226,14 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 				</a>
 				<a
 					href="/admin/adv-products?tab=expired"
-					class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "expired") }
+					class={ "tab-btn", templ.KV("active", data.ActiveTab == "expired") }
 				>
 					<span>المنتهية</span>
 					<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ExpiredCount) }</span>
 				</a>
 				<a
 					href="/admin/adv-products?tab=rejected"
-					class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "rejected") }
+					class={ "tab-btn", templ.KV("active", data.ActiveTab == "rejected") }
 				>
 					<span>المرفوضة</span>
 					<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.RejectedCount) }</span>
@@ -241,7 +241,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			</div>
 
 			<!-- Filter & Live Search Toolbar -->
-			<div class="card p-3 mb-4">
+			<div class="glass-panel p-3 mb-4">
 				<form method="GET" action="/admin/adv-products" class="d-flex items-center gap-3 flex-wrap m-0">
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
 
@@ -253,7 +253,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 							name="q"
 							value={ data.SearchQuery }
 							placeholder="ابحث باسم المنتج، الكود، المورد، أو اسم الباقة..."
-							class="form-control form-control-sm font-semibold"
+							class="form-control font-semibold"
 						/>
 					</div>
 
@@ -285,8 +285,8 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			</div>
 
 			<!-- Main Sponsored Products Table Card -->
-			<div class="card p-0 overflow-hidden mb-4">
-				<div class="p-4 border-bottom d-flex items-center justify-between">
+			<div class="glass-panel p-0 overflow-hidden mb-4">
+				<div class="p-4 border-b d-flex items-center justify-between">
 					<h3 class="font-bold text-sm text-primary m-0 d-flex items-center gap-2">
 						@components.IconPackage("icon-xs text-primary")
 						<span>سجل رعاية وتثبيت المنتجات</span>
@@ -555,7 +555,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 					</div>
 
 					<!-- Package Selection -->
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div class="d-grid grid-auto-fit-sm gap-3">
 						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold">
 								باقة الرعاية <span class="text-danger">*</span>
@@ -583,13 +583,13 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 								min="1"
 								max="365"
 								required
-								class="form-control form-control-sm font-bold tabular-nums"
+								class="form-control font-bold tabular-nums"
 							/>
 						</div>
 					</div>
 
 					<!-- Form Actions -->
-					<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
+					<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
 						<button
 							type="button"
 							class="btn btn-secondary font-bold"
@@ -615,7 +615,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 				<div class="modal-backdrop" @click="rejectModalOpen = false"></div>
 				<div class="modal-dialog max-w-md">
 					<div class="modal-content">
-						<div class="modal-header d-flex items-center justify-between pb-3 border-bottom">
+						<div class="modal-header d-flex items-center justify-between pb-3 border-b">
 							<h3 class="modal-title text-base font-bold text-danger m-0 d-flex items-center gap-2">
 								@components.IconAlert("icon-xs")
 								<span>رفض أو إلغاء رعاية المنتج</span>
@@ -638,11 +638,11 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 									name="notes"
 									rows="3"
 									placeholder="اكتب سبب الرفض أو التوجيهات للمورد..."
-									class="form-control form-control-sm"
+									class="form-control"
 								></textarea>
 							</div>
 
-							<div class="modal-footer pt-3 border-top d-flex items-center justify-between">
+							<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
 								<button
 									type="button"
 									class="btn btn-secondary font-bold"

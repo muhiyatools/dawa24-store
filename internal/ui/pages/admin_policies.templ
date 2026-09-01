@@ -108,7 +108,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 						for _, p := range policies {
 							<tr x-show={ fmt.Sprintf("policyFilter === 'all' || policyFilter === '%s'", p.PolicyKey) }>
 								<td>
-									<span class="badge badge-slate fw-700">{ policyKeyAr(p.PolicyKey) }</span>
+									<span class="badge badge-slate font-bold">{ policyKeyAr(p.PolicyKey) }</span>
 								</td>
 								<td>
 									<strong class="tabular-nums">v{ p.Version }</strong>

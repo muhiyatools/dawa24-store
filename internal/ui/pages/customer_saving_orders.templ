@@ -11,10 +11,10 @@ import (
 // CustomerOfferOrdersPage renders offer-based orders.
 templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 	@layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil) {
-		<div class="card mb-0">
+		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
+					<h2 class="m-0 text-base font-bold text-primary">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
 					<p class="subtitle">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p>
 				</div>
 			</div>
@@ -56,10 +56,10 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 // CustomerOfferCheckoutPage renders checkout for an offer.
 templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil) {
-		<div class="card max-w-2xl mx-auto">
+		<div class="glass-panel max-w-2xl mx-auto">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="card-title m-0">إتمام شراء العرض: { offer.Title.Get("ar") }</h2>
+					<h2 class="m-0 text-base font-bold text-primary">إتمام شراء العرض: { offer.Title.Get("ar") }</h2>
 					<p class="subtitle">قيمة الخصم: { offer.DiscountValue.String() }</p>
 				</div>
 				<a href="/offers" class="btn btn-secondary btn-sm">إلغاء والعودة</a>
@@ -83,7 +83,7 @@ templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 					</div>
 				</div>
 
-				<div class="flex justify-end">
+				<div class="d-flex justify-end">
 					<button type="submit" class="btn btn-primary">تأكيد وإرسال أمر الشراء</button>
 				</div>
 			</form>
@@ -94,8 +94,8 @@ templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 // CustomerAddOrderPage renders manual order form.
 templ CustomerAddOrderPage(lang, dir string) {
 	@layouts.CustomerShell("طلب شراء سريع", "orders", lang, dir, nil) {
-		<div class="card max-w-2xl mx-auto">
-			<h2 class="card-title mb-lg">إضافة أمر شراء يدوي سريع</h2>
+		<div class="glass-panel max-w-2xl mx-auto">
+			<h2 class="mb-lg text-base font-bold text-primary">إضافة أمر شراء يدوي سريع</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "الطلب اليدوي", Message: "يمكنك إضافة الأصناف والكميات مباشرة لإرسالها لأقرب مورد معتمد."})
 		</div>
 	}
@@ -105,8 +105,8 @@ templ CustomerAddOrderPage(lang, dir string) {
 templ GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir string) {
 	@layouts.PublicShell("تتبع حالة الطلب والشحنة", lang, dir) {
 		<div class="container">
-			<div class="card">
-				<h2 class="card-title">تتبع شحنات وطلبات دواء 24</h2>
+			<div class="glass-panel">
+				<h2 class="text-base font-bold text-primary">تتبع شحنات وطلبات دواء 24</h2>
 				<p class="text-sm text-secondary m-0">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p>
 
 				<form class="stack-md" method="GET" action="/tracking">

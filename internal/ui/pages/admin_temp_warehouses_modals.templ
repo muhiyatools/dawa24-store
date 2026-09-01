@@ -15,7 +15,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 		@click.self="itemsModal = false"
 	>
 				<div
-					class="card mb-0 max-w-4xl w-full max-h-[90vh] d-flex flex-col overflow-hidden p-0 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+					class="glass-panel mb-0 max-w-4xl w-full max-h-[90vh] d-flex flex-col overflow-hidden p-0 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<!-- Modal Top Header -->
 					<div class="p-5 border-b flex-between items-center bg-surface">
@@ -162,7 +162,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 				@click.self="if (!isBulkUploading) uploadModal = false"
 			>
 				<div
-					class="card mb-0 max-w-3xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+					class="glass-panel mb-0 max-w-3xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<div class="flex-between items-center mb-5 pb-4 border-b">
       <div class="stack-sm">
@@ -349,7 +349,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 				@click.self="if(!mappingSubmitting) mappingModal = false"
 			>
 				<div
-					class="card mb-0 max-w-4xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+					class="glass-panel mb-0 max-w-4xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<!-- Modal Header & Queue Stepper -->
 					<div class="flex-between items-start mb-4 border-b pb-4 gap-4">
@@ -510,7 +510,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 											<tr>
 												<th class="w-9 text-center">#</th>
 												<template x-for="(h, colIdx) in mappingHeaders" :key="colIdx">
-													<th class="nowrap" :class="{ 'text-accent font-black': colIdx == mappingName, 'text-emerald font-black': colIdx == mappingPrice }">
+													<th class="nowrap" :class="{ 'text-accent font-black': colIdx == mappingName, 'text-emerald mappingPrice }">
 														<span x-text="h"></span>
 														<template x-if="colIdx == mappingCode">
 															<span class="badge badge-slate text-2xs ms-1">كود</span>

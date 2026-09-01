@@ -50,7 +50,7 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 						type="button"
 						data-line-id={ fmt.Sprint(l.ID) }
 						data-line-name={ l.RawName }
-						class="btn btn-secondary btn-xs fw-700"
+						class="btn btn-secondary btn-xs font-bold"
 						onclick="toggleCatalogDropdown(this)"
 						title="تغيير الصنف المربوط بالكتالوج">
 						تغيير
@@ -65,7 +65,7 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 						type="button"
 						data-line-id={ fmt.Sprint(l.ID) }
 						data-line-name={ l.RawName }
-						class="btn btn-primary btn-xs fw-700"
+						class="btn btn-primary btn-xs font-bold"
 						onclick="toggleCatalogDropdown(this)"
 						title="بحث وربط بالكتالوج المركزي">
 						ربط

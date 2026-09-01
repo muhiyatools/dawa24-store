@@ -32,7 +32,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</div>
 
 			<!-- 1. Buttons & Links -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">1. Buttons & Variants</h2>
 				<div class="d-flex flex-wrap gap-3 items-center">
 					<button type="button" class="btn btn-primary">إجراء أساسي (Primary)</button>
@@ -46,9 +46,9 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 2. Inputs & Form Controls -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">2. Form Inputs & Selects</h2>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="d-grid grid-auto-fit-sm gap-4">
      <div class="stack-sm">
 						<label class="form-label">حقل نص عادي</label>
 						<input type="text" class="form-input w-full" placeholder="اكتب هنا..." value="قيمة مبدئية"/>
@@ -68,7 +68,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 3. Checkbox & Radio -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">3. Checkbox & Radio Controls</h2>
 				<div class="d-flex gap-6 items-center">
 					<label class="d-flex items-center gap-2 cursor-pointer">
@@ -91,7 +91,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 4. Badges -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">4. Badges & Tags</h2>
 				<div class="d-flex flex-wrap gap-2">
 					<span class="badge badge-primary">جديد</span>
@@ -104,9 +104,9 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 5. Cards & Stat Cards -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">5. Cards & Data Surfaces</h2>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="d-grid grid-auto-fit-sm gap-4">
 					@components.StatCard(components.StatCardProps{
 						Label: "إجمالي الطلبات",
 						Value: "1,248",
@@ -129,7 +129,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 6. Table -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">6. Data Table</h2>
 				<div class="table-container">
 					<table class="data-table">
@@ -163,7 +163,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 7. Tabs & Pagination -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">7. Tabs & Pagination Navigation</h2>
 				<div class="tabs-nav mb-4">
 					<button type="button" class="tab-btn active">كل الأصناف (120)</button>
@@ -179,15 +179,15 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 8. Empty & Error States -->
-			<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="card p-4">
+			<section class="d-grid grid-auto-fit-sm gap-4">
+				<div class="glass-panel p-4">
 					<h2 class="text-lg font-bold mb-3">8. Empty State</h2>
 					@components.EmptyState(components.EmptyStateProps{
 						Title:   "لا توجد أصناف بعد",
 						Message: "ابدأ برفع ملف الأصناف أو أضف صنفاً يدوياً لتظهر هنا.",
 					})
 				</div>
-				<div class="card p-4">
+				<div class="glass-panel p-4">
 					<h2 class="text-lg font-bold mb-3">9. Error State</h2>
 					@components.ErrorState(components.ErrorStateProps{
 						Title:   "تعذّر تحميل البيانات",
@@ -197,7 +197,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 10. Skeletons & Loaders -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">10. Skeletons & Placeholders</h2>
 				<div class="d-flex flex-col gap-2 max-w-md">
 					@components.SkeletonText(3)
@@ -205,7 +205,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 11. Modal Dialog Component -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">11. Modal Component (Phase 4 Native Dialog)</h2>
 				<button type="button" class="btn btn-secondary" onclick="window.openModal('demo-gallery-modal')">
 					هيكل التحميل (Skeleton)
@@ -227,7 +227,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			</section>
 
 			<!-- 12. Toast & Banner Notifications -->
-			<section class="card p-4">
+			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">12. Toasts & Feedback Alerts</h2>
 				<div class="d-flex flex-col gap-3">
 					<div class="alert alert-success p-3 rounded-lg border">

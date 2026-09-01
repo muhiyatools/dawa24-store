@@ -842,7 +842,7 @@ func CustomerCatalogTable(variants []*SupplierVariantCard, lang string) templ.Co
 			templ_7745c5c3_Var41 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div class=\"card p-0 mb-6 overflow-hidden shadow-xs\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr><th class=\"w-12 text-center\"></th><th>الصنف الدوائي والمادة الفعالة</th><th>الشركة المصنعة</th><th>المورد والفرع</th><th class=\"text-center\">المخزون والصلاحية</th><th class=\"text-center tabular-nums\">سعر الجمهور</th><th class=\"text-center\">نسبة الخصم</th><th class=\"tabular-nums text-end\">السعر بعد الخصم</th><th class=\"text-center w-52\">الكمية والطلب</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div class=\"glass-panel p-0 mb-6 overflow-hidden shadow-xs\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr><th class=\"w-12 text-center\"></th><th>الصنف الدوائي والمادة الفعالة</th><th>الشركة المصنعة</th><th>المورد والفرع</th><th class=\"text-center\">المخزون والصلاحية</th><th class=\"text-center tabular-nums\">سعر الجمهور</th><th class=\"text-center\">نسبة الخصم</th><th class=\"tabular-nums text-end\">السعر بعد الخصم</th><th class=\"text-center w-52\">الكمية والطلب</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -909,7 +909,7 @@ func CustomerCatalogTable(variants []*SupplierVariantCard, lang string) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" class=\"text-inherit no-underline block\"><div class=\"font-extrabold text-primary text-xs hover:text-brand transition-colors\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" class=\"text-inherit no-underline block\"><div class=\"font-extrabold text-primary text-xs transition-colors\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

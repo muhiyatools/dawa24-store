@@ -190,7 +190,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 					</p>
 				</div>
 				<div class="so-page-actions">
-					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary btn-sm fw-700">
+					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary btn-sm font-bold">
 						<span>تصدير النتائج (CSV)</span>
 					</a>
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary btn-sm fw-800 so-primary-action">
@@ -237,7 +237,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			@soBlockedPanel(data)
 
 			<!-- Filter Tabs Bar & Search Toolbar -->
-			<div class="card so-filter-card">
+			<div class="glass-panel so-filter-card">
 				
 				<!-- Tabs: 6 Independent Statuses + Unmatched + All -->
 				<div class="so-filter-tabs">
@@ -285,7 +285,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 						</select>
 					</div>
 
-					<button type="submit" class="btn btn-primary btn-sm fw-700 so-filter-submit">
+					<button type="submit" class="btn btn-primary btn-sm font-bold so-filter-submit">
 						بحث
 					</button>
 
@@ -298,7 +298,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			</div>
 
 			<!-- Main Table Card -->
-			<div class="card so-results-table-card">
+			<div class="glass-panel so-results-table-card">
 				<div class="table-responsive">
 					<table class="data-table so-results-table">
 						<thead>
@@ -370,7 +370,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 								<span class="btn btn-secondary btn-xs disabled">&lsaquo;</span>
 							}
 
-							<span class="btn btn-primary btn-xs fw-700 pagination-current">
+							<span class="btn btn-primary btn-xs font-bold pagination-current">
 								{ fmt.Sprintf("صفحة %d من %d", data.Page, totalP) }
 							</span>
 
@@ -388,10 +388,10 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 
 			<!-- Footer Action Buttons -->
 			<div class="so-footer-actions">
-				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary fw-700">
+				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary font-bold">
 					تصدير النتائج (CSV)
 				</a>
-				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary fw-700 so-primary-action">
+				<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary font-bold so-primary-action">
 					المتابعة إلى مراجعة الطلب واعتماده ←
 				</a>
 			</div>

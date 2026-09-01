@@ -204,7 +204,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 											<button
 												type="button"
 												@click={ fmt.Sprintf("openProductsModal(%d, '%s', '%s', %d)", item.Brand.ID, templateEscape(item.Brand.Name.Get("ar")), templateEscape(item.Brand.Name.Get("en")), item.ProductCount) }
-												class="badge badge-sky fw-700 cursor-pointer"
+												class="badge badge-sky font-bold cursor-pointer"
 											
 												title="عرض الأصناف المرتبطة"
 											>
@@ -214,9 +214,9 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 										</td>
 										<td class="text-center">
 											if item.Brand.Status == "active" {
-												<span class="badge badge-emerald fw-700">نشط</span>
+												<span class="badge badge-emerald font-bold">نشط</span>
 											} else {
-												<span class="badge badge-slate fw-700">معطل</span>
+												<span class="badge badge-slate font-bold">معطل</span>
 											}
 										</td>
 										<td class="text-end">

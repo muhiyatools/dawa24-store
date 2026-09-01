@@ -323,7 +323,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 											<div class="row-center-xs">
 												if o.AdminStatus != "approved" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/approve", o.ID)) } class="m-0">
-														<button type="submit" class="btn btn-primary btn-sm fw-700" title="اعتماد ونشر العرض">
+														<button type="submit" class="btn btn-primary btn-sm font-bold" title="اعتماد ونشر العرض">
 															@components.IconCheck("icon-xs")
 															<span>اعتماد</span>
 														</button>
@@ -332,7 +332,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 												if o.AdminStatus != "rejected" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/reject", o.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رفض هذا العرض؟');">
-														<button type="submit" class="btn btn-secondary btn-sm fw-700 text-danger" title="رفض العرض">
+														<button type="submit" class="btn btn-secondary btn-sm font-bold text-danger" title="رفض العرض">
 															@components.IconX("icon-xs")
 															<span>رفض</span>
 														</button>
@@ -342,14 +342,14 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 												if o.Status == "active" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/status", o.ID)) } class="m-0">
 														<input type="hidden" name="active" value="false" />
-														<button type="submit" class="btn btn-secondary btn-sm fw-700" title="إيقاف تفعيل العرض مؤقتاً">
+														<button type="submit" class="btn btn-secondary btn-sm font-bold" title="إيقاف تفعيل العرض مؤقتاً">
 															<span>تعطيل</span>
 														</button>
 													</form>
 												} else {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/status", o.ID)) } class="m-0">
 														<input type="hidden" name="active" value="true" />
-														<button type="submit" class="btn btn-secondary btn-sm fw-700" title="تفعيل العرض">
+														<button type="submit" class="btn btn-secondary btn-sm font-bold" title="تفعيل العرض">
 															<span>تفعيل</span>
 														</button>
 													</form>

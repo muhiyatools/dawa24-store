@@ -374,7 +374,7 @@ templ importReviewStage(view VendorImportView) {
 
 						var infoDiv = document.createElement('div');
 						var nameDiv = document.createElement('div');
-						nameDiv.className = 'fw-700 text-xs';
+						nameDiv.className = 'font-bold text-xs';
 						nameDiv.style.color = 'var(--text)';
 						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
 						infoDiv.appendChild(nameDiv);
@@ -537,7 +537,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Row Number -->
-		<td class="text-center align-middle tabular-nums text-muted fw-700 text-xs">
+		<td class="text-center align-middle tabular-nums text-muted font-bold text-xs">
 			{ fmt.Sprint(row.SourceRow) }
 		</td>
 
@@ -567,7 +567,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		<td class="align-middle catalog-cell-container">
 			<div class="row-center-xs flex-wrap gap-xs items-center">
 				if row.ProductID != nil && *row.ProductID > 0 {
-					<div class="fw-700 text-sm">{ row.MatchedCatalogName() }</div>
+					<div class="font-bold text-sm">{ row.MatchedCatalogName() }</div>
 					if AIMatchedRow(row) {
 						<span class="badge badge-outline text-xs"
 							title={ aiRowTitle(row) }>ذكاء اصطناعي</span>
@@ -664,7 +664,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					{ PercentText(row.MatchScore) }
 				</span>
 			} else if len(row.Candidates) > 0 {
-				<span class={ "badge text-xs fw-700", matchScoreBadgeTone(row.Candidates[0].Score) } title="أقرب مرشح غير محسوم">
+				<span class={ "badge text-xs font-bold", matchScoreBadgeTone(row.Candidates[0].Score) } title="أقرب مرشح غير محسوم">
 					{ PercentText(row.Candidates[0].Score) }
 				</span>
 			} else {
@@ -688,7 +688,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					step="0.01"
 					min="0"
 					placeholder="0.00"
-					class="form-input text-center tabular-nums fw-700"
+					class="form-input text-center tabular-nums font-bold"
 					title="تعديل سعر الجمهور"/>
 				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ سعر الجمهور">@components.IconCheck("icon-sm")</button>
 			</form>
@@ -705,7 +705,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					min="0"
 					max="100"
 					placeholder="0.0"
-					class="form-input text-center tabular-nums fw-700"
+					class="form-input text-center tabular-nums font-bold"
 					title="تعديل نسبة الخصم %"/>
 				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ نسبة الخصم">@components.IconCheck("icon-sm")</button>
 			</form>
@@ -735,7 +735,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					step="1"
 					min="0"
 					placeholder="0"
-					class="form-input text-center tabular-nums fw-700"
+					class="form-input text-center tabular-nums font-bold"
 					title="تعديل أو إدخال الكمية يدوياً"/>
 				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ الكمية">@components.IconCheck("icon-sm")</button>
 			</form>

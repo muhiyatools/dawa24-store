@@ -160,7 +160,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>ميزة حصرية تتطلب ترقية الباقة</span></div><h1 class=\"text-2xl md:text-3xl font-black text-primary mb-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>ميزة حصرية تتطلب ترقية الباقة</span></div><h1 class=\"text-2xl font-black text-primary mb-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -173,7 +173,7 @@ func subscriptionGateContent(lang, dir string, props SubscriptionGateProps) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-sm md:text-base text-secondary max-w-2xl mx-auto mb-6\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><p class=\"text-sm text-secondary max-w-2xl mx-auto mb-6\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -43,7 +43,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							<h1 class="sp-hero-title">
 								{ data.Org.TradeName.Get(i18n.Lang(lang)) }
 							</h1>
-							<span class="badge badge-emerald text-xs fw-700">
+							<span class="badge badge-emerald text-xs font-bold">
 								@components.IconCheckCircle("icon-xs")
 								<span>موزع أدوية معتمد</span>
 							</span>
@@ -121,12 +121,12 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					<div class="sp-ops-content">
 						<div class="sp-ops-label">
 							if data.IsOpenNow {
-								<span class="badge badge-emerald text-xs fw-700">
+								<span class="badge badge-emerald text-xs font-bold">
 									<span></span>
 									<span>مفتوح الآن</span>
 								</span>
 							} else {
-								<span class="badge badge-slate text-xs fw-700">
+								<span class="badge badge-slate text-xs font-bold">
 									<span></span>
 									<span>مغلق حالياً</span>
 								</span>
@@ -185,30 +185,30 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 3. Navigation Tabs -->
-			<div class="sp-tabs-nav">
-				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
+			<div class="tab-list">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
 					@components.IconPackage("icon-xs")
 					<span>كتالوج الأصناف والتشغيلات ({ fmt.Sprintf("%d", data.TotalVariants) })</span>
 				</button>
 
 				if len(data.Sections) > 0 {
-					<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
+					<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
 						<span>@components.IconSparkles("icon-sm")</span>
 						<span>نبذة وأقسام المنشأة ({ fmt.Sprintf("%d", len(data.Sections)) })</span>
 					</button>
 				}
 
-				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" onclick="switchProfileTab('policies')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" onclick="switchProfileTab('policies')">
 					@components.IconShield("icon-xs")
 					<span>شروط وسياسات التوريد ({ fmt.Sprintf("%d", len(data.Policies)) })</span>
 				</button>
 
-				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" onclick="switchProfileTab('branches')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" onclick="switchProfileTab('branches')">
 					@components.IconBuilding("icon-xs")
 					<span>فروع ومخازن التوزيع ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
 				</button>
 
-				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
+				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
 					@components.IconUser("icon-xs")
 					<span>تقييمات الصيادلة ({ fmt.Sprintf("%d", data.ReviewCount) })</span>
 				</button>
@@ -229,7 +229,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								class="form-input input-sm"
 							/>
 						</div>
-						<button type="submit" class="btn btn-primary btn-sm fw-700">
+						<button type="submit" class="btn btn-primary btn-sm font-bold">
 							بحث
 						</button>
 						if data.SearchQuery != "" {
@@ -240,7 +240,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</form>
 
 					<div class="d-flex items-center gap-2">
-						<span class="badge badge-sky text-xs fw-700">
+						<span class="badge badge-sky text-xs font-bold">
 							{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
 						</span>
 						<div class="btn-group">
@@ -255,7 +255,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				</div>
 
 				if len(data.Variants) == 0 {
-					<div class="card">
+					<div class="glass-panel">
 						@components.IconPill("icon-lg")
 						<h3 class="font-bold text-sm m-0">لا توجد أصناف مطابقة للبحث</h3>
 						<p class="text-sm text-muted m-0">يقوم المورد بتحديث قائمة الأدوية والأسعار بانتظام.</p>
@@ -436,7 +436,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 													<button
 														type="submit"
 														:disabled="loading"
-														class="btn btn-primary btn-sm fw-700"
+														class="btn btn-primary btn-sm font-bold"
 													
 													>
 														<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
@@ -484,7 +484,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								canAdd := data.CanAddToCart(v)
 								minOrderQty := data.GetMinOrderQty(v)
 							}}
-							<div class="card hover-lift p-4 d-flex flex-col justify-between gap-3">
+							<div class="glass-panel hover-lift p-4 d-flex flex-col justify-between gap-3">
 								<div class="d-flex flex-col gap-2">
 									<!-- Top Row: Thumbnail + Dosage Badge -->
 									<div class="d-flex items-center justify-between gap-2">
@@ -548,7 +548,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</div>
 
 									<!-- Pricing Row -->
-									<div class="d-flex items-center justify-between text-xs pt-1 border-top">
+									<div class="d-flex items-center justify-between text-xs pt-1 border-t">
 										<span class="text-muted">سعر التوريد:</span>
 										<div class="tabular-nums font-bold text-sm text-primary">
 											if v.Price.IsPositive() {
@@ -591,7 +591,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											<button
 												type="submit"
 												:disabled="loading"
-												class="btn btn-primary btn-sm fw-700"
+												class="btn btn-primary btn-sm font-bold"
 											
 											>
 												<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
@@ -652,7 +652,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					<div class="jobs-grid">
 						for _, s := range data.Sections {
 							if s.IsActive {
-								<div class="card hover-lift p-4 d-flex flex-col justify-between gap-3">
+								<div class="glass-panel hover-lift p-4 d-flex flex-col justify-between gap-3">
 									<div class="d-flex items-center gap-3">
 										<div style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
 											{ sectionTypeIcon(s.SectionType) }
@@ -666,7 +666,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									</div>
 									<button
 										type="button"
-										class="btn btn-secondary btn-sm fw-700"
+										class="btn btn-secondary btn-sm font-bold"
 										data-modal-open={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
 									>
 										<span>عرض التفاصيل الكاملة ←</span>
@@ -681,7 +681,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 6. Tab 3: Supply Policies -->
 			<div id="tab-content-policies" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "policies") }>
 				if len(data.Policies) == 0 {
-					<div class="card p-6 text-center">
+					<div class="glass-panel p-6 text-center">
 						<div class="d-flex items-center justify-center gap-2 mb-2">
 							<div class="user-avatar-badge">
 								@components.IconShield("icon-sm")
@@ -697,7 +697,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				} else {
 					<div class="d-flex flex-col gap-3">
 						for _, pol := range data.Policies {
-							<div class="card p-4">
+							<div class="glass-panel p-4">
 								<div class="d-flex items-center gap-2 mb-2">
 									<div class="text-primary">
 										@components.IconShield("icon-xs")
@@ -718,7 +718,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 7. Tab 4: Branches & Warehouses -->
 			<div id="tab-content-branches" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "branches") }>
 				if len(data.Branches) == 0 {
-					<div class="card p-6 text-center">
+					<div class="glass-panel p-6 text-center">
 						@components.IconBuilding("icon-lg")
 						<h3 class="font-bold text-sm m-0">المخزن الرئيسي للمورد</h3>
 						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
@@ -726,8 +726,8 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				} else {
 					<div class="jobs-grid">
 						for _, b := range data.Branches {
-							<div class="card p-4 d-flex flex-col justify-between gap-3">
-								<div class="d-flex items-center justify-between gap-2 border-bottom pb-2">
+							<div class="glass-panel p-4 d-flex flex-col justify-between gap-3">
+								<div class="d-flex items-center justify-between gap-2 border-b pb-2">
 									<div class="d-flex items-center gap-2">
 										<div class="text-primary">
 											@components.IconBuilding("icon-sm")
@@ -769,7 +769,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 8. Tab 5: Reviews -->
 			<div id="tab-content-reviews" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
-					<div class="card p-6 text-center">
+					<div class="glass-panel p-6 text-center">
 						<div class="mb-2 text-amber">@components.IconStar("icon-sm")</div>
 						<h3 class="font-bold text-sm m-0">مورد معتمد موثق</h3>
 						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
@@ -777,7 +777,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				} else {
 					<div class="d-flex flex-col gap-3">
 						for _, rv := range data.Reviews {
-							<div class="card p-4">
+							<div class="glass-panel p-4">
 								<div class="d-flex items-center justify-between gap-2 mb-2">
 									<strong>صيدلية معتمدة</strong>
 									@components.RatingStars(float64(rv.Rating), 0)

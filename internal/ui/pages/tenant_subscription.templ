@@ -236,7 +236,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 						type="button"
 						@click="planBillingPeriod = 'monthly'"
 						class="px-4 py-1.5 rounded-lg text-xs font-black transition-all"
-						:class="planBillingPeriod === 'monthly' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-primary'"
+						:class="planBillingPeriod === 'monthly' ? 'bg-white text-primary shadow-xs' : 'text-secondary"
 					>
 						شهرياً
 					</button>
@@ -244,7 +244,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 						type="button"
 						@click="planBillingPeriod = 'annual'"
 						class="px-4 py-1.5 rounded-lg text-xs font-black transition-all d-flex items-center gap-1.5"
-						:class="planBillingPeriod === 'annual' ? 'bg-white text-primary shadow-xs' : 'text-secondary hover:text-primary'"
+						:class="planBillingPeriod === 'annual' ? 'bg-white text-primary shadow-xs' : 'text-secondary"
 					>
 						<span>سنوياً</span>
 						<span class="badge badge-emerald font-extrabold text-2xs py-0.5 px-1.5">وفر شهرين مجاناً</span>
@@ -436,7 +436,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 					<!-- Billing Cycle Choice in Modal -->
      <div class="stack-sm">
 						<label class="form-label font-bold text-xs mb-2 d-block text-primary">دورة الفوترة والتجديد:</label>
-						<div class="d-grid gap-2 grid-cols-1 md:grid-cols-2">
+						<div class="d-grid grid-auto-fit-sm gap-2">
 							<!-- Monthly Radio -->
 							<label
 								class="p-3 rounded-xl border cursor-pointer d-flex flex-col gap-1 transition-all"

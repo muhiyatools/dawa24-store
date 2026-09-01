@@ -77,7 +77,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"d-flex flex-col gap-6 w-full\"><!-- Header Banner --><div class=\"card mb-0 bg-surface-raised border rounded-2xl p-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-4\"><div class=\"w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"d-flex flex-col gap-6 w-full\"><!-- Header Banner --><div class=\"glass-panel mb-0 bg-surface-raised border rounded-2xl p-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-4\"><div class=\"w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,7 +98,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div></div><!-- Warehouses Table Card --><div class=\"card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div></div><!-- Warehouses Table Card --><div class=\"glass-panel mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -392,7 +392,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div><!-- Warehouse Profile Banner --><div class=\"card mb-0 border rounded-2xl p-6 bg-surface-raised\"><div class=\"flex-between items-center flex-wrap gap-5\"><div class=\"d-flex items-center gap-4\"><div class=\"w-14 h-14 rounded-2xl bg-sky-500/15 text-accent flex-center text-2xl shrink-0 border border-sky-500/25\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div></div><!-- Warehouse Profile Banner --><div class=\"glass-panel mb-0 border rounded-2xl p-6 bg-surface-raised\"><div class=\"flex-between items-center flex-wrap gap-5\"><div class=\"d-flex items-center gap-4\"><div class=\"w-14 h-14 rounded-2xl bg-sky-500/15 text-accent flex-center text-2xl shrink-0 border border-sky-500/25\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -541,7 +541,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>تحديث البيانات</span></a></div></div></div><!-- KPI Stat Summary Cards (Responsive 4-Column Grid) --><div class=\"warehouse-kpi-grid\"><!-- Total SKUs --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-primary bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">إجمالي الأصناف</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>تحديث البيانات</span></a></div></div></div><!-- KPI Stat Summary Cards (Responsive 4-Column Grid) --><div class=\"warehouse-kpi-grid\"><!-- Total SKUs --><div class=\"glass-panel mb-0 warehouse-kpi-card border-t-4 border-t-primary bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">إجمالي الأصناف</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -575,7 +575,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</strong> وحدة مخزنية</div></div><!-- Available (Ready for order) --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-emerald bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">متاح للطلب</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</strong> وحدة مخزنية</div></div><!-- Available (Ready for order) --><div class=\"glass-panel mb-0 warehouse-kpi-card border-t-4 border-t-emerald bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">متاح للطلب</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -596,7 +596,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div class=\"text-xs text-muted mt-1\">أصناف فوق حد الأمان</div></div><!-- Low Stock --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-amber bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">رصيد منخفض</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div class=\"text-xs text-muted mt-1\">أصناف فوق حد الأمان</div></div><!-- Low Stock --><div class=\"glass-panel mb-0 warehouse-kpi-card border-t-4 border-t-amber bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">رصيد منخفض</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -617,7 +617,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div class=\"text-xs text-muted mt-1\">أصناف تحت حد الأمان</div></div><!-- Out of Stock --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-rose bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نفد المخزون</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div class=\"text-xs text-muted mt-1\">أصناف تحت حد الأمان</div></div><!-- Out of Stock --><div class=\"glass-panel mb-0 warehouse-kpi-card border-t-4 border-t-rose bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نفد المخزون</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -638,7 +638,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div><div class=\"text-xs text-muted mt-1\">رصيد صفري (غير متاح)</div></div></div><!-- Filter & Search Toolbar Card --><div class=\"card mb-0 border rounded-2xl p-5 bg-surface-raised\"><form method=\"GET\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div><div class=\"text-xs text-muted mt-1\">رصيد صفري (غير متاح)</div></div></div><!-- Filter & Search Toolbar Card --><div class=\"glass-panel mb-0 border rounded-2xl p-5 bg-surface-raised\"><form method=\"GET\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -826,7 +826,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>بحث وتصفية</span></button></div></div></form></div><!-- Inventory Data Table Card --><div class=\"card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs\"><div class=\"p-5 border-b flex-between items-center flex-wrap gap-3 bg-surface\"><div class=\"d-flex items-center gap-2.5\"><span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>بحث وتصفية</span></button></div></div></form></div><!-- Inventory Data Table Card --><div class=\"glass-panel mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs\"><div class=\"p-5 border-b flex-between items-center flex-wrap gap-3 bg-surface\"><div class=\"d-flex items-center gap-2.5\"><span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

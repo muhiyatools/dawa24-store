@@ -354,10 +354,10 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 										}
 									</td>
 									<td>
-										<span class="badge badge-slate fw-700">{ p.DosageForm }</span>
+										<span class="badge badge-slate font-bold">{ p.DosageForm }</span>
 									</td>
 									<td>
-										<span class="badge badge-sky fw-700">
+										<span class="badge badge-sky font-bold">
 											{ getCategoryLabel(p.CategoryID, categories, "غير مصنف") }
 										</span>
 									</td>
@@ -562,7 +562,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							<div class="form-grid-2">
 								<div class="form-group m-0">
 									<label class="form-label">فئة المنتج (Category) *</label>
-									<select name="category_id" required class="form-select fw-700">
+									<select name="category_id" required class="form-select font-bold">
 										<option value="" disabled selected>-- اختر فئة المنتج من الدليل --</option>
 										for _, cat := range categories {
 											<option value={ fmt.Sprintf("%d", cat.ID) }>
@@ -673,7 +673,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 							<div class="form-grid-2">
 								<div class="form-group m-0">
 									<label class="form-label">فئة المنتج (Category) *</label>
-									<select name="category_id" x-model="editData.category_id" required class="form-select fw-700">
+									<select name="category_id" x-model="editData.category_id" required class="form-select font-bold">
 										<option value="0" disabled>-- اختر فئة المنتج --</option>
 										for _, cat := range categories {
 											<option value={ fmt.Sprintf("%d", cat.ID) }>

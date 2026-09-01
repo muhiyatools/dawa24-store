@@ -116,12 +116,12 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 							for _, c := range data.AIConvs {
 								<tr>
 									<td class="tabular-nums">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="fw-700 text-primary">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="font-bold text-primary">
 											#{ fmt.Sprintf("%d", c.ID) }
 										</a>
 									</td>
 									<td>
-										<div class="fw-700 text-primary">{ c.UserName }</div>
+										<div class="font-bold text-primary">{ c.UserName }</div>
 										if c.UserRole != "" {
 											<span class="badge badge-slate">{ c.UserRole }</span>
 										}
@@ -167,7 +167,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 										{ c.UpdatedAt.Format("2006-01-02 03:04 PM") }
 									</td>
 									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm fw-700">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/chat/ai/%d", c.ID)) } class="btn btn-secondary btn-sm font-bold">
 											@components.IconEye("icon-xs")
 											<span>عرض المحادثة</span>
 										</a>

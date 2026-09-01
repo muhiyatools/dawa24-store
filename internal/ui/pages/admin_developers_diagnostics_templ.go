@@ -35,7 +35,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- ========================================== --><!-- TAB 3: Advanced Error Diagnostics          --><!-- ========================================== --><div x-show=\"activeTab === 'errors'\" class=\"stack-lg\" x-data=\"adminErrorsManager()\" x-cloak><!-- Diagnostics Header Strip & Metrics --><div class=\"dashboard-stat-grid mb-4\"><div class=\"card mb-0 p-5 border-s-4 border-s-accent\"><div class=\"text-xs font-bold text-muted\">إجمالي الاستثناءات المسجلة</div><div class=\"text-2xl font-black text-primary mt-1 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- ========================================== --><!-- TAB 3: Advanced Error Diagnostics          --><!-- ========================================== --><div x-show=\"activeTab === 'errors'\" class=\"stack-lg\" x-data=\"adminErrorsManager()\" x-cloak><!-- Diagnostics Header Strip & Metrics --><div class=\"dashboard-stat-grid mb-4\"><div class=\"glass-panel mb-0 p-5 border-s-4 border-s-accent\"><div class=\"text-xs font-bold text-muted\">إجمالي الاستثناءات المسجلة</div><div class=\"text-2xl font-black text-primary mt-1 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -48,7 +48,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"text-xs text-muted mt-0.5\">سجل تشخيصي شامل</div></div><div class=\"card mb-0 p-5 border-s-4 border-s-danger\"><div class=\"text-xs font-bold text-muted\">أخطاء حرجة (24 ساعة)</div><div class=\"text-2xl font-black text-danger mt-1 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"text-xs text-muted mt-0.5\">سجل تشخيصي شامل</div></div><div class=\"glass-panel mb-0 p-5 border-s-4 border-s-danger\"><div class=\"text-xs font-bold text-muted\">أخطاء حرجة (24 ساعة)</div><div class=\"text-2xl font-black text-danger mt-1 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -61,7 +61,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"text-xs text-muted mt-0.5\">تتطلب تدخلاً فورياً</div></div><div class=\"card mb-0 p-5 border-s-4 border-s-warning\"><div class=\"text-xs font-bold text-muted\">أخطاء قيد المتابعة</div><div class=\"text-2xl font-black text-warning mt-1 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"text-xs text-muted mt-0.5\">تتطلب تدخلاً فورياً</div></div><div class=\"glass-panel mb-0 p-5 border-s-4 border-s-warning\"><div class=\"text-xs font-bold text-muted\">أخطاء قيد المتابعة</div><div class=\"text-2xl font-black text-warning mt-1 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -74,7 +74,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"text-xs text-muted mt-0.5\">حالة New أو Investigating</div></div><div class=\"card mb-0 p-5 border-s-4 border-s-success\"><div class=\"text-xs font-bold text-muted\">المستخدمين المتأثرين</div><div class=\"text-2xl font-black text-primary mt-1 tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"text-xs text-muted mt-0.5\">حالة New أو Investigating</div></div><div class=\"glass-panel mb-0 p-5 border-s-4 border-s-success\"><div class=\"text-xs font-bold text-muted\">المستخدمين المتأثرين</div><div class=\"text-2xl font-black text-primary mt-1 tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -87,7 +87,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"text-xs text-muted mt-0.5\">حسابات صادفت أخطاء</div></div></div><!-- Filter Strip --><div class=\"card mb-0 p-4\"><form method=\"GET\" action=\"/admin/developers\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"errors\"><div class=\"flex-1 min-w-60\"><input type=\"text\" name=\"err_q\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"text-xs text-muted mt-0.5\">حسابات صادفت أخطاء</div></div></div><!-- Filter Strip --><div class=\"glass-panel mb-0 p-4\"><form method=\"GET\" action=\"/admin/developers\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"errors\"><div class=\"flex-1 min-w-60\"><input type=\"text\" name=\"err_q\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -508,12 +508,12 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\">\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", err.ID) },\n\t\t\t\t\t\t\t\"user_name\": { fmt.Sprintf(\"%q\", err.UserName) },\n\t\t\t\t\t\t\t\"user_email\": { fmt.Sprintf(\"%q\", err.UserEmail) },\n\t\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", err.OrganizationName) },\n\t\t\t\t\t\t\t\"error_level\": { fmt.Sprintf(\"%q\", err.ErrorLevel) },\n\t\t\t\t\t\t\t\"error_message\": { fmt.Sprintf(\"%q\", err.ErrorMessage) },\n\t\t\t\t\t\t\t\"exception_class\": { fmt.Sprintf(\"%q\", err.ExceptionClass) },\n\t\t\t\t\t\t\t\"stack_trace\": { fmt.Sprintf(\"%q\", err.StackTrace) },\n\t\t\t\t\t\t\t\"http_method\": { fmt.Sprintf(\"%q\", err.HTTPMethod) },\n\t\t\t\t\t\t\t\"url_path\": { fmt.Sprintf(\"%q\", err.URLPath) },\n\t\t\t\t\t\t\t\"ip_address\": { fmt.Sprintf(\"%q\", err.IPAddress) },\n\t\t\t\t\t\t\t\"status\": { fmt.Sprintf(\"%q\", err.Status) },\n\t\t\t\t\t\t\t\"created_at\": { fmt.Sprintf(\"%q\", err.CreatedAt.Format(\"2006-01-02 03:04:05 PM\")) }\n\t\t\t\t\t\t}\n\t\t\t\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\">\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", err.ID) },\r\n\t\t\t\t\t\t\t\"user_name\": { fmt.Sprintf(\"%q\", err.UserName) },\r\n\t\t\t\t\t\t\t\"user_email\": { fmt.Sprintf(\"%q\", err.UserEmail) },\r\n\t\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", err.OrganizationName) },\r\n\t\t\t\t\t\t\t\"error_level\": { fmt.Sprintf(\"%q\", err.ErrorLevel) },\r\n\t\t\t\t\t\t\t\"error_message\": { fmt.Sprintf(\"%q\", err.ErrorMessage) },\r\n\t\t\t\t\t\t\t\"exception_class\": { fmt.Sprintf(\"%q\", err.ExceptionClass) },\r\n\t\t\t\t\t\t\t\"stack_trace\": { fmt.Sprintf(\"%q\", err.StackTrace) },\r\n\t\t\t\t\t\t\t\"http_method\": { fmt.Sprintf(\"%q\", err.HTTPMethod) },\r\n\t\t\t\t\t\t\t\"url_path\": { fmt.Sprintf(\"%q\", err.URLPath) },\r\n\t\t\t\t\t\t\t\"ip_address\": { fmt.Sprintf(\"%q\", err.IPAddress) },\r\n\t\t\t\t\t\t\t\"status\": { fmt.Sprintf(\"%q\", err.Status) },\r\n\t\t\t\t\t\t\t\"created_at\": { fmt.Sprintf(\"%q\", err.CreatedAt.Format(\"2006-01-02 03:04:05 PM\")) }\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><!-- ========================================== --><!-- TAB 4: Audit Logs & Diffs (Moved here)     --><!-- ========================================== --><div x-show=\"activeTab === 'audit'\" class=\"stack-lg\" x-data=\"adminAuditManager()\" x-cloak><div class=\"card mb-0\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"stack-sm\"><h3 class=\"card-title m-0 text-lg font-black\">سجلات الأنشطة والتدقيق الأمني (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><!-- ========================================== --><!-- TAB 4: Audit Logs & Diffs (Moved here)     --><!-- ========================================== --><div x-show=\"activeTab === 'audit'\" class=\"stack-lg\" x-data=\"adminAuditManager()\" x-cloak><div class=\"glass-panel mb-0\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"stack-sm\"><h3 class=\"m-0 text-lg font-black\">سجلات الأنشطة والتدقيق الأمني (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -892,7 +892,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "\">\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\n\t\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\n\t\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\n\t\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\n\t\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\n\t\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\n\t\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\n\t\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\n\t\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\n\t\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\n\t\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\n\t\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\n\t\t\t\t\t\t}\n\t\t\t\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "\">\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\r\n\t\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\r\n\t\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\r\n\t\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\r\n\t\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\r\n\t\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\r\n\t\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\r\n\t\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\r\n\t\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\r\n\t\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\r\n\t\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\r\n\t\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

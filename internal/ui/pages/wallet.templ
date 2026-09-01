@@ -92,57 +92,57 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		}
 
 		<!-- Financial Balance Bar -->
-		<div class="wallet-stats-grid mb-4">
+		<div class="dashboard-stat-grid cols-4 mb-4">
 			<!-- Card 1: Available Balance -->
-			<div class="wallet-stat-card">
-				<div class="wallet-stat-label">الرصيد الفعلي المتاح</div>
-				<div class="wallet-stat-val text-primary tabular-nums">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">الرصيد الفعلي المتاح</div>
+				<div class="stat-card-value text-primary tabular-nums">
 					{ walletBalance(data.Wallet) }
 				</div>
-				<div class="wallet-stat-note">
+				<div class="stat-card-sub">
 					جاهز لسداد الطلبيات والمسحوبات
 				</div>
 			</div>
 
 			<!-- Card 2: Total Deposits -->
-			<div class="wallet-stat-card">
-				<div class="wallet-stat-label">إجمالي الإيداعات</div>
-				<div class="wallet-stat-val text-emerald tabular-nums">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">إجمالي الإيداعات</div>
+				<div class="stat-card-value text-emerald tabular-nums">
 					{ computeTotalInflows(data.Transactions) }
 				</div>
-				<div class="wallet-stat-note">
+				<div class="stat-card-sub">
 					مجموع المبالغ المودعة
 				</div>
 			</div>
 
 			<!-- Card 3: Total Outflows -->
-			<div class="wallet-stat-card">
-				<div class="wallet-stat-label">إجمالي المدفوعات والمسحوبات</div>
-				<div class="wallet-stat-val text-secondary tabular-nums">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">إجمالي المدفوعات والمسحوبات</div>
+				<div class="stat-card-value text-secondary tabular-nums">
 					{ computeTotalOutflows(data.Transactions) }
 				</div>
-				<div class="wallet-stat-note">
+				<div class="stat-card-sub">
 					سداد أوامر التوريد والمسحوبات
 				</div>
 			</div>
 
 			<!-- Card 4: Operations Count -->
-			<div class="wallet-stat-card">
-				<div class="wallet-stat-label">إجمالي العمليات</div>
-				<div class="wallet-stat-val tabular-nums">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">إجمالي العمليات</div>
+				<div class="stat-card-value tabular-nums">
 					{ fmt.Sprintf("%d", len(data.Transactions)) } <span class="text-xs font-normal text-muted">عملية</span>
 				</div>
-				<div class="wallet-stat-note">
+				<div class="stat-card-sub">
 					مسجلة في دفتر الأستاذ
 				</div>
 			</div>
 		</div>
 
 		<!-- Section Tabs Navigation -->
-		<div class="sp-tabs-nav mb-4">
+		<div class="tab-list mb-4">
 			<button
 				type="button"
-				class="sp-tab-btn"
+				class="tab-btn"
 				:class="{ 'active': activeSection === 'transactions' }"
 				@click="activeSection = 'transactions'"
 			>
@@ -152,7 +152,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 			<button
 				type="button"
-				class="sp-tab-btn"
+				class="tab-btn"
 				:class="{ 'active': activeSection === 'payments' }"
 				@click="activeSection = 'payments'"
 			>
@@ -162,7 +162,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 			<button
 				type="button"
-				class="sp-tab-btn"
+				class="tab-btn"
 				:class="{ 'active': activeSection === 'deposits' }"
 				@click="activeSection = 'deposits'"
 			>
@@ -173,7 +173,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 		<!-- Section 1: Transactions Table -->
 		<div x-show="activeSection === 'transactions'">
-			<div class="card p-0">
+			<div class="glass-panel p-0">
 				if len(data.Transactions) == 0 {
 					<div class="p-6">
 						@components.EmptyState(components.EmptyStateProps{
@@ -241,7 +241,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		<div class="d-flex flex-col gap-4" x-show="activeSection === 'payments'">
 			<div class="d-flex items-center justify-between flex-wrap gap-3">
 				<div>
-					<h2 class="card-title font-bold text-base m-0">
+					<h2 class="font-bold text-base m-0">
 						طرق الدفع والحسابات البنكية المعتمدة
 					</h2>
 					<p class="text-xs text-secondary m-0 mt-1">
@@ -261,7 +261,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 			<!-- Saved Methods Grid -->
 			if len(data.PaymentMethods) == 0 {
-				<div class="card p-6 text-center">
+				<div class="glass-panel p-6 text-center">
 					<div class="mb-2 text-2xl text-muted">@components.IconCreditCard("icon-sm")</div>
 					<h3 class="font-bold text-sm m-0">لم يتم حفظ أي وسيلة دفع</h3>
 					<p class="text-xs text-secondary m-0 mt-1 max-w-sm mx-auto">
@@ -320,7 +320,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			}
 
 			<!-- Official Platform Bank Details for Recharge -->
-			<div class="card p-4">
+			<div class="glass-panel p-4">
 				<div class="d-flex items-center gap-2 mb-3 text-primary font-bold text-xs">
 					@components.IconInfo("icon-xs")
 					<span>الحسابات الرسمية المعتمدة للتحويل والإيداع</span>
@@ -347,7 +347,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 		<!-- Section 3: Pending Deposit Requests -->
 		<div x-show="activeSection === 'deposits'">
-			<div class="card p-0">
+			<div class="glass-panel p-0">
 				if len(data.DepositRequests) == 0 {
 					<div class="p-6">
 						@components.EmptyState(components.EmptyStateProps{

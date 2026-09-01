@@ -154,7 +154,8 @@ func RegisterStaticRoutes(r chi.Router) {
 			return
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set("Cache-Control", "public, max-age=3600, must-revalidate")
+		w.Header().Set("Content-Signal", "ai-train=no, search=yes, ai-input=no")
 		w.Header().Set("ETag", asset.etag)
 		if match := req.Header.Get("If-None-Match"); match != "" && (match == asset.etag || match == "*") {
 			w.WriteHeader(http.StatusNotModified)

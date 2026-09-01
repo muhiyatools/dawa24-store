@@ -294,7 +294,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							<template x-for="item in filteredItems" :key="item.variant_id">
 								<div
 									@click="addItem(item)"
-									class="p-2 rounded-lg cursor-pointer hover:bg-surface-sunken d-flex items-center justify-between gap-3 border-b text-xs transition-colors"
+									class="p-2 rounded-lg cursor-pointer d-flex items-center justify-between gap-3 border-b text-xs transition-colors"
 								>
 									<div class="d-flex items-center gap-2">
 										<span class="text-base">@components.IconPackage("icon-sm")</span>

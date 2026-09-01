@@ -43,7 +43,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 			}
 			
 			<!-- Header Banner -->
-			<div class="card p-6 mb-6">
+			<div class="glass-panel p-6 mb-6">
 				<div class="d-flex items-center justify-between flex-wrap gap-4">
 					<div>
 						<div class="d-flex items-center gap-2 mb-1">
@@ -668,7 +668,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 				root.innerHTML = `
      <div class="stack-sm">
-						<div class="card">
+						<div class="glass-panel p-4">
 							<div class="stat-label text-sm text-secondary">@components.IconSettings("icon-sm")</div>
 							<div class="stat-label text-sm text-secondary">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
 							<div class="stat-label text-sm text-secondary">جاري قراءة البيانات وإعداد المعاينة الذكية</div>
@@ -700,7 +700,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				isModalLoading = true;
 				root.innerHTML = `
      <div class="stack-sm">
-						<div class="card">
+						<div class="glass-panel p-4">
 							<div class="stat-label text-sm text-secondary">⏳</div>
 							<div class="stat-label text-sm text-secondary">جاري قراءة أعمدة الملف ومعاينتها...</div>
 						</div>
@@ -775,7 +775,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				if (root) {
 					root.innerHTML = `
       <div class="stack-sm">
-							<div class="card">
+							<div class="glass-panel p-4">
 								<div class="stat-label text-sm text-secondary">⏩</div>
 								<div class="stat-label text-sm text-secondary">جاري تخطي الملف والانتقال للملف التالي...</div>
 							</div>

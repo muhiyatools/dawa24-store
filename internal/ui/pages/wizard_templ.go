@@ -175,7 +175,7 @@ func WizardToggles(all []WizardToggle, group ToggleGroup) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(TogglesInGroup(all, group)) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"card\"><h3 class=\"wiz-head\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"glass-panel\"><h3 class=\"wiz-head\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

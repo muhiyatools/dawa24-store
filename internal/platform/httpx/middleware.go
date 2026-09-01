@@ -177,6 +177,7 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		h.Set("Permissions-Policy", "geolocation=(self), camera=(), microphone=()")
 		h.Set("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
+		h.Set("Content-Signal", "ai-train=no, search=yes, ai-input=no")
 		// htmx, Alpine and Leaflet are served from this origin now, so the three
 		// CDN origins that used to be script and style sources are gone. Two
 		// relaxations remain and both are load-bearing rather than sloppy:

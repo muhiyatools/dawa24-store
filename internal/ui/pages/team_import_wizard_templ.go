@@ -336,7 +336,7 @@ func teamUploadStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" enctype=\"multipart/form-data\" hx-boost=\"false\"><label class=\"dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-brand-500 hover:bg-brand-50/20 transition-all mb-4\" id=\"team-dropzone\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"visually-hidden\" onchange=\"handleTeamFileSelect(this)\"><div class=\"w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center mb-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" enctype=\"multipart/form-data\" hx-boost=\"false\"><label class=\"dropzone p-8 text-center d-flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer transition-all mb-4\" id=\"team-dropzone\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"visually-hidden\" onchange=\"handleTeamFileSelect(this)\"><div class=\"w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center mb-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -365,7 +365,7 @@ func teamUploadStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>تحميل قالب Excel للموظفين (.xlsx)</span></a></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-black gap-2 px-5\"><span>متابعة وقراءة الملف ←</span></button></div></form></div><script>\n\t\tfunction handleTeamFileSelect(input) {\n\t\t\tif (input.files && input.files[0]) {\n\t\t\t\tvar file = input.files[0];\n\t\t\t\tvar title = document.getElementById('dropzone-title');\n\t\t\t\tvar hint = document.getElementById('dropzone-hint');\n\t\t\t\tif (title) title.textContent = '' + file.name;\n\t\t\t\tif (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع';\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>تحميل قالب Excel للموظفين (.xlsx)</span></a></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-black gap-2 px-5\"><span>متابعة وقراءة الملف ←</span></button></div></form></div><script>\r\n\t\tfunction handleTeamFileSelect(input) {\r\n\t\t\tif (input.files && input.files[0]) {\r\n\t\t\t\tvar file = input.files[0];\r\n\t\t\t\tvar title = document.getElementById('dropzone-title');\r\n\t\t\t\tvar hint = document.getElementById('dropzone-hint');\r\n\t\t\t\tif (title) title.textContent = '' + file.name;\r\n\t\t\t\tif (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع';\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -503,7 +503,7 @@ func teamSessionsHistoryCard(view TeamImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة؟');\" class=\"d-inline m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600 hover:text-rose-700\">حذف</button></form></div></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة؟');\" class=\"d-inline m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600\">حذف</button></form></div></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -578,7 +578,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" onsubmit=\"return confirm('هل تريد إلغاء هذه الجلسة؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600 hover:text-rose-700\">إلغاء الجلسة</button></form></div><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" onsubmit=\"return confirm('هل تريد إلغاء هذه الجلسة؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-ghost btn-xs text-rose-600\">إلغاء الجلسة</button></form></div><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -591,7 +591,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"stack-lg\"><!-- Column Mapping Section --><div class=\"mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><div class=\"w-6 h-6 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center font-bold text-xs\">أ</div><h3 class=\"text-sm font-black text-primary m-0\">ربط أعمدة ملف الـ Excel بالبيانات</h3></div><div class=\"d-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80\"><!-- Name Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <select name=\"col_name\" class=\"form-select text-xs font-medium\" required><option value=\"-1\">-- اختر العمود --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"stack-lg\"><!-- Column Mapping Section --><div class=\"mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><div class=\"w-6 h-6 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center font-bold text-xs\">أ</div><h3 class=\"text-sm font-black text-primary m-0\">ربط أعمدة ملف الـ Excel بالبيانات</h3></div><div class=\"d-grid grid-auto-fit-sm gap-4 p-4 rounded-xl bg-surface-sunken border border-slate-200/80\"><!-- Name Column --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold\">عمود اسم الموظف بالكامل <span class=\"text-danger\">*</span></label> <select name=\"col_name\" class=\"form-select text-xs font-medium\" required><option value=\"-1\">-- اختر العمود --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -918,7 +918,7 @@ func teamMappingStage(view TeamImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(sess.ExcelRoles) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<div class=\"p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-4\"><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<div class=\"p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-4\"><div class=\"d-grid grid-auto-fit-sm gap-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1136,7 +1136,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 				existingCount++
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<div class=\"page-container\" x-data=\"{\n\t\tfilterTab: 'all',\n\t\tsearchQ: '',\n\t\tmatches(r) {\n\t\t\tconst q = this.searchQ.toLowerCase().trim();\n\t\t\tconst matchSearch = !q || (r.name && r.name.toLowerCase().includes(q)) || (r.email && r.email.toLowerCase().includes(q)) || (r.phone && r.phone.includes(q)) || (r.role && r.role.toLowerCase().includes(q));\n\t\t\tif (!matchSearch) return false;\n\t\t\tif (this.filterTab === 'valid') return r.valid;\n\t\t\tif (this.filterTab === 'issues') return !r.valid;\n\t\t\treturn true;\n\t\t}\n\t}\"><!-- Review Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">3. مراجعة وتأكيد بيانات الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">تحقق من صحة البريد الإلكتروني والأدوار المسندة لكل موظف قبل التأكيد النهائي</p></div><div class=\"d-flex items-center gap-2\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<div class=\"page-container\" x-data=\"{\r\n\t\tfilterTab: 'all',\r\n\t\tsearchQ: '',\r\n\t\tmatches(r) {\r\n\t\t\tconst q = this.searchQ.toLowerCase().trim();\r\n\t\t\tconst matchSearch = !q || (r.name && r.name.toLowerCase().includes(q)) || (r.email && r.email.toLowerCase().includes(q)) || (r.phone && r.phone.includes(q)) || (r.role && r.role.toLowerCase().includes(q));\r\n\t\t\tif (!matchSearch) return false;\r\n\t\t\tif (this.filterTab === 'valid') return r.valid;\r\n\t\t\tif (this.filterTab === 'issues') return !r.valid;\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}\"><!-- Review Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">3. مراجعة وتأكيد بيانات الموظفين</h2><p class=\"text-xs text-secondary m-0 mt-1\">تحقق من صحة البريد الإلكتروني والأدوار المسندة لكل موظف قبل التأكيد النهائي</p></div><div class=\"d-flex items-center gap-2\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1149,7 +1149,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\" class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>تعديل ربط الأعمدة</span></a></div></div></div><!-- Metrics Cards --><div class=\"d-grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6\"><!-- Total Staff --><div class=\"glass-panel p-4 border border-slate-200/80 rounded-xl d-flex items-center gap-3\"><div class=\"w-10 h-10 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shrink-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\" class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>تعديل ربط الأعمدة</span></a></div></div></div><!-- Metrics Cards --><div class=\"d-grid grid-auto-fit-sm gap-4 mb-6\"><!-- Total Staff --><div class=\"glass-panel p-4 border border-slate-200/80 rounded-xl d-flex items-center gap-3\"><div class=\"w-10 h-10 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shrink-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1212,7 +1212,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "</div></div></div></div><!-- Review Table Panel --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><!-- Table Toolbar --><div class=\"p-4 border-b flex-between items-center flex-wrap gap-3\"><div class=\"d-flex items-center gap-2\"><button type=\"button\" @click=\"filterTab = 'all'\" :class=\"{ 'btn-primary': filterTab === 'all', 'btn-secondary': filterTab !== 'all' }\" class=\"btn btn-xs font-bold\">كافة الصفوف (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "</div></div></div></div><!-- Review Table Panel --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><!-- Table Toolbar --><div class=\"p-4 border-b flex-between items-center flex-wrap gap-3\"><div class=\"d-flex items-center gap-2\"><button type=\"button\" @click=\"filterTab = 'all'\" :class=\"{ 'btn-primary': filterTab === 'all', 'btn-secondary': !== 'all' }\" class=\"btn btn-xs font-bold\">كافة الصفوف (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1225,7 +1225,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, ")</button> <button type=\"button\" @click=\"filterTab = 'valid'\" :class=\"{ 'btn-primary': filterTab === 'valid', 'btn-secondary': filterTab !== 'valid' }\" class=\"btn btn-xs font-bold\">الجاهزة فقط (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, ")</button> <button type=\"button\" @click=\"filterTab = 'valid'\" :class=\"{ 'btn-primary': filterTab === 'valid', 'btn-secondary': !== 'valid' }\" class=\"btn btn-xs font-bold\">الجاهزة فقط (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1243,7 +1243,7 @@ func teamReviewStage(view TeamImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if invalidCount > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<button type=\"button\" @click=\"filterTab = 'issues'\" :class=\"{ 'btn-primary': filterTab === 'issues', 'btn-secondary': filterTab !== 'issues' }\" class=\"btn btn-xs font-bold text-rose-600\">المستبعدة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "<button type=\"button\" @click=\"filterTab = 'issues'\" :class=\"{ 'btn-primary': filterTab === 'issues', 'btn-secondary': !== 'issues' }\" class=\"btn btn-xs font-bold text-rose-600\">المستبعدة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

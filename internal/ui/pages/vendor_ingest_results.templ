@@ -13,7 +13,7 @@ import (
 
 templ importConfirmStage(view VendorImportView) {
 	@importFileSummary(view)
-	<div class="card">
+	<div class="glass-panel">
 		<h2 class="wiz-head">4. راجع ثم أكّد</h2>
 		<p class="wiz-sub">هذا ما سيحدث عند الضغط على «ابدأ الاستيراد». لا شيء قد كُتب حتى الآن.</p>
 		<div class="wiz-map">
@@ -25,9 +25,9 @@ templ importConfirmStage(view VendorImportView) {
 		</div>
 	</div>
 	if view.Session.Mapping != nil {
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">الأعمدة التي ستُقرأ</h3>
-			<div class="table-wrap">
+			<div class="table-container">
 				<table class="data-table">
 					<thead>
 						<tr>
@@ -40,7 +40,7 @@ templ importConfirmStage(view VendorImportView) {
 						for _, col := range view.Session.Mapping.Columns {
 							if col.Field != "" {
 								<tr>
-									<td class="fw-700">{ col.Header }</td>
+									<td class="font-bold">{ col.Header }</td>
 									<td>{ col.Label }</td>
 									<td>
 										<span class={ "badge", ConfidenceTone(col.Confidence), "text-xs" }>
@@ -61,7 +61,7 @@ templ importConfirmStage(view VendorImportView) {
 			</div>
 		</div>
 	}
-	<div class="card mb-0">
+	<div class="glass-panel mb-0">
 		<div class="wiz-actions">
 			<span class="wiz-actions-note">
 				if view.Session.Settings.Mode.Destructive() {
@@ -96,7 +96,7 @@ templ importSummaryItem(label, value string) {
 // --- stage 5: processing ---------------------------------------------------
 
 templ importProcessingStage(view VendorImportView) {
-	<div class="card" id="import-progress-card" data-import={ view.Session.PublicID }>
+	<div class="glass-panel" id="import-progress-card" data-import={ view.Session.PublicID }>
 		<h2 class="wiz-head">جارٍ تنفيذ الاستيراد</h2>
 		<p class="wiz-sub" id="import-progress-note">{ view.Session.ProgressNote }</p>
 		<div class="progress">
@@ -132,7 +132,7 @@ templ importProcessingStage(view VendorImportView) {
 // --- stage 6: results ------------------------------------------------------
 
 templ importResultsStage(view VendorImportView) {
-	<div class="card">
+	<div class="glass-panel">
 		<h2 class="wiz-head">
 			if view.Session.Phase == ingest.PhaseFailed {
 				لم يكتمل الاستيراد
@@ -162,9 +162,9 @@ templ importResultsStage(view VendorImportView) {
 		</div>
 	</div>
 	if len(view.Session.Findings) > 0 {
-		<div class="card">
+		<div class="glass-panel">
 			<h3 class="wiz-head">ملاحظات على الصفوف</h3>
-			<div class="table-wrap">
+			<div class="table-container">
 				<table class="data-table">
 					<thead>
 						<tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr>
@@ -202,7 +202,7 @@ templ importResultsStage(view VendorImportView) {
 }
 
 templ importRowsTable(view VendorImportView) {
-	<div class="card">
+	<div class="glass-panel">
   <div class="stack-sm">
 			<h3 class="wiz-head m-0">{ fmt.Sprintf("سجل الصفوف (%d)", view.RowTotal) }</h3>
 			<div class="row-center-sm">
@@ -213,7 +213,7 @@ templ importRowsTable(view VendorImportView) {
 				@importRowFilter(view, ingest.OutcomeError, "أخطاء")
 			</div>
 		</div>
-		<div class="table-wrap">
+		<div class="table-container">
 			<table class="data-table">
 				<thead>
 					<tr>
@@ -230,7 +230,7 @@ templ importRowsTable(view VendorImportView) {
 						<tr class="rule-bottom">
 							<td class="text-center tabular-nums font-bold text-muted">{ fmt.Sprint(row.SourceRow) }</td>
 							<td>
-								<div class="fw-700 text-primary text-09">{ row.DisplayName }</div>
+								<div class="font-bold text-primary text-09">{ row.DisplayName }</div>
 								if row.SourceCode != "" {
 									<div class="text-xs text-muted">
 										كود الصنف بالملف: <code class="text-xs">{ row.SourceCode }</code>
@@ -239,7 +239,7 @@ templ importRowsTable(view VendorImportView) {
 							</td>
 							<td>
 								if row.MatchedCatalogName() != "" {
-									<div class="fw-700">
+									<div class="font-bold">
 										{ row.MatchedCatalogName() }
 									</div>
 									if row.MatchedCatalogSKU() != "" {
@@ -267,7 +267,7 @@ templ importRowsTable(view VendorImportView) {
 									</span>
 								</div>
 								if row.MatchScore > 0 {
-									<div class="text-muted tabular-nums fw-700">
+									<div class="text-muted tabular-nums font-bold">
 										{ PercentText(row.MatchScore) }
 									</div>
 								}

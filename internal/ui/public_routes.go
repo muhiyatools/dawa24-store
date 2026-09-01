@@ -31,10 +31,13 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
 		pub.Use(h.visitorMiddleware)
+		pub.Use(h.LinkResponseHeadersMiddleware)
 		pub.Use(h.MarkdownNegotiationMiddleware)
 
-		// Sitemap
+		// Sitemap & Agent Discovery metadata
 		pub.Get("/sitemap.xml", h.SitemapXML)
+		pub.Get("/llms.txt", h.LLMsTxt)
+		pub.Get("/.well-known/agents-index.json", h.AgentsIndexJSON)
 
 		// Public & Auth (marketing, catalogue browsing, sign-in)
 		pub.Get("/", h.HomePage)

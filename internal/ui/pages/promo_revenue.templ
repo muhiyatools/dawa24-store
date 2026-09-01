@@ -339,7 +339,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 								<tbody class="divide-y divide-slate-100">
 									for _, pkg := range data.Packages {
 										if pkg != nil {
-											<tr class="hover:bg-slate-50/50 transition-colors">
+											<tr class="transition-colors">
 												<!-- Package Name & Info -->
 												<td class="py-3.5 ps-4">
 													<div class="d-flex items-center gap-3">
@@ -444,13 +444,13 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/%d/toggle", pkg.ID)) } class="m-0 d-inline">
 															if pkg.IsActive {
 																<input type="hidden" name="active" value="false"/>
-																<button type="submit" class="btn btn-ghost btn-xs font-bold text-amber-700 hover:text-amber-800 gap-1" title="تعطيل الباقة">
+																<button type="submit" class="btn btn-ghost btn-xs font-bold text-amber-700 gap-1" title="تعطيل الباقة">
 																	@components.IconMinus("icon-2xs")
 																	<span>تعطيل</span>
 																</button>
 															} else {
 																<input type="hidden" name="active" value="true"/>
-																<button type="submit" class="btn btn-ghost btn-xs font-bold text-emerald-700 hover:text-emerald-800 gap-1" title="تفعيل الباقة">
+																<button type="submit" class="btn btn-ghost btn-xs font-bold text-emerald-700 gap-1" title="تفعيل الباقة">
 																	@components.IconCheck("icon-2xs")
 																	<span>تفعيل</span>
 																</button>
@@ -511,7 +511,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 								<tbody class="divide-y divide-slate-100">
 									for _, req := range data.Requests {
 										if req != nil {
-											<tr class="hover:bg-slate-50/50 transition-colors">
+											<tr class="transition-colors">
 												<td class="tabular-nums font-black text-primary py-3.5 ps-4">
 													<span class="badge badge-slate text-xs font-mono">{ fmt.Sprintf("#%d", req.OrganizationID) }</span>
 												</td>
@@ -570,7 +570,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 															<!-- Reject with Modal -->
 															<button
 																type="button"
-																class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs hover:bg-rose-50"
+																class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs"
 																@click={ fmt.Sprintf("openReject('/admin/offers-packages/sponsorships/%d/reject')", req.ID) }
 															>
 																@components.IconClose("icon-2xs")
@@ -633,7 +633,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 								<tbody class="divide-y divide-slate-100">
 									for _, ad := range data.Ads {
 										if ad != nil {
-											<tr class="hover:bg-slate-50/50 transition-colors">
+											<tr class="transition-colors">
 												<!-- Ad Preview & Title -->
 												<td class="py-3.5 ps-4">
 													<div class="d-flex items-center gap-3">
@@ -706,7 +706,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 																</button>
 															</form>
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)) } class="m-0">
-																<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs hover:bg-rose-50" onclick="return confirm('هل أنت متأكد من رفض هذا الإعلان؟')">
+																<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs" onclick="return confirm('هل أنت متأكد من رفض هذا الإعلان؟')">
 																	@components.IconClose("icon-2xs")
 																	<span>رفض</span>
 																</button>

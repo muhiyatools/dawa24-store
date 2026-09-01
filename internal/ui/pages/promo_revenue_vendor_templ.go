@@ -72,13 +72,13 @@ func VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequests
 				return templ_7745c5c3_Err
 			}
 			if len(data.Packages) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-5\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"d-grid grid-auto-fit-sm gap-5\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, pkg := range data.Packages {
 					if pkg != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 hover:shadow-md transition-all d-flex flex-col justify-between\"><div class=\"stack-sm\"><!-- Card Top Header --><div class=\"flex-between items-start mb-4\"><div class=\"stack-sm\"><h3 class=\"text-lg font-black text-primary m-0 leading-tight\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs transition-all d-flex flex-col justify-between\"><div class=\"stack-sm\"><!-- Card Top Header --><div class=\"flex-between items-start mb-4\"><div class=\"stack-sm\"><h3 class=\"text-lg font-black text-primary m-0 leading-tight\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -534,7 +534,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<!-- KPIs Summary Cards --><div class=\"d-grid grid-cols-2 md:grid-cols-4 gap-4 mb-6\"><div class=\"glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs\"><span class=\"text-2xs text-muted font-bold d-block mb-1\">إجمالي الإعلانات</span><div class=\"text-2xl font-black text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<!-- KPIs Summary Cards --><div class=\"d-grid grid-auto-fit-sm gap-4 mb-6\"><div class=\"glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs\"><span class=\"text-2xs text-muted font-bold d-block mb-1\">إجمالي الإعلانات</span><div class=\"text-2xl font-black text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -634,7 +634,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 				}
 				for _, ad := range data.Ads {
 					if ad != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<tr class=\"hover:bg-slate-50/50 transition-colors\"><td class=\"py-3 ps-4\"><div class=\"d-flex items-center gap-3\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<tr class=\"transition-colors\"><td class=\"py-3 ps-4\"><div class=\"d-flex items-center gap-3\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -984,7 +984,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<h3 class=\"text-sm font-black text-primary m-0\">رصيد الرعايات النشط والمتاح</h3></div><div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<h3 class=\"text-sm font-black text-primary m-0\">رصيد الرعايات النشط والمتاح</h3></div><div class=\"d-grid grid-auto-fit-sm gap-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1053,7 +1053,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<h3 class=\"text-sm font-black text-primary m-0\">الباقات المتاحة للشراء الفوري</h3></div><div class=\"d-grid grid-cols-1 md:grid-cols-3 gap-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<h3 class=\"text-sm font-black text-primary m-0\">الباقات المتاحة للشراء الفوري</h3></div><div class=\"d-grid grid-auto-fit-sm gap-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1248,7 +1248,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<h3 class=\"text-sm font-black text-primary m-0\">تقديم طلب رعاية جديد لأصنافك وعروضك</h3></div><form method=\"POST\" action=\"/vendor/sponsorship-requests/new\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">نوع العناصر المراد رعايتها *</label> <select name=\"item_type\" x-model=\"itemType\" @change=\"onTypeChange()\" class=\"form-input text-xs font-semibold\"><option value=\"product\">أصناف دوائية من المخزون (In-Stock Products)</option> <option value=\"offer\">عروض ترويجية نشطة (Active Offers)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الباقة المستخدمة للخصم من الرصيد *</label> <select name=\"package_id\" x-model=\"selectedPackageID\" class=\"form-input text-xs font-semibold\" required>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<h3 class=\"text-sm font-black text-primary m-0\">تقديم طلب رعاية جديد لأصنافك وعروضك</h3></div><form method=\"POST\" action=\"/vendor/sponsorship-requests/new\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"d-grid grid-auto-fit-sm gap-4\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">نوع العناصر المراد رعايتها *</label> <select name=\"item_type\" x-model=\"itemType\" @change=\"onTypeChange()\" class=\"form-input text-xs font-semibold\"><option value=\"product\">أصناف دوائية من المخزون (In-Stock Products)</option> <option value=\"offer\">عروض ترويجية نشطة (Active Offers)</option></select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الباقة المستخدمة للخصم من الرصيد *</label> <select name=\"package_id\" x-model=\"selectedPackageID\" class=\"form-input text-xs font-semibold\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1314,7 +1314,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</span></div><!-- Autocomplete Results Dropdown --><div x-show=\"showDropdown\" @click.outside=\"showDropdown = false\" class=\"position-absolute z-50 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl p-2 mt-1.5 max-h-60 overflow-y-auto\" x-cloak><template x-for=\"item in currentAvailableList\" :key=\"item.variant_id || item.id\"><div @click=\"addItem(item)\" class=\"p-2.5 rounded-xl cursor-pointer hover:bg-slate-50 d-flex items-center justify-between gap-3 border-b border-slate-100 last:border-b-0 transition-colors\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center\"><template x-if=\"itemType === 'product'\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</span></div><!-- Autocomplete Results Dropdown --><div x-show=\"showDropdown\" @click.outside=\"showDropdown = false\" class=\"position-absolute z-50 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl p-2 mt-1.5 max-h-60 overflow-y-auto\" x-cloak><template x-for=\"item in currentAvailableList\" :key=\"item.variant_id || item.id\"><div @click=\"addItem(item)\" class=\"p-2.5 rounded-xl cursor-pointer d-flex items-center justify-between gap-3 border-b border-slate-100 last:border-b-0 transition-colors\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center\"><template x-if=\"itemType === 'product'\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1346,7 +1346,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span class=\"text-xs font-black text-primary\">العناصر المحددة للرعاية:</span></div><div class=\"text-xs text-secondary font-bold\"><span>التكلفة: </span> <strong class=\"text-brand tabular-nums font-black\" x-text=\"selectedItems.length + ' رصيد (1 لكل عنصر)'\"></strong></div></div><div class=\"d-flex items-center gap-2 flex-wrap min-h-8\"><template x-if=\"selectedItems.length === 0\"><span class=\"text-xs text-muted font-medium\">لم يتم اختيار أي أصناف بعد. استخدم شريط البحث أعلاه لإضافة أصناف.</span></template><template x-for=\"it in selectedItems\" :key=\"it.id\"><div class=\"badge badge-sky font-bold text-xs gap-1.5 p-1.5 ps-2.5 rounded-xl border border-sky-300/60 d-flex items-center shadow-2xs\"><span x-text=\"it.title\"></span> <button type=\"button\" @click=\"removeItem(it.id)\" class=\"w-4 h-4 rounded-full bg-sky-200 hover:bg-sky-300 text-sky-800 d-flex items-center justify-center text-2xs cursor-pointer border-0\" title=\"إزالة\">&times;</button></div></template></div><!-- Hidden Inputs for Submission --><template x-for=\"it in selectedItems\" :key=\"it.id\"><input type=\"hidden\" name=\"item_ids\" :value=\"it.id\"></template></div><!-- Credits Calculation & Warning --><div class=\"p-4 bg-surface-sunken rounded-2xl border border-slate-200 d-flex items-center justify-between gap-4 flex-wrap text-xs\"><div class=\"d-flex items-center gap-2 text-secondary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span class=\"text-xs font-black text-primary\">العناصر المحددة للرعاية:</span></div><div class=\"text-xs text-secondary font-bold\"><span>التكلفة: </span> <strong class=\"text-brand tabular-nums font-black\" x-text=\"selectedItems.length + ' رصيد (1 لكل عنصر)'\"></strong></div></div><div class=\"d-flex items-center gap-2 flex-wrap min-h-8\"><template x-if=\"selectedItems.length === 0\"><span class=\"text-xs text-muted font-medium\">لم يتم اختيار أي أصناف بعد. استخدم شريط البحث أعلاه لإضافة أصناف.</span></template><template x-for=\"it in selectedItems\" :key=\"it.id\"><div class=\"badge badge-sky font-bold text-xs gap-1.5 p-1.5 ps-2.5 rounded-xl border border-sky-300/60 d-flex items-center shadow-2xs\"><span x-text=\"it.title\"></span> <button type=\"button\" @click=\"removeItem(it.id)\" class=\"w-4 h-4 rounded-full bg-sky-200 text-sky-800 d-flex items-center justify-center text-2xs cursor-pointer border-0\" title=\"إزالة\">&times;</button></div></template></div><!-- Hidden Inputs for Submission --><template x-for=\"it in selectedItems\" :key=\"it.id\"><input type=\"hidden\" name=\"item_ids\" :value=\"it.id\"></template></div><!-- Credits Calculation & Warning --><div class=\"p-4 bg-surface-sunken rounded-2xl border border-slate-200 d-flex items-center justify-between gap-4 flex-wrap text-xs\"><div class=\"d-flex items-center gap-2 text-secondary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1399,7 +1399,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 				}
 				for _, req := range data.Requests {
 					if req != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<tr class=\"hover:bg-slate-50/50 transition-colors\"><td class=\"py-3 ps-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<tr class=\"transition-colors\"><td class=\"py-3 ps-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

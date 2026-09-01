@@ -130,7 +130,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div class="admin-kpi-footer">
 						<span>مكتملة: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
 						<span>نشطة: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
-						<a href="/admin/orders" class="text-accent fw-700 no-underline">عرض الكل â†</a>
+						<a href="/admin/orders" class="text-accent font-bold no-underline">عرض الكل â†</a>
 					</div>
 				</div>
 
@@ -179,7 +179,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					</div>
 					<div class="admin-kpi-footer">
 						<span>إجمالي المستخدمين: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
-						<a href="/admin/approvals" class="text-accent fw-700 no-underline">مراجعة الكل â†</a>
+						<a href="/admin/approvals" class="text-accent font-bold no-underline">مراجعة الكل â†</a>
 					</div>
 				</div>
 
@@ -257,7 +257,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											</td>
 											<td class="pad-sm">
 												if ord.OrganizationID != nil {
-													<span class="badge badge-sky text-xs fw-700">منشأة #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
+													<span class="badge badge-sky text-xs font-bold">منشأة #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
 												} else {
 													<span class="text-muted">عميل #{ fmt.Sprintf("%d", ord.CustomerID) }</span>
 												}
@@ -410,9 +410,9 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ po.LegalName }</span>
 												if string(po.Type) == "vendor" {
-													<span class="badge badge-sky text-xs fw-700">مورد</span>
+													<span class="badge badge-sky text-xs font-bold">مورد</span>
 												} else {
-													<span class="badge badge-emerald text-xs fw-700">صيدلية</span>
+													<span class="badge badge-emerald text-xs font-bold">صيدلية</span>
 												}
 											</div>
 											<div class="text-xs text-muted tabular-nums mt-0.5">
@@ -468,9 +468,9 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ ro.LegalName }</span>
 												if string(ro.Type) == "vendor" {
-													<span class="badge badge-purple text-xs fw-700">مورد أدوية</span>
+													<span class="badge badge-purple text-xs font-bold">مورد أدوية</span>
 												} else {
-													<span class="badge badge-emerald text-xs fw-700">صيدلية معتمدة</span>
+													<span class="badge badge-emerald text-xs font-bold">صيدلية معتمدة</span>
 												}
 											</div>
 											<div class="text-xs text-muted tabular-nums mt-0.5">
@@ -480,11 +480,11 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 									</div>
          <div class="stack-sm">
 										if string(ro.Status) == "approved" {
-											<span class="badge badge-emerald text-xs fw-700">معتمد </span>
+											<span class="badge badge-emerald text-xs font-bold">معتمد </span>
 										} else if string(ro.Status) == "pending" {
-											<span class="badge badge-amber text-xs fw-700">قيد المراجعة</span>
+											<span class="badge badge-amber text-xs font-bold">قيد المراجعة</span>
 										} else {
-											<span class="badge badge-slate text-xs fw-700">{ string(ro.Status) }</span>
+											<span class="badge badge-slate text-xs font-bold">{ string(ro.Status) }</span>
 										}
 									</div>
 								</div>

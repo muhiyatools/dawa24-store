@@ -139,7 +139,7 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 
 					<!-- State 1: Search Form (When no shipment loaded or searching for another) -->
 					if data.Shipment == nil {
-						<div class="courier-card text-center p-6 sm:p-8">
+						<div class="courier-card text-center p-6">
 							<div class="w-14 h-14 rounded-2xl bg-sky-50 text-sky-600 d-inline-flex items-center justify-center mb-4 border border-sky-100 shadow-2xs">
 								@components.IconTruck("icon-md")
 							</div>
@@ -417,7 +417,7 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 
 						<!-- Back / Switch Shipment Link -->
 						<div class="text-center pt-2">
-							<a href="/delivery" class="text-xs font-bold text-secondary text-decoration-none hover:text-primary">
+							<a href="/delivery" class="text-xs font-bold text-secondary text-decoration-none">
 								<span>← البحث عن شحنة أخرى</span>
 							</a>
 						</div>

@@ -507,7 +507,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 		>
 			
 			<!-- 1. Header Banner & Top Action Tabs -->
-			<div class="card mb-0 bg-surface-raised border rounded-2xl p-7 shadow-xs">
+			<div class="glass-panel mb-0 bg-surface-raised border rounded-2xl p-7 shadow-xs">
 				<div class="flex-between items-start flex-wrap gap-6">
      <div>
 						<div class="d-flex items-center gap-3 mb-1.5">
@@ -581,7 +581,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			<!-- 2. 4 Stat Metric Cards -->
 			<div class="d-grid grid-auto-fit-md gap-4">
 				<!-- Card 1: Total Items -->
-				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+				<div class="glass-panel mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
 					<div class="tabular-nums text-4xl font-black text-accent leading-tight">
 						{ fmt.Sprintf("%d", data.TotalRows) }
 					</div>
@@ -591,7 +591,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				</div>
 
 				<!-- Card 2: Total Files -->
-				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+				<div class="glass-panel mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
 					<div class="tabular-nums text-4xl font-black text-emerald leading-tight">
 						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
@@ -601,7 +601,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				</div>
 
 				<!-- Card 3: Active Warehouses -->
-				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+				<div class="glass-panel mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
 					<div class="tabular-nums text-4xl font-black text-emerald leading-tight">
 						{ fmt.Sprintf("%d", data.ActiveCount) }
 					</div>
@@ -611,7 +611,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				</div>
 
 				<!-- Card 4: Archived Warehouses -->
-				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+				<div class="glass-panel mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
 					<div class="tabular-nums text-4xl font-black text-muted leading-tight">
 						{ fmt.Sprintf("%d", data.ArchivedCount) }
 					</div>
@@ -622,7 +622,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			</div>
 
 			<!-- 3. Search & Status Tabs Bar -->
-			<div class="card mb-0 border rounded-2xl p-5 bg-surface-raised">
+			<div class="glass-panel mb-0 border rounded-2xl p-5 bg-surface-raised">
 				<form method="GET" action={ templ.SafeURL(data.PageURL) } class="flex-between items-center flex-wrap gap-4 m-0">
 					if !data.MineOnly {
 						<input type="hidden" name="type" value={ data.SourceFilter } />
@@ -745,7 +745,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			</div>
 
 			<!-- 5. Table Surface -->
-			<div class="card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs">
+			<div class="glass-panel mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs">
 				if len(data.Items) == 0 {
 					<div class="text-center p-16">
 						<div class="w-14 h-14 rounded-full bg-surface-sunken text-muted flex-center mx-auto mb-4 text-2xl">

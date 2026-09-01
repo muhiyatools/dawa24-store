@@ -130,7 +130,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</div>
 
 						<!-- JOB SEEKER ONLY FIELDS -->
-						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="job_seeker">
+						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="job_seeker">
 							<div class="form-group mb-0">
 								<label class="form-label font-semibold text-xs" for="reg-specialisation">التخصص المهني *</label>
 								<select id="reg-specialisation" name="specialisation" class="form-input form-select">
@@ -148,7 +148,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="job_seeker">
+						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="job_seeker">
 							<div class="form-group mb-0">
 								<label class="form-label font-semibold text-xs" for="reg-city-id">المدينة / المحافظة المفضلة للعمل *</label>
 								<select id="reg-city-id" name="city_id" class="form-input form-select">
@@ -185,7 +185,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							<input type="text" id="reg-legal-name" name="legal_name" class="form-input" placeholder="صيدلية الأمل الحديثة ش.م.م" value={ form.LegalName } />
 						</div>
 
-						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="vendor customer">
+						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="vendor customer">
 							<div class="form-group mb-0">
 								<label class="form-label font-semibold text-xs" for="reg-trade-ar">الاسم التجاري (عربي) *</label>
 								<input type="text" id="reg-trade-ar" name="trade_name_ar" class="form-input" value={ form.TradeNameAr } placeholder="صيدلية الأمل" />
@@ -196,7 +196,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="vendor customer">
+						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="vendor customer">
 							<div class="form-group mb-0">
 								<label class="form-label font-semibold text-xs" for="reg-cr">رقم السجل التجاري *</label>
 								<input type="text" id="reg-cr" name="commercial_register" class="form-input tabular-nums" value={ form.CommercialRegister } placeholder="CR-94819" />
@@ -268,7 +268,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							<input type="text" id="reg-name" name="name" class="form-input" placeholder="د. أحمد محمود" value={ form.Name } />
 						</div>
 
-						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="d-grid grid-auto-fit-sm gap-4">
 							<div class="form-group mb-0">
 								<label class="form-label font-semibold text-xs" for="reg-email">البريد الإلكتروني الرسمي *</label>
 								<input type="email" id="reg-email" name="email" class="form-input tabular-nums" placeholder="pharmacy@dawa24.eg" value={ form.Email } />

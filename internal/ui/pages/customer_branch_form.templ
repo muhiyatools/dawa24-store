@@ -68,7 +68,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 		<div class="page-container max-w-4xl mx-auto py-4">
 			
 			<!-- Breadcrumb & Top Exit / Navigation Bar -->
-			<div class="card p-4 mb-4">
+			<div class="glass-panel p-4 mb-4">
 				<div class="d-flex items-center justify-between flex-wrap gap-3">
 					<div>
 						<!-- Breadcrumbs -->
@@ -114,17 +114,17 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 			}
 
 			<!-- Full-Page Branch Form Card -->
-			<div class="card p-6">
+			<div class="glass-panel p-6">
 				<form method="POST" action={ templ.SafeURL(formAction) } class="d-flex flex-col gap-6 m-0">
 					
 					<!-- Section 1: Basic Identity -->
 					<div>
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							@components.IconBuilding("icon-xs")
 							<h2 class="text-base font-bold text-primary m-0">1. البيانات الأساسية للفرع</h2>
 						</div>
 
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="d-grid grid-auto-fit-sm gap-4">
 							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع بالعربية <span class="text-danger">*</span>
@@ -135,7 +135,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ nameAr }
 									required
 									placeholder="مثال: صيدلية الأمل - فرع المعادي"
-									class="form-control form-control-sm font-semibold"
+									class="form-control font-semibold"
 								/>
 								<span class="text-2xs text-muted mt-1 d-block">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span>
 							</div>
@@ -149,7 +149,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									name="name_en"
 									value={ nameEn }
 									placeholder="e.g. Al-Amal Pharmacy - Maadi"
-									class="form-control form-control-sm font-semibold"
+									class="form-control font-semibold"
 								/>
 							</div>
 
@@ -162,7 +162,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									name="code"
 									value={ code }
 									placeholder="مثال: BR-CAI-01"
-									class="form-control form-control-sm tabular-nums"
+									class="form-control tabular-nums"
 								/>
 								<span class="text-2xs text-muted mt-1 d-block">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span>
 							</div>
@@ -194,13 +194,13 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 
 					<!-- Section 2: Address & Contact -->
 					<div>
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							@components.IconMapPin("icon-xs")
 							<h2 class="text-base font-bold text-primary m-0">2. العنوان وبيانات الاتصال</h2>
 						</div>
 
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div class="form-group mb-0 md:col-span-2">
+						<div class="d-grid grid-auto-fit-sm gap-4">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									العنوان التفصيلي وموقع الاستلام <span class="text-danger">*</span>
 								</label>
@@ -210,7 +210,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ address }
 									required
 									placeholder="مثال: شارع النصر الرئيسي، برج النور، بجوار مستشفى المعادي"
-									class="form-control form-control-sm font-semibold"
+									class="form-control font-semibold"
 								/>
 								<span class="text-2xs text-muted mt-1 d-block">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span>
 							</div>
@@ -224,7 +224,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									name="phone"
 									value={ phone }
 									placeholder="مثال: 01012345678"
-									class="form-control form-control-sm tabular-nums"
+									class="form-control tabular-nums"
 								/>
 							</div>
 						</div>
@@ -232,7 +232,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 
 					<!-- Section 3: Interactive Map & Coordinates -->
 					<div>
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							@components.IconMapPin("icon-xs")
 							<h2 class="text-base font-bold text-primary m-0">3. الموقع الجغرافي على الخريطة</h2>
 						</div>
@@ -249,7 +249,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative"
 							>
 								<div class="map-container map-canvas"></div>
-								<div class="d-flex items-center justify-between p-3 bg-surface-raised border-top text-xs flex-wrap gap-2">
+								<div class="d-flex items-center justify-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-2">
 										<span class="text-secondary font-bold">الإحداثيات المحددة:</span>
 										<span data-map-coords-badge class="tabular-nums font-bold text-primary">{ defaultLat }, { defaultLon }</span>
@@ -273,7 +273,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								data-map-google-url
 								value={ gmapsURL }
 								placeholder={ fmt.Sprintf("https://maps.google.com/?q=%s,%s", defaultLat, defaultLon) }
-								class="form-control form-control-sm text-xs"
+								class="form-control text-xs"
 								dir="ltr"
 							/>
 						</div>
@@ -281,7 +281,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 
 					<!-- Section 4: Storage & Branch Attributes -->
 					<div>
-						<div class="d-flex items-center gap-2 mb-4 pb-2 border-bottom">
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
 							@components.IconSliders("icon-xs")
 							<h2 class="text-base font-bold text-primary m-0">4. خصائص الفرع وحالة التشغيل</h2>
 						</div>
@@ -320,7 +320,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 							</label>
 
 							if data.IsEdit {
-								<div class="pt-3 border-top d-flex items-center gap-4 flex-wrap">
+								<div class="pt-3 border-t d-flex items-center gap-4 flex-wrap">
 									<span class="text-xs font-bold text-primary">حالة تشغيل الفرع:</span>
 									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer m-0">
 										<input type="radio" name="status" value="active" checked?={ status != "inactive" } />
@@ -336,7 +336,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Bottom Action Footer -->
-					<div class="d-flex items-center justify-between pt-4 border-top flex-wrap gap-3">
+					<div class="d-flex items-center justify-between pt-4 border-t flex-wrap gap-3">
 						<a href="/customer/branches" class="btn btn-secondary font-bold">
 							إلغاء والعودة بدون حفظ
 						</a>

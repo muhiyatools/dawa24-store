@@ -254,7 +254,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 }
 
 templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
-	<div class="card p-0 mb-6 overflow-hidden shadow-xs">
+	<div class="glass-panel p-0 mb-6 overflow-hidden shadow-xs">
 		<div class="table-container m-0 overflow-x-auto">
 			<table class="data-table m-0 text-xs w-full">
 				<thead>
@@ -286,7 +286,7 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 							</td>
 							<td>
 								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="text-inherit no-underline block">
-									<div class="font-extrabold text-primary text-xs hover:text-brand transition-colors">
+									<div class="font-extrabold text-primary text-xs transition-colors">
 										if v.ProductNameAr != "" {
 											{ v.ProductNameAr }
 										} else {

@@ -194,7 +194,7 @@ func smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"btn btn-secondary btn-xs fw-700\" onclick=\"toggleCatalogDropdown(this)\" title=\"تغيير الصنف المربوط بالكتالوج\">تغيير</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"btn btn-secondary btn-xs font-bold\" onclick=\"toggleCatalogDropdown(this)\" title=\"تغيير الصنف المربوط بالكتالوج\">تغيير</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -225,7 +225,7 @@ func smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"btn btn-primary btn-xs fw-700\" onclick=\"toggleCatalogDropdown(this)\" title=\"بحث وربط بالكتالوج المركزي\">ربط</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"btn btn-primary btn-xs font-bold\" onclick=\"toggleCatalogDropdown(this)\" title=\"بحث وربط بالكتالوج المركزي\">ربط</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

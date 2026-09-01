@@ -44,10 +44,10 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 					ActionLabel: "تصفح دليل الموردين المعتمدين",
 				})
 			} else {
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div class="d-grid grid-auto-fit-sm gap-6">
 					for _, s := range suppliers {
 						if s != nil {
-							<div class="card p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+							<div class="glass-panel p-5 d-flex flex-col justify-between">
 								<div>
 									<!-- Header with Emblem and Verified Badge -->
 									<div class="flex-between items-start gap-3 mb-4">
