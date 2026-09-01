@@ -244,30 +244,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</div>
 		</section>
 
-		<!-- 5. Call To Action Section -->
-		<section class="landing-cta-banner">
-			<div class="landing-cta-content">
-				<div class="hero-badge-pill mb-3">
-					@components.IconCheckCircle("icon-xs")
-					<span>انضمام فوري وآمن للصيدليات والموردين</span>
-				</div>
-				<h2 class="landing-cta-title text-balance">
-					انضم إلى مستقبل التوريد الدوائي الذكي في مصر اليوم
-				</h2>
-				<p class="landing-cta-desc text-pretty">
-					سجل حساب صيدليتك الآن للاستفادة من عروض التوريد الحية والخصومات المباشرة مع تجربة إدارة طلبات فورية وشفافة.
-				</p>
-				<div class="landing-cta-actions">
-					<a href="/auth/register" class="btn btn-primary btn-lg font-extrabold px-8 py-3">
-						@components.IconCheck("icon-sm")
-						<span>تسجيل صيدلية الآن</span>
-					</a>
-					<a href="/auth/register" class="btn btn-secondary btn-lg font-bold px-8 py-3">
-						@components.IconBuilding("icon-sm")
-						<span>انضمام كمورد أو موزع</span>
-					</a>
-				</div>
-			</div>
-		</section>
+		<!-- 5. Unified Call To Action Section -->
+		@components.PublicCTA("", "", lang)
 	}
 }

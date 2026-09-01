@@ -149,9 +149,9 @@ templ HowItWorksPage(lang, dir string) {
 					<div class="timeline-content">
 						<div class="timeline-text">
 							<span class="timeline-phase-label">الخطوة الثالثة</span>
-							<h3 class="timeline-heading">شحن وتوصيل مجهز مع تتبع درجة الحرارة</h3>
+							<h3 class="timeline-heading">شحن وتوصيل مجهز ومؤمن</h3>
 							<p class="timeline-desc">
-								شاحنات توزيع مرخصة ومجهزة بحاويات تبريد رقمية لنقل الأدوية الحساسة والأنسولين والمضادات الحيوية، مع إشعار لحظي فور خروج الشحنة.
+								شاحنات توزيع مرخصة ومجهزة لنقل الأدوية الحساسة والأنسولين والمضادات الحيوية، مع إشعار لحظي فور خروج الشحنة.
 							</p>
 						</div>
 						<div class="timeline-widget glass-panel">
@@ -168,9 +168,7 @@ templ HowItWorksPage(lang, dir string) {
 										@components.IconClock("icon-xs")
 										<span>موعد الوصول المتوقع: <strong>خلال 35 دقيقة</strong></span>
 									</div>
-									<div class="temp-badge">
-										<span>حرارة الشاحنة: <strong>4.2°C</strong></span>
-									</div>
+									<span class="badge badge-emerald text-2xs font-bold">شحنة مجهزة ومؤمنة</span>
 								</div>
 							</div>
 						</div>
@@ -185,9 +183,9 @@ templ HowItWorksPage(lang, dir string) {
 					<div class="timeline-content">
 						<div class="timeline-text">
 							<span class="timeline-phase-label">الخطوة الرابعة</span>
-							<h3 class="timeline-heading">فحص الشحنة واستلام الفاتورة الإلكترونية الرسمية</h3>
+							<h3 class="timeline-heading">فحص الشحنة واستلام الفاتورة الرسمية</h3>
 							<p class="timeline-desc">
-								طابق التشغيلات وتواريخ الصلاحية عند باب الصيدلية، وسدد نقداً أو عبر التسهيلات الائتمانية مع استلام فاتورة ضريبية رسمية مسجلة بمنظومة الضرائب.
+								طابق التشغيلات وتواريخ الصلاحية عند باب الصيدلية، وسدد نقداً أو عبر التسهيلات الائتمانية مع استلام فاتورة رسمية مسجلة.
 							</p>
 						</div>
 						<div class="timeline-widget glass-panel">
@@ -195,7 +193,7 @@ templ HowItWorksPage(lang, dir string) {
 								<div class="d-flex items-center justify-between">
 									<div class="d-flex items-center gap-2">
 										@components.IconShield("icon-xs text-emerald")
-										<span class="text-xs font-bold text-primary">فاتورة إلكترونية معتمدة</span>
+										<span class="text-xs font-bold text-primary">فاتورة معتمدة</span>
 									</div>
 									<span class="text-2xs font-mono text-muted">E-INV #EG-2026-904</span>
 								</div>
@@ -302,9 +300,9 @@ templ HowItWorksPage(lang, dir string) {
 					<div class="timeline-content">
 						<div class="timeline-text">
 							<span class="timeline-phase-label">الخطوة الرابعة</span>
-							<h3 class="timeline-heading">التحصيل السريع وتسوية الفواتير الضريبية</h3>
+							<h3 class="timeline-heading">التحصيل السريع وتسوية الفواتير</h3>
 							<p class="timeline-desc">
-								استلم تحصيلاتك النقدية ومستحقات الشحنات دون تأخير، مع إصدار تلقائي للفواتير الإلكترونية وإشعارات الخصم والمرتجع بكل شفافية.
+								استلم تحصيلاتك النقدية ومستحقات الشحنات دون تأخير، مع إصدار تلقائي للفواتير وإشعارات الخصم والمرتجع بكل شفافية.
 							</p>
 						</div>
 						<div class="timeline-widget glass-panel">
@@ -322,24 +320,8 @@ templ HowItWorksPage(lang, dir string) {
 				</div>
 			</div>
 
-			<!-- Bottom CTA -->
-			<div class="how-bottom-cta">
-				<div class="text-center d-flex flex-col items-center gap-2">
-					<h2 class="text-xl font-black text-primary m-0">ابدأ الآن في دقائق معدودة</h2>
-					<p class="text-xs text-secondary m-0 max-w-md">انضم للمنظومة الأسرع لربط سوق الدواء في مصر</p>
-				</div>
-				<div class="d-flex items-center justify-center gap-3 mt-3">
-					<a href="/auth/register" class="btn btn-primary btn-sm font-bold gap-2">
-						@components.IconPlus("icon-xs")
-						<span>تسجيل صيدلية الآن</span>
-					</a>
-					<a href="/contact" class="btn btn-secondary btn-sm font-bold gap-2">
-						@components.IconPhone("icon-xs")
-						<span>تحدث مع المبيعات</span>
-					</a>
-				</div>
-			</div>
-
+			<!-- Unified Bottom CTA -->
+			@components.PublicCTA("", "", lang)
 		</div>
 	}
 }

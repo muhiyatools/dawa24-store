@@ -469,31 +469,11 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><h3 class=\"guarantee-title\">دعم صيدلي وتقني متواصل 24/7</h3><p class=\"guarantee-text\">فريق صيادلة وتقنيين متخصصين لمساعدتك في تتبع الشحنات، حل نواقص الأدوية، والرد الفوري.</p></div></div></section><!-- 5. Call To Action Section --> <section class=\"landing-cta-banner\"><div class=\"landing-cta-content\"><div class=\"hero-badge-pill mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><h3 class=\"guarantee-title\">دعم صيدلي وتقني متواصل 24/7</h3><p class=\"guarantee-text\">فريق صيادلة وتقنيين متخصصين لمساعدتك في تتبع الشحنات، حل نواقص الأدوية، والرد الفوري.</p></div></div></section><!-- 5. Unified Call To Action Section --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconCheckCircle("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>انضمام فوري وآمن للصيدليات والموردين</span></div><h2 class=\"landing-cta-title text-balance\">انضم إلى مستقبل التوريد الدوائي الذكي في مصر اليوم</h2><p class=\"landing-cta-desc text-pretty\">سجل حساب صيدليتك الآن للاستفادة من عروض التوريد الحية والخصومات المباشرة مع تجربة إدارة طلبات فورية وشفافة.</p><div class=\"landing-cta-actions\"><a href=\"/auth/register\" class=\"btn btn-primary btn-lg font-extrabold px-8 py-3\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>تسجيل صيدلية الآن</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary btn-lg font-bold px-8 py-3\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>انضمام كمورد أو موزع</span></a></div></div></section>")
+			templ_7745c5c3_Err = components.PublicCTA("", "", lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

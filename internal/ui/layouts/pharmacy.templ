@@ -61,27 +61,28 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 templ PharmacyBranchSelector(ctx context.Context) {
 	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-			<div class="branch-selector-pill">
-				<div class="branch-selector-icon-label">
-					@components.IconMapPin("icon-xs")
-					<span class="text-secondary font-semibold">فرع التوريد:</span>
-				</div>
-				<form method="POST" action="/customer/set-branch" class="m-0 d-inline">
-					<select
-						name="branch_id"
-						class="branch-selector-select"
-						onchange="this.form.submit()"
-						title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
-					>
-						for _, b := range buying.Branches {
-							<option
-								value={ fmt.Sprintf("%d", b.ID) }
-								selected?={ buying.Active != nil && *buying.Active == b.ID }
-							>
-								{ b.Name }
-							</option>
-						}
-					</select>
+			<div class="custom-branch-pill">
+				<form method="POST" action="/customer/set-branch" class="branch-select-form">
+					<div class="branch-pill-content">
+						@components.IconMapPin("icon-xs text-brand")
+						<span class="branch-pill-label">الفرع:</span>
+						<select
+							name="branch_id"
+							class="branch-pill-native-select"
+							onchange="this.form.submit()"
+							title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
+						>
+							for _, b := range buying.Branches {
+								<option
+									value={ fmt.Sprintf("%d", b.ID) }
+									selected?={ buying.Active != nil && *buying.Active == b.ID }
+								>
+									{ b.Name }
+								</option>
+							}
+						</select>
+						@components.IconChevronDown("icon-2xs text-muted")
+					</div>
 				</form>
 			</div>
 		}

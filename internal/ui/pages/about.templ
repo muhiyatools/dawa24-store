@@ -135,31 +135,8 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 				</div>
 			</section>
 
-			<!-- Registration Banner -->
-			<section class="about-cta-card">
-				<h2 class="about-cta-title">
-					if data.BannerTitle != "" {
-						{ data.BannerTitle }
-					} else {
-						كن جزءاً من مستقبل التوريد الدوائي الذكي
-					}
-				</h2>
-				<p class="about-cta-desc">
-					if data.BannerText != "" {
-						{ data.BannerText }
-					} else {
-						سواء كنت صيدلية تسعى لتأمين احتياجاتها بأفضل الأسعار، أو مورداً يريد توسيع قاعدة عملائه، دواء 24 هو شريكك الاستراتيجي.
-					}
-				</p>
-				<div class="about-cta-actions">
-					<a href="/auth/register" class="btn btn-primary btn-sm font-bold">
-						<span>تسجيل صيدلية جديدة</span>
-					</a>
-					<a href="/auth/register" class="btn btn-secondary btn-sm font-bold">
-						<span>انضمام كشريك مورد</span>
-					</a>
-				</div>
-			</section>
+			<!-- Unified Registration Banner -->
+			@components.PublicCTA(data.BannerTitle, data.BannerText, lang)
 		</div>
 	}
 }

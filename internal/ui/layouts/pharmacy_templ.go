@@ -173,15 +173,15 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 			if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"branch-selector-pill\"><div class=\"branch-selector-icon-label\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"custom-branch-pill\"><form method=\"POST\" action=\"/customer/set-branch\" class=\"branch-select-form\"><div class=\"branch-pill-content\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconMapPin("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.IconMapPin("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"text-secondary font-semibold\">فرع التوريد:</span></div><form method=\"POST\" action=\"/customer/set-branch\" class=\"m-0 d-inline\"><select name=\"branch_id\" class=\"branch-selector-select\" onchange=\"this.form.submit()\" title=\"تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"branch-pill-label\">الفرع:</span> <select name=\"branch_id\" class=\"branch-pill-native-select\" onchange=\"this.form.submit()\" title=\"تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -193,7 +193,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 78, Col: 39}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 77, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -216,7 +216,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 81, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 80, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -227,7 +227,15 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</select>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconChevronDown("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -262,20 +270,20 @@ func pharmacyTopBarActions(lang string) templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<a href=\"/cart\" class=\"btn btn-secondary btn-icon\" title=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<a href=\"/cart\" class=\"btn btn-secondary btn-icon\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "nav.cart"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 96, Col: 84}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 97, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -283,7 +291,7 @@ func pharmacyTopBarActions(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</a>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

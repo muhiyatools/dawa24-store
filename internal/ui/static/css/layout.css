@@ -569,33 +569,31 @@
 }
 
 .site-header-container {
+  position: relative;
   width: 100%;
   max-width: var(--container-max, 1280px);
   margin: 0 auto;
   padding: 0 1.5rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 2rem;
-}
-
-@media (max-width: 960px) {
-  .site-header-container {
-    display: flex;
-    justify-content: space-between;
-  }
+  justify-content: space-between;
+  min-height: 4rem;
 }
 
 .site-header-brand {
   display: flex;
   align-items: center;
+  z-index: 2;
 }
 
 .public-nav-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.75rem;
+  z-index: 1;
 }
 
 @media (max-width: 960px) {
@@ -633,6 +631,74 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.85rem;
+  z-index: 2;
+}
+
+.header-mobile-toggle {
+  display: none !important;
+}
+
+@media (max-width: 960px) {
+  .header-mobile-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.custom-branch-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-full, 9999px);
+  padding: 0.35rem 0.85rem;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+[data-theme="dark"] .custom-branch-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.custom-branch-pill:hover {
+  border-color: var(--primary, #0284c7);
+  background: rgba(2, 132, 199, 0.06);
+}
+
+.branch-select-form {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.branch-pill-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.branch-pill-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.branch-pill-native-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-primary, #0f172a);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding-inline-end: 0.25rem;
+  outline: none;
+}
+
+[data-theme="dark"] .branch-pill-native-select {
+  color: #f8fafc;
 }
 
 .navbar-login-btn {

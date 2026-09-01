@@ -1,0 +1,36 @@
+package components
+
+templ PublicCTA(title, desc, lang string) {
+	<section class="unified-public-cta">
+		<div class="unified-cta-card">
+			<div class="unified-cta-badge">
+				@IconShield("icon-xs text-brand")
+				<span>انضمام فوري وآمن للصيدليات والموردين</span>
+			</div>
+			<h2 class="unified-cta-title">
+				if title != "" {
+					{ title }
+				} else {
+					انضم إلى مستقبل التوريد الدوائي الذكي في مصر اليوم
+				}
+			</h2>
+			<p class="unified-cta-desc">
+				if desc != "" {
+					{ desc }
+				} else {
+					سجل حساب صيدليتك الآن للاستفادة من عروض التوريد والخصومات المباشرة وسلاسل الإمداد الموثقة مع تجربة إدارة طلبات فورية وشفافة.
+				}
+			</p>
+			<div class="unified-cta-actions">
+				<a href="/auth/register" class="btn btn-primary btn-lg font-extrabold hero-cta-btn">
+					@IconCheck("icon-sm")
+					<span>تسجيل صيدلية الآن</span>
+				</a>
+				<a href="/auth/register" class="btn btn-secondary btn-lg font-bold hero-cta-btn">
+					@IconBuilding("icon-sm")
+					<span>انضمام كمورد أو مصنع</span>
+				</a>
+			</div>
+		</div>
+	</section>
+}

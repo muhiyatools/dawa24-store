@@ -171,7 +171,7 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 					</div>
 				</div>
 				<p class="footer-description">
-					{ site.SiteDescription }
+					منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، والتحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.
 				</p>
 				<div class="footer-social-links">
 					if site.SocialLinks["facebook"] != "" {
@@ -254,8 +254,15 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 		</div>
 
 		<div class="footer-bottom">
-			<div class="stack-sm">
-				<p>جميع الحقوق محفوظة © 2026 { site.SiteName } — ترخيص واعتماد المنشآت الطبية والصيدلانية</p>
+			<div class="footer-copyright-group">
+				<p class="footer-copyright-text">جميع الحقوق محفوظة © 2026 لدى دواء 24.</p>
+				<div class="footer-developer-credit">
+					<span>تم التطوير بواسطة</span>
+					<a href="https://muhiya.com" target="_blank" rel="noopener" class="developer-link">
+						<img src="/static/img/muhiya-logo.png" alt="Muhiya" class="developer-logo" />
+						<span>Muhiya</span>
+					</a>
+				</div>
 			</div>
 			<div class="footer-legal-links">
 				<a href="/privacy">سياسة الخصوصية</a>

@@ -34,14 +34,9 @@ templ PublicShell(title string, lang string, dir string) {
 						</nav>
 
 						<div class="site-header-actions">
-							if actor, ok := authctx.From(ctx); ok {
-								if actor.IsCustomer() {
-									<div class="hide-mobile">
-										@PharmacyBranchSelector(ctx)
-									</div>
-								}
+							if _, ok := authctx.From(ctx); ok {
 								@components.NotificationsBell(lang)
-								@components.UserMenu(lang)
+								@components.UserMenu(lang, false)
 							} else {
 								<div class="d-flex items-center gap-2">
 									<a href="/auth/login" class="navbar-login-btn">

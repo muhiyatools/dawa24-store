@@ -259,47 +259,15 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><h4 class=\"about-pillar-title\">دعم فني واستشارات 24/7</h4><p class=\"about-pillar-text\">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Registration Banner --><section class=\"about-cta-card\"><h2 class=\"about-cta-title\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><h4 class=\"about-pillar-title\">دعم فني واستشارات 24/7</h4><p class=\"about-pillar-text\">فريق دعم صيدلي متفرغ لمعالجة الطلبات العاجلة، متابعة خطوط السير، وحل نواقص السوق الدوائي.</p></div></div></section><!-- Unified Registration Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.BannerTitle != "" {
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.BannerTitle)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 142, Col: 24}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "كن جزءاً من مستقبل التوريد الدوائي الذكي")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</h2><p class=\"about-cta-desc\">")
+			templ_7745c5c3_Err = components.PublicCTA(data.BannerTitle, data.BannerText, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.BannerText != "" {
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.BannerText)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 149, Col: 23}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "سواء كنت صيدلية تسعى لتأمين احتياجاتها بأفضل الأسعار، أو مورداً يريد توسيع قاعدة عملائه، دواء 24 هو شريكك الاستراتيجي.")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</p><div class=\"about-cta-actions\"><a href=\"/auth/register\" class=\"btn btn-primary btn-sm font-bold\"><span>تسجيل صيدلية جديدة</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary btn-sm font-bold\"><span>انضمام كشريك مورد</span></a></div></section></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
