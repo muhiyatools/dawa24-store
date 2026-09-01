@@ -31,26 +31,10 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
 		pub.Use(h.visitorMiddleware)
-		pub.Use(h.AgentDiscoveryLinkHeadersMiddleware)
 		pub.Use(h.MarkdownNegotiationMiddleware)
 
-		// Agent Discovery, OpenID / OAuth Discovery, MCP & Machine-Readable Capabilities
+		// Sitemap
 		pub.Get("/sitemap.xml", h.SitemapXML)
-		pub.Get("/.well-known/api-catalog", h.APICatalogJSON)
-		pub.Get("/.well-known/ai-catalog.json", h.AICatalogJSON)
-		pub.Get("/.well-known/openid-configuration", h.OpenIDConfiguration)
-		pub.Get("/.well-known/oauth-authorization-server", h.OpenIDConfiguration)
-		pub.Get("/.well-known/oauth-protected-resource", h.OAuthProtectedResource)
-		pub.Get("/.well-known/jwks.json", h.JWKSJSON)
-		pub.Get("/.well-known/mcp/server-card.json", h.MCPServerCard)
-		pub.Get("/.well-known/agent-skills/index.json", h.AgentSkillsIndex)
-		pub.Get("/.well-known/agent-skills/{skill}/SKILL.md", h.AgentSkillDoc)
-		pub.Get("/.well-known/agent-skills/{skill}", h.AgentSkillDoc)
-		pub.Get("/auth.md", h.AuthMD)
-		pub.Get("/.well-known/auth.md", h.AuthMD)
-		pub.Get("/docs/api", h.APIDocsPage)
-		pub.Get("/api/v1/openapi.json", h.OpenAPISpecJSON)
-		pub.Get("/api/v1/openapi.yaml", h.OpenAPISpecJSON)
 
 		// Public & Auth (marketing, catalogue browsing, sign-in)
 		pub.Get("/", h.HomePage)

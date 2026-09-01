@@ -6,13 +6,17 @@ import (
 	"strings"
 )
 
-// AgentDiscoveryLinkHeadersMiddleware injects RFC 8288 Link headers for agent discovery.
-func (h *UIHandler) AgentDiscoveryLinkHeadersMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		linkHeader := `</.well-known/api-catalog>; rel="api-catalog", </.well-known/ai-catalog.json>; rel="service-desc", </.well-known/openid-configuration>; rel="oauth-authorization-server", </.well-known/oauth-protected-resource>; rel="oauth-protected-resource", </.well-known/mcp/server-card.json>; rel="mcp-server-card", </.well-known/agent-skills/index.json>; rel="agent-skills", </docs/api>; rel="service-doc", </auth.md>; rel="author-uri"`
-		w.Header().Set("Link", linkHeader)
-		next.ServeHTTP(w, r)
-	})
+func (h *UIHandler) serveMarkdownDoc(w http.ResponseWriter, r *http.Request, title, markdownContent string) {
+	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
+	w.Header().Set("Vary", "Accept")
+	w.Header().Set("Cache-Control", "public, max-age=3600")
+	tokenCount := len(markdownContent) / 4
+	if tokenCount < 10 {
+		tokenCount = 10
+	}
+	w.Header().Set("X-Markdown-Tokens", fmt.Sprintf("%d", tokenCount))
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(markdownContent))
 }
 
 // MarkdownNegotiationMiddleware handles Content Negotiation for AI agents (Accept: text/markdown).
@@ -35,7 +39,7 @@ func (h *UIHandler) MarkdownNegotiationMiddleware(next http.Handler) http.Handle
 
 		switch path {
 		case "/":
-			mdContent = fmt.Sprintf(`# Dawa24 (دواء 24) - B2B Pharmaceutical Marketplace
+			mdContent = `# Dawa24 (دواء 24) - B2B Pharmaceutical Marketplace
 
 Unified platform connecting licensed pharmacies with verified pharmaceutical suppliers and warehouses in Egypt.
 
@@ -50,11 +54,9 @@ Unified platform connecting licensed pharmacies with verified pharmaceutical sup
 - [Job Openings](/jobs)
 - [Frequently Asked Questions](/faq)
 - [Contact Support](/contact)
-- [API Documentation](/docs/api)
-- [Agent Auth Guide](/auth.md)
 - [Sign In](/auth/login)
 - [Register Pharmacy or Supplier](/auth/register)
-`)
+`
 		case "/about":
 			mdContent = `# About Dawa24
 
