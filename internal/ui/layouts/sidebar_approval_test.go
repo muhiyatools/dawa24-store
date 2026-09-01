@@ -8,7 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
-func TestVisibleNav_UnapprovedUser_ShowsOnlyDocuments(t *testing.T) {
+func TestVisibleNav_UnapprovedUser_ShowsOnlyDocumentsAndNotifications(t *testing.T) {
 	actor := authctx.Actor{
 		UserID:         42,
 		OrganizationID: 10,
@@ -27,13 +27,13 @@ func TestVisibleNav_UnapprovedUser_ShowsOnlyDocuments(t *testing.T) {
 
 	sections := visibleNav(ctx, rbac.ScopePharmacy)
 	if len(sections) == 0 {
-		t.Fatalf("expected unapproved user to see documents section, got none")
+		t.Fatalf("expected unapproved user to see documents/notifications section, got none")
 	}
 
 	for _, sec := range sections {
 		for _, item := range sec.Items {
-			if item.Key != "documents" && item.Href != "/customer/documents" && item.Href != "/documents" {
-				t.Errorf("unapproved user saw non-document item: key=%s href=%s", item.Key, item.Href)
+			if item.Key != "documents" && item.Key != "notifications" && item.Href != "/customer/documents" && item.Href != "/documents" && item.Href != "/notifications" {
+				t.Errorf("unapproved user saw non-allowed item: key=%s href=%s", item.Key, item.Href)
 			}
 		}
 	}

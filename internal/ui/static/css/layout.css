@@ -909,14 +909,17 @@
   flex-shrink: 0;
 }
 
+.btn-notification-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .btn-notification-wrap .notification-indicator {
   position: absolute;
-  top: 5px;
-  inset-inline-end: 5px;
-  width: 7px;
-  height: 7px;
-  background-color: #ef4444;
-  border-radius: 9999px;
+  top: -4px;
+  inset-inline-end: -4px;
   pointer-events: none;
   margin: 0;
   padding: 0;
@@ -1027,36 +1030,6 @@
   max-width: none;
 }
 
-.notification-panel {
-  width: 320px;
-}
-
-.notification-header {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-subtle);
-  font-weight: 800;
-  font-size: var(--text-sm);
-}
-
-.notification-empty {
-  padding: 2rem 1rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-}
-
-.notification-footer {
-  padding: 0.65rem 1rem;
-  border-top: 1px solid var(--border-subtle);
-  text-align: center;
-}
-
-.notification-footer-link {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  color: var(--primary);
-  text-decoration: none;
-}
 
 /* ---- Catalog Page Layout & Sidebar Filter System ---- */
 .catalog-main-layout {

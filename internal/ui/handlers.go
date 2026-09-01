@@ -186,50 +186,35 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 
-	// Settings (profile and password only)
-
-	// One settings surface: the tabbed page. Six separate sub-pages used to
-	// render the same data through a second tab component, so the two could
-	// disagree about what the account looked like. They are 301s now — the
-	// paths stay reachable because they were linked from sidebars and may be
-	// bookmarked (PLAN_V7 Task 2.1).
-	r.Get("/settings", h.SettingsIndex)
-	r.Get("/settings/profile", redirectToSettingsTab("profile"))
-	r.Post("/settings/profile", h.SettingsProfileSubmit)
-	r.Post("/settings/password", h.SettingsPasswordSubmit)
-
 	// Issue reporting
 	r.Get("/report-issue", h.CustomerReportIssuePage)
 	r.Post("/report-issue", h.CustomerReportIssueSubmit)
 
-	// Notification bell read-partials. The bell renders in the header of every
-	// authenticated page, pending accounts included, and its badge polls
-	// unread-badge on a timer. These must resolve for a not-yet-approved caller
-	// (both handlers already fall back to an empty/zero result) — behind
-	// RequireApproved the poll got a 302 to /documents, htmx swapped that whole
-	// page into the badge <span>, and the copy it injected carried another
-	// polling bell: an unbounded recursion that duplicated the page and grew it
-	// sideways forever. Managing notifications (mark read, the full page) stays
-	// approved-only below.
+	// Notifications Center & Bell Partials (Accessible by both pending and approved orgs)
+	r.Get("/notifications", h.NotificationsPage)
 	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
 	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
+	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
+	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
 }
 
 // RegisterApprovedSharedRoutes mounts Tier B shared routes restricted to approved
 // organizations (authctx.RequireApproved mounted): wallet, invoices, messaging,
-// notifications, employees, org member management, payment methods, sessions.
+// notifications, employees, org member management, payment methods, sessions, settings.
 func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Get("/components/capsule-assistant", h.CapsuleAssistantPanel)
 	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
 
-	// Settings tabs & actions (approved only)
+	// Settings (Approved only)
+	r.Get("/settings", h.SettingsIndex)
+	r.Get("/settings/profile", redirectToSettingsTab("profile"))
+	r.Post("/settings/profile", h.SettingsProfileSubmit)
+	r.Post("/settings/password", h.SettingsPasswordSubmit)
 	r.Get("/settings/addresses", redirectToSettingsTab("profile"))
 	r.Get("/settings/security", redirectToSettingsTab("security"))
 	r.Get("/settings/organization", redirectToSettingsTab("organization"))
 	r.Get("/settings/preferences", redirectToSettingsTab("preferences"))
 	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))
-	// Employees is a real management screen, not a settings tab: it lists
-	// staff, assigns branch managers and creates accounts.
 	r.Get("/settings/employees", h.SettingsEmployeesPage)
 
 	r.Post("/settings/addresses", h.SettingsAddressSubmit)

@@ -32,16 +32,16 @@ templ ShellFor(title string, activeNav string, lang string, dir string, actor au
 		@AdminShell(title, activeNav, lang, dir) {
 			{ children... }
 		}
-	} else if !actor.IsOrgApproved() {
-		@PublicShell(title, lang, dir) {
-			{ children... }
-		}
-	} else if actor.DashboardScope() == rbac.ScopeVendor {
+	} else if actor.DashboardScope() == rbac.ScopeVendor || actor.IsVendor() {
 		@VendorShell(title, activeNav, lang, dir) {
 			{ children... }
 		}
-	} else {
+	} else if actor.DashboardScope() == rbac.ScopePharmacy || actor.IsCustomer() || actor.UserID > 0 {
 		@CustomerShell(title, activeNav, lang, dir, actor.Permissions) {
+			{ children... }
+		}
+	} else {
+		@PublicShell(title, lang, dir) {
 			{ children... }
 		}
 	}

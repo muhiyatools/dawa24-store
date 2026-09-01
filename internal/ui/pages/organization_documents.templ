@@ -74,7 +74,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					</div>
 					<!-- Dynamic Progress Bar -->
 					<div class="progress-bar-container mt-2">
-						<div class={ "progress-bar-fill", fmt.Sprintf("w-pct-%d", data.CompletionPercentage()) }></div>
+						<div class={ "progress-bar-fill", progressPctClass(data.CompletionPercentage()) }></div>
 					</div>
 				</div>
 				<div class="text-xs text-muted mt-3 pt-2 border-t">
@@ -245,49 +245,49 @@ templ DocumentRequirementCard(data *OrganizationDocumentsData, req DocRequiremen
 	{{ doc := data.LatestFor(req.DocType) }}
 	<div class="doc-req-card">
 		<!-- Document Info -->
-		<div class="d-flex items-start gap-3">
-			<div class="user-avatar-badge text-lg mt-1">
+		<div class="d-flex items-start gap-3.5 flex-1 min-w-0">
+			<div class={ "doc-icon-box", templ.KV("verified", doc != nil && doc.Status == attachments.StatusVerified) }>
 				if doc != nil && doc.Status == attachments.StatusVerified {
-					<span class="text-success">@components.IconCheck("icon-sm")</span>
+					@components.IconCheck("icon-sm")
 				} else {
-					<span>@components.IconFile("icon-sm")</span>
+					@components.IconFile("icon-sm")
 				}
 			</div>
-			<div class="stack-sm">
-				<div class="d-flex items-center gap-2 flex-wrap mb-1">
+			<div class="stack-xs flex-1 min-w-0">
+				<div class="d-flex items-center gap-2 flex-wrap">
 					<h3 class="text-sm font-extrabold text-primary m-0">
 						{ req.TitleAr }
 					</h3>
 					if req.Required {
-						<span class="badge badge-rose text-xs font-bold">إلزامي</span>
+						<span class="badge badge-rose text-2xs font-bold">إلزامي</span>
 					} else {
-						<span class="badge badge-slate text-xs font-bold">اختياري</span>
+						<span class="badge badge-slate text-2xs font-bold">اختياري</span>
 					}
 
 					<!-- Status Pill -->
 					if doc != nil {
 						switch doc.Status {
 							case attachments.StatusVerified:
-								<span class="badge badge-emerald text-xs font-bold">معتمد ومطابق </span>
+								<span class="badge badge-emerald text-2xs font-bold">معتمد ومطابق </span>
 							case attachments.StatusRejected:
-								<span class="badge badge-rose text-xs font-bold">مرفوض </span>
+								<span class="badge badge-rose text-2xs font-bold">مرفوض </span>
 							default:
-								<span class="badge badge-sky text-xs font-bold">قيد التدقيق والمراجعة</span>
+								<span class="badge badge-sky text-2xs font-bold">قيد التدقيق والمراجعة</span>
 						}
 					} else {
-						<span class="badge badge-slate text-xs">لم يُرفع بعد</span>
+						<span class="badge badge-slate text-2xs">لم يُرفع بعد</span>
 					}
 				</div>
 
 				if req.Description != "" {
-					<p class="text-xs text-secondary leading-relaxed m-0 mt-1">
+					<p class="text-xs text-secondary leading-relaxed m-0 mt-0.5">
 						{ req.Description }
 					</p>
 				}
 
-				<!-- File Meta -->
+				<!-- File Meta Details -->
 				if doc != nil {
-					<div class="d-flex items-center gap-2 text-xs text-muted mt-2 flex-wrap">
+					<div class="doc-file-meta-tag">
 						<span class="font-bold text-primary font-mono" dir="ltr">{ doc.OriginalName }</span>
 						<span>•</span>
 						if doc.SizeBytes > 0 {
@@ -298,7 +298,7 @@ templ DocumentRequirementCard(data *OrganizationDocumentsData, req DocRequiremen
 					</div>
 
 					if doc.Status == attachments.StatusRejected && doc.ReviewNotes != "" {
-						<div class="mt-2 p-2 px-3 rounded bg-danger-subtle border text-xs text-danger">
+						<div class="mt-2 p-2 px-3 rounded-lg bg-danger-subtle border text-xs text-danger">
 							<strong>سبب الرفض:</strong> { doc.ReviewNotes }
 						</div>
 					}
@@ -366,4 +366,27 @@ templ DocumentRequirementCard(data *OrganizationDocumentsData, req DocRequiremen
 			}
 		</div>
 	</div>
+}
+
+func progressPctClass(pct int) string {
+	switch {
+	case pct >= 100:
+		return "progress-pct-100"
+	case pct >= 85:
+		return "progress-pct-80"
+	case pct >= 70:
+		return "progress-pct-75"
+	case pct >= 60:
+		return "progress-pct-66"
+	case pct >= 45:
+		return "progress-pct-50"
+	case pct >= 30:
+		return "progress-pct-33"
+	case pct >= 20:
+		return "progress-pct-20"
+	case pct >= 10:
+		return "progress-pct-10"
+	default:
+		return "progress-pct-0"
+	}
 }

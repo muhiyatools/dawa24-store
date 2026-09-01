@@ -54,38 +54,56 @@ templ UserMenu(lang string, inDashboard ...bool) {
 						</a>
 					}
 
-					if actor.IsCustomer() {
-						<a href="/orders" class="user-menu-item" role="menuitem">
-							@IconPackage("icon-xs")
-							<span>طلباتي</span>
-						</a>
-						<a href="/customer/wallet" class="user-menu-item" role="menuitem">
-							@IconWallet("icon-xs")
-							<span>المحفظة والرصيد</span>
-						</a>
-						<a href="/suppliers/followed" class="user-menu-item" role="menuitem">
-							@IconHeartFilled("icon-xs text-rose")
-							<span>الموردون المتابعون</span>
-						</a>
-					} else if actor.IsVendor() {
-						<a href="/orders" class="user-menu-item" role="menuitem">
-							@IconPackage("icon-xs")
-							<span>طلبات التوريد</span>
-						</a>
-						<a href="/vendor/wallet" class="user-menu-item" role="menuitem">
-							@IconWallet("icon-xs")
-							<span>المحفظة والرصيد</span>
-						</a>
-					}
+					if actor.IsOrgApproved() {
+						if actor.IsCustomer() {
+							<a href="/orders" class="user-menu-item" role="menuitem">
+								@IconPackage("icon-xs")
+								<span>طلباتي</span>
+							</a>
+							<a href="/customer/wallet" class="user-menu-item" role="menuitem">
+								@IconWallet("icon-xs")
+								<span>المحفظة والرصيد</span>
+							</a>
+							<a href="/suppliers/followed" class="user-menu-item" role="menuitem">
+								@IconHeartFilled("icon-xs text-rose")
+								<span>الموردون المتابعون</span>
+							</a>
+						} else if actor.IsVendor() {
+							<a href="/orders" class="user-menu-item" role="menuitem">
+								@IconPackage("icon-xs")
+								<span>طلبات التوريد</span>
+							</a>
+							<a href="/vendor/wallet" class="user-menu-item" role="menuitem">
+								@IconWallet("icon-xs")
+								<span>المحفظة والرصيد</span>
+							</a>
+						}
 
-					<a href="/settings" class="user-menu-item" role="menuitem">
-						@IconSettings("icon-xs")
-						<span>{ i18n.T(lang, "common.settings") }</span>
-					</a>
-					if orgLink(actor) != "" {
-						<a href={ templ.SafeURL(orgLink(actor)) } class="user-menu-item" role="menuitem">
-							@IconBuilding("icon-xs")
-							<span>{ i18n.T(lang, "nav.linked_organizations") }</span>
+						<a href="/settings" class="user-menu-item" role="menuitem">
+							@IconSettings("icon-xs")
+							<span>{ i18n.T(lang, "common.settings") }</span>
+						</a>
+						if orgLink(actor) != "" {
+							<a href={ templ.SafeURL(orgLink(actor)) } class="user-menu-item" role="menuitem">
+								@IconBuilding("icon-xs")
+								<span>{ i18n.T(lang, "nav.linked_organizations") }</span>
+							</a>
+						}
+					} else {
+						if actor.IsVendor() {
+							<a href="/vendor/documents" class="user-menu-item" role="menuitem">
+								@IconFile("icon-xs")
+								<span>المستندات والتراخيص</span>
+							</a>
+						} else {
+							<a href="/customer/documents" class="user-menu-item" role="menuitem">
+								@IconFile("icon-xs")
+								<span>المستندات والتراخيص</span>
+							</a>
+						}
+						<a href="/notifications" class="user-menu-item" role="menuitem">
+							@IconBell("icon-xs")
+							<span>مركز الإشعارات</span>
 						</a>
 					}
 				</div>
@@ -125,6 +143,12 @@ templ UserMenu(lang string, inDashboard ...bool) {
 }
 
 func dashboardURL(actor authctx.Actor) string {
+	if !actor.IsOrgApproved() && !actor.IsStaff {
+		if actor.IsVendor() {
+			return "/vendor/documents"
+		}
+		return "/customer/documents"
+	}
 	switch actor.DashboardScope() {
 	case rbac.ScopeAdmin:
 		return "/admin/dashboard"

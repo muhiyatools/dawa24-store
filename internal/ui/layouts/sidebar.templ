@@ -66,13 +66,13 @@ func visibleNav(ctx context.Context, scope rbac.Scope) []rbac.NavSection {
 	}
 	allSections := rbac.VisibleNav(scope, rbac.NewSet(actor.Permissions))
 	// For users who are logged in but not approved by the admin,
-	// hide all sidebar items except documents ("السندات").
+	// show only documents ("المستندات والتراخيص") and notifications ("مركز الإشعارات").
 	if !actor.IsStaff && !actor.IsOrgApproved() {
 		var unapprovedSections []rbac.NavSection
 		for _, s := range allSections {
 			var keptItems []rbac.NavItem
 			for _, item := range s.Items {
-				if item.Key == "documents" || strings.Contains(item.Href, "document") {
+				if item.Key == "documents" || item.Key == "notifications" || strings.Contains(item.Href, "document") || strings.Contains(item.Href, "notification") {
 					keptItems = append(keptItems, item)
 				}
 			}
@@ -89,15 +89,22 @@ func visibleNav(ctx context.Context, scope rbac.Scope) []rbac.NavSection {
 			unapprovedSections = []rbac.NavSection{
 				{
 					Key:    "documents_group",
-					NameAr: "السندات والمستندات",
-					NameEn: "Documents",
+					NameAr: "المستندات والتنبيهات",
+					NameEn: "Documents & Alerts",
 					Items: []rbac.NavItem{
 						{
 							Key:    "documents",
 							Href:   docHref,
 							Icon:   "file",
-							NameAr: "السندات والتراخيص",
+							NameAr: "المستندات والتراخيص",
 							NameEn: "Documents & Licenses",
+						},
+						{
+							Key:    "notifications",
+							Href:   "/notifications",
+							Icon:   "bell",
+							NameAr: "مركز الإشعارات",
+							NameEn: "Notifications Center",
 						},
 					},
 				},
