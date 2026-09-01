@@ -263,3 +263,50 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 
 	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", i18n.T(lang, "admin.settings.saved_system_prompt_success"))
 }
+
+// AdminSettingsPolicySubmit updates or publishes a policy version directly from the Settings Policies tab.
+func (h *UIHandler) AdminSettingsPolicySubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, _ := authctx.From(ctx)
+
+	if h.adminSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", i18n.T(lang, "admin.commerce.policy_service_unavailable"))
+		return
+	}
+
+	key := strings.TrimSpace(r.PostFormValue("key"))
+	titleAR := strings.TrimSpace(r.PostFormValue("title_ar"))
+	titleEN := strings.TrimSpace(r.PostFormValue("title_en"))
+	contentAR := strings.TrimSpace(r.PostFormValue("content_ar"))
+	contentEN := strings.TrimSpace(r.PostFormValue("content_en"))
+
+	if key == "" || titleAR == "" || contentAR == "" {
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "يرجى استيفاء جميع الحقول الإلزامية للسياسة.")
+		return
+	}
+
+	newVersion := "2.1"
+	if cur, err := h.adminSvc.GetActivePolicy(ctx, key); err == nil && cur != nil && cur.Version != "" {
+		newVersion = cur.Version + ".1"
+	}
+
+	p := &platformadmin.Policy{
+		PolicyKey:   key,
+		Version:     newVersion,
+		Title:       i18n.New(titleAR, titleEN),
+		Content:     i18n.New(contentAR, contentEN),
+		Summary:     i18n.New("تحديث مباشر من لوحة إعدادات المنصة", "Updated via platform settings"),
+		IsPublished: true,
+		CreatedBy:   &actor.UserID,
+	}
+
+	if err := h.adminSvc.CreatePolicyVersion(ctx, p); err != nil {
+		h.log.ErrorContext(ctx, "failed to update policy from settings", "key", key, "error", err)
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, lang))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "success", "تم تحديث ونشر السياسة بنجاح.")
+}
+

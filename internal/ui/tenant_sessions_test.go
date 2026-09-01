@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
 func TestTenantSessionsPage_RendersAndManagesSessions(t *testing.T) {
@@ -154,3 +155,33 @@ func TestTenantSessionsPage_RendersAndManagesSessions(t *testing.T) {
 		t.Errorf("expected 'Remember Me' checkbox in login body")
 	}
 }
+
+func TestTenantSessions_SingularRedirects(t *testing.T) {
+	h := &ui.UIHandler{}
+	router := newRealUIHandlerRouter(h)
+
+	// 1. Customer singular redirect
+	req := httptest.NewRequest("GET", "/customer/session", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusMovedPermanently {
+		t.Fatalf("GET /customer/session returned %d, expected 301", rec.Code)
+	}
+	if loc := rec.Header().Get("Location"); loc != "/customer/sessions" {
+		t.Errorf("expected redirect to /customer/sessions, got %s", loc)
+	}
+
+	// 2. Vendor singular redirect
+	vReq := httptest.NewRequest("GET", "/vendor/session", nil)
+	vRec := httptest.NewRecorder()
+	router.ServeHTTP(vRec, vReq)
+
+	if vRec.Code != http.StatusMovedPermanently {
+		t.Fatalf("GET /vendor/session returned %d, expected 301", vRec.Code)
+	}
+	if loc := vRec.Header().Get("Location"); loc != "/vendor/sessions" {
+		t.Errorf("expected redirect to /vendor/sessions, got %s", loc)
+	}
+}
+

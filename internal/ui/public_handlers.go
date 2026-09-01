@@ -3,6 +3,8 @@ package ui
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -90,9 +92,27 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UIHandler) PrivacyPage(w http.ResponseWriter, r *http.Request) {
-	h.renderPolicy(w, r, "privacy", i18n.T(langOf(r), "policy.privacy_title"))
+	h.renderPolicy(w, r, "privacy", "سياسة الخصوصية وحماية البيانات")
 }
 
 func (h *UIHandler) TermsPage(w http.ResponseWriter, r *http.Request) {
-	h.renderPolicy(w, r, "terms", i18n.T(langOf(r), "policy.terms_title"))
+	h.renderPolicy(w, r, "terms", "شروط وأحكام الاستخدام")
 }
+
+func (h *UIHandler) ShippingReturnsPage(w http.ResponseWriter, r *http.Request) {
+	h.renderPolicy(w, r, "shipping_return", "سياسة الشحن والتسليم والاسترجاع والإلغاء")
+}
+
+func (h *UIHandler) CookiesPolicyPage(w http.ResponseWriter, r *http.Request) {
+	h.renderPolicy(w, r, "cookies", "سياسة ملفات تعريف الارتباط (Cookies)")
+}
+
+func (h *UIHandler) PaymentPolicyPage(w http.ResponseWriter, r *http.Request) {
+	h.renderPolicy(w, r, "payment", "سياسة الدفع والتعاملات المالية")
+}
+
+func (h *UIHandler) DynamicPolicyPage(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	h.renderPolicy(w, r, slug, "السياسات والضوابط القانونية")
+}
+

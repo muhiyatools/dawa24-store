@@ -131,6 +131,9 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	// not a company one, and a member locked out of every page must still be
 	// able to secure their own credentials.
 	r.Post("/vendor/password", h.TenantPasswordChangeSubmit)
+	r.Get("/vendor/session", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
+	})
 }
 
 func (h *UIHandler) registerVendorTeamRoutes(r chi.Router) {

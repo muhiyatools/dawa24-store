@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -24,12 +25,13 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 	isVendor := actor.IsVendor()
 
-	// 1. Resolve limits
+	// 1. Resolve limits (capped with bounded timeout to never block page rendering)
 	maxSessions := 3
 	maxDevices := 3
 	planName := i18n.T(lang, "tenant.sessions.default_plan")
 	if h.idSvc != nil {
-		if sMax, dMax, pName, err := h.idSvc.GetOrgPlanLimits(ctx, actor.OrganizationID); err == nil {
+		limCtx, limCancel := context.WithTimeout(ctx, 2*time.Second)
+		if sMax, dMax, pName, err := h.idSvc.GetOrgPlanLimits(limCtx, actor.OrganizationID); err == nil {
 			if sMax > 0 {
 				maxSessions = sMax
 			}
@@ -40,15 +42,27 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 				planName = pName
 			}
 		}
+		limCancel()
 	}
 
-	// 2. Read live sessions
+	// 2. Read live sessions (capped with bounded timeout)
 	var currentToken string
 	if cookie, err := r.Cookie("dawa24_session"); err == nil && cookie != nil {
 		currentToken = cookie.Value
 	}
 
-	allSessions, _ := h.fetchLiveSessions(ctx, actor)
+	sessCtx, sessCancel := context.WithTimeout(ctx, 3*time.Second)
+	allSessions, _ := h.fetchLiveSessions(sessCtx, actor)
+	sessCancel()
+
+	// 3. Current session guarantee: ensure the caller's active device is displayed
+	if len(allSessions) == 0 && currentToken != "" && h.idSvc != nil {
+		valCtx, valCancel := context.WithTimeout(ctx, 2*time.Second)
+		if curSess, err := h.idSvc.ValidateSession(valCtx, currentToken); err == nil && curSess != nil {
+			allSessions = []*identity.Session{curSess}
+		}
+		valCancel()
+	}
 
 	viewData := pages.TenantSessionsViewData{
 		Sessions:         allSessions,

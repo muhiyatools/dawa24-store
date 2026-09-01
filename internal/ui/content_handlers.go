@@ -97,8 +97,23 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 	title, body := fallbackTitle, ""
 	var version string
 	var publishedAt string
+	lookupKey := slug
+	switch slug {
+	case "shipping-returns", "refund":
+		lookupKey = "shipping_return"
+	case "payment-policy", "payments":
+		lookupKey = "payment"
+	case "cookie":
+		lookupKey = "cookies"
+	}
+
 	if h.adminSvc != nil {
-		if p, err := h.adminSvc.GetActivePolicy(ctx, slug); err == nil && p != nil {
+		p, err := h.adminSvc.GetActivePolicy(ctx, lookupKey)
+		if err != nil && (lookupKey == "shipping_return") {
+			// Fallback check for legacy refund key
+			p, err = h.adminSvc.GetActivePolicy(ctx, "refund")
+		}
+		if err == nil && p != nil {
 			if t := p.Title.Get(i18n.Lang(lang)); t != "" {
 				title = t
 			}
@@ -115,19 +130,25 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 	}
 
 	if body == "" {
-		switch slug {
+		switch lookupKey {
 		case "privacy":
-			title = i18n.T(lang, "policy.privacy_title")
-			body = i18n.T(lang, "policy.privacy_body")
+			title = "سياسة الخصوصية وحماية البيانات"
+			body = "تلتزم منصة Dawa24 بحماية سرية البيانات التجارية والطبية لكافة المنشآت والصيدليات المسجلة طبقاً للقانون المصري رقم 151 لسنة 2020."
 		case "terms":
-			title = i18n.T(lang, "policy.terms_title")
-			body = i18n.T(lang, "policy.terms_body")
-		case "refund":
-			title = i18n.T(lang, "policy.refund_title")
-			body = i18n.T(lang, "policy.refund_body")
+			title = "شروط وأحكام استخدام منصة Dawa24"
+			body = "شروط وأحكام استخدام منصة Dawa24 لربط الصيدليات بالموردين والمستودعات المعتمدة في جمهورية مصر العربية."
+		case "shipping_return":
+			title = "سياسة الشحن والتسليم والاسترجاع والإلغاء"
+			body = "الضوابط المنظمة لعمليات الشحن، النقل الجيد، إجراءات الاستلام وفحص الشحنات، وسياسة المرتجعات الدوائية وإلغاء الطلبات."
+		case "cookies":
+			title = "سياسة ملفات تعريف الارتباط (Cookies)"
+			body = "بيان استخدام ملفات تعريف الارتباط وتقنيات حفظ الجلسات الآمنة، ومهلة الخمول التلقائي لحماية الحسابات."
+		case "payment":
+			title = "سياسة الدفع والتعاملات المالية"
+			body = "الضوابط المنظمة للمدفوعات المباشرة بين الصيدليات والموردين، وطرق الدفع والائتمان المعتمدة، وإصدار الفواتير الإلكترونية."
 		case "vendor_agreement":
-			title = i18n.T(lang, "policy.vendor_agreement_title")
-			body = i18n.T(lang, "policy.vendor_agreement_body")
+			title = "اتفاقية التوريد وشروط الموردين"
+			body = "الشروط والضوابط المنظمة لانضمام موردي الأدوية والمستودعات المعتمدة على منصة Dawa24."
 		}
 	}
 

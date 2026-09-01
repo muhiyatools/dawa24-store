@@ -315,6 +315,9 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 		g.Post("/customer/sessions/revoke-all", h.TenantSessionRevokeAllSubmit)
 	})
 	r.Post("/customer/password", h.TenantPasswordChangeSubmit)
+	r.Get("/customer/session", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/sessions", http.StatusMovedPermanently)
+	})
 }
 
 func (h *UIHandler) registerCustomerTeamRoutes(r chi.Router) {

@@ -56,7 +56,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 				:class="policyFilter === 'terms' ? 'active' : ''"
 				@click="policyFilter = 'terms'"
 			>
-				<span>شروط الاستخدام (Terms)</span>
+				<span>شروط الاستخدام</span>
 			</button>
 			<button
 				type="button"
@@ -64,15 +64,31 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 				:class="policyFilter === 'privacy' ? 'active' : ''"
 				@click="policyFilter = 'privacy'"
 			>
-				<span>سياسة الخصوصية (Privacy)</span>
+				<span>سياسة الخصوصية</span>
 			</button>
 			<button
 				type="button"
 				class="cb-tab-btn"
-				:class="policyFilter === 'refund' ? 'active' : ''"
-				@click="policyFilter = 'refund'"
+				:class="policyFilter === 'shipping_return' ? 'active' : ''"
+				@click="policyFilter = 'shipping_return'"
 			>
-				<span>المرتجعات والتسويات (Refund)</span>
+				<span>الشحن والاسترجاع والإلغاء</span>
+			</button>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'cookies' ? 'active' : ''"
+				@click="policyFilter = 'cookies'"
+			>
+				<span>ملفات الكوكيز</span>
+			</button>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'payment' ? 'active' : ''"
+				@click="policyFilter = 'payment'"
+			>
+				<span>سياسة الدفع</span>
 			</button>
 			<button
 				type="button"
@@ -80,7 +96,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 				:class="policyFilter === 'vendor_agreement' ? 'active' : ''"
 				@click="policyFilter = 'vendor_agreement'"
 			>
-				<span>اتفاقية التوريد (Vendor Agreement)</span>
+				<span>اتفاقية التوريد</span>
 			</button>
 		</div>
 
@@ -203,9 +219,11 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 					<div class="form-group m-0">
 						<label class="form-label" for="policy-key">نوع الوثيقة القانونية *</label>
 						<select id="policy-key" name="policy_key" required class="form-select">
-							<option value="terms">شروط الاستخدام والخدمة (Terms of Service)</option>
+							<option value="terms">شروط وأحكام الاستخدام (Terms of Service)</option>
 							<option value="privacy">سياسة الخصوصية وحماية البيانات (Privacy Policy)</option>
-							<option value="refund">سياسة المرتجعات والتسويات (Return & Refund)</option>
+							<option value="shipping_return">سياسة الشحن والاسترجاع والإلغاء (Shipping, Returns & Cancellation)</option>
+							<option value="cookies">سياسة ملفات تعريف الارتباط (Cookie Policy)</option>
+							<option value="payment">سياسة الدفع والتعاملات المالية (Payment Policy)</option>
 							<option value="vendor_agreement">اتفاقية التوريد وشروط الموردين (Vendor Supply Agreement)</option>
 						</select>
 					</div>
@@ -273,8 +291,12 @@ func policyKeyAr(k string) string {
 		return "شروط الاستخدام"
 	case "privacy":
 		return "سياسة الخصوصية"
-	case "refund":
-		return "المرتجعات والتسويات"
+	case "shipping_return", "refund":
+		return "الشحن والاسترجاع والإلغاء"
+	case "cookies":
+		return "ملفات تعريف الارتباط"
+	case "payment":
+		return "سياسة الدفع"
 	case "vendor_agreement":
 		return "اتفاقية التوريد"
 	default:

@@ -659,7 +659,7 @@ func publicFooter(site *platformadmin.SiteSettings) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, " — ترخيص واعتماد المنشآت الطبية والصيدلانية</p></div><div class=\"footer-legal-links\"><a href=\"/privacy\">الخصوصية</a> <a href=\"/terms\">الشروط</a></div></div></footer>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, " — ترخيص واعتماد المنشآت الطبية والصيدلانية</p></div><div class=\"footer-legal-links\"><a href=\"/privacy\">سياسة الخصوصية</a> <a href=\"/terms\">شروط الاستخدام</a> <a href=\"/shipping-returns\">الشحن والاسترجاع والإلغاء</a> <a href=\"/cookies\">ملفات تعريف الارتباط</a> <a href=\"/payment-policy\">سياسة الدفع</a></div></div></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

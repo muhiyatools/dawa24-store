@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -79,8 +80,17 @@ func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSess
 	maxSessions = 3
 	maxDevices = 3
 	planName = i18n.TDefault("w4_mod.s_378_378")
+	if planName == "" {
+		planName = "الباقة الأساسية"
+	}
+	if r == nil || r.db == nil {
+		return maxSessions, maxDevices, planName, nil
+	}
 
-	err = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+	queryCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	err = r.db.InReadTx(database.AsSystem(queryCtx), func(txCtx context.Context, tx pgx.Tx) error {
 		if orgID > 0 {
 			// 1. Try active subscription for this organization
 			querySub := `
