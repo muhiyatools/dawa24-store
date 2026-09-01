@@ -54,7 +54,8 @@ type SupplierVariantCard struct {
 	CoverageReason  string
 	CanAddToCart    bool
 	IsNegotiable    bool
-	IsSponsored     bool // promoted via sponsorship package
+	IsSponsored     bool
+	IsFavorite      bool // promoted via sponsorship package
 }
 type SupplierOffer struct {
 	OfferID          int64
