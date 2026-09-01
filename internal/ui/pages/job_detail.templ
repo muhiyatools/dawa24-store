@@ -275,21 +275,7 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 
 // JobDetail renders the vacancy details adapted to the user's dashboard shell.
 templ JobDetail(data JobDetailData, lang string, dir string) {
-	if data.IsCustomer {
-		@layouts.CustomerShell(data.Job.Title.Get(i18n.ParseLang(lang)), "jobs", lang, dir, data.Actor.Permissions) {
-			@JobDetailContent(data, lang, dir)
-		}
-	} else if data.IsVendor {
-		@layouts.VendorShell(data.Job.Title.Get(i18n.ParseLang(lang)), "jobs", lang, dir) {
-			@JobDetailContent(data, lang, dir)
-		}
-	} else if data.IsAdmin {
-		@layouts.AdminShell(data.Job.Title.Get(i18n.ParseLang(lang)), "jobs", lang, dir) {
-			@JobDetailContent(data, lang, dir)
-		}
-	} else {
-		@layouts.PublicShell(data.Job.Title.Get(i18n.ParseLang(lang)), lang, dir) {
-			@JobDetailContent(data, lang, dir)
-		}
+	@layouts.ShellFor(data.Job.Title.Get(i18n.ParseLang(lang)), "jobs", lang, dir, data.Actor) {
+		@JobDetailContent(data, lang, dir)
 	}
 }

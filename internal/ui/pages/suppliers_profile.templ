@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
@@ -20,7 +21,7 @@ func calcDiscountPct(v *catalog.ProductVariant, p *catalog.Product) float64 {
 }
 
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
-	@layouts.CustomerShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), "suppliers", lang, dir, nil) {
+	@layouts.ShellFor(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), "suppliers", lang, dir, authctx.FromContext(ctx)) {
 		<div class="sp-container">
 			
 			<!-- Breadcrumbs -->

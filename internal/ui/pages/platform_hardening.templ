@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -40,7 +41,7 @@ templ AdminSessionPlanRequestsPage(lang, dir string) {
 
 // CustomerReportIssuePage renders issue form.
 templ CustomerReportIssuePage(lang, dir string) {
-	@layouts.CustomerShell("الإبلاغ عن مشكلة أو اقتراح", "support", lang, dir, nil) {
+	@layouts.ShellFor("الإبلاغ عن مشكلة أو اقتراح", "support", lang, dir, authctx.FromContext(ctx)) {
 		<div class="glass-panel max-w-xl mx-auto">
 			<h2 class="mb-sm text-base font-bold text-primary">الإبلاغ عن مشكلة أو إرسال اقتراح</h2>
 			<p class="text-sm text-secondary m-0">فريق الدعم الفني يتابع بلاغاتك ويعمل على حلها فوراً.</p>

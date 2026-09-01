@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -483,7 +484,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 
 templ CompareHeadToHeadPage(lang, dir string, data HeadToHeadPageData) {
 	if data.IsCustomer {
-		@layouts.CustomerShell("مقارنة مورد بمورد | Dawa24", "compare", lang, dir, nil) {
+		@layouts.ShellFor("مقارنة مورد بمورد | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)) {
 			@CompareHeadToHeadContent(data)
 		}
 	} else {

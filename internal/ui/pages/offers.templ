@@ -31,7 +31,7 @@ type OfferCardData struct {
 }
 
 templ OffersPage(lang, dir string, offers []*OfferCardData) {
-	@layouts.CustomerShell("Ø§Ù„Ø¹Ø±ÙˆØ¶ Ø§Ù„Ù…ØªØ§Ø­Ø© ÙˆØ§Ù„ØªØ®ÙÙŠØ¶Ø§Øª | Ø¯ÙˆØ§Ø¡ 24", "offers", lang, dir, nil) {
+	@layouts.ShellFor("Ø§Ù„Ø¹Ø±ÙˆØ¶ Ø§Ù„Ù…ØªØ§Ø­Ø© ÙˆØ§Ù„ØªØ®ÙÙŠØ¶Ø§Øª | Ø¯ÙˆØ§Ø¡ 24", "offers", lang, dir, authctx.FromContext(ctx)) {
 		@OffersContent(lang, offers)
 	}
 }

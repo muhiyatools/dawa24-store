@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, offers []SupplierOffer, lang, dir string) {
-	@layouts.CustomerShell(productTitle(product)+" | تفاصيل عرض التوريد", "catalog", lang, dir, nil) {
+	@layouts.ShellFor(productTitle(product)+" | تفاصيل عرض التوريد", "catalog", lang, dir, authctx.FromContext(ctx)) {
 		<div class="py-2">
 			
 			<!-- Breadcrumb Navigation -->

@@ -77,7 +77,7 @@ func OffersPage(lang, dir string, offers []*OfferCardData) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("Ø§Ù„Ø¹Ø±ÙˆØ¶ Ø§Ù„Ù…ØªØ§Ø­Ø© ÙˆØ§Ù„ØªØ®ÙÙŠØ¶Ø§Øª | Ø¯ÙˆØ§Ø¡ 24", "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.ShellFor("Ø§Ù„Ø¹Ø±ÙˆØ¶ Ø§Ù„Ù…ØªØ§Ø­Ø© ÙˆØ§Ù„ØªØ®ÙÙŠØ¶Ø§Øª | Ø¯ÙˆØ§Ø¡ 24", "offers", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

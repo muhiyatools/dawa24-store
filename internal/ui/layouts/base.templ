@@ -3,6 +3,7 @@ package layouts
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -85,7 +86,14 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 		</head>
 		<body>
 			{ children... }
-			@components.CapsuleAssistantTrigger()
+			// The floating pharmacy assistant is a feature of the approved
+			// dashboard, not of every page. Rendered for a signed-out visitor or
+			// a قيد المراجعة account it is a launcher that opens onto a drawer
+			// whose endpoint refuses them — so it only sits there glowing. It is
+			// gated here, at the one mount point, rather than in each shell.
+			if actor := authctx.FromContext(ctx); actor.IsOrgApproved() {
+				@components.CapsuleAssistantTrigger()
+			}
 		</body>
 	</html>
 }

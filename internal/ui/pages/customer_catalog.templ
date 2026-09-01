@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -67,7 +68,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCatalogResults(data, lang)
 	} else {
-		@layouts.CustomerShell("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", "catalog", lang, dir, nil) {
+		@layouts.ShellFor("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", "catalog", lang, dir, authctx.FromContext(ctx)) {
 			<div class="py-2">
 				
 				<!-- Page Header Strip -->

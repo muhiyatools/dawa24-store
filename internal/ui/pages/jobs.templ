@@ -296,21 +296,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 
 // JobsPage renders the complete job board adapted to the user's dashboard shell.
 templ JobsPage(data JobsPageData, lang string, dir string) {
-	if data.IsCustomer {
-		@layouts.CustomerShell(i18n.T(lang, "nav.jobs_and_careers"), "jobs", lang, dir, data.Actor.Permissions) {
-			@JobsContent(data, lang, dir)
-		}
-	} else if data.IsVendor {
-		@layouts.VendorShell(i18n.T(lang, "nav.jobs_and_careers"), "jobs", lang, dir) {
-			@JobsContent(data, lang, dir)
-		}
-	} else if data.IsAdmin {
-		@layouts.AdminShell(i18n.T(lang, "nav.jobs_and_careers"), "jobs", lang, dir) {
-			@JobsContent(data, lang, dir)
-		}
-	} else {
-		@layouts.PublicShell(i18n.T(lang, "nav.jobs_and_careers"), lang, dir) {
-			@JobsContent(data, lang, dir)
-		}
+	@layouts.ShellFor(i18n.T(lang, "nav.jobs_and_careers"), "jobs", lang, dir, data.Actor) {
+		@JobsContent(data, lang, dir)
 	}
 }

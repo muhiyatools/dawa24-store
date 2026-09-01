@@ -26,6 +26,15 @@ import (
 //
 // rbac.TenantScopeFor is the one place that folds the legacy spellings, so
 // this branch and the route gates cannot disagree about who a caller is.
+//
+// A caller whose organization is not approved yet — قيد المراجعة, rejected,
+// suspended — and a caller with no session at all get the public marketing
+// shell, not a dashboard frame. They hold no dashboard permissions, so the
+// sidebar would collapse to a single "المستندات" link that then trailed them
+// onto every public page (the catalogue, the supplier directory), and the
+// floating assistant would sit there glowing for an account that cannot use
+// it. The dashboard is a thing you are admitted to, and this is the one place
+// that admission is decided for the frame.
 func ShellFor(title string, activeNav string, lang string, dir string, actor authctx.Actor) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -47,8 +56,7 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		switch actor.DashboardScope() {
-		case rbac.ScopeAdmin:
+		if actor.IsStaff {
 			templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -71,7 +79,7 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case rbac.ScopeVendor:
+		} else if !actor.IsOrgApproved() {
 			templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -90,11 +98,11 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = VendorShell(title, activeNav, lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = PublicShell(title, lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		default:
+		} else if actor.DashboardScope() == rbac.ScopeVendor {
 			templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -113,7 +121,30 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = CustomerShell(title, activeNav, lang, dir, actor.Permissions).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = VendorShell(title, activeNav, lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templ_7745c5c3_Var1.Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = CustomerShell(title, activeNav, lang, dir, actor.Permissions).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

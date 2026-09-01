@@ -21,7 +21,7 @@ type OfferDetailPageData struct {
 }
 
 templ OfferDetail(lang, dir string, data OfferDetailPageData) {
-	@layouts.CustomerShell(data.Offer.Title.Get(i18n.Lang(lang))+" | تفاصيل العرض الترويجي", "offers", lang, dir, nil) {
+	@layouts.ShellFor(data.Offer.Title.Get(i18n.Lang(lang))+" | تفاصيل العرض الترويجي", "offers", lang, dir, authctx.FromContext(ctx)) {
 		@OfferDetailContent(lang, data)
 	}
 }

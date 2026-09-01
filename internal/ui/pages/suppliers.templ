@@ -3,13 +3,14 @@ package pages
 import (
 	"fmt"
 	"strings"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
-	@layouts.CustomerShell("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, nil) {
+	@layouts.ShellFor("دليل الموردين المعتمدين | Suppliers Directory", "suppliers", lang, dir, authctx.FromContext(ctx)) {
 		@SuppliersDirectoryContent(lang, dir, data)
 	}
 }
