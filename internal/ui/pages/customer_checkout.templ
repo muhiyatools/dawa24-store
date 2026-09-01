@@ -25,7 +25,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 							إتمام أمر الشراء والتوريد
 						</h1>
 						<p class="text-sm text-muted m-0 mt-1">
-							تأكيد عنوان فرع الصيدلية المستلم، شروط الدفع، وإصدار الفواتير الإلكترونية المعتمدة
+							تأكيد عنوان فرع الصيدلية المستلم، شروط الدفع، وإصدار سند التوريد
 						</p>
 					</div>
 				</div>
@@ -171,7 +171,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 												<span class="badge badge-sky text-xs font-bold">تسوية مباشرة مع مندوب التوزيع</span>
 											</div>
 											<div class="text-xs text-secondary leading-relaxed">
-												التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة الفاتورة الضريبية الإلكترونية (ETA e-Invoice).
+												التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة سند التوريد.
 											</div>
 										</div>
 									</label>
@@ -255,7 +255,7 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 							<!-- Security Badge -->
 							<div class="glass-panel p-3 d-flex items-center gap-3 text-xs text-muted">
 								<div class="text-brand text-lg">@components.IconShield("icon-sm")</div>
-								<div class="stack-xs text-sm">معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow) والفواتير الإلكترونية المعتمدة.</div>
+								<div class="stack-xs text-sm">معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow).</div>
 							</div>
 						</div>
 					</div>

@@ -200,6 +200,18 @@ func TestRoleRoutePermissionMatrix(t *testing.T) {
 				"customer_pending":  http.StatusFound, // unapproved org redirects to /onboarding/pending
 			},
 		},
+		{
+			path: "/notifications",
+			expectedStatuses: map[string]int{
+				"anonymous":         http.StatusSeeOther,
+				"super_admin":       http.StatusOK,
+				"platform_support":  http.StatusOK,
+				"vendor_approved":   http.StatusOK,
+				"vendor_pending":    http.StatusOK,
+				"customer_approved": http.StatusOK,
+				"customer_pending":  http.StatusOK,
+			},
+		},
 	}
 
 	for _, entry := range matrix {

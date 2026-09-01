@@ -7,11 +7,12 @@ package components
 // paragraph and two large buttons — the block that made all three pages end the
 // same way as every other product page on the internet.
 //
-// It is the last entry in the record now: a heavy rule, the offer stated in one
-// line, and the two routes in as what they actually are — one for a pharmacy,
-// one for a supplier. Two weights of button, not two of the same button.
+// It is the last entry in the record now: the platform's panel component tinted
+// with the brand subtle, the offer stated in one line, and the two routes in as
+// what they actually are — one for a pharmacy, one for a supplier. Two weights
+// of button, not two of the same button.
 templ PublicCTA(title, desc, lang string) {
-	<section class="mk-close">
+	<section class="glass-panel mk-close">
 		<div class="mk-close-text">
 			<h2 class="mk-close-title">
 				if title != "" {
@@ -29,8 +30,14 @@ templ PublicCTA(title, desc, lang string) {
 			</p>
 		</div>
 		<div class="mk-close-actions">
-			<a href="/auth/register" class="mk-btn mk-btn--ink">تسجيل صيدلية</a>
-			<a href="/auth/register" class="mk-btn mk-btn--outline">انضمام كمورد</a>
+			<a href="/auth/register" class="btn btn-primary">
+				@IconPill("icon-xs")
+				<span>تسجيل صيدلية</span>
+			</a>
+			<a href="/auth/register" class="btn btn-secondary">
+				@IconBuilding("icon-xs")
+				<span>انضمام كمورد</span>
+			</a>
 		</div>
 	</section>
 }

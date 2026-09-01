@@ -40,6 +40,11 @@ type AboutPageData struct {
 // It reads as a record now: a masthead, a ruled strip of three facts, three
 // indexed sections down a margin spine, and one closing band. The prose is cut
 // to roughly a third; what survived is the part that says something specific.
+//
+// The pillar claiming certified e-invoicing integration with the Egyptian tax
+// authority has been removed rather than softened. It asserted an accreditation
+// the platform does not hold, and a page whose entire argument is "we verify
+// things" cannot carry a claim it has not verified about itself.
 func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -81,7 +86,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 42, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 47, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -101,7 +106,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.HeroSubtitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 49, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 54, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -113,7 +118,31 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p><dl class=\"mk-record\"><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">Market</dt><dd class=\"mk-record-val\">جمهورية مصر العربية</dd></div><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">Parties</dt><dd class=\"mk-record-val\">صيدليات · مستشفيات · موردون</dd></div><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">Support</dt><dd class=\"mk-record-val\">متاح 24/7</dd></div></dl></header><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">01</span> <span class=\"mk-spine-label\">الاتجاه</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p><dl class=\"mk-record\"><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconMapPin("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>Market</span></dt><dd class=\"mk-record-val\">جمهورية مصر العربية</dd></div><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconUsers("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>Parties</span></dt><dd class=\"mk-record-val\">صيدليات · مستشفيات · موردون</dd></div><div class=\"mk-record-cell\"><dt class=\"mk-record-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconClock("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>Support</span></dt><dd class=\"mk-record-val\">متاح 24/7</dd></div></dl></header><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">01</span> <span class=\"mk-spine-label\">الاتجاه</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -121,19 +150,19 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 78, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 92, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "رؤيتنا")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "رؤيتنا")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h2><p class=\"mk-text\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</h2><p class=\"mk-text\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -141,19 +170,19 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.VisionText)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 85, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 99, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "أن نكون البنية التحتية التي تعتمد عليها سلاسل الإمداد الدوائي في الشرق الأوسط: دواء متوفر، بسعر عادل، وبمصدر يمكن تتبّعه.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "أن نكون البنية التحتية التي تعتمد عليها سلاسل الإمداد الدوائي في الشرق الأوسط: دواء متوفر، بسعر عادل، وبمصدر يمكن تتبّعه.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></div></section><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">02</span> <span class=\"mk-spine-label\">العمل</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</p></div></section><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">02</span> <span class=\"mk-spine-label\">العمل</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -161,19 +190,19 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 101, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 115, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "رسالتنا")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "رسالتنا")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</h2><p class=\"mk-text\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</h2><p class=\"mk-text\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -181,19 +210,43 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.MissionText)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 108, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/about.templ`, Line: 122, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "نستبدل مكالمات التوريد ورسائل واتساب المتفرقة بمنصة واحدة: مقارنة أسعار حيّة، شراء مباشر، فاتورة إلكترونية معتمدة، وسلسلة تبريد لا تنقطع.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "نستبدل مكالمات التوريد ورسائل واتساب المتفرقة بمنصة واحدة: مقارنة أسعار حيّة، شراء مباشر، وسلسلة تبريد لا تنقطع من المخزن إلى رفّ الصيدلية.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</p></div></section><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">03</span> <span class=\"mk-spine-label\">الضمانات</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">أربع ركائز يقوم عليها كل أمر توريد</h2><dl class=\"mk-list\"><div class=\"mk-item\"><span class=\"mk-item-index\">01</span><dt class=\"mk-item-term\">توثيق التراخيص</dt><dd class=\"mk-item-desc\">السجل التجاري وترخيص هيئة الدواء وقيد نقابة الصيادلة يُراجَعون قبل تفعيل أي حساب — للطرفين.</dd></div><div class=\"mk-item\"><span class=\"mk-item-index\">02</span><dt class=\"mk-item-term\">سلسلة تبريد معتمدة</dt><dd class=\"mk-item-desc\">حاويات مبرّدة ومجسّات حرارية على خط السير، للأنسولين والأمصال وكل ما لا يحتمل انقطاع التبريد.</dd></div><div class=\"mk-item\"><span class=\"mk-item-index\">03</span><dt class=\"mk-item-term\">فاتورة إلكترونية</dt><dd class=\"mk-item-desc\">ربط مباشر مع مصلحة الضرائب المصرية: الفاتورة الضريبية تصدر فور تسليم أمر التوريد، لا بعده بأسبوع.</dd></div><div class=\"mk-item\"><span class=\"mk-item-index\">04</span><dt class=\"mk-item-term\">دعم صيدلي</dt><dd class=\"mk-item-desc\">فريق متفرغ للطلبات العاجلة ومتابعة خطوط السير ونواقص السوق، على مدار الساعة.</dd></div></dl></div></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</p></div></section><section class=\"mk-section\"><div class=\"mk-spine\"><span class=\"mk-index\">03</span> <span class=\"mk-spine-label\">الضمانات</span></div><div class=\"mk-body\"><h2 class=\"mk-heading\">ثلاث ركائز يقوم عليها كل أمر توريد</h2><dl class=\"mk-list\"><div class=\"mk-item\"><span class=\"mk-item-mark\" aria-hidden=\"true\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconShield("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span><dt class=\"mk-item-term\">توثيق التراخيص</dt><dd class=\"mk-item-desc\">السجل التجاري وترخيص هيئة الدواء وقيد نقابة الصيادلة تُراجَع قبل تفعيل أي حساب — للطرفين.</dd></div><div class=\"mk-item\"><span class=\"mk-item-mark\" aria-hidden=\"true\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTruck("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span><dt class=\"mk-item-term\">سلسلة تبريد معتمدة</dt><dd class=\"mk-item-desc\">حاويات مبرّدة ومجسّات حرارية على خط السير، للأنسولين والأمصال وكل ما لا يحتمل انقطاع التبريد.</dd></div><div class=\"mk-item\"><span class=\"mk-item-mark\" aria-hidden=\"true\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPhone("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span><dt class=\"mk-item-term\">دعم صيدلي</dt><dd class=\"mk-item-desc\">فريق متفرغ للطلبات العاجلة ومتابعة خطوط السير ونواقص السوق، على مدار الساعة.</dd></div></dl></div></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -201,7 +254,7 @@ func AboutPage(lang, dir string, data AboutPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</article>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

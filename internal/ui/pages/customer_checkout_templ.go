@@ -59,7 +59,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">إتمام أمر الشراء والتوريد</h1><p class=\"text-sm text-muted m-0 mt-1\">تأكيد عنوان فرع الصيدلية المستلم، شروط الدفع، وإصدار الفواتير الإلكترونية المعتمدة</p></div></div></div><!-- Stepper Progress Bar --><div class=\"mb-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">إتمام أمر الشراء والتوريد</h1><p class=\"text-sm text-muted m-0 mt-1\">تأكيد عنوان فرع الصيدلية المستلم، شروط الدفع، وإصدار سند التوريد</p></div></div></div><!-- Stepper Progress Bar --><div class=\"mb-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -269,7 +269,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><h2 class=\"text-lg font-extrabold text-primary m-0\">2. طريقة وشروط الدفع والتسوية</h2></div><div class=\"d-flex flex-col gap-3\"><!-- Only Cash on Delivery --><label class=\"checkout-branch-item border-brand bg-surface-sunken\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" checked class=\"form-radio mt-1\"><div class=\"flex-1\"><div class=\"flex-between mb-1 flex-wrap gap-2\"><div class=\"font-extrabold text-base text-primary\">الدفع عند الاستلام والتسليم (نقداً / شيك مقبول الدفع)</div><span class=\"badge badge-sky text-xs font-bold\">تسوية مباشرة مع مندوب التوزيع</span></div><div class=\"text-xs text-secondary leading-relaxed\">التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة الفاتورة الضريبية الإلكترونية (ETA e-Invoice).</div></div></label></div></div><!-- 3. Cold-Chain & Delivery Notes --><div class=\"checkout-step-card\"><div class=\"d-flex items-center gap-3 mb-3\"><div class=\"user-avatar-badge\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><h2 class=\"text-lg font-extrabold text-primary m-0\">2. طريقة وشروط الدفع والتسوية</h2></div><div class=\"d-flex flex-col gap-3\"><!-- Only Cash on Delivery --><label class=\"checkout-branch-item border-brand bg-surface-sunken\"><input type=\"radio\" name=\"payment_method\" value=\"cod\" checked class=\"form-radio mt-1\"><div class=\"flex-1\"><div class=\"flex-between mb-1 flex-wrap gap-2\"><div class=\"font-extrabold text-base text-primary\">الدفع عند الاستلام والتسليم (نقداً / شيك مقبول الدفع)</div><span class=\"badge badge-sky text-xs font-bold\">تسوية مباشرة مع مندوب التوزيع</span></div><div class=\"text-xs text-secondary leading-relaxed\">التحصيل بمعرفة مندوب شركة التوزيع المعتمد عند تسليم الشحنة المبردة بالصيدلية ومراجعة سند التوريد.</div></div></label></div></div><!-- 3. Cold-Chain & Delivery Notes --><div class=\"checkout-step-card\"><div class=\"d-flex items-center gap-3 mb-3\"><div class=\"user-avatar-badge\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -368,7 +368,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir str
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div class=\"stack-xs text-sm\">معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow) والفواتير الإلكترونية المعتمدة.</div></div></div></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div class=\"stack-xs text-sm\">معاملة مضمونة بنظام الضمان المالي الدوائي (Escrow).</div></div></div></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

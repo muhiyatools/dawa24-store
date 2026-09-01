@@ -63,7 +63,103 @@ func HowItWorksPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mk-page\" x-data=\"{ role: 'pharmacy' }\"><header class=\"mk-masthead\"><p class=\"mk-eyebrow\">دورة التوريد</p><h1 class=\"mk-title\">كيف تعمل منصة دواء 24</h1><p class=\"mk-lede\">من كشف النواقص إلى الرف، في أربع خطوات — بلا وسطاء وبسجل موثّق لكل خطوة.</p></header><div class=\"mk-switch\" role=\"tablist\" aria-label=\"اختر المسار\"><button type=\"button\" role=\"tab\" class=\"mk-switch-btn\" :class=\"{ 'is-on': role === 'pharmacy' }\" :aria-selected=\"role === 'pharmacy' ? 'true' : 'false'\" @click=\"role = 'pharmacy'\">مسار الصيدليات</button> <button type=\"button\" role=\"tab\" class=\"mk-switch-btn\" :class=\"{ 'is-on': role === 'supplier' }\" :aria-selected=\"role === 'supplier' ? 'true' : 'false'\" @click=\"role = 'supplier'\">مسار الموردين</button></div><div class=\"mk-steps\" x-show=\"role === 'pharmacy'\" x-cloak role=\"tabpanel\"><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">1</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">قارن كل العروض المتاحة في لحظة</h2><p class=\"mk-step-desc\">اكتب اسم الدواء أو رقمه القومي، فتظهر أسعار كل الموردين المتاحين الآن مرتّبة بالخصم وموعد التسليم.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">أوجمنتين 1 جم أقراص</span> <span class=\"mk-flag mk-flag--live\">مقارنة حيّة</span></div><div class=\"mk-panel-body\"><div class=\"mk-row is-best\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مخزن المتحدة للأدوية</span> <span class=\"mk-row-note\">تسليم خلال ساعتين · ثلاجة 2–8°</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">101.40</span> <span class=\"mk-delta\">−22%</span></div></div><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مستودع ابن سينا فارما</span> <span class=\"mk-row-note\">تسليم خلال 4 ساعات · جاف</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">105.30</span> <span class=\"mk-delta\">−19%</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">2</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">ارفع كشف النواقص بدل كتابته</h2><p class=\"mk-step-desc\">ملف Excel واحد يكفي: تُطابَق الأصناف آلياً على أفضل سعر متاح، وتصلك السلة جاهزة للمراجعة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-ref\">order_pharmacy_august.xlsx</span> <span class=\"mk-flag mk-flag--ok\">42 / 42 مطابَقة</span></div><div class=\"mk-tally\"><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">التوفير</span> <span class=\"mk-tally-val\">680.00</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">الموردون</span> <span class=\"mk-tally-val\">2</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">السلة</span> <span class=\"mk-tally-val\">جاهزة</span></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">3</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">تتبّع الشحنة حتى الباب</h2><p class=\"mk-step-desc\">سيارات مرخّصة ومجهّزة لنقل الأدوية الحساسة، وإشعار لحظي فور خروج الشحنة من المخزن.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">شحنة مبرّدة</span> <span class=\"mk-panel-ref\">TRK-4921</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">في الطريق إلى الصيدلية</span> <span class=\"mk-row-note\">آخر تحديث قبل 4 دقائق</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">35 دقيقة</span> <span class=\"mk-delta\">الوصول المتوقع</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">4</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">افحص، استلم، وسدّد</h2><p class=\"mk-step-desc\">طابق التشغيلات وتواريخ الصلاحية عند الباب، وادفع نقداً أو على الحساب مع فاتورة إلكترونية مسجّلة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">فاتورة معتمدة</span> <span class=\"mk-panel-ref\">EG-2026-904</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">إجمالي الطلبية المسدّدة</span> <span class=\"mk-row-note\">مسجّلة لدى مصلحة الضرائب</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">3,420.00</span> <span class=\"mk-delta\">ج.م</span></div></div></div></div></section></div><div class=\"mk-steps\" x-show=\"role === 'supplier'\" x-cloak role=\"tabpanel\"><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">1</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">وثّق ترخيص المنشأة</h2><p class=\"mk-step-desc\">ارفع ترخيص هيئة الدواء والسجل التجاري؛ تُراجَع المستندات ويُفعَّل الحساب خلال ساعات عمل قليلة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">حالة التوثيق</span> <span class=\"mk-flag mk-flag--ok\">معتمد</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مستودع أدوية موثّق</span> <span class=\"mk-row-note\">مرخّص من هيئة الدواء المصرية</span></div></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">2</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">ارفع الكتالوج مرة واحدة</h2><p class=\"mk-step-desc\">Excel أو ربط مباشر بنظام الـERP لديك — الأسعار والخصومات والصلاحيات تظهر فوراً للصيدليات في نطاق تغطيتك.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">المخزون النشط</span> <span class=\"mk-flag mk-flag--live\">تحديث لحظي</span></div><div class=\"mk-tally\"><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">أصناف</span> <span class=\"mk-tally-val\">8,340</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">التغطية</span> <span class=\"mk-tally-val\">جغرافية</span></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">3</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">استقبل أوامر الشراء وجهّزها</h2><p class=\"mk-step-desc\">الطلبات تصل لحظياً إلى لوحة تحكّمك، وأذون الصرف تُطبع للمندوب بضغطة واحدة.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">أمر توريد وارد</span> <span class=\"mk-panel-ref\">ORD-8920</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">صيدلية الدكتور أحمد — الجيزة</span> <span class=\"mk-row-note\">6 أصناف جاهزة للصرف</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-flag mk-flag--ok\">مؤكد ومسدَّد</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">4</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">حصّل مستحقاتك دون تأخير</h2><p class=\"mk-step-desc\">تسوية آلية للفواتير وإشعارات الخصم والمرتجع، بسجل يمكن مراجعته سطراً سطراً.</p></div><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">تسوية التحصيل</span> <span class=\"mk-panel-ref\">SET-1174</span></div><div class=\"mk-panel-body\"><div class=\"mk-row is-best\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">تم التحصيل وتوثيق الاستلام</span> <span class=\"mk-row-note\">دفعة هذا الأسبوع</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">18,450.00</span> <span class=\"mk-delta\">ج.م</span></div></div></div></div></section></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mk-page\" x-data=\"{ role: 'pharmacy' }\"><header class=\"mk-masthead\"><p class=\"mk-eyebrow\">دورة التوريد</p><h1 class=\"mk-title\">كيف تعمل منصة دواء 24</h1><p class=\"mk-lede\">من كشف النواقص إلى الرف، في أربع خطوات — بلا وسطاء وبسجل موثّق لكل خطوة.</p></header><div class=\"mk-switch\" role=\"tablist\" aria-label=\"اختر المسار\"><button type=\"button\" role=\"tab\" class=\"mk-switch-btn\" :class=\"{ 'is-on': role === 'pharmacy' }\" :aria-selected=\"role === 'pharmacy' ? 'true' : 'false'\" @click=\"role = 'pharmacy'\">مسار الصيدليات</button> <button type=\"button\" role=\"tab\" class=\"mk-switch-btn\" :class=\"{ 'is-on': role === 'supplier' }\" :aria-selected=\"role === 'supplier' ? 'true' : 'false'\" @click=\"role = 'supplier'\">مسار الموردين</button></div><div class=\"mk-steps\" x-show=\"role === 'pharmacy'\" x-cloak role=\"tabpanel\"><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">1</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">قارن كل العروض المتاحة في لحظة</h2><p class=\"mk-step-desc\">اكتب اسم الدواء أو رقمه القومي، فتظهر أسعار كل الموردين المتاحين الآن مرتّبة بالخصم وموعد التسليم.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPill("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>أوجمنتين 1 جم أقراص</span></span> <span class=\"mk-flag mk-flag--live\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconActivity("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>مقارنة حيّة</span></span></div><div class=\"mk-panel-body\"><div class=\"mk-row is-best\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مخزن المتحدة للأدوية</span> <span class=\"mk-row-note\">تسليم خلال ساعتين · ثلاجة 2–8°</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">101.40</span> <span class=\"mk-delta\">−22%</span></div></div><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مستودع ابن سينا فارما</span> <span class=\"mk-row-note\">تسليم خلال 4 ساعات · جاف</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">105.30</span> <span class=\"mk-delta\">−19%</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">2</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">ارفع كشف النواقص بدل كتابته</h2><p class=\"mk-step-desc\">ملف Excel واحد يكفي: تُطابَق الأصناف آلياً على أفضل سعر متاح، وتصلك السلة جاهزة للمراجعة.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-ref\">order_pharmacy_august.xlsx</span> <span class=\"mk-flag mk-flag--ok\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheckCircle("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>42 / 42 مطابَقة</span></span></div><div class=\"mk-tally\"><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">التوفير</span> <span class=\"mk-tally-val\">680.00</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">الموردون</span> <span class=\"mk-tally-val\">2</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">الأصناف</span> <span class=\"mk-tally-val\">42</span></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">3</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">تتبّع الشحنة حتى الباب</h2><p class=\"mk-step-desc\">سيارات مرخّصة ومجهّزة لنقل الأدوية الحساسة، وإشعار لحظي فور خروج الشحنة من المخزن.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTruck("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>شحنة مبرّدة</span></span> <span class=\"mk-panel-ref\">TRK-4921</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">في الطريق إلى الصيدلية</span> <span class=\"mk-row-note\">آخر تحديث قبل 4 دقائق</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">00:35</span> <span class=\"mk-delta\">حتى الوصول</span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">4</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">افحص، استلم، وسدّد</h2><p class=\"mk-step-desc\">طابق التشغيلات وتواريخ الصلاحية عند الباب، وادفع نقداً أو على الحساب حسب اتفاقك مع المورد.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheckCircle("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>استلام مكتمل</span></span> <span class=\"mk-panel-ref\">ORD-2026-904</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">إجمالي الطلبية المسدّدة</span> <span class=\"mk-row-note\">12 صنفاً · مطابقة التشغيلات تمت</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">3,420.00</span> <span class=\"mk-delta\">ج.م</span></div></div></div></div></section></div><div class=\"mk-steps\" x-show=\"role === 'supplier'\" x-cloak role=\"tabpanel\"><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">1</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">وثّق ترخيص المنشأة</h2><p class=\"mk-step-desc\">ارفع ترخيص هيئة الدواء والسجل التجاري؛ تُراجَع المستندات ويُفعَّل الحساب خلال ساعات عمل قليلة.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconShield("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>حالة التوثيق</span></span> <span class=\"mk-flag mk-flag--ok\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheckCircle("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>موثّق</span></span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">مستودع أدوية موثّق</span> <span class=\"mk-row-note\">مرخّص من هيئة الدواء المصرية</span></div></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">2</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">ارفع الكتالوج مرة واحدة</h2><p class=\"mk-step-desc\">Excel أو ربط مباشر بنظام الـERP لديك — الأسعار والخصومات والصلاحيات تظهر فوراً للصيدليات في نطاق تغطيتك.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBoxes("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>المخزون النشط</span></span> <span class=\"mk-flag mk-flag--live\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconRefresh("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>تحديث لحظي</span></span></div><div class=\"mk-tally\"><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">أصناف</span> <span class=\"mk-tally-val\">8,340</span></div><div class=\"mk-tally-cell\"><span class=\"mk-tally-key\">الظهور</span> <span class=\"mk-tally-val\">فوري</span></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">3</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">استقبل أوامر الشراء وجهّزها</h2><p class=\"mk-step-desc\">الطلبات تصل لحظياً إلى لوحة تحكّمك، وأذون الصرف تُطبع للمندوب بضغطة واحدة.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPackage("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>أمر توريد وارد</span></span> <span class=\"mk-panel-ref\">ORD-8920</span></div><div class=\"mk-panel-body\"><div class=\"mk-row\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">صيدلية الدكتور أحمد — الجيزة</span> <span class=\"mk-row-note\">6 أصناف جاهزة للصرف</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-flag mk-flag--ok\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheckCircle("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>مؤكد ومسدَّد</span></span></div></div></div></div></section><section class=\"mk-step\"><span class=\"mk-step-mark\" aria-hidden=\"true\">4</span><div class=\"mk-step-text\"><h2 class=\"mk-step-title\">حصّل مستحقاتك دون تأخير</h2><p class=\"mk-step-desc\">تسوية آلية للتحصيل والمرتجعات، بسجل يمكن مراجعته سطراً سطراً.</p></div><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconWallet("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>تسوية التحصيل</span></span> <span class=\"mk-panel-ref\">SET-1174</span></div><div class=\"mk-panel-body\"><div class=\"mk-row is-best\"><div class=\"mk-row-main\"><span class=\"mk-dot\"></span><div class=\"mk-row-text\"><span class=\"mk-row-title\">تم التحصيل وتوثيق الاستلام</span> <span class=\"mk-row-note\">دفعة هذا الأسبوع</span></div></div><div class=\"mk-row-figure\"><span class=\"mk-price\">18,450.00</span> <span class=\"mk-delta\">ج.م</span></div></div></div></div></section></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -71,7 +167,7 @@ func HowItWorksPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</article>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

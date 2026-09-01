@@ -116,6 +116,9 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	r.Get("/vendor/session", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
 	})
+	r.Get("/vendor/notifications", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/notifications", http.StatusMovedPermanently)
+	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.session.view", "vendor.dashboard.view"))
 		g.Get("/vendor/sessions", h.TenantSessionsPage)

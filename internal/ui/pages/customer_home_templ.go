@@ -131,7 +131,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "قارن أسعار التوريد، استفد من أعلى نسب الخصم اللحظية، واطلب احتياجات صيدليتك بسلاسل تبريد وفواتير إلكترونية معتمدة بنقرة واحدة.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "قارن أسعار التوريد، استفد من أعلى نسب الخصم اللحظية، واطلب احتياجات صيدليتك بسلاسل تبريد موثّقة بنقرة واحدة.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

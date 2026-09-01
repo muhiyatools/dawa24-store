@@ -132,7 +132,6 @@ templ UserMenu(lang string, inDashboard ...bool) {
 					}
 				</div>
 				<div class="nav-menu-settings">
-					<span class="nav-menu-eyebrow">المظهر</span>
 					<div class="nav-seg" role="group" aria-label="المظهر">
 						<button type="button" class="nav-seg-btn" data-set-theme="light" title="فاتح">
 							@IconSun("icon-xs")
@@ -143,15 +142,12 @@ templ UserMenu(lang string, inDashboard ...bool) {
 							<span>داكن</span>
 						</button>
 					</div>
-				</div>
-				<div class="nav-menu-settings">
-					<span class="nav-menu-eyebrow">اللغة</span>
 					<div class="nav-seg nav-seg--flags" role="group" aria-label="اللغة">
 						<a href="/lang/ar" class={ "nav-seg-btn", templ.KV("is-active", lang != "en") } hreflang="ar" title="العربية">
-							@IconFlagEG("icon-sm")
+							@IconFlagEG("icon-xs")
 						</a>
 						<a href="/lang/en" class={ "nav-seg-btn", templ.KV("is-active", lang == "en") } hreflang="en" title="English">
-							@IconFlagGB("icon-sm")
+							@IconFlagGB("icon-xs")
 						</a>
 					</div>
 				</div>

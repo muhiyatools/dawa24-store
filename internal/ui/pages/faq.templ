@@ -11,6 +11,13 @@ type FAQItem struct {
 	Category string
 }
 
+// GetFAQs is the question list.
+//
+// The entry claiming the platform issues accredited tax e-invoices through the
+// Egyptian tax authority's system has been removed rather than reworded, and
+// the invoice half of the "الدفع والفواتير" category with it. It described an
+// accreditation the platform does not hold, and an FAQ is the one page a reader
+// consults precisely because they intend to rely on the answer.
 func GetFAQs() []FAQItem {
 	return []FAQItem{
 		{
@@ -26,7 +33,7 @@ func GetFAQs() []FAQItem {
 		{
 			Category: "الطلبات والتوريد",
 			Question: "كيف يتم تقسيم الطلب إذا اشتريت من أكثر من مورد؟",
-			Answer:   "يقوم النظام تلقائياً بتجميع أصنافك في سلة واحدة، وتوزيع أمر التوريد إلى شحنات منفصلة لكل مورد معتمد، مع إصدار أرقام تتبع وفواتير مستقلة لكل شحنة دون أي تعقيد على الصيدلي.",
+			Answer:   "يقوم النظام تلقائياً بتجميع أصنافك في سلة واحدة، وتوزيع أمر التوريد إلى شحنات منفصلة لكل مورد معتمد، مع إصدار رقم تتبع مستقل لكل شحنة دون أي تعقيد على الصيدلي.",
 		},
 		{
 			Category: "الطلبات والتوريد",
@@ -35,18 +42,13 @@ func GetFAQs() []FAQItem {
 		},
 		{
 			Category: "الشحن والجودة",
-			Question: "كيف يتم ضمان سلامة الأدوية الحساسة وسلسلة التبريد (Cold-Chain)؟",
+			Question: "كيف يتم ضمان سلامة الأدوية الحساسة وسلسلة التبريد؟",
 			Answer:   "يلتزم جميع الموردين وشركات التوزيع المسجلة بنقل الأدوية الحساسة كالأنسولين والأمصال عبر سيارات مجهزة بثلاجات تبريد ومجسات تتبع لدرجات الحرارة طبقاً لاشتراطات هيئة الدواء المصرية.",
 		},
 		{
-			Category: "الدفع والفواتير",
-			Question: "ما هي طرق الدفع المعتمدة؟",
+			Category: "الدفع والسداد",
+			Question: "ما هي طرق الدفع المتاحة؟",
 			Answer:   "نوفر الدفع عند الاستلام نقداً أو بشيك مقبول الدفع لمندوب التوزيع، بالإضافة إلى التسهيلات الائتمانية والتحويلات البنكية للمؤسسات التي تمتلك حسابات معتمدة وحدود ائتمانية سارية.",
-		},
-		{
-			Category: "الدفع والفواتير",
-			Question: "هل الفواتير الصادرة فواتير ضريبية إلكترونية معتمدة؟",
-			Answer:   "نعم، ترتبط منصة دواء 24 بمنظومة الفاتورة الإلكترونية لمصلحة الضرائب المصرية وتصدر الفواتير الضريبية بصيغة رقمية مطابقة للقانون فور تأكيد استلام الشحنة.",
 		},
 		{
 			Category: "المرتجعات والضمان",
@@ -56,146 +58,121 @@ func GetFAQs() []FAQItem {
 		{
 			Category: "انضمام الموردين",
 			Question: "كيف يمكن لشركات التوزيع ومصانع الأدوية الانضمام كموردين؟",
-			Answer:   "يمكن التقديم عبر صفحة 'انضم كشريك' ورفع السجل التجاري ورخصة المخزن أو المصنع، ويتم مراجعة الطلب واعتماد الحساب وبدء ربط المخزون خلال 24 ساعة عمل.",
+			Answer:   "يمكن التقديم عبر صفحة الانضمام ورفع السجل التجاري ورخصة المخزن أو المصنع، ويتم مراجعة الطلب واعتماد الحساب وبدء ربط المخزون خلال 24 ساعة عمل.",
 		},
 	}
 }
 
+// faqCategories is the filter rail, in the order a reader meets the subjects.
+func faqCategories() []string {
+	return []string{
+		"عام ونظرة عامة",
+		"الطلبات والتوريد",
+		"الشحن والجودة",
+		"الدفع والسداد",
+		"المرتجعات والضمان",
+		"انضمام الموردين",
+	}
+}
+
+// FAQPage.
+//
+// Brought onto the same ledger the other three public pages use: a masthead, a
+// filter rail that is the same device as the role switch on /how-it-works and
+// the link rail in the navigation bar, and questions as ruled rows.
+//
+// What it replaced: a hero card with a gradient bar across its top, a row of
+// pill tabs, and every question inside its own bordered card carrying a
+// coloured category badge. Nine cards in a column is nine borders the reader
+// has to look past to find the one question they came for; the category is a
+// small grey line above the question now, because it is context, not a label to
+// be highlighted.
 templ FAQPage(lang, dir, customTitle, customSubtitle string) {
 	@layouts.PublicShell("الأسئلة الشائعة وإرشادات الاستخدام | FAQ", lang, dir) {
-		<div class="faq-page-container" x-data="{ activeCategory: 'all' }">
-			
-			<!-- Hero Header -->
-			<div class="faq-hero-card">
-				<div class="faq-hero-badge">
-					@components.IconHelpCircle("icon-xs")
-					<span>مركز المساعدة والمعلومات</span>
-				</div>
-				<h1 class="faq-hero-title">
+		<article class="mk-page" x-data="{ cat: 'all' }">
+			<header class="mk-masthead">
+				<p class="mk-eyebrow">مركز المساعدة</p>
+				<h1 class="mk-title">
 					if customTitle != "" {
 						{ customTitle }
 					} else {
-						الأسئلة الشائعة وإرشادات الاستخدام
+						الأسئلة الشائعة
 					}
 				</h1>
-				<p class="faq-hero-subtitle">
+				<p class="mk-lede">
 					if customSubtitle != "" {
 						{ customSubtitle }
 					} else {
-						كل ما تحتاج لمعرفته حول طلب وتوريد الأدوية، شروط التعامل، وسياسات الدفع والشحن عبر منصة دواء 24.
+						الطلب والتوريد، الشحن وسلسلة التبريد، الدفع والمرتجعات — في سطور.
 					}
 				</p>
+			</header>
+
+			<div class="mk-rail" role="tablist" aria-label="تصفية حسب الموضوع">
+				<button
+					type="button"
+					role="tab"
+					class="mk-switch-btn"
+					:class="{ 'is-on': cat === 'all' }"
+					:aria-selected="cat === 'all' ? 'true' : 'false'"
+					@click="cat = 'all'"
+				>الكل</button>
+				for _, c := range faqCategories() {
+					<button
+						type="button"
+						role="tab"
+						class="mk-switch-btn"
+						:class={ "{ 'is-on': cat === '" + c + "' }" }
+						:aria-selected={ "cat === '" + c + "' ? 'true' : 'false'" }
+						@click={ "cat = '" + c + "'" }
+					>{ c }</button>
+				}
 			</div>
 
-			<!-- Category Filter Tabs -->
-			<div class="faq-tabs-nav">
-				<button
-					type="button"
-					@click="activeCategory = 'all'"
-					class="faq-tab-btn"
-					:class="{ 'active': activeCategory === 'all' }"
-				>
-					جميع الأسئلة
-				</button>
-				<button
-					type="button"
-					@click="activeCategory = 'عام ونظرة عامة'"
-					class="faq-tab-btn"
-					:class="{ 'active': activeCategory === 'عام ونظرة عامة' }"
-				>
-					عام ونظرة عامة
-				</button>
-				<button
-					type="button"
-					@click="activeCategory = 'الطلبات والتوريد'"
-					class="faq-tab-btn"
-					:class="{ 'active': activeCategory === 'الطلبات والتوريد' }"
-				>
-					الطلبات والتوريد
-				</button>
-				<button
-					type="button"
-					@click="activeCategory = 'الشحن والجودة'"
-					class="faq-tab-btn"
-					:class="{ 'active': activeCategory === 'الشحن والجودة' }"
-				>
-					الشحن وسلسلة التبريد
-				</button>
-				<button
-					type="button"
-					@click="activeCategory = 'الدفع والفواتير'"
-					class="faq-tab-btn"
-					:class="{ 'active': activeCategory === 'الدفع والفواتير' }"
-				>
-					الدفع والفواتير
-				</button>
-				<button
-					type="button"
-					@click="activeCategory = 'انضمام الموردين'"
-					class="faq-tab-btn"
-					:class="{ 'active': activeCategory === 'انضمام الموردين' }"
-				>
-					انضمام الموردين
-				</button>
-			</div>
-
-			<!-- FAQ List Accordion -->
-			<div class="faq-accordion-list">
+			<div class="mk-qa-list">
 				for _, item := range GetFAQs() {
 					<div
-						class="faq-accordion-item"
+						class="mk-qa"
 						x-data="{ open: false }"
-						x-show={ "activeCategory === 'all' || activeCategory === '" + item.Category + "'" }
-						:class="{ 'is-open': open }"
+						x-show={ "cat === 'all' || cat === '" + item.Category + "'" }
 					>
-						<div
-							class="faq-accordion-header"
+						<button
+							type="button"
+							class="mk-qa-head"
 							@click="open = !open"
+							:aria-expanded="open ? 'true' : 'false'"
 						>
-							<div class="faq-question-group">
-								<span class="badge badge-sky">
-									{ item.Category }
-								</span>
-								<h3 class="faq-question-title">
-									{ item.Question }
-								</h3>
-							</div>
-							<div class="faq-chevron">
-								@components.IconChevronDown("icon-sm")
-							</div>
-						</div>
-						<div
-							class="faq-accordion-body"
-							x-show="open"
-							x-cloak
-							x-collapse
-						>
+							<span class="mk-qa-q">
+								<span class="mk-qa-cat">{ item.Category }</span>
+								<span class="mk-qa-title">{ item.Question }</span>
+							</span>
+							@components.IconChevronDown("icon-sm mk-qa-chevron")
+						</button>
+						<div class="mk-qa-body" x-show="open" x-cloak x-collapse>
 							{ item.Answer }
 						</div>
 					</div>
 				}
 			</div>
 
-			<!-- Contact Support Card -->
-			<div class="faq-contact-card">
-				<h3 class="faq-contact-title">
-					لم تجد إجابة لاستفسارك؟
-				</h3>
-				<p class="faq-contact-desc">
-					فريق الدعم الفني وخدمة العملاء متواجد على مدار الساعة لمساعدة الصيدليات والشركات الموردة.
-				</p>
-				<div class="faq-contact-actions">
-					<a href="/contact" class="btn btn-primary btn-sm">
-						@components.IconMail("icon-xs")
-						<span>إرسال استفسار عبر نموذج التواصل</span>
-					</a>
-					<a href="tel:01065397000" class="btn btn-secondary btn-sm">
+			<section class="glass-panel mk-close">
+				<div class="mk-close-text">
+					<h2 class="mk-close-title">لم تجد إجابة؟</h2>
+					<p class="mk-close-desc">
+						الدعم الفني وخدمة العملاء متاح على مدار الساعة للصيدليات والشركات الموردة.
+					</p>
+				</div>
+				<div class="mk-close-actions">
+					<a href="tel:01065397000" class="btn btn-primary">
 						@components.IconPhone("icon-xs")
-						<span>اتصال هاتفي: 01065397000</span>
+						<span>01065397000</span>
+					</a>
+					<a href="/contact" class="btn btn-secondary">
+						@components.IconMail("icon-xs")
+						<span>أرسل استفساراً</span>
 					</a>
 				</div>
-			</div>
-		</div>
+			</section>
+		</article>
 	}
 }
-

@@ -256,14 +256,6 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
 	r.Post("/requests", h.RequestCreateSubmit)
-
-	// Notifications. The bell read-partials (dropdown, unread-badge) are mounted
-	// in RegisterPreApprovalRoutes so the header bell resolves for pending
-	// accounts without a redirect; the full page and the write actions stay
-	// approved-only here.
-	r.Get("/notifications", h.NotificationsPage)
-	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
-	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
 }
 
 // RegisterCustomerSharedRoutes mounts Tier C customer audience-specific shared paths.

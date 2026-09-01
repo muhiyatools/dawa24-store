@@ -223,7 +223,12 @@
       --text-primary:   oklch(0.96 0.008 240);
       --text-secondary: oklch(0.80 0.015 240);
       --text-muted:     oklch(0.64 0.015 240);
-      --text-faint:     oklch(0.44 0.015 240);
+      /* Lifted from 0.44. Small tracked labels and timestamps sit on this token,
+       and against the dark ground they were reading as absent rather than as
+       quiet -- light text on dark reads lighter than the same value does on
+       light, so the dark theme needs a higher lightness for the same
+       perceived weight, not the mirrored one. */
+    --text-faint:     oklch(0.56 0.015 240);
 
       --primary:        oklch(0.72 0.14 240);
       --primary-hover:  oklch(0.80 0.12 240);
@@ -285,7 +290,12 @@
     --text-primary:   oklch(0.96 0.008 240);
     --text-secondary: oklch(0.80 0.015 240);
     --text-muted:     oklch(0.64 0.015 240);
-    --text-faint:     oklch(0.44 0.015 240);
+    /* Lifted from 0.44. Small tracked labels and timestamps sit on this token,
+       and against the dark ground they were reading as absent rather than as
+       quiet -- light text on dark reads lighter than the same value does on
+       light, so the dark theme needs a higher lightness for the same
+       perceived weight, not the mirrored one. */
+    --text-faint:     oklch(0.56 0.015 240);
 
     --primary:        oklch(0.72 0.14 240);
     --primary-hover:  oklch(0.80 0.12 240);

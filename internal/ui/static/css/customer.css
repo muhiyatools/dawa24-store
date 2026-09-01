@@ -488,7 +488,7 @@
 
 .so-catalog-product-id {
   color: var(--accent);
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
   font-weight: 700;
 }

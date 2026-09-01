@@ -32,6 +32,11 @@ type AboutPageData struct {
 // It reads as a record now: a masthead, a ruled strip of three facts, three
 // indexed sections down a margin spine, and one closing band. The prose is cut
 // to roughly a third; what survived is the part that says something specific.
+//
+// The pillar claiming certified e-invoicing integration with the Egyptian tax
+// authority has been removed rather than softened. It asserted an accreditation
+// the platform does not hold, and a page whose entire argument is "we verify
+// things" cannot carry a claim it has not verified about itself.
 templ AboutPage(lang, dir string, data AboutPageData) {
 	@layouts.PublicShell("من نحن — منصة التوريد والربط الدوائي", lang, dir) {
 		<article class="mk-page">
@@ -53,15 +58,24 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 				</p>
 				<dl class="mk-record">
 					<div class="mk-record-cell">
-						<dt class="mk-record-key">Market</dt>
+						<dt class="mk-record-key">
+							@components.IconMapPin("")
+							<span>Market</span>
+						</dt>
 						<dd class="mk-record-val">جمهورية مصر العربية</dd>
 					</div>
 					<div class="mk-record-cell">
-						<dt class="mk-record-key">Parties</dt>
+						<dt class="mk-record-key">
+							@components.IconUsers("")
+							<span>Parties</span>
+						</dt>
 						<dd class="mk-record-val">صيدليات · مستشفيات · موردون</dd>
 					</div>
 					<div class="mk-record-cell">
-						<dt class="mk-record-key">Support</dt>
+						<dt class="mk-record-key">
+							@components.IconClock("")
+							<span>Support</span>
+						</dt>
 						<dd class="mk-record-val">متاح 24/7</dd>
 					</div>
 				</dl>
@@ -107,7 +121,7 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 						if data.MissionText != "" {
 							{ data.MissionText }
 						} else {
-							نستبدل مكالمات التوريد ورسائل واتساب المتفرقة بمنصة واحدة: مقارنة أسعار حيّة، شراء مباشر، فاتورة إلكترونية معتمدة، وسلسلة تبريد لا تنقطع.
+							نستبدل مكالمات التوريد ورسائل واتساب المتفرقة بمنصة واحدة: مقارنة أسعار حيّة، شراء مباشر، وسلسلة تبريد لا تنقطع من المخزن إلى رفّ الصيدلية.
 						}
 					</p>
 				</div>
@@ -119,31 +133,30 @@ templ AboutPage(lang, dir string, data AboutPageData) {
 					<span class="mk-spine-label">الضمانات</span>
 				</div>
 				<div class="mk-body">
-					<h2 class="mk-heading">أربع ركائز يقوم عليها كل أمر توريد</h2>
+					<h2 class="mk-heading">ثلاث ركائز يقوم عليها كل أمر توريد</h2>
 					<dl class="mk-list">
 						<div class="mk-item">
-							<span class="mk-item-index">01</span>
+							<span class="mk-item-mark" aria-hidden="true">
+								@components.IconShield("")
+							</span>
 							<dt class="mk-item-term">توثيق التراخيص</dt>
 							<dd class="mk-item-desc">
-								السجل التجاري وترخيص هيئة الدواء وقيد نقابة الصيادلة يُراجَعون قبل تفعيل أي حساب — للطرفين.
+								السجل التجاري وترخيص هيئة الدواء وقيد نقابة الصيادلة تُراجَع قبل تفعيل أي حساب — للطرفين.
 							</dd>
 						</div>
 						<div class="mk-item">
-							<span class="mk-item-index">02</span>
+							<span class="mk-item-mark" aria-hidden="true">
+								@components.IconTruck("")
+							</span>
 							<dt class="mk-item-term">سلسلة تبريد معتمدة</dt>
 							<dd class="mk-item-desc">
 								حاويات مبرّدة ومجسّات حرارية على خط السير، للأنسولين والأمصال وكل ما لا يحتمل انقطاع التبريد.
 							</dd>
 						</div>
 						<div class="mk-item">
-							<span class="mk-item-index">03</span>
-							<dt class="mk-item-term">فاتورة إلكترونية</dt>
-							<dd class="mk-item-desc">
-								ربط مباشر مع مصلحة الضرائب المصرية: الفاتورة الضريبية تصدر فور تسليم أمر التوريد، لا بعده بأسبوع.
-							</dd>
-						</div>
-						<div class="mk-item">
-							<span class="mk-item-index">04</span>
+							<span class="mk-item-mark" aria-hidden="true">
+								@components.IconPhone("")
+							</span>
 							<dt class="mk-item-term">دعم صيدلي</dt>
 							<dd class="mk-item-desc">
 								فريق متفرغ للطلبات العاجلة ومتابعة خطوط السير ونواقص السوق، على مدار الساعة.

@@ -183,6 +183,8 @@ func TestNoDashboardRouteIsRegisteredOutsideAGate(t *testing.T) {
 		"/customer/branches/active": "choosing which of your own branches you buy for is not a privilege",
 		"/customer/session":         "singular alias redirecting 301 to /customer/sessions",
 		"/vendor/session":           "singular alias redirecting 301 to /vendor/sessions",
+		"/customer/notifications":   "canonical 301 alias to /notifications",
+		"/vendor/notifications":     "canonical 301 alias to /notifications",
 		"/admin/dashboard":          "reachable by any authenticated staff member; RequireStaff is the gate",
 	}
 

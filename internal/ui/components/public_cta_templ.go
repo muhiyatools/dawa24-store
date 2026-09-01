@@ -15,9 +15,10 @@ import templruntime "github.com/a-h/templ/runtime"
 // paragraph and two large buttons — the block that made all three pages end the
 // same way as every other product page on the internet.
 //
-// It is the last entry in the record now: a heavy rule, the offer stated in one
-// line, and the two routes in as what they actually are — one for a pharmacy,
-// one for a supplier. Two weights of button, not two of the same button.
+// It is the last entry in the record now: the platform's panel component tinted
+// with the brand subtle, the offer stated in one line, and the two routes in as
+// what they actually are — one for a pharmacy, one for a supplier. Two weights
+// of button, not two of the same button.
 func PublicCTA(title, desc, lang string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -39,7 +40,7 @@ func PublicCTA(title, desc, lang string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"mk-close\"><div class=\"mk-close-text\"><h2 class=\"mk-close-title\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"glass-panel mk-close\"><div class=\"mk-close-text\"><h2 class=\"mk-close-title\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -47,7 +48,7 @@ func PublicCTA(title, desc, lang string) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 18, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 19, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -67,7 +68,7 @@ func PublicCTA(title, desc, lang string) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(desc)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 25, Col: 11}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/public_cta.templ`, Line: 26, Col: 11}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -79,7 +80,23 @@ func PublicCTA(title, desc, lang string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p></div><div class=\"mk-close-actions\"><a href=\"/auth/register\" class=\"mk-btn mk-btn--ink\">تسجيل صيدلية</a> <a href=\"/auth/register\" class=\"mk-btn mk-btn--outline\">انضمام كمورد</a></div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p></div><div class=\"mk-close-actions\"><a href=\"/auth/register\" class=\"btn btn-primary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconPill("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>تسجيل صيدلية</span></a> <a href=\"/auth/register\" class=\"btn btn-secondary\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconBuilding("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>انضمام كمورد</span></a></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

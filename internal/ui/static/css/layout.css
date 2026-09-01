@@ -538,7 +538,7 @@
 /* ==========================================================================
    The public marketing header, the branch selector, the mobile drawer and the
    notification bell used to live here — roughly 470 lines of navigation with
-   hard-coded #111a2e dark-mode patches, five `transition: all` rules and two
+   hard-coded #111a2e dark-mode patches, five blanket transitions and two
    960px breakpoints that matched nothing else in the system.
 
    They are all in nav.css now, rebuilt on the tokens, as one visual system

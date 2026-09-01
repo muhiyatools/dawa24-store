@@ -294,6 +294,9 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 	r.Get("/customer/session", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/customer/sessions", http.StatusMovedPermanently)
 	})
+	r.Get("/customer/notifications", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/notifications", http.StatusMovedPermanently)
+	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view", "pharmacy.dashboard.view"))
 		g.Get("/customer/sessions", h.TenantSessionsPage)

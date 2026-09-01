@@ -161,18 +161,28 @@
   .nav-brand-mark {
     display: grid;
     place-items: center;
-    inline-size: 2.125rem;
-    block-size: 2.125rem;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
     flex-shrink: 0;
+    padding: 3px;
     overflow: hidden;
     border: 1px solid var(--nav-rule);
     border-radius: var(--radius-sm);
     background: var(--bg-surface-sunken);
   }
 
+  /* The logo sat high in its frame. An <img> is an inline replaced element, so
+     it rides the text baseline and leaves the descender gap below it — the
+     picture ends up above the centre of the box no matter what object-fit says.
+     display:block plus the grid's place-items:center puts it on the box's
+     centre, and max-* rather than 100% keeps a wordmark from being stretched to
+     a square. */
   .nav-brand-mark img {
-    inline-size: 100%;
-    block-size: 100%;
+    display: block;
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: 100%;
+    max-block-size: 100%;
     object-fit: contain;
   }
 
@@ -192,23 +202,10 @@
     white-space: nowrap;
   }
 
-  /* The mono descriptor is the "batch label" note in the lockup. It is the
-     only place the mono face appears in the chrome, which is what keeps it
-     meaningful rather than decorative. */
-  .nav-brand-tag {
-    font-family: var(--font-mono);
-    font-size: 0.5625rem;
-    font-weight: 500;
-    letter-spacing: 0.22em;
-    line-height: 1;
-    color: var(--text-faint);
-    white-space: nowrap;
-    text-transform: uppercase;
-  }
-
-  @media (max-width: 640px) {
-    .nav-brand-tag { display: none; }
-  }
+  /* The lockup is the mark and the name. A tracked Latin descriptor under an
+     Arabic wordmark ("DAWA-24 SUPPLY") was a second name for the same thing in
+     a script the audience does not read the brand in, and it forced the mark
+     off the bar's optical centre to make room. */
 
   /* ========================================================================
      3. THE MEASURE RAIL — public links
@@ -586,7 +583,18 @@
     text-align: start;
   }
 
+  /* Menu section labels carry translated copy, so they get no tracking under
+     RTL: letter-spacing pulls apart the joins between Arabic letters, which is
+     a rendering fault rather than a style. The tracked, uppercased, monospaced
+     treatment applies only under [dir="ltr"], or to labels whose content is
+     Latin by construction (.nav-brand-tag, .nav-trigger-label). */
   .nav-menu-eyebrow {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  [dir="ltr"] .nav-menu-eyebrow {
     font-family: var(--font-mono);
     font-size: 0.5625rem;
     font-weight: 500;
@@ -618,6 +626,12 @@
 
   .nav-menu-label {
     padding: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  [dir="ltr"] .nav-menu-label {
     font-family: var(--font-mono);
     font-size: 0.5625rem;
     font-weight: 500;
@@ -726,11 +740,17 @@
 
   /* --- settings segments (theme, language) ------------------------------- */
 
+  /* Theme and language sit side by side on one row. Stacked, each with its own
+     label above a full-width segmented control, they made the settings tail
+     taller than the whole list of destinations above it — two rarely-used
+     preferences outweighing the menu's actual job. Halved, and the labels are
+     inline with the controls. */
   .nav-menu-settings {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-    padding: var(--space-sm) var(--space-md);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
     border-block-start: 1px solid var(--border-subtle);
   }
 
@@ -750,8 +770,8 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-2xs);
-    min-block-size: 2rem;
-    padding-inline: var(--space-2xs);
+    min-block-size: 1.75rem;
+    padding-inline: var(--space-xs);
     border: none;
     border-radius: calc(var(--radius-md) - 3px);
     background: transparent;
@@ -779,10 +799,16 @@
     box-shadow: var(--shadow-xs);
   }
 
-  .nav-seg--flags .nav-seg-btn { min-block-size: 2.25rem; }
+  .nav-seg--flags .nav-seg-btn { min-block-size: 1.75rem; padding-inline: var(--space-sm); }
 
-  @media (max-width: 640px) {
+  .nav-seg--flags .nav-seg-btn svg { inline-size: 1rem; block-size: 1rem; }
+
+  /* Below the tablet breakpoint the theme labels drop and the icon carries the
+     meaning, so the row still fits beside the language flags. */
+  @media (max-width: 768px) {
     .nav-seg-btn span { display: none; }
+    .nav-seg-btn { min-block-size: 2rem; }
+    .nav-seg--flags .nav-seg-btn { min-block-size: 2rem; }
   }
 
   /* --- the menu becomes a sheet on a phone -------------------------------
@@ -1061,6 +1087,12 @@
   .nav-drawer-label {
     padding-inline: var(--space-xs);
     padding-block-end: var(--space-xs);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  [dir="ltr"] .nav-drawer-label {
     font-family: var(--font-mono);
     font-size: 0.5625rem;
     font-weight: 500;

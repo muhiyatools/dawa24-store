@@ -18,16 +18,19 @@ import (
 // Two changes matter beyond the styling.
 //
 // The channels were four boxes each carrying an icon in a rounded square beside
-// a label beside a value. A phone number does not need an icon of a phone next
-// to the words "الخط الساخن"; the words already say it. They are ruled rows
-// now, and the hotline — the one thing a pharmacist under pressure is actually
-// looking for — is the largest element in the column, set in the mono face at a
-// size a thumb can hit, rather than being one card of four identical cards.
+// a label beside a value. They are ruled rows now, and the hotline — the one
+// thing a pharmacist under pressure is actually looking for — is the largest
+// element in the column, set in the mono face at a size a thumb can hit, rather
+// than being one card of four identical cards. The icon moved into the label
+// itself: WhatsApp in this market is a mark before it is a word, and a reader
+// finds the row by its mark before they have read anything.
 //
-// The form's inputs are ruled rather than boxed. Eight bordered boxes stacked
-// in a card is a lot of chrome for six pieces of information; a hairline under
-// each field is how a paper form reads, and the accent then means something
-// when it appears on focus.
+// The form uses the platform's own field components — .form-group,
+// .form-label, .form-input, .form-select, .form-textarea, .btn — rather than a
+// set written for this page. The page-specific set it replaced was also losing
+// the cascade: components.css styles `input[type="text"]` by element, which
+// outranks a class, so the text fields rendered as the platform's boxed input
+// while the select and textarea rendered as this page's ruled one.
 func ContactPage(lang, dir string, submitted bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -79,7 +82,63 @@ func ContactPage(lang, dir string, submitted bool) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"mk-contact\"><section class=\"mk-channels\" aria-label=\"قنوات التواصل المباشر\"><div class=\"mk-channel mk-channel--lead\"><span class=\"mk-channel-key\">Hotline</span> <a href=\"tel:01065397000\" class=\"mk-channel-val\">01065397000</a> <span class=\"mk-channel-note\">المبيعات والطلبيات — يومياً</span></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">WhatsApp</span> <a href=\"https://wa.me/201065397000\" target=\"_blank\" rel=\"noopener\" class=\"mk-channel-val\">محادثة مباشرة مع مسؤول التوزيع</a> <span class=\"mk-channel-note\">للطلبيات الطارئة ونواقص اليوم</span></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">Email</span> <a href=\"mailto:support@dawa24.com\" class=\"mk-channel-val mk-channel-val--mono\" dir=\"ltr\">support@dawa24.com</a></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">Office</span> <span class=\"mk-channel-val\">القاهرة، جمهورية مصر العربية</span></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">Hours</span> <span class=\"mk-channel-val\">الدعم الفني 24/7</span> <span class=\"mk-channel-note\">للصيدليات والمخازن المسجّلة</span></div></section><div class=\"mk-panel\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">Enquiry</span> <span class=\"mk-panel-ref\">FORM · 01</span></div><form method=\"POST\" action=\"/contact\" class=\"mk-form\"><div class=\"mk-form-grid\"><div class=\"mk-field\"><label class=\"mk-label\" for=\"c-name\">الاسم بالكامل</label> <input type=\"text\" id=\"c-name\" name=\"name\" required class=\"mk-input\" placeholder=\"د. أحمد محمود\"></div><div class=\"mk-field\"><label class=\"mk-label\" for=\"c-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"c-email\" name=\"email\" required class=\"mk-input\" placeholder=\"name@pharmacy.com\" dir=\"ltr\"></div><div class=\"mk-field\"><label class=\"mk-label\" for=\"c-phone\">الهاتف أو الواتساب</label> <input type=\"tel\" id=\"c-phone\" name=\"phone\" required class=\"mk-input\" placeholder=\"01012345678\" dir=\"ltr\"></div><div class=\"mk-field\"><label class=\"mk-label\" for=\"c-subject\">نوع الاستفسار</label> <select id=\"c-subject\" name=\"subject\" required class=\"mk-input\"><option value=\"استفسار عن طلبية أو توريد\">استفسار عن طلبية أو توريد</option> <option value=\"طلب انضمام صيدلية\">طلب انضمام صيدلية جديدة</option> <option value=\"طلب انضمام مورد أو شركة\">طلب انضمام مورد أو شركة أدوية</option> <option value=\"استفسار عن الفواتير والمدفوعات\">الفواتير والمدفوعات</option> <option value=\"دعم فني واقتراحات\">دعم فني واقتراحات</option></select></div><div class=\"mk-field mk-field--wide\"><label class=\"mk-label\" for=\"c-message\">الرسالة</label> <textarea id=\"c-message\" name=\"message\" required rows=\"5\" class=\"mk-input\" placeholder=\"اكتب تفاصيل طلبك أو استفسارك…\"></textarea></div></div><div class=\"mk-form-foot\"><span class=\"mk-required-note\">كل الحقول مطلوبة.</span> <button type=\"submit\" class=\"mk-btn mk-btn--ink\">إرسال</button></div></form></div></div></article>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"mk-contact\"><section class=\"mk-channels\" aria-label=\"قنوات التواصل المباشر\"><div class=\"mk-channel mk-channel--lead\"><span class=\"mk-channel-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconPhone("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>Hotline</span></span> <a href=\"tel:01065397000\" class=\"mk-channel-val\">01065397000</a> <span class=\"mk-channel-note\">المبيعات والطلبيات — يومياً</span></div><div class=\"mk-channel mk-channel--wa\"><span class=\"mk-channel-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconWhatsApp("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>WhatsApp</span></span> <a href=\"https://wa.me/201065397000\" target=\"_blank\" rel=\"noopener\" class=\"mk-channel-val\">محادثة مباشرة مع مسؤول التوزيع</a> <span class=\"mk-channel-note\">للطلبيات الطارئة ونواقص اليوم</span></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconMail("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>Email</span></span> <a href=\"mailto:support@dawa24.com\" class=\"mk-channel-val mk-channel-val--mono\" dir=\"ltr\">support@dawa24.com</a></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBuilding("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>Office</span></span> <span class=\"mk-channel-val\">القاهرة، جمهورية مصر العربية</span></div><div class=\"mk-channel\"><span class=\"mk-channel-key\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconClock("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>Hours</span></span> <span class=\"mk-channel-val\">الدعم الفني 24/7</span> <span class=\"mk-channel-note\">للصيدليات والمخازن المسجّلة</span></div></section><div class=\"glass-panel mk-specimen\"><div class=\"mk-panel-head\"><span class=\"mk-panel-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSend("").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>أرسل استفسارك</span></span> <span class=\"mk-panel-ref\">FORM · 01</span></div><form method=\"POST\" action=\"/contact\" class=\"mk-form\"><div class=\"mk-form-grid\"><div class=\"form-group\"><label class=\"form-label\" for=\"c-name\">الاسم بالكامل</label> <input type=\"text\" id=\"c-name\" name=\"name\" required class=\"form-input\" placeholder=\"د. أحمد محمود\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"c-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"c-email\" name=\"email\" required class=\"form-input\" placeholder=\"name@pharmacy.com\" dir=\"ltr\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"c-phone\">الهاتف أو الواتساب</label> <input type=\"tel\" id=\"c-phone\" name=\"phone\" required class=\"form-input\" placeholder=\"01012345678\" dir=\"ltr\"></div><div class=\"form-group\"><label class=\"form-label\" for=\"c-subject\">نوع الاستفسار</label> <select id=\"c-subject\" name=\"subject\" required class=\"form-select\"><option value=\"استفسار عن طلبية أو توريد\">استفسار عن طلبية أو توريد</option> <option value=\"طلب انضمام صيدلية\">طلب انضمام صيدلية جديدة</option> <option value=\"طلب انضمام مورد أو شركة\">طلب انضمام مورد أو شركة أدوية</option> <option value=\"استفسار عن المدفوعات\">المدفوعات والسداد</option> <option value=\"دعم فني واقتراحات\">دعم فني واقتراحات</option></select></div><div class=\"form-group mk-field--wide\"><label class=\"form-label\" for=\"c-message\">الرسالة</label> <textarea id=\"c-message\" name=\"message\" required rows=\"5\" class=\"form-textarea\" placeholder=\"اكتب تفاصيل طلبك أو استفسارك…\"></textarea></div></div><div class=\"mk-form-foot\"><span class=\"mk-required-note\">كل الحقول مطلوبة.</span> <button type=\"submit\" class=\"btn btn-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSend("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>إرسال</span></button></div></form></div></div></article>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
