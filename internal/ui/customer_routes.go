@@ -37,13 +37,13 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 
 	r.Group(func(g chi.Router) {
 		g.Use(h.scrape.Protect)
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view", "pharmacy.dashboard.view"))
 		g.Get("/catalog", h.CustomerCatalogPage)
 		g.Get("/customer/catalog", h.CustomerCatalogPage)
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view", "pharmacy.dashboard.view"))
 		g.Get("/customer/purchase-request", h.CustomerPurchaseRequestWizardPage)
 		g.Get("/catalog/{id}", h.CustomerProductDetailPage)
 		g.Get("/customer/catalog/{id}", h.CustomerProductDetailPage)
@@ -126,12 +126,9 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.favorite.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.favorite.view", "pharmacy.favorite.manage", "pharmacy.dashboard.view"))
 		g.Get("/favorites", h.FavoritesPage)
 		g.Get("/customer/favorites", h.FavoritesPage)
-	})
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.favorite.manage"))
 		g.Post("/favorites/{id}/remove", h.FavoriteRemoveSubmit)
 		g.Post("/favorites/{id}/add", h.FavoriteAddSubmit)
 		g.Post("/favorites/{id}/toggle", h.FavoriteToggleSubmit)

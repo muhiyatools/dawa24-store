@@ -1036,7 +1036,7 @@
 /* ---- Catalog Page Layout & Sidebar Filter System ---- */
 .catalog-main-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: minmax(0, 1fr) 280px;
   gap: 1.5rem;
   align-items: start;
 }

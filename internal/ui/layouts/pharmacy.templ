@@ -28,7 +28,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 								<span class="sidebar-brand-subtitle">بوابة الصيدلية المعتمدة</span>
 							</div>
 						</div>
-					<button type="button" class="btn btn-icon sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
+					<button type="button" class="sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
 						@components.IconSidebarToggle("icon-xs")
 					</button>
 				</div>
@@ -61,29 +61,58 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 templ PharmacyBranchSelector(ctx context.Context) {
 	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-			<div class="custom-branch-pill">
-				<form method="POST" action="/customer/set-branch" class="branch-select-form">
-					<div class="branch-pill-content">
-						@components.IconMapPin("icon-xs text-brand")
-						<span class="branch-pill-label">الفرع:</span>
-						<select
-							name="branch_id"
-							class="branch-pill-native-select"
-							onchange="this.form.submit()"
-							title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
-						>
+			<div class="custom-branch-dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+				<button
+					type="button"
+					class="custom-branch-trigger"
+					@click="open = !open"
+					:aria-expanded="open ? 'true' : 'false'"
+					title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
+				>
+					<span class="branch-trigger-pin">
+						@components.IconMapPin("icon-xs")
+					</span>
+					<span class="branch-trigger-text">
+						<span class="branch-trigger-label">الفرع:</span>
+						<strong class="branch-trigger-name">
 							for _, b := range buying.Branches {
-								<option
-									value={ fmt.Sprintf("%d", b.ID) }
-									selected?={ buying.Active != nil && *buying.Active == b.ID }
-								>
+								if buying.Active != nil && *buying.Active == b.ID {
 									{ b.Name }
-								</option>
+								}
 							}
-						</select>
-						@components.IconChevronDown("icon-2xs text-muted")
+						</strong>
+					</span>
+					@components.IconChevronDown("icon-2xs branch-trigger-chevron")
+				</button>
+				<div
+					class="custom-branch-menu"
+					x-show="open"
+					x-cloak
+					x-transition.opacity.duration.120ms
+				>
+					<div class="branch-menu-header">
+						<span>اختر فرع التوريد النشط</span>
 					</div>
-				</form>
+					<div class="branch-menu-items">
+						for _, b := range buying.Branches {
+							<form method="POST" action="/customer/set-branch" class="m-0">
+								<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", b.ID) } />
+								<button
+									type="submit"
+									class={ "branch-menu-option", templ.KV("is-active", buying.Active != nil && *buying.Active == b.ID) }
+								>
+									<div class="d-flex items-center gap-2">
+										<span class="branch-dot"></span>
+										<span class="branch-option-name">{ b.Name }</span>
+									</div>
+									if buying.Active != nil && *buying.Active == b.ID {
+										@components.IconCheck("icon-xs text-brand")
+									}
+								</button>
+							</form>
+						}
+					</div>
+				</div>
 			</div>
 		}
 	}

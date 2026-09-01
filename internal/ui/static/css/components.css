@@ -2729,7 +2729,27 @@ input:focus {
    Alpine state names -- activeTab, filterTab, policyFilter -- which appear
    inside :class bindings and are never CSS selectors. */
 .sidebar-brand { display: flex; align-items: center; gap: var(--space-sm); min-inline-size: 0; }
-.sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: var(--radius-md, 0.5rem);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.sidebar-toggle:hover {
+  background: var(--bg-surface-sunken, rgba(255, 255, 255, 0.06));
+  color: var(--text-primary, #ffffff);
+  border-color: var(--border-card, rgba(255, 255, 255, 0.1));
+}
 .badge-neutral {
   display: inline-flex; align-items: center; gap: var(--space-2xs);
   padding: 0.15rem var(--space-xs); font-size: var(--text-xs); font-weight: 600;
@@ -3673,7 +3693,7 @@ input:focus {
 /* B2B E-Commerce Catalog & Product Card System */
 .catalog-main-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 280px;
   gap: 1.5rem;
   align-items: start;
   margin-bottom: 2rem;
