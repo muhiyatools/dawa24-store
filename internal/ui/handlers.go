@@ -272,13 +272,18 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 func (h *UIHandler) RegisterCustomerSharedRoutes(r chi.Router) {
 	r.Get("/customer/documents", h.OrganizationDocumentsPage)
 	r.Get("/customer/documents/{id}/view", h.DocumentViewHandler)
+	r.Get("/customer/documents/{id}/download", h.DocumentDownloadHandler)
+	r.Post("/customer/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/customer/documents/delete", h.OrganizationDocumentDeleteSubmit)
 }
 
 // RegisterVendorSharedRoutes mounts Tier C vendor audience-specific shared paths.
 func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
 	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
-	r.Get("/vendor/invoices", h.InvoicesPage)
+	r.Get("/vendor/documents/{id}/download", h.DocumentDownloadHandler)
+	r.Post("/vendor/documents/upload", h.OrganizationDocumentsUploadSubmit)
+	r.Post("/vendor/documents/delete", h.OrganizationDocumentDeleteSubmit)
 }
 
 // CapsuleAssistantPanel renders the lazy-loaded Capsule AI assistant drawer over HTMX.

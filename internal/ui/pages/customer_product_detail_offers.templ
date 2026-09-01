@@ -1,0 +1,120 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+)
+
+templ CustomerProductDetailOffersTable(product *catalog.Product, offers []SupplierOffer) {
+	if len(offers) > 1 {
+		<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
+			<div class="p-4 px-6 border-b flex-between items-center">
+				<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
+					<span>عروض الموردين الآخرين لنفس الصنف</span>
+					<span class="badge badge-slate text-xs font-bold">{ fmt.Sprintf("%d موردين", len(offers)) }</span>
+				</h3>
+			</div>
+
+			<div class="table-container m-0 overflow-x-auto">
+				<table class="data-table m-0 text-xs w-full">
+					<thead>
+						<tr>
+							<th>المورد والفرع</th>
+							<th class="text-end">سعر الجمهور</th>
+							<th class="text-center">نسبة الخصم</th>
+							<th class="text-end">السعر بعد الخصم</th>
+							<th>المخزون المتاح</th>
+							<th class="text-center">حالة التغطية</th>
+							<th class="text-center">الشراء</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, off := range offers {
+							<tr>
+								<!-- Supplier -->
+								<td>
+									<div class="font-bold text-primary text-xs d-flex items-center gap-1">
+										<span>{ off.SupplierName }</span>
+										if off.IsVerified {
+											<span class="badge badge-emerald text-xs font-bold">معتمد</span>
+										}
+									</div>
+									if off.BranchName != "" {
+										<div class="text-xs text-muted mt-0.5">
+											{ off.BranchName }
+										</div>
+									}
+								</td>
+
+								<!-- Public Price -->
+								<td class="text-end tabular-nums font-bold text-xs text-primary">
+									if off.OldPrice.IsPositive() {
+										{ off.OldPrice.String() } ج.م
+									} else {
+										{ off.Price.String() } ج.م
+									}
+								</td>
+
+								<!-- Discount Percentage -->
+								<td class="text-center">
+									if off.DiscountBPS > 0 {
+										<span class="badge badge-emerald text-xs font-bold">
+											{ fmt.Sprintf("%.1f%%", float64(off.DiscountBPS)/100.0) }
+										</span>
+									} else {
+										<span class="text-xs text-muted font-medium">0%</span>
+									}
+								</td>
+
+								<!-- Net Price -->
+								<td class="text-end tabular-nums font-black text-brand text-xs">
+									{ off.Price.String() } ج.م
+								</td>
+
+								<!-- Stock -->
+								<td class="text-xs">
+									if off.AvailableStock > 0 {
+										<span class="text-brand font-bold">{ fmt.Sprintf("%d عبوة", off.AvailableStock) }</span>
+									} else {
+										<span class="text-danger font-bold">نفد الرصيد</span>
+									}
+								</td>
+
+								<!-- Coverage -->
+								<td class="text-center">
+									if off.IsCovered {
+										<span class="badge badge-emerald text-xs font-bold">مشمول بالتغطية</span>
+									} else {
+										<span class="badge badge-rose text-xs font-bold">خارج التغطية</span>
+									}
+								</td>
+
+								<!-- Action -->
+								<td class="text-center">
+									if off.CanAddToCart {
+										<form method="POST" action="/cart/add" class="d-flex items-center justify-center gap-1 m-0">
+											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />
+											<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
+											<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
+											<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
+											<input type="hidden" name="offer_price" value={ off.Price.String() } />
+											<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) } />
+											<button type="submit" class="btn btn-primary btn-xs font-bold px-3">
+												<span>أضف للسلة</span>
+											</button>
+										</form>
+									} else {
+										<button type="button" disabled class="btn btn-secondary btn-xs font-bold opacity-60">
+											غير متاح
+										</button>
+									}
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}

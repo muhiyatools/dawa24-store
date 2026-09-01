@@ -116,6 +116,9 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.session.view", "vendor.dashboard.view"))
 		g.Get("/vendor/sessions", h.TenantSessionsPage)
+		g.Get("/vendor/session", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
+		})
 		g.Get("/vendor/mfa", h.VendorMFAPage)
 		g.Post("/vendor/mfa/setup", h.VendorMFASetupSubmit)
 		g.Post("/vendor/mfa/confirm", h.VendorMFAConfirmSubmit)
@@ -131,9 +134,6 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	// not a company one, and a member locked out of every page must still be
 	// able to secure their own credentials.
 	r.Post("/vendor/password", h.TenantPasswordChangeSubmit)
-	r.Get("/vendor/session", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
-	})
 }
 
 func (h *UIHandler) registerVendorTeamRoutes(r chi.Router) {
@@ -275,6 +275,7 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.payment.view"))
 		g.Get("/vendor/payments", h.VendorPaymentsPage)
+		g.Get("/vendor/invoices", h.InvoicesPage)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.earnings.view"))

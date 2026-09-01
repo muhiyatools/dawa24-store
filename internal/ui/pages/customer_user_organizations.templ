@@ -36,7 +36,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 			}
 
 			<!-- Top Header Banner -->
-			<div class="glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
+			<div class="glass-panel p-5 mb-6 d-flex items-center justify-between flex-wrap gap-4 border rounded-2xl shadow-xs">
 				<div>
 					<div class="d-flex items-center gap-2 mb-1">
 						<div class="user-avatar-badge">
@@ -57,7 +57,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 					</a>
 					<button
 						type="button"
-						class="btn btn-primary btn-sm font-bold gap-1 px-3"
+						class="btn btn-primary btn-sm font-bold gap-1 px-3 shadow-xs"
 						data-modal-open="add-customer-user-org-modal"
 					>
 						@components.IconPlus("icon-xs")
@@ -66,139 +66,32 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				</div>
 			</div>
 
-			<!-- Add Organization Modal -->
-			@components.Modal(components.ModalProps{
-				ID:    "add-customer-user-org-modal",
-				Title: "إضافة وربط منظمة / مورد جديد",
-				Size:  "md",
-			}) {
-				<form method="POST" class="d-flex flex-col gap-3 m-0" action="/customer/user-organization/new">
-					<!-- Live AJAX Vendor Search with Debouncing -->
-					<div class="form-group m-0 position-relative">
-						<label class="form-label text-xs font-bold" for="customer-uo-vendor-search">
-							المورد أو المنشأة المستهدفة <span class="text-danger">*</span>
-						</label>
-						
-						<!-- Hidden Input holding the selected Vendor Organization ID -->
-						<input type="hidden" id="customer-selected-vendor-id" name="vendor_org_id" required value="" />
-
-						<!-- Selected Vendor Chip Card (shown once a vendor is chosen) -->
-						<div id="customer-selected-vendor-chip" class="uo-user-chip d-none">
-							<div class="d-flex items-center gap-2">
-								<div class="user-avatar-badge">
-									@components.IconBuilding("icon-xs")
-								</div>
-								<div>
-									<strong id="customer-selected-vendor-name" class="text-sm text-primary d-block"></strong>
-									<div id="customer-selected-vendor-details" class="text-2xs text-muted font-mono" dir="ltr"></div>
-								</div>
-							</div>
-							<button type="button" class="btn btn-secondary btn-xs text-danger font-bold" onclick="clearCustomerSelectedVendor()">
-								تغيير
-							</button>
-						</div>
-
-						<!-- Search Input Field -->
-						<div id="customer-vendor-search-input-wrapper" class="position-relative">
-							<input
-								type="text"
-								id="customer-uo-vendor-search"
-								placeholder="ابحث باسم المورد، الشركة، أو رقم السجل..."
-								autocomplete="off"
-								class="form-control font-semibold"
-								oninput="handleCustomerVendorSearch(this.value)"
-								onfocus="handleCustomerVendorSearch(this.value)"
-							/>
-							<div id="customer-vendor-search-spinner" class="spinner-container text-muted d-none">
-								⏳
-							</div>
-						</div>
-
-						<!-- Autocomplete Results Dropdown -->
-						<div
-							id="customer-vendor-search-dropdown"
-							class="uo-search-dropdown shadow-md d-none"
-						></div>
-					</div>
-
-					<div class="form-group m-0">
-						<label class="form-label text-xs font-bold" for="add-uo-number">
-							رقم المنظمة لدى المورد (Organization Number) <span class="text-danger">*</span>
-						</label>
-						<input
-							type="text"
-							id="add-uo-number"
-							name="organization_number"
-							required
-							placeholder="مثال: NUM10001 أو 010645645..."
-							class="form-control font-mono font-bold"
-							dir="ltr"
-						/>
-						<span class="text-2xs text-muted mt-1 d-block">
-							كود حساب الصيدلية أو رقم التعريف المسجل به لدى هذا المورد.
-						</span>
-					</div>
-
-					<div class="form-group m-0">
-						<label class="form-label text-xs font-bold" for="add-uo-notes">
-							ملاحظات إضافية (اختياري)
-						</label>
-						<textarea
-							id="add-uo-notes"
-							name="notes"
-							rows="2"
-							placeholder="أي تفاصيل أو ملاحظات للمورد..."
-							class="form-control"
-						></textarea>
-					</div>
-
-					<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-						<button
-							type="button"
-							class="btn btn-secondary font-bold"
-							data-modal-close="add-customer-user-org-modal"
-						>
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary font-bold px-6">
-							حفظ وإرسال الطلب للمورد
-						</button>
-					</div>
-				</form>
-			}
-
-			<!-- Grid of Organization Cards -->
+			<!-- Linked Organizations Cards Grid -->
 			if data == nil || len(data.UserOrgs) == 0 {
-				<div class="glass-panel p-8 text-center">
-					<div class="mb-2 text-2xl text-muted">@components.IconBuilding("icon-lg")</div>
-					<h3 class="font-bold text-base text-primary mb-1">لا توجد منظمات مربوطة حالياً</h3>
-					<p class="text-xs text-secondary m-0 mb-3">يمكنك إضافة وربط حسابك بالموردين والشركات بالضغط على '+ إضافة وربط منظمة جديدة'.</p>
-					<button
-						type="button"
-						class="btn btn-primary btn-sm font-bold gap-1"
-						data-modal-open="add-customer-user-org-modal"
-					>
-						@components.IconPlus("icon-xs")
-						<span>إضافة وربط منظمة الآن</span>
-					</button>
-				</div>
+				@components.EmptyState(components.EmptyStateProps{
+					Title:       "لا توجد منظمات مربوطة حالياً",
+					Message:     "قم بربط حساب صيدليتك بأرقام المنظمات المعتمدة لدى الموردين لتفعيل عروض الأسعار والتسهيلات المخصصة لك.",
+					ActionLabel: "+ إضافة وربط منظمة الآن",
+					ActionURL:   "#",
+				})
 			} else {
-				<div class="d-grid grid-auto-fit-sm gap-4">
+				<div class="user-org-cards-grid mb-6">
 					for _, uo := range data.UserOrgs {
 						if uo != nil {
-							<div class="glass-panel p-4 d-flex flex-col justify-between">
-								<!-- Card Header -->
+							<div class="product-card-glass p-5 rounded-2xl border d-flex flex-col justify-between shadow-xs">
+								<!-- Card Top -->
 								<div>
-									<div class="d-flex items-start justify-between gap-3 mb-3">
-										<div class="d-flex items-center gap-2">
-											<div class="user-avatar-badge">
-												@components.IconBuilding("icon-xs")
+									<!-- Vendor Info & Status Pill -->
+									<div class="d-flex items-start justify-between gap-3 mb-4">
+										<div class="d-flex items-center gap-3">
+											<div class="user-avatar-badge text-primary">
+												@components.IconBuilding("icon-sm")
 											</div>
 											<div>
-												<h3 class="text-sm font-bold text-primary m-0">
+												<h3 class="text-base font-extrabold text-primary m-0">
 													{ uo.VendorOrgName }
 												</h3>
-												<span class="text-2xs text-muted">
+												<span class="text-xs text-muted font-bold">
 													شركة / مورد معتمد
 												</span>
 											</div>
@@ -208,105 +101,70 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 										<div>
 											switch uo.Status {
 												case org.UserOrgStatusApproved:
-													<span class="badge badge-emerald text-2xs font-bold">معتمد ومطابق</span>
+													<span class="badge badge-emerald text-xs font-bold gap-1">
+														@components.IconCheck("icon-2xs")
+														<span>معتمد ومطابق</span>
+													</span>
 												case org.UserOrgStatusRejected:
-													<span class="badge badge-rose text-2xs font-bold">مرفوض</span>
+													<span class="badge badge-rose text-xs font-bold gap-1">
+														@components.IconAlert("icon-2xs")
+														<span>مرفوض</span>
+													</span>
 												default:
-													<span class="badge badge-amber text-2xs font-bold">قيد الانتظار</span>
+													<span class="badge badge-amber text-xs font-bold gap-1">
+														@components.IconClock("icon-2xs")
+														<span>قيد الانتظار</span>
+													</span>
 											}
 										</div>
 									</div>
 
 									<!-- Card Body: Organization Number Display -->
-									<div class="p-3 bg-surface-sunken rounded-lg border mb-3">
-										<div class="text-2xs text-muted font-bold mb-0.5">
-											رقم المنظمة (Organization Number)
+									<div class="p-3.5 bg-surface-sunken rounded-xl border mb-3">
+										<div class="text-2xs text-muted font-bold mb-1">
+											رقم المنظمة لدى المورد (Organization Number)
 										</div>
-										<div class="tabular-nums font-mono text-base font-bold text-primary tracking-wide" dir="ltr">
-											{ uo.OrganizationNumber }
+										<div class="d-flex items-center justify-between">
+											<div class="tabular-nums font-mono text-lg font-black text-brand tracking-wide" dir="ltr">
+												{ uo.OrganizationNumber }
+											</div>
+											<span class="badge badge-slate text-2xs font-mono">مفعل</span>
 										</div>
 										if uo.Notes != "" {
-											<div class="text-2xs text-secondary mt-1.5 pt-1.5 border-t">
+											<div class="text-xs text-secondary mt-2 pt-2 border-t">
 												{ uo.Notes }
 											</div>
 										}
 									</div>
+
+									<!-- Date Added -->
+									<div class="d-flex items-center gap-1 text-2xs text-muted mb-4 font-bold">
+										@components.IconClock("icon-2xs")
+										<span>تاريخ الربط:</span>
+										<span class="tabular-nums text-primary">{ format.Date(uo.CreatedAt, "ar") }</span>
+									</div>
 								</div>
 
-								<!-- Card Footer: Actions & Date -->
-								<div class="d-flex items-center justify-between pt-2 border-t">
-									<div class="d-flex items-center gap-1">
-										<!-- Delete Form -->
-										<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
-											<button type="submit" class="btn btn-secondary btn-icon btn-xs text-danger" title="حذف الربط">
-												@components.IconTrash("icon-xs")
-											</button>
-										</form>
+								<!-- Card Footer: Actions -->
+								<div class="d-flex items-center gap-2 pt-3 border-t">
+									<!-- Edit Button -->
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-bold gap-1.5 flex-1"
+										data-modal-open={ fmt.Sprintf("edit-uo-modal-%d", uo.ID) }
+									>
+										@components.IconEdit("icon-xs")
+										<span>تعديل</span>
+									</button>
 
-										<!-- Edit Button -->
-										<button
-											type="button"
-											class="btn btn-secondary btn-icon btn-xs"
-											title="تعديل رقم المنظمة"
-											data-modal-open={ fmt.Sprintf("edit-uo-modal-%d", uo.ID) }
-										>
-											@components.IconEdit("icon-xs")
+									<!-- Delete Form -->
+									<form method="POST" class="m-0 flex-1" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
+										<button type="submit" class="btn btn-secondary btn-sm text-danger font-bold gap-1.5 w-full">
+											@components.IconTrash("icon-xs")
+											<span>حذف الربط</span>
 										</button>
-									</div>
-
-									<div class="tabular-nums text-2xs text-muted">
-										{ format.Date(uo.CreatedAt, "ar") }
-									</div>
-								</div>
-
-								<!-- Edit Modal -->
-								@components.Modal(components.ModalProps{
-									ID:    fmt.Sprintf("edit-uo-modal-%d", uo.ID),
-									Title: fmt.Sprintf("تعديل بيانات الربط مع %s", uo.VendorOrgName),
-									Size:  "md",
-								}) {
-									<form method="POST" class="d-flex flex-col gap-3 m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)) }>
-										<div class="form-group m-0">
-											<label class="form-label text-xs font-bold" for={ fmt.Sprintf("edit-uo-num-%d", uo.ID) }>
-												رقم المنظمة (Organization Number) <span class="text-danger">*</span>
-											</label>
-											<input
-												type="text"
-												id={ fmt.Sprintf("edit-uo-num-%d", uo.ID) }
-												name="organization_number"
-												value={ uo.OrganizationNumber }
-												required
-												class="form-control font-mono font-bold"
-												dir="ltr"
-											/>
-										</div>
-
-										<div class="form-group m-0">
-											<label class="form-label text-xs font-bold" for={ fmt.Sprintf("edit-uo-notes-%d", uo.ID) }>
-												ملاحظات إضافية
-											</label>
-											<textarea
-												id={ fmt.Sprintf("edit-uo-notes-%d", uo.ID) }
-												name="notes"
-												rows="2"
-												class="form-control"
-											>{ uo.Notes }</textarea>
-										</div>
-
-										<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-											<button
-												type="button"
-												class="btn btn-secondary font-bold"
-												data-modal-close={ fmt.Sprintf("edit-uo-modal-%d", uo.ID) }
-											>
-												إلغاء
-											</button>
-											<button type="submit" class="btn btn-primary font-bold px-6">
-												حفظ التعديلات
-											</button>
-										</div>
 									</form>
-								}
+								</div>
 
 							</div>
 						}
@@ -314,112 +172,19 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				</div>
 			}
 
+			<!-- Modals & Scripts -->
+			@CustomerUserOrgAddModal()
+
+			if data != nil {
+				for _, uo := range data.UserOrgs {
+					if uo != nil {
+						@CustomerUserOrgEditModal(uo)
+					}
+				}
+			}
+
+			@CustomerUserOrgScript()
+
 		</div>
-
-		<script>
-			let customerVendorSearchTimer = null;
-
-			function handleCustomerVendorSearch(val) {
-				clearTimeout(customerVendorSearchTimer);
-				const dropdown = document.getElementById('customer-vendor-search-dropdown');
-				const spinner = document.getElementById('customer-vendor-search-spinner');
-				if (!dropdown) return;
-
-				const query = (val || '').trim();
-				if (!query) {
-					dropdown.classList.add('d-none');
-					dropdown.innerHTML = '';
-					if (spinner) spinner.classList.add('d-none');
-					return;
-				}
-
-				if (spinner) spinner.classList.remove('d-none');
-
-				customerVendorSearchTimer = setTimeout(() => {
-					fetch('/customer/api/vendors/search?q=' + encodeURIComponent(query))
-						.then(res => res.json())
-						.then(vendors => {
-							if (spinner) spinner.classList.add('d-none');
-							if (!vendors || vendors.length === 0) {
-								dropdown.innerHTML = '<div class="p-3 text-xs text-muted text-center">لا توجد شركات أو موردين مطابقين</div>';
-								dropdown.classList.remove('d-none');
-								return;
-							}
-
-							let html = '';
-							vendors.forEach(v => {
-								const safeName = (v.name || 'مورد').replace(/'/g, "\\'");
-								const safeLegal = (v.legal_name || '').replace(/'/g, "\\'");
-								const safeOrgNum = (v.organization_number || '').replace(/'/g, "\\'");
-								const safeTax = (v.tax_number || '').replace(/'/g, "\\'");
-								html += `
-									<div
-										class="uo-search-item"
-										onclick="selectCustomerVendor(${v.id}, '${safeName}', '${safeLegal}', '${safeOrgNum}', '${safeTax}')"
-									>
-										<div>
-											<strong class="text-xs text-primary d-block">${v.name}</strong>
-											<div class="text-2xs text-muted font-mono" dir="ltr">${v.organization_number ? 'كود: ' + v.organization_number + ' • ' : ''}${v.tax_number ? 'ب.ض: ' + v.tax_number : ''}</div>
-										</div>
-										<span class="badge badge-sky text-2xs">#${v.id}</span>
-									</div>
-								`;
-							});
-							dropdown.innerHTML = html;
-							dropdown.classList.remove('d-none');
-						})
-						.catch(err => {
-							if (spinner) spinner.classList.add('d-none');
-							dropdown.innerHTML = '<div class="p-3 text-xs text-danger text-center">حدث خطأ أثناء البحث</div>';
-							dropdown.classList.remove('d-none');
-						});
-				}, 250);
-			}
-
-			function selectCustomerVendor(id, name, legal, orgNum, taxNum) {
-				const hiddenInput = document.getElementById('customer-selected-vendor-id');
-				const chip = document.getElementById('customer-selected-vendor-chip');
-				const chipName = document.getElementById('customer-selected-vendor-name');
-				const chipDetails = document.getElementById('customer-selected-vendor-details');
-				const searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');
-				const dropdown = document.getElementById('customer-vendor-search-dropdown');
-				const searchInput = document.getElementById('customer-uo-vendor-search');
-
-				if (hiddenInput) hiddenInput.value = id;
-				if (chipName) chipName.textContent = name;
-				if (chipDetails) chipDetails.textContent = (orgNum ? 'كود: ' + orgNum + ' • ' : '') + 'ID: #' + id;
-				if (chip) chip.classList.remove('d-none');
-				if (searchWrapper) searchWrapper.classList.add('d-none');
-				if (dropdown) {
-					dropdown.classList.add('d-none');
-					dropdown.innerHTML = '';
-				}
-				if (searchInput) searchInput.value = '';
-			}
-
-			function clearCustomerSelectedVendor() {
-				const hiddenInput = document.getElementById('customer-selected-vendor-id');
-				const chip = document.getElementById('customer-selected-vendor-chip');
-				const searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');
-				const searchInput = document.getElementById('customer-uo-vendor-search');
-
-				if (hiddenInput) hiddenInput.value = '';
-				if (chip) chip.classList.add('d-none');
-				if (searchWrapper) searchWrapper.classList.remove('d-none');
-				if (searchInput) {
-					searchInput.value = '';
-					searchInput.focus();
-				}
-			}
-
-			document.addEventListener('click', (e) => {
-				const dropdown = document.getElementById('customer-vendor-search-dropdown');
-				const searchInput = document.getElementById('customer-uo-vendor-search');
-				if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
-					dropdown.classList.add('d-none');
-				}
-			});
-		</script>
 	}
 }
-

@@ -116,7 +116,7 @@ func CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, 
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Header Banner --><div class=\"glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><div class=\"user-avatar-badge\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Header Banner --><div class=\"glass-panel p-5 mb-6 d-flex items-center justify-between flex-wrap gap-4 border rounded-2xl shadow-xs\"><div><div class=\"d-flex items-center gap-2 mb-1\"><div class=\"user-avatar-badge\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -124,7 +124,7 @@ func CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><h1 class=\"page-title font-bold text-xl m-0\">المنظمات المربوطة (My Organizations)</h1></div><p class=\"text-xs text-secondary m-0\">ربط الصيدلية بالموردين والشركات داخل المنصة باستخدام رقم المنظمة (Organization Number) للحصول على الأسعار المعتمدة والتسهيلات المباشرة.</p></div><div class=\"d-flex items-center gap-2 flex-wrap\"><a href=\"/customer/dashboard\" class=\"btn btn-secondary btn-sm font-bold\"><span>العودة للرئيسية ←</span></a> <button type=\"button\" class=\"btn btn-primary btn-sm font-bold gap-1 px-3\" data-modal-open=\"add-customer-user-org-modal\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><h1 class=\"page-title font-bold text-xl m-0\">المنظمات المربوطة (My Organizations)</h1></div><p class=\"text-xs text-secondary m-0\">ربط الصيدلية بالموردين والشركات داخل المنصة باستخدام رقم المنظمة (Organization Number) للحصول على الأسعار المعتمدة والتسهيلات المباشرة.</p></div><div class=\"d-flex items-center gap-2 flex-wrap\"><a href=\"/customer/dashboard\" class=\"btn btn-secondary btn-sm font-bold\"><span>العودة للرئيسية ←</span></a> <button type=\"button\" class=\"btn btn-primary btn-sm font-bold gap-1 px-3 shadow-xs\" data-modal-open=\"add-customer-user-org-modal\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -132,189 +132,164 @@ func CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>+ إضافة وربط منظمة جديدة</span></button></div></div><!-- Add Organization Modal -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-				if !templ_7745c5c3_IsBuffer {
-					defer func() {
-						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err == nil {
-							templ_7745c5c3_Err = templ_7745c5c3_BufErr
-						}
-					}()
-				}
-				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<form method=\"POST\" class=\"d-flex flex-col gap-3 m-0\" action=\"/customer/user-organization/new\"><!-- Live AJAX Vendor Search with Debouncing --><div class=\"form-group m-0 position-relative\"><label class=\"form-label text-xs font-bold\" for=\"customer-uo-vendor-search\">المورد أو المنشأة المستهدفة <span class=\"text-danger\">*</span></label><!-- Hidden Input holding the selected Vendor Organization ID --><input type=\"hidden\" id=\"customer-selected-vendor-id\" name=\"vendor_org_id\" required value=\"\"><!-- Selected Vendor Chip Card (shown once a vendor is chosen) --><div id=\"customer-selected-vendor-chip\" class=\"uo-user-chip d-none\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconBuilding("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div><strong id=\"customer-selected-vendor-name\" class=\"text-sm text-primary d-block\"></strong><div id=\"customer-selected-vendor-details\" class=\"text-2xs text-muted font-mono\" dir=\"ltr\"></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-xs text-danger font-bold\" onclick=\"clearCustomerSelectedVendor()\">تغيير</button></div><!-- Search Input Field --><div id=\"customer-vendor-search-input-wrapper\" class=\"position-relative\"><input type=\"text\" id=\"customer-uo-vendor-search\" placeholder=\"ابحث باسم المورد، الشركة، أو رقم السجل...\" autocomplete=\"off\" class=\"form-control font-semibold\" oninput=\"handleCustomerVendorSearch(this.value)\" onfocus=\"handleCustomerVendorSearch(this.value)\"><div id=\"customer-vendor-search-spinner\" class=\"spinner-container text-muted d-none\">⏳</div></div><!-- Autocomplete Results Dropdown --><div id=\"customer-vendor-search-dropdown\" class=\"uo-search-dropdown shadow-md d-none\"></div></div><div class=\"form-group m-0\"><label class=\"form-label text-xs font-bold\" for=\"add-uo-number\">رقم المنظمة لدى المورد (Organization Number) <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"add-uo-number\" name=\"organization_number\" required placeholder=\"مثال: NUM10001 أو 010645645...\" class=\"form-control font-mono font-bold\" dir=\"ltr\"> <span class=\"text-2xs text-muted mt-1 d-block\">كود حساب الصيدلية أو رقم التعريف المسجل به لدى هذا المورد.</span></div><div class=\"form-group m-0\"><label class=\"form-label text-xs font-bold\" for=\"add-uo-notes\">ملاحظات إضافية (اختياري)</label> <textarea id=\"add-uo-notes\" name=\"notes\" rows=\"2\" placeholder=\"أي تفاصيل أو ملاحظات للمورد...\" class=\"form-control\"></textarea></div><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-modal-close=\"add-customer-user-org-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ وإرسال الطلب للمورد</button></div></form>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				return nil
-			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{
-				ID:    "add-customer-user-org-modal",
-				Title: "إضافة وربط منظمة / مورد جديد",
-				Size:  "md",
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Grid of Organization Cards -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>+ إضافة وربط منظمة جديدة</span></button></div></div><!-- Linked Organizations Cards Grid -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data == nil || len(data.UserOrgs) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"glass-panel p-8 text-center\"><div class=\"mb-2 text-2xl text-muted\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconBuilding("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><h3 class=\"font-bold text-base text-primary mb-1\">لا توجد منظمات مربوطة حالياً</h3><p class=\"text-xs text-secondary m-0 mb-3\">يمكنك إضافة وربط حسابك بالموردين والشركات بالضغط على '+ إضافة وربط منظمة جديدة'.</p><button type=\"button\" class=\"btn btn-primary btn-sm font-bold gap-1\" data-modal-open=\"add-customer-user-org-modal\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>إضافة وربط منظمة الآن</span></button></div>")
+				templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
+					Title:       "لا توجد منظمات مربوطة حالياً",
+					Message:     "قم بربط حساب صيدليتك بأرقام المنظمات المعتمدة لدى الموردين لتفعيل عروض الأسعار والتسهيلات المخصصة لك.",
+					ActionLabel: "+ إضافة وربط منظمة الآن",
+					ActionURL:   "#",
+				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"d-grid grid-auto-fit-sm gap-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"user-org-cards-grid mb-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, uo := range data.UserOrgs {
 					if uo != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"glass-panel p-4 d-flex flex-col justify-between\"><!-- Card Header --><div><div class=\"d-flex items-start justify-between gap-3 mb-3\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"product-card-glass p-5 rounded-2xl border d-flex flex-col justify-between shadow-xs\"><!-- Card Top --><div><!-- Vendor Info & Status Pill --><div class=\"d-flex items-start justify-between gap-3 mb-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = components.IconBuilding("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div><h3 class=\"text-sm font-bold text-primary m-0\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div><h3 class=\"text-base font-extrabold text-primary m-0\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var6 string
-						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(uo.VendorOrgName)
+						var templ_7745c5c3_Var5 string
+						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(uo.VendorOrgName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 199, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 92, Col: 31}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</h3><span class=\"text-2xs text-muted\">شركة / مورد معتمد</span></div></div><!-- Status Pill --><div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</h3><span class=\"text-xs text-muted font-bold\">شركة / مورد معتمد</span></div></div><!-- Status Pill --><div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						switch uo.Status {
 						case org.UserOrgStatusApproved:
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-emerald text-2xs font-bold\">معتمد ومطابق</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"badge badge-emerald text-xs font-bold gap-1\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = components.IconCheck("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>معتمد ومطابق</span></span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						case org.UserOrgStatusRejected:
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-rose text-2xs font-bold\">مرفوض</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"badge badge-rose text-xs font-bold gap-1\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = components.IconAlert("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>مرفوض</span></span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						default:
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"badge badge-amber text-2xs font-bold\">قيد الانتظار</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-amber text-xs font-bold gap-1\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = components.IconClock("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>قيد الانتظار</span></span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><!-- Card Body: Organization Number Display --><div class=\"p-3 bg-surface-sunken rounded-lg border mb-3\"><div class=\"text-2xs text-muted font-bold mb-0.5\">رقم المنظمة (Organization Number)</div><div class=\"tabular-nums font-mono text-base font-bold text-primary tracking-wide\" dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div><!-- Card Body: Organization Number Display --><div class=\"p-3.5 bg-surface-sunken rounded-xl border mb-3\"><div class=\"text-2xs text-muted font-bold mb-1\">رقم المنظمة لدى المورد (Organization Number)</div><div class=\"d-flex items-center justify-between\"><div class=\"tabular-nums font-mono text-lg font-black text-brand tracking-wide\" dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(uo.OrganizationNumber)
+						var templ_7745c5c3_Var6 string
+						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(uo.OrganizationNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 226, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 129, Col: 35}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"badge badge-slate text-2xs font-mono\">مفعل</span></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if uo.Notes != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"text-2xs text-secondary mt-1.5 pt-1.5 border-t\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"text-xs text-secondary mt-2 pt-2 border-t\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var8 string
-							templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
+							var templ_7745c5c3_Var7 string
+							templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 230, Col: 22}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 135, Col: 22}
 							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></div><!-- Card Footer: Actions & Date --><div class=\"d-flex items-center justify-between pt-2 border-t\"><div class=\"d-flex items-center gap-1\"><!-- Delete Form --><form method=\"POST\" class=\"m-0\" action=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><!-- Date Added --><div class=\"d-flex items-center gap-1 text-2xs text-muted mb-4 font-bold\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var9 templ.SafeURL
-						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 240, Col: 125}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+						templ_7745c5c3_Err = components.IconClock("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-icon btn-xs text-danger\" title=\"حذف الربط\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>تاريخ الربط:</span> <span class=\"tabular-nums text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+						var templ_7745c5c3_Var8 string
+						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(uo.CreatedAt, "ar"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 144, Col: 83}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</button></form><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs\" title=\"تعديل رقم المنظمة\" data-modal-open=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></div></div><!-- Card Footer: Actions --><div class=\"d-flex items-center gap-2 pt-3 border-t\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 flex-1\" data-modal-open=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var10 string
-						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-modal-%d", uo.ID))
+						var templ_7745c5c3_Var9 string
+						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-modal-%d", uo.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 251, Col: 67}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 154, Col: 66}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -322,165 +297,61 @@ func CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></div><div class=\"tabular-nums text-2xs text-muted\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>تعديل</span></button><!-- Delete Form --><form method=\"POST\" class=\"m-0 flex-1\" action=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var11 string
-						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(uo.CreatedAt, "ar"))
+						var templ_7745c5c3_Var10 templ.SafeURL
+						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 258, Col: 43}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 161, Col: 131}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div></div><!-- Edit Modal -->")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-							templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-							templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-							if !templ_7745c5c3_IsBuffer {
-								defer func() {
-									templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-									if templ_7745c5c3_Err == nil {
-										templ_7745c5c3_Err = templ_7745c5c3_BufErr
-									}
-								}()
-							}
-							ctx = templ.InitializeContext(ctx)
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<form method=\"POST\" class=\"d-flex flex-col gap-3 m-0\" action=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var13 templ.SafeURL
-							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 268, Col: 144}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\"><div class=\"form-group m-0\"><label class=\"form-label text-xs font-bold\" for=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var14 string
-							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-num-%d", uo.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 270, Col: 97}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\">رقم المنظمة (Organization Number) <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var15 string
-							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-num-%d", uo.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 275, Col: 53}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" name=\"organization_number\" value=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var16 string
-							templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(uo.OrganizationNumber)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 277, Col: 41}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" required class=\"form-control font-mono font-bold\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label text-xs font-bold\" for=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var17 string
-							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-notes-%d", uo.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 285, Col: 99}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\">ملاحظات إضافية</label> <textarea id=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var18 string
-							templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-notes-%d", uo.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 289, Col: 55}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" name=\"notes\" rows=\"2\" class=\"form-control\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var19 string
-							templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 293, Col: 22}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</textarea></div><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" data-modal-close=\"")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var20 string
-							templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("edit-uo-modal-%d", uo.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_user_organizations.templ`, Line: 300, Col: 69}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">حفظ التعديلات</button></div></form>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							return nil
-						})
-						templ_7745c5c3_Err = components.Modal(components.ModalProps{
-							ID:    fmt.Sprintf("edit-uo-modal-%d", uo.ID),
-							Title: fmt.Sprintf("تعديل بيانات الربط مع %s", uo.VendorOrgName),
-							Size:  "md",
-						}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger font-bold gap-1.5 w-full\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div>")
+						templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>حذف الربط</span></button></form></div></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><script>\r\n\t\t\tlet customerVendorSearchTimer = null;\r\n\r\n\t\t\tfunction handleCustomerVendorSearch(val) {\r\n\t\t\t\tclearTimeout(customerVendorSearchTimer);\r\n\t\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\r\n\t\t\t\tconst spinner = document.getElementById('customer-vendor-search-spinner');\r\n\t\t\t\tif (!dropdown) return;\r\n\r\n\t\t\t\tconst query = (val || '').trim();\r\n\t\t\t\tif (!query) {\r\n\t\t\t\t\tdropdown.classList.add('d-none');\r\n\t\t\t\t\tdropdown.innerHTML = '';\r\n\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\r\n\t\t\t\t\treturn;\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif (spinner) spinner.classList.remove('d-none');\r\n\r\n\t\t\t\tcustomerVendorSearchTimer = setTimeout(() => {\r\n\t\t\t\t\tfetch('/customer/api/vendors/search?q=' + encodeURIComponent(query))\r\n\t\t\t\t\t\t.then(res => res.json())\r\n\t\t\t\t\t\t.then(vendors => {\r\n\t\t\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\r\n\t\t\t\t\t\t\tif (!vendors || vendors.length === 0) {\r\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-muted text-center\">لا توجد شركات أو موردين مطابقين</div>';\r\n\t\t\t\t\t\t\t\tdropdown.classList.remove('d-none');\r\n\t\t\t\t\t\t\t\treturn;\r\n\t\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t\tlet html = '';\r\n\t\t\t\t\t\t\tvendors.forEach(v => {\r\n\t\t\t\t\t\t\t\tconst safeName = (v.name || 'مورد').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\tconst safeLegal = (v.legal_name || '').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\tconst safeOrgNum = (v.organization_number || '').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\tconst safeTax = (v.tax_number || '').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\thtml += `\r\n\t\t\t\t\t\t\t\t\t<div\r\n\t\t\t\t\t\t\t\t\t\tclass=\"uo-search-item\"\r\n\t\t\t\t\t\t\t\t\t\tonclick=\"selectCustomerVendor(${v.id}, '${safeName}', '${safeLegal}', '${safeOrgNum}', '${safeTax}')\"\r\n\t\t\t\t\t\t\t\t\t>\r\n\t\t\t\t\t\t\t\t\t\t<div>\r\n\t\t\t\t\t\t\t\t\t\t\t<strong class=\"text-xs text-primary d-block\">${v.name}</strong>\r\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"text-2xs text-muted font-mono\" dir=\"ltr\">${v.organization_number ? 'كود: ' + v.organization_number + ' • ' : ''}${v.tax_number ? 'ب.ض: ' + v.tax_number : ''}</div>\r\n\t\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge badge-sky text-2xs\">#${v.id}</span>\r\n\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t`;\r\n\t\t\t\t\t\t\t});\r\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\r\n\t\t\t\t\t\t\tdropdown.classList.remove('d-none');\r\n\t\t\t\t\t\t})\r\n\t\t\t\t\t\t.catch(err => {\r\n\t\t\t\t\t\t\tif (spinner) spinner.classList.add('d-none');\r\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-danger text-center\">حدث خطأ أثناء البحث</div>';\r\n\t\t\t\t\t\t\tdropdown.classList.remove('d-none');\r\n\t\t\t\t\t\t});\r\n\t\t\t\t}, 250);\r\n\t\t\t}\r\n\r\n\t\t\tfunction selectCustomerVendor(id, name, legal, orgNum, taxNum) {\r\n\t\t\t\tconst hiddenInput = document.getElementById('customer-selected-vendor-id');\r\n\t\t\t\tconst chip = document.getElementById('customer-selected-vendor-chip');\r\n\t\t\t\tconst chipName = document.getElementById('customer-selected-vendor-name');\r\n\t\t\t\tconst chipDetails = document.getElementById('customer-selected-vendor-details');\r\n\t\t\t\tconst searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');\r\n\t\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\r\n\t\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\r\n\r\n\t\t\t\tif (hiddenInput) hiddenInput.value = id;\r\n\t\t\t\tif (chipName) chipName.textContent = name;\r\n\t\t\t\tif (chipDetails) chipDetails.textContent = (orgNum ? 'كود: ' + orgNum + ' • ' : '') + 'ID: #' + id;\r\n\t\t\t\tif (chip) chip.classList.remove('d-none');\r\n\t\t\t\tif (searchWrapper) searchWrapper.classList.add('d-none');\r\n\t\t\t\tif (dropdown) {\r\n\t\t\t\t\tdropdown.classList.add('d-none');\r\n\t\t\t\t\tdropdown.innerHTML = '';\r\n\t\t\t\t}\r\n\t\t\t\tif (searchInput) searchInput.value = '';\r\n\t\t\t}\r\n\r\n\t\t\tfunction clearCustomerSelectedVendor() {\r\n\t\t\t\tconst hiddenInput = document.getElementById('customer-selected-vendor-id');\r\n\t\t\t\tconst chip = document.getElementById('customer-selected-vendor-chip');\r\n\t\t\t\tconst searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');\r\n\t\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\r\n\r\n\t\t\t\tif (hiddenInput) hiddenInput.value = '';\r\n\t\t\t\tif (chip) chip.classList.add('d-none');\r\n\t\t\t\tif (searchWrapper) searchWrapper.classList.remove('d-none');\r\n\t\t\t\tif (searchInput) {\r\n\t\t\t\t\tsearchInput.value = '';\r\n\t\t\t\t\tsearchInput.focus();\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\tdocument.addEventListener('click', (e) => {\r\n\t\t\t\tconst dropdown = document.getElementById('customer-vendor-search-dropdown');\r\n\t\t\t\tconst searchInput = document.getElementById('customer-uo-vendor-search');\r\n\t\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\r\n\t\t\t\t\tdropdown.classList.add('d-none');\r\n\t\t\t\t}\r\n\t\t\t});\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<!-- Modals & Scripts -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = CustomerUserOrgAddModal().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data != nil {
+				for _, uo := range data.UserOrgs {
+					if uo != nil {
+						templ_7745c5c3_Err = CustomerUserOrgEditModal(uo).Render(ctx, templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+				}
+			}
+			templ_7745c5c3_Err = CustomerUserOrgScript().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

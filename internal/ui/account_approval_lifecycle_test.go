@@ -33,8 +33,8 @@ func TestPendingAccountApprovalLifecycle(t *testing.T) {
 			t.Errorf("GET /customer/dashboard for pending pharmacy returned status %d, want %d", rec.Code, http.StatusFound)
 		}
 		location := rec.Header().Get("Location")
-		if location != "/onboarding/pending" {
-			t.Errorf("GET /customer/dashboard redirect location = %q, want %q", location, "/onboarding/pending")
+		if location != "/documents" {
+			t.Errorf("GET /customer/dashboard redirect location = %q, want %q", location, "/documents")
 		}
 	})
 
@@ -58,8 +58,8 @@ func TestPendingAccountApprovalLifecycle(t *testing.T) {
 			t.Errorf("GET /vendor/dashboard for pending vendor returned status %d, want %d", rec.Code, http.StatusFound)
 		}
 		location := rec.Header().Get("Location")
-		if location != "/onboarding/pending" {
-			t.Errorf("GET /vendor/dashboard redirect location = %q, want %q", location, "/onboarding/pending")
+		if location != "/documents" {
+			t.Errorf("GET /vendor/dashboard redirect location = %q, want %q", location, "/documents")
 		}
 	})
 

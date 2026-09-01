@@ -82,11 +82,18 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		// only worth taking in bulk, and the profiles are the payload the
 		// directory indexes.
 		//
-		// Everything else stays open on purpose. /catalog/{id} yields one
-		// product per request, /offers and /jobs are already bounded
-		// server-side, and the marketing pages have nothing to take. A request
-		// budget on /about buys nothing and costs a middleware on every render.
-		// Jobs board is open to guests (seekers and visitors)
+		// Guarded public marketplace listing routes
+		pub.Group(func(guarded chi.Router) {
+			guarded.Use(h.scrape.Protect)
+			guarded.Get("/catalog", h.CustomerCatalogPage)
+			guarded.Get("/suppliers", h.SuppliersPage)
+			guarded.Get("/suppliers/{id}", h.SupplierProfilePage)
+		})
+
+		// Unguarded public routes
+		pub.Get("/catalog/{id}", h.CustomerProductDetailPage)
+		pub.Get("/offers", h.OffersPage)
+		pub.Get("/offers/{id}", h.OfferDetailPage)
 		pub.Get("/jobs", h.JobsPage)
 		pub.Get("/jobs/{id}", h.JobDetailPage)
 		pub.Get("/compare/search", h.CompareQuickSearch)

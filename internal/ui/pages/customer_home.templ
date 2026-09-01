@@ -118,7 +118,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									<div class="hero-ad-floating-badges">
 										<span class="hero-ad-badge-sponsor">
 											@components.IconSparkles("icon-2xs")
-											<span>إعلان ورعاية معتمدة</span>
+											<span>إعلانات الموردين والشركات</span>
 										</span>
 										<span class="hero-ad-badge-verified">
 											@components.IconShield("icon-2xs")
@@ -245,6 +245,32 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		</section>
 
 		<!-- 5. Unified Call To Action Section -->
+		if len(stats.DealsAds) > 0 {
+			<section class="landing-deals-ad-section p-4">
+				for _, dad := range stats.DealsAds {
+					if dad != nil {
+						<a href={ templ.SafeURL(dad.ResolveClickURL()) } class="deals-ad-card d-block p-4 rounded-xl border bg-surface-sunken">
+							<span class="badge badge-amber text-xs font-bold mb-2">صفقة ترويجية مميزة</span>
+							<h3 class="deals-ad-title text-base font-extrabold text-primary m-0">{ dad.DisplayTitle(lang) }</h3>
+						</a>
+					}
+				}
+			</section>
+		}
+
+		if len(stats.BottomAds) > 0 {
+			<section class="landing-bottom-ad-section p-4">
+				for _, bad := range stats.BottomAds {
+					if bad != nil {
+						<a href={ templ.SafeURL(bad.ResolveClickURL()) } class="bottom-ad-card d-block p-4 rounded-xl border bg-surface-sunken">
+							<span class="badge badge-sky text-xs font-bold mb-2">إعلان ترويجي موثق</span>
+							<h3 class="bottom-ad-title text-base font-extrabold text-primary m-0">{ bad.DisplayTitle(lang) }</h3>
+						</a>
+					}
+				}
+			</section>
+		}
+
 		@components.PublicCTA("", "", lang)
 	}
 }

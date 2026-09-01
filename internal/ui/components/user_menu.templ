@@ -53,6 +53,31 @@ templ UserMenu(lang string, inDashboard ...bool) {
 							<span>دخول اللوحة</span>
 						</a>
 					}
+
+					if actor.IsCustomer() {
+						<a href="/orders" class="user-menu-item" role="menuitem">
+							@IconPackage("icon-xs")
+							<span>طلباتي</span>
+						</a>
+						<a href="/customer/wallet" class="user-menu-item" role="menuitem">
+							@IconWallet("icon-xs")
+							<span>المحفظة والرصيد</span>
+						</a>
+						<a href="/suppliers/followed" class="user-menu-item" role="menuitem">
+							@IconHeartFilled("icon-xs text-rose")
+							<span>الموردون المتابعون</span>
+						</a>
+					} else if actor.IsVendor() {
+						<a href="/orders" class="user-menu-item" role="menuitem">
+							@IconPackage("icon-xs")
+							<span>طلبات التوريد</span>
+						</a>
+						<a href="/vendor/wallet" class="user-menu-item" role="menuitem">
+							@IconWallet("icon-xs")
+							<span>المحفظة والرصيد</span>
+						</a>
+					}
+
 					<a href="/settings" class="user-menu-item" role="menuitem">
 						@IconSettings("icon-xs")
 						<span>{ i18n.T(lang, "common.settings") }</span>

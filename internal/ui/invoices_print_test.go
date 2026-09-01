@@ -13,6 +13,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -36,6 +37,8 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 		OrganizationID: 2,
 		OrgType:        "vendor",
 		Role:           "vendor_admin",
+		Scope:          rbac.ScopeVendor,
+		Permissions:    []string{"vendor.payment.view"},
 	}
 
 	customerActor := &authctx.Actor{

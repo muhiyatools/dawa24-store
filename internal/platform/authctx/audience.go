@@ -267,7 +267,7 @@ func RequireApproved(log *slog.Logger) func(http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 				return
 			case "pending", "under_review":
-				http.Redirect(w, r, "/onboarding/pending", http.StatusFound)
+				http.Redirect(w, r, "/documents", http.StatusFound)
 				return
 			case "rejected":
 				http.Redirect(w, r, "/onboarding/pending?state=rejected", http.StatusFound)
@@ -280,7 +280,7 @@ func RequireApproved(log *slog.Logger) func(http.Handler) http.Handler {
 					http.Redirect(w, r, "/onboarding", http.StatusFound)
 					return
 				}
-				http.Redirect(w, r, "/onboarding/pending", http.StatusFound)
+				http.Redirect(w, r, "/documents", http.StatusFound)
 				return
 			}
 

@@ -67,8 +67,8 @@ func TestAccountLifecycleMatrix(t *testing.T) {
 		{"approved", true, ""},
 		{"active", true, ""},
 		{"verified", true, ""},
-		{"pending", false, "/onboarding/pending"},
-		{"under_review", false, "/onboarding/pending"},
+		{"pending", false, "/documents"},
+		{"under_review", false, "/documents"},
 		{"rejected", false, "/onboarding/pending?state=rejected"},
 		{"suspended", false, "/onboarding/pending?state=suspended"},
 	}

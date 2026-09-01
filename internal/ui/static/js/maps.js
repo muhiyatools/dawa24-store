@@ -338,7 +338,7 @@ function initMapPickers() {
           updateCoordinates(cLat, cLon, 13);
           const name = opt.text ? opt.text.trim() : '';
           if (window.showToast && name && !name.startsWith('--')) {
-            showToast(`ØªÙ… ØªØ­Ø±ÙŠÙƒ Ø§Ù„Ø®Ø±ÙŠØ·Ø© ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ø¥Ù„Ù‰: ${name} ðŸ“`, 'info');
+            showToast('تم تعيين المنطقة تلقائياً: ' + name + ' 📍', 'info');
           }
         }
       });
@@ -370,7 +370,7 @@ function initMapPickers() {
           const parsedLon = parseFloat(match[2]);
           if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
             updateCoordinates(parsedLat, parsedLon, 16);
-            showToast('ØªÙ… Ø§Ø³ØªØ®Ø±Ø§Ø¬ ÙˆØªØ­Ø¯ÙŠØ« Ø§Ù„Ø¥Ø­Ø¯Ø§Ø«ÙŠØ§Øª ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ Ù…Ù† Ø§Ù„Ø±Ø§Ø¨Ø· ðŸ“', 'success');
+            showToast('تم استخراج وتعيين الإحداثيات تلقائياً من الرابط 📍', 'success');
           }
         }
       };
@@ -383,17 +383,17 @@ function initMapPickers() {
       locateBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (!navigator.geolocation) {
-          showToast('Ø®Ø§ØµÙŠØ© ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ù…ÙˆÙ‚Ø¹ ØºÙŠØ± Ù…Ø¯Ø¹ÙˆÙ…Ø© ÙÙŠ Ù…ØªØµÙØ­Ùƒ.', 'warning');
+          showToast('خاصية تحديد الموقع غير مدعومة في متصفحك.', 'warning');
           return;
         }
 
         locateBtn.disabled = true;
-        locateBtn.innerHTML = '<span>â³ Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ø¯ÙŠØ¯ Ø¨Ø¯Ù‚Ø©...</span>';
+        locateBtn.innerHTML = '<span>⏳ جاري التحديد بدقة...</span>';
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             locateBtn.disabled = false;
-            locateBtn.innerHTML = '<span>ðŸ“ Ù…ÙˆÙ‚Ø¹ÙŠ Ø§Ù„Ø­Ø§Ù„ÙŠ</span>';
+            locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
             const userLat = pos.coords.latitude;
             const userLon = pos.coords.longitude;
             updateCoordinates(userLat, userLon, 16);
@@ -401,16 +401,16 @@ function initMapPickers() {
               ? window.syncCityDropdownsWithCoordinates(userLat, userLon)
               : null;
             if (nearest) {
-              showToast(`ØªÙ… ØªØ­Ø¯ÙŠØ¯ Ù…ÙˆÙ‚Ø¹Ùƒ Ø¨Ø¯Ù‚Ø© Ø¹Ø§Ù„ÙŠØ© ÙˆØªØ­Ø¯ÙŠØ« Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ø¥Ù„Ù‰: ${nearest.name} ðŸ“`, 'success');
+              showToast('تم تحديد موقعك بدقة عالية وتحديث المنطقة إلى: ' + nearest.name + ' 📍', 'success');
             } else {
-              showToast('ØªÙ… ØªØ­Ø¯ÙŠØ¯ Ù…ÙˆÙ‚Ø¹Ùƒ Ø§Ù„Ø¬ØºØ±Ø§ÙÙŠ Ø¨Ø¯Ù‚Ø©.', 'success');
+              showToast('تم تحديد موقعك الجغرافي بدقة.', 'success');
             }
           },
           (err) => {
             locateBtn.disabled = false;
-            locateBtn.innerHTML = '<span>ðŸ“ Ù…ÙˆÙ‚Ø¹ÙŠ Ø§Ù„Ø­Ø§Ù„ÙŠ</span>';
+            locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
             console.warn('Geolocation error:', err.message);
-            showToast('ØªØ¹Ø°Ø± Ø¬Ù„Ø¨ Ù…ÙˆÙ‚Ø¹ GPS. ÙŠØ±Ø¬Ù‰ ØªÙØ¹ÙŠÙ„ Ø¥Ø°Ù† Ø§Ù„ÙˆØµÙˆÙ„ Ù„Ù„Ù…ÙˆÙ‚Ø¹ ÙÙŠ Ø§Ù„Ù…ØªØµÙØ­.', 'warning');
+            showToast('تعذر جلب موقع GPS. يرجى تفعيل إذن الوصول للموقع في المتصفح.', 'warning');
           },
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
