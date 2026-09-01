@@ -43,7 +43,7 @@ func importConfirmStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"glass-panel\"><h2 class=\"wiz-head\">4. راجع ثم أكّد</h2><p class=\"wiz-sub\">هذا ما سيحدث عند الضغط على «ابدأ الاستيراد». لا شيء قد كُتب حتى الآن.</p><div class=\"wiz-map\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">4. راجع ثم أكّد</h2><p class=\"wiz-sub\">هذا ما سيحدث عند الضغط على «ابدأ الاستيراد». لا شيء قد كُتب حتى الآن.</p><div class=\"wiz-map\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -72,7 +72,7 @@ func importConfirmStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if view.Session.Mapping != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"glass-panel\"><h3 class=\"wiz-head\">الأعمدة التي ستُقرأ</h3><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>العمود في ملفك</th><th>سيُقرأ كـ</th><th>المصدر</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"glass-panel p-6\"><h3 class=\"wiz-head\">الأعمدة التي ستُقرأ</h3><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>العمود في ملفك</th><th>سيُقرأ كـ</th><th>المصدر</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -166,7 +166,7 @@ func importConfirmStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"glass-panel mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"glass-panel p-6 mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -302,14 +302,14 @@ func importProcessingStage(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"glass-panel\" id=\"import-progress-card\" data-import=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"glass-panel p-6\" id=\"import-progress-card\" data-import=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Session.PublicID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 99, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 99, Col: 91}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
@@ -358,7 +358,7 @@ func importResultsStage(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"glass-panel\"><h2 class=\"wiz-head\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -441,7 +441,7 @@ func importResultsStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(view.Session.Findings) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"glass-panel\"><h3 class=\"wiz-head\">ملاحظات على الصفوف</h3><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"glass-panel p-6\"><h3 class=\"wiz-head\">ملاحظات على الصفوف</h3><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -583,7 +583,7 @@ func importRowsTable(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var24 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"glass-panel\"><div class=\"stack-sm\"><h3 class=\"wiz-head m-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"glass-panel p-6\"><div class=\"stack-sm\"><h3 class=\"wiz-head m-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

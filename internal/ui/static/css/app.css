@@ -68,7 +68,7 @@ svg {
   vertical-align: middle;
 }
 
-.data-table img, .brand-logo-img, .product-thumb-img {
+.data-table img, .product-thumb-img {
   aspect-ratio: 1 / 1;
   object-fit: contain;
 }

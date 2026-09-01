@@ -214,13 +214,4 @@
       color: var(--text-muted);
     }
   }
-
-  .admin-log-badge {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius-md);
-    background: var(--bg-surface-sunken);
-    border: 1px solid var(--border-subtle);
-  }
 }

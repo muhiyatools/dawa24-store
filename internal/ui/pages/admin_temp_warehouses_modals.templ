@@ -15,7 +15,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 		@click.self="itemsModal = false"
 	>
 				<div
-					class="glass-panel mb-0 max-w-4xl w-full max-h-[90vh] d-flex flex-col overflow-hidden p-0 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+					class="glass-panel mb-0 max-w-4xl w-full max-h-90vh d-flex flex-col overflow-hidden p-0 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<!-- Modal Top Header -->
 					<div class="p-5 border-b flex-between items-center bg-surface">
@@ -162,7 +162,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 				@click.self="if (!isBulkUploading) uploadModal = false"
 			>
 				<div
-					class="glass-panel mb-0 max-w-3xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+					class="glass-panel mb-0 max-w-3xl w-full max-h-92vh overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<div class="flex-between items-center mb-5 pb-4 border-b">
       <div class="stack-sm">
@@ -192,9 +192,9 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 							<p class="text-xs text-muted mb-6" x-text="uploadStatusText"></p>
 
 							<!-- Progress Bar -->
-							<div class="w-full h-3 bg-surface-sunken rounded-full overflow-hidden border mb-3">
+							<div class="wiz-progress-track mb-3">
 								<div
-									class="h-full bg-gradient-to-r from-accent to-emerald transition-all duration-300"
+									class="wiz-progress-fill"
 									:style="'width: ' + uploadProgress + '%'"
 								></div>
 							</div>
@@ -219,7 +219,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 							@dragover.prevent="isDragging = true"
 							@dragleave.prevent="isDragging = false"
 							@drop.prevent="handleDrop($event)"
-							class="border-2 border-dashed border-border rounded-2xl p-7 text-center bg-surface-sunken transition-all cursor-pointer"
+							class="border-2 border-dashed rounded-2xl p-7 text-center bg-surface-sunken transition-all cursor-pointer"
 							:class="{ 'border-accent bg-accent-subtle': isDragging }"
 							@click="$refs.fileInput.click()"
 						>
@@ -263,7 +263,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 								<!-- Files Preview Scroll Area -->
 								<div class="max-h-40 overflow-y-auto d-flex flex-col gap-1.5 pe-1">
 									<template x-for="(f, idx) in selectedFiles" :key="idx">
-										<div class="flex-between items-center bg-surface-raised border border-border-subtle rounded-md p-2 text-xs">
+										<div class="flex-between items-center bg-surface-raised border rounded-md p-2 text-xs">
 											<div class="d-flex items-center gap-1.5 truncate">
 												<span class="text-muted tabular-nums" x-text="(idx+1) + '.'"></span>
 												<strong class="text-primary truncate max-w-xs" x-text="f.name"></strong>
@@ -303,7 +303,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 						</template>
 
 						<!-- Setup Experience Option Checkbox -->
-						<div class="bg-emerald-500/5 border rounded-2xl p-4 d-flex items-center gap-3">
+						<div class="bg-surface-sunken border rounded-2xl p-4 d-flex items-center gap-3">
 							<input
 								type="checkbox"
 								id="auto_setup_check"
@@ -349,7 +349,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 				@click.self="if(!mappingSubmitting) mappingModal = false"
 			>
 				<div
-					class="glass-panel mb-0 max-w-4xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+					class="glass-panel mb-0 max-w-4xl w-full max-h-92vh overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
 				>
 					<!-- Modal Header & Queue Stepper -->
 					<div class="flex-between items-start mb-4 border-b pb-4 gap-4">
@@ -391,9 +391,9 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 								<span>إنجاز مراجعة الملفات المرفوعة</span>
 								<span class="tabular-nums" x-text="Math.round((mappingStep / mappingTotal) * 100) + '%'"></span>
 							</div>
-							<div class="w-full h-1.5 bg-surface-sunken rounded-full overflow-hidden border">
+							<div class="wiz-progress-track">
 								<div
-									class="h-full bg-gradient-to-r from-accent to-emerald transition-all duration-300"
+									class="wiz-progress-fill"
 									:style="'width: ' + ((mappingStep / mappingTotal) * 100) + '%'"
 								></div>
 							</div>
@@ -510,7 +510,7 @@ templ AdminTempWarehousesModals(data *AdminTempWarehousesData) {
 											<tr>
 												<th class="w-9 text-center">#</th>
 												<template x-for="(h, colIdx) in mappingHeaders" :key="colIdx">
-													<th class="nowrap" :class="{ 'text-accent font-black': colIdx == mappingName, 'text-emerald mappingPrice }">
+													<th class="cell-nowrap" :class="{ 'text-accent font-black': colIdx == mappingName, 'text-emerald font-black': colIdx == mappingPrice }">
 														<span x-text="h"></span>
 														<template x-if="colIdx == mappingCode">
 															<span class="badge badge-slate text-2xs ms-1">كود</span>

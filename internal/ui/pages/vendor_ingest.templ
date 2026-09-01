@@ -70,7 +70,7 @@ templ importNotice(kind, message string) {
 }
 
 templ importFatal(message string, session *ingest.Session) {
-	<div class="glass-panel">
+	<div class="glass-panel p-6">
 		<h2 class="wiz-head">تعذر قراءة الملف</h2>
 		<p class="wiz-sub">{ message }</p>
 		<div class="row-center">
@@ -88,7 +88,7 @@ templ importFatal(message string, session *ingest.Session) {
 
 templ importUploadStage(view VendorImportView) {
 	<form class="stack-md" method="POST" action="/vendor/ingest/upload" enctype="multipart/form-data" hx-boost="false" id="import-upload-form">
-		<div class="glass-panel">
+		<div class="glass-panel p-6">
 			<h2 class="wiz-head">1. اختر ملف الكتالوج</h2>
 			<p class="wiz-sub">
 				الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML.
@@ -149,7 +149,7 @@ templ importUploadStage(view VendorImportView) {
 }
 
 templ importHistory(recent []*ingest.Session) {
-	<div class="glass-panel">
+	<div class="glass-panel p-6">
 		<h2 class="wiz-head">عمليات الاستيراد السابقة</h2>
 		<div class="table-container">
 			<table class="data-table">

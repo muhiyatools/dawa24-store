@@ -78,26 +78,6 @@
   line-height: 1.25;
 }
 
-.sp-tab-btn {
-  padding: 0.65rem 1.15rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  border-bottom: 2.5px solid transparent;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.15s ease, border-color 0.15s ease;
-  white-space: nowrap;
-}
-
-.sp-tab-btn:hover {
-  color: var(--text);
-}
-
 .sp-tab-btn.active {
   color: var(--primary-600);
   border-bottom-color: var(--primary-600);

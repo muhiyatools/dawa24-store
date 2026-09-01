@@ -175,10 +175,8 @@
     --glass-shadow:       var(--shadow-sm);
   }
 
-  /* ---- Density Mode: Compact (Admin and Vendor Tables) ---- */
-  [data-density="compact"],
-  .density-compact,
-  body.density-compact {
+                                                                 
+  [data-density="compact"]{
     --touch-min:       36px;
     --control-h-sm:    28px;
     --control-h-md:    36px;

@@ -281,7 +281,7 @@ func savingUploadStage(view SavingImportView) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"glass-panel\"><h2 class=\"wiz-head\">1. اختر ملف قائمة الأدوية والتوفير</h2><p class=\"wiz-sub\">ارفع ملف أدوية الصيدلية أو منتجات التوفير بصيغة Excel (.xlsx, .xls) أو CSV.</p><form class=\"stack-md\" method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">1. اختر ملف قائمة الأدوية والتوفير</h2><p class=\"wiz-sub\">ارفع ملف أدوية الصيدلية أو منتجات التوفير بصيغة Excel (.xlsx, .xls) أو CSV.</p><form class=\"stack-md\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -531,7 +531,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sess := view.Session
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"glass-panel\"><div class=\"flex-between items-center mb-md\"><div class=\"stack-sm\"><h2 class=\"wiz-head mb-0\">2. ربط الأعمدة واستراتيجية المطابقة الذكية</h2><p class=\"wiz-sub mb-0\">الملف: <strong>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"glass-panel p-6\"><div class=\"flex-between items-center mb-md\"><div class=\"stack-sm\"><h2 class=\"wiz-head mb-0\">2. ربط الأعمدة واستراتيجية المطابقة الذكية</h2><p class=\"wiz-sub mb-0\">الملف: <strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

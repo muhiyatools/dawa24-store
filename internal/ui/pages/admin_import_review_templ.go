@@ -749,7 +749,7 @@ func importFailedCard(view ImportReviewView) templ.Component {
 			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">تعذرت معالجة الملف</h2><p class=\"wiz-sub\">لم يُحفظ أي صنف في الكتالوج. الملف المرفوع ما زال محفوظاً، ويمكنك تصحيح ربط الأعمدة وإعادة المعالجة دون رفعه من جديد.</p><div class=\"wiz-actions\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"glass-panel p-6 mb-0\"><h2 class=\"wiz-head\">تعذرت معالجة الملف</h2><p class=\"wiz-sub\">لم يُحفظ أي صنف في الكتالوج. الملف المرفوع ما زال محفوظاً، ويمكنك تصحيح ربط الأعمدة وإعادة المعالجة دون رفعه من جديد.</p><div class=\"wiz-actions\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1501,7 +1501,7 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 			templ_7745c5c3_Var75 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">تأكيد الحفظ في الكتالوج المعتمد</h2><p class=\"wiz-sub\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "<div class=\"glass-panel p-6 mb-0\"><h2 class=\"wiz-head\">تأكيد الحفظ في الكتالوج المعتمد</h2><p class=\"wiz-sub\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1627,14 +1627,14 @@ func importProgressCard(view ImportReviewView) templ.Component {
 			templ_7745c5c3_Var80 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"glass-panel mb-0\" id=\"import-progress\" data-session=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"glass-panel p-6 mb-0\" id=\"import-progress\" data-session=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var81 string
 		templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Session.PublicID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 468, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 468, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var81)
 		if templ_7745c5c3_Err != nil {

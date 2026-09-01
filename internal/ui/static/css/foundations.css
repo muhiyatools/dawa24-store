@@ -53,19 +53,6 @@
 .form-label.d-flex,
 .form-label.d-inline-flex { display: flex; }
 
-.form-hint {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-.form-error {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--danger, #e11d48);
-  line-height: 1.5;
-}
-
 .form-check {
   display: flex;
   align-items: center;
@@ -115,73 +102,40 @@
 [data-theme="dark"] .alert-warning { color: var(--amber-400); }
 [data-theme="dark"] .alert-info    { color: var(--brand-400); }
 
-/* ==========================================================================
-   3. SPACING SCALE
-   utilities.css had m-*, mb-*, mt-* and p-*/px-*/py-* but no pt/pb/ps/pe, and
+                                                                                                                                               px-*/py-* but no pt/pb/ps/pe, and
    no half steps, so 577 spacing attributes did nothing. Completed here on the
-   same 0.25rem scale, including the logical start/end pair that RTL needs.
-   ========================================================================== */
-
-.m-0\.5  { margin: 0.125rem; }
+   same 0.25rem scale{ margin: 0.125rem; }
 .mt-0\.5 { margin-top: 0.125rem; }
 .mb-0\.5 { margin-bottom: 0.125rem; }
 .mt-1\.5 { margin-top: 0.375rem; }
 .mb-1\.5 { margin-bottom: 0.375rem; }
-.mt-2\.5 { margin-top: 0.625rem; }
 .mb-2\.5 { margin-bottom: 0.625rem; }
 .mb-5    { margin-bottom: 1.25rem; }
 .mt-5    { margin-top: 1.25rem; }
-.mb-10   { margin-bottom: 2.5rem; }
 .mt-10   { margin-top: 2.5rem; }
-
-.ms-0 { margin-inline-start: 0; }
 .ms-1 { margin-inline-start: 0.25rem; }
 .ms-2 { margin-inline-start: 0.5rem; }
-.ms-3 { margin-inline-start: 0.75rem; }
-.ms-4 { margin-inline-start: 1rem; }
 .ms-auto { margin-inline-start: auto; }
-.me-0 { margin-inline-end: 0; }
 .me-1 { margin-inline-end: 0.25rem; }
-.me-2 { margin-inline-end: 0.5rem; }
-.me-3 { margin-inline-end: 0.75rem; }
-.me-4 { margin-inline-end: 1rem; }
-.me-auto { margin-inline-end: auto; }
-
-.pt-0 { padding-top: 0; }
 .pt-1 { padding-top: 0.25rem; }
 .pt-2 { padding-top: 0.5rem; }
 .pt-3 { padding-top: 0.75rem; }
 .pt-4 { padding-top: 1rem; }
 .pt-5 { padding-top: 1.25rem; }
-.pt-6 { padding-top: 1.5rem; }
-.pt-8 { padding-top: 2rem; }
-.pt-10 { padding-top: 2.5rem; }
-.pb-0 { padding-bottom: 0; }
 .pb-1 { padding-bottom: 0.25rem; }
 .pb-2 { padding-bottom: 0.5rem; }
 .pb-3 { padding-bottom: 0.75rem; }
 .pb-4 { padding-bottom: 1rem; }
-.pb-5 { padding-bottom: 1.25rem; }
-.pb-6 { padding-bottom: 1.5rem; }
-.pb-8 { padding-bottom: 2rem; }
-.pb-10 { padding-bottom: 2.5rem; }
-
-.ps-0 { padding-inline-start: 0; }
 .ps-1 { padding-inline-start: 0.25rem; }
 .ps-2 { padding-inline-start: 0.5rem; }
 .ps-3 { padding-inline-start: 0.75rem; }
 .ps-4 { padding-inline-start: 1rem; }
 .ps-6 { padding-inline-start: 1.5rem; }
-.pe-0 { padding-inline-end: 0; }
 .pe-1 { padding-inline-end: 0.25rem; }
-.pe-2 { padding-inline-end: 0.5rem; }
-.pe-3 { padding-inline-end: 0.75rem; }
 .pe-4 { padding-inline-end: 1rem; }
-.pe-6 { padding-inline-end: 1.5rem; }
 
 .p-2\.5  { padding: 0.625rem; }
 .p-3\.5  { padding: 0.875rem; }
-.p-4\.5  { padding: 1.125rem; }
 .py-0\.5 { padding-block: 0.125rem; }
 .py-1\.5 { padding-block: 0.375rem; }
 .py-2\.5 { padding-block: 0.625rem; }
@@ -205,9 +159,6 @@
 
 .text-2xs   { font-size: 0.6875rem; line-height: 1.45; }
 .text-4xl   { font-size: 2rem; line-height: 1.15; }
-.text-5xl   { font-size: 2.5rem; line-height: 1.1; }
-
-.leading-none    { line-height: var(--leading-none); }
 .leading-tight   { line-height: var(--leading-tight); }
 .leading-snug    { line-height: var(--leading-snug); }
 .leading-normal  { line-height: var(--leading-normal); }
@@ -217,14 +168,6 @@
 .tracking-wide    { letter-spacing: 0.015em; }
 .tracking-wider   { letter-spacing: 0.03em; }
 .tracking-widest  { letter-spacing: 0.06em; }
-
-/* ==========================================================================
-   6. PALETTE UTILITIES
-   The ramps exist as tokens; they were never exposed as classes, so 593 colour
-   attributes did nothing. Only the steps the templates actually ask for.
-   ========================================================================== */
-
-.text-slate-300 { color: var(--slate-300); }
 .text-slate-400 { color: var(--slate-400); }
 .text-slate-500 { color: var(--slate-500); }
 .text-slate-600 { color: var(--slate-600); }
@@ -236,8 +179,8 @@
 .text-rose-600 { color: var(--rose-600); }
 .text-rose-700 { color: var(--rose-600); }
 .text-amber, .text-amber-500 { color: var(--amber-500); }
-.text-amber-600, .text-amber-800 { color: var(--amber-600); }
-.text-sky, .text-sky-500 { color: var(--brand-500); }
+.text-amber-600{ color: var(--amber-600); }
+.text-sky{ color: var(--brand-500); }
 .text-sky-600, .text-brand-600 { color: var(--brand-600); }
 .text-brand-500 { color: var(--brand-500); }
 
@@ -254,10 +197,6 @@
 .border-slate-300 { border-color: var(--slate-300); }
 .border-brand-300 { border-color: var(--brand-300); }
 .border-brand-500 { border-color: var(--brand-500); }
-
-/* The templates also write opacity suffixes (border-slate-200/80). CSS has no
-   such syntax, so each is spelled out against the same ramp. */
-.border-slate-100\/80 { border-color: color-mix(in srgb, var(--slate-100) 80%, transparent); }
 .border-slate-200\/70 { border-color: color-mix(in srgb, var(--slate-200) 70%, transparent); }
 .border-slate-200\/80 { border-color: color-mix(in srgb, var(--slate-200) 80%, transparent); }
 .bg-slate-50\/80      { background-color: color-mix(in srgb, var(--slate-50) 80%, transparent); }
@@ -273,7 +212,6 @@
 [data-theme="dark"] .text-slate-700  { color: var(--text-secondary); }
 [data-theme="dark"] .border-slate-100,
 [data-theme="dark"] .border-slate-200,
-[data-theme="dark"] .border-slate-100\/80,
 [data-theme="dark"] .border-slate-200\/70,
 [data-theme="dark"] .border-slate-200\/80 { border-color: var(--border-card); }
 
@@ -283,17 +221,13 @@
 
 .position-relative { position: relative; }
 .position-absolute { position: absolute; }
-.position-fixed    { position: fixed; }
-.position-sticky   { position: sticky; }
 
 .overflow-hidden   { overflow: hidden; }
 .overflow-auto     { overflow: auto; }
 .overflow-y-auto   { overflow-y: auto; }
 .overflow-x-auto   { overflow-x: auto; }
-.overflow-y-hidden { overflow-y: hidden; }
 
 .cursor-pointer   { cursor: pointer; }
-.cursor-default   { cursor: default; }
 .cursor-not-allowed { cursor: not-allowed; }
 
 .rounded          { border-radius: var(--radius-md); }
@@ -305,18 +239,10 @@
   white-space: nowrap;
 }
 .text-decoration-none { text-decoration: none; }
-
-.z-0  { z-index: 0; }
-.z-10 { z-index: 10; }
-.z-20 { z-index: 20; }
 .z-50 { z-index: 50; }
 
 .top-0    { top: 0; }
-.top-2    { top: 0.5rem; }
-.bottom-0 { bottom: 0; }
-.bottom-2 { bottom: 0.5rem; }
 .start-0  { inset-inline-start: 0; }
-.start-2  { inset-inline-start: 0.5rem; }
 .end-0    { inset-inline-end: 0; }
 .end-2    { inset-inline-end: 0.5rem; }
 
@@ -331,24 +257,6 @@
               background-color var(--duration-fast, 150ms) var(--ease-smooth, ease),
               border-color var(--duration-fast, 150ms) var(--ease-smooth, ease);
 }
-
-.hover\:bg-slate-50\/50:hover  { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent); }
-.hover\:bg-slate-100:hover     { background-color: var(--slate-100); }
-.hover\:bg-rose-50:hover       { background-color: var(--rose-50); }
-.hover\:bg-brand-50\/20:hover  { background-color: color-mix(in srgb, var(--brand-50) 20%, transparent); }
-.hover\:bg-surface-raised:hover { background-color: var(--bg-surface-raised); }
-.hover\:text-rose-700:hover    { color: var(--rose-600); }
-.hover\:text-slate-600:hover   { color: var(--slate-600); }
-.hover\:text-emerald-800:hover { color: var(--emerald-600); }
-.hover\:text-amber-800:hover   { color: var(--amber-600); }
-.hover\:text-primary:hover,
-.hover\:text-brand:hover       { color: var(--brand-600); }
-.hover\:border-brand-300:hover { border-color: var(--brand-300); }
-.hover\:border-brand-500:hover { border-color: var(--brand-500); }
-.hover\:shadow-md:hover        { box-shadow: var(--shadow-md); }
-
-[data-theme="dark"] .hover\:bg-slate-50\/50:hover,
-[data-theme="dark"] .hover\:bg-slate-100:hover { background-color: var(--bg-surface-raised); }
 
 @media (prefers-reduced-motion: reduce) {
   .transition-colors { transition: none; }
@@ -502,7 +410,6 @@
 
 .p-12  { padding: 3rem; }
 .px-5  { padding-inline: 1.25rem; }
-.py-5  { padding-block: 1.25rem; }
 .h-9   { height: 2.25rem; }
 .w-9   { width: 2.25rem; }
 .h-8   { height: 2rem; }
@@ -510,7 +417,6 @@
 
 /* space-y-* puts the gap between children, not around them. */
 .space-y-2 > * + * { margin-top: 0.5rem; }
-.space-y-3 > * + * { margin-top: 0.75rem; }
 .space-y-4 > * + * { margin-top: 1rem; }
 .space-y-6 > * + * { margin-top: 1.5rem; }
 
@@ -529,9 +435,6 @@
 /* One breakpoint prefix is used in the markup. The scale is defined here so
    the next one has somewhere to go rather than becoming another literal. */
 @media (min-width: 768px) {
-  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .md\:flex-row    { flex-direction: row; }
 }
 
 }

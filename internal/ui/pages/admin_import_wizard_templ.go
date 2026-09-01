@@ -213,7 +213,7 @@ func importUploadCard() templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">ملف الأصناف</h2><p class=\"wiz-sub\">Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة التي يتكرر فيها صف العناوين — وستراجع النتيجة بنفسك في الخطوة التالية قبل أي معالجة.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" id=\"import-file-input\" name=\"import_file\" accept=\".xlsx,.xlsm,.csv,.tsv,.txt\" required><div class=\"wiz-drop-icon\" aria-hidden=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"glass-panel p-6 mb-0\"><h2 class=\"wiz-head\">ملف الأصناف</h2><p class=\"wiz-sub\">Excel (.xlsx) أو CSV. يتعرّف النظام تلقائياً على الأعمدة وترتيبها، ويقرأ الملفات المقسّمة التي يتكرر فيها صف العناوين — وستراجع النتيجة بنفسك في الخطوة التالية قبل أي معالجة.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" id=\"import-file-input\" name=\"import_file\" accept=\".xlsx,.xlsm,.csv,.tsv,.txt\" required><div class=\"wiz-drop-icon\" aria-hidden=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -266,7 +266,7 @@ func importModeCard(modes []catalog.ImportModeOption, selected catalog.ImportMod
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">طريقة وخطة معالجة الاستيراد</h2><p class=\"wiz-sub\">حدد سلوك الاستيراد للأصناف المستخرجة</p><div class=\"wiz-choices\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"glass-panel p-6 mb-0\"><h2 class=\"wiz-head\">طريقة وخطة معالجة الاستيراد</h2><p class=\"wiz-sub\">حدد سلوك الاستيراد للأصناف المستخرجة</p><div class=\"wiz-choices\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -377,7 +377,7 @@ func importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpti
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"glass-panel mb-0\"><h2 class=\"wiz-head\">استكمال بيانات الأصناف</h2><p class=\"wiz-sub\">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p><div class=\"wiz-switches\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"glass-panel p-6 mb-0\"><h2 class=\"wiz-head\">استكمال بيانات الأصناف</h2><p class=\"wiz-sub\">اختر البيانات التي تريد من النظام استكمالها للأصناف التي لا يوفرها الملف</p><div class=\"wiz-switches\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

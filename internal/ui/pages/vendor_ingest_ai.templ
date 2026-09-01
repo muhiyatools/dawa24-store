@@ -22,7 +22,7 @@ import (
 // aiPanel is the account of the enhancement stage.
 templ aiPanel(view VendorImportView) {
 	if view.Session != nil && view.Session.AI.Ran {
-		<section class="glass-panel mb-lg">
+		<section class="glass-panel p-6 mb-lg">
 			<div class="row-center-sm justify-between flex-wrap gap-sm mb-md">
 				<div class="row-center-sm gap-sm">
 					<span>@components.IconSparkles("icon-sm")</span>
@@ -73,7 +73,7 @@ templ aiPanel(view VendorImportView) {
 			</p>
 		</section>
 	} else if view.Session != nil && !view.Session.Settings.UseAI {
-		<section class="glass-panel mb-lg">
+		<section class="glass-panel p-6 mb-lg">
 			<div class="row-center-sm gap-sm">
 				<span>@components.IconSparkles("icon-sm")</span>
 				<div class="text-xs text-muted">

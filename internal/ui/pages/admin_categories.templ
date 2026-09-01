@@ -129,30 +129,30 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>#</th>
-									<th>اسم الفئة</th>
-									<th>الفئة الأب (Parent)</th>
-									<th>الوصف</th>
-									<th>الأصناف المرتبطة</th>
-									<th>ترتيب</th>
-									<th>الحالة</th>
-									<th>الإجراءات</th>
+									<th class="col-num">#</th>
+									<th class="col-grow">اسم الفئة</th>
+									<th class="cell-nowrap">الفئة الأب</th>
+									<th class="col-grow">الوصف</th>
+									<th class="col-num">الأصناف</th>
+									<th class="col-num">ترتيب</th>
+									<th class="cell-nowrap">الحالة</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, item := range categories {
 									{{ c := item.Category }}
 									{{ parentName := getParentCategoryName(c.ParentID, allCategories) }}
-									<tr id={ fmt.Sprintf("category-row-%d", c.ID) }>
-										<td class="tabular-nums">
+									<tr id={ fmt.Sprintf("category-row-%d", c.ID) } class="row-tall">
+										<td class="col-num text-muted">
 											#{ fmt.Sprintf("%d", c.ID) }
 										</td>
 										<td>
-											<div class="fw-800 text-primary text-base">
+											<div class="cell-title text-base">
 												{ c.Name.Get("ar") }
 											</div>
 											if c.Name.Get("en") != "" {
-												<div class="stack-xs text-sm">
+												<div class="cell-sub" dir="ltr">
 													{ c.Name.Get("en") }
 												</div>
 											}
@@ -163,16 +163,16 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 													{ parentName }
 												</span>
 											} else {
-												<span>-- رئيسية (مستوى أول) --</span>
+												<span class="text-xs text-muted">رئيسية</span>
 											}
 										</td>
 										<td>
 											if c.Description.Get("ar") != "" {
-												<div class="stack-xs text-sm">
+												<div class="cell-clamp" title={ c.Description.Get("ar") }>
 													{ c.Description.Get("ar") }
 												</div>
 											} else if c.Description.Get("en") != "" {
-												<div class="stack-xs text-sm">
+												<div class="cell-clamp" title={ c.Description.Get("en") } dir="ltr">
 													{ c.Description.Get("en") }
 												</div>
 											} else {
@@ -187,10 +187,10 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												title="عرض كافة أصناف هذه الفئة"
 											>
 												@components.IconLayers("icon-xs")
-												<span class="tabular-nums">{ fmt.Sprintf("%d صنف", item.ProductCount) }</span>
+												<span class="tabular-nums">{ fmt.Sprintf("%d", item.ProductCount) }</span>
 											</a>
 										</td>
-										<td class="tabular-nums fw-600 text-center">
+										<td class="col-num font-semibold">
 											{ fmt.Sprintf("%d", c.SortOrder) }
 										</td>
 										<td class="text-center">
@@ -200,11 +200,11 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												<span class="badge badge-slate font-bold">معطل</span>
 											}
 										</td>
-										<td class="text-end">
-           <div class="stack-sm">
+										<td class="col-actions">
+           <div class="table-actions">
 												<button
 													type="button"
-													class="btn btn-secondary btn-icon size-8"
+													class="btn btn-secondary"
 													data-modal-open={ fmt.Sprintf("edit-category-modal-%d", c.ID) }
 												
 													title="تعديل بيانات الفئة"
@@ -214,18 +214,18 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/toggle", c.ID)) } class="m-0">
 													if c.Status == "active" || c.Status == "" {
-														<button type="submit" class="btn btn-secondary btn-icon" title="تعطيل الفئة">
+														<button type="submit" class="btn btn-secondary" title="تعطيل الفئة">
 															@components.IconMinus("icon-xs")
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-icon" title="تفعيل الفئة">
+														<button type="submit" class="btn btn-secondary" title="تفعيل الفئة">
 															@components.IconCheck("icon-xs")
 														</button>
 													}
 												</form>
 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/categories/%d/delete", c.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف فئة المنتجات هذه؟');">
-													<button type="submit" class="btn btn-secondary btn-icon" title="حذف الفئة">
+													<button type="submit" class="btn btn-secondary text-danger" title="حذف الفئة">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -298,7 +298,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 															>
 																إلغاء
 															</button>
-															<button type="submit" class="btn btn-primary fw-800">
+															<button type="submit" class="btn btn-primary font-bold">
 																@components.IconCheck("icon-xs")
 																<span>حفظ التعديلات</span>
 															</button>
@@ -453,7 +453,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 					>
 						إلغاء
 					</button>
-					<button type="submit" class="btn btn-primary fw-800">
+					<button type="submit" class="btn btn-primary font-bold">
 						@components.IconCheck("icon-xs")
 						<span>إنشاء فئة المنتج</span>
 					</button>

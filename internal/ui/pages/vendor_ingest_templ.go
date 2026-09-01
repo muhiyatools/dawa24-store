@@ -244,7 +244,7 @@ func importFatal(message string, session *ingest.Session) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"glass-panel\"><h2 class=\"wiz-head\">تعذر قراءة الملف</h2><p class=\"wiz-sub\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">تعذر قراءة الملف</h2><p class=\"wiz-sub\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -310,7 +310,7 @@ func importUploadStage(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form class=\"stack-md\" method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-upload-form\"><div class=\"glass-panel\"><h2 class=\"wiz-head\">1. اختر ملف الكتالوج</h2><p class=\"wiz-sub\">الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML. لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv,.txt\" required id=\"import-file-input\"> <span class=\"wiz-drop-icon\" aria-hidden=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form class=\"stack-md\" method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-upload-form\"><div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">1. اختر ملف الكتالوج</h2><p class=\"wiz-sub\">الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML. لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv,.txt\" required id=\"import-file-input\"> <span class=\"wiz-drop-icon\" aria-hidden=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -357,7 +357,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"glass-panel\"><h2 class=\"wiz-head\">عمليات الاستيراد السابقة</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الملف</th><th>الحالة</th><th>أضيف</th><th>حُدّث</th><th>تخطي</th><th>أخطاء</th><th></th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"glass-panel p-6\"><h2 class=\"wiz-head\">عمليات الاستيراد السابقة</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الملف</th><th>الحالة</th><th>أضيف</th><th>حُدّث</th><th>تخطي</th><th>أخطاء</th><th></th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
