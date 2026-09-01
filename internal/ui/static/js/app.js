@@ -122,6 +122,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Guard: never swap a whole HTML document into a partial target.
+  //
+  // A partial endpoint that sits behind an auth/approval gate can answer with a
+  // 302 to a full page (e.g. an unapproved account polling the notifications
+  // badge got redirected to /documents). The browser follows the redirect, htmx
+  // swaps the entire document into the small element that made the request, and
+  // if that document carries the same polling element the cycle repeats — the
+  // page nests inside itself and grows without bound. If the response body looks
+  // like a full document, or the request was redirected somewhere else, drop
+  // the swap.
+  document.body.addEventListener('htmx:beforeSwap', (evt) => {
+    const xhr = evt.detail && evt.detail.xhr;
+    if (!xhr) return;
+    const body = (evt.detail.serverResponse || xhr.responseText || '');
+    const looksLikeFullPage = /<\s*(!doctype|html)[\s>]/i.test(body.slice(0, 500));
+    let redirectedAway = false;
+    try {
+      if (xhr.responseURL) {
+        const to = new URL(xhr.responseURL, window.location.origin);
+        const from = new URL(evt.detail.pathInfo && evt.detail.pathInfo.requestPath
+          ? evt.detail.pathInfo.requestPath : window.location.pathname, window.location.origin);
+        redirectedAway = to.pathname !== from.pathname;
+      }
+    } catch (e) { /* ignore */ }
+    if (looksLikeFullPage || redirectedAway) {
+      evt.detail.shouldSwap = false;
+      evt.detail.isError = false;
+      console.warn('htmx: suppressed swap of a full document / redirected response into', evt.target);
+    }
+  });
+
   // HTMX Error Handling & Custom Events
   document.body.addEventListener('htmx:responseError', (evt) => {
     const status = evt.detail.xhr.status;

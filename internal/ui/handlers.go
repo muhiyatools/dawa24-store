@@ -201,6 +201,18 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	// Issue reporting
 	r.Get("/report-issue", h.CustomerReportIssuePage)
 	r.Post("/report-issue", h.CustomerReportIssueSubmit)
+
+	// Notification bell read-partials. The bell renders in the header of every
+	// authenticated page, pending accounts included, and its badge polls
+	// unread-badge on a timer. These must resolve for a not-yet-approved caller
+	// (both handlers already fall back to an empty/zero result) — behind
+	// RequireApproved the poll got a 302 to /documents, htmx swapped that whole
+	// page into the badge <span>, and the copy it injected carried another
+	// polling bell: an unbounded recursion that duplicated the page and grew it
+	// sideways forever. Managing notifications (mark read, the full page) stays
+	// approved-only below.
+	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
+	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
 }
 
 // RegisterApprovedSharedRoutes mounts Tier B shared routes restricted to approved
@@ -260,10 +272,11 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
 	r.Post("/requests", h.RequestCreateSubmit)
 
-	// Notifications (bell and page)
+	// Notifications. The bell read-partials (dropdown, unread-badge) are mounted
+	// in RegisterPreApprovalRoutes so the header bell resolves for pending
+	// accounts without a redirect; the full page and the write actions stay
+	// approved-only here.
 	r.Get("/notifications", h.NotificationsPage)
-	r.Get("/notifications/dropdown", h.NotificationsDropdownPartial)
-	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
 	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
 	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
 }

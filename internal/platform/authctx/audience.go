@@ -254,6 +254,22 @@ func RequireApproved(log *slog.Logger) func(http.Handler) http.Handler {
 				}
 			}
 
+			// An htmx request refused here must NOT be answered with a 302 to an
+			// HTML page. The browser follows the redirect transparently and htmx
+			// swaps a whole document into whatever element issued the request; a
+			// polled partial (the notifications badge sits on every authenticated
+			// page) then recurses, each cycle nesting another copy of the page
+			// and widening it without bound until the tab dies. Background
+			// requests get 204 and htmx swaps nothing.
+			if r.Header.Get("HX-Request") == "true" {
+				if ok && (actor.IsStaff || actor.IsOrgApproved()) {
+					next.ServeHTTP(w, r)
+					return
+				}
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+
 			if !ok {
 				redirectToLogin(w, r)
 				return
