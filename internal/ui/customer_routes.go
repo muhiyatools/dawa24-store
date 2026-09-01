@@ -291,12 +291,12 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 		g.Get("/customer/ai-logs", h.AIConsumptionLogsPage)
 	})
 
+	r.Get("/customer/session", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/customer/sessions", http.StatusMovedPermanently)
+	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view", "pharmacy.dashboard.view"))
 		g.Get("/customer/sessions", h.TenantSessionsPage)
-		g.Get("/customer/session", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/customer/sessions", http.StatusMovedPermanently)
-		})
 		g.Get("/customer/mfa", h.CustomerMFAPage)
 		g.Post("/customer/mfa/setup", h.CustomerMFASetupSubmit)
 		g.Post("/customer/mfa/confirm", h.CustomerMFAConfirmSubmit)

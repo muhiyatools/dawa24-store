@@ -113,12 +113,12 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 		g.Post("/vendor/subscription/checkout", h.TenantSubscriptionCheckoutSubmit)
 	})
 
+	r.Get("/vendor/session", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
+	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.session.view", "vendor.dashboard.view"))
 		g.Get("/vendor/sessions", h.TenantSessionsPage)
-		g.Get("/vendor/session", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
-		})
 		g.Get("/vendor/mfa", h.VendorMFAPage)
 		g.Post("/vendor/mfa/setup", h.VendorMFASetupSubmit)
 		g.Post("/vendor/mfa/confirm", h.VendorMFAConfirmSubmit)
