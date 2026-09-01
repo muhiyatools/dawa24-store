@@ -90,14 +90,6 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			>
 				<span>سياسة الدفع</span>
 			</button>
-			<button
-				type="button"
-				class="cb-tab-btn"
-				:class="policyFilter === 'vendor_agreement' ? 'active' : ''"
-				@click="policyFilter = 'vendor_agreement'"
-			>
-				<span>اتفاقية التوريد</span>
-			</button>
 		</div>
 
 		if len(policies) == 0 {
@@ -224,7 +216,6 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 							<option value="shipping_return">سياسة الشحن والاسترجاع والإلغاء (Shipping, Returns & Cancellation)</option>
 							<option value="cookies">سياسة ملفات تعريف الارتباط (Cookie Policy)</option>
 							<option value="payment">سياسة الدفع والتعاملات المالية (Payment Policy)</option>
-							<option value="vendor_agreement">اتفاقية التوريد وشروط الموردين (Vendor Supply Agreement)</option>
 						</select>
 					</div>
 					<div class="form-group m-0">
@@ -297,8 +288,6 @@ func policyKeyAr(k string) string {
 		return "ملفات تعريف الارتباط"
 	case "payment":
 		return "سياسة الدفع"
-	case "vendor_agreement":
-		return "اتفاقية التوريد"
 	default:
 		return k
 	}

@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 
 	identityHttp "github.com/muhiya/dawa24-store/internal/modules/identity/http"
@@ -49,6 +51,9 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/payment-policy", h.PaymentPolicyPage)
 		pub.Get("/payments", h.PaymentPolicyPage)
 		pub.Get("/policies/{slug}", h.DynamicPolicyPage)
+		pub.Get("/vendor_agreement", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/terms", http.StatusMovedPermanently)
+		})
 		pub.Get("/about", h.AboutPage)
 		pub.Get("/how-it-works", h.HowItWorksPage)
 		pub.Get("/faq", h.FaqPage)

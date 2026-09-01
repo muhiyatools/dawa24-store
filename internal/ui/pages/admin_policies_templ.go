@@ -92,7 +92,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'terms' ? 'active' : ''\" @click=\"policyFilter = 'terms'\"><span>شروط الاستخدام</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'privacy' ? 'active' : ''\" @click=\"policyFilter = 'privacy'\"><span>سياسة الخصوصية</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'shipping_return' ? 'active' : ''\" @click=\"policyFilter = 'shipping_return'\"><span>الشحن والاسترجاع والإلغاء</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'cookies' ? 'active' : ''\" @click=\"policyFilter = 'cookies'\"><span>ملفات الكوكيز</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'payment' ? 'active' : ''\" @click=\"policyFilter = 'payment'\"><span>سياسة الدفع</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'vendor_agreement' ? 'active' : ''\" @click=\"policyFilter = 'vendor_agreement'\"><span>اتفاقية التوريد</span></button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'terms' ? 'active' : ''\" @click=\"policyFilter = 'terms'\"><span>شروط الاستخدام</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'privacy' ? 'active' : ''\" @click=\"policyFilter = 'privacy'\"><span>سياسة الخصوصية</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'shipping_return' ? 'active' : ''\" @click=\"policyFilter = 'shipping_return'\"><span>الشحن والاسترجاع والإلغاء</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'cookies' ? 'active' : ''\" @click=\"policyFilter = 'cookies'\"><span>ملفات الكوكيز</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'payment' ? 'active' : ''\" @click=\"policyFilter = 'payment'\"><span>سياسة الدفع</span></button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -122,7 +122,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("policyFilter === 'all' || policyFilter === '%s'", p.PolicyKey))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 125, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 117, Col: 95}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(policyKeyAr(p.PolicyKey))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 127, Col: 77}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 119, Col: 77}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(p.Version)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 130, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 122, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 133, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 125, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -179,7 +179,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 135, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 127, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -197,7 +197,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Summary["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 140, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 132, Col: 27}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.UpdatedAt.Format("2006-01-02 03:04 PM"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 154, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 146, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -273,7 +273,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					var templ_7745c5c3_Var12 templ.SafeURL
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/policies/%d/publish", p.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 163, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 155, Col: 102}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -315,7 +315,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(p.Summary["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 179, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 171, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(p.Content["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 186, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 178, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(p.Content["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 192, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 184, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -387,7 +387,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<form method=\"POST\" class=\"m-0\" action=\"/admin/policies\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-key\">نوع الوثيقة القانونية *</label> <select id=\"policy-key\" name=\"policy_key\" required class=\"form-select\"><option value=\"terms\">شروط وأحكام الاستخدام (Terms of Service)</option> <option value=\"privacy\">سياسة الخصوصية وحماية البيانات (Privacy Policy)</option> <option value=\"shipping_return\">سياسة الشحن والاسترجاع والإلغاء (Shipping, Returns & Cancellation)</option> <option value=\"cookies\">سياسة ملفات تعريف الارتباط (Cookie Policy)</option> <option value=\"payment\">سياسة الدفع والتعاملات المالية (Payment Policy)</option> <option value=\"vendor_agreement\">اتفاقية التوريد وشروط الموردين (Vendor Supply Agreement)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-version\">رقم الإصدار (Version) *</label> <input type=\"text\" id=\"policy-version\" name=\"version\" required class=\"form-input tabular-nums\" placeholder=\"1.1 أو 2.0\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-ar\">عنوان الوثيقة (عربي) *</label> <input type=\"text\" id=\"policy-title-ar\" name=\"title_ar\" required class=\"form-input\" placeholder=\"شروط الاستخدام والخدمة\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-en\">Title (English)</label> <input type=\"text\" id=\"policy-title-en\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Terms of Service\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-ar\">ملخص التغييرات في هذا الإصدار (عربي)</label> <input type=\"text\" id=\"policy-summary-ar\" name=\"summary_ar\" class=\"form-input\" placeholder=\"تحديث بنود الفواتير الإلكترونية والتسويات الدوائية\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-en\">Changelog Summary (English)</label> <input type=\"text\" id=\"policy-summary-en\" name=\"summary_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Updated e-invoicing and settlement clauses\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-ar\">نص الوثيقة القانونية (عربي) *</label> <textarea id=\"policy-content-ar\" name=\"content_ar\" rows=\"8\" required class=\"form-input\" placeholder=\"أدخل نص وبنود السياسة القانونية بالتفصيل...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-en\">Legal Policy Text (English)</label> <textarea id=\"policy-content-en\" name=\"content_en\" rows=\"8\" class=\"form-input\" dir=\"ltr\" placeholder=\"Enter policy text and terms...\"></textarea></div></div><div class=\"row-center-sm\"><input type=\"checkbox\" id=\"policy-publish\" name=\"is_published\" value=\"1\"> <label class=\"form-label\" for=\"policy-publish\">نشر هذا الإصدار وتفعيله للجمهور فوراً</label></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<form method=\"POST\" class=\"m-0\" action=\"/admin/policies\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-key\">نوع الوثيقة القانونية *</label> <select id=\"policy-key\" name=\"policy_key\" required class=\"form-select\"><option value=\"terms\">شروط وأحكام الاستخدام (Terms of Service)</option> <option value=\"privacy\">سياسة الخصوصية وحماية البيانات (Privacy Policy)</option> <option value=\"shipping_return\">سياسة الشحن والاسترجاع والإلغاء (Shipping, Returns & Cancellation)</option> <option value=\"cookies\">سياسة ملفات تعريف الارتباط (Cookie Policy)</option> <option value=\"payment\">سياسة الدفع والتعاملات المالية (Payment Policy)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-version\">رقم الإصدار (Version) *</label> <input type=\"text\" id=\"policy-version\" name=\"version\" required class=\"form-input tabular-nums\" placeholder=\"1.1 أو 2.0\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-ar\">عنوان الوثيقة (عربي) *</label> <input type=\"text\" id=\"policy-title-ar\" name=\"title_ar\" required class=\"form-input\" placeholder=\"شروط الاستخدام والخدمة\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-en\">Title (English)</label> <input type=\"text\" id=\"policy-title-en\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Terms of Service\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-ar\">ملخص التغييرات في هذا الإصدار (عربي)</label> <input type=\"text\" id=\"policy-summary-ar\" name=\"summary_ar\" class=\"form-input\" placeholder=\"تحديث بنود الفواتير الإلكترونية والتسويات الدوائية\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-en\">Changelog Summary (English)</label> <input type=\"text\" id=\"policy-summary-en\" name=\"summary_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Updated e-invoicing and settlement clauses\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-ar\">نص الوثيقة القانونية (عربي) *</label> <textarea id=\"policy-content-ar\" name=\"content_ar\" rows=\"8\" required class=\"form-input\" placeholder=\"أدخل نص وبنود السياسة القانونية بالتفصيل...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-en\">Legal Policy Text (English)</label> <textarea id=\"policy-content-en\" name=\"content_en\" rows=\"8\" class=\"form-input\" dir=\"ltr\" placeholder=\"Enter policy text and terms...\"></textarea></div></div><div class=\"row-center-sm\"><input type=\"checkbox\" id=\"policy-publish\" name=\"is_published\" value=\"1\"> <label class=\"form-label\" for=\"policy-publish\">نشر هذا الإصدار وتفعيله للجمهور فوراً</label></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -429,8 +429,6 @@ func policyKeyAr(k string) string {
 		return "ملفات تعريف الارتباط"
 	case "payment":
 		return "سياسة الدفع"
-	case "vendor_agreement":
-		return "اتفاقية التوريد"
 	default:
 		return k
 	}

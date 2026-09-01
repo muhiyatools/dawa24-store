@@ -59,13 +59,6 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 						@components.IconCreditCard("icon-xs")
 						<span>سياسة الدفع والتعاملات المالية</span>
 					</a>
-					<a
-						href="/vendor_agreement"
-						class={ "policy-nav-link", templ.KV("active", slug == "vendor_agreement") }
-					>
-						@components.IconBuilding("icon-xs")
-						<span>اتفاقية انضمام الموردين</span>
-					</a>
 				</aside>
 
 				<!-- Main Policy Content -->
@@ -104,7 +97,7 @@ templ PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) {
 
 					<!-- Document Body Content -->
 					<div class="policy-prose">
-						{ body }
+						@RenderPolicyMarkdown(body)
 					</div>
 
 					<!-- Official Compliance Footer Strip -->
@@ -131,7 +124,9 @@ templ CmsPage(lang, dir, title, body string) {
 		<div class="policy-page-container">
 			<div class="policy-content-card">
 				<h1 class="page-title font-bold text-xl m-0 pb-3 border-b">{ title }</h1>
-				<div class="policy-prose mt-3">{ body }</div>
+				<div class="policy-prose mt-3">
+					@RenderPolicyMarkdown(body)
+				</div>
 			</div>
 		</div>
 	}

@@ -107,3 +107,61 @@ func TestAdminSettingsPolicySubmit_Validation(t *testing.T) {
 		t.Errorf("expected redirect to policies tab, got %s", loc)
 	}
 }
+
+func TestVendorAgreementRedirect(t *testing.T) {
+	router := newTestPolicyRouter()
+
+	req := httptest.NewRequest(http.MethodGet, "/vendor_agreement", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusMovedPermanently {
+		t.Fatalf("expected 301 Moved Permanently, got %d", resp.StatusCode)
+	}
+	if loc := resp.Header.Get("Location"); loc != "/terms" {
+		t.Errorf("expected redirect to /terms, got %s", loc)
+	}
+}
+
+func TestContactAndHowItWorksPages(t *testing.T) {
+	router := newTestPolicyRouter()
+
+	t.Run("Contact Page", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/contact", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		resp := w.Result()
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d", resp.StatusCode)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		bodyStr := string(body)
+		if !strings.Contains(bodyStr, "01065397000") {
+			t.Errorf("expected contact page to contain hotline number")
+		}
+		if !strings.Contains(bodyStr, "support@dawa24.com") {
+			t.Errorf("expected contact page to contain support email")
+		}
+	})
+
+	t.Run("How It Works Page", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/how-it-works", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		resp := w.Result()
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d", resp.StatusCode)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		bodyStr := string(body)
+		if !strings.Contains(bodyStr, "كيف تعمل منصة دواء 24") {
+			t.Errorf("expected how it works page to contain main heading")
+		}
+		if !strings.Contains(bodyStr, "مسار الصيدليات") {
+			t.Errorf("expected how it works page to contain pharmacy workflow")
+		}
+	})
+}

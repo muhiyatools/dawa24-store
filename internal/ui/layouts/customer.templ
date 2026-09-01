@@ -14,38 +14,60 @@ templ PublicShell(title string, lang string, dir string) {
 			<div x-data="{ mobileNav: false }" class="public-shell-root">
 				<!-- Top Modern Navbar -->
 				<header class="site-header">
-					<div class="site-header-brand">
-						<a href="/" class="brand-lockup" title="دواء 24 — الصفحة الرئيسية">
-							if site.LogoURL != "" {
-								<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
-							}
-							<div class="brand-text-lockup">
-								<span class="brand-name">دواء 24</span>
-							</div>
-						</a>
-					</div>
+					<div class="site-header-container">
+						<div class="site-header-brand">
+							<a href="/" class="brand-lockup" title="دواء 24 — الصفحة الرئيسية">
+								if site.LogoURL != "" {
+									<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
+								}
+								<div class="brand-text-lockup">
+									<span class="brand-name">دواء 24</span>
+								</div>
+							</a>
+						</div>
 
-					<div class="site-header-actions">
-						if actor, ok := authctx.From(ctx); ok {
-							if actor.IsCustomer() {
-								<div class="hide-mobile">
-									@PharmacyBranchSelector(ctx)
+						<!-- Desktop Central Navigation Links -->
+						<nav class="public-nav-links" aria-label="التنقل الرئيسي">
+							<a href="/" class="public-nav-link">الرئيسية</a>
+							<a href="/catalog" class="public-nav-link">كتالوج الأدوية</a>
+							<a href="/offers" class="public-nav-link">عروض الموردين</a>
+							<a href="/how-it-works" class="public-nav-link">كيف تعمل المنصة</a>
+							<a href="/about" class="public-nav-link">عن دواء 24</a>
+							<a href="/contact" class="public-nav-link">تواصل معنا</a>
+						</nav>
+
+						<div class="site-header-actions">
+							if actor, ok := authctx.From(ctx); ok {
+								if actor.IsCustomer() {
+									<div class="hide-mobile">
+										@PharmacyBranchSelector(ctx)
+									</div>
+								}
+								@components.NotificationsBell(lang)
+								@components.UserMenu(lang)
+							} else {
+								<div class="d-flex items-center gap-2">
+									<a href="/auth/login" class="navbar-login-btn">
+										@components.IconUser("icon-xs")
+										<span>تسجيل الدخول</span>
+									</a>
+									<a href="/auth/register" class="navbar-register-btn">
+										@components.IconPlus("icon-xs")
+										<span>انضمام للمنصة</span>
+									</a>
 								</div>
 							}
-							@components.NotificationsBell(lang)
-							@components.UserMenu(lang)
-						} else {
-							<div class="row-center-xs">
-								<a href="/auth/login" class="btn btn-secondary btn-sm fw-700 navbar-auth-link">
-									@components.IconUser("icon-xs")
-									<span>تسجيل الدخول</span>
-								</a>
-								<a href="/auth/register" class="btn btn-primary btn-sm fw-800 navbar-auth-link">
-									@components.IconPlus("icon-xs")
-									<span>انضمام للمنصة</span>
-								</a>
-							</div>
-						}
+
+							<!-- Mobile Menu Hamburger Button -->
+							<button
+								type="button"
+								@click="mobileNav = true"
+								class="btn-ghost btn-icon show-mobile header-mobile-toggle"
+								aria-label="قائمة التصفح"
+							>
+								@components.IconMenu("icon-sm")
+							</button>
+						</div>
 					</div>
 				</header>
 

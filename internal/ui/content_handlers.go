@@ -68,9 +68,11 @@ func (h *UIHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
 	h.renderPage(ctx, w, "render about page", pages.AboutPage(lang, dir, data))
 }
 
-// HowItWorksPage renders the how-it-works content block.
+// HowItWorksPage renders the dedicated interactive How It Works page.
 func (h *UIHandler) HowItWorksPage(w http.ResponseWriter, r *http.Request) {
-	h.renderCmsBlock(w, r, "how-it-works", i18n.T(langOf(r), "cms.how_it_works"))
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	h.renderPage(ctx, w, "render how it works page", pages.HowItWorksPage(lang, dir))
 }
 
 // FaqPage renders the dedicated interactive FAQ page with dynamic database overrides.
@@ -146,9 +148,6 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 		case "payment":
 			title = "سياسة الدفع والتعاملات المالية"
 			body = "الضوابط المنظمة للمدفوعات المباشرة بين الصيدليات والموردين، وطرق الدفع والائتمان المعتمدة، وإصدار الفواتير الإلكترونية."
-		case "vendor_agreement":
-			title = "اتفاقية التوريد وشروط الموردين"
-			body = "الشروط والضوابط المنظمة لانضمام موردي الأدوية والمستودعات المعتمدة على منصة Dawa24."
 		}
 	}
 
