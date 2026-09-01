@@ -1,0 +1,140 @@
+package pages
+
+import (
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ CustomerCatalogFilter(data CatalogPageData) {
+	<!-- Filter Sidebar (Positioned on Left in RTL) -->
+	<aside class="catalog-sidebar-filter">
+		<div class="flex-between items-center pb-3 mb-4 border-b">
+			<div class="d-flex items-center gap-2">
+				@components.IconFilter("icon-sm text-primary")
+				<h2 class="text-sm font-extrabold text-primary m-0">
+					الفلاتر والبحث المتقدم
+				</h2>
+			</div>
+			<a href="/catalog" class="text-xs font-bold text-rose" title="تصفير الفلاتر">
+				تصفير
+			</a>
+		</div>
+
+		<form action="/catalog" method="GET" class="d-flex flex-col gap-4" id="catalog-filter-form">
+			<!-- Anti-Scraping Honeypot Trap (Hidden from users) -->
+			<input type="text" name="company_tax_ref" class="hidden" tabindex="-1" autocomplete="off" />
+
+			if data.Query != "" {
+				<input type="hidden" name="q" value={ data.Query } />
+			}
+			if data.Sort != "" {
+				<input type="hidden" name="sort" value={ data.Sort } />
+			}
+			if data.ViewMode != "" {
+				<input type="hidden" name="view" value={ data.ViewMode } />
+			}
+			if data.PageSize > 0 {
+				<input type="hidden" name="page_size" value={ strconv.Itoa(data.PageSize) } />
+			}
+			if data.DosageForm != "" {
+				<input type="hidden" name="dosage_form" value={ data.DosageForm } />
+			}
+
+			<!-- Categories Tree -->
+			<div>
+				<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
+					@components.IconLayers("icon-xs text-muted")
+					<span>التصنيف الدوائي</span>
+				</label>
+				<div class="category-filter-list">
+					<a
+						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
+						class={ "category-filter-item", templ.KV("active", data.CategoryID == nil) }
+					>
+						<span>جميع التصنيفات</span>
+						<span class="badge badge-slate text-xs font-bold">الكل</span>
+					</a>
+
+					for _, cat := range data.Categories {
+						<a
+							href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: &cat.ID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
+							class={ "category-filter-item", templ.KV("active", data.CategoryID != nil && *data.CategoryID == cat.ID) }
+						>
+							<span class="text-truncate">
+								if cat.Name["ar"] != "" {
+									{ cat.Name["ar"] }
+								} else {
+									{ cat.Name["en"] }
+								}
+							</span>
+						</a>
+					}
+				</div>
+			</div>
+
+			<!-- Manufacturers / Brands -->
+			if len(data.Brands) > 0 {
+				<div class="pt-3 border-t">
+					<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
+						@components.IconBuilding("icon-xs text-muted")
+						<span>الشركة المصنعة / الماركة</span>
+					</label>
+					<select
+						name="brand_id"
+						class="form-select text-xs w-full"
+						onchange="document.getElementById('catalog-filter-form').submit()"
+					>
+						<option value="">كافة الشركات والمصانع</option>
+						for _, b := range data.Brands {
+							<option
+								value={ strconv.FormatInt(b.ID, 10) }
+								selected?={ data.BrandID != nil && *data.BrandID == b.ID }
+							>
+								if b.Name.Get(i18n.AR) != "" {
+									{ b.Name.Get(i18n.AR) }
+								} else {
+									{ b.Name.Get(i18n.EN) }
+								}
+							</option>
+						}
+					</select>
+				</div>
+			}
+
+			<!-- Price Range -->
+			<div class="pt-3 border-t">
+				<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
+					@components.IconTag("icon-xs text-muted")
+					<span>سعر التوريد للصيدلية (ج.م)</span>
+				</label>
+				<div class="grid grid-cols-2 gap-2">
+					<div>
+						<input type="number" name="min_price" value={ data.MinPrice } placeholder="من 0" class="form-input text-xs tabular-nums font-semibold w-full" />
+					</div>
+					<div>
+						<input type="number" name="max_price" value={ data.MaxPrice } placeholder="إلى 1000" class="form-input text-xs tabular-nums font-semibold w-full" />
+					</div>
+				</div>
+			</div>
+
+			<!-- Availability & Discount Checkboxes -->
+			<div class="pt-3 border-t d-flex flex-col gap-2.5">
+				<label class="d-flex items-center gap-2.5 text-xs font-bold text-primary cursor-pointer select-none">
+					<input type="checkbox" name="in_stock" value="true" checked?={ data.InStock } class="form-checkbox" onchange="document.getElementById('catalog-filter-form').submit()" />
+					<span>الأصناف المتوفرة بالمخزون فقط</span>
+				</label>
+				<label class="d-flex items-center gap-2.5 text-xs font-bold text-primary cursor-pointer select-none">
+					<input type="checkbox" name="has_discount" value="true" checked?={ data.HasDiscount } class="form-checkbox" onchange="document.getElementById('catalog-filter-form').submit()" />
+					<span>عروض الخصومات الإضافية %</span>
+				</label>
+			</div>
+
+			<button type="submit" class="btn btn-primary btn-sm w-full justify-center font-bold mt-1 shadow-xs gap-2">
+				@components.IconSearch("icon-xs")
+				<span>تطبيق الفلاتر</span>
+			</button>
+		</form>
+	</aside>
+}

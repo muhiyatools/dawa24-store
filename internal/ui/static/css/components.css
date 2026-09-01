@@ -3707,6 +3707,7 @@ input:focus {
 }
 
 .catalog-sidebar-filter {
+  order: 2;
   background: var(--bg-surface-raised, var(--surface-raised));
   border: 1px solid var(--border-card, var(--border));
   border-radius: var(--radius-xl, 1rem);
@@ -3714,6 +3715,11 @@ input:focus {
   position: sticky;
   top: 1rem;
   box-shadow: var(--shadow-xs);
+}
+
+.catalog-results-section {
+  order: 1;
+  min-inline-size: 0;
 }
 
 .category-filter-list {
@@ -3879,6 +3885,64 @@ input:focus {
   transform: scale(1.1);
 }
 
+.fav-icon-btn {
+  border: none;
+  background: transparent;
+  padding: 0.35rem;
+  border-radius: var(--radius-full, 9999px);
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.fav-icon-btn:hover {
+  background: rgba(244, 63, 94, 0.1);
+  color: #f43f5e;
+}
+
+.fav-icon-btn.is-active {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.12);
+}
+
+/* Catalog Data Table System */
+.catalog-data-table {
+  min-inline-size: 62rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.catalog-data-table th,
+.catalog-data-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.catalog-data-table td.col-name {
+  white-space: normal;
+  min-inline-size: 13rem;
+}
+
+.catalog-data-table td.col-brand {
+  min-inline-size: 8rem;
+}
+
+.catalog-data-table td.col-supplier {
+  min-inline-size: 11rem;
+  white-space: nowrap;
+}
+
+.supplier-pill-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
 .cart-stepper-control {
   display: inline-flex;
   align-items: center;
@@ -4036,6 +4100,15 @@ input:focus {
 .language-flags-only .user-menu-segment {
   min-block-size: 2.25rem;
   font-size: 1.2rem;
+}
+
+.flag-icon-svg {
+  width: 20px !important;
+  height: 15px !important;
+  border-radius: 2px;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+  display: block;
+  margin: auto;
 }
 
 /* ---- Notifications bell in the dashboard header ---- */

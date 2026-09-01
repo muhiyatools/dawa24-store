@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -23,6 +24,15 @@ func (h *UIHandler) buildCatalogVariantCards(
 	sortBy string,
 ) []*pages.SupplierVariantCard {
 	var variantCards []*pages.SupplierVariantCard
+
+	favMap := make(map[int64]bool)
+	if actor, ok := authctx.From(ctx); ok && h.idSvc != nil {
+		if ids, err := h.idSvc.ListFavorites(ctx, actor.UserID); err == nil {
+			for _, id := range ids {
+				favMap[id] = true
+			}
+		}
+	}
 
 	for _, p := range filtered {
 		variants := variantsByProduct[p.ID]
@@ -111,6 +121,7 @@ func (h *UIHandler) buildCatalogVariantCards(
 					IsNegotiable:    off.IsNegotiable,
 					VariantName:     varUnitName,
 					SKU:             varSKU,
+					IsFavorite:      favMap[p.ID],
 				})
 			}
 		} else {
@@ -133,6 +144,7 @@ func (h *UIHandler) buildCatalogVariantCards(
 					IsVerified:     true,
 					DistanceText:   "-",
 					CanAddToCart:   false,
+					IsFavorite:     favMap[p.ID],
 				})
 			}
 		}

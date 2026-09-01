@@ -1,0 +1,184 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
+	<div class="glass-panel p-0 mb-6 overflow-hidden shadow-xs border">
+		<div class="table-container m-0 overflow-x-auto">
+			<table class="catalog-data-table m-0 text-xs w-full">
+				<thead>
+					<tr>
+						<th class="col-img text-center"></th>
+						<th class="col-name">الصنف الدوائي والمادة الفعالة</th>
+						<th class="col-brand">الشركة المصنعة</th>
+						<th class="col-supplier">المورد والفرع</th>
+						<th class="col-stock text-center">المخزون والصلاحية</th>
+						<th class="col-public text-center tabular-nums">سعر الجمهور</th>
+						<th class="col-discount text-center">نسبة الخصم</th>
+						<th class="col-price tabular-nums text-end">السعر بعد الخصم</th>
+						<th class="col-action text-center">الكمية والطلب</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, v := range variants {
+						<tr>
+							<td class="text-center col-img">
+								<div class="w-9 h-9 rounded-lg bg-surface-sunken overflow-hidden flex-center mx-auto border">
+									if v.ProductImage != "" {
+										<img src={ v.ProductImage } alt={ v.ProductNameAr } class="w-full h-full object-contain p-0.5" loading="lazy" />
+									} else {
+										<span class="text-muted">
+											@components.IconPill("icon-xs")
+										</span>
+									}
+								</div>
+							</td>
+							<td class="col-name">
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="text-inherit no-underline block">
+									<div class="font-extrabold text-primary text-xs transition-colors">
+										if v.ProductNameAr != "" {
+											{ v.ProductNameAr }
+										} else {
+											{ v.ProductNameEn }
+										}
+									</div>
+									if v.ScientificName != "" {
+										<div class="text-2xs text-muted mt-0.5 font-medium">
+											{ v.ScientificName }
+										</div>
+									}
+								</a>
+								if v.IsSponsored {
+									<div class="mt-1">
+										@components.SponsoredBadge(lang)
+									</div>
+								}
+							</td>
+							<td class="col-brand">
+								<div class="font-bold text-primary">
+									if v.BrandName != "" {
+										{ v.BrandName }
+									} else if v.Manufacturer != "" {
+										{ v.Manufacturer }
+									} else {
+										<span class="text-muted">-</span>
+									}
+								</div>
+								if v.DosageForm != "" {
+									<span class="badge badge-slate text-2xs mt-0.5 font-semibold">
+										{ v.DosageForm }
+									</span>
+								}
+							</td>
+							<td class="col-supplier">
+								<div class="supplier-pill-cell">
+									<span class="font-extrabold text-primary">{ v.SupplierName }</span>
+									if v.IsVerified {
+										<span class="badge badge-emerald text-2xs font-bold">معتمد</span>
+									}
+								</div>
+								<div class="d-flex items-center gap-1 mt-0.5">
+									if v.BranchName != "" {
+										<span class="text-2xs text-muted font-medium">
+											{ v.BranchName }
+										</span>
+									}
+									if v.DistanceText != "" {
+										<span class="badge badge-sky text-2xs font-mono">
+											{ v.DistanceText }
+										</span>
+									}
+								</div>
+							</td>
+							<td class="col-stock text-center">
+								if v.AvailableStock > 0 {
+									<span class="badge badge-emerald font-extrabold text-2xs tabular-nums">
+										{ fmt.Sprintf("%d", v.AvailableStock) } عبوة
+									</span>
+								} else {
+									<span class="badge badge-rose font-extrabold text-2xs">
+										نفد المخزون
+									</span>
+								}
+								if v.ExpiryDate != "" {
+									<div class="text-2xs text-muted tabular-nums mt-0.5 font-mono">
+										{ v.ExpiryDate }
+									</div>
+								}
+							</td>
+							<td class="col-public text-center tabular-nums font-bold text-primary">
+								if v.PublicPrice.IsPositive() {
+									<div>
+										{ v.PublicPrice.String() } <span class="text-2xs text-secondary font-medium">ج.م</span>
+									</div>
+								} else if v.OriginalPrice.IsPositive() {
+									<div>
+										{ v.OriginalPrice.String() } <span class="text-2xs text-secondary font-medium">ج.م</span>
+									</div>
+								} else {
+									<div>
+										{ v.Price.String() } <span class="text-2xs text-secondary font-medium">ج.م</span>
+									</div>
+								}
+							</td>
+							<td class="col-discount text-center">
+								if v.DiscountPercent > 0 {
+									<span class="badge badge-emerald tabular-nums font-black text-2xs">
+										{ fmt.Sprintf("%d%%", v.DiscountPercent) }
+									</span>
+								} else {
+									<span class="text-muted text-2xs font-medium">0%</span>
+								}
+							</td>
+							<td class="col-price tabular-nums text-end font-black text-brand text-sm">
+								{ v.Price.String() } <span class="text-2xs font-bold text-secondary">ج.م</span>
+							</td>
+							<td class="col-action text-center">
+								<div class="d-flex items-center justify-center gap-1.5">
+									<!-- Favorite Button -->
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } class="m-0">
+										<button
+											type="submit"
+											class={ "btn btn-icon btn-xs", templ.KV("btn-secondary text-rose", v.IsFavorite), templ.KV("btn-ghost text-muted", !v.IsFavorite) }
+											title="حفظ في المفضلة"
+										>
+											if v.IsFavorite {
+												@components.IconHeartFilled("icon-xs text-rose")
+											} else {
+												@components.IconHeart("icon-xs")
+											}
+										</button>
+									</form>
+
+									if v.CanAddToCart {
+										<form method="POST" action="/cart/add" class="d-flex items-center gap-1 m-0">
+											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
+											<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+											<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+											<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+											<input type="hidden" name="offer_price" value={ v.Price.String() } />
+											<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) } />
+											
+											<button type="submit" class="btn btn-primary btn-xs font-bold shadow-2xs gap-1 px-2">
+												@components.IconPlus("icon-2xs")
+												<span>للسلة</span>
+											</button>
+										</form>
+									} else {
+										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-xs font-bold shadow-2xs">
+											التفاصيل
+										</a>
+									}
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}

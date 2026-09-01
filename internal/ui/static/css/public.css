@@ -1048,10 +1048,16 @@
 }
 
 .catalog-sidebar-filter {
+  order: 2;
   position: sticky;
   top: 5rem;
   max-height: calc(100vh - 6.5rem);
   overflow-y: auto;
+}
+
+.catalog-results-section {
+  order: 1;
+  min-width: 0;
 }
 
 .dosage-pills-strip {

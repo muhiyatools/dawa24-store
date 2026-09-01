@@ -1,0 +1,82 @@
+package pages
+
+import "github.com/muhiya/dawa24-store/internal/ui/components"
+
+templ CustomerNegotiationModal() {
+	@components.Modal(components.ModalProps{
+		ID:    "negotiation-modal",
+		Title: "طلب تفاوض على سعر الصنف",
+		Size:  "md",
+	}) {
+		<form method="POST" action="/customer/negotiate-order" id="negotiation-form" class="stack-md">
+			<input type="hidden" name="variant_id" id="neg-variant-id" />
+			<input type="hidden" name="vendor_org_id" id="neg-vendor-id" />
+			
+			<div class="modal-body stack-md">
+				<div class="bg-surface-sunken p-3.5 rounded-xl border stack-2xs">
+					<div class="text-xs text-muted font-bold">الصنف الدوائي المختار:</div>
+					<div class="text-sm font-black text-primary" id="neg-product-name">-</div>
+					<div class="text-xs text-secondary font-semibold">سعر التوريد الحالي المعلن: <strong id="neg-current-price" class="tabular-nums text-primary font-black">-</strong> ج.م</div>
+				</div>
+
+				<div class="d-grid grid-auto-fit-sm gap-3">
+					<div class="stack-xs">
+						<label class="form-label font-bold text-primary text-xs">السعر المقترح للعبوة (ج.م) <span class="text-danger">*</span></label>
+						<input type="number" step="0.01" min="0.01" name="proposed_price" id="neg-proposed-price" required placeholder="0.00" class="form-input tabular-nums font-black text-sm w-full" />
+					</div>
+					<div class="stack-xs">
+						<label class="form-label font-bold text-primary text-xs">الكمية المطلوبة (عبوة) <span class="text-danger">*</span></label>
+						<input type="number" min="1" name="qty" id="neg-qty" value="1" required class="form-input tabular-nums font-black text-sm w-full" />
+					</div>
+				</div>
+
+				<div class="stack-xs">
+					<label class="form-label font-bold text-primary text-xs">ملاحظات إضافية للمورّد (اختياري)</label>
+					<textarea name="notes" rows="2" placeholder="اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد..." class="form-input text-xs w-full"></textarea>
+				</div>
+			</div>
+
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<button type="button" class="btn btn-secondary font-bold text-xs" onclick="closeNegotiationModal()">إلغاء</button>
+				<button type="submit" class="btn btn-primary font-bold text-xs px-4 shadow-sm">إرسال طلب التفاوض للمورّد</button>
+			</div>
+		</form>
+	}
+
+	<script>
+		function triggerNegotiationModal(btn) {
+			openNegotiationModal({
+				variant_id: btn.getAttribute('data-variant-id'),
+				product_id: btn.getAttribute('data-product-id'),
+				vendor_org_id: btn.getAttribute('data-vendor-id'),
+				name: btn.getAttribute('data-product-name'),
+				current_price: btn.getAttribute('data-current-price'),
+				min_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)
+			});
+		}
+		function openNegotiationModal(data) {
+			const vId = document.getElementById('neg-variant-id');
+			const oId = document.getElementById('neg-vendor-id');
+			const name = document.getElementById('neg-product-name');
+			const curPrice = document.getElementById('neg-current-price');
+			const qty = document.getElementById('neg-qty');
+			const propPrice = document.getElementById('neg-proposed-price');
+			if (vId) vId.value = data.variant_id || '';
+			if (oId) oId.value = data.vendor_org_id || '';
+			if (name) name.innerText = data.name || 'صنف دوائي';
+			if (curPrice) curPrice.innerText = data.current_price || '0.00';
+			if (qty) qty.value = data.min_qty || 1;
+			if (propPrice) propPrice.value = data.current_price || '';
+			const m = document.getElementById('negotiation-modal');
+			if (m && typeof m.showModal === 'function') {
+				m.showModal();
+			}
+		}
+		function closeNegotiationModal() {
+			const m = document.getElementById('negotiation-modal');
+			if (m && typeof m.close === 'function') {
+				m.close();
+			}
+		}
+	</script>
+}
