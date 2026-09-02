@@ -61,24 +61,21 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 							class="tab-btn active"
 							onclick="filterOrders('all', this)"
 						>
-							<span>كل الطلبيات</span>
-							<span class="badge badge-slate text-xs tabular-nums ms-1">{ fmt.Sprintf("%d", ordersCount) }</span>
+							<span>كل الطلبيات ({ fmt.Sprintf("%d", ordersCount) })</span>
 						</button>
 						<button
 							type="button"
 							class="tab-btn"
 							onclick="filterOrders('active', this)"
 						>
-							<span>قيد التنفيذ</span>
-							<span class="badge badge-amber text-xs tabular-nums ms-1">{ fmt.Sprintf("%d", activeCount) }</span>
+							<span>قيد التنفيذ ({ fmt.Sprintf("%d", activeCount) })</span>
 						</button>
 						<button
 							type="button"
 							class="tab-btn"
 							onclick="filterOrders('completed', this)"
 						>
-							<span>المكتملة</span>
-							<span class="badge badge-emerald text-xs tabular-nums ms-1">{ fmt.Sprintf("%d", completedCount) }</span>
+							<span>المكتملة ({ fmt.Sprintf("%d", completedCount) })</span>
 						</button>
 						if cancelledCount > 0 {
 							<button
@@ -86,8 +83,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 								class="tab-btn"
 								onclick="filterOrders('cancelled', this)"
 							>
-								<span>الملغية</span>
-								<span class="badge badge-rose text-xs tabular-nums ms-1">{ fmt.Sprintf("%d", cancelledCount) }</span>
+								<span>الملغية ({ fmt.Sprintf("%d", cancelledCount) })</span>
 							</button>
 						}
 					</div>

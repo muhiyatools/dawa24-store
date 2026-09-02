@@ -9,12 +9,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) {
+templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang, dir string) {
 	@layouts.CustomerShell("الموردون المتابعون", "followed", lang, dir, nil) {
 		<div class="page-container">
 			
 			<!-- Page Header -->
-			<div class="glass-panel p-6 mb-6">
+			<div class="glass-panel p-6 mb-6 rounded-2xl border shadow-xs">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="stack-xs">
 						<div class="d-flex items-center gap-3 mb-1">
@@ -30,37 +30,88 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 						</p>
 					</div>
 
-					<a href="/suppliers" class="btn btn-secondary btn-sm font-bold gap-2">
-						@components.IconSearch("icon-xs")
-						<span>دليل الموردين المعتمدين</span>
-					</a>
+					<div class="d-flex items-center gap-2.5 flex-wrap">
+						<span class="badge badge-primary text-xs font-bold tabular-nums px-3 py-1.5">
+							{ fmt.Sprintf("%d مورد متابع", len(suppliers)) }
+						</span>
+						<a href="/suppliers" class="btn btn-secondary btn-sm font-bold gap-2 shadow-xs">
+							@components.IconSearch("icon-xs")
+							<span>دليل الموردين المعتمدين</span>
+						</a>
+					</div>
 				</div>
+			</div>
+
+			<!-- Search & Sort Filter Toolbar -->
+			<div class="glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4 rounded-2xl border shadow-xs">
+				<form method="GET" action="/suppliers/followed" class="d-flex items-center gap-3 flex-wrap flex-1 m-0" id="followed-filter-form">
+					<div class="position-relative flex-1 min-w-0">
+						<input
+							type="text"
+							name="q"
+							value={ query }
+							placeholder="ابحث في الموردين المتابعين بالاسم التجاري أو السجل..."
+							class="form-input text-xs w-full"
+						/>
+					</div>
+
+					<div class="d-flex items-center gap-2 flex-shrink-0">
+						<label class="text-xs text-muted font-bold whitespace-nowrap">الترتيب:</label>
+						<select
+							name="sort"
+							class="form-select text-xs"
+							onchange="document.getElementById('followed-filter-form').submit()"
+						>
+							<option value="newest" selected?={ sort == "" || sort == "newest" }>الأحدث متابعة</option>
+							<option value="oldest" selected?={ sort == "oldest" }>الأقدم متابعة</option>
+							<option value="name_asc" selected?={ sort == "name_asc" }>الاسم أ-ي</option>
+							<option value="name_desc" selected?={ sort == "name_desc" }>الاسم ي-أ</option>
+						</select>
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
+						<span>بحث وتطبيق</span>
+					</button>
+
+					if query != "" || (sort != "" && sort != "newest") {
+						<a href="/suppliers/followed" class="btn btn-secondary btn-sm text-xs">
+							<span>إلغاء الفلتر</span>
+						</a>
+					}
+				</form>
 			</div>
 
 			if len(suppliers) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:       "لم تقم بمتابعة أي مورد بعد",
-					Message:     "عند متابعة شركات الأدوية والموزعين المعتمدين، ستتمكن من الوصول السريع لكتالوجاتهم وأسعارهم الحصرية والتوريد المباشر.",
+					Title:       "لم يتم العثور على موردين مطابقين",
+					Message:     "تأكد من كتابة اسم المورد بشكل صحيح، أو تصفح دليل الموردين المعتمدين لمتابعة موردين جدد.",
 					ActionLabel: "تصفح دليل الموردين المعتمدين",
+					ActionURL:   "/suppliers",
 				})
 			} else {
-				<div class="d-grid grid-auto-fit-sm gap-6">
+				<div class="supplier-cards-grid mb-6">
 					for _, s := range suppliers {
 						if s != nil {
-							<div class="glass-panel p-5 d-flex flex-col justify-between">
+							<div class="glass-panel p-5 rounded-2xl border shadow-xs d-flex flex-col justify-between hover-shadow-md transition-all">
 								<div>
 									<!-- Header with Emblem and Verified Badge -->
-									<div class="flex-between items-start gap-3 mb-4">
-										<div class="d-flex items-center gap-3">
-											<div class="w-12 h-12 rounded-xl bg-primary-subtle text-primary flex-center flex-shrink-0">
-												@components.IconBuilding("icon-md")
+									<div class="flex-between items-start gap-3 mb-3">
+										<div class="d-flex items-center gap-2.5 min-w-0">
+											<div class="w-11 h-11 rounded-xl bg-primary-subtle text-primary flex-center flex-shrink-0">
+												@components.IconBuilding("icon-sm")
 											</div>
-											<div class="stack-2xs">
-												<h3 class="font-bold text-sm text-primary m-0">
-													{ s.TradeName.Get(i18n.Lang(lang)) }
+											<div class="stack-2xs min-w-0">
+												<h3 class="font-extrabold text-sm text-primary m-0 line-clamp-1">
+													<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="text-primary text-decoration-none hover-text-brand">
+														if s.TradeName.Get(i18n.Lang(lang)) != "" {
+															{ s.TradeName.Get(i18n.Lang(lang)) }
+														} else {
+															{ s.LegalName }
+														}
+													</a>
 												</h3>
 												<div>
-													<span class="badge badge-emerald text-xs font-bold">مورد معتمد</span>
+													<span class="badge badge-emerald text-2xs font-bold py-0 px-1.5">مورد معتمد</span>
 												</div>
 											</div>
 										</div>
@@ -73,15 +124,15 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 									</div>
 
 									<!-- Legal Info -->
-									<div class="p-3 bg-surface-sunken rounded-xl border stack-2xs text-xs mb-4">
+									<div class="p-3 bg-surface-sunken rounded-xl border stack-2xs text-xs mb-3">
 										if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
-											<div>
+											<div class="text-2xs line-clamp-1">
 												<span class="text-muted font-bold">الاسم القانوني: </span>
 												<strong class="text-primary">{ s.LegalName }</strong>
 											</div>
 										}
 										if s.CommercialRegister != "" {
-											<div>
+											<div class="text-2xs">
 												<span class="text-muted font-bold">السجل التجاري: </span>
 												<strong class="tabular-nums font-mono text-primary">{ s.CommercialRegister }</strong>
 											</div>
@@ -91,11 +142,11 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 
 								<!-- Bottom Actions -->
 								<div class="flex-between items-center gap-2 pt-3 border-t">
-									<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm font-bold flex-1 justify-center gap-1">
+									<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm font-bold flex-1 justify-center gap-1 shadow-2xs text-xs">
 										@components.IconPackage("icon-xs")
 										<span>عرض الكتالوج والطلب</span>
 									</a>
-									<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="تواصل عبر واتساب">
+									<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-emerald" title="تواصل عبر واتساب">
 										@components.IconWhatsApp("icon-xs")
 									</a>
 								</div>

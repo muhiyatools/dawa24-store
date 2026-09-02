@@ -2,7 +2,7 @@ package pages
 
 import (
 	"fmt"
-	"strings"
+
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -16,36 +16,12 @@ templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
 }
 
 templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
-	<!-- Leaflet is served from this application and loaded on demand by
-	     app.js (ensureLeaflet). It was previously fetched from unpkg here and
-	     again from the document head on every page in the platform. -->
-	
-	<style>
-		@keyframes supplier-pulse-ring {
-			0% {
-				transform: scale(0.85);
-				opacity: 0.9;
-			}
-			70% {
-				transform: scale(1.6);
-				opacity: 0;
-			}
-			100% {
-				transform: scale(1.8);
-				opacity: 0;
-			}
-		}
-		.supplier-active-pin-container {
-			z-index: 10000 !important;
-		}
-	</style>
-
 	<div class="page-container">
 		
 		<!-- Top Banner & Header -->
-		<div class="glass-panel p-6 mb-6">
+		<div class="glass-panel p-6 mb-6 rounded-2xl border shadow-xs">
 			<div class="flex-between items-center flex-wrap gap-4">
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
 							@components.IconBuilding("icon-sm")
@@ -53,17 +29,17 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 						<h1 class="text-2xl font-black text-primary m-0">
 							دليل شركات ومخازن التوزيع الدوائي
 						</h1>
-						<span class="badge badge-primary text-xs font-bold tabular-nums">
-							{ fmt.Sprintf("%d مورد معتمد", len(data.Suppliers)) }
-						</span>
 					</div>
 					<p class="text-sm text-secondary m-0">
 						مواعيد العمل اللحظية، نطاقات التغطية الجغرافية، والطلب المباشر لصيدليتك مع ضمان سلسلة التبريد الدوائي
 					</p>
 				</div>
 
-				<div class="d-flex items-center gap-2 flex-wrap">
-					<a href="/suppliers/followed" class="btn btn-secondary btn-sm font-bold gap-1">
+				<div class="d-flex items-center gap-2.5 flex-wrap">
+					<span class="badge badge-primary text-xs font-bold tabular-nums px-3 py-1.5">
+						{ fmt.Sprintf("%d مورد معتمد", len(data.Suppliers)) }
+					</span>
+					<a href="/suppliers/followed" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
 						@components.IconHeart("icon-xs")
 						<span>الموردون المتابعون</span>
 					</a>
@@ -72,10 +48,9 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		</div>
 
 		<!-- Control Toolbar: Search, Filters & View Toggle -->
-		<div class="glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4">
-			
+		<div class="glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4 rounded-2xl border shadow-xs">
 			<!-- Search Form -->
-			<form method="GET" action="/suppliers" class="d-flex gap-2 flex-1">
+			<form method="GET" action="/suppliers" class="d-flex gap-2 flex-1 m-0">
 				<div class="position-relative flex-1">
 					<input
 						type="text"
@@ -96,7 +71,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			</form>
 
 			<!-- View Switcher (List View vs Map View) -->
-			<div class="tabs-nav">
+			<div class="tabs-nav m-0">
 				<button
 					type="button"
 					id="view-toggle-list"
@@ -118,7 +93,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			</div>
 		</div>
 
-		<!-- View 1: List / Grid View -->
+		<!-- View 1: Responsive Grid Cards View -->
 		<div id="suppliers-list-view" class={ templ.KV("d-none", data.ActiveTab == "map") }>
 			if len(data.Suppliers) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
@@ -128,19 +103,19 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 					ActionURL:   "/suppliers",
 				})
 			} else {
-    <div class="stack-sm">
+				<div class="supplier-cards-grid mb-6">
 					for _, s := range data.Suppliers {
-						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
-       <div class="stack-sm">
+						<div class="glass-panel p-5 rounded-2xl border shadow-xs d-flex flex-col justify-between hover-shadow-md transition-all">
+							<div>
 								<!-- Header Strip: Logo, Name, Verified & Status Badge -->
-								<div class="flex-between items-start mb-4 gap-3">
-									<div class="d-flex items-center gap-3">
-										<div class="user-avatar-badge text-lg">
+								<div class="flex-between items-start mb-3 gap-2">
+									<div class="d-flex items-center gap-2.5 min-w-0">
+										<div class="w-10 h-10 rounded-xl bg-primary-subtle text-primary flex-center flex-shrink-0">
 											@components.IconBuilding("icon-sm")
 										</div>
-          <div class="stack-sm">
-											<h3 class="text-base font-extrabold text-primary m-0 leading-tight">
-												<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.Org.ID)) } class="text-primary text-decoration-none">
+										<div class="stack-2xs min-w-0">
+											<h3 class="text-sm font-extrabold text-primary m-0 leading-tight line-clamp-1">
+												<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.Org.ID)) } class="text-primary text-decoration-none hover-text-brand">
 													if s.Org.TradeName.Get(i18n.Lang(lang)) != "" {
 														{ s.Org.TradeName.Get(i18n.Lang(lang)) }
 													} else {
@@ -148,77 +123,63 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 													}
 												</a>
 											</h3>
-											<div class="d-flex items-center gap-2 mt-1">
-												<span class="badge badge-sky text-xs font-bold">{ OrgTypeLabel(s.Org.Type) }</span>
-												<span class="badge badge-emerald text-xs font-bold">معتمد</span>
+											<div class="d-flex items-center gap-1.5 mt-0.5 flex-wrap">
+												<span class="badge badge-sky text-2xs font-bold py-0 px-1">{ OrgTypeLabel(s.Org.Type) }</span>
+												<span class="badge badge-emerald text-2xs font-bold py-0 px-1">معتمد</span>
 											</div>
 										</div>
 									</div>
 
 									<!-- Rating pill -->
-									<div class="badge badge-amber text-xs font-black tabular-nums">
+									<div class="badge badge-amber text-2xs font-black tabular-nums py-0.5 px-1.5 flex-shrink-0">
 										<span>★</span>
 										<span>{ fmt.Sprintf("%.1f", s.Rating) }</span>
 									</div>
 								</div>
 
 								<!-- Working Hours & Live Open/Closed Status Section -->
-								<div class="p-3 rounded-lg bg-surface-sunken border mb-4 d-flex flex-col gap-2 text-xs">
-									
+								<div class="p-3 rounded-xl bg-surface-sunken border mb-3 d-flex flex-col gap-1.5 text-xs">
 									<!-- Open / Closed Indicator -->
-									<div class="flex-between items-center flex-wrap gap-2">
-										<div class="d-flex items-center gap-2">
+									<div class="flex-between items-center flex-wrap gap-1.5">
+										<div class="d-flex items-center gap-1.5">
 											if s.IsOpenNow {
-												<span class="badge badge-emerald text-xs font-bold">
-													<span>مفتوح الآن</span>
+												<span class="badge badge-emerald text-2xs font-bold py-0 px-1">
+													مفتوح الآن
 												</span>
 											} else {
-												<span class="badge badge-slate text-xs font-bold">
-													<span>مغلق حالياً</span>
+												<span class="badge badge-slate text-2xs font-bold py-0 px-1">
+													مغلق حالياً
 												</span>
 											}
-											<span class="text-xs text-secondary font-bold">{ s.StatusNote }</span>
+											<span class="text-2xs text-secondary font-bold">{ s.StatusNote }</span>
 										</div>
 
-										<span class="badge badge-slate text-xs">
+										<span class="badge badge-slate text-2xs py-0 px-1">
 											2-8°C مبرد
 										</span>
 									</div>
 
 									<!-- Working Hours Details -->
-									<div class="d-flex items-center gap-2 text-primary mt-1">
+									<div class="d-flex items-center gap-1.5 text-primary text-2xs">
 										<span class="text-muted">⏱ مواعيد العمل:</span>
 										<strong class="tabular-nums font-bold">{ s.WorkingHours }</strong>
 									</div>
 
-									<!-- Coverage Days & Radius -->
-									<div class="d-flex items-center gap-2 text-secondary">
+									<!-- Coverage Days -->
+									<div class="d-flex items-center gap-1.5 text-secondary text-2xs">
 										<span class="text-muted">أيام التغطية:</span>
 										<span>{ s.CoverageDays }</span>
 									</div>
 
-									<!-- Covered Areas Tags -->
-									if len(s.CoverageAreas) > 0 {
-										<div class="d-flex items-center gap-1 flex-wrap mt-1">
-											<span class="text-xs text-muted">المناطق المغطاة:</span>
-											for _, area := range s.CoverageAreas {
-												<span class="badge badge-slate text-xs font-mono">
-													{ area }
-												</span>
-											}
-										</div>
-									}
-
 									<!-- Minimum Order Limit -->
-									<div class="flex-between items-center border-t pt-2 mt-1">
-										<span class="text-muted">الحد الأدنى للطلب:</span>
+									<div class="flex-between items-center border-t pt-1.5 mt-0.5 text-2xs">
+										<span class="text-muted">الحد الأدنى:</span>
 										if s.MinOrderPrice.Minor() > 0 {
 											<strong class="tabular-nums font-bold text-primary">{ s.MinOrderPrice.String() } ج.م</strong>
 										} else {
 											<span class="text-emerald font-bold">بدون حد أدنى</span>
 										}
 									</div>
-
 								</div>
 							</div>
 
@@ -226,7 +187,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 							<div class="border-t pt-3 d-flex gap-2 items-center">
 								<a
 									href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.Org.ID)) }
-									class="btn btn-primary btn-sm flex-1 justify-center font-bold text-xs gap-1"
+									class="btn btn-primary btn-sm flex-1 justify-center font-bold text-xs gap-1 shadow-2xs"
 								>
 									@components.IconPackage("icon-xs")
 									<span>عرض الكتالوج والمنتجات</span>
@@ -249,238 +210,8 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			}
 		</div>
 
-		<!-- View 2: Interactive Map View -->
-		<div id="suppliers-map-view" class={ templ.KV("d-none", data.ActiveTab != "map") }>
-   <div class="stack-sm">
-				
-				<!-- Map Side Panel: Quick List & Focus -->
-				<div class="glass-panel">
-     <div class="stack-sm">
-						<h3 class="font-bold text-sm m-0">
-							مواقع مخازن التوزيع الدوائي
-						</h3>
-						<span>انقر على أي مورد للتركيز عليه على الخريطة</span>
-					</div>
-
-     <div class="stack-sm">
-						for idx, s := range data.Suppliers {
-							<div
-								class="map-supplier-item"
-								onclick={ templ.ComponentScript{Call: fmt.Sprintf("focusSupplierOnMap(%f, %f, %d)", s.Latitude, s.Longitude, idx)} }
-							
-							>
-        <div class="stack-sm">
-									<strong>
-										if s.Org.TradeName.Get(i18n.Lang(lang)) != "" {
-											{ s.Org.TradeName.Get(i18n.Lang(lang)) }
-										} else {
-											{ s.Org.LegalName }
-										}
-									</strong>
-									if s.IsOpenNow {
-										<span class="badge badge-emerald text-xs font-bold">مفتوح</span>
-									} else {
-										<span class="badge badge-slate text-xs">مغلق</span>
-									}
-								</div>
-        <div class="stack-sm">
-									<span>⏱</span>
-									<span>{ s.WorkingHours }</span>
-								</div>
-							</div>
-						}
-					</div>
-				</div>
-
-				<!-- Map Container -->
-				<div class="glass-panel">
-					<div class="stack-sm" id="suppliers-leaflet-map"></div>
-				</div>
-
-			</div>
-		</div>
+		<!-- View 2: Interactive Map Component -->
+		@SuppliersMap(lang, dir, data)
 
 	</div>
-
-	<!-- JSON Data for Map Integration -->
-	<script id="suppliers-data-json" type="application/json">
-		{ templ.Raw(SuppliersJSON(data.Suppliers, lang)) }
-	</script>
-
-	<!-- Interactive Map & View Switcher Script -->
-	<script>
-		let mapInstance = null;
-		const markers = [];
-
-		function getSuppliersData() {
-			try {
-				const el = document.getElementById('suppliers-data-json');
-				return el ? JSON.parse(el.textContent || '[]') : [];
-			} catch (e) {
-				return [];
-			}
-		}
-
-		let activeMarkerIdx = -1;
-
-		function getNormalPinIcon(isOpen) {
-			const statusColor = isOpen ? '#10b981' : '#64748b';
-			return L.divIcon({
-				className: 'custom-map-pin',
-				html: `<div class="stack-sm" style="background:${statusColor}; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; border:3px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:transform 0.2s;"></div>`,
-				iconSize: [38, 38],
-				iconAnchor: [19, 38],
-				popupAnchor: [0, -38]
-			});
-		}
-
-		function getActiveLargePinIcon() {
-			return L.divIcon({
-				className: 'supplier-active-pin-container',
-				html: `
-					<div class="supplier-active-pin">
-						<div class="stack-sm"></div>
-						<div class="stack-xs text-sm">@components.IconBuilding("icon-sm")</div>
-					</div>
-				`,
-				iconSize: [56, 56],
-				iconAnchor: [28, 56],
-				popupAnchor: [0, -56]
-			});
-		}
-
-		function initSuppliersMap() {
-			if (mapInstance) return;
-			const mapEl = document.getElementById('suppliers-leaflet-map');
-			if (!mapEl) return;
-
-			// Leaflet arrives on demand; retry once it has.
-			if (typeof L === 'undefined') {
-				if (typeof ensureLeaflet === 'function') {
-					ensureLeaflet().then(initSuppliersMap).catch(function (err) {
-						mapEl.setAttribute('data-map-failed', 'true');
-						console.error('suppliers map:', err);
-					});
-				}
-				return;
-			}
-
-			// Egypt center: Cairo (30.0444, 31.2357)
-			mapInstance = L.map('suppliers-leaflet-map').setView([30.0444, 31.2357], 7);
-
-			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				maxZoom: 19,
-				attribution: '© OpenStreetMap contributors'
-			}).addTo(mapInstance);
-
-			const data = getSuppliersData();
-			data.forEach((s, idx) => {
-				if (!s.lat || !s.lng) return;
-
-				const statusText = s.isOpen ? 'مفتوح الآن ' : 'مغلق حالياً ';
-				const customIcon = getNormalPinIcon(s.isOpen);
-
-				const marker = L.marker([parseFloat(s.lat), parseFloat(s.lng)], { icon: customIcon }).addTo(mapInstance);
-
-				const linkHtml = '<a href="/suppliers/' + s.id + '">عرض الكتالوج والطلب ↗</a>';
-				const popupContent = '<div class="stack-sm">' +
-					'<div class="stack-sm"><span></span> ' + s.name + '</div>' +
-					'<div class="stack-sm"><span>' + statusText + '</span></div>' +
-					'<div class="stack-sm">⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
-					'<div class="stack-sm"><strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
-					(s.address ? '<div class="stack-xs text-sm">' + s.address + '</div>' : '') +
-					'<div class="stack-xs text-sm">' + linkHtml + '</div>' +
-				'</div>';
-
-				marker.bindPopup(popupContent);
-				
-				marker.on('click', function() {
-					focusSupplierOnMap(parseFloat(s.lat), parseFloat(s.lng), idx);
-				});
-
-				markers.push(marker);
-			});
-		}
-
-		function focusSupplierOnMap(lat, lng, idx) {
-			switchSupplierView('map');
-			if (mapInstance) {
-				// Reset previously active marker
-				if (activeMarkerIdx >= 0 && markers[activeMarkerIdx]) {
-					const prevData = getSuppliersData()[activeMarkerIdx];
-					if (prevData) {
-						markers[activeMarkerIdx].setIcon(getNormalPinIcon(prevData.isOpen));
-					}
-				}
-
-				// Set current marker to active large glowing pin
-				if (markers[idx]) {
-					markers[idx].setIcon(getActiveLargePinIcon());
-					activeMarkerIdx = idx;
-					mapInstance.flyTo([lat, lng], 15, { animate: true, duration: 1.2 });
-					setTimeout(() => {
-						markers[idx].openPopup();
-					}, 400);
-				} else {
-					mapInstance.flyTo([lat, lng], 15, { animate: true, duration: 1.2 });
-				}
-			}
-		}
-
-		function switchSupplierView(view) {
-			const listView = document.getElementById('suppliers-list-view');
-			const mapView = document.getElementById('suppliers-map-view');
-			const listBtn = document.getElementById('view-toggle-list');
-			const mapBtn = document.getElementById('view-toggle-map');
-
-			if (view === 'map') {
-				if (listView) listView.style.display = 'none';
-				if (mapView) mapView.style.display = 'block';
-				if (listBtn) { listBtn.classList.remove('btn-primary'); listBtn.classList.add('btn-secondary'); }
-				if (mapBtn) { mapBtn.classList.remove('btn-secondary'); mapBtn.classList.add('btn-primary'); }
-				setTimeout(() => {
-					initSuppliersMap();
-					if (mapInstance) mapInstance.invalidateSize();
-				}, 100);
-			} else {
-				if (listView) listView.style.display = 'block';
-				if (mapView) mapView.style.display = 'none';
-				if (listBtn) { listBtn.classList.remove('btn-secondary'); listBtn.classList.add('btn-primary'); }
-				if (mapBtn) { mapBtn.classList.remove('btn-primary'); mapBtn.classList.add('btn-secondary'); }
-			}
-		}
-
-		document.addEventListener('DOMContentLoaded', () => {
-			const urlParams = new URLSearchParams(window.location.search);
-			if (urlParams.get('view') === 'map') {
-				switchSupplierView('map');
-			}
-		});
-	</script>
 }
-
-
-func dosageFormIcon(form string) string {
-	form = strings.ToLower(form)
-	switch {
-	case strings.Contains(form, "قرص") || strings.Contains(form, "اقراص") || strings.Contains(form, "أقراص") || strings.Contains(form, "tablet") || strings.Contains(form, "tab"):
-		return ""
-	case strings.Contains(form, "كبسول") || strings.Contains(form, "capsule") || strings.Contains(form, "cap"):
-		return ""
-	case strings.Contains(form, "شراب") || strings.Contains(form, "syrup") || strings.Contains(form, "liquid"):
-		return ""
-	case strings.Contains(form, "فوار") || strings.Contains(form, "effervescent") || strings.Contains(form, "sachet") || strings.Contains(form, "أكياس"):
-		return ""
-	case strings.Contains(form, "حقن") || strings.Contains(form, "امبول") || strings.Contains(form, "أمبول") || strings.Contains(form, "ampoule") || strings.Contains(form, "vial"):
-		return ""
-	case strings.Contains(form, "كريم") || strings.Contains(form, "مرهم") || strings.Contains(form, "gel") || strings.Contains(form, "cream") || strings.Contains(form, "ointment"):
-		return ""
-	case strings.Contains(form, "قطرة") || strings.Contains(form, "drop"):
-		return ""
-	case strings.Contains(form, "بخاخ") || strings.Contains(form, "spray"):
-		return ""
-	default:
-		return ""
-	}
-}
-

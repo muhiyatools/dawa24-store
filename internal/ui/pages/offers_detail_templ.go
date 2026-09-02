@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -67,7 +68,7 @@ func OfferDetail(lang, dir string, data OfferDetailPageData) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.ShellFor(data.Offer.Title.Get(i18n.Lang(lang))+" | تفاصيل العرض الترويجي", "offers", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.ShellFor(data.Offer.Title.Get(i18n.ParseLang(lang))+" | تفاصيل العرض الترويجي", "offers", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,14 +97,14 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Navigation Breadcrumb --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 font-bold\"><a href=\"/customer/dashboard\" class=\"text-secondary transition-colors\">Ù„ÙˆØ\u00adØ© Ø§Ù„ØªØ\u00adÙƒÙ…</a> <span>/</span> <a href=\"/offers\" class=\"text-secondary transition-colors\">Ø§Ù„Ø¹Ø±ÙˆØ¶ ÙˆØ§Ù„Ø®ØµÙˆÙ…Ø§Øª</a> <span>/</span> <span class=\"text-primary font-black\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container py-6\"><!-- Navigation Breadcrumb --><nav class=\"d-flex items-center gap-2 text-xs text-muted mb-4 font-bold\"><a href=\"/customer/dashboard\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span>/</span> <a href=\"/offers\" class=\"text-secondary transition-colors\">العروض والخصومات</a> <span>/</span> <span class=\"text-primary font-black\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Title.Get(i18n.Lang(lang)))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Title.Get(i18n.ParseLang(lang)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 37, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 38, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -114,14 +115,14 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Offer.DiscountPercentage > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"badge badge-emerald font-black text-xs shadow-xs\">Ø®ØµÙ… ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"badge badge-emerald font-black text-xs shadow-xs\">خصم ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", data.Offer.DiscountPercentage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 47, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 48, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -132,20 +133,20 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else if data.Offer.DiscountAmount.IsPositive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"badge badge-emerald font-black text-xs shadow-xs\">Ø®ØµÙ… Ø¨Ù‚ÙŠÙ…Ø© ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span class=\"badge badge-emerald font-black text-xs shadow-xs\">خصم بقيمة ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.DiscountAmount.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 51, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 52, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " Ø¬.Ù…</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " ج.م</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -158,14 +159,14 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>ØªÙˆØ±ÙŠØ¯ Ø¯ÙˆØ§Ø¦ÙŠ Ù…Ø¨Ø§Ø´Ø±</span></span></div><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>توريد دوائي مباشر</span></span></div><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Title.Get(i18n.Lang(lang)))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Title.Get(i18n.ParseLang(lang)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 60, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 61, Col: 50}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -175,15 +176,15 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if data.Offer.Description.Get(i18n.Lang(lang)) != "" {
+		if data.Offer.Description.Get(i18n.ParseLang(lang)) != "" {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<p class=\"text-xs text-secondary mt-2 mb-0 max-w-2xl leading-relaxed font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Description.Get(i18n.Lang(lang)))
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.Description.Get(i18n.ParseLang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 64, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 65, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -199,43 +200,43 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Offer.TotalPrice.IsPositive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"text-xs text-muted d-block font-semibold\">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø³Ø¹Ø± Ø§Ù„Ø\u00adØ²Ù…Ø©</span> <strong class=\"text-2xl font-black text-brand tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"text-xs text-muted d-block font-semibold\">إجمالي سعر الحزمة</span> <strong class=\"text-2xl font-black text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.TotalPrice.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 73, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 74, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <span class=\"text-xs font-bold text-secondary\">Ø¬.Ù…</span></strong>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <span class=\"text-xs font-bold text-secondary\">ج.م</span></strong>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if data.Offer.MinOrderAmount.IsPositive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"text-xs text-muted d-block font-semibold\">Ø§Ù„Ø\u00adØ¯ Ø§Ù„Ø£Ø¯Ù†Ù‰ Ù„Ù„Ø·Ù„Ø¨</span> <strong class=\"text-2xl font-black text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"text-xs text-muted d-block font-semibold\">الحد الأدنى للطلب</span> <strong class=\"text-2xl font-black text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.MinOrderAmount.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 78, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 79, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " <span class=\"text-xs font-bold text-secondary\">Ø¬.Ù…</span></strong>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " <span class=\"text-xs font-bold text-secondary\">ج.م</span></strong>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><!-- Offer Validity & Summary Grid --><div class=\"d-grid grid-auto-fit-sm gap-4 bg-surface-sunken p-4 rounded-xl border mt-5 text-xs\"><div><span class=\"text-muted font-bold d-block mb-1\">Ø§Ù„Ù…ÙˆØ±Ø¯ / Ø§Ù„Ù…Ù†Ø´Ø£Ø©:</span> <strong class=\"text-primary text-sm font-extrabold d-block\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><!-- Offer Validity & Summary Grid --><div class=\"d-grid grid-auto-fit-sm gap-4 bg-surface-sunken p-4 rounded-xl border mt-5 text-xs\"><div><span class=\"text-muted font-bold d-block mb-1\">المورد / المنشأة:</span> <strong class=\"text-primary text-sm font-extrabold d-block\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -243,14 +244,14 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.OrganizationName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 90, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 91, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>Ù…ÙˆØ±Ø¯ Ø£Ø¯ÙˆÙŠØ© Ù…Ø¹ØªÙ…Ø¯</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>مورد أدوية معتمد</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -260,14 +261,14 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Offer.BranchName != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-secondary text-xs mt-0.5 d-block font-medium\">Ù…Ø³ØªÙˆØ¯Ø¹ / Ù\u0081Ø±Ø¹: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-secondary text-xs mt-0.5 d-block font-medium\">مستودع / فرع: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.BranchName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 96, Col: 135}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 97, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -278,19 +279,19 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div><span class=\"text-muted font-bold d-block mb-1\">Ø³Ø±ÙŠØ§Ù† Ø§Ù„Ø¹Ø±Ø¶:</span><div class=\"text-primary font-bold tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div><span class=\"text-muted font-bold d-block mb-1\">سريان العرض:</span><div class=\"text-primary font-bold tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Offer.StartDate != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>Ù…Ù† ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>من ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.StartDate.Format("2006-01-02"))
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(*data.Offer.StartDate, lang))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 104, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 105, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -302,14 +303,14 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			}
 		}
 		if data.Offer.EndDate != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>Ø\u00adØªÙ‰ ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>حتى ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Offer.EndDate.Format("2006-01-02"))
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(*data.Offer.EndDate, lang))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 107, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 108, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -320,7 +321,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div><div><span class=\"text-muted font-bold d-block mb-1\">Ø´Ø±ÙˆØ· Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø\u00adÙ†:</span> <span class=\"badge badge-sky text-xs font-bold shadow-2xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div><div><span class=\"text-muted font-bold d-block mb-1\">شروط التوريد والشحن:</span> <span class=\"badge badge-sky text-xs font-bold shadow-2xs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -328,7 +329,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>Ø´Ø\u00adÙ† Ù…Ø¬Ù‡Ø² ÙˆÙ…Ø¤Ù…Ù†</span></span></div></div></div><!-- Direct Add-to-Cart Action Bar --><div class=\"p-5 bg-surface-raised border rounded-2xl mb-6 shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"w-10 h-10 rounded-xl bg-primary-subtle text-primary border d-flex items-center justify-center font-black\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>شحن مجهز ومؤمن</span></span></div></div></div><!-- Direct Add-to-Cart Action Bar --><div class=\"p-5 bg-surface-raised border rounded-2xl mb-6 shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"w-10 h-10 rounded-xl bg-primary-subtle text-primary border d-flex items-center justify-center font-black\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -336,7 +337,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div><h3 class=\"text-sm font-black text-primary m-0\">Ø·Ù„Ø¨ Ù‡Ø°Ø§ Ø§Ù„Ø¹Ø±Ø¶ Ø§Ù„ØªØ±ÙˆÙŠØ¬ÙŠ</h3><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">Ø¥Ø¶Ø§Ù\u0081Ø© ÙƒØ§Ù\u0081Ø© Ø£ØµÙ†Ø§Ù\u0081 Ø§Ù„Ø¹Ø±Ø¶ Ø¨Ø£Ø³Ø¹Ø§Ø± Ø§Ù„ØªØ®Ù\u0081ÙŠØ¶ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© Ù…Ø¨Ø§Ø´Ø±Ø© Ø¥Ù„Ù‰ Ø³Ù„Ø© Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª</p></div></div><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div><h3 class=\"text-sm font-black text-primary m-0\">طلب هذا العرض الترويجي</h3><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إضافة كافة أصناف العرض بأسعار التخفيض المعتمدة مباشرة إلى سلة المشتريات</p></div></div><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -348,7 +349,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Offer.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 139, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 140, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -362,7 +363,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>Ø¥Ø¶Ø§Ù\u0081Ø© Ø§Ù„Ø¹Ø±Ø¶ Ù„Ù„Ø³Ù„Ø© ÙˆØ§Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ø¢Ù†</span></button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>إضافة العرض للسلة والشراء الآن</span></button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -374,7 +375,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			var templ_7745c5c3_Var16 templ.SafeURL
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 147, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 148, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -388,7 +389,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ ÙƒØµÙŠØ¯Ù„ÙŠØ© Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ø¹Ø±Ø¶</span></a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>تسجيل الدخول كصيدلية لشراء العرض</span></a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -401,30 +402,30 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span>Ø§Ù„Ø£ØµÙ†Ø§Ù\u0081 Ø§Ù„Ø¯ÙˆØ§Ø¦ÙŠØ© Ø§Ù„Ù…Ø´Ù…ÙˆÙ„Ø© Ø¨Ø§Ù„Ø¹Ø±Ø¶ (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span>الأصناف الدوائية المشمولة بالعرض (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Products)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 160, Col: 179}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 161, Col: 113}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " ØµÙ†Ù\u0081)</span></h3><span class=\"text-xs text-muted font-medium\">Ù…Ø\u00adØªÙˆÙŠØ§Øª Ø§Ù„Ø\u00adØ²Ù…Ø© Ø§Ù„ØªØ±ÙˆÙŠØ¬ÙŠØ©</span></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " صنف)</span></h3><span class=\"text-xs text-muted font-medium\">محتويات الحزمة الترويجية</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Products) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"p-6 bg-surface-sunken rounded-xl border text-center text-xs text-muted font-medium\">Ø§Ù„Ø¹Ø±Ø¶ ÙŠØ´Ù…Ù„ ØªØ®Ù\u0081ÙŠØ¶Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØªÙˆØ±ÙŠØ¯ Ù…Ù† Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬.</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"p-6 bg-surface-sunken rounded-xl border text-center text-xs text-muted font-medium\">العرض يشمل تخفيضات مباشرة على طلبات التوريد من الكتالوج.</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"table-container m-0 border rounded-2xl overflow-hidden shadow-xs\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr><th class=\"py-3 text-start ps-4\">Ø§Ø³Ù… Ø§Ù„ØµÙ†Ù\u0081 / Ø§Ù„Ø¯ÙˆØ§Ø¡</th><th class=\"text-center py-3\">Ø§Ù„ÙƒÙ…ÙŠØ© Ø¨Ø§Ù„Ø¨Ø§Ù‚Ø©</th><th class=\"text-end py-3\">Ø³Ø¹Ø± Ø§Ù„Ø¬Ù…Ù‡ÙˆØ± Ø§Ù„Ø£ØµÙ„ÙŠ</th><th class=\"text-center py-3\">Ù†Ø³Ø¨Ø© Ø§Ù„Ø®ØµÙ…</th><th class=\"text-end py-3\">Ø³Ø¹Ø± Ø§Ù„ØµÙ†Ù\u0081 Ø¨Ø§Ù„Ø¹Ø±Ø¶</th><th class=\"text-end py-3 pe-4\">Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØµØ§Ù\u0081ÙŠ</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"table-container m-0 border rounded-2xl overflow-hidden shadow-xs\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr><th class=\"py-3 text-start ps-4\">اسم الصنف / الدواء</th><th class=\"text-center py-3\">الكمية بالباقة</th><th class=\"text-end py-3\">سعر الجمهور الأصلي</th><th class=\"text-center py-3\">نسبة الخصم</th><th class=\"text-end py-3\">سعر الصنف بالعرض</th><th class=\"text-end py-3 pe-4\">الإجمالي الصافي</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -437,21 +438,21 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(p.VariantName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 188, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 189, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>ØµÙ†Ù\u0081 Ø¯ÙˆØ§Ø¦ÙŠ #")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>صنف دوائي #")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", p.VariantID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 190, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 191, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -469,13 +470,13 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", p.Quantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 196, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 197, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " Ø¹Ø¨ÙˆØ©</span></td><td class=\"text-end tabular-nums font-bold text-xs text-secondary py-3\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " عبوة</span></td><td class=\"text-end tabular-nums font-bold text-xs text-secondary py-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -483,18 +484,18 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(p.OriginalPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 201, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 202, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " <span class=\"text-2xs font-normal\">Ø¬.Ù…</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " <span class=\"text-2xs font-normal\">ج.م</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"text-muted\">â€”</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"text-muted\">—</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -511,7 +512,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", p.DiscountPercentage))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 209, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 210, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -534,13 +535,13 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(p.CustomPrice.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 216, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 217, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, " <span class=\"text-2xs font-bold text-secondary\">Ø¬.Ù…</span></td><td class=\"text-end tabular-nums font-black text-primary text-xs py-3 pe-4\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, " <span class=\"text-2xs font-bold text-secondary\">ج.م</span></td><td class=\"text-end tabular-nums font-black text-primary text-xs py-3 pe-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -548,13 +549,13 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(lineTotal.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 222, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers_detail.templ`, Line: 223, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " <span class=\"text-2xs font-bold text-secondary\">Ø¬.Ù…</span></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " <span class=\"text-2xs font-bold text-secondary\">ج.م</span></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

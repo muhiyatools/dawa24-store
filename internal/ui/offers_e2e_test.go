@@ -303,6 +303,9 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 	if !containsStr(body, "شركة الأمل للمستلزمات والأدوية") {
 		t.Fatalf("expected /offers to contain supplier name")
 	}
+	if strings.Contains(body, "Ø") || strings.Contains(body, "Ù") {
+		t.Fatalf("detected mojibake characters in /offers HTML response")
+	}
 
 	// 2. Test GET /offers/101 (Offer Detail Page)
 	reqDetail := httptest.NewRequest(http.MethodGet, "/offers/101", nil)

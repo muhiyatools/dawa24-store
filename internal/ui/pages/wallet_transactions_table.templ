@@ -1,0 +1,189 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// UnifiedWalletTransaction is a view model that combines ledger entries and deposit requests.
+type UnifiedWalletTransaction struct {
+	IsDepositRequest bool
+	DepositID        int64
+	TypeBadgeClass   string
+	TypeLabel        string
+	StatusBadgeClass string
+	StatusLabel      string
+	AmountFormatted  string
+	IsPositive       bool
+	BalanceAfter     string
+	Description      string
+	Reference        string
+	AttachmentURL    string
+	CreatedAt        string
+}
+
+func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit) []UnifiedWalletTransaction {
+	var list []UnifiedWalletTransaction
+
+	// 1. Pending or rejected deposit requests that are not yet ledger transactions
+	for _, dep := range deps {
+		if dep == nil {
+			continue
+		}
+		// If deposit is approved, it already has a ledger transaction in data.Transactions
+		if dep.Status == "approved" {
+			continue
+		}
+
+		statusBadge := "badge-amber"
+		statusLabel := "قيد المراجعة"
+		if dep.Status == "rejected" {
+			statusBadge = "badge-rose"
+			statusLabel = "مرفوض"
+		} else if dep.Status == "cancelled" {
+			statusBadge = "badge-slate"
+			statusLabel = "ملغي"
+		}
+
+		methodLabel := paymentProviderTitle(dep.PaymentMethod)
+
+		list = append(list, UnifiedWalletTransaction{
+			IsDepositRequest: true,
+			DepositID:        dep.ID,
+			TypeBadgeClass:   "badge-sky",
+			TypeLabel:        "طلب شحن رصيد",
+			StatusBadgeClass: statusBadge,
+			StatusLabel:      statusLabel,
+			AmountFormatted:  "+" + dep.Amount.String() + " ج.م",
+			IsPositive:       true,
+			BalanceAfter:     "-",
+			Description:      fmt.Sprintf("طلب شحن عبر %s (طلب #%d)", methodLabel, dep.ID),
+			Reference:        dep.ReferenceNumber,
+			AttachmentURL:    dep.AttachmentURL,
+			CreatedAt:        dep.CreatedAt.Format("2006-01-02 03:04 PM"),
+		})
+	}
+
+	// 2. Completed ledger transactions
+	for _, tx := range txs {
+		if tx == nil {
+			continue
+		}
+		isPos := (tx.Type == billing.TxDeposit || tx.Type == billing.TxBonus || tx.Type == billing.TxRefund || tx.Type == billing.TxTransferIn)
+		amtPrefix := ""
+		if isPos {
+			amtPrefix = "+"
+		}
+
+		desc := tx.Description
+		if desc == "" {
+			desc = txTypeLabel(tx.Type)
+		}
+
+		ref := tx.ReferenceType
+		if tx.ReferenceID != nil && *tx.ReferenceID > 0 {
+			ref = fmt.Sprintf("%s #%d", tx.ReferenceType, *tx.ReferenceID)
+		}
+
+		list = append(list, UnifiedWalletTransaction{
+			IsDepositRequest: false,
+			TypeBadgeClass:   txTypeBadgeClass(tx.Type),
+			TypeLabel:        txTypeLabel(tx.Type),
+			StatusBadgeClass: "badge-emerald",
+			StatusLabel:      "مكتمل",
+			AmountFormatted:  amtPrefix + tx.Amount.String() + " ج.م",
+			IsPositive:       isPos,
+			BalanceAfter:     tx.BalanceAfter.String() + " ج.م",
+			Description:      desc,
+			Reference:        ref,
+			CreatedAt:        tx.CreatedAt.Format("2006-01-02 03:04 PM"),
+		})
+	}
+
+	return list
+}
+
+templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit) {
+	{{ items := buildUnifiedTransactions(txs, deps) }}
+	<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
+		if len(items) == 0 {
+			<div class="p-6">
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد حركات مالية مسجلة",
+					Message: "لم يتم تسجيل أي عمليات إيداع أو سحب أو طلبات شحن في محفظتك حتى الآن.",
+				})
+			</div>
+		} else {
+			<div class="table-responsive">
+				<table class="data-table mb-0">
+					<thead>
+						<tr>
+							<th>نوع العملية والحالة</th>
+							<th>المبلغ</th>
+							<th>الرصيد بعدها</th>
+							<th>البيان والتفاصيل</th>
+							<th>التاريخ والوقت</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, item := range items {
+							<tr>
+								<!-- Col 1: Type & Status Badge -->
+								<td>
+									<div class="d-flex items-center gap-1.5 flex-wrap">
+										<span class={ "badge", item.TypeBadgeClass, "text-xs font-bold" }>
+											{ item.TypeLabel }
+										</span>
+										<span class={ "badge", item.StatusBadgeClass, "text-2xs font-bold" }>
+											{ item.StatusLabel }
+										</span>
+									</div>
+								</td>
+
+								<!-- Col 2: Amount -->
+								<td class="font-black tabular-nums text-sm">
+									if item.IsPositive {
+										<span class="text-emerald">{ item.AmountFormatted }</span>
+									} else {
+										<span class="text-primary">{ item.AmountFormatted }</span>
+									}
+								</td>
+
+								<!-- Col 3: Balance After -->
+								<td class="text-secondary font-bold tabular-nums text-xs">
+									{ item.BalanceAfter }
+								</td>
+
+								<!-- Col 4: Description & Reference & Receipt -->
+								<td>
+									<div class="font-bold text-xs text-primary leading-snug">
+										{ item.Description }
+									</div>
+									<div class="d-flex items-center gap-2 mt-0.5 flex-wrap">
+										if item.Reference != "" {
+											<span class="text-2xs text-muted font-mono">
+												مرجع: { item.Reference }
+											</span>
+										}
+										if item.AttachmentURL != "" {
+											<a href={ templ.SafeURL(item.AttachmentURL) } target="_blank" rel="noopener" class="text-2xs text-brand font-bold text-decoration-none">
+												[عرض إيصال التحويل ↗]
+											</a>
+										}
+									</div>
+								</td>
+
+								<!-- Col 5: Timestamp -->
+								<td class="text-secondary text-xs tabular-nums font-medium">
+									{ item.CreatedAt }
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+}

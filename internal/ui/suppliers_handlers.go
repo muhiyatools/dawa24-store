@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -280,10 +281,62 @@ func (h *UIHandler) FollowedSuppliersPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var suppliers []*org.Organization
-	if h.orgSvc != nil {
-		suppliers, _ = h.orgSvc.ListFollowedOrganizations(ctx, userID)
+	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	sort := strings.TrimSpace(r.URL.Query().Get("sort"))
+	if sort == "" {
+		sort = "newest"
 	}
 
-	h.renderPage(ctx, w, "render followed suppliers page", pages.CustomerFollowedSuppliers(suppliers, lang, dir))
+	var suppliers []*org.Organization
+	if h.orgSvc != nil {
+		rawList, _ := h.orgSvc.ListFollowedOrganizations(ctx, userID)
+		for _, s := range rawList {
+			if s == nil {
+				continue
+			}
+			if q != "" {
+				nameAr := strings.ToLower(s.TradeName.Get(i18n.AR))
+				nameEn := strings.ToLower(s.TradeName.Get(i18n.EN))
+				legal := strings.ToLower(s.LegalName)
+				cr := strings.ToLower(s.CommercialRegister)
+				if !strings.Contains(nameAr, q) && !strings.Contains(nameEn, q) && !strings.Contains(legal, q) && !strings.Contains(cr, q) {
+					continue
+				}
+			}
+			suppliers = append(suppliers, s)
+		}
+
+		switch sort {
+		case "oldest":
+			for i, j := 0, len(suppliers)-1; i < j; i, j = i+1, j-1 {
+				suppliers[i], suppliers[j] = suppliers[j], suppliers[i]
+			}
+		case "name_asc":
+			slices.SortFunc(suppliers, func(a, b *org.Organization) int {
+				nameA := a.TradeName.Get(i18n.Lang(lang))
+				if nameA == "" {
+					nameA = a.LegalName
+				}
+				nameB := b.TradeName.Get(i18n.Lang(lang))
+				if nameB == "" {
+					nameB = b.LegalName
+				}
+				return strings.Compare(nameA, nameB)
+			})
+		case "name_desc":
+			slices.SortFunc(suppliers, func(a, b *org.Organization) int {
+				nameA := a.TradeName.Get(i18n.Lang(lang))
+				if nameA == "" {
+					nameA = a.LegalName
+				}
+				nameB := b.TradeName.Get(i18n.Lang(lang))
+				if nameB == "" {
+					nameB = b.LegalName
+				}
+				return strings.Compare(nameB, nameA)
+			})
+		}
+	}
+
+	h.renderPage(ctx, w, "render followed suppliers page", pages.CustomerFollowedSuppliers(suppliers, q, sort, lang, dir))
 }

@@ -2,6 +2,7 @@ package pages
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -269,4 +270,22 @@ func SuppliersJSON(suppliers []*SupplierDirectoryItem, lang string) string {
 	}
 	bytes, _ := json.Marshal(list)
 	return string(bytes)
+}
+
+func dosageFormIcon(form string) string {
+	f := strings.ToLower(form)
+	switch {
+	case strings.Contains(f, "tablet") || strings.Contains(f, "قرص") || strings.Contains(f, "أقراص"):
+		return "💊"
+	case strings.Contains(f, "syrup") || strings.Contains(f, "شراب"):
+		return "🧪"
+	case strings.Contains(f, "injection") || strings.Contains(f, "حقن") || strings.Contains(f, "أمبول"):
+		return "💉"
+	case strings.Contains(f, "cream") || strings.Contains(f, "ointment") || strings.Contains(f, "كريم") || strings.Contains(f, "مرهم"):
+		return "🧴"
+	case strings.Contains(f, "drop") || strings.Contains(f, "قطرة"):
+		return "💧"
+	default:
+		return "📦"
+	}
 }

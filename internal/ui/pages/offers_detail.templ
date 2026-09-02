@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -21,7 +22,7 @@ type OfferDetailPageData struct {
 }
 
 templ OfferDetail(lang, dir string, data OfferDetailPageData) {
-	@layouts.ShellFor(data.Offer.Title.Get(i18n.Lang(lang))+" | تفاصيل العرض الترويجي", "offers", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(data.Offer.Title.Get(i18n.ParseLang(lang))+" | تفاصيل العرض الترويجي", "offers", lang, dir, authctx.FromContext(ctx)) {
 		@OfferDetailContent(lang, data)
 	}
 }
@@ -30,11 +31,11 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 	<div class="page-container py-6">
 		<!-- Navigation Breadcrumb -->
 		<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 font-bold">
-			<a href="/customer/dashboard" class="text-secondary transition-colors">Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…</a>
+			<a href="/customer/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
 			<span>/</span>
-			<a href="/offers" class="text-secondary transition-colors">Ø§Ù„Ø¹Ø±ÙˆØ¶ ÙˆØ§Ù„Ø®ØµÙˆÙ…Ø§Øª</a>
+			<a href="/offers" class="text-secondary transition-colors">العروض والخصومات</a>
 			<span>/</span>
-			<span class="text-primary font-black">{ data.Offer.Title.Get(i18n.Lang(lang)) }</span>
+			<span class="text-primary font-black">{ data.Offer.Title.Get(i18n.ParseLang(lang)) }</span>
 		</nav>
 
 		<!-- Offer Header Panel -->
@@ -44,38 +45,38 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 					<div class="d-flex items-center gap-2 mb-1 flex-wrap">
 						if data.Offer.DiscountPercentage > 0 {
 							<span class="badge badge-emerald font-black text-xs shadow-xs">
-								Ø®ØµÙ… { fmt.Sprintf("%.0f%%", data.Offer.DiscountPercentage) }
+								خصم { fmt.Sprintf("%.0f%%", data.Offer.DiscountPercentage) }
 							</span>
 						} else if data.Offer.DiscountAmount.IsPositive() {
 							<span class="badge badge-emerald font-black text-xs shadow-xs">
-								Ø®ØµÙ… Ø¨Ù‚ÙŠÙ…Ø© { data.Offer.DiscountAmount.String() } Ø¬.Ù…
+								خصم بقيمة { data.Offer.DiscountAmount.String() } ج.م
 							</span>
 						}
 						<span class="badge badge-sky font-bold text-xs">
 							@components.IconTruck("icon-2xs")
-							<span>ØªÙˆØ±ÙŠØ¯ Ø¯ÙˆØ§Ø¦ÙŠ Ù…Ø¨Ø§Ø´Ø±</span>
+							<span>توريد دوائي مباشر</span>
 						</span>
 					</div>
 					<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
-						{ data.Offer.Title.Get(i18n.Lang(lang)) }
+						{ data.Offer.Title.Get(i18n.ParseLang(lang)) }
 					</h1>
-					if data.Offer.Description.Get(i18n.Lang(lang)) != "" {
+					if data.Offer.Description.Get(i18n.ParseLang(lang)) != "" {
 						<p class="text-xs text-secondary mt-2 mb-0 max-w-2xl leading-relaxed font-medium">
-							{ data.Offer.Description.Get(i18n.Lang(lang)) }
+							{ data.Offer.Description.Get(i18n.ParseLang(lang)) }
 						</p>
 					}
 				</div>
 
 				<div class="text-end stack-2xs">
 					if data.Offer.TotalPrice.IsPositive() {
-						<span class="text-xs text-muted d-block font-semibold">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø³Ø¹Ø± Ø§Ù„Ø­Ø²Ù…Ø©</span>
+						<span class="text-xs text-muted d-block font-semibold">إجمالي سعر الحزمة</span>
 						<strong class="text-2xl font-black text-brand tabular-nums">
-							{ data.Offer.TotalPrice.String() } <span class="text-xs font-bold text-secondary">Ø¬.Ù…</span>
+							{ data.Offer.TotalPrice.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
 						</strong>
 					} else if data.Offer.MinOrderAmount.IsPositive() {
-						<span class="text-xs text-muted d-block font-semibold">Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰ Ù„Ù„Ø·Ù„Ø¨</span>
+						<span class="text-xs text-muted d-block font-semibold">الحد الأدنى للطلب</span>
 						<strong class="text-2xl font-black text-primary tabular-nums">
-							{ data.Offer.MinOrderAmount.String() } <span class="text-xs font-bold text-secondary">Ø¬.Ù…</span>
+							{ data.Offer.MinOrderAmount.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
 						</strong>
 					}
 				</div>
@@ -84,36 +85,36 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 			<!-- Offer Validity & Summary Grid -->
 			<div class="d-grid grid-auto-fit-sm gap-4 bg-surface-sunken p-4 rounded-xl border mt-5 text-xs">
 				<div>
-					<span class="text-muted font-bold d-block mb-1">Ø§Ù„Ù…ÙˆØ±Ø¯ / Ø§Ù„Ù…Ù†Ø´Ø£Ø©:</span>
+					<span class="text-muted font-bold d-block mb-1">المورد / المنشأة:</span>
 					<strong class="text-primary text-sm font-extrabold d-block">
 						if data.Offer.OrganizationName != "" {
 							{ data.Offer.OrganizationName }
 						} else {
-							<span>Ù…ÙˆØ±Ø¯ Ø£Ø¯ÙˆÙŠØ© Ù…Ø¹ØªÙ…Ø¯</span>
+							<span>مورد أدوية معتمد</span>
 						}
 					</strong>
 					if data.Offer.BranchName != "" {
-						<span class="text-secondary text-xs mt-0.5 d-block font-medium">Ù…Ø³ØªÙˆØ¯Ø¹ / ÙØ±Ø¹: { data.Offer.BranchName }</span>
+						<span class="text-secondary text-xs mt-0.5 d-block font-medium">مستودع / فرع: { data.Offer.BranchName }</span>
 					}
 				</div>
 
 				<div>
-					<span class="text-muted font-bold d-block mb-1">Ø³Ø±ÙŠØ§Ù† Ø§Ù„Ø¹Ø±Ø¶:</span>
+					<span class="text-muted font-bold d-block mb-1">سريان العرض:</span>
 					<div class="text-primary font-bold tabular-nums">
 						if data.Offer.StartDate != nil {
-							<span>Ù…Ù† { data.Offer.StartDate.Format("2006-01-02") } </span>
+							<span>من { format.Date(*data.Offer.StartDate, lang) } </span>
 						}
 						if data.Offer.EndDate != nil {
-							<span>Ø­ØªÙ‰ { data.Offer.EndDate.Format("2006-01-02") }</span>
+							<span>حتى { format.Date(*data.Offer.EndDate, lang) }</span>
 						}
 					</div>
 				</div>
 
 				<div>
-					<span class="text-muted font-bold d-block mb-1">Ø´Ø±ÙˆØ· Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø­Ù†:</span>
+					<span class="text-muted font-bold d-block mb-1">شروط التوريد والشحن:</span>
 					<span class="badge badge-sky text-xs font-bold shadow-2xs">
 						@components.IconTruck("icon-2xs")
-						<span>Ø´Ø­Ù† Ù…Ø¬Ù‡Ø² ÙˆÙ…Ø¤Ù…Ù†</span>
+						<span>شحن مجهز ومؤمن</span>
 					</span>
 				</div>
 			</div>
@@ -126,9 +127,9 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 					@components.IconTag("icon-sm")
 				</div>
 				<div>
-					<h3 class="text-sm font-black text-primary m-0">Ø·Ù„Ø¨ Ù‡Ø°Ø§ Ø§Ù„Ø¹Ø±Ø¶ Ø§Ù„ØªØ±ÙˆÙŠØ¬ÙŠ</h3>
+					<h3 class="text-sm font-black text-primary m-0">طلب هذا العرض الترويجي</h3>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
-						Ø¥Ø¶Ø§ÙØ© ÙƒØ§ÙØ© Ø£ØµÙ†Ø§Ù Ø§Ù„Ø¹Ø±Ø¶ Ø¨Ø£Ø³Ø¹Ø§Ø± Ø§Ù„ØªØ®ÙÙŠØ¶ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© Ù…Ø¨Ø§Ø´Ø±Ø© Ø¥Ù„Ù‰ Ø³Ù„Ø© Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª
+						إضافة كافة أصناف العرض بأسعار التخفيض المعتمدة مباشرة إلى سلة المشتريات
 					</p>
 				</div>
 			</div>
@@ -140,13 +141,13 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 						<input type="hidden" name="quantity" value="1" />
 						<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm">
 							@components.IconCart("icon-xs")
-							<span>Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ø¹Ø±Ø¶ Ù„Ù„Ø³Ù„Ø© ÙˆØ§Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ø¢Ù†</span>
+							<span>إضافة العرض للسلة والشراء الآن</span>
 						</button>
 					</form>
 				} else {
 					<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)) } class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm">
 						@components.IconShield("icon-xs")
-						<span>ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ ÙƒØµÙŠØ¯Ù„ÙŠØ© Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ø¹Ø±Ø¶</span>
+						<span>تسجيل الدخول كصيدلية لشراء العرض</span>
 					</a>
 				}
 			</div>
@@ -157,26 +158,26 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 			<div class="flex-between items-center mb-3">
 				<h3 class="text-base font-black text-primary m-0 d-flex items-center gap-2">
 					@components.IconPackage("icon-xs text-brand")
-					<span>Ø§Ù„Ø£ØµÙ†Ø§Ù Ø§Ù„Ø¯ÙˆØ§Ø¦ÙŠØ© Ø§Ù„Ù…Ø´Ù…ÙˆÙ„Ø© Ø¨Ø§Ù„Ø¹Ø±Ø¶ ({ fmt.Sprintf("%d", len(data.Products)) } ØµÙ†Ù)</span>
+					<span>الأصناف الدوائية المشمولة بالعرض ({ fmt.Sprintf("%d", len(data.Products)) } صنف)</span>
 				</h3>
-				<span class="text-xs text-muted font-medium">Ù…Ø­ØªÙˆÙŠØ§Øª Ø§Ù„Ø­Ø²Ù…Ø© Ø§Ù„ØªØ±ÙˆÙŠØ¬ÙŠØ©</span>
+				<span class="text-xs text-muted font-medium">محتويات الحزمة الترويجية</span>
 			</div>
 
 			if len(data.Products) == 0 {
 				<div class="p-6 bg-surface-sunken rounded-xl border text-center text-xs text-muted font-medium">
-					Ø§Ù„Ø¹Ø±Ø¶ ÙŠØ´Ù…Ù„ ØªØ®ÙÙŠØ¶Ø§Øª Ù…Ø¨Ø§Ø´Ø±Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØªÙˆØ±ÙŠØ¯ Ù…Ù† Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬.
+					العرض يشمل تخفيضات مباشرة على طلبات التوريد من الكتالوج.
 				</div>
 			} else {
 				<div class="table-container m-0 border rounded-2xl overflow-hidden shadow-xs">
 					<table class="data-table m-0 text-xs w-full">
 						<thead>
 							<tr>
-								<th class="py-3 text-start ps-4">Ø§Ø³Ù… Ø§Ù„ØµÙ†Ù / Ø§Ù„Ø¯ÙˆØ§Ø¡</th>
-								<th class="text-center py-3">Ø§Ù„ÙƒÙ…ÙŠØ© Ø¨Ø§Ù„Ø¨Ø§Ù‚Ø©</th>
-								<th class="text-end py-3">Ø³Ø¹Ø± Ø§Ù„Ø¬Ù…Ù‡ÙˆØ± Ø§Ù„Ø£ØµÙ„ÙŠ</th>
-								<th class="text-center py-3">Ù†Ø³Ø¨Ø© Ø§Ù„Ø®ØµÙ…</th>
-								<th class="text-end py-3">Ø³Ø¹Ø± Ø§Ù„ØµÙ†Ù Ø¨Ø§Ù„Ø¹Ø±Ø¶</th>
-								<th class="text-end py-3 pe-4">Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØµØ§ÙÙŠ</th>
+								<th class="py-3 text-start ps-4">اسم الصنف / الدواء</th>
+								<th class="text-center py-3">الكمية بالباقة</th>
+								<th class="text-end py-3">سعر الجمهور الأصلي</th>
+								<th class="text-center py-3">نسبة الخصم</th>
+								<th class="text-end py-3">سعر الصنف بالعرض</th>
+								<th class="text-end py-3 pe-4">الإجمالي الصافي</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -187,20 +188,20 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 											if p.VariantName != "" {
 												{ p.VariantName }
 											} else {
-												<span>ØµÙ†Ù Ø¯ÙˆØ§Ø¦ÙŠ #{ fmt.Sprintf("%d", p.VariantID) }</span>
+												<span>صنف دوائي #{ fmt.Sprintf("%d", p.VariantID) }</span>
 											}
 										</strong>
 									</td>
 									<td class="text-center tabular-nums py-3 font-bold">
 										<span class="badge badge-secondary text-xs font-bold">
-											{ fmt.Sprintf("%d", p.Quantity) } Ø¹Ø¨ÙˆØ©
+											{ fmt.Sprintf("%d", p.Quantity) } عبوة
 										</span>
 									</td>
 									<td class="text-end tabular-nums font-bold text-xs text-secondary py-3">
 										if p.OriginalPrice.IsPositive() {
-											{ p.OriginalPrice.String() } <span class="text-2xs font-normal">Ø¬.Ù…</span>
+											{ p.OriginalPrice.String() } <span class="text-2xs font-normal">ج.م</span>
 										} else {
-											<span class="text-muted">â€”</span>
+											<span class="text-muted">—</span>
 										}
 									</td>
 									<td class="text-center tabular-nums py-3">
@@ -213,13 +214,13 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 										}
 									</td>
 									<td class="text-end tabular-nums font-black text-brand text-xs py-3">
-										{ p.CustomPrice.String() } <span class="text-2xs font-bold text-secondary">Ø¬.Ù…</span>
+										{ p.CustomPrice.String() } <span class="text-2xs font-bold text-secondary">ج.م</span>
 									</td>
 									<td class="text-end tabular-nums font-black text-primary text-xs py-3 pe-4">
 										{{
 											lineTotal := money.FromMinor(p.CustomPrice.Minor() * int64(p.Quantity))
 										}}
-										{ lineTotal.String() } <span class="text-2xs font-bold text-secondary">Ø¬.Ù…</span>
+										{ lineTotal.String() } <span class="text-2xs font-bold text-secondary">ج.م</span>
 									</td>
 								</tr>
 							}
