@@ -42,24 +42,31 @@ func TestTurnStatusEndpointIsRouted(t *testing.T) {
 	}
 }
 
-// Images must reach the answering model itself when it can see them.
+// Images must reach the answering model, and the Gateway's catalogue must not
+// be able to stop them.
 //
-// The live catalogue reports supports_vision=true and max_attachment_mb=0 for
-// the primary model. Treating a zero ceiling as "refuse" is what produced
+// Measured on the live Gateway: every model publishes supports_vision=false and
+// max_attachment_mb=0, because those flags are operator metadata nobody filled
+// in — and the model the assistant runs on describes a test image correctly
+// when simply given one. Gating on either field is what produced
 // "لا أستطيع رؤية الصور" for a photographed medicine box.
-func TestZeroAttachmentCeilingDoesNotRefuseImages(t *testing.T) {
+func TestImagesAreNotGatedOnCatalogueFlags(t *testing.T) {
 	b, err := os.ReadFile("../modules/assistant/http/attachments.go")
 	if err != nil {
 		t.Fatalf("read attachments: %v", err)
 	}
 	src := string(b)
+
 	if !strings.Contains(src, "limit = maxAttachmentBytes") {
 		t.Error("a model publishing no attachment ceiling must fall back to our " +
 			"own upload ceiling, not refuse the file")
 	}
-	if !strings.Contains(src, "capabilityFor(primary, kind)") {
-		t.Error("attachments must be offered to the primary model before the " +
-			"reader model; describing a photo is worse than looking at it")
+	if !strings.Contains(src, "func sendableDirectly(") ||
+		!strings.Contains(src, "assistant.KindImage") {
+		t.Error("sendableDirectly must exist and admit images unconditionally")
+	}
+	if strings.Contains(src, "capabilityFor(") {
+		t.Error("the capability veto is back; it reads flags the Gateway does not maintain")
 	}
 }
 

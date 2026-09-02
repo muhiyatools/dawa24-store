@@ -262,8 +262,8 @@ func TestPhase2_TranscriptionEndpoint(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to parse multipart form: %v", err)
 		}
-		if r.FormValue("model") != "whisper-1" {
-			t.Errorf("expected model whisper-1, got %q", r.FormValue("model"))
+		if r.FormValue("model") != "whisper-large-v3-turbo" {
+			t.Errorf("expected model whisper-large-v3-turbo, got %q", r.FormValue("model"))
 		}
 		if r.FormValue("language") != "ar" {
 			t.Errorf("expected language ar, got %q", r.FormValue("language"))

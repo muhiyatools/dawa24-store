@@ -4825,36 +4825,78 @@ form.filter-bar { margin: 0; }
   margin: 0.75rem 0;
 }
 
-/* Tables scroll in their own box: a supplier breakdown is often wider than a
-   440px drawer, and the alternative is a horizontally scrolling page. */
+/* Tables in an answer.
+
+   A spend breakdown by supplier IS a table, and the assistant produces them
+   constantly, so this is a primary surface rather than a fallback. The first
+   version treated it as one: every cell nowrap, so an Arabic supplier name
+   forced the whole thing sideways; no row separation, so five rows of numbers
+   read as one block; and a header the same weight as the body.
+
+   What it needs: text columns that wrap, number columns that do not, rows you
+   can follow across, and a header that is visibly a header. */
 .capsule-table-wrap {
   overflow-x: auto;
-  margin: 0 0 0.6rem;
+  margin: 0.35rem 0 0.65rem;
   border: 1px solid var(--border-subtle, var(--border));
-  border-radius: var(--radius-md, 0.5rem);
+  border-radius: var(--radius-lg, 0.75rem);
   background: var(--bg-surface-raised, var(--surface-raised));
+  /* The scrollbar only appears when a table genuinely overflows. */
+  -webkit-overflow-scrolling: touch;
 }
+
 .capsule-table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.75rem;
-  /* Digits in a money column must line up, or a total is unreadable. */
+  font-size: 0.7rem;
+  line-height: 1.5;
+  /* Digits in a money column must line up or a total is unreadable. */
   font-variant-numeric: tabular-nums;
 }
-.capsule-table th,
-.capsule-table td {
-  padding: 0.4rem 0.6rem;
+
+.capsule-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface-sunken, var(--surface-sunken));
+  color: var(--text-secondary, inherit);
+  font-weight: 800;
+  font-size: 0.65rem;
+  letter-spacing: 0.01em;
   text-align: start;
-  border-bottom: 1px solid var(--border-subtle, var(--border));
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--border, rgba(148, 163, 184, 0.35));
   white-space: nowrap;
 }
-.capsule-table thead th {
-  background: var(--bg-surface-sunken, var(--surface-sunken));
-  font-weight: 800;
-  font-size: 0.7rem;
-  color: var(--text-secondary, inherit);
+
+.capsule-table td {
+  padding: 0.45rem 0.6rem;
+  text-align: start;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.16));
+  /* Wrap prose, keep short values whole. A supplier name may break; a date or
+     an amount never should. */
+  overflow-wrap: anywhere;
+  min-width: 4.5rem;
+}
+
+/* Zebra: the cheapest way to follow a row across five columns. */
+.capsule-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--text-primary, #000) 3%, transparent);
+}
+.capsule-table tbody tr:hover {
+  background: color-mix(in srgb, var(--brand, #0284c7) 8%, transparent);
 }
 .capsule-table tbody tr:last-child td { border-bottom: 0; }
+
+/* Numbers, dates and codes stay on one line whatever the column width. */
+.capsule-table td.capsule-td-atomic { white-space: nowrap; }
+
+/* The first column is the row's name, so it carries the weight. */
+.capsule-table tbody td:first-child {
+  font-weight: 600;
+  color: var(--text-primary, inherit);
+  white-space: nowrap;
+}
 
 .capsule-prose a {
   color: var(--brand, #0284c7);

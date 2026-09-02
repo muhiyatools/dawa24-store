@@ -103,10 +103,17 @@ templ capsuleMarkdownScript() {
 						let html = '<div class="capsule-table-wrap"><table class="capsule-table"><thead><tr>';
 						header.forEach(c => { html += '<th>' + inline(c) + '</th>'; });
 						html += '</tr></thead><tbody>';
+						// A cell that is a number, a date or a short code must not
+						// wrap mid-value; anything else may. Detected from the
+						// content rather than declared, because the model writes
+						// the table and will not annotate it.
+						const atomic = (v) => /^[\d\s.,:\-\/%+()ج.م]+$/.test(v.replace(/&[a-z]+;/g, ''));
 						rows.forEach(r => {
 							html += '<tr>';
 							for (let c = 0; c < header.length; c++) {
-								html += '<td>' + inline(r[c] === undefined ? '' : r[c]) + '</td>';
+								const v = r[c] === undefined ? '' : r[c];
+								const cls = atomic(v) ? ' class="capsule-td-atomic"' : '';
+								html += '<td' + cls + '>' + inline(v) + '</td>';
 							}
 							html += '</tr>';
 						});

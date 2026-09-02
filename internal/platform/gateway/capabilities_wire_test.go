@@ -199,3 +199,36 @@ func TestPinnedTranscriptionModelWins(t *testing.T) {
 func testLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
+
+// The assistant's model choices are measured, not assumed.
+//
+// Both were verified against the live Gateway before being set here, and both
+// replaced a default that was actively broken:
+//
+//	whisper-1                 404 "not found or inactive"   (voice never worked)
+//	whisper-large-v3-turbo    200 with a transcript
+//	qwen3.7-flash             finish_reason=length, no tool call, no answer
+//	gemma-4-31b-it            finish_reason=tool_calls, correct arguments
+//
+// This test does not reach the network. It pins the choice so that reverting it
+// is a deliberate act with a reason, rather than a merge.
+func TestAssistantRoleDefaults(t *testing.T) {
+	cases := map[Role]string{
+		RolePrimary:    "gemma-4-31b-it",
+		RoleAttachment: "gemma-4-31b-it",
+		RoleTranscribe: "whisper-large-v3-turbo",
+	}
+	for role, want := range cases {
+		if got := defaultRoleModels[role]; got != want {
+			t.Errorf("role %s = %q, want %q", role, got, want)
+		}
+	}
+
+	// whisper-1 is seeded inactive on the Gateway. Anything that points a role
+	// at it has re-broken voice input.
+	for role, model := range defaultRoleModels {
+		if model == "whisper-1" {
+			t.Errorf("role %s points at whisper-1, which the Gateway ships inactive", role)
+		}
+	}
+}

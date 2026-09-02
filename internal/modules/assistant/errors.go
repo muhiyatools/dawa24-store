@@ -37,6 +37,12 @@ const (
 	CodeInvalidRequest      Code = "invalid_request"
 	CodeInternal            Code = "internal"
 	CodeConversationExpired Code = "conversation_expired"
+
+	// Two failures that used to collapse into "unavailable" and told the user
+	// to try again — advice that is wrong for both. A revoked key and a
+	// malformed request do not fix themselves with time.
+	CodeGatewayUnauthorized Code = "gateway_unauthorized"
+	CodeGatewayRejected     Code = "gateway_rejected"
 )
 
 // Failure is a user-facing error.
@@ -51,6 +57,10 @@ var messages = map[Code]Failure{
 		"خدمة المساعد الذكي غير متاحة حالياً. حاول مرة أخرى بعد قليل.", true},
 	CodeGatewayQuota: {CodeGatewayQuota,
 		"انتهت حصة الذكاء الاصطناعي المتاحة لمنشأتك لهذه الفترة. راجع صفحة الاشتراك.", false},
+	CodeGatewayUnauthorized: {CodeGatewayUnauthorized,
+		"مفتاح الذكاء الاصطناعي لهذه المنشأة غير صالح. تواصل مع إدارة المنصة.", false},
+	CodeGatewayRejected: {CodeGatewayRejected,
+		"رفضت خدمة الذكاء الاصطناعي هذا الطلب. جرّب صياغة أبسط أو مرفقاً أصغر.", false},
 	CodeGatewayDisabled: {CodeGatewayDisabled,
 		"المساعد الذكي غير مفعّل على هذا الحساب. تواصل مع إدارة المنصة.", false},
 	CodeToolDenied: {CodeToolDenied,
@@ -70,7 +80,7 @@ var messages = map[Code]Failure{
 	CodeTurnTimeout: {CodeTurnTimeout,
 		"استغرقت الإجابة وقتاً أطول من المسموح. جرّب سؤالاً أكثر تحديداً.", true},
 	CodeRateLimited: {CodeRateLimited,
-		"عدد كبير من الطلبات في وقت قصير. انتظر دقيقة ثم أعد المحاولة.", true},
+		"تم تجاوز الحد المسموح من الطلبات (429). انتظر دقيقة ثم أعد المحاولة.", true},
 	CodeForbidden: {CodeForbidden,
 		"لا تملك صلاحية استخدام المساعد الذكي. اطلب من مالك الحساب تفعيلها لدورك.", false},
 	CodeNotFound: {CodeNotFound,
@@ -108,6 +118,12 @@ func ClassifyGateway(err error) Code {
 		return CodeTurnTimeout
 	case errors.Is(err, gateway.ErrRateLimited):
 		return CodeRateLimited
+	case errors.Is(err, gateway.ErrUnauthorized):
+		return CodeGatewayUnauthorized
+	case errors.Is(err, gateway.ErrBadRequest):
+		return CodeGatewayRejected
+	case errors.Is(err, gateway.ErrCircuitOpen):
+		return CodeGatewayUnavailable
 	default:
 		return CodeGatewayUnavailable
 	}

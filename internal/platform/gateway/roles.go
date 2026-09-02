@@ -22,10 +22,30 @@ const (
 )
 
 // defaultRoleModels is the fallback when the operator has not overridden a role.
+//
+// The assistant runs on gemma-4-31b-it, and that was measured rather than
+// guessed. Asked a question that needs data, with one tool offered:
+//
+//	gemma-4-31b-it   finish_reason=tool_calls   spend_summary({"from":…})
+//	qwen3.7-flash    finish_reason=length       no tool call, no answer
+//
+// The previous default reproduced, on demand, the exact failure the production
+// logs showed: a turn that spent its whole output budget and returned nothing.
+//
+// It also reads images, despite the catalogue publishing supports_vision=false
+// for it — asked the colour of a red test image it answered "أحمر". That flag
+// is operator-maintained metadata and is simply not filled in on this Gateway,
+// which is why nothing in this application treats it as a veto any more.
 var defaultRoleModels = map[Role]string{
-	RolePrimary:    "qwen3.7-flash",
-	RoleAttachment: "qwen3.7-flash",
-	RoleTranscribe: "whisper-1",
+	RolePrimary: "gemma-4-31b-it",
+	// The attachment reader is the same model. A separate one existed to cover
+	// modalities the primary lacked; the primary lacks none that were tested,
+	// and two models mean two sets of behaviour to keep true.
+	RoleAttachment: "gemma-4-31b-it",
+	// whisper-large-v3-turbo is active on this Gateway. whisper-1, the previous
+	// default, is seeded there as INACTIVE — so voice input answered 404 on
+	// every deployment that did not override it.
+	RoleTranscribe: "whisper-large-v3-turbo",
 
 	RoleMatching: "qwen3.7-flash",
 	RoleColumns:  "qwen3.7-flash",
