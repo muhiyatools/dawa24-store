@@ -84,6 +84,7 @@ var allowedUploadCategories = map[string]bool{
 	"imports":   true,
 	"receipts":  true,
 	"ads":       true,
+	"offers":    true,
 }
 
 func sanitizeCategory(category string) string {

@@ -82,7 +82,6 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 				COALESCE($9, now()), 
 				COALESCE($10, now() + interval '1 year'),
 				COALESCE($11, 'active') = 'active',
-				COALESCE($11, 'active') = 'draft',
 				COALESCE(NULLIF($12, ''), 'approved'), COALESCE($13, ''), 'special'
 			)
 			RETURNING id, public_id, created_at, updated_at;
@@ -131,7 +130,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			       CASE WHEN o.is_draft   THEN 'draft'
 			            WHEN o.is_active  THEN 'active'
 			            ELSE 'inactive' END,
-			       o.admin_status, COALESCE(o.image, ''),
+			       o.admin_status, COALESCE(o.admin_notes, ''), COALESCE(o.image, ''),
 			       o.created_at, o.updated_at
 			FROM promo.offers o
 			LEFT JOIN org.organizations org ON org.id = o.organization_id
@@ -142,7 +141,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			&o.ID, &o.PublicID, &o.OrganizationID, &o.OrganizationName, &o.BranchID, &o.BranchName,
 			&o.Title, &o.Description, &o.DiscountPercentage,
 			&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
-			&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.Image,
+			&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.AdminNotes, &o.Image,
 			&o.CreatedAt, &o.UpdatedAt,
 		)
 		if err != nil {
@@ -229,7 +228,7 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 			       CASE WHEN o.is_draft   THEN 'draft'
 			            WHEN o.is_active  THEN 'active'
 			            ELSE 'inactive' END,
-			       o.admin_status, COALESCE(o.image, ''),
+			       o.admin_status, COALESCE(o.admin_notes, ''), COALESCE(o.image, ''),
 			       o.created_at, o.updated_at
 			FROM promo.offers o
 			LEFT JOIN org.branches b ON b.id = o.branch_id
@@ -249,7 +248,7 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 				&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName,
 				&o.Title, &o.Description, &o.DiscountPercentage,
 				&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
-				&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.Image,
+				&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.AdminNotes, &o.Image,
 				&o.CreatedAt, &o.UpdatedAt,
 			); err != nil {
 				return err

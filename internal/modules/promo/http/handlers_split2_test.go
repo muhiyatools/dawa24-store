@@ -44,6 +44,9 @@ func (happyRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*promo.Ad, in
 func (happyRepo) UpdateAdAdminStatus(context.Context, int64, promo.AdminStatus, string, int64) error {
 	return nil
 }
+func (happyRepo) AdminToggleAd(context.Context, int64) (*promo.Ad, error) {
+	return &promo.Ad{ID: 1, IsActive: true}, nil
+}
 func (happyRepo) SubmitAdEditRequest(context.Context, int64, *promo.AdPendingChanges) error {
 	return nil
 }
@@ -87,6 +90,9 @@ func (happyRepo) ExpirePromotions(ctx context.Context) (int64, error) {
 }
 func (happyRepo) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	o.ID = 1
+	return nil
+}
+func (happyRepo) UpdateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	return nil
 }
 func (happyRepo) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.SpecialOffer, error) {

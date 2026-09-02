@@ -147,6 +147,8 @@ templ AdminAdsListPage(lang, dir string, data AdminAdsListPageData) {
 											<!-- Actions -->
 											<td class="col-actions py-3.5 pe-4">
 												<div class="d-flex items-center gap-1.5 flex-wrap">
+													@AdminAdReviewModal(ad, lang, dir)
+
 													if ad.AdminStatus == "pending" {
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
 															<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">

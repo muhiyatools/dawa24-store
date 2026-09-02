@@ -89,6 +89,12 @@ func localizeAuditEntry(e *platformadmin.AuditEntry, lang any) {
 	if e == nil {
 		return
 	}
+	if e.Title != "" && e.Description != "" && e.Title != e.Action && e.Description != "عملية إدارية مسجلة بالنظام" {
+		if e.Severity == "" {
+			e.Severity = i18n.T(lang, "admin.audit.severity_info")
+		}
+		return
+	}
 	e.Severity = i18n.T(lang, "admin.audit.severity_info")
 	switch e.Action {
 	case "org.registered":

@@ -57,6 +57,7 @@ type Repository interface {
 	// Advertisements — vendor creates, admin approves, tracking records.
 	CreateAd(ctx context.Context, a *Ad) error
 	UpdateAd(ctx context.Context, a *Ad) error
+	AdminToggleAd(ctx context.Context, id int64) (*Ad, error)
 	GetAdByID(ctx context.Context, id int64) (*Ad, error)
 	ListAdsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Ad, error)
 	ListAdsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Ad, int, error)
@@ -82,6 +83,7 @@ type Repository interface {
 
 	// Laravel-parity Special Offers & Location Covers
 	CreateSpecialOffer(ctx context.Context, o *SpecialOffer) error
+	UpdateSpecialOffer(ctx context.Context, o *SpecialOffer) error
 	GetSpecialOfferByID(ctx context.Context, id int64) (*SpecialOffer, error)
 	ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*SpecialOffer, error)
 	ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*SpecialOffer, error)

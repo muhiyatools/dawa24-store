@@ -130,6 +130,9 @@ func (s *stubPromoRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*Ad, i
 func (s *stubPromoRepo) UpdateAdAdminStatus(context.Context, int64, AdminStatus, string, int64) error {
 	return nil
 }
+func (s *stubPromoRepo) AdminToggleAd(context.Context, int64) (*Ad, error) {
+	return &Ad{ID: 1, IsActive: true}, nil
+}
 func (s *stubPromoRepo) SubmitAdEditRequest(context.Context, int64, *AdPendingChanges) error {
 	return nil
 }
@@ -165,7 +168,12 @@ func (s *stubPromoRepo) ListHighlightItems(context.Context, int64) ([]*Highlight
 	return nil, nil
 }
 func (s *stubPromoRepo) ExpirePromotions(context.Context) (int64, error)         { return 0, nil }
-func (s *stubPromoRepo) CreateSpecialOffer(context.Context, *SpecialOffer) error { return nil }
+func (s *stubPromoRepo) CreateSpecialOffer(context.Context, *SpecialOffer) error {
+	return nil
+}
+func (s *stubPromoRepo) UpdateSpecialOffer(context.Context, *SpecialOffer) error {
+	return nil
+}
 func (s *stubPromoRepo) GetSpecialOfferByID(context.Context, int64) (*SpecialOffer, error) {
 	return nil, nil
 }

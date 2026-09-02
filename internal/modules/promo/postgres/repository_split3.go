@@ -2,12 +2,15 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"math"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // ListAllSpecialOffers returns all special offers across suppliers with organizations, products and locations for admin.
@@ -64,7 +67,7 @@ func (r *Repository) ListAllSpecialOffersWithTotal(ctx context.Context, statusFi
 			       CASE WHEN o.is_draft   THEN 'draft'
 			            WHEN o.is_active  THEN 'active'
 			            ELSE 'inactive' END,
-			       o.admin_status, COALESCE(o.image, ''),
+			       o.admin_status, COALESCE(o.admin_notes, ''), COALESCE(o.image, ''),
 			       o.created_at, o.updated_at
 			FROM promo.offers o
 			LEFT JOIN org.organizations org ON org.id = o.organization_id
@@ -85,7 +88,7 @@ func (r *Repository) ListAllSpecialOffersWithTotal(ctx context.Context, statusFi
 				&o.ID, &o.PublicID, &o.OrganizationID, &o.OrganizationName, &o.BranchID, &o.BranchName,
 				&o.Title, &o.Description, &o.DiscountPercentage,
 				&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
-				&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.Image,
+				&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.AdminNotes, &o.Image,
 				&o.CreatedAt, &o.UpdatedAt,
 			); err != nil {
 				return err
@@ -189,6 +192,66 @@ func (r *Repository) ToggleSpecialOfferStatus(ctx context.Context, id int64, isA
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("special_offer")
 		}
+		return nil
+	})
+}
+
+// UpdateSpecialOffer updates a vendor's special offer and replaces bundled products, resetting admin_status to 'pending'.
+func (r *Repository) UpdateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		discType := "percentage"
+		discVal := money.FromMinor(int64(math.Round(o.DiscountPercentage * 100)))
+		if o.DiscountAmount.IsPositive() {
+			discType = "fixed"
+			discVal = o.DiscountAmount
+		}
+
+		query := `
+			UPDATE promo.offers
+			SET branch_id = $1, title = $2, description = $3,
+			    discount_type = $4, discount_value = $5,
+			    min_order_amount = $6, total_price = $7,
+			    starts_at = COALESCE($8, starts_at),
+			    expires_at = COALESCE($9, expires_at),
+			    is_active = (COALESCE($10, 'active') = 'active'),
+			    is_draft = (COALESCE($10, 'active') = 'draft'),
+			    admin_status = 'pending',
+			    image = CASE WHEN $11 <> '' THEN $11 ELSE image END,
+			    updated_at = now()
+			WHERE id = $12 AND organization_id = $13;
+		`
+		tag, err := tx.Exec(txCtx, query,
+			o.BranchID, o.Title, o.Description,
+			discType, discVal,
+			o.MinOrderAmount, o.TotalPrice,
+			o.StartDate, o.EndDate,
+			o.Status, o.Image,
+			o.ID, o.OrganizationID,
+		)
+		if err != nil {
+			return fmt.Errorf("update special offer: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("special_offer")
+		}
+
+		// Replace products
+		if _, err := tx.Exec(txCtx, `DELETE FROM promo.offer_products WHERE offer_id = $1;`, o.ID); err != nil {
+			return fmt.Errorf("clear offer products: %w", err)
+		}
+
+		for _, p := range o.Products {
+			pQuery := `
+				INSERT INTO promo.offer_products (
+					offer_id, product_id, variant_id, custom_price,
+					custom_discount_percentage, custom_discount_amount, custom_qty
+				) VALUES ($1, (SELECT product_id FROM catalog.product_variants WHERE id = $2), $2, $3, $4, $5, $6);
+			`
+			if _, err := tx.Exec(txCtx, pQuery, o.ID, p.VariantID, p.CustomPrice, p.DiscountPercentage, p.DiscountAmount, p.Quantity); err != nil {
+				return fmt.Errorf("insert offer product: %w", err)
+			}
+		}
+
 		return nil
 	})
 }

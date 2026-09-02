@@ -32,6 +32,7 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Post("/admin/offers/{id}/status", h.AdminOfferStatusSubmit)
 		g.Post("/admin/offers/{id}/approve", h.AdminOfferApproveSubmit)
 		g.Post("/admin/offers/{id}/reject", h.AdminOfferRejectSubmit)
+		g.Post("/admin/offers/{id}/request-changes", h.AdminOfferRequestChangesSubmit)
 	})
 
 	// Finance Hub, Invoices, Payments, Wallets & Earnings.

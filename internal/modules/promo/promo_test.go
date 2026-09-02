@@ -263,6 +263,9 @@ func (m *mockPromoRepo) ListAllAdsWithTotal(_ context.Context, _, _ int) ([]*Ad,
 func (m *mockPromoRepo) UpdateAdAdminStatus(_ context.Context, _ int64, _ AdminStatus, _ string, _ int64) error {
 	return nil
 }
+func (m *mockPromoRepo) AdminToggleAd(_ context.Context, id int64) (*Ad, error) {
+	return &Ad{ID: id, IsActive: true}, nil
+}
 func (m *mockPromoRepo) SubmitAdEditRequest(_ context.Context, _ int64, _ *AdPendingChanges) error {
 	return nil
 }
@@ -331,6 +334,9 @@ func (m *mockPromoRepo) ExpirePromotions(_ context.Context) (int64, error) {
 
 func (m *mockPromoRepo) CreateSpecialOffer(_ context.Context, o *SpecialOffer) error {
 	o.ID = 1
+	return nil
+}
+func (m *mockPromoRepo) UpdateSpecialOffer(_ context.Context, _ *SpecialOffer) error {
 	return nil
 }
 func (m *mockPromoRepo) GetSpecialOfferByID(_ context.Context, id int64) (*SpecialOffer, error) {

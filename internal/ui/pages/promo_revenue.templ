@@ -737,6 +737,8 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 												<!-- Actions -->
 												<td class="col-actions py-3.5 pe-4">
 													<div class="d-flex items-center gap-1.5 flex-wrap">
+														@AdminAdReviewModal(ad, lang, dir)
+
 														if ad.AdminStatus == "pending" {
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
 																<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
@@ -1165,6 +1167,222 @@ templ AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) {
 			</div>
 		</div>
 	}
+}
+
+// AdminAdReviewModal renders a comprehensive modal for reviewing all details of an advertisement.
+templ AdminAdReviewModal(ad *promo.Ad, lang, dir string) {
+	<div x-data="{ isOpen: false }" class="d-inline-block">
+		<button
+			type="button"
+			@click="isOpen = true"
+			class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs text-accent hover:text-accent-hover"
+			title="معاينة ومراجعة تفاصيل الإعلان بالكامل"
+		>
+			@components.IconEye("icon-2xs")
+			<span>معاينة وتفاصيل</span>
+		</button>
+
+		<div
+			x-show="isOpen"
+			x-cloak
+			class="modal-backdrop"
+			@click.self="isOpen = false"
+		>
+			<div
+				class="modal-content max-w-2xl w-full mx-4 glass-panel border rounded-3xl shadow-2xl overflow-hidden text-start"
+				@click.stop
+			>
+				<!-- Modal Header -->
+				<div class="modal-header p-4 border-b flex-between items-center bg-surface-sunken">
+					<div class="d-flex items-center gap-2.5">
+						<div class="w-8 h-8 rounded-xl bg-accent-subtle text-accent d-flex items-center justify-center">
+							@components.IconSparkles("icon-xs")
+						</div>
+						<div class="stack-xs text-start">
+							<div class="d-flex items-center gap-2">
+								<h3 class="text-sm font-black text-primary m-0">تفاصيل ومراجعة الإعلان #{ fmt.Sprintf("%d", ad.ID) }</h3>
+								if ad.AdminStatus == "pending" {
+									<span class="badge badge-amber text-2xs font-extrabold animate-pulse">قيد المراجعة</span>
+								} else if ad.AdminStatus == "approved" {
+									<span class="badge badge-emerald text-2xs font-extrabold">معتمد</span>
+								} else {
+									<span class="badge badge-rose text-2xs font-extrabold">مرفوض</span>
+								}
+							</div>
+							<span class="text-2xs text-muted">تاريخ الإنشاء: { ad.CreatedAt.Format("2006-01-02 15:04") }</span>
+						</div>
+					</div>
+					<button type="button" @click="isOpen = false" class="btn btn-ghost btn-icon btn-sm text-slate-400 hover:text-slate-600">
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<!-- Modal Body -->
+				<div class="modal-body p-5 d-flex flex-col gap-4 max-h-[70vh] overflow-y-auto text-start">
+					<!-- Media Banner / Video Player -->
+					<div class="w-full rounded-2xl border p-2 bg-surface-sunken overflow-hidden text-center">
+						if ad.MediaType == "video" {
+							<video src={ ad.MediaURL } controls playsinline class="w-full max-h-72 rounded-xl object-contain bg-black"></video>
+						} else if ad.MediaURL != "" {
+							<img src={ ad.MediaURL } alt="Ad Media" class="w-full max-h-72 rounded-xl object-contain bg-white mx-auto" />
+						} else {
+							<div class="p-8 text-center text-muted">
+								@components.IconSparkles("icon-sm mb-2")
+								<p class="text-xs m-0">لا توجد وسائط مرفوعة لهذا الإعلان</p>
+							</div>
+						}
+					</div>
+
+					<!-- Titles & Content -->
+					<div class="glass-panel p-4 mb-0 stack-sm">
+						<div class="stack-xs">
+							<span class="text-2xs text-muted font-bold">عنوان الإعلان:</span>
+							<h4 class="text-sm font-black text-primary m-0">
+								if ad.TitleAr != "" {
+									{ ad.TitleAr }
+								} else {
+									{ ad.Title }
+								}
+							</h4>
+							if ad.TitleEn != "" && ad.TitleEn != ad.TitleAr {
+								<span class="text-2xs text-muted" dir="ltr">{ ad.TitleEn }</span>
+							}
+						</div>
+
+						if ad.AdTextAr != "" || ad.AdTextEn != "" {
+							<div class="stack-xs pt-2 border-t">
+								<span class="text-2xs text-muted font-bold">النص الترويجي والوصف:</span>
+								if ad.AdTextAr != "" {
+									<p class="text-xs text-secondary m-0">{ ad.AdTextAr }</p>
+								}
+								if ad.AdTextEn != "" && ad.AdTextEn != ad.AdTextAr {
+									<p class="text-2xs text-muted m-0" dir="ltr">{ ad.AdTextEn }</p>
+								}
+							</div>
+						}
+					</div>
+
+					<!-- Grid Information: Placement, Supplier, Duration, Engagement -->
+					<div class="d-grid grid-cols-2 gap-3">
+						<!-- Placement & Targeting -->
+						<div class="glass-panel p-3 mb-0 stack-xs">
+							<span class="text-2xs text-muted font-bold">موضع الظهور والمنصة:</span>
+							<div>
+								<span class="badge badge-sky text-2xs font-extrabold">{ PlacementLabel(ad.Position) }</span>
+							</div>
+							if ad.TargetURL != "" {
+								<div class="mt-1 pt-1 border-t text-2xs">
+									<span class="text-muted font-bold">الرابط المستهدف:</span>
+									<a href={ templ.SafeURL(ad.TargetURL) } target="_blank" class="text-accent underline break-all block">
+										{ ad.TargetURL }
+									</a>
+								</div>
+							}
+							if ad.ClickTargetID != nil && *ad.ClickTargetID > 0 {
+								<div class="mt-1 pt-1 border-t text-2xs">
+									<span class="text-muted font-bold">الهدف المرتبط:</span>
+									<span class="font-mono text-primary font-bold">#{ fmt.Sprintf("%d", *ad.ClickTargetID) } ({ string(ad.ClickTargetType) })</span>
+								</div>
+							}
+						</div>
+
+						<!-- Supplier & Dates -->
+						<div class="glass-panel p-3 mb-0 stack-xs">
+							<span class="text-2xs text-muted font-bold">المورد وفترة الظهور:</span>
+							<div class="text-xs font-bold text-primary">
+								if ad.OrganizationID != nil {
+									<span>منشأة #{ fmt.Sprintf("%d", *ad.OrganizationID) }</span>
+								} else {
+									<span>منصة رئيسية (Platform)</span>
+								}
+							</div>
+							<div class="text-2xs text-secondary mt-1 tabular-nums">
+								<div><strong>البدء:</strong> { ad.StartsAt.Format("2006-01-02 15:04") }</div>
+								<div><strong>الانتهاء:</strong> { ad.ExpiresAt.Format("2006-01-02 15:04") }</div>
+							</div>
+						</div>
+
+						<!-- Analytics: Impressions, Clicks, CTR -->
+						<div class="glass-panel p-3 mb-0 col-span-2 stack-xs">
+							<span class="text-2xs text-muted font-bold">إحصائيات التفاعل والأداء الحقيقي:</span>
+							<div class="d-flex items-center gap-4 flex-wrap mt-1">
+								<div class="d-flex items-center gap-1.5">
+									<span class="text-2xs text-muted">المشاهدات:</span>
+									<span class="text-xs font-black text-primary tabular-nums">{ fmt.Sprintf("%d", ad.Impressions) }</span>
+								</div>
+								<div class="d-flex items-center gap-1.5">
+									<span class="text-2xs text-muted">النقرات:</span>
+									<span class="text-xs font-black text-sky-600 tabular-nums">{ fmt.Sprintf("%d", ad.Clicks) }</span>
+								</div>
+								<div class="d-flex items-center gap-1.5">
+									<span class="text-2xs text-muted">معدل التحويل (CTR):</span>
+									<span class="badge badge-emerald text-2xs font-black tabular-nums">{ fmt.Sprintf("%.2f%%", ad.CTR) }</span>
+								</div>
+								<div class="d-flex items-center gap-1.5">
+									<span class="text-2xs text-muted">الحالة النشطة:</span>
+									if ad.IsActive {
+										<span class="badge badge-emerald text-2xs font-bold">مباشر نشط</span>
+									} else {
+										<span class="badge badge-slate text-2xs font-bold">معطل</span>
+									}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					if ad.AdminNotes != "" {
+						<div class="p-3 rounded-xl bg-slate-100 text-2xs text-secondary">
+							<strong class="font-bold text-primary block mb-0.5">ملاحظات الإدارة السابقة:</strong>
+							{ ad.AdminNotes }
+						</div>
+					}
+				</div>
+
+				<!-- Modal Footer with Direct Actions -->
+				<div class="modal-footer p-3.5 border-t bg-surface-sunken flex-between items-center flex-wrap gap-2">
+					<button type="button" @click="isOpen = false" class="btn btn-secondary btn-sm font-bold">
+						إغلاق
+					</button>
+
+					<div class="d-flex items-center gap-2">
+						if ad.AdminStatus == "pending" {
+							<!-- Direct Reject with notes -->
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)) } class="m-0 d-flex items-center gap-1">
+								<input type="text" name="notes" placeholder="سبب الرفض (اختياري)..." class="form-input text-2xs py-1 px-2 w-40" />
+								<button type="submit" class="btn btn-secondary btn-sm font-bold text-rose-600 gap-1 shadow-2xs" onclick="return confirm('هل أنت متأكد من رفض هذا الإعلان؟')">
+									@components.IconClose("icon-xs")
+									<span>رفض</span>
+								</button>
+							</form>
+
+							<!-- Direct Approve -->
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
+								<button type="submit" class="btn btn-primary btn-sm font-black px-4 shadow-sm gap-1.5">
+									@components.IconCheck("icon-xs")
+									<span>اعتماد وتفعيل الإعلان</span>
+								</button>
+							</form>
+						} else {
+							<!-- Direct Toggle -->
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/toggle", ad.ID)) } class="m-0">
+								if ad.IsActive {
+									<button type="submit" class="btn btn-secondary btn-sm font-bold text-amber-600 gap-1 shadow-2xs">
+										@components.IconPause("icon-xs")
+										<span>تعطيل ظهور الإعلان</span>
+									</button>
+								} else {
+									<button type="submit" class="btn btn-primary btn-sm font-bold gap-1 shadow-2xs">
+										@components.IconPlay("icon-xs")
+										<span>تفعيل ظهور الإعلان</span>
+									</button>
+								}
+							</form>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
 

@@ -115,7 +115,10 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 		values.ErrorMetrics.Unresolved = unres
 		values.ErrorMetrics.AffectedUsers = affUsers
 
+		auditQ := strings.TrimSpace(r.URL.Query().Get("audit_q"))
+		values.AuditSearchQuery = auditQ
 		auditFilter := platformadmin.AuditLogFilter{
+			Search: auditQ,
 			Limit:  limit,
 			Offset: offset,
 		}

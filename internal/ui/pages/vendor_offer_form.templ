@@ -41,13 +41,144 @@ func itemsToJSON(items []VendorOfferItemOption) string {
 	return string(b)
 }
 
+func offerTitleAr(o *promo.SpecialOffer) string {
+	if o == nil {
+		return ""
+	}
+	return o.Title.Get("ar")
+}
+
+func offerTitleEn(o *promo.SpecialOffer) string {
+	if o == nil {
+		return ""
+	}
+	return o.Title.Get("en")
+}
+
+func offerDesc(o *promo.SpecialOffer) string {
+	if o == nil {
+		return ""
+	}
+	return o.Description.Get("ar")
+}
+
+func offerDiscPct(o *promo.SpecialOffer) string {
+	if o == nil || o.DiscountPercentage <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%.2f", o.DiscountPercentage)
+}
+
+func offerTotalPrice(o *promo.SpecialOffer) string {
+	if o == nil || !o.TotalPrice.IsPositive() {
+		return ""
+	}
+	return o.TotalPrice.String()
+}
+
+func offerMinOrder(o *promo.SpecialOffer) string {
+	if o == nil || !o.MinOrderAmount.IsPositive() {
+		return ""
+	}
+	return o.MinOrderAmount.String()
+}
+
+func offerStartDate(o *promo.SpecialOffer) string {
+	if o == nil || o.StartDate == nil {
+		return ""
+	}
+	return o.StartDate.Format("2006-01-02")
+}
+
+func offerEndDate(o *promo.SpecialOffer) string {
+	if o == nil || o.EndDate == nil {
+		return ""
+	}
+	return o.EndDate.Format("2006-01-02")
+}
+
+func selectedItemsJSON(offer *promo.SpecialOffer, options []VendorOfferItemOption) string {
+	if offer == nil || len(offer.Products) == 0 {
+		return "[]"
+	}
+	optMap := make(map[int64]VendorOfferItemOption)
+	for _, opt := range options {
+		optMap[opt.VariantID] = opt
+	}
+
+	type selectedItem struct {
+		VariantID        int64   `json:"variant_id"`
+		Name             string  `json:"name"`
+		SKU              string  `json:"sku"`
+		Batch            string  `json:"batch"`
+		Expiry           string  `json:"expiry"`
+		Warehouse        string  `json:"warehouse"`
+		Stock            int     `json:"stock"`
+		OriginalPrice    float64 `json:"original_price"`
+		OriginalPriceStr string  `json:"original_price_str"`
+		Qty              int     `json:"qty"`
+		DiscountPct      float64 `json:"discount_pct"`
+		CustomPrice      float64 `json:"custom_price"`
+	}
+
+	var list []selectedItem
+	for _, p := range offer.Products {
+		opt := optMap[p.VariantID]
+		name := p.VariantName
+		if name == "" {
+			name = opt.NameAr
+		}
+		if name == "" {
+			name = opt.NameEn
+		}
+		if name == "" {
+			name = fmt.Sprintf("صنف رقم #%d", p.VariantID)
+		}
+		origFloat := opt.PriceFloat
+		if origFloat == 0 && p.OriginalPrice.IsPositive() {
+			origFloat = float64(p.OriginalPrice.Minor()) / 100.0
+		}
+		origStr := opt.Price
+		if origStr == "" && p.OriginalPrice.IsPositive() {
+			origStr = p.OriginalPrice.String()
+		}
+		customFloat := float64(p.CustomPrice.Minor()) / 100.0
+		if customFloat == 0 && origFloat > 0 {
+			customFloat = origFloat
+		}
+		qty := p.Quantity
+		if qty <= 0 {
+			qty = 1
+		}
+		list = append(list, selectedItem{
+			VariantID:        p.VariantID,
+			Name:             name,
+			SKU:              opt.SKU,
+			Batch:            opt.BatchNumber,
+			Expiry:           opt.ExpiryDate,
+			Warehouse:        opt.WarehouseName,
+			Stock:            opt.AvailableStock,
+			OriginalPrice:    origFloat,
+			OriginalPriceStr: origStr,
+			Qty:              qty,
+			DiscountPct:      p.DiscountPercentage,
+			CustomPrice:      customFloat,
+		})
+	}
+	b, err := json.Marshal(list)
+	if err != nil {
+		return "[]"
+	}
+	return string(b)
+}
+
 templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 	@layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "offers", lang, dir) {
 		<div
 			class="page-container"
 			x-data={ fmt.Sprintf(`{
 				availableItems: %s,
-				selectedItems: [],
+				selectedItems: %s,
 				searchQuery: '',
 				showDropdown: false,
 				get filteredItems() {
@@ -94,7 +225,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						item.discount_pct = Math.max(0, +d.toFixed(1));
 					}
 				}
-			}`, itemsToJSON(data.ItemOptions)) }
+			}`, itemsToJSON(data.ItemOptions), selectedItemsJSON(data.Offer, data.ItemOptions)) }
 		>
 			
 			<!-- Header -->
@@ -124,7 +255,16 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 				</div>
 			</div>
 
-			<form action="/vendor/offers/new" method="POST" class="d-flex flex-col gap-6 m-0">
+			<form
+				if data.IsEdit && data.Offer != nil {
+					action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/edit", data.Offer.ID)) }
+				} else {
+					action="/vendor/offers/new"
+				}
+				method="POST"
+				enctype="multipart/form-data"
+				class="d-flex flex-col gap-6 m-0"
+			>
 				
 				<!-- Grid 1: Basic Info & Pricing Details -->
 				<div class="d-grid grid-cols-2 gap-6 offer-form-grid">
@@ -138,50 +278,71 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							</h3>
 						</div>
 
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								عنوان العرض (بالعربية) <span class="text-danger">*</span>
 							</label>
-							<input type="text" name="title_ar" required placeholder="مثال: خصم 20% على أدوية ومستلزمات الموسم" class="form-input text-xs w-full"/>
+							<input
+								type="text"
+								name="title_ar"
+								value={ offerTitleAr(data.Offer) }
+								required
+								placeholder="مثال: خصم 20% على أدوية ومستلزمات الموسم"
+								class="form-input text-xs w-full"
+							/>
 						</div>
 
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								عنوان العرض (بالإنجليزية)
 							</label>
-							<input type="text" name="title_en" placeholder="e.g. 20% Off Seasonal Medicines" class="form-input text-xs w-full"/>
+							<input
+								type="text"
+								name="title_en"
+								value={ offerTitleEn(data.Offer) }
+								placeholder="e.g. 20% Off Seasonal Medicines"
+								class="form-input text-xs w-full"
+							/>
 						</div>
 
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								وصف تفاصيل العرض
 							</label>
-							<textarea name="description_ar" rows="3" placeholder="اكتب تفاصيل وشروط الاستفادة من العرض..." class="form-input text-xs w-full"></textarea>
+							<textarea
+								name="description_ar"
+								rows="3"
+								placeholder="اكتب تفاصيل وشروط الاستفادة من العرض..."
+								class="form-input text-xs w-full"
+							>{ offerDesc(data.Offer) }</textarea>
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									الفرع المستهدف
 								</label>
 								<select name="branch_id" class="form-input text-xs w-full">
 									<option value="">كافة الفروع</option>
 									for _, b := range data.Branches {
-										<option value={ fmt.Sprintf("%d", b.ID) }>
+										<option
+											value={ fmt.Sprintf("%d", b.ID) }
+											selected?={ data.Offer != nil && data.Offer.BranchID != nil && *data.Offer.BranchID == b.ID }
+										>
 											{ b.Name.Get(i18n.Lang(lang)) }
 										</option>
 									}
 								</select>
 							</div>
 
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									حالة العرض <span class="text-danger">*</span>
 								</label>
 								<select name="status" class="form-input text-xs w-full">
-									<option value="active">نشط (Active)</option>
-									<option value="draft">مسودة (Draft)</option>
-									<option value="inactive">غير نشط (Inactive)</option>
+									<option value="active" selected?={ data.Offer == nil || data.Offer.Status == "active" }>نشط (Active)</option>
+									<option value="draft" selected?={ data.Offer != nil && data.Offer.Status == "draft" }>مسودة (Draft)</option>
+									<option value="inactive" selected?={ data.Offer != nil && data.Offer.Status == "inactive" }>غير نشط (Inactive)</option>
 								</select>
 							</div>
 						</div>
@@ -197,49 +358,103 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									نسبة الخصم العامة %
 								</label>
-								<input type="number" step="0.01" name="discount_percentage" placeholder="15.00" class="form-input text-xs tabular-nums w-full"/>
+								<input
+									type="number"
+									step="0.01"
+									name="discount_percentage"
+									value={ offerDiscPct(data.Offer) }
+									placeholder="15.00"
+									class="form-input text-xs tabular-nums w-full"
+								/>
 							</div>
 
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									السعر الإجمالي الكلي (ج.م)
 								</label>
-								<input type="number" step="0.01" name="total_price" placeholder="250.00" class="form-input text-xs tabular-nums w-full"/>
+								<input
+									type="number"
+									step="0.01"
+									name="total_price"
+									value={ offerTotalPrice(data.Offer) }
+									placeholder="250.00"
+									class="form-input text-xs tabular-nums w-full"
+								/>
 							</div>
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ بدء العرض
 								</label>
-								<input type="date" name="start_date" class="form-input text-xs w-full"/>
+								<input
+									type="date"
+									name="start_date"
+									value={ offerStartDate(data.Offer) }
+									class="form-input text-xs w-full"
+								/>
 							</div>
 
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ انتهاء العرض
 								</label>
-								<input type="date" name="end_date" class="form-input text-xs w-full"/>
+								<input
+									type="date"
+									name="end_date"
+									value={ offerEndDate(data.Offer) }
+									class="form-input text-xs w-full"
+								/>
 							</div>
 						</div>
 
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								الحد الأدنى للطلب (ج.م)
 							</label>
-							<input type="number" step="0.01" name="min_order_amount" placeholder="500.00" class="form-input text-xs tabular-nums w-full"/>
+							<input
+								type="number"
+								step="0.01"
+								name="min_order_amount"
+								value={ offerMinOrder(data.Offer) }
+								placeholder="500.00"
+								class="form-input text-xs tabular-nums w-full"
+							/>
 						</div>
 
-      <div class="stack-sm">
+						<!-- Banner Upload System -->
+						<div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-								صورة أو بانر ترويجي للعرض
+								صورة أو بانر ترويجي للعرض (رفع ملف مباشر)
 							</label>
-							<input type="text" name="image" placeholder="رابط الصورة أو مسار البانر..." class="form-input text-xs w-full"/>
+							if data.Offer != nil && data.Offer.Image != "" {
+								<div class="mb-2 p-2 rounded-xl border bg-surface-sunken d-flex items-center gap-3">
+									<img src={ data.Offer.Image } alt="Offer Banner" class="w-16 h-16 rounded-lg object-cover border" />
+									<div class="stack-xs text-start">
+										<span class="text-xs font-bold text-primary">الصورة الحالية المعتمدة</span>
+										<span class="text-2xs text-muted">ارفع صورة جديدة أدناه إذا رغبت في استبدالها</span>
+									</div>
+								</div>
+								<input type="hidden" name="image" value={ data.Offer.Image } />
+							}
+							<div class="d-flex flex-col gap-1.5" x-data="{ fileName: '' }">
+								<input
+									type="file"
+									name="image_file"
+									accept="image/png,image/jpeg,image/webp,image/jpg"
+									class="form-input text-xs w-full"
+									@change="fileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''"
+								/>
+								<div class="d-flex items-center justify-between text-2xs text-muted">
+									<span>صيغ مدعومة: JPG, PNG, WebP (الحد الأقصى 50MB)</span>
+									<span x-show="fileName" class="text-emerald font-bold" x-text="'تم اختيار: ' + fileName"></span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -432,7 +647,11 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 						<a href="/vendor/offers" class="btn btn-secondary font-bold text-xs px-5">إلغاء</a>
 						<button type="submit" class="btn btn-primary font-black text-sm px-8 py-2.5">
 							@components.IconCheck("icon-xs")
-							<span>حفظ ونشر العرض الخاص</span>
+							if data.IsEdit {
+								<span>حفظ تعديلات العرض وإرسالها للاعتماد الإداري</span>
+							} else {
+								<span>حفظ ونشر العرض الخاص</span>
+							}
 						</button>
 					</div>
 				</div>

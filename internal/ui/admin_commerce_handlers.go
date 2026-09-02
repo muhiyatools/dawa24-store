@@ -115,7 +115,7 @@ func (h *UIHandler) AdminOfferApproveSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(lang, "admin.commerce.offer_approved_success"))
 }
 
-// AdminOfferRejectSubmit rejects a supplier special offer.
+// AdminOfferRejectSubmit rejects a supplier special offer with optional reason notes.
 func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang := langOf(r)
@@ -126,9 +126,14 @@ func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	actor, _ := authctx.From(ctx)
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	if notes == "" {
+		notes = i18n.T(lang, "admin.commerce.rejected_by_admin")
+	}
+
 	if h.promoSvc != nil {
 		off, _ := h.promoSvc.GetSpecialOffer(ctx, id)
-		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "rejected", i18n.T(lang, "admin.commerce.rejected_by_admin"), actor.UserID); err != nil {
+		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "rejected", notes, actor.UserID); err != nil {
 			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, lang))
 			return
 		}
@@ -138,11 +143,46 @@ func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Reques
 			if offTitle == "" {
 				offTitle = off.Title.Get(i18n.AR)
 			}
-			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, "")
+			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, notes)
 		}
 	}
 
 	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(lang, "admin.commerce.offer_rejected_success"))
+}
+
+// AdminOfferRequestChangesSubmit requests changes on a supplier special offer.
+func (h *UIHandler) AdminOfferRequestChangesSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/offers", "error", i18n.T(lang, "admin.commerce.invalid_offer_id"))
+		return
+	}
+
+	actor, _ := authctx.From(ctx)
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	if notes == "" {
+		notes = "يرجى مراجعة وتعديل بيانات العرض بناء على تعليمات الإدارة"
+	}
+
+	if h.promoSvc != nil {
+		off, _ := h.promoSvc.GetSpecialOffer(ctx, id)
+		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "changes_requested", notes, actor.UserID); err != nil {
+			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, lang))
+			return
+		}
+		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, false)
+		if off != nil && off.OrganizationID > 0 {
+			offTitle := off.Title.Get(i18n.Lang(lang))
+			if offTitle == "" {
+				offTitle = off.Title.Get(i18n.AR)
+			}
+			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, notes)
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/offers", "success", "تم إرسال طلب التعديل إلى المورد مع الملاحظات بنجاح.")
 }
 
 // AdminOfferStatusSubmit activates or deactivates an offer.

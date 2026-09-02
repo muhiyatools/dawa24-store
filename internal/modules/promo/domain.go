@@ -288,7 +288,8 @@ type SpecialOffer struct {
 	StartDate          *time.Time              `json:"start_date,omitempty"`
 	EndDate            *time.Time              `json:"end_date,omitempty"`
 	Status             string                  `json:"status"`       // active, inactive, expired, draft
-	AdminStatus        string                  `json:"admin_status"` // pending, approved, rejected
+	AdminStatus        string                  `json:"admin_status"` // pending, approved, rejected, changes_requested
+	AdminNotes         string                  `json:"admin_notes,omitempty"`
 	Image              string                  `json:"image,omitempty"`
 	Products           []*SpecialOfferProduct  `json:"products,omitempty"`
 	Locations          []*SpecialOfferLocation `json:"locations,omitempty"`

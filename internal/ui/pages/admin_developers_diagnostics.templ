@@ -280,7 +280,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				
 				<div class="glass-panel mb-0">
 					<div class="flex-between items-center mb-4 pb-3 border-b">
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<h3 class="m-0 text-lg font-black">
 								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", values.AuditTotalCount) })
 							</h3>
@@ -288,6 +288,31 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 								سجل متزامن للعمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
 							</p>
 						</div>
+					</div>
+
+					<!-- Audit Search and Filter Toolbar -->
+					<div class="mb-4">
+						<form method="GET" action="/admin/developers" class="d-flex items-center gap-2.5 flex-wrap m-0">
+							<input type="hidden" name="tab" value="audit" />
+							<div class="flex-1 min-w-60">
+								<input
+									type="text"
+									name="audit_q"
+									value={ values.AuditSearchQuery }
+									placeholder="ابحث في سجلات التدقيق (اسم المستخدم، المنظمة، الإجراء، المعرف)..."
+									class="form-input text-xs w-full"
+								/>
+							</div>
+							<button type="submit" class="btn btn-primary btn-sm font-bold gap-1">
+								@components.IconSearch("icon-xs")
+								<span>بحث وتصفية</span>
+							</button>
+							if values.AuditSearchQuery != "" {
+								<a href="/admin/developers?tab=audit" class="btn btn-secondary btn-sm font-bold">
+									إلغاء التصفية
+								</a>
+							}
+						</form>
 					</div>
 
 					if len(values.AuditEntries) == 0 {
@@ -397,7 +422,8 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 								TotalCount:  values.AuditTotalCount,
 								BaseURL:     "/admin/developers",
 								QueryValues: map[string][]string{
-									"tab": {"audit"},
+									"tab":     {"audit"},
+									"audit_q": {values.AuditSearchQuery},
 								},
 							})
 						}

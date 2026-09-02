@@ -165,3 +165,97 @@ func TestPlatformAdminRepository(t *testing.T) {
 		}
 	})
 }
+
+func TestEnrichAuditEntry(t *testing.T) {
+	tests := []struct {
+		name         string
+		entry        platformadmin.AuditEntry
+		wantTitle    string
+		wantModule   string
+		wantSeverity string
+	}{
+		{
+			name: "org registered",
+			entry: platformadmin.AuditEntry{
+				Action:           "org.registered",
+				EntityType:       "organization",
+				EntityID:         "101",
+				ActorName:        "أحمد علي",
+				OrganizationName: "صيدلية النور",
+			},
+			wantTitle:    "تسجيل منشأة جديدة في المنصة",
+			wantModule:   "إدارة المنشآت",
+			wantSeverity: "success",
+		},
+		{
+			name: "ad approved",
+			entry: platformadmin.AuditEntry{
+				Action:           "ad.approved",
+				EntityType:       "promo.ad",
+				EntityID:         "11",
+				ActorName:        "مشرف النظام",
+				OrganizationName: "شركة فارما",
+			},
+			wantTitle:    "اعتماد إعلان ترويجي بنجاح",
+			wantModule:   "الإعلانات والرعايات",
+			wantSeverity: "success",
+		},
+		{
+			name: "offer rejected",
+			entry: platformadmin.AuditEntry{
+				Action:           "offer.rejected",
+				EntityType:       "promo.offer",
+				EntityID:         "55",
+				ActorName:        "المدير العام",
+				OrganizationName: "مورد الأدوية",
+			},
+			wantTitle:    "رفض عرض خاص",
+			wantModule:   "العروض الترويجية",
+			wantSeverity: "warning",
+		},
+		{
+			name: "trash purge",
+			entry: platformadmin.AuditEntry{
+				Action:     "trash.purge",
+				EntityType: "trash",
+				EntityID:   "99",
+				ActorName:  "مهندس العمليات",
+			},
+			wantTitle:    "تفريغ وحذف نهائي من سلة المهملات",
+			wantModule:   "صيانة النظام",
+			wantSeverity: "critical",
+		},
+		{
+			name: "user status toggled",
+			entry: platformadmin.AuditEntry{
+				Action:     "identity.user.status_changed",
+				EntityType: "user",
+				EntityID:   "7",
+				ActorName:  "مسؤول الموارد",
+			},
+			wantTitle:    "تحديث حالة تفعيل مستخدم",
+			wantModule:   "المستخدمين والهوية",
+			wantSeverity: "info",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			e := tc.entry
+			enrichAuditEntry(&e)
+			if e.Title != tc.wantTitle {
+				t.Errorf("Title = %q, want %q", e.Title, tc.wantTitle)
+			}
+			if e.Module != tc.wantModule {
+				t.Errorf("Module = %q, want %q", e.Module, tc.wantModule)
+			}
+			if e.Severity != tc.wantSeverity {
+				t.Errorf("Severity = %q, want %q", e.Severity, tc.wantSeverity)
+			}
+			if e.Description == "" {
+				t.Errorf("Description should not be empty")
+			}
+		})
+	}
+}
+

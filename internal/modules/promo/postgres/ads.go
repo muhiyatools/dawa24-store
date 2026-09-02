@@ -286,6 +286,32 @@ func (r *Repository) UpdateAdAdminStatus(ctx context.Context, id int64, status p
 	})
 }
 
+// AdminToggleAd toggles an ad's is_active flag directly as platform staff without tenant requirements.
+func (r *Repository) AdminToggleAd(ctx context.Context, id int64) (*promo.Ad, error) {
+	var a promo.Ad
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE promo.ads
+			SET is_active = NOT is_active, updated_at = now()
+			WHERE id = $1
+			RETURNING ` + adColumns + `;
+		`
+		row := tx.QueryRow(txCtx, query, id)
+		if err := scanAd(row, &a); err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("ad")
+			}
+			return err
+		}
+		a.CTR = promo.ComputeCTR(a.Impressions, a.Clicks)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &a, nil
+}
+
 // SubmitAdEditRequest stores proposed changes in pending_changes without interrupting live display.
 func (r *Repository) SubmitAdEditRequest(ctx context.Context, id int64, changes *promo.AdPendingChanges) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {

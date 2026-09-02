@@ -311,6 +311,18 @@ func (s *Service) CreateSpecialOffer(ctx context.Context, o *SpecialOffer) (*Spe
 	return o, nil
 }
 
+// UpdateSpecialOffer updates a vendor's special offer.
+func (s *Service) UpdateSpecialOffer(ctx context.Context, o *SpecialOffer) error {
+	if o.OrganizationID <= 0 {
+		orgID, ok := database.TenantFrom(ctx)
+		if !ok {
+			return database.ErrNoTenant
+		}
+		o.OrganizationID = orgID
+	}
+	return s.repo.UpdateSpecialOffer(ctx, o)
+}
+
 // GetSpecialOffer retrieves a special offer by ID with details.
 func (s *Service) GetSpecialOffer(ctx context.Context, id int64) (*SpecialOffer, error) {
 	return s.repo.GetSpecialOfferByID(ctx, id)

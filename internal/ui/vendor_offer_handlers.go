@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -36,30 +37,56 @@ func (h *UIHandler) VendorOffersPage(w http.ResponseWriter, r *http.Request) {
 		offers, _ = h.promoSvc.ListSpecialOffersByOrg(ctx, actor.OrganizationID)
 	}
 
+	searchQ := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	var filtered []*promo.SpecialOffer
+	for _, o := range offers {
+		if o == nil {
+			continue
+		}
+		if statusFilter != "" && statusFilter != "all" {
+			if statusFilter == "pending" && o.AdminStatus != "pending" {
+				continue
+			} else if statusFilter == "changes_requested" && o.AdminStatus != "changes_requested" {
+				continue
+			} else if statusFilter == "rejected" && o.AdminStatus != "rejected" {
+				continue
+			} else if statusFilter == "approved" && o.AdminStatus != "approved" {
+				continue
+			} else if statusFilter != "pending" && statusFilter != "changes_requested" && statusFilter != "rejected" && statusFilter != "approved" {
+				if o.Status != statusFilter {
+					continue
+				}
+			}
+		}
+		if searchQ != "" {
+			match := strings.Contains(strings.ToLower(o.Title.Get("ar")), searchQ) ||
+				strings.Contains(strings.ToLower(o.Title.Get("en")), searchQ) ||
+				strings.Contains(strings.ToLower(o.Description.Get("ar")), searchQ)
+			if !match {
+				continue
+			}
+		}
+		filtered = append(filtered, o)
+	}
+
 	data := pages.VendorSpecialOffersData{
-		Offers:       offers,
-		FilterStatus: r.URL.Query().Get("status"),
+		Offers:       filtered,
+		AllOffers:    offers,
+		FilterStatus: statusFilter,
+		SearchQuery:  r.URL.Query().Get("q"),
 	}
 
 	h.renderPage(ctx, w, "render vendor offers page", pages.VendorSpecialOffersPage(data, lang, dir))
 }
 
-// VendorOfferNewPage renders the special offer creation form.
-func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers/new", http.StatusSeeOther)
-		return
-	}
-
+func (h *UIHandler) loadVendorOfferItemOptions(ctx context.Context, orgID int64) ([]*org.Branch, []*catalog.ProductVariant, []pages.VendorOfferItemOption) {
 	var branches []*org.Branch
-	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	if h.orgSvc != nil && orgID > 0 {
+		bList, err := h.orgSvc.ListBranches(ctx, orgID)
 		if err != nil {
-			h.log.WarnContext(ctx, "vendor offer new: list branches", "error", err)
+			h.log.WarnContext(ctx, "vendor offer: list branches", "error", err)
 		} else {
 			branches = bList
 		}
@@ -73,9 +100,9 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 	whNameMap := make(map[int64]string)
 	stockMap := make(map[int64]*inventory.Stock)
 
-	if h.invSvc != nil && actor.OrganizationID > 0 {
+	if h.invSvc != nil && orgID > 0 {
 		warehouses, _ = h.invSvc.ListWarehouses(ctx)
-		stocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		stocks, _ = h.invSvc.ListStocksByOrg(ctx, orgID)
 		for _, wh := range warehouses {
 			if wh != nil {
 				whNameMap[wh.ID] = wh.Name
@@ -89,7 +116,7 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.catSvc != nil {
-		vars, _, err := h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{Limit: 500})
+		vars, _, err := h.catSvc.ListVariantsByOrganization(ctx, orgID, catalog.VariantSearchParams{Limit: 500})
 		if err == nil {
 			variants = vars
 		}
@@ -99,7 +126,7 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 				for _, p := range products {
 					pVars, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
 					for _, v := range pVars {
-						if v.OrganizationID == actor.OrganizationID || v.OrganizationID == 0 {
+						if v.OrganizationID == orgID || v.OrganizationID == 0 {
 							variants = append(variants, v)
 						}
 					}
@@ -138,6 +165,22 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	return branches, variants, itemOptions
+}
+
+// VendorOfferNewPage renders the special offer creation form.
+func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers/new", http.StatusSeeOther)
+		return
+	}
+
+	branches, variants, itemOptions := h.loadVendorOfferItemOptions(ctx, actor.OrganizationID)
+
 	data := pages.VendorOfferFormData{
 		Branches:    branches,
 		Variants:    variants,
@@ -148,7 +191,43 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 	h.renderPage(ctx, w, "render vendor offer new page", pages.VendorOfferFormPage(data, lang, dir))
 }
 
-// VendorOfferNewSubmit handles special offer creation.
+// VendorOfferEditPage renders the special offer edit form.
+func (h *UIHandler) VendorOfferEditPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers", http.StatusSeeOther)
+		return
+	}
+
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if id <= 0 || h.promoSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/offers", "error", "العرض غير موجود")
+		return
+	}
+
+	offer, err := h.promoSvc.GetSpecialOffer(ctx, id)
+	if err != nil || offer == nil || offer.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/offers", "error", "العرض غير موجود أو ليس لديك صلاحية لتعديله")
+		return
+	}
+
+	branches, variants, itemOptions := h.loadVendorOfferItemOptions(ctx, actor.OrganizationID)
+
+	data := pages.VendorOfferFormData{
+		Offer:       offer,
+		Branches:    branches,
+		Variants:    variants,
+		ItemOptions: itemOptions,
+		IsEdit:      true,
+	}
+
+	h.renderPage(ctx, w, "render vendor offer edit page", pages.VendorOfferFormPage(data, lang, dir))
+}
+
+// VendorOfferNewSubmit handles special offer creation with file uploads.
 func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -157,8 +236,8 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := r.ParseForm(); err != nil {
-		h.log.WarnContext(ctx, "parse form error", "error", err)
+	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
+		_ = r.ParseForm()
 	}
 
 	titleAr := r.PostFormValue("title_ar")
@@ -172,6 +251,9 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		status = "active"
 	}
 	image := r.PostFormValue("image")
+	if uploadedImg, err := saveUploadedFile(r, "image_file", "offers"); err == nil && uploadedImg != "" {
+		image = uploadedImg
+	}
 
 	branchIDVal, _ := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
 	var branchID *int64
@@ -226,7 +308,7 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		StartDate:          startPtr,
 		EndDate:            endPtr,
 		Status:             status,
-		AdminStatus:        "approved",
+		AdminStatus:        "pending",
 		Image:              image,
 		Products:           prods,
 	}
@@ -243,7 +325,115 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 			fmt.Sprintf(i18n.T(langOf(r), "vendor.offer.created_notification_body"), titleAr))
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/offers", "success", i18n.T(langOf(r), "vendor.offer.created_success"))
+	h.redirectWithNotice(w, r, "/vendor/offers", "success", "تم إنشاء العرض بنجاح وإرساله للمراجعة والاعتماد من قِبل الإدارة.")
+}
+
+// VendorOfferEditSubmit processes special offer updates with file uploads.
+func (h *UIHandler) VendorOfferEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers", http.StatusSeeOther)
+		return
+	}
+
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if id <= 0 || h.promoSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/offers", "error", "العرض غير موجود")
+		return
+	}
+
+	existing, err := h.promoSvc.GetSpecialOffer(ctx, id)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/offers", "error", "العرض غير موجود أو ليس لديك صلاحية لتعديله")
+		return
+	}
+
+	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
+		_ = r.ParseForm()
+	}
+
+	titleAr := r.PostFormValue("title_ar")
+	titleEn := r.PostFormValue("title_en")
+	if titleEn == "" {
+		titleEn = titleAr
+	}
+	descAr := r.PostFormValue("description_ar")
+	status := r.PostFormValue("status")
+	if status == "" {
+		status = "active"
+	}
+	image := existing.Image
+	if formImg := r.PostFormValue("image"); formImg != "" {
+		image = formImg
+	}
+	if uploadedImg, err := saveUploadedFile(r, "image_file", "offers"); err == nil && uploadedImg != "" {
+		image = uploadedImg
+	}
+
+	branchIDVal, _ := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64)
+	var branchID *int64
+	if branchIDVal > 0 {
+		branchID = &branchIDVal
+	}
+
+	discPct, _ := strconv.ParseFloat(r.PostFormValue("discount_percentage"), 64)
+	totalPriceFloat, _ := strconv.ParseFloat(r.PostFormValue("total_price"), 64)
+	minOrderFloat, _ := strconv.ParseFloat(r.PostFormValue("min_order_amount"), 64)
+
+	var startPtr, endPtr *time.Time
+	if sDate := r.PostFormValue("start_date"); sDate != "" {
+		if t, err := time.Parse("2006-01-02", sDate); err == nil {
+			startPtr = &t
+		}
+	}
+	if eDate := r.PostFormValue("end_date"); eDate != "" {
+		if t, err := time.Parse("2006-01-02", eDate); err == nil {
+			endPtr = &t
+		}
+	}
+
+	var prods []*promo.SpecialOfferProduct
+	for _, vIDStr := range r.Form["selected_variants"] {
+		vID, _ := strconv.ParseInt(vIDStr, 10, 64)
+		if vID > 0 {
+			qty, _ := strconv.Atoi(r.PostFormValue(fmt.Sprintf("qty_%d", vID)))
+			if qty <= 0 {
+				qty = 1
+			}
+			customPrice, _ := strconv.ParseFloat(r.PostFormValue(fmt.Sprintf("custom_price_%d", vID)), 64)
+			pDiscPct, _ := strconv.ParseFloat(r.PostFormValue(fmt.Sprintf("discount_pct_%d", vID)), 64)
+
+			prods = append(prods, &promo.SpecialOfferProduct{
+				OfferID:            existing.ID,
+				VariantID:          vID,
+				Quantity:           qty,
+				CustomPrice:        money.FromMinor(int64(customPrice * 100)),
+				DiscountPercentage: pDiscPct,
+			})
+		}
+	}
+
+	existing.BranchID = branchID
+	existing.Title = i18n.New(titleAr, titleEn)
+	existing.Description = i18n.New(descAr, descAr)
+	existing.DiscountPercentage = discPct
+	existing.TotalPrice = money.FromMinor(int64(totalPriceFloat * 100))
+	existing.MinOrderAmount = money.FromMinor(int64(minOrderFloat * 100))
+	existing.StartDate = startPtr
+	existing.EndDate = endPtr
+	existing.Status = status
+	existing.AdminStatus = "pending"
+	existing.Image = image
+	existing.Products = prods
+
+	if err := h.promoSvc.UpdateSpecialOffer(ctx, existing); err != nil {
+		h.log.ErrorContext(ctx, "update special offer error", "error", err)
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/offers/%d/edit", existing.ID), "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/offers", "success", "تم تحديث بيانات العرض بنجاح وإرساله للمراجعة والاعتماد الإداري.")
 }
 
 // VendorOfferLocationsPage renders geographic location coverage management for an offer.

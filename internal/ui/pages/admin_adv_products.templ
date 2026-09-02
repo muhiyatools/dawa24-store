@@ -114,7 +114,7 @@ func productImage(p *catalog.Product) string {
 
 templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 	@layouts.AdminShell("رعاية المنتجات | Product Sponsorships", "adv_products", lang, dir) {
-		<div class="page-container" x-data="{ rejectModalOpen: false, rejectId: 0, rejectAction: '' }">
+		<div class="page-container" x-data="{ rejectModalOpen: false, rejectId: 0, rejectAction: '', addModalOpen: false }">
 			
 			<!-- Notice Toast Banner -->
 			if data.NoticeMsg != "" {
@@ -132,137 +132,150 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			}
 
 			<!-- Top Header Banner -->
-			<div class="glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
-				<div>
-					<div class="d-flex items-center gap-2 mb-1">
-						<div class="user-avatar-badge">
-							@components.IconSparkles("icon-sm")
-						</div>
-						<h1 class="page-title font-bold text-xl m-0">
-							رعاية المنتجات (Product Sponsorships)
-						</h1>
+			<div class="glass-panel p-6 mb-6 flex-between items-center flex-wrap gap-4">
+				<div class="d-flex items-center gap-3">
+					<div class="user-avatar-badge text-xl">
+						@components.IconSparkles("icon-sm")
 					</div>
-					<p class="text-xs text-secondary m-0">
-						إدارة ومتابعة المنتجات المروجة في الصدارة، متابعة استهلاك باقات الرعاية للموردين، واعتماد طلبات التثبيت.
-					</p>
+					<div class="stack-sm">
+						<h1 class="text-2xl font-black text-primary m-0">
+							رعاية وتثبيت المنتجات (Product Sponsorships)
+						</h1>
+						<p class="text-xs text-secondary m-0 mt-0.5">
+							إدارة ومتابعة المنتجات المروجة في الصدارة، استهلاك باقات الرعاية للموردين، واعتماد طلبات التثبيت
+						</p>
+					</div>
 				</div>
 
-				<div class="d-flex items-center gap-2 flex-wrap">
-					<a href="/admin/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1">
-						@components.IconBoxes("icon-xs")
-						<span>باقات الرعاية ↗</span>
+				<div class="d-flex items-center gap-2.5 flex-wrap">
+					<a href="/admin/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-2xs">
+						@components.IconPackage("icon-xs")
+						<span>باقات الرعايات والعروض ↗</span>
 					</a>
 					<button
 						type="button"
-						class="btn btn-primary btn-sm font-bold gap-1 px-4"
-						data-modal-open="add-adv-product-modal"
+						class="btn btn-primary btn-sm font-bold gap-1.5 shadow-2xs"
+						@click="addModalOpen = true"
 					>
 						@components.IconPlus("icon-xs")
-						<span>+ إضافة رعاية يدوية لمنتج</span>
+						<span>+ إضافة وتثبيت رعاية لمنتج</span>
 					</button>
 				</div>
 			</div>
 
 			<!-- 4 Modern Executive Metric Cards -->
-			<div class="dashboard-stat-grid cols-4 mb-4">
-				<div class="stat-card-3d">
-					<div class="stat-card-label">إجمالي المنتجات المروجة</div>
-					<div class="stat-card-value text-primary tabular-nums">
+			<div class="d-grid grid-auto-fit-sm gap-4 mb-6">
+				<div class="glass-panel p-4 border-s-4 border-s-accent mb-0">
+					<div class="flex-between items-center mb-1">
+						<span class="text-xs font-bold text-muted">إجمالي المنتجات المروجة</span>
+						<span class="text-accent">@components.IconSparkles("icon-xs")</span>
+					</div>
+					<div class="text-2xl font-black text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
-					<div class="stat-card-sub">كافة طلبات وسجلات الرعاية</div>
+					<div class="text-2xs text-muted mt-1">كافة سجلات الرعايات المسجلة</div>
 				</div>
 
-				<div class="stat-card-3d">
-					<div class="stat-card-label">الرعايات النشطة حالياً</div>
-					<div class="stat-card-value text-success tabular-nums">
+				<div class="glass-panel p-4 border-s-4 border-s-success mb-0">
+					<div class="flex-between items-center mb-1">
+						<span class="text-xs font-bold text-muted">الرعايات النشطة حالياً</span>
+						<span class="text-success">@components.IconCheckCircle("icon-xs")</span>
+					</div>
+					<div class="text-2xl font-black text-emerald tabular-nums">
 						{ fmt.Sprintf("%d", data.ActiveCount) }
 					</div>
-					<div class="stat-card-sub">مثبتة في صدارة البحث والكاتالوج</div>
+					<div class="text-2xs text-muted mt-1">مثبتة في صدارة البحث والكتالوج</div>
 				</div>
 
-				<div class="stat-card-3d">
-					<div class="stat-card-label">طلبات بانتظار الموافقة</div>
-					<div class="stat-card-value text-amber tabular-nums">
+				<div class="glass-panel p-4 border-s-4 border-s-warning mb-0">
+					<div class="flex-between items-center mb-1">
+						<span class="text-xs font-bold text-muted">طلبات بانتظار الموافقة</span>
+						<span class="text-warning">@components.IconClock("icon-xs")</span>
+					</div>
+					<div class="text-2xl font-black text-warning tabular-nums">
 						{ fmt.Sprintf("%d", data.PendingCount) }
 					</div>
-					<div class="stat-card-sub">تتطلب تدقيق وموافقة الإدارة</div>
+					<div class="text-2xs text-muted mt-1">تتطلب تدقيق وموافقة الإدارة</div>
 				</div>
 
-				<div class="stat-card-3d">
-					<div class="stat-card-label">الرعايات المنتهية / المرفوضة</div>
-					<div class="stat-card-value text-muted tabular-nums">
+				<div class="glass-panel p-4 border-s-4 border-s-slate mb-0">
+					<div class="flex-between items-center mb-1">
+						<span class="text-xs font-bold text-muted">الطلبات المنتهية</span>
+						<span class="text-muted">@components.IconPackage("icon-xs")</span>
+					</div>
+					<div class="text-2xl font-black text-muted tabular-nums">
 						{ fmt.Sprintf("%d", data.ExpiredCount + data.RejectedCount) }
 					</div>
-					<div class="stat-card-sub">
+					<div class="text-2xs text-muted mt-1">
 						{ fmt.Sprintf("%d منتهية • %d مرفوضة", data.ExpiredCount, data.RejectedCount) }
 					</div>
 				</div>
 			</div>
 
 			<!-- Navigation Tabs matching platform design -->
-			<div class="tabs-nav">
-				<a
-					href="/admin/adv-products?tab=all"
-					class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }
-				>
-					<span>كافة الرعايات</span>
-					<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.TotalCount) }</span>
-				</a>
-				<a
-					href="/admin/adv-products?tab=active"
-					class={ "tab-btn", templ.KV("active", data.ActiveTab == "active") }
-				>
-					<span>النشطة والمعتمدة</span>
-					<span class="badge badge-emerald text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ActiveCount) }</span>
-				</a>
-				<a
-					href="/admin/adv-products?tab=pending"
-					class={ "tab-btn", templ.KV("active", data.ActiveTab == "pending") }
-				>
-					<span>بانتظار الموافقة</span>
-					if data.PendingCount > 0 {
-						<span class="badge badge-amber text-2xs tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</span>
-					} else {
-						<span class="badge badge-slate text-2xs tabular-nums">0</span>
-					}
-				</a>
-				<a
-					href="/admin/adv-products?tab=expired"
-					class={ "tab-btn", templ.KV("active", data.ActiveTab == "expired") }
-				>
-					<span>المنتهية</span>
-					<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ExpiredCount) }</span>
-				</a>
-				<a
-					href="/admin/adv-products?tab=rejected"
-					class={ "tab-btn", templ.KV("active", data.ActiveTab == "rejected") }
-				>
-					<span>المرفوضة</span>
-					<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.RejectedCount) }</span>
-				</a>
+			<div class="glass-panel p-3 mb-6">
+				<div class="tabs-nav">
+					<a
+						href="/admin/adv-products?tab=all"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }
+					>
+						<span>كافة الرعايات</span>
+						<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.TotalCount) }</span>
+					</a>
+					<a
+						href="/admin/adv-products?tab=active"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "active") }
+					>
+						<span>النشطة والمعتمدة</span>
+						<span class="badge badge-emerald text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ActiveCount) }</span>
+					</a>
+					<a
+						href="/admin/adv-products?tab=pending"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "pending") }
+					>
+						<span>بانتظار الموافقة</span>
+						if data.PendingCount > 0 {
+							<span class="badge badge-amber text-2xs tabular-nums animate-pulse">{ fmt.Sprintf("%d", data.PendingCount) }</span>
+						} else {
+							<span class="badge badge-slate text-2xs tabular-nums">0</span>
+						}
+					</a>
+					<a
+						href="/admin/adv-products?tab=expired"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "expired") }
+					>
+						<span>المنتهية</span>
+						<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", data.ExpiredCount) }</span>
+					</a>
+					<a
+						href="/admin/adv-products?tab=rejected"
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "rejected") }
+					>
+						<span>المرفوضة</span>
+						<span class="badge badge-rose text-2xs tabular-nums">{ fmt.Sprintf("%d", data.RejectedCount) }</span>
+					</a>
+				</div>
 			</div>
 
 			<!-- Filter & Live Search Toolbar -->
-			<div class="filter-bar">
+			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action="/admin/adv-products" class="d-flex items-center gap-3 flex-wrap m-0">
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
 
 					<!-- Search input -->
-					<div class="d-flex items-center gap-2 flex-1 min-w-xs">
-						@components.IconSearch("icon-xs text-muted")
+					<div class="flex-1 min-w-60">
 						<input
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
 							placeholder="ابحث باسم المنتج، الكود، المورد، أو اسم الباقة..."
-							class="form-control font-semibold"
+							class="form-input text-xs w-full"
 						/>
 					</div>
 
 					<!-- Package filter -->
-					<div class="min-w-xs">
-						<select name="package_id" class="form-select form-select-sm font-semibold" onchange="this.form.submit()">
+					<div class="min-w-48">
+						<select name="package_id" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="0">-- كافة باقات الرعاية --</option>
 							for _, p := range data.Packages {
 								if p != nil {
@@ -276,7 +289,8 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 
 					<!-- Submit & Reset Buttons -->
 					<button type="submit" class="btn btn-primary btn-sm font-bold">
-						تصفية
+						@components.IconSearch("icon-xs")
+						<span>تصفية</span>
 					</button>
 
 					if data.SearchQuery != "" || data.SelectedPackageID > 0 {
@@ -288,7 +302,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			</div>
 
 			<!-- Main Sponsored Products Table Card -->
-			<div class="glass-panel p-0 overflow-hidden mb-4">
+			<div class="glass-panel p-0 overflow-hidden mb-6">
 				<div class="p-4 border-b d-flex items-center justify-between">
 					<h3 class="font-bold text-sm text-primary m-0 d-flex items-center gap-2">
 						@components.IconPackage("icon-xs text-primary")
@@ -300,24 +314,24 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 				</div>
 
 				if len(data.Items) == 0 {
-					<div class="p-8 text-center">
-						<div class="mb-2 text-2xl text-muted">@components.IconSparkles("icon-lg")</div>
-						<h3 class="font-bold text-base text-primary mb-1">لا توجد منتجات مروجة في هذا القسم</h3>
-						<p class="text-xs text-secondary m-0 max-w-md mx-auto mb-3">
-							يمكن للموردين ترويج منتجاتهم عبر باقات الرعاية أو يمكنك إضافة رعاية وتثبيت منتج يدوياً الآن.
+					<div class="p-12 text-center empty-state-glass">
+						<div class="text-4xl mb-3">@components.IconSparkles("icon-sm")</div>
+						<h3 class="text-base font-bold text-primary mb-1">لا توجد منتجات مروجة في هذا القسم</h3>
+						<p class="text-xs text-secondary m-0 max-w-md mx-auto mb-4">
+							يمكن للموردين ترويج منتجاتهم عبر باقات الرعاية أو يمكنك إضافة وتثبيت رعاية لمنتج يدوياً الآن
 						</p>
 						<button
 							type="button"
-							class="btn btn-primary btn-sm font-bold gap-1"
-							data-modal-open="add-adv-product-modal"
+							class="btn btn-primary btn-sm font-bold gap-1.5"
+							@click="addModalOpen = true"
 						>
 							@components.IconPlus("icon-xs")
-							<span>+ إضافة رعاية لمنتج الآن</span>
+							<span>+ إضافة وتثبيت رعاية لمنتج الآن</span>
 						</button>
 					</div>
 				} else {
-					<div class="table-responsive">
-						<table class="data-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0 text-xs w-full">
 							<thead>
 								<tr>
 									<th>المنتج المروّج</th>
@@ -325,7 +339,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 									<th>باقة الرعاية والمستوى</th>
 									<th>فترة الرعاية</th>
 									<th>الرصيد والتكلفة</th>
-									<th>الحالة</th>
+									<th class="text-center">الحالة</th>
 									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
@@ -334,15 +348,15 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 									<tr>
 										<!-- Product Column -->
 										<td>
-											<div class="d-flex items-center gap-2.5">
-												<div class="w-10 h-10 rounded-lg bg-surface-sunken border d-flex items-center justify-center flex-shrink-0">
+											<div class="d-flex items-center gap-3">
+												<div class="w-10 h-10 rounded-lg bg-surface-sunken border d-flex items-center justify-center shrink-0 overflow-hidden">
 													if img := productImage(item.Product); img != "" {
-														<img src={ img } alt="Product" class="w-8 h-8 rounded object-cover" />
+														<img src={ img } alt="Product" class="w-full h-full object-cover" />
 													} else {
 														@components.IconPackage("icon-xs text-muted")
 													}
 												</div>
-												<div>
+												<div class="stack-xs text-start">
 													<div class="font-bold text-sm text-primary">
 														if item.Product != nil {
 															{ item.Product.Name.Get(i18n.ParseLang(lang)) }
@@ -350,7 +364,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 															<span>منتج رقم #{ fmt.Sprintf("%d", item.Request.ItemID) }</span>
 														}
 													</div>
-													<div class="d-flex items-center gap-1.5 text-2xs text-muted mt-0.5 tabular-nums">
+													<div class="d-flex items-center gap-1.5 text-2xs text-muted tabular-nums">
 														if item.Product != nil && item.Product.PublicID != "" {
 															<span class="font-mono font-semibold">{ item.Product.PublicID }</span>
 															<span>•</span>
@@ -371,7 +385,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 												<div class="font-bold text-xs text-primary">
 													{ orgDisplayName(item.Organization, lang) }
 												</div>
-												<div class="text-2xs text-muted font-mono" dir="ltr">
+												<div class="text-2xs text-muted font-mono mt-0.5" dir="ltr">
 													if item.Organization.OrganizationNumber != "" {
 														<span>كود: { item.Organization.OrganizationNumber }</span>
 													} else {
@@ -435,44 +449,46 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 										</td>
 
 										<!-- Status Column -->
-										<td>
+										<td class="text-center">
 											if item.IsActive {
-												<span class="badge badge-emerald text-2xs font-bold">نشطة ومعتمدة</span>
+												<span class="badge badge-emerald text-xs font-bold">نشطة ومعتمدة</span>
 											} else if item.IsPending {
-												<span class="badge badge-amber text-2xs font-bold">بانتظار الموافقة</span>
+												<span class="badge badge-amber text-xs font-bold animate-pulse">بانتظار الموافقة</span>
 											} else if item.IsExpired {
-												<span class="badge badge-slate text-2xs font-bold">منتهية الصلاحية</span>
+												<span class="badge badge-slate text-xs font-bold">منتهية الصلاحية</span>
 											} else if item.IsRejected {
-												<span class="badge badge-rose text-2xs font-bold">مرفوضة</span>
+												<span class="badge badge-rose text-xs font-bold">مرفوضة</span>
 											} else {
-												<span class="badge badge-slate text-2xs font-bold">{ string(item.Request.Status) }</span>
+												<span class="badge badge-slate text-xs font-bold">{ string(item.Request.Status) }</span>
 											}
 										</td>
 
 										<!-- Actions Column -->
 										<td class="col-actions">
-											<div class="table-actions">
+											<div class="d-flex items-center gap-1.5 justify-end">
 												<!-- If Pending: Show Approve & Reject -->
 												if item.IsPending {
 													<!-- Approve Form -->
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/adv-products/%d/approve", item.Request.ID)) } class="m-0">
 														<button
 															type="submit"
-															class="btn btn-primary btn-icon btn-xs"
+															class="btn btn-primary btn-xs font-bold gap-1"
 															title="موافقة وتفعيل الرعاية في الصدارة فوراً"
 														>
-															@components.IconCheck("icon-xs")
+															@components.IconCheck("icon-2xs")
+															<span>اعتماد</span>
 														</button>
 													</form>
 
 													<!-- Reject Button (opens modal) -->
 													<button
 														type="button"
-														class="btn btn-secondary btn-icon btn-xs text-danger"
+														class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1"
 														title="رفض الطلب وإعادة الرصيد للمورد"
 														@click={ fmt.Sprintf("rejectId = %d; rejectAction = '/admin/adv-products/%d/reject'; rejectModalOpen = true", item.Request.ID, item.Request.ID) }
 													>
-														@components.IconX("icon-xs")
+														@components.IconClose("icon-2xs")
+														<span>رفض</span>
 													</button>
 												}
 
@@ -480,11 +496,12 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 												if item.IsActive {
 													<button
 														type="button"
-														class="btn btn-secondary btn-icon btn-xs text-danger"
+														class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1"
 														title="إلغاء وتجميد الرعاية"
 														@click={ fmt.Sprintf("rejectId = %d; rejectAction = '/admin/adv-products/%d/reject'; rejectModalOpen = true", item.Request.ID, item.Request.ID) }
 													>
-														@components.IconTrash("icon-xs")
+														@components.IconClose("icon-2xs")
+														<span>إلغاء</span>
 													</button>
 												}
 
@@ -492,11 +509,12 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 												if item.Product != nil {
 													<a
 														href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", item.Product.ID)) }
-														class="btn btn-secondary btn-icon btn-xs"
+														class="btn btn-secondary btn-xs font-bold text-accent gap-1"
 														title="معاينة تفاصيل المنتج في الكتالوج"
 														target="_blank"
 													>
-														@components.IconEye("icon-xs")
+														@components.IconEye("icon-2xs")
+														<span>عرض</span>
 													</a>
 												}
 											</div>
@@ -523,155 +541,164 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 			</div>
 
 			<!-- ================= ADD PRODUCT SPONSORSHIP MODAL ================= -->
-			@components.Modal(components.ModalProps{
-				ID:       "add-adv-product-modal",
-				Title:    "إضافة وتفعيل رعاية منتج يدوياً",
-				Subtitle: "تثبيت وترويج منتج في صدارة نتائج البحث لصالح مورد محدد وباقة رعاية معتمدة",
-				Size:     "md",
-			}) {
-				<form method="POST" action="/admin/adv-products/new" class="d-flex flex-col gap-3 m-0">
-					<!-- Vendor Selection -->
-					<div class="form-group mb-0">
-						<label class="form-label text-xs font-bold">
-							المنشأة / المورد المستفيد <span class="text-danger">*</span>
-						</label>
-						<select name="org_id" required class="form-select form-select-sm font-semibold">
-							<option value="">-- اختر المنشأة أو المورد --</option>
-							for _, v := range data.Vendors {
-								if v != nil {
-									<option value={ fmt.Sprintf("%d", v.ID) }>
-										{ orgDisplayName(v, lang) }
-										if v.OrganizationNumber != "" {
-											({ v.OrganizationNumber })
-										}
-									</option>
-								}
-							}
-						</select>
+			<div x-show="addModalOpen" x-cloak class="modal-backdrop" @click.self="addModalOpen = false">
+				<div class="modal-content max-w-lg w-full mx-4 glass-panel border rounded-3xl shadow-2xl overflow-hidden text-start" @click.stop>
+					<div class="modal-header p-5 border-b flex-between items-center">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-9 h-9 rounded-xl bg-accent-subtle text-accent d-flex items-center justify-center">
+								@components.IconSparkles("icon-xs")
+							</div>
+							<div class="stack-xs text-start">
+								<h3 class="text-base font-black text-primary m-0">إضافة وتفعيل رعاية منتج يدوياً</h3>
+								<span class="text-2xs text-muted">تثبيت وترويج منتج في صدارة الكتالوج لصالح مورد محدد</span>
+							</div>
+						</div>
+						<button type="button" @click="addModalOpen = false" class="btn btn-ghost btn-sm text-slate-400 hover:text-slate-600">
+							@components.IconClose("icon-xs")
+						</button>
 					</div>
 
-					<!-- Product Selection -->
-					<div class="form-group mb-0">
-						<label class="form-label text-xs font-bold">
-							المنتج المراد تثبيته ورعايته <span class="text-danger">*</span>
-						</label>
-						<select name="product_id" required class="form-select form-select-sm font-semibold">
-							<option value="">-- اختر المنتج من الكتالوج --</option>
-							for _, prod := range data.CatalogProducts {
-								if prod != nil {
-									<option value={ fmt.Sprintf("%d", prod.ID) }>
-										{ prod.Name.Get(i18n.ParseLang(lang)) }
-										if prod.PublicID != "" {
-											({ prod.PublicID })
-										}
-									</option>
-								}
-							}
-						</select>
-					</div>
-
-					<!-- Package Selection -->
-					<div class="d-grid grid-auto-fit-sm gap-3">
-						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold">
-								باقة الرعاية <span class="text-danger">*</span>
+					<form method="POST" action="/admin/adv-products/new" class="p-6 d-flex flex-col gap-4 m-0">
+						<!-- Vendor Selection -->
+						<div class="stack-xs">
+							<label class="form-label text-xs font-bold text-primary">
+								المنشأة / المورد المستفيد <span class="text-danger">*</span>
 							</label>
-							<select name="package_id" required class="form-select form-select-sm font-semibold">
-								<option value="">-- اختر الباقة --</option>
-								for _, p := range data.Packages {
-									if p != nil {
-										<option value={ fmt.Sprintf("%d", p.ID) }>
-											{ p.Name.Get(i18n.ParseLang(lang)) } - { advTierName(p.TierLevel) }
+							<select name="org_id" required class="form-select text-xs w-full">
+								<option value="">-- اختر المنشأة أو المورد --</option>
+								for _, v := range data.Vendors {
+									if v != nil {
+										<option value={ fmt.Sprintf("%d", v.ID) }>
+											{ orgDisplayName(v, lang) }
+											if v.OrganizationNumber != "" {
+												({ v.OrganizationNumber })
+											}
 										</option>
 									}
 								}
 							</select>
 						</div>
 
-						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold">
-								مدة التثبيت (بالأيام) <span class="text-danger">*</span>
+						<!-- Product Selection -->
+						<div class="stack-xs">
+							<label class="form-label text-xs font-bold text-primary">
+								المنتج المراد تثبيته ورعايته <span class="text-danger">*</span>
 							</label>
-							<input
-								type="number"
-								name="duration_days"
-								value="30"
-								min="1"
-								max="365"
-								required
-								class="form-control font-bold tabular-nums"
-							/>
+							<select name="product_id" required class="form-select text-xs w-full">
+								<option value="">-- اختر المنتج من الكتالوج --</option>
+								for _, prod := range data.CatalogProducts {
+									if prod != nil {
+										<option value={ fmt.Sprintf("%d", prod.ID) }>
+											{ prod.Name.Get(i18n.ParseLang(lang)) }
+											if prod.PublicID != "" {
+												({ prod.PublicID })
+											}
+										</option>
+									}
+								}
+							</select>
 						</div>
-					</div>
 
-					<!-- Form Actions -->
-					<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-						<button
-							type="button"
-							class="btn btn-secondary font-bold"
-							data-modal-close="add-adv-product-modal"
-						>
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary font-bold px-6">
-							@components.IconCheck("icon-xs")
-							<span>+ تأكيد وتفعيل رعاية المنتج فوراً</span>
-						</button>
-					</div>
-				</form>
-			}
+						<!-- Package & Duration Selection -->
+						<div class="d-grid grid-cols-2 gap-3">
+							<div class="stack-xs">
+								<label class="form-label text-xs font-bold text-primary">
+									باقة الرعاية <span class="text-danger">*</span>
+								</label>
+								<select name="package_id" required class="form-select text-xs w-full">
+									<option value="">-- اختر الباقة --</option>
+									for _, p := range data.Packages {
+										if p != nil {
+											<option value={ fmt.Sprintf("%d", p.ID) }>
+												{ p.Name.Get(i18n.ParseLang(lang)) } - { advTierName(p.TierLevel) }
+											</option>
+										}
+									}
+								</select>
+							</div>
 
-			<!-- ================= REJECT / REVOKE MODAL ================= -->
-			<div
-				class="modal"
-				:class="{ 'open': rejectModalOpen }"
-				x-show="rejectModalOpen"
-				x-cloak
-			>
-				<div class="modal-backdrop" @click="rejectModalOpen = false"></div>
-				<div class="modal-dialog max-w-md">
-					<div class="modal-content">
-						<div class="modal-header d-flex items-center justify-between pb-3 border-b">
-							<h3 class="modal-title text-base font-bold text-danger m-0 d-flex items-center gap-2">
-								@components.IconAlert("icon-xs")
-								<span>رفض أو إلغاء رعاية المنتج</span>
-							</h3>
-							<button type="button" class="btn btn-ghost btn-icon btn-xs" @click="rejectModalOpen = false">
-								@components.IconX("icon-xs")
+							<div class="stack-xs">
+								<label class="form-label text-xs font-bold text-primary">
+									مدة التثبيت (بالأيام) <span class="text-danger">*</span>
+								</label>
+								<input
+									type="number"
+									name="duration_days"
+									value="30"
+									min="1"
+									max="365"
+									required
+									class="form-input text-xs font-bold tabular-nums w-full"
+								/>
+							</div>
+						</div>
+
+						<!-- Form Actions -->
+						<div class="d-flex justify-between items-center pt-4 border-t mt-2">
+							<button
+								type="button"
+								class="btn btn-secondary font-bold"
+								@click="addModalOpen = false"
+							>
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary font-bold px-6">
+								@components.IconCheck("icon-xs")
+								<span>+ تأكيد وتفعيل رعاية المنتج فوراً</span>
 							</button>
 						</div>
+					</form>
+				</div>
+			</div>
 
-						<form :action="rejectAction" method="POST" class="d-flex flex-col gap-3 m-0 p-4">
-							<p class="text-xs text-secondary m-0">
-								سيتم رفض طلب الرعاية وإيقاف ظهوره في الصدارة وإعادة رصيد الرعاية للمورد.
-							</p>
-
-							<div class="form-group mb-0">
-								<label class="form-label text-xs font-bold">
-									سبب الرفض أو الملاحظات للمورد
-								</label>
-								<textarea
-									name="notes"
-									rows="3"
-									placeholder="اكتب سبب الرفض أو التوجيهات للمورد..."
-									class="form-control"
-								></textarea>
+			<!-- ================= REJECT / REVOKE MODAL ================= -->
+			<div x-show="rejectModalOpen" x-cloak class="modal-backdrop" @click.self="rejectModalOpen = false">
+				<div class="modal-content max-w-md w-full mx-4 glass-panel border border-rose-200 rounded-3xl shadow-2xl overflow-hidden text-start" @click.stop>
+					<div class="modal-header p-5 border-b border-rose-100 flex-between items-center bg-rose-50/70">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-9 h-9 rounded-xl bg-rose-500 text-white d-flex items-center justify-center">
+								@components.IconAlert("icon-xs")
 							</div>
-
-							<div class="modal-footer pt-3 border-t d-flex items-center justify-between">
-								<button
-									type="button"
-									class="btn btn-secondary font-bold"
-									@click="rejectModalOpen = false"
-								>
-									تراجع
-								</button>
-								<button type="submit" class="btn btn-danger font-bold px-6">
-									تأكيد الرفض والإلغاء
-								</button>
+							<div class="stack-xs text-start">
+								<h3 class="text-base font-black text-rose-700 m-0">رفض أو إلغاء رعاية المنتج</h3>
+								<span class="text-2xs text-muted">إيقاف التثبيت في الصدارة وإعادة الرصيد للمورد</span>
 							</div>
-						</form>
+						</div>
+						<button type="button" @click="rejectModalOpen = false" class="btn btn-ghost btn-sm text-slate-400 hover:text-slate-600">
+							@components.IconClose("icon-xs")
+						</button>
 					</div>
+
+					<form :action="rejectAction" method="POST" class="p-6 d-flex flex-col gap-4 m-0">
+						<p class="text-xs text-secondary m-0">
+							سيتم رفض طلب الرعاية وإيقاف ظهوره في الصدارة وإعادة رصيد الرعاية للمورد مع إرسال إشعار بالملاحظات المدونة أدناه.
+						</p>
+
+						<div class="stack-xs">
+							<label class="form-label text-xs font-bold text-primary">
+								سبب الرفض أو الملاحظات للمورد
+							</label>
+							<textarea
+								name="notes"
+								rows="3"
+								placeholder="اكتب سبب الرفض أو التوجيهات للمورد..."
+								class="form-input text-xs w-full"
+							></textarea>
+						</div>
+
+						<div class="d-flex justify-between items-center pt-4 border-t mt-2">
+							<button
+								type="button"
+								class="btn btn-secondary font-bold"
+								@click="rejectModalOpen = false"
+							>
+								تراجع
+							</button>
+							<button type="submit" class="btn btn-danger font-bold px-6">
+								تأكيد الرفض والإلغاء
+							</button>
+						</div>
+					</form>
 				</div>
 			</div>
 

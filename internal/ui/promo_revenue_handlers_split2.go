@@ -92,18 +92,13 @@ func (h *UIHandler) AdminAdToggleSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
-	ad, err := h.promoSvc.GetAd(sysCtx, id)
-	if err != nil || ad == nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", "لم يتم العثور على الإعلان")
-		return
-	}
-	ad.IsActive = !ad.IsActive
-	if err := h.promoSvc.UpdateAd(sysCtx, ad); err != nil {
+	updatedAd, err := h.promoSvc.AdminToggleAd(sysCtx, id)
+	if err != nil {
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, lang))
 		return
 	}
 	msg := "تم تفعيل الإعلان وظهوره على المنصة بنجاح."
-	if !ad.IsActive {
+	if !updatedAd.IsActive {
 		msg = "تم إيقاف وتعطيل ظهور الإعلان مؤقتاً."
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", msg)

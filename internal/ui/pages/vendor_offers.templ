@@ -9,9 +9,11 @@ import (
 )
 
 type VendorSpecialOffersData struct {
-	Offers        []*promo.SpecialOffer
-	Counts        map[string]int
-	FilterStatus  string
+	Offers       []*promo.SpecialOffer
+	AllOffers    []*promo.SpecialOffer
+	Counts       map[string]int
+	FilterStatus string
+	SearchQuery  string
 }
 
 templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
@@ -19,9 +21,9 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 		<div class="page-container">
 			
 			<!-- Header Action Bar -->
-			<div class="glass-panel p-6 mb-0">
+			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconPackage("icon-sm")
@@ -35,65 +37,110 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 						</p>
 					</div>
 
-     <div class="stack-sm">
-						<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs px-4 py-2 gap-1">
+					<div class="d-flex items-center gap-2.5 flex-wrap">
+						<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs px-4 py-2.5 gap-1.5 shadow-2xs">
 							@components.IconPlus("icon-xs")
-							<span>إضافة عرض خاص جديد</span>
+							<span>+ إضافة عرض خاص جديد</span>
 						</a>
 					</div>
 				</div>
 			</div>
 
 			<!-- Statistics Summary Cards (Clickable Filter Tabs) -->
-			<div class="dashboard-stat-grid cols-4 mb-0">
+			<div class="d-grid grid-auto-fit-sm gap-4 mb-6">
 				<!-- Total Offers -->
 				<a href="/vendor/offers" class="text-decoration-none">
-					<div class="stat-card-3d">
-						<div class="stat-card-label">إجمالي العروض</div>
-						<div class="stat-card-value text-primary tabular-nums">
-							{ fmt.Sprintf("%d", len(data.Offers)) }
+					<div class={ "glass-panel p-4 mb-0 border-s-4 border-s-accent transition-transform hover:-translate-y-0.5", templ.KV("ring-2 ring-accent", data.FilterStatus == "" || data.FilterStatus == "all") }>
+						<div class="flex-between items-center mb-1">
+							<span class="text-xs font-bold text-muted">إجمالي العروض</span>
+							<span class="text-accent">@components.IconPackage("icon-xs")</span>
 						</div>
+						<div class="text-2xl font-black text-primary tabular-nums">
+							{ fmt.Sprintf("%d", len(data.AllOffers)) }
+						</div>
+						<div class="text-2xs text-muted mt-1">كافة العروض المسجلة للمنشأة</div>
 					</div>
 				</a>
 
 				<!-- Active Offers -->
 				<a href="/vendor/offers?status=active" class="text-decoration-none">
-					<div class="stat-card-3d">
-						<div class="stat-card-label text-success d-flex items-center gap-2">
-							<span class="status-dot success"></span>
-							<span>العروض النشطة</span>
+					<div class={ "glass-panel p-4 mb-0 border-s-4 border-s-success transition-transform hover:-translate-y-0.5", templ.KV("ring-2 ring-success", data.FilterStatus == "active") }>
+						<div class="flex-between items-center mb-1">
+							<span class="text-xs font-bold text-muted">العروض النشطة المعتمدة</span>
+							<span class="text-success">@components.IconCheckCircle("icon-xs")</span>
 						</div>
-						<div class="stat-card-value text-success tabular-nums">
-							{ fmt.Sprintf("%d", countOffersByStatus(data.Offers, "active")) }
+						<div class="text-2xl font-black text-emerald tabular-nums">
+							{ fmt.Sprintf("%d", countOffersByStatus(data.AllOffers, "active")) }
 						</div>
+						<div class="text-2xs text-muted mt-1">ظاهرة للصيدليات في منصة الطلب</div>
 					</div>
 				</a>
 
 				<!-- Pending Review -->
 				<a href="/vendor/offers?status=pending" class="text-decoration-none">
-					<div class="stat-card-3d">
-						<div class="stat-card-label text-warning d-flex items-center gap-2">
-							<span class="status-dot warning"></span>
-							<span>قيد المراجعة</span>
+					<div class={ "glass-panel p-4 mb-0 border-s-4 border-s-warning transition-transform hover:-translate-y-0.5", templ.KV("ring-2 ring-warning", data.FilterStatus == "pending") }>
+						<div class="flex-between items-center mb-1">
+							<span class="text-xs font-bold text-muted">قيد المراجعة الإدارية</span>
+							<span class="text-warning">@components.IconClock("icon-xs")</span>
 						</div>
-						<div class="stat-card-value text-warning tabular-nums">
-							{ fmt.Sprintf("%d", countOffersByAdminStatus(data.Offers, "pending")) }
+						<div class="text-2xl font-black text-warning tabular-nums">
+							{ fmt.Sprintf("%d", countOffersByAdminStatus(data.AllOffers, "pending")) }
 						</div>
+						<div class="text-2xs text-muted mt-1">بانتظار تدقيق واعتماد الإدارة</div>
 					</div>
 				</a>
 
-				<!-- Drafts & Expired -->
-				<a href="/vendor/offers?status=draft" class="text-decoration-none">
-					<div class="stat-card-3d">
-						<div class="stat-card-label text-muted d-flex items-center gap-2">
-							<span class="status-dot"></span>
-							<span>المسودات والمنتهية</span>
+				<!-- Changes Requested -->
+				<a href="/vendor/offers?status=changes_requested" class="text-decoration-none">
+					<div class={ "glass-panel p-4 mb-0 border-s-4 border-s-amber-500 transition-transform hover:-translate-y-0.5", templ.KV("ring-2 ring-amber-500", data.FilterStatus == "changes_requested") }>
+						<div class="flex-between items-center mb-1">
+							<span class="text-xs font-bold text-muted">مطلوب تعديلات</span>
+							<span class="text-amber-600">@components.IconEdit("icon-xs")</span>
 						</div>
-						<div class="stat-card-value text-muted tabular-nums">
-							{ fmt.Sprintf("%d", countOffersByStatus(data.Offers, "draft") + countOffersByStatus(data.Offers, "expired")) }
+						<div class="text-2xl font-black text-amber-600 tabular-nums">
+							{ fmt.Sprintf("%d", countOffersByAdminStatus(data.AllOffers, "changes_requested")) }
 						</div>
+						<div class="text-2xs text-muted mt-1">تتطلب استجابة المورد وتعديل العرض</div>
 					</div>
 				</a>
+			</div>
+
+			<!-- Filter & Search Bar -->
+			<div class="glass-panel p-4 mb-6">
+				<form method="GET" action="/vendor/offers" class="d-flex items-center gap-3 flex-wrap m-0">
+					<div class="flex-1 min-w-60">
+						<input
+							type="text"
+							name="q"
+							value={ data.SearchQuery }
+							placeholder="ابحث باسم العرض أو الكلمات الدلالية..."
+							class="form-input text-xs w-full"
+						/>
+					</div>
+
+					<div class="min-w-48">
+						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
+							<option value="">-- تصفية بحالة العرض --</option>
+							<option value="all" selected?={ data.FilterStatus == "all" || data.FilterStatus == "" }>كافة الحالات</option>
+							<option value="active" selected?={ data.FilterStatus == "active" }>العروض النشطة</option>
+							<option value="pending" selected?={ data.FilterStatus == "pending" }>قيد المراجعة الإدارية</option>
+							<option value="changes_requested" selected?={ data.FilterStatus == "changes_requested" }>مطلوب تعديلات من الإدارة</option>
+							<option value="draft" selected?={ data.FilterStatus == "draft" }>المسودات</option>
+							<option value="rejected" selected?={ data.FilterStatus == "rejected" }>المرفوضة</option>
+						</select>
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-sm font-bold gap-1">
+						@components.IconSearch("icon-xs")
+						<span>تصفية</span>
+					</button>
+
+					if data.SearchQuery != "" || (data.FilterStatus != "" && data.FilterStatus != "all") {
+						<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold">
+							إلغاء التصفية
+						</a>
+					}
+				</form>
 			</div>
 
 			<!-- Offers Grid List -->
@@ -101,12 +148,12 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 				<div class="glass-panel p-12 text-center empty-state-glass">
 					<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 					<h3 class="text-lg font-black text-primary mb-2">
-						لا توجد عروض خاصة مضافة حتى الآن
+						لا توجد عروض خاصة مطابقة لمعايير البحث
 					</h3>
 					<p class="text-sm text-secondary max-w-md mx-auto mb-6">
 						أنشئ عروضك الخاصة وخصص المنتجات المشمولة ونطاقات التغطية الجغرافية وأيام التوصيل للصيدليات.
 					</p>
-					<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs gap-1">
+					<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs gap-1.5 px-4 py-2">
 						@components.IconPlus("icon-xs")
 						<span>+ إنشاء أول عرض خاص الآن</span>
 					</a>
@@ -114,53 +161,88 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 			} else {
 				<div class="dashboard-grid-3col mb-0">
 					for _, o := range data.Offers {
-						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
-       <div class="stack-sm">
+						<div class="glass-panel p-5 mb-0 d-flex flex-col justify-between overflow-hidden">
+							<div class="stack-sm">
+								<!-- Banner Image (if uploaded) -->
+								if o.Image != "" {
+									<div class="w-full h-36 rounded-2xl overflow-hidden mb-3 border bg-surface-sunken">
+										<img src={ o.Image } alt={ o.Title.Get(i18n.Lang(lang)) } class="w-full h-full object-cover" />
+									</div>
+								}
+
 								<!-- Header Strip -->
-								<div class="flex-between items-start gap-2 mb-3">
-         <div class="stack-sm">
-										<h3 class="text-base font-extrabold text-primary m-0">
+								<div class="flex-between items-start gap-2 mb-2">
+									<div class="stack-xs text-start">
+										<h3 class="text-base font-extrabold text-primary m-0 leading-snug">
 											{ o.Title.Get(i18n.Lang(lang)) }
 										</h3>
 										if o.BranchName != "" {
-											<div class="text-xs text-brand font-bold mt-1">
+											<div class="text-2xs text-accent font-bold mt-0.5">
 												الفرع: { o.BranchName }
 											</div>
 										}
 									</div>
 
-         <div class="stack-sm">
+									<div class="d-flex flex-col items-end gap-1 shrink-0">
+										<!-- Active/Draft Status -->
 										if o.Status == "active" {
-											<span class="badge badge-emerald text-xs font-bold">نشط</span>
+											<span class="badge badge-emerald text-2xs font-bold">نشط</span>
 										} else if o.Status == "draft" {
-											<span class="badge badge-slate text-xs font-bold">مسودة</span>
+											<span class="badge badge-slate text-2xs font-bold">مسودة</span>
 										} else {
-											<span class="badge badge-rose text-xs font-bold">{ o.Status }</span>
+											<span class="badge badge-rose text-2xs font-bold">{ o.Status }</span>
+										}
+
+										<!-- Admin Moderation Status -->
+										if o.AdminStatus == "pending" {
+											<span class="badge badge-amber text-2xs font-extrabold animate-pulse">قيد مراجعة الإدارة</span>
+										} else if o.AdminStatus == "changes_requested" {
+											<span class="badge badge-amber text-2xs font-extrabold">مطلوب تعديلات</span>
+										} else if o.AdminStatus == "approved" {
+											<span class="badge badge-emerald text-2xs font-bold">معتمد</span>
+										} else if o.AdminStatus == "rejected" {
+											<span class="badge badge-rose text-2xs font-bold">مرفوض</span>
 										}
 									</div>
 								</div>
 
+								<!-- Admin Feedback Note Banner (if changes requested or rejected) -->
+								if (o.AdminStatus == "changes_requested" || o.AdminStatus == "rejected") && o.AdminNotes != "" {
+									<div class="p-3 my-2 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-start">
+										<div class="d-flex items-center gap-1.5 font-bold text-amber-900 mb-1">
+											@components.IconAlert("icon-2xs")
+											<span>ملاحظات وتوجيهات الإدارة:</span>
+										</div>
+										<p class="m-0 text-amber-800 text-2xs leading-relaxed">{ o.AdminNotes }</p>
+										<div class="mt-2 text-end">
+											<a href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/edit", o.ID)) } class="btn btn-primary btn-xs font-bold">
+												تعديل العرض الآن وتطبيقه
+											</a>
+										</div>
+									</div>
+								}
+
 								if o.Description.Get(i18n.Lang(lang)) != "" {
-									<p class="text-xs text-secondary leading-relaxed mb-4">
+									<p class="text-xs text-secondary leading-relaxed mb-3">
 										{ o.Description.Get(i18n.Lang(lang)) }
 									</p>
 								}
 
 								<!-- Pricing & Products Summary Pill -->
-								<div class="p-3 rounded-lg bg-surface-sunken border mb-4">
+								<div class="p-3 rounded-xl bg-surface-sunken border mb-3">
 									<div class="flex-between items-baseline">
-          <div class="stack-sm">
-											<span class="text-xs text-muted font-bold d-block">نسبة الخصم:</span>
-											<span class="text-lg font-black text-brand tabular-nums">
+										<div class="stack-xs text-start">
+											<span class="text-2xs text-muted font-bold d-block">نسبة الخصم:</span>
+											<span class="text-base font-black text-emerald tabular-nums">
 												{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
 											</span>
 										</div>
 
 										<div class="text-end">
-											<span class="text-xs text-muted font-bold d-block">السعر الكلي:</span>
-											<span class="text-base font-extrabold text-primary tabular-nums">
+											<span class="text-2xs text-muted font-bold d-block">السعر الكلي:</span>
+											<span class="text-sm font-extrabold text-primary tabular-nums">
 												if o.TotalPrice.Minor() > 0 {
-													{ o.TotalPrice.String() } <span class="text-xs text-muted">ج.م</span>
+													{ o.TotalPrice.String() } <span class="text-2xs text-muted">ج.م</span>
 												} else {
 													<span>حسب الصنف</span>
 												}
@@ -170,14 +252,14 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 								</div>
 
 								<!-- Validity Dates & Location Cover Badge -->
-								<div class="flex-between items-center text-xs text-muted mb-2">
+								<div class="flex-between items-center text-2xs text-muted mb-2">
 									if o.StartDate != nil && o.EndDate != nil {
-										<span>{ o.StartDate.Format("02/01/2006") } - { o.EndDate.Format("02/01/2006") }</span>
+										<span class="tabular-nums">{ o.StartDate.Format("02/01/2006") } - { o.EndDate.Format("02/01/2006") }</span>
 									} else {
 										<span>ساري المفعول</span>
 									}
 
-									<span class="badge badge-brand text-2xs font-bold gap-1">
+									<span class="badge badge-sky text-2xs font-bold gap-1">
 										@components.IconPackage("icon-2xs")
 										<span>{ fmt.Sprintf("%d أصناف مشمولة", len(o.Products)) }</span>
 									</span>
@@ -185,18 +267,18 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 
 								<!-- Included Products Manifest -->
 								if len(o.Products) > 0 {
-									<div class="mt-3 pt-3 border-t">
-										<div class="text-2xs font-bold text-secondary mb-2 d-flex items-center gap-1.5">
-											<span>قائمة الأدوية المشمولة بالعرض:</span>
+									<div class="mt-2 pt-2 border-t">
+										<div class="text-2xs font-bold text-secondary mb-1.5 d-flex items-center gap-1.5">
+											<span>الأدوية المشمولة بالعرض:</span>
 										</div>
-										<div class="d-flex flex-col gap-1.5 max-h-36 overflow-y-auto">
+										<div class="d-flex flex-col gap-1.5 max-h-32 overflow-y-auto">
 											for _, p := range o.Products {
-												<div class="p-2 rounded-lg bg-surface-sunken border d-flex items-center justify-between text-xs gap-2">
-													<span class="font-bold text-primary truncate" title={ p.VariantName }>{ p.VariantName }</span>
-													<div class="d-flex items-center gap-1.5 flex-shrink-0">
-														<span class="badge badge-slate text-2xs font-bold">{ fmt.Sprintf("× %d", p.Quantity) }</span>
+												<div class="p-1.5 rounded-lg bg-surface-sunken border d-flex items-center justify-between text-xs gap-2">
+													<span class="font-bold text-primary truncate text-2xs" title={ p.VariantName }>{ p.VariantName }</span>
+													<div class="d-flex items-center gap-1.5 shrink-0">
+														<span class="badge badge-slate text-2xs font-bold tabular-nums">{ fmt.Sprintf("× %d", p.Quantity) }</span>
 														if p.CustomPrice.IsPositive() {
-															<strong class="text-brand tabular-nums text-2xs">{ p.CustomPrice.String() } ج.م</strong>
+															<strong class="text-emerald tabular-nums text-2xs font-black">{ p.CustomPrice.String() } ج.م</strong>
 														} else if p.DiscountPercentage > 0 {
 															<span class="badge badge-amber text-2xs font-bold">{ fmt.Sprintf("-%.0f%%", p.DiscountPercentage) }</span>
 														}
@@ -209,15 +291,33 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 							</div>
 
 							<!-- Action Buttons -->
-							<div class="flex-between items-center border-t pt-4 mt-4">
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations", o.ID)) } class="btn btn-secondary btn-sm font-bold text-xs gap-1">
-									@components.IconMapPin("icon-xs")
-									<span>نطاقات التغطية</span>
-								</a>
+							<div class="flex-between items-center border-t pt-3 mt-3 flex-wrap gap-2">
+								<div class="d-flex items-center gap-1.5">
+									<!-- Edit Offer Button -->
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/edit", o.ID)) }
+										class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs"
+										title="تعديل بيانات العرض والأصناف والبانر"
+									>
+										@components.IconEdit("icon-2xs")
+										<span>تعديل</span>
+									</a>
+
+									<!-- Geographic Coverage -->
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations", o.ID)) }
+										class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs"
+										title="إدارة نطاقات التغطية الجغرافية"
+									>
+										@components.IconMapPin("icon-2xs")
+										<span>التغطية</span>
+									</a>
+								</div>
 
 								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض الخاص؟');">
-									<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف هذا العرض">
-										@components.IconX("icon-sm")
+									<button type="submit" class="btn btn-ghost btn-xs text-rose-600 hover:bg-rose-50" title="حذف هذا العرض">
+										@components.IconClose("icon-xs")
+										<span>حذف</span>
 									</button>
 								</form>
 							</div>
@@ -232,7 +332,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 func countOffersByStatus(offers []*promo.SpecialOffer, status string) int {
 	c := 0
 	for _, o := range offers {
-		if o.Status == status {
+		if o != nil && o.Status == status {
 			c++
 		}
 	}
@@ -242,7 +342,7 @@ func countOffersByStatus(offers []*promo.SpecialOffer, status string) int {
 func countOffersByAdminStatus(offers []*promo.SpecialOffer, status string) int {
 	c := 0
 	for _, o := range offers {
-		if o.AdminStatus == status {
+		if o != nil && o.AdminStatus == status {
 			c++
 		}
 	}

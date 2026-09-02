@@ -34,6 +34,10 @@ func countAdminSpecialOffers(offers []*promo.SpecialOffer, status string) int {
 			if o.AdminStatus == "pending" || o.AdminStatus == "" {
 				count++
 			}
+		case "changes_requested":
+			if o.AdminStatus == "changes_requested" {
+				count++
+			}
 		case "rejected":
 			if o.AdminStatus == "rejected" {
 				count++
@@ -60,7 +64,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconPackage("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">العروض وباقات الموردين الخاصة</h1>
 							<p class="text-sm text-secondary m-0 mt-1">مراجعة واعتماد عروض وباقات الأدوية المجمعة المقدمة من الموردين، وإدارة التغطية الجغرافية وأسعار الباقات</p>
 						</div>
@@ -69,41 +73,41 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 			</div>
 
 			<!-- KPI Summary Strip -->
-			<div class="dashboard-stat-grid mb-6">
-				<div class="stat-card-3d">
+			<div class="d-grid grid-auto-fit-sm gap-4 mb-6">
+				<div class="glass-panel p-4 mb-0 border-s-4 border-s-accent">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي الباقات والعروض</span>
-						<span class="text-brand">@components.IconShoppingBag("icon-sm")</span>
+						<span class="text-accent">@components.IconShoppingBag("icon-xs")</span>
 					</div>
 					<div class="tabular-nums text-2xl font-black text-primary mt-2">
 						{ fmt.Sprintf("%d", len(data.Offers)) }
 					</div>
 				</div>
 
-				<div class="stat-card-3d">
+				<div class="glass-panel p-4 mb-0 border-s-4 border-s-emerald-500">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">العروض المعتمدة والنشطة</span>
-						<span class="text-success">@components.IconCheckCircle("icon-sm")</span>
+						<span class="text-emerald">@components.IconCheckCircle("icon-xs")</span>
 					</div>
-					<div class="tabular-nums text-2xl font-black text-success mt-2">
+					<div class="tabular-nums text-2xl font-black text-emerald mt-2">
 						{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "active")) }
 					</div>
 				</div>
 
-				<div class="stat-card-3d">
+				<div class="glass-panel p-4 mb-0 border-s-4 border-s-amber-500">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">بانتظار المراجعة والاعتماد</span>
-						<span class="text-warning">@components.IconClock("icon-sm")</span>
+						<span class="text-amber-500">@components.IconClock("icon-xs")</span>
 					</div>
-					<div class="tabular-nums text-2xl font-black text-warning mt-2">
+					<div class="tabular-nums text-2xl font-black text-amber-500 mt-2">
 						{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "pending")) }
 					</div>
 				</div>
 
-				<div class="stat-card-3d">
+				<div class="glass-panel p-4 mb-0 border-s-4 border-s-cyan-500">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">عروض ذات تغطية جغرافية</span>
-						<span class="text-cyan">@components.IconMapPin("icon-sm")</span>
+						<span class="text-cyan">@components.IconMapPin("icon-xs")</span>
 					</div>
 					<div class="tabular-nums text-2xl font-black text-cyan mt-2">
 						{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "coverage")) }
@@ -112,7 +116,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 			</div>
 
 			<!-- Status Filter Tabs -->
-			<div class="glass-panel p-6 mb-6">
+			<div class="glass-panel p-4 mb-6">
 				<div class="tabs-nav">
 					<a href="/admin/offers" class={ "tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all") }>
 						<span>كافة العروض</span>
@@ -122,6 +126,12 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 						<span>بانتظار الاعتماد</span>
 						if pendingCount := countAdminSpecialOffers(data.Offers, "pending"); pendingCount > 0 {
 							<span class="badge badge-amber text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", pendingCount) }</span>
+						}
+					</a>
+					<a href="/admin/offers?status=changes_requested" class={ "tab-btn", templ.KV("active", data.FilterStatus == "changes_requested") }>
+						<span>مطلوب تعديلات</span>
+						if chgCount := countAdminSpecialOffers(data.Offers, "changes_requested"); chgCount > 0 {
+							<span class="badge badge-amber text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", chgCount) }</span>
 						}
 					</a>
 					<a href="/admin/offers?status=active" class={ "tab-btn", templ.KV("active", data.FilterStatus == "active") }>
@@ -168,20 +178,24 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 									<tr>
 										<!-- Offer Title & Info -->
 										<td>
-           <div class="stack-sm">
-												<div class="stack-xs text-sm">
-													@components.IconPackage("icon-sm")
-												</div>
-            <div class="stack-sm">
-													<div class="stack-xs text-sm">
-														{ o.Title.Get(i18n.Lang(lang)) }
+											<div class="d-flex items-center gap-3">
+												if o.Image != "" {
+													<img src={ o.Image } alt="Banner" class="w-12 h-12 rounded-xl object-cover border shrink-0 bg-surface-sunken" />
+												} else {
+													<div class="user-avatar-badge text-base shrink-0">
+														@components.IconPackage("icon-xs")
 													</div>
+												}
+												<div class="stack-xs text-start">
+													<span class="font-bold text-primary text-xs leading-snug">
+														{ o.Title.Get(i18n.Lang(lang)) }
+													</span>
 													if !o.Description.IsEmpty() {
-														<div class="stack-xs text-sm">
+														<span class="text-2xs text-secondary truncate max-w-xs d-block">
 															{ o.Description.Get(i18n.Lang(lang)) }
-														</div>
+														</span>
 													}
-													<div class="tabular-nums">
+													<div class="text-2xs text-muted tabular-nums">
 														#{ fmt.Sprintf("%d", o.ID) } • { o.CreatedAt.Format("2006-01-02") }
 													</div>
 												</div>
@@ -190,7 +204,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 										<!-- Supplier Org & Branch -->
 										<td>
-           <div class="stack-sm">
+											<div class="font-bold text-primary text-xs">
 												if o.OrganizationName != "" {
 													{ o.OrganizationName }
 												} else {
@@ -198,11 +212,11 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 												}
 											</div>
 											if o.BranchName != "" {
-												<div class="stack-xs text-sm">
+												<div class="text-2xs text-accent font-bold mt-0.5">
 													فرع: { o.BranchName }
 												</div>
 											} else {
-												<div class="stack-xs text-sm">
+												<div class="text-2xs text-muted mt-0.5">
 													كافة الفروع
 												</div>
 											}
@@ -211,16 +225,16 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 										<!-- Bundled Products List -->
 										<td>
 											if len(o.Products) == 0 {
-												<span>عرض عام (بدون باقة مخصصة)</span>
+												<span class="text-2xs text-muted">عرض عام (بدون باقة مخصصة)</span>
 											} else {
-            <div class="stack-sm">
+												<div class="d-flex flex-col gap-1">
 													for idx, p := range o.Products {
-														if idx < 3 {
-               <div class="stack-sm">
-																<span class="badge badge-slate" class="tabular-nums">
+														if idx < 2 {
+															<div class="d-flex items-center gap-1.5 text-2xs">
+																<span class="badge badge-slate text-2xs tabular-nums">
 																	{ fmt.Sprintf("%dx", p.Quantity) }
 																</span>
-																<span>
+																<span class="text-primary font-bold truncate max-w-36">
 																	if p.VariantName != "" {
 																		{ p.VariantName }
 																	} else {
@@ -228,15 +242,15 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 																	}
 																</span>
 																if !p.CustomPrice.IsZero() {
-																	<span class="tabular-nums text-muted text-xs">({ p.CustomPrice.String() } ج.م)</span>
+																	<span class="tabular-nums text-emerald font-bold">({ p.CustomPrice.String() } ج.م)</span>
 																}
 															</div>
 														}
 													}
-													if len(o.Products) > 3 {
-														<div class="stack-xs text-sm">
-															+ { fmt.Sprintf("%d أصناف أخرى", len(o.Products)-3) }
-														</div>
+													if len(o.Products) > 2 {
+														<span class="text-2xs text-accent font-bold">
+															+ { fmt.Sprintf("%d أصناف أخرى مشمولة", len(o.Products)-2) }
+														</span>
 													}
 												</div>
 											}
@@ -244,7 +258,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 										<!-- Total Price Before Discount -->
 										<td>
-											<div class="tabular-nums">
+											<div class="tabular-nums font-bold text-xs text-primary">
 												{ o.TotalPrice.String() } ج.م
 											</div>
 										</td>
@@ -252,11 +266,11 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 										<!-- Discount -->
 										<td>
 											if o.DiscountPercentage > 0 {
-												<div class="tabular-nums">
+												<div class="tabular-nums font-black text-xs text-emerald">
 													{ fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
 												</div>
 											} else {
-												<div class="tabular-nums">
+												<div class="tabular-nums font-bold text-xs text-emerald">
 													{ o.DiscountAmount.String() } ج.م
 												</div>
 											}
@@ -265,80 +279,72 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 										<!-- Min Order Amount -->
 										<td>
 											if !o.MinOrderAmount.IsZero() {
-												<div class="tabular-nums">
+												<div class="tabular-nums text-xs text-muted">
 													{ o.MinOrderAmount.String() } ج.م
 												</div>
 											} else {
-												<span>بدون حد أدنى</span>
+												<span class="text-2xs text-muted">بدون حد أدنى</span>
 											}
 										</td>
 
 										<!-- Geographic Coverage -->
 										<td>
 											if len(o.Locations) == 0 {
-												<span class="badge badge-slate text-xs">تغطية عامة</span>
+												<span class="badge badge-slate text-2xs font-bold">تغطية عامة</span>
 											} else {
-            <div class="stack-sm">
-             <div class="stack-sm">
-														@components.IconMapPin("icon-xs")
-														<span>
-															{ fmt.Sprintf("%d مناطق/مدن", len(o.Locations)) }
-														</span>
-													</div>
-             <div class="stack-sm">
-														for idx, loc := range o.Locations {
-															if idx < 2 && loc.CityName != "" {
-																<span>{ loc.CityName }</span>
-																if idx < len(o.Locations)-1 && idx < 1 {
-																	<span>، </span>
-																}
-															}
-														}
-													</div>
+												<div class="d-flex items-center gap-1">
+													@components.IconMapPin("icon-xs")
+													<span class="badge badge-sky text-2xs font-bold">
+														{ fmt.Sprintf("%d مناطق", len(o.Locations)) }
+													</span>
 												</div>
 											}
 										</td>
 
 										<!-- Status & Moderation Badges -->
 										<td>
-           <div class="stack-sm">
+											<div class="d-flex flex-col items-center gap-1">
 												<!-- Admin Moderation Status -->
 												if o.AdminStatus == "approved" {
-													<span class="badge badge-emerald text-xs">معتمد من الإدارة</span>
+													<span class="badge badge-emerald text-2xs font-bold">معتمد من الإدارة</span>
+												} else if o.AdminStatus == "changes_requested" {
+													<span class="badge badge-amber text-2xs font-extrabold">مطلوب تعديلات</span>
 												} else if o.AdminStatus == "rejected" {
-													<span class="badge badge-rose text-xs">مرفوض</span>
+													<span class="badge badge-rose text-2xs font-bold">مرفوض</span>
 												} else {
-													<span class="badge badge-amber text-xs">قيد المراجعة</span>
+													<span class="badge badge-amber text-2xs font-bold animate-pulse">قيد المراجعة</span>
 												}
 
 												<!-- Publishing / Active Status -->
 												if o.Status == "active" {
-													<span class="badge badge-sky text-xs">معروض ونشط</span>
+													<span class="badge badge-sky text-2xs font-bold">معروض ونشط</span>
 												} else if o.Status == "draft" {
-													<span class="badge badge-slate text-xs">مسودة</span>
+													<span class="badge badge-slate text-2xs font-bold">مسودة</span>
 												} else {
-													<span class="badge badge-slate text-xs">غير نشط</span>
+													<span class="badge badge-slate text-2xs font-bold">غير نشط</span>
 												}
 											</div>
 										</td>
 
 										<!-- Admin Action Buttons -->
 										<td class="col-actions">
-											<div class="table-actions">
+											<div class="d-flex items-center gap-1.5">
+												<!-- Review Modal Trigger Button -->
+												<button
+													type="button"
+													class="btn btn-secondary btn-xs font-bold text-accent gap-1 shadow-2xs"
+													@click={ fmt.Sprintf("$dispatch('open-modal', 'admin-offer-review-modal-%d')", o.ID) }
+													title="مراجعة وتدقيق كامل تفاصيل العرض"
+												>
+													@components.IconEye("icon-2xs")
+													<span>مراجعة</span>
+												</button>
+
 												if o.AdminStatus != "approved" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/approve", o.ID)) } class="m-0">
-														<button type="submit" class="btn btn-primary btn-sm font-bold" title="اعتماد ونشر العرض">
-															@components.IconCheck("icon-xs")
+														<button type="submit" class="btn btn-primary btn-xs font-bold" title="اعتماد ونشر العرض">
+															@components.IconCheck("icon-2xs")
 															<span>اعتماد</span>
-														</button>
-													</form>
-												}
-
-												if o.AdminStatus != "rejected" {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/reject", o.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رفض هذا العرض؟');">
-														<button type="submit" class="btn btn-secondary btn-sm font-bold text-danger" title="رفض العرض">
-															@components.IconX("icon-xs")
-															<span>رفض</span>
 														</button>
 													</form>
 												}
@@ -346,19 +352,22 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 												if o.Status == "active" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/status", o.ID)) } class="m-0">
 														<input type="hidden" name="active" value="false" />
-														<button type="submit" class="btn btn-secondary btn-sm font-bold" title="إيقاف تفعيل العرض مؤقتاً">
+														<button type="submit" class="btn btn-ghost btn-xs text-muted" title="إيقاف تفعيل العرض مؤقتاً">
 															<span>تعطيل</span>
 														</button>
 													</form>
 												} else {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/status", o.ID)) } class="m-0">
 														<input type="hidden" name="active" value="true" />
-														<button type="submit" class="btn btn-secondary btn-sm font-bold" title="تفعيل العرض">
+														<button type="submit" class="btn btn-secondary btn-xs font-bold text-emerald" title="تفعيل العرض">
 															<span>تفعيل</span>
 														</button>
 													</form>
 												}
 											</div>
+
+											<!-- Detailed Moderation Modal for this offer -->
+											@AdminOfferReviewModal(o, lang, dir)
 										</td>
 									</tr>
 								}
@@ -378,6 +387,310 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 						})
 					}
 				}
+			</div>
+		</div>
+	}
+}
+
+templ AdminOfferReviewModal(o *promo.SpecialOffer, lang, dir string) {
+	@components.Modal(components.ModalProps{
+		ID:    fmt.Sprintf("admin-offer-review-modal-%d", o.ID),
+		Title: "مراجعة وتدقيق العرض الخاص وباقة المورد",
+		Size:  "lg",
+	}) {
+		<div class="d-flex flex-col gap-5 text-start" dir={ dir }>
+			<!-- Banner Preview (if available) -->
+			if o.Image != "" {
+				<div class="w-full h-48 rounded-2xl overflow-hidden border bg-surface-sunken position-relative">
+					<img src={ o.Image } alt={ o.Title.Get(i18n.Lang(lang)) } class="w-full h-full object-cover" />
+					<div class="position-absolute top-3 end-3">
+						<span class="badge badge-slate text-2xs font-black backdrop-blur-md">بانر العرض الترويجي</span>
+					</div>
+				</div>
+			}
+
+			<!-- Top Metadata Card -->
+			<div class="glass-panel p-4 mb-0 bg-surface-sunken border rounded-2xl">
+				<div class="flex-between items-start flex-wrap gap-3">
+					<div class="stack-xs">
+						<div class="d-flex items-center gap-2">
+							<span class="badge badge-brand text-2xs font-mono">#{ fmt.Sprintf("%d", o.ID) }</span>
+							if o.AdminStatus == "approved" {
+								<span class="badge badge-emerald text-xs font-bold">معتمد من الإدارة</span>
+							} else if o.AdminStatus == "changes_requested" {
+								<span class="badge badge-amber text-xs font-bold">مطلوب تعديلات</span>
+							} else if o.AdminStatus == "rejected" {
+								<span class="badge badge-rose text-xs font-bold">مرفوض</span>
+							} else {
+								<span class="badge badge-amber text-xs font-bold animate-pulse">بانتظار المراجعة والاعتماد</span>
+							}
+							if o.Status == "active" {
+								<span class="badge badge-sky text-xs font-bold">نشط بالمنصة</span>
+							} else {
+								<span class="badge badge-slate text-xs font-bold">{ o.Status }</span>
+							}
+						</div>
+						<h3 class="text-lg font-black text-primary m-0 mt-1">
+							{ o.Title.Get(i18n.Lang(lang)) }
+						</h3>
+						if o.Title.Get("en") != "" && o.Title.Get("en") != o.Title.Get("ar") {
+							<div class="text-xs text-muted font-sans" dir="ltr">{ o.Title.Get("en") }</div>
+						}
+					</div>
+
+					<div class="stack-xs text-end">
+						<div class="text-xs font-bold text-primary">
+							if o.OrganizationName != "" {
+								{ o.OrganizationName }
+							} else {
+								<span>المورد #{ fmt.Sprintf("%d", o.OrganizationID) }</span>
+							}
+						</div>
+						if o.BranchName != "" {
+							<div class="text-2xs text-accent font-bold">الفرع: { o.BranchName }</div>
+						}
+						<div class="text-2xs text-muted tabular-nums">
+							تاريخ التقديم: { o.CreatedAt.Format("2006-01-02 03:04 PM") }
+						</div>
+					</div>
+				</div>
+
+				if !o.Description.IsEmpty() {
+					<div class="mt-3 pt-3 border-t text-xs text-secondary leading-relaxed">
+						{ o.Description.Get(i18n.Lang(lang)) }
+					</div>
+				}
+			</div>
+
+			<!-- Pricing & Validity Summary Cards -->
+			<div class="d-grid grid-cols-4 gap-3">
+				<div class="p-3 rounded-xl bg-surface-raised border text-center">
+					<span class="text-2xs text-muted font-bold d-block mb-1">نسبة الخصم</span>
+					<strong class="text-emerald text-base font-black tabular-nums">
+						{ fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
+					</strong>
+				</div>
+
+				<div class="p-3 rounded-xl bg-surface-raised border text-center">
+					<span class="text-2xs text-muted font-bold d-block mb-1">السعر الإجمالي</span>
+					<strong class="text-primary text-base font-black tabular-nums">
+						if o.TotalPrice.Minor() > 0 {
+							{ o.TotalPrice.String() } <span class="text-2xs font-normal">ج.م</span>
+						} else {
+							<span>حسب الصنف</span>
+						}
+					</strong>
+				</div>
+
+				<div class="p-3 rounded-xl bg-surface-raised border text-center">
+					<span class="text-2xs text-muted font-bold d-block mb-1">الحد الأدنى للطلب</span>
+					<strong class="text-primary text-base font-black tabular-nums">
+						if o.MinOrderAmount.Minor() > 0 {
+							{ o.MinOrderAmount.String() } <span class="text-2xs font-normal">ج.م</span>
+						} else {
+							<span>بدون حد</span>
+						}
+					</strong>
+				</div>
+
+				<div class="p-3 rounded-xl bg-surface-raised border text-center">
+					<span class="text-2xs text-muted font-bold d-block mb-1">صلاحية العرض</span>
+					<span class="text-2xs font-bold text-primary tabular-nums d-block">
+						if o.StartDate != nil && o.EndDate != nil {
+							{ o.StartDate.Format("02/01/2006") } - { o.EndDate.Format("02/01/2006") }
+						} else {
+							<span>ساري المفعول</span>
+						}
+					</span>
+				</div>
+			</div>
+
+			<!-- Products Manifest Table -->
+			<div class="stack-sm">
+				<div class="flex-between items-center">
+					<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-1.5">
+						@components.IconPill("icon-xs")
+						<span>قائمة المنتجات والأدوية المشمولة بالعرض ({ fmt.Sprintf("%d", len(o.Products)) })</span>
+					</h4>
+				</div>
+
+				if len(o.Products) == 0 {
+					<div class="p-4 rounded-xl bg-surface-sunken text-center text-xs text-muted">
+						عرض عام لا يتضمن قائمة أصناف مخصصة.
+					</div>
+				} else {
+					<div class="table-container m-0 border rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+						<table class="data-table m-0 text-xs">
+							<thead>
+								<tr class="bg-surface-sunken">
+									<th>#</th>
+									<th>الصنف الدوائي</th>
+									<th class="text-center">الكمية</th>
+									<th class="text-end">سعر الجمهور</th>
+									<th class="text-center">الخصم</th>
+									<th class="text-end">السعر بعد الخصم</th>
+								</tr>
+							</thead>
+							<tbody>
+								for idx, p := range o.Products {
+									<tr>
+										<td class="text-muted tabular-nums">{ fmt.Sprintf("%d", idx+1) }</td>
+										<td>
+											<strong class="text-primary font-bold">{ p.VariantName }</strong>
+											<div class="text-2xs text-muted tabular-nums">معرف: #{ fmt.Sprintf("%d", p.VariantID) }</div>
+										</td>
+										<td class="text-center tabular-nums font-bold">
+											<span class="badge badge-slate text-2xs">{ fmt.Sprintf("× %d", p.Quantity) }</span>
+										</td>
+										<td class="text-end tabular-nums text-muted">
+											if p.OriginalPrice.IsPositive() {
+												{ p.OriginalPrice.String() } ج.م
+											} else {
+												-
+											}
+										</td>
+										<td class="text-center tabular-nums">
+											if p.DiscountPercentage > 0 {
+												<span class="badge badge-amber text-2xs font-bold">{ fmt.Sprintf("-%.0f%%", p.DiscountPercentage) }</span>
+											} else {
+												-
+											}
+										</td>
+										<td class="text-end tabular-nums font-black text-emerald">
+											if p.CustomPrice.IsPositive() {
+												{ p.CustomPrice.String() } ج.م
+											} else {
+												-
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- Geographic Coverage -->
+			if len(o.Locations) > 0 {
+				<div class="stack-sm">
+					<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-1.5">
+						@components.IconMapPin("icon-xs")
+						<span>نطاق التغطية الجغرافية ({ fmt.Sprintf("%d مناطق", len(o.Locations)) })</span>
+					</h4>
+					<div class="d-flex flex-wrap gap-1.5">
+						for _, loc := range o.Locations {
+							<span class="badge badge-sky text-2xs font-bold">
+								if loc.CityName != "" {
+									{ loc.CityName }
+								} else {
+									<span>منطقة #{ fmt.Sprintf("%d", loc.ID) }</span>
+								}
+							</span>
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Moderation Decision Tabs/Actions -->
+			<div class="mt-2 pt-4 border-t" x-data="{ decision: 'approve', notes: '' }">
+				<div class="flex-between items-center mb-3">
+					<h4 class="text-xs font-black text-primary m-0">اتخاذ القرار الإداري:</h4>
+					<div class="d-flex gap-1">
+						<button
+							type="button"
+							class="btn btn-xs font-bold"
+							:class="decision === 'approve' ? 'btn-primary' : 'btn-secondary'"
+							@click="decision = 'approve'"
+						>
+							الموافقة والاعتماد
+						</button>
+						<button
+							type="button"
+							class="btn btn-xs font-bold"
+							:class="decision === 'changes' ? 'btn-primary' : 'btn-secondary'"
+							@click="decision = 'changes'"
+						>
+							طلب تعديلات من المورد
+						</button>
+						<button
+							type="button"
+							class="btn btn-xs font-bold"
+							:class="decision === 'reject' ? 'btn-primary' : 'btn-secondary'"
+							@click="decision = 'reject'"
+						>
+							رفض العرض
+						</button>
+					</div>
+				</div>
+
+				<!-- Option 1: Approve Form -->
+				<div x-show="decision === 'approve'">
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/approve", o.ID)) } class="m-0">
+						<p class="text-xs text-secondary mb-3">
+							عند اعتماد العرض، سيصبح متاحاً ونشطاً في منصة الصيدليات ضمن نطاقات التغطية المحددة وسيتم إشعار المورد.
+						</p>
+						<div class="flex-between items-center">
+							<button type="button" @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 shadow-2xs">
+								@components.IconCheck("icon-xs")
+								<span>تأكيد اعتماد ونشر العرض</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Option 2: Request Changes Form -->
+				<div x-show="decision === 'changes'" x-cloak>
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/request-changes", o.ID)) } class="m-0 stack-sm">
+						<label class="form-label text-xs font-bold text-primary d-block">
+							ملاحظات وتوجيهات التعديل للمورد <span class="text-danger">*</span>
+						</label>
+						<textarea
+							name="notes"
+							rows="3"
+							required
+							placeholder="اكتب التعديلات المطلوبة على الأصناف، التسعير، البانر، أو شروط العرض..."
+							class="form-input text-xs w-full"
+						></textarea>
+						<div class="flex-between items-center mt-2">
+							<button type="button" @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 bg-amber-600 hover:bg-amber-700 text-white shadow-2xs">
+								@components.IconEdit("icon-xs")
+								<span>إرسال طلب التعديل إلى المورد</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Option 3: Reject Form -->
+				<div x-show="decision === 'reject'" x-cloak>
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/reject", o.ID)) } class="m-0 stack-sm">
+						<label class="form-label text-xs font-bold text-primary d-block">
+							سبب رفض العرض <span class="text-danger">*</span>
+						</label>
+						<textarea
+							name="notes"
+							rows="3"
+							required
+							placeholder="اكتب سبب الرفض بالتفصيل لكي يظهر للمورد في حسابه..."
+							class="form-input text-xs w-full"
+						></textarea>
+						<div class="flex-between items-center mt-2">
+							<button type="button" @click={ fmt.Sprintf("$dispatch('close-modal', 'admin-offer-review-modal-%d')", o.ID) } class="btn btn-secondary btn-sm font-bold">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 bg-rose-600 hover:bg-rose-700 text-white shadow-2xs">
+								@components.IconX("icon-xs")
+								<span>تأكيد رفض العرض</span>
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	}

@@ -153,6 +153,9 @@ func (stubRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*promo.Ad, int
 func (stubRepo) UpdateAdAdminStatus(context.Context, int64, promo.AdminStatus, string, int64) error {
 	return nil
 }
+func (stubRepo) AdminToggleAd(context.Context, int64) (*promo.Ad, error) {
+	return &promo.Ad{ID: 1, IsActive: true}, nil
+}
 func (stubRepo) SubmitAdEditRequest(context.Context, int64, *promo.AdPendingChanges) error {
 	return nil
 }
@@ -203,6 +206,10 @@ func (r stubRepo) ExpirePromotions(context.Context) (int64, error) {
 }
 func (r stubRepo) CreateSpecialOffer(context.Context, *promo.SpecialOffer) error {
 	r.fail("CreateSpecialOffer")
+	return nil
+}
+func (r stubRepo) UpdateSpecialOffer(context.Context, *promo.SpecialOffer) error {
+	r.fail("UpdateSpecialOffer")
 	return nil
 }
 func (r stubRepo) GetSpecialOfferByID(context.Context, int64) (*promo.SpecialOffer, error) {

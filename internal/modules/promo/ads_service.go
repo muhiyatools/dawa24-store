@@ -98,6 +98,11 @@ func (s *Service) UpdateAd(ctx context.Context, a *Ad) error {
 	return s.repo.UpdateAd(ctx, a)
 }
 
+// AdminToggleAd allows platform staff to toggle an ad's active state without tenant constraints.
+func (s *Service) AdminToggleAd(ctx context.Context, id int64) (*Ad, error) {
+	return s.repo.AdminToggleAd(ctx, id)
+}
+
 // GetAd retrieves an ad by ID.
 func (s *Service) GetAd(ctx context.Context, id int64) (*Ad, error) {
 	return s.repo.GetAdByID(ctx, id)

@@ -214,6 +214,7 @@ func (r *Repository) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64
 			}
 			e.IPAddress = ipAddr
 			e.Route = reqID
+			enrichAuditEntry(&e)
 			list = append(list, &e)
 		}
 		return rows.Err()
@@ -324,12 +325,158 @@ func (r *Repository) ListAuditLogWithFilter(ctx context.Context, filter platform
 			}
 			e.IPAddress = ipAddr
 			e.Route = reqID
+			enrichAuditEntry(&e)
 			list = append(list, &e)
 		}
 		return rows.Err()
 	})
 
 	return list, total, err
+}
+
+// enrichAuditEntry generates human-readable Arabic title, description, module and severity for audit entries.
+func enrichAuditEntry(e *platformadmin.AuditEntry) {
+	if e == nil {
+		return
+	}
+
+	actor := e.ActorName
+	if actor == "" {
+		actor = "مستخدم النظام"
+	}
+
+	switch strings.ToLower(e.EntityType) {
+	case "organization", "org":
+		e.EntityTypeAr = "منشأة"
+		e.Module = "إدارة المنشآت"
+	case "user", "identity.user":
+		e.EntityTypeAr = "مستخدم"
+		e.Module = "المستخدمين والهوية"
+	case "role", "admin_role":
+		e.EntityTypeAr = "دور وصلاحية"
+		e.Module = "الأدوار والصلاحيات"
+	case "ad", "promo.ad":
+		e.EntityTypeAr = "إعلان ترويجي"
+		e.Module = "الإعلانات والرعايات"
+	case "offer", "promo.offer", "special_offer":
+		e.EntityTypeAr = "عرض خاص"
+		e.Module = "العروض الترويجية"
+	case "offer_package", "promo.offer_package":
+		e.EntityTypeAr = "باقة رعاية"
+		e.Module = "باقات العروض والرعايات"
+	case "sponsorship_request", "adv_product":
+		e.EntityTypeAr = "رعاية منتج"
+		e.Module = "رعاية وتثبيت المنتجات"
+	case "product", "catalog.product":
+		e.EntityTypeAr = "منتج بالكتالوج"
+		e.Module = "الكتالوج والمخزون"
+	case "order", "commerce.order":
+		e.EntityTypeAr = "أمر توريد / طلب شراء"
+		e.Module = "المبيعات والطلبات"
+	case "invoice", "billing.invoice":
+		e.EntityTypeAr = "فاتورة مالية"
+		e.Module = "المالية والفواتير"
+	case "wallet", "billing.wallet":
+		e.EntityTypeAr = "محفظة رصيد"
+		e.Module = "المحافظ والمدفوعات"
+	case "setting", "platform.setting":
+		e.EntityTypeAr = "إعدادات المنصة"
+		e.Module = "إدارة النظام"
+	case "trash", "recycle_bin":
+		e.EntityTypeAr = "سلة المهملات"
+		e.Module = "صيانة النظام"
+	default:
+		e.EntityTypeAr = e.EntityType
+		if e.EntityTypeAr == "" {
+			e.EntityTypeAr = "عنصر بالنظام"
+		}
+		e.Module = "إدارة المنصة"
+	}
+
+	e.Severity = "info"
+
+	act := strings.ToLower(e.Action)
+	switch {
+	case strings.Contains(act, "registered") || act == "org.registered":
+		e.ActionLabelAr = "تسجيل منشأة"
+		e.Title = "تسجيل منشأة جديدة في المنصة"
+		orgName := e.OrganizationName
+		if orgName == "" {
+			orgName = fmt.Sprintf("منشأة #%s", e.EntityID)
+		}
+		e.Description = fmt.Sprintf("قام %s بتسجيل منشأة جديدة (%s) برقم تعريفي #%s بانتظار استكمال الوثائق والمراجعة الإدارية.", actor, orgName, e.EntityID)
+		e.Severity = "success"
+
+	case strings.Contains(act, "approved") || act == "ad.approved" || act == "offer.approved":
+		e.ActionLabelAr = "اعتماد وموافقة"
+		e.Title = fmt.Sprintf("اعتماد %s بنجاح", e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s بالموافقة واعتماد %s رقم #%s لصالح المنشأة (%s).", actor, e.EntityTypeAr, e.EntityID, e.OrganizationName)
+		e.Severity = "success"
+
+	case strings.Contains(act, "rejected") || act == "ad.rejected" || act == "offer.rejected":
+		e.ActionLabelAr = "رفض طلب"
+		e.Title = fmt.Sprintf("رفض %s", e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s برفض %s رقم #%s الخاص بالمنشأة (%s) مع إرسال الملاحظات للمورد.", actor, e.EntityTypeAr, e.EntityID, e.OrganizationName)
+		e.Severity = "warning"
+
+	case strings.Contains(act, "toggled") || strings.Contains(act, "status_changed") || strings.Contains(act, "toggle"):
+		e.ActionLabelAr = "تغيير الحالة"
+		e.Title = fmt.Sprintf("تحديث حالة تفعيل %s", e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s بتعديل حالة تفعيل %s رقم #%s على المنصة.", actor, e.EntityTypeAr, e.EntityID)
+		e.Severity = "info"
+
+	case strings.Contains(act, "trash.purge") || strings.Contains(act, "purge"):
+		e.ActionLabelAr = "حذف نهائي"
+		e.Title = "تفريغ وحذف نهائي من سلة المهملات"
+		e.Description = fmt.Sprintf("قام %s بتنفيذ عملية تفريغ وحذف نهائي للعناصر من سلة المهملات (%s) لمعرف #%s.", actor, e.EntityTypeAr, e.EntityID)
+		e.Severity = "critical"
+
+	case strings.Contains(act, "trash.restore") || strings.Contains(act, "restore"):
+		e.ActionLabelAr = "استعادة محذوف"
+		e.Title = "استعادة عنصر من سلة المهملات"
+		e.Description = fmt.Sprintf("قام %s باستعادة %s رقم #%s من سلة المهملات وإعادته للحالة النشطة.", actor, e.EntityTypeAr, e.EntityID)
+		e.Severity = "info"
+
+	case strings.Contains(act, "create") || strings.Contains(act, "insert"):
+		e.ActionLabelAr = "إنشاء جديد"
+		e.Title = fmt.Sprintf("إنشاء %s جديد", e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s بإنشاء %s جديد برقم تعريفي #%s بنجاح.", actor, e.EntityTypeAr, e.EntityID)
+		e.Severity = "success"
+
+	case strings.Contains(act, "update") || strings.Contains(act, "edit") || strings.Contains(act, "modify"):
+		e.ActionLabelAr = "تعديل بيانات"
+		e.Title = fmt.Sprintf("تعديل بيانات %s", e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s بتحديث وتعديل بيانات %s رقم #%s في النظام.", actor, e.EntityTypeAr, e.EntityID)
+		e.Severity = "info"
+
+	case strings.Contains(act, "delete") || strings.Contains(act, "remove"):
+		e.ActionLabelAr = "حذف سجل"
+		e.Title = fmt.Sprintf("حذف %s من النظام", e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s بحذف %s رقم #%s ونقله للمهملات أو إزالته.", actor, e.EntityTypeAr, e.EntityID)
+		e.Severity = "warning"
+
+	case strings.Contains(act, "login") || strings.Contains(act, "auth.sign_in"):
+		e.ActionLabelAr = "تسجيل دخول"
+		e.Title = "تسجيل دخول ناجح إلى النظام"
+		e.Description = fmt.Sprintf("قام المستخدم %s بتسجيل الدخول بنجاح من العنوان %s.", actor, e.IPAddress)
+		e.Severity = "info"
+
+	case strings.Contains(act, "logout") || strings.Contains(act, "auth.sign_out"):
+		e.ActionLabelAr = "تسجيل خروج"
+		e.Title = "تسجيل خروج من النظام"
+		e.Description = fmt.Sprintf("قام المستخدم %s بتسجيل الخروج من الجلسة النشطة.", actor)
+		e.Severity = "info"
+
+	default:
+		parts := strings.Split(e.Action, ".")
+		actionName := e.Action
+		if len(parts) > 1 {
+			actionName = parts[len(parts)-1]
+		}
+		e.ActionLabelAr = actionName
+		e.Title = fmt.Sprintf("إجراء: %s على %s", e.Action, e.EntityTypeAr)
+		e.Description = fmt.Sprintf("قام %s بتنفيذ عملية (%s) على %s برقم #%s.", actor, e.Action, e.EntityTypeAr, e.EntityID)
+	}
 }
 
 // QueueStats returns River job counts grouped by state.

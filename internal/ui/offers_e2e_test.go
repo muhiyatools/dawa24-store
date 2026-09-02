@@ -138,6 +138,10 @@ func (m *mockPromoRepo) ListAllSpecialOffersWithTotal(ctx context.Context, statu
 	return nil, 0, nil
 }
 func (m *mockPromoRepo) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error {
+	if m.spec != nil && m.spec.ID == id {
+		m.spec.AdminStatus = adminStatus
+		m.spec.AdminNotes = notes
+	}
 	return nil
 }
 func (m *mockPromoRepo) ToggleSpecialOfferStatus(ctx context.Context, id int64, isActive bool) error {
@@ -239,6 +243,12 @@ func (m *mockPromoRepo) RejectAdEditRequest(ctx context.Context, id int64, revie
 	return nil
 }
 func (m *mockPromoRepo) RecordAdImpression(ctx context.Context, adID int64, userID *int64, ip, ua string) error {
+	return nil
+}
+func (m *mockPromoRepo) AdminToggleAd(ctx context.Context, id int64) (*promo.Ad, error) {
+	return &promo.Ad{ID: id, IsActive: true}, nil
+}
+func (m *mockPromoRepo) UpdateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	return nil
 }
 
@@ -398,3 +408,127 @@ func stringContains(s, substr string) bool {
 	}
 	return false
 }
+
+func TestVendorOfferEditAndAdminModerationWorkflow(t *testing.T) {
+	now := time.Now().UTC()
+	expiry := now.Add(30 * 24 * time.Hour)
+
+	mockRepo := &mockPromoRepo{
+		spec: &promo.SpecialOffer{
+			ID:                 101,
+			OrganizationID:     50,
+			OrganizationName:   "شركة الأمل للمستلزمات والأدوية",
+			Title:              i18n.New("عرض الصيف الحصري للأدوية", "Summer Medicine Offer"),
+			Description:        i18n.New("خصم خاص 20% لكافة الصيدليات", "Special 20% discount"),
+			DiscountPercentage: 20.0,
+			TotalPrice:         money.FromMinor(45000),
+			StartDate:          &now,
+			EndDate:            &expiry,
+			Status:             "active",
+			AdminStatus:        "pending",
+			Products: []*promo.SpecialOfferProduct{
+				{
+					ID:                 1,
+					OfferID:            101,
+					VariantID:          26643,
+					VariantName:        "يوريكودروب 80مجم 30 قرص",
+					OriginalPrice:      money.FromMinor(3500),
+					CustomPrice:        money.FromMinor(2800),
+					DiscountPercentage: 20.0,
+					Quantity:           10,
+				},
+			},
+			Locations: []*promo.SpecialOfferLocation{
+				{
+					ID:        1,
+					OfferID:   101,
+					CityName:  "القاهرة",
+					AddressAr: "مدينة نصر والتجمع الخامس",
+				},
+			},
+		},
+	}
+
+	promoSvc := promo.NewService(mockRepo, slog.Default())
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, promoSvc, nil, nil, nil, nil, nil, nil, logger)
+
+	r := chi.NewRouter()
+	r.Get("/vendor/offers/{id}/edit", handler.VendorOfferEditPage)
+	r.Post("/admin/offers/{id}/request-changes", handler.AdminOfferRequestChangesSubmit)
+	r.Post("/admin/offers/{id}/reject", handler.AdminOfferRejectSubmit)
+	r.Post("/admin/offers/{id}/approve", handler.AdminOfferApproveSubmit)
+
+	vendorActor := authctx.Actor{
+		UserID:         5,
+		OrganizationID: 50,
+		Role:           "supplier",
+		OrgType:        string(org.TypeVendor),
+		Permissions:    []string{"vendor.offers.manage"},
+	}
+
+	adminActor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 1,
+		Role:           "superadmin",
+		Permissions:    []string{"admin.offers.manage", "platform.admin"},
+	}
+
+	// 1. Vendor opens edit page: GET /vendor/offers/101/edit
+	reqEdit := httptest.NewRequest(http.MethodGet, "/vendor/offers/101/edit", nil)
+	reqEdit = reqEdit.WithContext(authctx.WithActor(reqEdit.Context(), vendorActor))
+	recEdit := httptest.NewRecorder()
+	r.ServeHTTP(recEdit, reqEdit)
+	if recEdit.Code != http.StatusOK {
+		t.Fatalf("expected status 200 for vendor edit page, got %d", recEdit.Code)
+	}
+
+	// 2. Admin requests changes: POST /admin/offers/101/request-changes
+	formChanges := url.Values{}
+	formChanges.Set("notes", "يرجى تعديل نسبة الخصم وإرفاق البانر بدقة")
+	reqChanges := httptest.NewRequest(http.MethodPost, "/admin/offers/101/request-changes", strings.NewReader(formChanges.Encode()))
+	reqChanges.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqChanges = reqChanges.WithContext(authctx.WithActor(reqChanges.Context(), adminActor))
+	recChanges := httptest.NewRecorder()
+	r.ServeHTTP(recChanges, reqChanges)
+	if recChanges.Code != http.StatusSeeOther {
+		t.Fatalf("expected status 303 for request changes, got %d", recChanges.Code)
+	}
+	if mockRepo.spec.AdminStatus != "changes_requested" {
+		t.Fatalf("expected AdminStatus changes_requested, got %s", mockRepo.spec.AdminStatus)
+	}
+	if mockRepo.spec.AdminNotes != "يرجى تعديل نسبة الخصم وإرفاق البانر بدقة" {
+		t.Fatalf("expected AdminNotes to be saved, got %q", mockRepo.spec.AdminNotes)
+	}
+
+	// 3. Admin rejects with notes: POST /admin/offers/101/reject
+	formReject := url.Values{}
+	formReject.Set("notes", "عرض لا يطابق الشروط التنظيمية")
+	reqReject := httptest.NewRequest(http.MethodPost, "/admin/offers/101/reject", strings.NewReader(formReject.Encode()))
+	reqReject.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqReject = reqReject.WithContext(authctx.WithActor(reqReject.Context(), adminActor))
+	recReject := httptest.NewRecorder()
+	r.ServeHTTP(recReject, reqReject)
+	if recReject.Code != http.StatusSeeOther {
+		t.Fatalf("expected status 303 for reject offer, got %d", recReject.Code)
+	}
+	if mockRepo.spec.AdminStatus != "rejected" {
+		t.Fatalf("expected AdminStatus rejected, got %s", mockRepo.spec.AdminStatus)
+	}
+	if mockRepo.spec.AdminNotes != "عرض لا يطابق الشروط التنظيمية" {
+		t.Fatalf("expected AdminNotes to be saved on reject, got %q", mockRepo.spec.AdminNotes)
+	}
+
+	// 4. Admin approves: POST /admin/offers/101/approve
+	reqApprove := httptest.NewRequest(http.MethodPost, "/admin/offers/101/approve", nil)
+	reqApprove = reqApprove.WithContext(authctx.WithActor(reqApprove.Context(), adminActor))
+	recApprove := httptest.NewRecorder()
+	r.ServeHTTP(recApprove, reqApprove)
+	if recApprove.Code != http.StatusSeeOther {
+		t.Fatalf("expected status 303 for approve offer, got %d", recApprove.Code)
+	}
+	if mockRepo.spec.AdminStatus != "approved" {
+		t.Fatalf("expected AdminStatus approved, got %s", mockRepo.spec.AdminStatus)
+	}
+}
+
