@@ -292,23 +292,15 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 				<form action="/settings/preferences" method="POST" class="max-w-2xl d-flex flex-col gap-5 text-start">
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
-      <div class="stack-sm">
-							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_whatsapp") }</div>
-							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_whatsapp_desc") }</div>
+						<div class="stack-sm">
+							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_email") }</div>
+							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_email_desc") }</div>
 						</div>
-						<input type="checkbox" name="notif_whatsapp" checked class="form-checkbox" />
+						<input type="checkbox" name="notif_email" checked class="form-checkbox" />
 					</div>
 
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
-      <div class="stack-sm">
-							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_invoices") }</div>
-							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_invoices_desc") }</div>
-						</div>
-						<input type="checkbox" name="notif_invoices" checked class="form-checkbox" />
-					</div>
-
-					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_promos") }</div>
 							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_promos_desc") }</div>
 						</div>

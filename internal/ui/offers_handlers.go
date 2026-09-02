@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -25,6 +26,11 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	lang, dir := h.localeAndDir(r)
+
+	sortParam := strings.TrimSpace(r.URL.Query().Get("sort"))
+	if sortParam == "" {
+		sortParam = "newest"
+	}
 
 	var offerCards []*pages.OfferCardData
 	if h.promoSvc != nil {
@@ -105,16 +111,64 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 
-		// Sort: sponsored offers first, then by discount percentage.
-		sort.SliceStable(offerCards, func(i, j int) bool {
-			if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
-				return offerCards[i].IsSponsored
-			}
-			return offerCards[i].DiscountPercentage > offerCards[j].DiscountPercentage
-		})
+		// Sort according to user preference
+		switch sortParam {
+		case "discount_desc":
+			sort.SliceStable(offerCards, func(i, j int) bool {
+				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
+					return offerCards[i].IsSponsored
+				}
+				if offerCards[i].DiscountPercentage != offerCards[j].DiscountPercentage {
+					return offerCards[i].DiscountPercentage > offerCards[j].DiscountPercentage
+				}
+				return offerCards[i].DiscountValue.Minor() > offerCards[j].DiscountValue.Minor()
+			})
+		case "price_asc":
+			sort.SliceStable(offerCards, func(i, j int) bool {
+				priceI := offerCards[i].TotalPrice.Minor()
+				if priceI == 0 {
+					priceI = offerCards[i].MinOrderAmount.Minor()
+				}
+				priceJ := offerCards[j].TotalPrice.Minor()
+				if priceJ == 0 {
+					priceJ = offerCards[j].MinOrderAmount.Minor()
+				}
+				if priceI == 0 && priceJ > 0 {
+					return false
+				}
+				if priceJ == 0 && priceI > 0 {
+					return true
+				}
+				return priceI < priceJ
+			})
+		case "price_desc":
+			sort.SliceStable(offerCards, func(i, j int) bool {
+				priceI := offerCards[i].TotalPrice.Minor()
+				if priceI == 0 {
+					priceI = offerCards[i].MinOrderAmount.Minor()
+				}
+				priceJ := offerCards[j].TotalPrice.Minor()
+				if priceJ == 0 {
+					priceJ = offerCards[j].MinOrderAmount.Minor()
+				}
+				return priceI > priceJ
+			})
+		case "newest":
+			fallthrough
+		default:
+			sort.SliceStable(offerCards, func(i, j int) bool {
+				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
+					return offerCards[i].IsSponsored
+				}
+				if !offerCards[i].StartsAt.Equal(offerCards[j].StartsAt) {
+					return offerCards[i].StartsAt.After(offerCards[j].StartsAt)
+				}
+				return offerCards[i].ID > offerCards[j].ID
+			})
+		}
 	}
 
-	h.renderPage(ctx, w, "render offers page", pages.OffersPage(lang, dir, offerCards))
+	h.renderPage(ctx, w, "render offers page", pages.OffersPage(lang, dir, offerCards, sortParam))
 }
 
 // OfferDetailPage renders one offer with its full products and records an impression.

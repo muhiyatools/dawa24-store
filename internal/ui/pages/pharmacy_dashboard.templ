@@ -248,12 +248,9 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 						<!-- Recent Smart Order Runs -->
 						if len(data.RecentSmartOrders) == 0 {
-							<div class="text-center p-7 bg-surface-sunken rounded-lg border border-dashed">
+							<div class="text-center p-6 bg-surface-sunken rounded-lg border border-dashed">
 								<div class="text-sm font-bold text-primary">{ i18n.T(lang, "pharmacy.dashboard.no_smart_orders_title") }</div>
-								<p class="text-xs text-secondary my-2">{ i18n.T(lang, "pharmacy.dashboard.no_smart_orders_msg") }</p>
-								<a href="/customer/smart-order/new" class="btn btn-primary btn-sm font-bold">
-									{ i18n.T(lang, "pharmacy.dashboard.upload_first_file") }
-								</a>
+								<p class="text-xs text-secondary my-1.5 max-w-lg mx-auto">{ i18n.T(lang, "pharmacy.dashboard.no_smart_orders_msg") }</p>
 							</div>
 						} else {
 							<div class="d-flex flex-col gap-2.5">

@@ -1,0 +1,100 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// CustomerInstitutionalWorkPage renders the pharmacy's institutional agreements and memberships.
+templ CustomerInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir string) {
+	@layouts.CustomerShell("الأعمال المؤسسية المرتبطة", "institutional_work", lang, dir, nil) {
+		<div class="page-container">
+			
+			<!-- Header Banner -->
+			<div class="glass-panel p-6 mb-6 rounded-2xl border shadow-xs">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="stack-sm">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								@components.IconBank("icon-sm")
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								الأعمال والاتفاقيات المؤسسية المرتبطة
+							</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
+							عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد المؤسسية التي تمنح صيدليتك أسعاراً وخصومات حصرية
+						</p>
+					</div>
+
+					<div class="d-flex items-center gap-2.5">
+						<span class="badge badge-primary text-xs font-bold tabular-nums px-3 py-1.5">
+							{ fmt.Sprintf("%d اتفاقيات وهياكل معتمدة", len(works)) }
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- List / Table of Institutional Works -->
+			if len(works) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد أعمال مؤسسية مرتبطة حالياً",
+					Message: "عند انضمام صيدليتك إلى بروتوكولات تعاون أو مجموعات صيدلانية ومؤسسية، ستظهر تفاصيل العضويات والأسعار الخاصة هنا.",
+				})
+			} else {
+				<div class="glass-panel p-0 mb-6 overflow-hidden rounded-2xl border shadow-xs">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>اسم الهيكل المؤسسي / الاتفاقية</th>
+									<th>الوصف ونطاق التعاون</th>
+									<th class="text-center">نوع التسعير</th>
+									<th class="text-center">الحالة</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, w := range works {
+									<tr>
+										<td>
+											<div class="font-extrabold text-primary text-sm">
+												{ w.Title.Get(i18n.Lang(lang)) }
+											</div>
+											<div class="text-2xs text-muted font-mono mt-0.5">
+												كود المنظومة: #{ fmt.Sprintf("%d", w.ID) }
+											</div>
+										</td>
+										<td class="text-xs text-secondary max-w-md">
+											if w.Description.Get(i18n.Lang(lang)) != "" {
+												{ w.Description.Get(i18n.Lang(lang)) }
+											} else {
+												<span class="text-muted">—</span>
+											}
+										</td>
+										<td class="text-center">
+											<span class="badge badge-sky text-xs font-bold">
+												{ string(w.PricingType) }
+											</span>
+										</td>
+										<td class="text-center">
+											if w.IsActive {
+												<span class="badge badge-emerald text-xs font-bold">نشط ومعتمد</span>
+											} else {
+												<span class="badge badge-slate text-xs font-bold">غير نشط</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
+
+		</div>
+	}
+}

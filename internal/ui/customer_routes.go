@@ -246,6 +246,11 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.institutional.view"))
+		g.Get("/customer/institutional-work", h.CustomerInstitutionalWorkPage)
+	})
+
+	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.user_org.view"))
 		g.Get("/customer/user-organization", h.CustomerUserOrganizationsPage)
 		g.Get("/customer/api/vendors/search", h.CustomerVendorSearchJSON)
