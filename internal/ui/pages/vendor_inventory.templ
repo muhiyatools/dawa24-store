@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -26,24 +25,6 @@ type VendorInventoryData struct {
 	NoticeMsg   string
 }
 
-func buildInventoryURL(query string, whID int64, page, limit int) string {
-	u, _ := url.Parse("/vendor/inventory")
-	q := u.Query()
-	if query != "" {
-		q.Set("q", query)
-	}
-	if whID > 0 {
-		q.Set("warehouse_id", strconv.FormatInt(whID, 10))
-	}
-	if page > 1 {
-		q.Set("page", strconv.Itoa(page))
-	}
-	if limit > 0 && limit != 25 {
-		q.Set("limit", strconv.Itoa(limit))
-	}
-	u.RawQuery = q.Encode()
-	return u.String()
-}
 
 templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool) {
 	if isPartial {
@@ -265,7 +246,7 @@ templ VendorInventoryTable(data VendorInventoryData) {
 						<th>الرصيد المتاح</th>
 						<th>حد إعادة الطلب</th>
 						<th>الحالة</th>
-						<th class="text-end">الإجراءات</th>
+						<th class="col-actions">الإجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -320,7 +301,7 @@ templ VendorInventoryTable(data VendorInventoryData) {
 									<span class="badge badge-rose text-xs font-bold">غير متوفر</span>
 								}
 							</td>
-							<td class="text-end">
+							<td class="col-actions">
 								<button
 									type="button"
 									class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
@@ -336,36 +317,13 @@ templ VendorInventoryTable(data VendorInventoryData) {
 			</table>
 		</div>
 
-		<!-- Pagination Footer -->
-		if data.TotalPages > 1 {
-			<div class="flex-between items-center p-4 border-t flex-wrap gap-3 bg-surface-sunken">
-				<div class="text-xs text-secondary">
-					عرض الصفحة <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.Page) }</strong> من إجمالي <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalPages) }</strong> صفحات ({ fmt.Sprintf("%d", data.Total) } صنف مسجل)
-				</div>
-				<div class="d-flex items-center gap-1">
-					if data.Page > 1 {
-						<a href={ templ.SafeURL(buildInventoryURL(data.Query, data.WarehouseID, data.Page-1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs font-bold">
-							السابق
-						</a>
-					}
-					for p := 1; p <= data.TotalPages; p++ {
-						if p == 1 || p == data.TotalPages || (p >= data.Page-2 && p <= data.Page+2) {
-							<a
-								href={ templ.SafeURL(buildInventoryURL(data.Query, data.WarehouseID, p, data.PerPage)) }
-								class={ "btn btn-sm text-xs font-bold", templ.KV("btn-primary", p == data.Page), templ.KV("btn-secondary", p != data.Page) }
-							>
-								{ fmt.Sprintf("%d", p) }
-							</a>
-						}
-					}
-					if data.Page < data.TotalPages {
-						<a href={ templ.SafeURL(buildInventoryURL(data.Query, data.WarehouseID, data.Page+1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs font-bold">
-							التالي
-						</a>
-					}
-				</div>
-			</div>
-		}
+		@components.B2BPagination(components.PaginationProps{
+			CurrentPage: data.Page,
+			PageSize:    data.PerPage,
+			TotalCount:  data.Total,
+			BaseURL:     "/vendor/inventory",
+			QueryValues: url.Values{"q": {data.Query}, "warehouse_id": {fmt.Sprintf("%d", data.WarehouseID)}},
+		})
 	}
 }
 

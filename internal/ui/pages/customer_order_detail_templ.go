@@ -850,7 +850,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" class=\"row-discount-input\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"row-deleted-input\"></td><td class=\"text-center\"><!-- Direct Quantity Stepper: [ - ] 10 [ + ] --><div class=\"d-flex items-center gap-1 justify-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"stepRowQty(this, -1)\" title=\"إنقاص الكمية\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" class=\"row-discount-input\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"row-deleted-input\"></td><td class=\"col-actions\"><!-- Direct Quantity Stepper: [ - ] 10 [ + ] --><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"stepRowQty(this, -1)\" title=\"إنقاص الكمية\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -957,7 +957,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, " ج.م</span></td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" onclick=\"deleteRowLine(this)\" title=\"حذف الصنف من الطلب\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, " ج.م</span></td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" onclick=\"deleteRowLine(this)\" title=\"حذف الصنف من الطلب\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -1199,7 +1199,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "\" class=\"row-discount-input\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"row-deleted-input\"></td><td class=\"text-center\"><!-- Direct Quantity Stepper: [ - ] 10 [ + ] --><div class=\"d-flex items-center gap-1 justify-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"stepRowQty(this, -1)\" title=\"إنقاص الكمية\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "\" class=\"row-discount-input\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"row-deleted-input\"></td><td class=\"col-actions\"><!-- Direct Quantity Stepper: [ - ] 10 [ + ] --><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"stepRowQty(this, -1)\" title=\"إنقاص الكمية\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1306,7 +1306,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, " ج.م</span></td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" onclick=\"deleteRowLine(this)\" title=\"حذف الصنف من الطلب\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, " ج.م</span></td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" onclick=\"deleteRowLine(this)\" title=\"حذف الصنف من الطلب\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

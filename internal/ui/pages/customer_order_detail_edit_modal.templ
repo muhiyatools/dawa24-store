@@ -51,8 +51,8 @@ templ CustomerOrderEditModal(order *commerce.Order, lang string) {
 													</div>
 												}
 											</td>
-											<td>
-												<div class="d-flex items-center gap-1 justify-center">
+											<td class="col-actions">
+												<div class="table-actions">
 													<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="window.stepQty(this, -1)">−</button>
 													<input
 														type="number"
@@ -79,7 +79,7 @@ templ CustomerOrderEditModal(order *commerce.Order, lang string) {
 											<td class="text-end tabular-nums font-black text-brand text-xs">
 												<span class="line-total-cell">{ line.TotalPrice.String() }</span>
 											</td>
-											<td class="text-center">
+											<td class="col-actions">
 												<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف الصنف" onclick="window.deleteEditRow(this)">
 													@components.IconTrash("icon-sm")
 												</button>

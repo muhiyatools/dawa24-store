@@ -90,7 +90,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 									<th>الفرع المرتبط</th>
 									<th>العنوان ورقم التواصل</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -136,8 +136,8 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 												<span class="badge badge-rose text-xs font-bold">معطل</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="d-flex items-center justify-end gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm font-bold text-xs" title="عرض الأصناف والأرصدة">
 													@components.IconPackage("icon-xs")
 													<span>عرض المخزون</span>
@@ -662,7 +662,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 									<th>الأسعار والخصم</th>
 									<th>الرصيد الفعلي المتاح</th>
 									<th class="text-center">حد الأمان</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -796,8 +796,8 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 										</td>
 
 										<!-- Actions -->
-										<td class="text-end">
-											<div class="d-flex items-center justify-end gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm font-black text-xs px-3"

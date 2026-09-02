@@ -398,7 +398,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-16\">#</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-16\">#</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -602,7 +602,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</td><td class=\"text-end\"><div class=\"d-flex justify-end gap-1\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -19,26 +19,6 @@ type CustomerDecisionMemoryData struct {
 	IsVendor  bool
 }
 
-func buildCustomerDecisionMemoryURL(isVendor bool, search string, page, limit int) string {
-	vals := url.Values{}
-	if search != "" {
-		vals.Set("q", search)
-	}
-	if page > 1 {
-		vals.Set("page", fmt.Sprintf("%d", page))
-	}
-	if limit != 50 && limit != 0 {
-		vals.Set("limit", fmt.Sprintf("%d", limit))
-	}
-	base := "/customer/decision-memory"
-	if isVendor {
-		base = "/vendor/decision-memory"
-	}
-	if len(vals) > 0 {
-		return base + "?" + vals.Encode()
-	}
-	return base
-}
 
 templ CustomerDecisionMemoryPage(lang, dir string, data CustomerDecisionMemoryData) {
 	if data.IsVendor {
@@ -195,7 +175,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 							<th class="text-center">الاستخدامات</th>
 							<th>السبب / الملاحظات</th>
 							<th class="text-center">تاريخ الاستخدام</th>
-							<th class="text-center">إجراءات</th>
+							<th class="col-actions">إجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -284,7 +264,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 								</td>
 
 								<!-- Actions -->
-								<td class="text-center">
+								<td class="col-actions">
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", basePath, d.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار من ذاكرتك؟');" class="m-0">
 										<input type="hidden" name="q" value={ data.Search } />
 										<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
@@ -300,29 +280,13 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 				</table>
 			</div>
 
-			<!-- Pagination Bar -->
-			if data.Total > data.PerPage {
-				<div class="flex-between items-center p-3 px-6 border-t bg-surface-sunken text-xs">
-					<div class="text-secondary">
-						إجمالي النتائج: <strong class="text-primary">{ fmt.Sprintf("%d", data.Total) }</strong>
-					</div>
-					<div class="d-flex items-center gap-2">
-						if data.Page > 1 {
-							<a href={ templ.SafeURL(buildCustomerDecisionMemoryURL(data.IsVendor, data.Search, data.Page-1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs">
-								السابق
-							</a>
-						}
-						<span class="font-bold text-primary px-2">
-							صفحة { fmt.Sprintf("%d", data.Page) }
-						</span>
-						if data.Page * data.PerPage < data.Total {
-							<a href={ templ.SafeURL(buildCustomerDecisionMemoryURL(data.IsVendor, data.Search, data.Page+1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs">
-								التالي
-							</a>
-						}
-					</div>
-				</div>
-			}
+			@components.B2BPagination(components.PaginationProps{
+				CurrentPage: data.Page,
+				PageSize:    data.PerPage,
+				TotalCount:  data.Total,
+				BaseURL:     decisionMemoryBaseURL(data.IsVendor),
+				QueryValues: url.Values{"q": {data.Search}},
+			})
 		</div>
 	</div>
 
@@ -338,4 +302,13 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 			}
 		}
 	</script>
+}
+
+// decisionMemoryBaseURL is the list URL for whichever side is viewing. The
+// pagination component builds its own query string, so it needs the path only.
+func decisionMemoryBaseURL(isVendor bool) string {
+	if isVendor {
+		return "/vendor/decision-memory"
+	}
+	return "/customer/decision-memory"
 }

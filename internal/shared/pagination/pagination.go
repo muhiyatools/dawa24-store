@@ -28,6 +28,47 @@ const MaxLimit = 200
 // rows on a screen, and the two do not have to agree.
 const TableRows = 25
 
+// RowsPerPage reads the reader's chosen page size off the request.
+//
+// The rows-per-page control on every dashboard table submits ?limit=N. Before
+// this existed each handler parsed it its own way: one defaulted to 50 and
+// capped at 500, the next defaulted to 25 and capped at 100, and a third
+// ignored the parameter altogether, so the same control did three different
+// things depending on which table it sat under.
+//
+// A value outside the offered set falls back to TableRows rather than being
+// clamped to the nearest bound: the query string is user-supplied, and honouring
+// ?limit=97 would let a caller ask for page sizes the UI never offers.
+func RowsPerPage(r *http.Request) int {
+	raw := r.URL.Query().Get("limit")
+	if raw == "" {
+		return TableRows
+	}
+	n, err := strconv.Atoi(raw)
+	if err != nil {
+		return TableRows
+	}
+	for _, allowed := range RowsPerPageOptions {
+		if n == allowed {
+			return n
+		}
+	}
+	return TableRows
+}
+
+// RowsPerPageOptions is the set the control offers, and the only set
+// RowsPerPage will honour.
+var RowsPerPageOptions = []int{10, 25, 50, 100}
+
+// PageNumber reads ?page=, clamped to at least 1.
+func PageNumber(r *http.Request) int {
+	n, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil || n < 1 {
+		return 1
+	}
+	return n
+}
+
 // Params captures parsed client pagination request parameters.
 type Params struct {
 	Limit  int    `json:"limit"`

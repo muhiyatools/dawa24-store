@@ -383,7 +383,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>العرض / باقة الأدوية</th><th>الشركة الموردة</th><th>الأصناف والكميات المشمولة</th><th>السعر قبل الخصم</th><th>الخصم</th><th>الحد الأدنى</th><th>نطاق التغطية والمدن</th><th class=\"text-center\">حالة الاعتماد والنشر</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>العرض / باقة الأدوية</th><th>الشركة الموردة</th><th>الأصناف والكميات المشمولة</th><th>السعر قبل الخصم</th><th>الخصم</th><th>الحد الأدنى</th><th>نطاق التغطية والمدن</th><th class=\"text-center\">حالة الاعتماد والنشر</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -823,7 +823,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div></td><!-- Admin Action Buttons --><td class=\"text-end\"><div class=\"row-center-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</div></td><!-- Admin Action Buttons --><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -74,7 +74,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.C
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الطلب</th><th>الإجمالي</th><th>الخصم</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الطلب</th><th>الإجمالي</th><th>الخصم</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -131,7 +131,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.C
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></td><td class=\"text-end\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></td><td class=\"col-actions\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

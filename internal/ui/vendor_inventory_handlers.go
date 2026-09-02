@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -85,13 +86,7 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	if page < 1 {
 		page = 1
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 {
-		limit = 25
-	}
-	if limit > 100 {
-		limit = 100
-	}
+	limit := pagination.RowsPerPage(r)
 
 	total := len(filteredStocks)
 	totalPages := (total + limit - 1) / limit

@@ -39,7 +39,7 @@ func VendorVariantsTable(variants []*VendorVariantView, lang string) templ.Compo
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصنف الدوائي المعتمد</th><th>المواصفات و SKU</th><th class=\"tabular-nums\">سعر الجمهور والخصم</th><th class=\"tabular-nums\">سعر التكلفة والخصم</th><th class=\"tabular-nums\">صافي ربح الوحدة</th><th class=\"text-center\">الرصيد المتاح</th><th>تاريخ الصلاحية</th><th>مخزن الشحن</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الصنف الدوائي المعتمد</th><th>المواصفات و SKU</th><th class=\"tabular-nums\">سعر الجمهور والخصم</th><th class=\"tabular-nums\">سعر التكلفة والخصم</th><th class=\"tabular-nums\">صافي ربح الوحدة</th><th class=\"text-center\">الرصيد المتاح</th><th>تاريخ الصلاحية</th><th>مخزن الشحن</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -622,7 +622,7 @@ func VendorVariantsTable(variants []*VendorVariantView, lang string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</td><!-- Actions --><td class=\"text-center whitespace-nowrap\"><div class=\"d-flex items-center justify-center gap-1\"><button type=\"button\" class=\"btn btn-secondary btn-icon text-brand\" title=\"تعديل بيانات وسعر الصنف\" data-variant-id=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</td><!-- Actions --><td class=\"col-actions whitespace-nowrap\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon text-brand\" title=\"تعديل بيانات وسعر الصنف\" data-variant-id=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -106,7 +106,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 									<th class="w-36 text-start">المستخدم / المنظمة</th>
 									<th class="text-start">رسالة الخطأ والاستثناء</th>
 									<th class="w-32 text-start">المسار / IP</th>
-									<th class="w-24 text-center">الإجراءات</th>
+									<th class="col-actions w-24">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -156,7 +156,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 												{ err.IPAddress }
 											</div>
 										</td>
-										<td class="text-center">
+										<td class="col-actions">
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm text-xs font-bold text-accent"
@@ -294,7 +294,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 										<th class="w-36 text-start">القسم والإجراء</th>
 										<th class="text-start">العنوان والوصف</th>
 										<th class="w-20 text-center">الأهمية</th>
-										<th class="w-20 text-center">الإجراءات</th>
+										<th class="col-actions w-20">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -361,7 +361,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 													</span>
 												}
 											</td>
-											<td class="text-center">
+											<td class="col-actions">
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm text-xs font-bold text-accent"

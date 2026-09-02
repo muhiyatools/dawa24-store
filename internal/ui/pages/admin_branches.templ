@@ -125,7 +125,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 								<th class="nowrap">نوع الفرع اللوجستي</th>
 								<th>العنوان وبيانات الاتصال</th>
 								<th class="nowrap">الحالة</th>
-								<th class="text-end nowrap min-w-36">الإجراءات</th>
+								<th class="col-actions nowrap min-w-36">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -175,7 +175,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 											<span class="badge badge-danger text-xs font-bold">معطل</span>
 										}
 									</td>
-									<td class="text-end">
+									<td class="col-actions">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-xs font-bold">
 											<span>التفاصيل ↗</span>
 										</a>

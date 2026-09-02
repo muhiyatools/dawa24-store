@@ -406,7 +406,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										</td>
 
 										<!-- 5. Order Action & Stepper -->
-										<td class="text-center">
+										<td class="col-actions">
 											if canAdd {
 												<form
 													action="/cart/add"
@@ -450,7 +450,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 													</a>
 												</form>
 											} else {
-												<div class="row-center-xs">
+												<div class="table-actions">
 													if !isCovered {
 														<span class="badge badge-rose text-2xs font-bold" title={ data.GetCoverageReason(v) }>
 															غير مغطى

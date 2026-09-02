@@ -280,7 +280,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 									<th class="pad-md">الرتبة</th>
 									<th class="pad-md">الراتب الأساسي</th>
 									<th class="pad-md">الحالة</th>
-									<th>الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -332,7 +332,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 												<span class="badge badge-slate text-xs">معطل</span>
 											}
 										</td>
-										<td>
+										<td class="col-actions">
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/employees/%d/delete", emp.Member.UserID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف من المنشأة؟');">
 												<button type="submit" class="btn btn-secondary btn-xs">
 													<span>حذف</span>

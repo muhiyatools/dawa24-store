@@ -277,8 +277,8 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 												</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="d-flex items-center justify-end gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												if p.Phone != "" {
 													<a href={ templ.SafeURL("tel:" + p.Phone) } class="btn btn-secondary btn-sm btn-icon" title="اتصال">
 														@components.IconPhone("icon-xs")

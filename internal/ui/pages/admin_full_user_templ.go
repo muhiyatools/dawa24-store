@@ -194,7 +194,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الهاتف</th><th>الدور</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الهاتف</th><th>الدور</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -266,7 +266,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"text-end\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"col-actions\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -656,7 +656,7 @@ func AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>معرف المستخدم</th><th>السبب</th><th class=\"text-center\">الحالة</th><th>تاريخ الطلب</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>معرف المستخدم</th><th>السبب</th><th class=\"text-center\">الحالة</th><th>تاريخ الطلب</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -726,7 +726,7 @@ func AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</td><td class=\"text-end\"><div class=\"d-inline-flex gap-2\"><form class=\"stack-md\" method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</td><td class=\"col-actions\"><div class=\"table-actions\"><form class=\"stack-md\" method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1086,7 +1086,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-center ps-4\"># ID</th><th class=\"py-3 text-start\">التوقيت والتاريخ</th><th class=\"py-3 text-start\">الموظف المنفذ</th><th class=\"py-3 text-start\">المنشأة التابع لها</th><th class=\"py-3 text-start\">نوع الإجراء</th><th class=\"py-3 text-start\">القسم / العنصر</th><th class=\"py-3 text-start\">معرف الصنف</th><th class=\"text-center py-3\">عنوان IP</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-center ps-4\"># ID</th><th class=\"py-3 text-start\">التوقيت والتاريخ</th><th class=\"py-3 text-start\">الموظف المنفذ</th><th class=\"py-3 text-start\">المنشأة التابع لها</th><th class=\"py-3 text-start\">نوع الإجراء</th><th class=\"py-3 text-start\">القسم / العنصر</th><th class=\"py-3 text-start\">معرف الصنف</th><th class=\"text-center py-3\">عنوان IP</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1319,7 +1319,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</td><!-- 9. Actions --><td class=\"text-end pe-4\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1 shadow-2xs\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</td><!-- 9. Actions --><td class=\"col-actions pe-4\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1 shadow-2xs\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

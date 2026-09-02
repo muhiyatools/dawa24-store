@@ -85,7 +85,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tshowAddModal: false,\n\t\t\t\tsearchQuery: '',\n\t\t\t\troleFilter: 'all',\n\t\t\t\tstatusFilter: 'all',\n\t\t\t\tmatchesFilter(m) {\n\t\t\t\t\tconst q = this.searchQuery.toLowerCase().trim();\n\t\t\t\t\tconst matchesSearch = !q || \n\t\t\t\t\t\t(m.name && m.name.toLowerCase().includes(q)) || \n\t\t\t\t\t\t(m.email && m.email.toLowerCase().includes(q)) || \n\t\t\t\t\t\t(m.phone && m.phone.toLowerCase().includes(q)) || \n\t\t\t\t\t\t(m.jobTitle && m.jobTitle.toLowerCase().includes(q)) || \n\t\t\t\t\t\t(m.code && m.code.toLowerCase().includes(q));\n\t\t\t\t\t\n\t\t\t\t\tconst matchesRole = this.roleFilter === 'all' || m.roleKey === this.roleFilter;\n\t\t\t\t\tconst matchesStatus = this.statusFilter === 'all' || \n\t\t\t\t\t\t(this.statusFilter === 'active' && m.isActive) || \n\t\t\t\t\t\t(this.statusFilter === 'inactive' && !m.isActive);\n\t\t\t\t\t\n\t\t\t\t\treturn matchesSearch && matchesRole && matchesStatus;\n\t\t\t\t}\n\t\t\t}\"><!-- Notice / Alert Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\r\n\t\t\t\tshowAddModal: false,\r\n\t\t\t\tsearchQuery: '',\r\n\t\t\t\troleFilter: 'all',\r\n\t\t\t\tstatusFilter: 'all',\r\n\t\t\t\tmatchesFilter(m) {\r\n\t\t\t\t\tconst q = this.searchQuery.toLowerCase().trim();\r\n\t\t\t\t\tconst matchesSearch = !q || \r\n\t\t\t\t\t\t(m.name && m.name.toLowerCase().includes(q)) || \r\n\t\t\t\t\t\t(m.email && m.email.toLowerCase().includes(q)) || \r\n\t\t\t\t\t\t(m.phone && m.phone.toLowerCase().includes(q)) || \r\n\t\t\t\t\t\t(m.jobTitle && m.jobTitle.toLowerCase().includes(q)) || \r\n\t\t\t\t\t\t(m.code && m.code.toLowerCase().includes(q));\r\n\t\t\t\t\t\r\n\t\t\t\t\tconst matchesRole = this.roleFilter === 'all' || m.roleKey === this.roleFilter;\r\n\t\t\t\t\tconst matchesStatus = this.statusFilter === 'all' || \r\n\t\t\t\t\t\t(this.statusFilter === 'active' && m.isActive) || \r\n\t\t\t\t\t\t(this.statusFilter === 'inactive' && !m.isActive);\r\n\t\t\t\t\t\r\n\t\t\t\t\treturn matchesSearch && matchesRole && matchesStatus;\r\n\t\t\t\t}\r\n\t\t\t}\"><!-- Notice / Alert Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -275,7 +275,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الموظف والتعريف</th><th>المسمى الوظيفي</th><th>الدور والصلاحية</th><th>الفرع / الموقع</th><th>البريد الإلكتروني</th><th>رقم الهاتف</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الموظف والتعريف</th><th>المسمى الوظيفي</th><th>الدور والصلاحية</th><th>الفرع / الموقع</th><th>البريد الإلكتروني</th><th>رقم الهاتف</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -597,7 +597,7 @@ func VendorTeamPage(data VendorTeamData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><!-- Actions --><td class=\"text-end\"><div class=\"d-flex items-center justify-end gap-2\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><!-- Actions --><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

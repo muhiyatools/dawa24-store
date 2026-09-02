@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -171,12 +172,12 @@ func langOf(r *http.Request) string {
 	return "ar"
 }
 
+// pageLimit is the rows-per-page for a list screen. It defers to
+// pagination.RowsPerPage so the control offers -- and the server honours -- the
+// same four sizes everywhere; this used to default to 20 and cap at 100, which
+// was a fourth answer alongside three others in the handlers.
 func (h *UIHandler) pageLimit(r *http.Request) int {
-	lim, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if lim <= 0 || lim > 100 {
-		return 20
-	}
-	return lim
+	return pagination.RowsPerPage(r)
 }
 
 func (h *UIHandler) pageOffset(r *http.Request) int {

@@ -254,7 +254,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الطلب</th><th>المنشأة المشترية</th><th>حالة التفاوض</th><th class=\"tabular-nums\">المبلغ الإجمالي</th><th>ملاحظات التفاوض</th><th>حالة الطلب</th><th>التاريخ</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الطلب</th><th>المنشأة المشترية</th><th>حالة التفاوض</th><th class=\"tabular-nums\">المبلغ الإجمالي</th><th>ملاحظات التفاوض</th><th>حالة الطلب</th><th>التاريخ</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -403,7 +403,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><td class=\"text-end\"><a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><td class=\"col-actions\"><a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

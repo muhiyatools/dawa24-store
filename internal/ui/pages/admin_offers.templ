@@ -156,7 +156,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 									<th>الحد الأدنى</th>
 									<th>نطاق التغطية والمدن</th>
 									<th class="text-center">حالة الاعتماد والنشر</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -319,8 +319,8 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 										</td>
 
 										<!-- Admin Action Buttons -->
-										<td class="text-end">
-											<div class="row-center-xs">
+										<td class="col-actions">
+											<div class="table-actions">
 												if o.AdminStatus != "approved" {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers/%d/approve", o.ID)) } class="m-0">
 														<button type="submit" class="btn btn-primary btn-sm font-bold" title="اعتماد ونشر العرض">

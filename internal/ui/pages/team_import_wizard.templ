@@ -170,7 +170,7 @@ templ teamSessionsHistoryCard(view TeamImportView) {
 						<th>تاريخ الرفع</th>
 						<th class="text-center">عدد الصفوف</th>
 						<th class="text-center">المرحلة</th>
-						<th class="text-center">الإجراءات</th>
+						<th class="col-actions">الإجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -197,8 +197,8 @@ templ teamSessionsHistoryCard(view TeamImportView) {
 									<span class="badge badge-amber text-2xs">تحديد الأعمدة</span>
 								}
 							</td>
-							<td class="text-center">
-								<div class="d-flex items-center justify-center gap-1.5">
+							<td class="col-actions">
+								<div class="table-actions">
 									if sess.Phase != TeamPhaseCompleted {
 										<a href={ templ.SafeURL(fmt.Sprintf("%s/%s", view.ImportURL, sess.ID)) } class="btn btn-primary btn-xs font-bold">
 											استكمال الجلسة ←

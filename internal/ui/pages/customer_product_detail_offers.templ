@@ -91,7 +91,7 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 								</td>
 
 								<!-- Action -->
-								<td class="text-center">
+								<td class="col-actions">
 									if off.CanAddToCart {
 										<form method="POST" action="/cart/add" class="d-flex items-center justify-center gap-1 m-0">
 											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />

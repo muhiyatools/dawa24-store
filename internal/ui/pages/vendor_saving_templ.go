@@ -632,7 +632,7 @@ func VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) templ
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><!-- Actions (View Providers / Edit / Delete) --><td class=\"text-center\"><div class=\"stack-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><!-- Actions (View Providers / Edit / Delete) --><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

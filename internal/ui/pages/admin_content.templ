@@ -144,7 +144,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 									<th>مقتطف المحتوى</th>
 									<th>الترتيب</th>
 									<th>الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -218,7 +218,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 												<span class="badge badge-rose">معطل</span>
 											}
 										</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<div class="table-actions">
 												if previewURL != "" {
 													<a

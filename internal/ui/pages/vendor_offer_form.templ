@@ -404,7 +404,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 
 										<td class="text-end tabular-nums font-black text-xs text-primary" x-text="((item.qty || 1) * (item.custom_price || 0)).toFixed(2) + ' ج.م'"></td>
 
-										<td class="text-center">
+										<td class="col-actions">
 											<button
 												type="button"
 												@click="removeItem(idx)"

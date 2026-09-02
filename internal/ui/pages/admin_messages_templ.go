@@ -97,7 +97,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>المرسل وبيانات الاتصال</th><th>الموضوع / نوع الطلب</th><th>نص الرسالة</th><th class=\"text-center\">الحالة</th><th>التاريخ والتوقيت</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>المرسل وبيانات الاتصال</th><th>الموضوع / نوع الطلب</th><th>نص الرسالة</th><th class=\"text-center\">الحالة</th><th>التاريخ والتوقيت</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -292,7 +292,7 @@ func AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></td><td class=\"text-end\"><div class=\"table-actions\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></td><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

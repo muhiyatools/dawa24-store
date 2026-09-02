@@ -274,7 +274,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف للصيدلية</th><th>الربط بالكتالوج العام</th><th class=\"p-md text-center\">الكمية</th><th class=\"p-md text-center\">سعر الشراء</th><th class=\"p-md text-center\">عروض الموردين</th><th>الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف للصيدلية</th><th>الربط بالكتالوج العام</th><th class=\"p-md text-center\">الكمية</th><th class=\"p-md text-center\">سعر الشراء</th><th class=\"p-md text-center\">عروض الموردين</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -406,12 +406,12 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><!-- Linked Product --><td class=\"p-md\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><!-- Linked Product --><td class=\"col-actions p-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if it.ProductID != nil && *it.ProductID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"row-center-sm\"><span class=\"badge badge-emerald text-xs fw-800\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"table-actions\"><span class=\"badge badge-emerald text-xs fw-800\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -481,7 +481,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " ج.م</strong></td><!-- Providers & Market Offers --><td class=\"p-md text-center\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " ج.م</strong></td><!-- Providers & Market Offers --><td class=\"col-actions p-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -548,7 +548,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Actions --><td><div class=\"stack-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Actions --><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -144,7 +144,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>الاسم / العنوان</th><th>الوصف / التفاصيل</th><th>معلومات إضافية</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>الاسم / العنوان</th><th>الوصف / التفاصيل</th><th>معلومات إضافية</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -216,7 +216,7 @@ func AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, i
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"text-end\"><div class=\"d-inline-flex gap-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\">تعديل</button></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"col-actions\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\">تعديل</button></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

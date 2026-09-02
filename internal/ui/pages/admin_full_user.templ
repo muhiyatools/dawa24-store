@@ -71,7 +71,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 									<th>الهاتف</th>
 									<th>الدور</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -88,7 +88,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 												<span class="badge badge-rose text-xs font-bold">معطل</span>
 											}
 										</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", u.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض الملف</a>
 										</td>
 									</tr>
@@ -233,7 +233,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 									<th>السبب</th>
 									<th class="text-center">الحالة</th>
 									<th>تاريخ الطلب</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -244,8 +244,8 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 										<td class="text-xs">{ r.Reason }</td>
 										<td class="text-center"><span class="badge badge-amber text-xs font-bold">{ r.Status }</span></td>
 										<td class="text-xs tabular-nums">{ r.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
-										<td class="text-end">
-											<div class="d-inline-flex gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
 													<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">موافقة وحذف</button>
 												</form>
@@ -394,7 +394,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 									<th class="py-3 text-start">القسم / العنصر</th>
 									<th class="py-3 text-start">معرف الصنف</th>
 									<th class="text-center py-3">عنوان IP</th>
-									<th class="text-end py-3 pe-4">الإجراءات</th>
+									<th class="col-actions py-3 pe-4">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">
@@ -488,7 +488,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 										</td>
 
 										<!-- 9. Actions -->
-										<td class="text-end pe-4">
+										<td class="col-actions pe-4">
 											<button
 												type="button"
 												class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs"

@@ -110,7 +110,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"glass-panel p-0 overflow-hidden mb-4\"><div class=\"table-responsive\"><table class=\"data-table\" id=\"customer-employees-table\"><thead><tr><th>الموظف والبيانات الشخصية</th><th>الفرع المعين به</th><th>المسمى الوظيفي</th><th>الدور والصلاحيات</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"glass-panel p-0 overflow-hidden mb-4\"><div class=\"table-responsive\"><table class=\"data-table\" id=\"customer-employees-table\"><thead><tr><th>الموظف والبيانات الشخصية</th><th>الفرع المعين به</th><th>المسمى الوظيفي</th><th>الدور والصلاحيات</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -340,7 +340,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><!-- Actions --><td class=\"text-center\"><div class=\"d-flex items-center justify-center gap-1\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" data-emp-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><!-- Actions --><td class=\"col-actions\"><div class=\"table-actions\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" data-emp-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -375,7 +375,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المدينة / الحي</th><th>المحافظة التابعة</th><th>الإحداثيات الجغرافية (GPS)</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المدينة / الحي</th><th>المحافظة التابعة</th><th>الإحداثيات الجغرافية (GPS)</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -556,7 +556,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</td><td class=\"text-end\"><div class=\"d-inline-flex items-center gap-1\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold text-xs\" @click=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</td><td class=\"col-actions\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold text-xs\" @click=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

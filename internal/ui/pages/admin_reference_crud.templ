@@ -55,7 +55,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 									<th>الوصف / التفاصيل</th>
 									<th>معلومات إضافية</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -72,8 +72,8 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 												<span class="badge badge-rose text-xs font-bold">معطل</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="d-inline-flex gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<button type="button" class="btn btn-secondary btn-sm font-bold text-xs">تعديل</button>
 											</div>
 										</td>

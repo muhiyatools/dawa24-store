@@ -44,7 +44,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 									<th class="text-center">مستوى الخطورة</th>
 									<th class="text-center">الحالة</th>
 									<th>التاريخ</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -62,7 +62,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 										</td>
 										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ l.Status }</span></td>
 										<td class="tabular-nums text-xs text-secondary">{ l.CreatedAt.Format("2006-01-02 03:04:05 PM") }</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d", l.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض التفاصيل</a>
 										</td>
 									</tr>

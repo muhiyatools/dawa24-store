@@ -220,7 +220,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"table-container m-0\"><table class=\"data-table data-table-responsive\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المخزن المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"table-container m-0\"><table class=\"data-table data-table-responsive\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المخزن المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"col-actions\">الإجراءات والتحكم</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -404,7 +404,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><td class=\"text-end\"><div class=\"inline-row-03 justify-end\"><!-- Toggle Button Form --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- Toggle Button Form --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

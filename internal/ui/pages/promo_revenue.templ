@@ -333,7 +333,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 										<th class="py-3 text-center">أقصى عروض</th>
 										<th class="py-3 text-center">الترتيب</th>
 										<th class="py-3 text-center">الحالة</th>
-										<th class="py-3 text-end pe-4">الإجراءات</th>
+										<th class="col-actions py-3 pe-4">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-slate-100">
@@ -413,8 +413,8 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 												</td>
 
 												<!-- Actions -->
-												<td class="py-3.5 text-end pe-4">
-													<div class="d-flex items-center justify-end gap-1.5">
+												<td class="col-actions py-3.5 pe-4">
+													<div class="table-actions">
 														<!-- Edit Button -->
 														<button
 															type="button"
@@ -505,7 +505,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 										<th class="py-3 text-center">الرصيد المستهلك</th>
 										<th class="py-3 text-center">الحالة</th>
 										<th class="py-3 text-center">تاريخ التقديم</th>
-										<th class="py-3 text-end pe-4">الإجراءات</th>
+										<th class="col-actions py-3 pe-4">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-slate-100">
@@ -556,9 +556,9 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 												<td class="py-3.5 text-center text-secondary tabular-nums text-2xs">
 													{ req.CreatedAt.Format("2006-01-02 03:04 PM") }
 												</td>
-												<td class="py-3.5 text-end pe-4">
+												<td class="col-actions py-3.5 pe-4">
 													if req.AdminStatus == "pending" {
-														<div class="d-flex items-center justify-end gap-1.5">
+														<div class="table-actions">
 															<!-- Approve -->
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)) } class="m-0">
 																<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
@@ -627,7 +627,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 										<th class="py-3 text-center tabular-nums">النقرات</th>
 										<th class="py-3 text-center tabular-nums">معدل CTR %</th>
 										<th class="py-3 text-center">الحالة</th>
-										<th class="py-3 text-end pe-4">الإجراءات</th>
+										<th class="col-actions py-3 pe-4">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-slate-100">
@@ -696,9 +696,9 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 												</td>
 
 												<!-- Actions -->
-												<td class="py-3.5 text-end pe-4">
+												<td class="col-actions py-3.5 pe-4">
 													if ad.AdminStatus == "pending" {
-														<div class="d-flex items-center justify-end gap-1.5">
+														<div class="table-actions">
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
 																<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
 																	@components.IconCheck("icon-2xs")

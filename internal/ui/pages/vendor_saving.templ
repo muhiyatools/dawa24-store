@@ -322,8 +322,8 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 										</td>
 
 										<!-- Actions (View Providers / Edit / Delete) -->
-										<td class="text-center">
-											<div class="stack-sm" >
+										<td class="col-actions">
+											<div class="table-actions" >
 												if item.ProductID != nil && *item.ProductID > 0 {
 													<button
 														type="button"

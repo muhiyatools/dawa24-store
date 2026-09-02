@@ -273,7 +273,7 @@ func AdminUsersPage(data AdminUsersPageData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"glass-panel p-0 border rounded-2xl shadow-xs overflow-hidden\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-surface-raised border-b font-bold\"><th class=\"py-3 text-start ps-4\">المستخدم</th><th class=\"py-3 text-start\">البريد الإلكتروني ورقم الهاتف</th><th class=\"py-3 text-start\">الدور الوظيفي والصلاحية</th><th class=\"py-3 text-center\">تاريخ الانضمام</th><th class=\"py-3 text-center\">الحالة</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"glass-panel p-0 border rounded-2xl shadow-xs overflow-hidden\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-surface-raised border-b font-bold\"><th class=\"py-3 text-start ps-4\">المستخدم</th><th class=\"py-3 text-start\">البريد الإلكتروني ورقم الهاتف</th><th class=\"py-3 text-start\">الدور الوظيفي والصلاحية</th><th class=\"py-3 text-center\">تاريخ الانضمام</th><th class=\"py-3 text-center\">الحالة</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -428,7 +428,7 @@ func AdminUsersPage(data AdminUsersPageData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</td><td class=\"text-end py-3 pe-4\"><div class=\"d-inline-flex gap-1.5 justify-end items-center\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</td><td class=\"col-actions py-3 pe-4\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -765,7 +765,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الاسم وبيانات المستخدم</th><th>البريد الإلكتروني</th><th>الدور / الصلاحية</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الاسم وبيانات المستخدم</th><th>البريد الإلكتروني</th><th>الدور / الصلاحية</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -895,7 +895,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</td><td class=\"text-end\"><div class=\"d-flex items-center justify-end gap-2\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1164,12 +1164,12 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</td><td class=\"text-end\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</td><td class=\"col-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if req.Status == "pending" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "<div class=\"d-flex items-center justify-end gap-2\"><form method=\"POST\" action=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

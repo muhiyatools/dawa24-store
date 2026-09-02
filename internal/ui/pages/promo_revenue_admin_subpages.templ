@@ -92,7 +92,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 									<th class="text-center py-3">المستوى</th>
 									<th class="text-center py-3">الحالة</th>
 									<th class="text-center py-3">تاريخ الطلب</th>
-									<th class="text-end py-3 pe-4">الإجراءات</th>
+									<th class="col-actions py-3 pe-4">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">
@@ -128,9 +128,9 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 												}
 											</td>
 											<td class="text-center text-xs tabular-nums text-secondary py-3">{ req.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
-											<td class="text-end py-3 pe-4">
+											<td class="col-actions py-3 pe-4">
 												if req.AdminStatus == "pending" {
-													<div class="d-flex items-center justify-end gap-1.5">
+													<div class="table-actions">
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)) } class="m-0">
 															<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
 																@components.IconCheck("icon-2xs")
@@ -228,7 +228,7 @@ templ AdminAdsListPage(lang, dir string, ads []*promo.Ad) {
 									<th class="text-center tabular-nums py-3">النقرات</th>
 									<th class="text-center tabular-nums py-3">CTR %</th>
 									<th class="text-center py-3">الحالة</th>
-									<th class="text-end py-3 pe-4">الإجراءات</th>
+									<th class="col-actions py-3 pe-4">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">
@@ -262,9 +262,9 @@ templ AdminAdsListPage(lang, dir string, ads []*promo.Ad) {
 													<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
 												}
 											</td>
-											<td class="text-end py-3 pe-4">
+											<td class="col-actions py-3 pe-4">
 												if ad.AdminStatus == "pending" {
-													<div class="d-flex items-center justify-end gap-1.5">
+													<div class="table-actions">
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
 															<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
 																@components.IconCheck("icon-2xs")

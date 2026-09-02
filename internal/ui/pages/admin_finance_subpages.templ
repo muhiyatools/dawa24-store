@@ -32,7 +32,7 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 								<th>المبلغ الإجمالي</th>
 								<th>الحالة</th>
 								<th>التاريخ</th>
-								<th class="text-end">الإجراءات</th>
+								<th class="col-actions">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -49,7 +49,7 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
 									<td><span class="badge badge-sky">{ string(o.Status) }</span></td>
 									<td class="tabular-nums">{ o.CreatedAt.Format("2006-01-02") }</td>
-									<td class="text-end">
+									<td class="col-actions">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/orders/offers/%d", o.ID)) } class="btn btn-secondary btn-sm">عرض</a>
 									</td>
 								</tr>

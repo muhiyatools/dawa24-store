@@ -140,8 +140,8 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 							</td>
 
 							<!-- Col 6: Cart & Favorite Actions -->
-							<td class="col-action text-center">
-								<div class="d-flex items-center justify-center gap-1.5">
+							<td class="col-actions col-action">
+								<div class="table-actions">
 									<!-- Favorite Button -->
 									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/favorites/%d/toggle", v.ProductID)) } class="m-0">
 										<button

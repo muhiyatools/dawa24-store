@@ -136,7 +136,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"table-responsive\"><table class=\"data-table mb-0\"><thead><tr><th>رقم الفاتورة</th><th>رقم الطلبية</th><th>الطرف المستلم</th><th>تاريخ الإصدار</th><th>المبلغ الإجمالي</th><th>الحالة</th><th>الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"table-responsive\"><table class=\"data-table mb-0\"><thead><tr><th>رقم الفاتورة</th><th>رقم الطلبية</th><th>الطرف المستلم</th><th>تاريخ الإصدار</th><th>المبلغ الإجمالي</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -325,7 +325,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><!-- الإجراءات: عرض + طباعة --><td><div class=\"d-flex items-center gap-1\"><!-- زر الطباعة --><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><!-- الإجراءات: عرض + طباعة --><td class=\"col-actions\"><div class=\"table-actions\"><!-- زر الطباعة --><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

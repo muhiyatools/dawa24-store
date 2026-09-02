@@ -306,6 +306,10 @@
   padding: 0.85rem 0;
 }
 .b2b-pagination-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--text-muted);
@@ -329,18 +333,25 @@
   text-decoration: none;
   cursor: pointer;
 }
-.b2b-pagination-btn:hover:not([disabled]):not(.is-active) {
+.b2b-pagination-btn:hover:not([disabled]):not(.disabled):not(.is-disabled):not(.active):not(.is-active) {
   border-color: var(--primary-border);
   color: var(--primary);
 }
 .b2b-pagination-btn.is-active,
+.b2b-pagination-btn.active,
 .b2b-pagination-btn[aria-current="page"] {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: var(--bg-surface-raised);
 }
 .b2b-pagination-btn[disabled],
+.b2b-pagination-btn.disabled,
 .b2b-pagination-btn.is-disabled { opacity: 0.45; pointer-events: none; }
+
+@media (max-width: 640px) {
+  .b2b-pagination { justify-content: center; }
+  .b2b-pagination-btn { min-inline-size: var(--touch-min); block-size: var(--touch-min); }
+}
 
 /* .filter-tab was a third tab shape (a filled capsule). The compare and
    catalogue screens use .tab-btn from components.css now. */

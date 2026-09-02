@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -22,10 +23,7 @@ func (h *UIHandler) AdminMatchDecisionsPage(w http.ResponseWriter, r *http.Reque
 	if page < 1 {
 		page = 1
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 || limit > 500 {
-		limit = 50
-	}
+	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
 	decisions, total, err := h.catSvc.ListMatchDecisions(ctx, search, limit, offset)
@@ -121,10 +119,7 @@ func (h *UIHandler) CustomerDecisionMemoryPage(w http.ResponseWriter, r *http.Re
 	if page < 1 {
 		page = 1
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 || limit > 500 {
-		limit = 50
-	}
+	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
 	// Scoped strictly to the pharmacy's organization
@@ -242,10 +237,7 @@ func (h *UIHandler) VendorDecisionMemoryPage(w http.ResponseWriter, r *http.Requ
 	if page < 1 {
 		page = 1
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 || limit > 500 {
-		limit = 50
-	}
+	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
 	// Scoped strictly to the vendor's organization

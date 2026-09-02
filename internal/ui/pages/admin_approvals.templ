@@ -241,9 +241,9 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 									<span class="text-muted text-xs">غير محدد</span>
 								}
 							</td>
-							<td>
+							<td class="col-actions">
 								if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
-									<div class="d-flex flex-col gap-1">
+									<div class="table-actions">
 										for _, doc := range orgDocs[o.ID] {
 											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-xs font-bold text-accent gap-1.5 px-2 py-1">
 												@components.IconFile("icon-xs")
@@ -266,8 +266,8 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 									<span class="badge badge-sky">قيد التدقيق</span>
 								}
 							</td>
-							<td class="text-end">
-								<div class="table-actions justify-end gap-1.5">
+							<td class="col-actions">
+								<div class="table-actions">
 									<button
 										type="button"
 										class="btn btn-secondary btn-sm"
@@ -296,35 +296,35 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 									}) {
 										<div class="d-flex flex-col gap-5 text-start">
 											<div class="d-grid grid-2-col gap-4 bg-surface-sunken p-5 rounded-2xl border text-sm">
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">الاسم القانوني للمنشأة</span>
 													<strong class="text-primary text-base">{ o.LegalName }</strong>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">نوع الحساب</span>
 													<span class="badge badge-sky">{ orgTypeAr(string(o.Type)) }</span>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">الاسم التجاري (عربي)</span>
 													<strong class="text-primary">{ o.TradeName["ar"] }</strong>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">الاسم التجاري (إنجليزي)</span>
 													<span class="text-primary" dir="ltr">{ o.TradeName["en"] }</span>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">رقم السجل التجاري</span>
 													<strong class="tabular-nums text-primary">{ o.CommercialRegister }</strong>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">الرقم الضريبي</span>
 													<span class="tabular-nums text-primary">{ o.TaxNumber }</span>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">رقم ترخيص المؤسسة الصيدلية</span>
 													<strong class="tabular-nums text-accent">{ o.PharmacistLicense }</strong>
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<span class="text-muted d-block text-xs">الحالة الحالية</span>
 													if string(o.Status) == "approved" {
 														<span class="badge badge-emerald">معتمد ونشط</span>
@@ -357,10 +357,10 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/approvals/%d/review", o.ID)) } class="d-flex flex-col gap-4 text-start">
 											<div class="bg-surface-sunken p-4 rounded-xl border text-sm">
 												<div class="d-grid grid-2-col gap-3 mb-2">
-													<div class="stack-sm"><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
-													<div class="stack-sm"><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
-													<div class="stack-sm"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
-													<div class="stack-sm"><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
+													<div class="table-actions"><strong>الاسم التجاري:</strong> { o.TradeName["ar"] }</div>
+													<div class="table-actions"><strong>نوع المنشأة:</strong> { orgTypeAr(string(o.Type)) }</div>
+													<div class="table-actions"><strong>السجل التجاري:</strong> <span class="tabular-nums">{ o.CommercialRegister }</span></div>
+													<div class="table-actions"><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
 												
 												<!-- Document Preview Strip -->
@@ -541,8 +541,8 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 									<span class="text-xs text-muted">-</span>
 								}
 							</td>
-							<td class="text-end">
-								<div class="table-actions justify-end gap-1.5">
+							<td class="col-actions">
+								<div class="table-actions">
 									<a
 										href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
 										target="_blank"
@@ -572,7 +572,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												<div class="mb-2">
 													<strong>الملف:</strong> { doc.OriginalName } ({ format.Bytes(doc.SizeBytes) })
 												</div>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent">
 														@components.IconFile("icon-xs")
 														<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span>
@@ -831,8 +831,8 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 										}
 								}
 							</td>
-							<td class="text-end">
-								<div class="table-actions justify-end gap-1.5">
+							<td class="col-actions">
+								<div class="table-actions">
 									if req.SubmittedDocID != nil {
 										<a
 											href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", *req.SubmittedDocID)) }

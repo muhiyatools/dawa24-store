@@ -209,7 +209,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.SponsorshipR
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">المورد</th><th class=\"py-3 text-start\">نوع العنصر</th><th class=\"py-3 text-start\">معرف العنصر</th><th class=\"py-3 text-start\">الباقة</th><th class=\"text-center py-3\">المستوى</th><th class=\"text-center py-3\">الحالة</th><th class=\"text-center py-3\">تاريخ الطلب</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">المورد</th><th class=\"py-3 text-start\">نوع العنصر</th><th class=\"py-3 text-start\">معرف العنصر</th><th class=\"py-3 text-start\">الباقة</th><th class=\"text-center py-3\">المستوى</th><th class=\"text-center py-3\">الحالة</th><th class=\"text-center py-3\">تاريخ الطلب</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -330,12 +330,12 @@ func AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.SponsorshipR
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"text-end py-3 pe-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"col-actions py-3 pe-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if req.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"d-flex items-center justify-end gap-1.5\"><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -536,7 +536,7 @@ func AdminAdsListPage(lang, dir string, ads []*promo.Ad) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">عنوان الإعلان</th><th class=\"py-3 text-start\">المورد</th><th class=\"text-center py-3\">نوع الوسائط</th><th class=\"text-center tabular-nums py-3\">المشاهدات</th><th class=\"text-center tabular-nums py-3\">النقرات</th><th class=\"text-center tabular-nums py-3\">CTR %</th><th class=\"text-center py-3\">الحالة</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">عنوان الإعلان</th><th class=\"py-3 text-start\">المورد</th><th class=\"text-center py-3\">نوع الوسائط</th><th class=\"text-center tabular-nums py-3\">المشاهدات</th><th class=\"text-center tabular-nums py-3\">النقرات</th><th class=\"text-center tabular-nums py-3\">CTR %</th><th class=\"text-center py-3\">الحالة</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -657,12 +657,12 @@ func AdminAdsListPage(lang, dir string, ads []*promo.Ad) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</td><td class=\"text-end py-3 pe-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</td><td class=\"col-actions py-3 pe-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if ad.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"d-flex items-center justify-end gap-1.5\"><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

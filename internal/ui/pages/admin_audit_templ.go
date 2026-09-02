@@ -210,7 +210,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">المعرف</th><th>التوقيت</th><th>المستخدم</th><th>المنظمة</th><th>القسم والإجراء</th><th>العنوان والوصف</th><th>الأهمية</th><th>عنوان IP</th><th>الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">المعرف</th><th>التوقيت</th><th>المستخدم</th><th>المنظمة</th><th>القسم والإجراء</th><th>العنوان والوصف</th><th>الأهمية</th><th>عنوان IP</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -461,7 +461,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</td><!-- 9. الإجراءات --><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</td><!-- 9. الإجراءات --><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

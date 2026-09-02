@@ -92,7 +92,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 									<th>تاريخ الإصدار</th>
 									<th>المبلغ الإجمالي</th>
 									<th>الحالة</th>
-									<th>الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -166,8 +166,8 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 										</td>
 
 										<!-- الإجراءات: عرض + طباعة -->
-										<td>
-											<div class="d-flex items-center gap-1">
+										<td class="col-actions">
+											<div class="table-actions">
 												<!-- زر الطباعة -->
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }

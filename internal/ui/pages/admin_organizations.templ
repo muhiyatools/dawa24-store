@@ -144,7 +144,7 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 								<th class="nowrap">الفروع</th>
 								<th class="nowrap">تاريخ الانضمام</th>
 								<th class="nowrap">حالة الاعتماد</th>
-								<th class="text-end nowrap min-w-36">الإجراءات</th>
+								<th class="col-actions nowrap min-w-36">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -211,8 +211,8 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 											<span class="badge badge-slate text-xs font-black">{ string(o.Status) }</span>
 										}
 									</td>
-									<td class="text-end nowrap">
-										<div class="d-inline-flex gap-1 justify-end items-center">
+									<td class="col-actions nowrap">
+										<div class="table-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-xs font-black">
 												<span>الملف الشامل ↗</span>
 											</a>

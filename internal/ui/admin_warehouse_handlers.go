@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -179,14 +180,7 @@ func (h *UIHandler) AdminWarehouseDetailPage(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	limit := 25
-	if lStr := r.URL.Query().Get("limit"); lStr != "" {
-		if l, err := strconv.Atoi(lStr); err == nil && l > 0 {
-			if l == 25 || l == 50 || l == 100 || l == 250 {
-				limit = l
-			}
-		}
-	}
+	limit := pagination.RowsPerPage(r)
 
 	totalFiltered := len(filtered)
 	totalPages := (totalFiltered + limit - 1) / limit

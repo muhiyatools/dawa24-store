@@ -217,7 +217,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">الشعار</th><th>اسم الشركة المصنعة</th><th>الوصف ونبذة التعريف</th><th class=\"text-center\">الأصناف المرتبطة</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">الشعار</th><th>اسم الشركة المصنعة</th><th>الوصف ونبذة التعريف</th><th class=\"text-center\">الأصناف المرتبطة</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -407,7 +407,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td><td class=\"text-end\"><div class=\"table-actions justify-end\"><!-- Edit Trigger --><button type=\"button\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- Edit Trigger --><button type=\"button\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

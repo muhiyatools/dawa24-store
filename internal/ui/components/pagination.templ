@@ -54,6 +54,18 @@ func pageRange(current, total int) []int {
 	return nums
 }
 
+// PageSizeOptions is the row count a reader may choose on any dashboard table.
+// One set platform-wide: a reader who has learned the control on one screen
+// finds the same choices on the next.
+func PageSizeOptions() []int { return []int{10, 25, 50, 100} }
+
+// buildPageSizeURL changes the page size and returns to the first page, because
+// "show 100 per page" while sitting on page 7 of a 25-row listing lands the
+// reader past the end of the result set.
+func buildPageSizeURL(baseURL string, limit int, q url.Values) string {
+	return buildPaginationURL(baseURL, 1, limit, q)
+}
+
 func buildPaginationURL(baseURL string, page, limit int, q url.Values) string {
 	vals := url.Values{}
 	if q != nil {
@@ -83,6 +95,21 @@ templ B2BPagination(props PaginationProps) {
 	<div class="b2b-pagination">
 		<div class="b2b-pagination-info">
 			<span>عرض <strong>{ fmt.Sprintf("%d - %d", startItem, endItem) }</strong> من إجمالي <strong>{ fmt.Sprintf("%d", props.TotalCount) }</strong> سجل</span>
+			<label class="page-size">
+				<span class="page-size-label">صفوف</span>
+				<select
+					class="form-select page-size-select"
+					aria-label="عدد الصفوف في الصفحة"
+					onchange="if(this.value)window.location.href=this.value"
+				>
+					for _, n := range PageSizeOptions() {
+						<option
+							value={ buildPageSizeURL(props.BaseURL, n, props.QueryValues) }
+							selected?={ n == props.PageSize }
+						>{ fmt.Sprintf("%d", n) }</option>
+					}
+				</select>
+			</label>
 		</div>
 
 		<div class="b2b-pagination-controls">

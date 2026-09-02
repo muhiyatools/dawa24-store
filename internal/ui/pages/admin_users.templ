@@ -147,7 +147,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 									<th class="py-3 text-start">الدور الوظيفي والصلاحية</th>
 									<th class="py-3 text-center">تاريخ الانضمام</th>
 									<th class="py-3 text-center">الحالة</th>
-									<th class="text-end py-3 pe-4">الإجراءات</th>
+									<th class="col-actions py-3 pe-4">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -191,8 +191,8 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 												<span class="badge badge-amber text-xs font-black">قيد المراجعة</span>
 											}
 										</td>
-										<td class="text-end py-3 pe-4">
-											<div class="d-inline-flex gap-1.5 justify-end items-center">
+										<td class="col-actions py-3 pe-4">
+											<div class="table-actions">
 												if u.Status == identity.StatusActive {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في تعليق هذا الحساب؟');">
 														<button type="submit" class="btn btn-secondary btn-xs font-bold text-danger">
@@ -445,7 +445,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 										<th>البريد الإلكتروني</th>
 										<th>الدور / الصلاحية</th>
 										<th class="text-center">الحالة</th>
-										<th class="text-end">الإجراءات</th>
+										<th class="col-actions">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -490,8 +490,8 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 													<span class="badge badge-amber text-xs font-bold">قيد المراجعة</span>
 												}
 											</td>
-											<td class="text-end">
-												<div class="d-flex items-center justify-end gap-2">
+											<td class="col-actions">
+												<div class="table-actions">
 													if u.Status == identity.StatusActive {
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من تعليق هذا الحساب وإنهاء جلساته؟');">
 															<button type="submit" class="btn btn-secondary btn-sm font-bold text-danger text-xs px-3">
@@ -591,9 +591,9 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 													<span class="badge badge-rose text-xs font-black">مرفوض</span>
 												}
 											</td>
-											<td class="text-end">
+											<td class="col-actions">
 												if req.Status == "pending" {
-													<div class="d-flex items-center justify-end gap-2">
+													<div class="table-actions">
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", req.ID)) } class="m-0" onsubmit="return confirm('تأكيد الموافقة على حذف الحساب وتعليقه فورياً؟');">
 															<button type="submit" class="btn btn-danger btn-sm text-xs font-black px-3 py-1 gap-1">
 																@components.IconTrash("icon-xs")

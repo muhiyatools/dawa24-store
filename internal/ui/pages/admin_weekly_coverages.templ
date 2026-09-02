@@ -129,7 +129,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 									<th>نطاق التغطية</th>
 									<th>مواعيد التوصيل</th>
 									<th>حالة التغطية</th>
-									<th class="text-end">الإجراءات والتحكم</th>
+									<th class="col-actions">الإجراءات والتحكم</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -178,8 +178,8 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 												<span class="badge badge-danger font-black">معطل</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="inline-row-03 justify-end">
+										<td class="col-actions">
+											<div class="table-actions">
 												<!-- Toggle Button Form -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/toggle", c.ID)) } class="m-0">
 													<input type="hidden" name="is_active" value={ fmt.Sprintf("%t", !c.IsActive) } />

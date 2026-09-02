@@ -403,7 +403,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"stack-sm\"><table class=\"data-table\"><thead><tr><th class=\"pad-md\">الموظف</th><th class=\"pad-md\">المسمى والكود</th><th class=\"pad-md\">الدور</th><th class=\"pad-md\">الفرع</th><th class=\"pad-md\">الرتبة</th><th class=\"pad-md\">الراتب الأساسي</th><th class=\"pad-md\">الحالة</th><th>الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"stack-sm\"><table class=\"data-table\"><thead><tr><th class=\"pad-md\">الموظف</th><th class=\"pad-md\">المسمى والكود</th><th class=\"pad-md\">الدور</th><th class=\"pad-md\">الفرع</th><th class=\"pad-md\">الرتبة</th><th class=\"pad-md\">الراتب الأساسي</th><th class=\"pad-md\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -582,7 +582,7 @@ func SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, ro
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</td><td><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</td><td class=\"col-actions\"><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

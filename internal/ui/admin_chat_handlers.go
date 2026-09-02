@@ -17,11 +17,8 @@ func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	q := r.URL.Query().Get("q")
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page < 1 {
-		page = 1
-	}
-	perPage := pagination.TableRows
+	page := pagination.PageNumber(r)
+	perPage := pagination.RowsPerPage(r)
 	offset := (page - 1) * perPage
 
 	var aiConvs []*assistant.ConversationSummary

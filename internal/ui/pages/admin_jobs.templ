@@ -52,7 +52,7 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 									<th>الراتب / المكافأة</th>
 									<th>تاريخ النشر</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -88,7 +88,7 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 												<span class="badge badge-slate text-xs">{ j.Job.Status }</span>
 											}
 										</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.Job.ID)) } target="_blank" class="btn btn-secondary btn-sm font-bold text-xs">
 												@components.IconExternalLink("icon-xs")
 												<span>عرض الإعلان</span>

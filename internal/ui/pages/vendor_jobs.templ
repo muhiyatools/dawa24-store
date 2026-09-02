@@ -136,7 +136,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 									<th class="text-center">المتقدمون</th>
 									<th class="text-center">الحالة</th>
 									<th>تاريخ النشر</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -187,7 +187,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										</td>
 
 										<!-- Applicants Count -->
-										<td class="text-center">
+										<td class="col-actions">
 											<button
 												type="button"
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("viewApplicants(%d, '%s')", item.Job.ID, item.Job.Title.Get(i18n.Lang(lang)))} }
@@ -217,8 +217,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										</td>
 
 										<!-- Actions -->
-										<td class="text-end">
-											<div class="d-flex items-center justify-end gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												
 												<!-- Edit Job Button -->
 												<button

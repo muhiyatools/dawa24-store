@@ -169,7 +169,7 @@ func CustomerOrderEditModal(order *commerce.Order, lang string) templ.Component 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td><div class=\"d-flex items-center gap-1 justify-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"window.stepQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</td><td class=\"col-actions\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"window.stepQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -257,7 +257,7 @@ func CustomerOrderEditModal(order *commerce.Order, lang string) templ.Component 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" title=\"حذف الصنف\" onclick=\"window.deleteEditRow(this)\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" title=\"حذف الصنف\" onclick=\"window.deleteEditRow(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

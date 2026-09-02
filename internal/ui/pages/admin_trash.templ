@@ -105,7 +105,7 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 								<th>السجلات النشطة</th>
 								<th>السجلات في السلة</th>
 								<th class="text-center">الحالة</th>
-								<th class="text-end">الإجراءات</th>
+								<th class="col-actions">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -135,7 +135,7 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 											<span class="badge badge-slate text-xs">سليمة بالكامل</span>
 										}
 									</td>
-									<td class="text-end">
+									<td class="col-actions">
 										<a href={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s", m.Key)) } class="btn btn-secondary btn-sm font-bold text-xs">
 											@components.IconFolderOpen("icon-xs")
 											<span>معاينة واسترجاع ({ fmt.Sprintf("%d", m.TrashedCount) })</span>
@@ -198,7 +198,7 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 									<th>المعرف (ID)</th>
 									<th>بيان وتفاصيل السجل المحذوف</th>
 									<th>تاريخ ووقت الحذف</th>
-									<th>الإجراءات والخيارات</th>
+									<th class="col-actions">الإجراءات والخيارات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -219,8 +219,8 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 										<td class="tabular-nums text-xs text-secondary">
 											{ row.DeletedAt }
 										</td>
-										<td class="text-end">
-											<div class="d-inline-flex gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/restore", modelKey, row.ID)) } class="m-0">
 													<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs" title="استرجاع السجل للنظام">
 														@components.IconRefresh("icon-xs")

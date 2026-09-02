@@ -176,7 +176,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ")</button></div></div><!-- Main Hierarchy Table Panel --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الكيان والنشاط التجاري</th><th>التصنيف الأب</th><th>الاتصالات المسموح بها (يتصل بـ)</th><th>التغطية والتسعير</th><th>الحالة</th><th>الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, ")</button></div></div><!-- Main Hierarchy Table Panel --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الكيان والنشاط التجاري</th><th>التصنيف الأب</th><th>الاتصالات المسموح بها (يتصل بـ)</th><th>التغطية والتسعير</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -514,7 +514,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</button></form></td><!-- 6. Actions --><td><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" title=\"تعديل الكيان\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</button></form></td><!-- 6. Actions --><td class=\"col-actions\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-icon\" title=\"تعديل الكيان\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

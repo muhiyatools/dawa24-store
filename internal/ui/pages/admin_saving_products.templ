@@ -199,7 +199,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 									<th>المورد</th>
 									<th>المورد</th>
 									<th>المورد</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -258,8 +258,8 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 										<td class="text-xs text-muted tabular-nums whitespace-nowrap">
 											{ item.CreatedAt.Format("2006-01-02 03:04 PM") }
 										</td>
-										<td class="text-end">
-											<div class="d-flex justify-end gap-1">
+										<td class="col-actions">
+											<div class="table-actions">
 												if item.ProductID != nil && *item.ProductID > 0 {
 													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-xs font-bold" title="عرض تفاصيل الصنف بالكتالوج">
 														سعر العرض

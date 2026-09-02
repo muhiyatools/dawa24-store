@@ -30,7 +30,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 								<th>الإجمالي</th>
 								<th>الخصم</th>
 								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
+								<th class="col-actions">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -40,7 +40,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
 									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", o.TotalDiscount.String()) }</td>
 									<td><span class="badge badge-sky">{ string(o.Status) }</span></td>
-									<td class="text-end">
+									<td class="col-actions">
 										<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm">عرض الطلب</a>
 									</td>
 								</tr>

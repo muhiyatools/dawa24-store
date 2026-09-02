@@ -412,9 +412,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																			<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
 																			<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
 																		</td>
-																		<td class="text-center">
+																		<td class="col-actions">
 																			<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
-																			<div class="d-flex items-center gap-1 justify-center">
+																			<div class="table-actions">
 																				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
 																				<input
 																					type="number"
@@ -451,7 +451,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		<td class="text-end tabular-nums font-black text-brand text-xs">
 																			<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
 																		</td>
-																		<td class="text-center">
+																		<td class="col-actions">
 																			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
 																				@components.IconX("icon-sm")
 																			</button>
@@ -516,9 +516,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
 																<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
 															</td>
-															<td class="text-center">
+															<td class="col-actions">
 																<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
-																<div class="d-flex items-center gap-1 justify-center">
+																<div class="table-actions">
 																	<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
 																	<input
 																		type="number"
@@ -555,7 +555,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															<td class="text-end tabular-nums font-black text-brand text-xs">
 																<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
 															</td>
-															<td class="text-center">
+															<td class="col-actions">
 																<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
 																	@components.IconX("icon-sm")
 																</button>

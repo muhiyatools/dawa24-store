@@ -252,7 +252,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									<th>المحافظة التابعة</th>
 									<th>الإحداثيات الجغرافية (GPS)</th>
 									<th>الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -313,8 +313,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 												<span class="badge badge-slate text-xs">معطلة</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="d-inline-flex items-center gap-1">
+										<td class="col-actions">
+											<div class="table-actions">
 												<button
 													type="button"
 													class="btn btn-secondary btn-xs font-bold text-xs"

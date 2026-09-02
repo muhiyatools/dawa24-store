@@ -237,7 +237,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 									<th>البريد الإلكتروني</th>
 									<th>رقم الهاتف</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -332,8 +332,8 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 										</td>
 
 										<!-- Actions -->
-										<td class="text-end">
-											<div class="d-flex items-center justify-end gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												if m.RoleKey != "org_owner" {
 													<!-- Toggle Active Status Form -->
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)) } class="m-0">

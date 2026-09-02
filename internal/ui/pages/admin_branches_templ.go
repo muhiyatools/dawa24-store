@@ -254,7 +254,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"table-container admin-table-wrapper\"><table class=\"data-table data-table-responsive\"><thead><tr><th>اسم الفرع والكود</th><th>المنشأة التابع لها</th><th class=\"nowrap\">نوع الفرع اللوجستي</th><th>العنوان وبيانات الاتصال</th><th class=\"nowrap\">الحالة</th><th class=\"text-end nowrap min-w-36\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"table-container admin-table-wrapper\"><table class=\"data-table data-table-responsive\"><thead><tr><th>اسم الفرع والكود</th><th>المنشأة التابع لها</th><th class=\"nowrap\">نوع الفرع اللوجستي</th><th>العنوان وبيانات الاتصال</th><th class=\"nowrap\">الحالة</th><th class=\"col-actions nowrap min-w-36\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -417,7 +417,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</td><td class=\"text-end\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</td><td class=\"col-actions\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

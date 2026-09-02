@@ -26,24 +26,6 @@ type AdminMatchDecisionsData struct {
 	IsEnabled bool
 }
 
-func buildAdminMatchDecisionsURL(search string, page, limit int) string {
-	vals := url.Values{}
-	if search != "" {
-		vals.Set("q", search)
-	}
-	if page > 1 {
-		vals.Set("page", fmt.Sprintf("%d", page))
-	}
-	if limit != 50 && limit != 0 {
-		vals.Set("limit", fmt.Sprintf("%d", limit))
-	}
-	base := "/admin/match-decisions"
-	if len(vals) > 0 {
-		return base + "?" + vals.Encode()
-	}
-	return base
-}
-
 func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -142,7 +124,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 124, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 107, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -159,7 +141,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", hitTotal))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 138, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 121, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -187,7 +169,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Search)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 165, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 148, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -243,7 +225,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</form></div><!-- Main Table Card --><div class=\"glass-panel\"><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>#</th><th>المنشأة المربوطة</th><th>النص الوارد (Norm Name)</th><th>الصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>السبب / التفسير</th><th>تاريخ الاستخدام</th><th>إجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</form></div><!-- Main Table Card --><div class=\"glass-panel\"><div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>#</th><th>المنشأة المربوطة</th><th>النص الوارد (Norm Name)</th><th>الصنف المعتمد بالكتالوج</th><th>نسبة التطابق</th><th>الاستخدامات</th><th>السبب / التفسير</th><th>تاريخ الاستخدام</th><th class=\"col-actions\">إجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -269,7 +251,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", d.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 225, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 208, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -287,7 +269,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *d.OrganizationID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 232, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 215, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -310,7 +292,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(d.NormName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 244, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 227, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -323,7 +305,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(d.DecisionKey)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 246, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 229, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
@@ -336,7 +318,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(d.PromptVersion)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 247, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 230, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -355,7 +337,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(d.ChosenProductName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 256, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 239, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -369,7 +351,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *d.ChosenProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 258, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 241, Col: 73}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -383,7 +365,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *d.ChosenProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 263, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 246, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -401,7 +383,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(d.ChosenProductSKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 267, Col: 42}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 250, Col: 42}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
@@ -434,7 +416,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", d.Confidence*100))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 282, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 265, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -457,7 +439,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", d.HitCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 292, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 275, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -471,7 +453,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(d.Reason)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 299, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 282, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -490,20 +472,20 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(d.LastUsedAt.Format("2006-01-02 03:04 PM"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 307, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 290, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</td><!-- Actions --><td><form method=\"POST\" action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</td><!-- Actions --><td class=\"col-actions\"><form method=\"POST\" action=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var19 templ.SafeURL
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/match-decisions/%d/delete", d.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 312, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 295, Col: 107}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -516,7 +498,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Search)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 313, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 296, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
@@ -529,7 +511,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(data.Page))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 314, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 297, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -542,7 +524,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(data.PerPage))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 315, Col: 77}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 298, Col: 77}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 				if templ_7745c5c3_Err != nil {
@@ -561,89 +543,21 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</tbody></table></div><!-- Pagination Bar -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</tbody></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.Total > data.PerPage {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"flex-between items-center flex-wrap gap-3 p-4 border-t\"><div class=\"text-sm text-secondary\">إجمالي النتائج: <strong>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var23 string
-				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Total))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 331, Col: 75}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</strong></div><div class=\"d-flex items-center gap-2\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Page > 1 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<a href=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var24 templ.SafeURL
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildAdminMatchDecisionsURL(data.Search, data.Page-1, data.PerPage)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 335, Col: 100}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" class=\"btn btn-secondary btn-xs\">السابق</a> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span>صفحة ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var25 string
-				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Page))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 340, Col: 47}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</span> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Page*data.PerPage < data.Total {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<a href=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var26 templ.SafeURL
-					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildAdminMatchDecisionsURL(data.Search, data.Page+1, data.PerPage)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_match_decisions.templ`, Line: 343, Col: 100}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"btn btn-secondary btn-xs\">التالي</a>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+				CurrentPage: data.Page,
+				PageSize:    data.PerPage,
+				TotalCount:  data.Total,
+				BaseURL:     "/admin/match-decisions",
+				QueryValues: url.Values{"q": {data.Search}},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div><!-- Clear All Modal / Confirmation Script --> <script>\r\n\t\t\tfunction confirmClearAllDecisions() {\r\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من رغبتك في مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف الجديدة من البداية.\")) {\r\n\t\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\t\tform.method = 'POST';\r\n\t\t\t\t\tform.action = '/admin/match-decisions/clear';\r\n\t\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\t\tform.submit();\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</div></div><!-- Clear All Modal / Confirmation Script --> <script>\r\n\t\t\tfunction confirmClearAllDecisions() {\r\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من رغبتك في مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف الجديدة من البداية.\")) {\r\n\t\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\t\tform.method = 'POST';\r\n\t\t\t\t\tform.action = '/admin/match-decisions/clear';\r\n\t\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\t\tform.submit();\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

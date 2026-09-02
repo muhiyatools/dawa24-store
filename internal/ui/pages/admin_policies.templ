@@ -109,7 +109,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 							<th>ملخص التعديلات</th>
 							<th class="text-center">حالة النشر</th>
 							<th>تاريخ التحديث</th>
-							<th class="text-end">الإجراءات</th>
+							<th class="col-actions">الإجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -145,7 +145,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 								<td>
 									{ p.UpdatedAt.Format("2006-01-02 03:04 PM") }
 								</td>
-								<td class="text-end">
+								<td class="col-actions">
 									<div class="table-actions">
 										@components.ModalTrigger(fmt.Sprintf("view-policy-modal-%d", p.ID), "btn btn-secondary btn-sm") {
 											<span>معاينة</span>
@@ -166,27 +166,27 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 											Title: fmt.Sprintf("%s (الإصدار %s)", p.Title["ar"], p.Version),
 											Size:  "lg",
 										}) {
-           <div class="stack-sm">
-            <div class="stack-sm">
+           <div class="table-actions">
+            <div class="table-actions">
 													<strong>ملخص التغييرات:</strong> { p.Summary["ar"] }
 												</div>
 
-            <div class="stack-sm">
-             <div class="stack-sm">
+            <div class="table-actions">
+             <div class="table-actions">
 														<h4 class="font-semibold text-sm m-0">المحتوى بالعربية:</h4>
-              <div class="stack-sm">
+              <div class="table-actions">
 															{ p.Content["ar"] }
 														</div>
 													</div>
-             <div class="stack-sm">
+             <div class="table-actions">
 														<h4 class="font-semibold text-sm m-0">English Content:</h4>
-														<div class="stack-sm" dir="ltr">
+														<div class="table-actions" dir="ltr">
 															{ p.Content["en"] }
 														</div>
 													</div>
 												</div>
 
-            <div class="stack-sm">
+            <div class="table-actions">
 													<button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
 												</div>
 											</div>

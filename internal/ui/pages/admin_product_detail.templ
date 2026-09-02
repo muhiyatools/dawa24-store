@@ -386,7 +386,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 									<th>نسبة الخصم</th>
 									<th>المخزون</th>
 									<th>حالة العرض</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -488,8 +488,8 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 										</td>
 
 										<!-- 8. الإجراءات -->
-										<td class="text-end">
-											<div class="table-actions justify-end gap-1.5">
+										<td class="col-actions">
+											<div class="table-actions">
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } class="m-0 inline">
 													if string(v.Status) == "active" {
 														<button type="submit" class="btn btn-secondary btn-sm text-warning" title="تعطيل العرض">

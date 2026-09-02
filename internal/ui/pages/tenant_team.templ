@@ -151,7 +151,7 @@ templ tenantTeamList(v TenantTeamView) {
 						<th>الفرع</th>
 						<th>الدور</th>
 						<th>الحالة</th>
-						<th>إجراءات</th>
+						<th class="col-actions">إجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -183,8 +183,8 @@ templ tenantTeamList(v TenantTeamView) {
 									<span class="badge text-xs">موقوف</span>
 								}
 							</td>
-							<td>
-								<div class="d-flex items-center gap-2">
+							<td class="col-actions">
+								<div class="table-actions">
 									if v.CanUpdate {
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/status", v.ActionBase, m.ID)) } class="m-0 inline">
 											<button type="submit" class="btn btn-secondary btn-sm" title="تفعيل / إيقاف">

@@ -190,8 +190,8 @@ templ CustomerOrderDetailScript() {
 								<input type="hidden" name="is_deleted[]" value="0" class="line-deleted-input"/>
 								<input type="text" name="product_name[]" placeholder="اسم الصنف الدوائي الجديد..." required class="form-input input-sm w-full font-bold"/>
 							</td>
-							<td>
-        <div class="stack-sm">
+							<td class="col-actions">
+        <div class="table-actions">
 									<button type="button" class="btn btn-secondary btn-icon" onclick="window.stepQty(this, -1)">-</button>
 									<input type="number" name="quantity[]" value="1" min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" oninput="window.recalcEditOrder()"/>
 									<button type="button" class="btn btn-secondary btn-icon" onclick="window.stepQty(this, 1)">+</button>
@@ -206,7 +206,7 @@ templ CustomerOrderDetailScript() {
 							<td class="td-numeric">
 								<span class="line-total-cell tabular-nums fw-800 text-primary">0.00</span>
 							</td>
-							<td>
+							<td class="col-actions">
 								<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)">
 									@components.IconTrash("icon-sm")
 								</button>

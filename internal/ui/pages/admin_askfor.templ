@@ -44,7 +44,7 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 									<th>من منشأة</th>
 									<th>إلى منشأة</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -64,7 +64,7 @@ templ AdminAskForPage(requests []*workflow.Request, lang, dir string) {
 												<span class="badge badge-rose text-xs font-bold">مرفوض</span>
 											}
 										</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/ask-for/%d", r.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض الطلب</a>
 										</td>
 									</tr>

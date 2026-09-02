@@ -323,7 +323,7 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 									<th>فترة الرعاية</th>
 									<th>الرصيد والتكلفة</th>
 									<th>الحالة</th>
-									<th class="text-center">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -447,8 +447,8 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 										</td>
 
 										<!-- Actions Column -->
-										<td class="text-center">
-											<div class="d-flex items-center justify-center gap-1">
+										<td class="col-actions">
+											<div class="table-actions">
 												<!-- If Pending: Show Approve & Reject -->
 												if item.IsPending {
 													<!-- Approve Form -->

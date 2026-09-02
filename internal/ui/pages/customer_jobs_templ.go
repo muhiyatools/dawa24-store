@@ -228,7 +228,7 @@ func CustomerJobs(lang, dir string, data CustomerJobsData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>المسمى الوظيفي</th><th>الموقع / الفرع</th><th>الراتب المقترح</th><th>المتقدمين</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>المسمى الوظيفي</th><th>الموقع / الفرع</th><th>الراتب المقترح</th><th>المتقدمين</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -316,7 +316,7 @@ func CustomerJobs(lang, dir string, data CustomerJobsData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></td><td>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></td><td class=\"col-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -369,7 +369,7 @@ func CustomerJobs(lang, dir string, data CustomerJobsData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"text-center\"><div class=\"d-flex items-center justify-center gap-1\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs\" title=\"تعديل بيانات الوظيفة\" data-job-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs\" title=\"تعديل بيانات الوظيفة\" data-job-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

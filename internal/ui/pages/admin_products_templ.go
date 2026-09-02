@@ -504,7 +504,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product, brands []*cata
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th class=\"w-12\">الصورة</th><th>الاسم والتسجيل</th><th>الاسم العلمي والفعالية</th><th>الشكل الصيدلي</th><th>فئة المنتج</th><th>الشركة المصنعة</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th class=\"w-12\">الصورة</th><th>الاسم والتسجيل</th><th>الاسم العلمي والفعالية</th><th>الشكل الصيدلي</th><th>فئة المنتج</th><th>الشركة المصنعة</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -768,7 +768,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product, brands []*cata
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</td><td class=\"text-end\"><div class=\"table-actions\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-icon\" title=\"تعديل بيانات الدواء\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-icon\" title=\"تعديل بيانات الدواء\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

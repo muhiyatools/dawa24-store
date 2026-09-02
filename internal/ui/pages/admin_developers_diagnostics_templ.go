@@ -196,7 +196,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"table-container m-0\"><table class=\"data-table m-0 min-w-full text-xs\"><thead><tr class=\"bg-surface-sunken border-b\"><th class=\"w-16 text-center\">المعرف</th><th class=\"w-28 text-start\">التوقيت</th><th class=\"w-24 text-center\">المستوى</th><th class=\"w-36 text-start\">المستخدم / المنظمة</th><th class=\"text-start\">رسالة الخطأ والاستثناء</th><th class=\"w-32 text-start\">المسار / IP</th><th class=\"w-24 text-center\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"table-container m-0\"><table class=\"data-table m-0 min-w-full text-xs\"><thead><tr class=\"bg-surface-sunken border-b\"><th class=\"w-16 text-center\">المعرف</th><th class=\"w-28 text-start\">التوقيت</th><th class=\"w-24 text-center\">المستوى</th><th class=\"w-36 text-start\">المستخدم / المنظمة</th><th class=\"text-start\">رسالة الخطأ والاستثناء</th><th class=\"w-32 text-start\">المسار / IP</th><th class=\"col-actions w-24\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -421,7 +421,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs font-bold text-accent\" @click=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs font-bold text-accent\" @click=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -544,7 +544,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"table-container m-0\"><table class=\"data-table m-0 min-w-full text-xs\"><thead><tr class=\"bg-surface-sunken border-b\"><th class=\"w-16 text-center\">المعرف</th><th class=\"w-28 text-start\">التوقيت</th><th class=\"w-36 text-start\">المستخدم</th><th class=\"w-32 text-start\">المنظمة</th><th class=\"w-36 text-start\">القسم والإجراء</th><th class=\"text-start\">العنوان والوصف</th><th class=\"w-20 text-center\">الأهمية</th><th class=\"w-20 text-center\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"table-container m-0\"><table class=\"data-table m-0 min-w-full text-xs\"><thead><tr class=\"bg-surface-sunken border-b\"><th class=\"w-16 text-center\">المعرف</th><th class=\"w-28 text-start\">التوقيت</th><th class=\"w-36 text-start\">المستخدم</th><th class=\"w-32 text-start\">المنظمة</th><th class=\"w-36 text-start\">القسم والإجراء</th><th class=\"text-start\">العنوان والوصف</th><th class=\"w-20 text-center\">الأهمية</th><th class=\"col-actions w-20\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -813,7 +813,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs font-bold text-accent\" @click=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</td><td class=\"col-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs font-bold text-accent\" @click=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

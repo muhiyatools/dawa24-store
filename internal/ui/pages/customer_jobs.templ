@@ -127,7 +127,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 									<th>الراتب المقترح</th>
 									<th>المتقدمين</th>
 									<th>الحالة</th>
-									<th class="text-center">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -166,7 +166,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 												}
 											</div>
 										</td>
-										<td>
+										<td class="col-actions">
 											<button
 												type="button"
 												class="btn btn-secondary btn-xs font-bold gap-1"
@@ -187,8 +187,8 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 												</span>
 											}
 										</td>
-										<td class="text-center">
-											<div class="d-flex items-center justify-center gap-1">
+										<td class="col-actions">
+											<div class="table-actions">
 												<!-- Edit Button -->
 												<button
 													type="button"

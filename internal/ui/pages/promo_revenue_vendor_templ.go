@@ -628,7 +628,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Ads) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3.5 text-start ps-4\">الإعلان والوسائط</th><th class=\"text-start py-3.5\">موضع الظهور</th><th class=\"text-center py-3.5\">نوع الوسائط</th><th class=\"text-center tabular-nums py-3.5\">المشاهدات</th><th class=\"text-center tabular-nums py-3.5\">النقرات</th><th class=\"text-center tabular-nums py-3.5\">معدل CTR %</th><th class=\"text-center py-3.5\">الحالة</th><th class=\"text-end py-3.5 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3.5 text-start ps-4\">الإعلان والوسائط</th><th class=\"text-start py-3.5\">موضع الظهور</th><th class=\"text-center py-3.5\">نوع الوسائط</th><th class=\"text-center tabular-nums py-3.5\">المشاهدات</th><th class=\"text-center tabular-nums py-3.5\">النقرات</th><th class=\"text-center tabular-nums py-3.5\">معدل CTR %</th><th class=\"text-center py-3.5\">الحالة</th><th class=\"col-actions py-3.5 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -798,7 +798,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</td><td class=\"text-end py-3 pe-4\"><a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</td><td class=\"col-actions py-3 pe-4\"><a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1393,7 +1393,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">نوع العنصر</th><th class=\"py-3 text-start\">معرف الصنف</th><th class=\"py-3 text-start\">الباقة</th><th class=\"text-center py-3\">حالة المراجعة</th><th class=\"text-center py-3\">تاريخ المراجعة</th><th class=\"text-center py-3\">تاريخ الانتهاء</th><th class=\"text-end py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">نوع العنصر</th><th class=\"py-3 text-start\">معرف الصنف</th><th class=\"py-3 text-start\">الباقة</th><th class=\"text-center py-3\">حالة المراجعة</th><th class=\"text-center py-3\">تاريخ المراجعة</th><th class=\"text-center py-3\">تاريخ الانتهاء</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1501,7 +1501,7 @@ func VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDat
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 134, "</td><td class=\"text-end py-3 pe-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 134, "</td><td class=\"col-actions py-3 pe-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

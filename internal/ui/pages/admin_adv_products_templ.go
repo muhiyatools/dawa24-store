@@ -653,7 +653,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>المنتج المروّج</th><th>المورد / المنشأة</th><th>باقة الرعاية والمستوى</th><th>فترة الرعاية</th><th>الرصيد والتكلفة</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"table-responsive\"><table class=\"data-table\"><thead><tr><th>المنتج المروّج</th><th>المورد / المنشأة</th><th>باقة الرعاية والمستوى</th><th>فترة الرعاية</th><th>الرصيد والتكلفة</th><th>الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1093,7 +1093,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</td><!-- Actions Column --><td class=\"text-center\"><div class=\"d-flex items-center justify-center gap-1\"><!-- If Pending: Show Approve & Reject -->")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</td><!-- Actions Column --><td class=\"col-actions\"><div class=\"table-actions\"><!-- If Pending: Show Approve & Reject -->")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

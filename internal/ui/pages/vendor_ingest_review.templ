@@ -542,7 +542,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- File Product Name (Direct Editable in same cell with standard form-input) -->
-		<td class="align-middle">
+		<td class="col-actions align-middle">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="row-center-xs gap-xs mb-1">
 				<input type="text" name="display_name" value={ row.DisplayName }
@@ -550,7 +550,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					placeholder="اسم الصنف بالملف..."/>
 				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ تعديل الاسم">@components.IconCheck("icon-sm")</button>
 			</form>
-			<div class="row-center-xs flex-wrap gap-xs">
+			<div class="table-actions">
 				if row.SourceCode != "" {
 					<span class="badge badge-secondary text-xs">كود: { row.SourceCode }</span>
 				}
@@ -564,8 +564,8 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Matched Central Catalog Product (Unified with In-Cell Dropdown - No gap!) -->
-		<td class="align-middle catalog-cell-container">
-			<div class="row-center-xs flex-wrap gap-xs items-center">
+		<td class="col-actions align-middle catalog-cell-container">
+			<div class="table-actions">
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="font-bold text-sm">{ row.MatchedCatalogName() }</div>
 					if AIMatchedRow(row) {
@@ -639,12 +639,12 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					</div>
 				}
 
-				<div class="stack-sm" id={ fmt.Sprintf("dropdown-results-%d", row.ID) }>
+				<div class="table-actions" id={ fmt.Sprintf("dropdown-results-%d", row.ID) }>
 					<div class="text-center text-muted p-sm text-xs">اكتب للبحث في الكتالوج المركزي…</div>
 				</div>
 
 				if row.ProductID != nil && *row.ProductID > 0 {
-     <div class="stack-sm">
+     <div class="table-actions">
 						<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
 								إلغاء الربط (جعله غير مطابق)
@@ -676,7 +676,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Public Price (سعر الجمهور - Editable Inline) -->
-		<td class="text-center align-middle tabular-nums">
+		<td class="col-actions align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="row-center-xs gap-xs">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
@@ -695,7 +695,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Discount Percentage % (نسبة الخصم - Editable Inline) -->
-		<td class="text-center align-middle tabular-nums">
+		<td class="col-actions align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="row-center-xs gap-xs">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
@@ -719,7 +719,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Quantity (Editable Inline) -->
-		<td class="text-center align-middle tabular-nums">
+		<td class="col-actions align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="row-center-xs gap-xs">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>

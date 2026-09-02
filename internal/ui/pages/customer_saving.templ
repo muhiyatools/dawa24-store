@@ -201,7 +201,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									<th class="p-md text-center">الكمية</th>
 									<th class="p-md text-center">سعر الشراء</th>
 									<th class="p-md text-center">عروض الموردين</th>
-									<th>الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -230,9 +230,9 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Linked Product -->
-										<td class="p-md">
+										<td class="col-actions p-md">
 											if it.ProductID != nil && *it.ProductID > 0 {
-												<div class="row-center-sm">
+												<div class="table-actions">
 													<span class="badge badge-emerald text-xs fw-800">
 														{ it.LinkedProductName.Get(i18n.AR) }
 													</span>
@@ -258,7 +258,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Providers & Market Offers -->
-										<td class="p-md text-center">
+										<td class="col-actions p-md">
 											if it.ProductID != nil && *it.ProductID > 0 {
 												<button
 													type="button"
@@ -276,8 +276,8 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Actions -->
-										<td>
-           <div class="stack-sm">
+										<td class="col-actions">
+           <div class="table-actions">
 												<button
 													type="button"
 													class="btn btn-secondary btn-icon size-8"

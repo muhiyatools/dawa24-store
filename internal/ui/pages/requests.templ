@@ -91,7 +91,7 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 								<th>النوع</th>
 								<th>الاتجاه</th>
 								<th class="text-center">الحالة</th>
-								<th class="text-end">الإجراءات</th>
+								<th class="col-actions">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -107,9 +107,9 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 										}
 									</td>
 									<td class="text-center"><span class="badge badge-amber text-xs font-bold">{ reqStatusLabel(q.Status) }</span></td>
-									<td class="text-end">
+									<td class="col-actions">
 										if q.ToOrgID == data.CurrentOrgID && q.Status == "pending" {
-											<div class="d-inline-flex gap-2">
+											<div class="table-actions">
 												<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) }>
 													<input type="hidden" name="status" value="accepted" />
 													<button type="submit" class="btn btn-primary btn-sm font-bold text-xs">قبول</button>

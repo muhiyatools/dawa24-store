@@ -899,7 +899,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</td><!-- File Product Name (Direct Editable in same cell with standard form-input) --><td class=\"align-middle\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</td><!-- File Product Name (Direct Editable in same cell with standard form-input) --><td class=\"col-actions align-middle\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -933,7 +933,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</button></form><div class=\"row-center-xs flex-wrap gap-xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</button></form><div class=\"table-actions\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -994,7 +994,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></td><!-- Matched Central Catalog Product (Unified with In-Cell Dropdown - No gap!) --><td class=\"align-middle catalog-cell-container\"><div class=\"row-center-xs flex-wrap gap-xs items-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></td><!-- Matched Central Catalog Product (Unified with In-Cell Dropdown - No gap!) --><td class=\"col-actions align-middle catalog-cell-container\"><div class=\"table-actions\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1376,14 +1376,14 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"stack-sm\" id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<div class=\"table-actions\" id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var73 string
 		templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("dropdown-results-%d", row.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review.templ`, Line: 642, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review.templ`, Line: 642, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var73)
 		if templ_7745c5c3_Err != nil {
@@ -1394,7 +1394,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 			return templ_7745c5c3_Err
 		}
 		if row.ProductID != nil && *row.ProductID > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "<div class=\"stack-sm\"><form class=\"stack-md\" method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "<div class=\"table-actions\"><form class=\"stack-md\" method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1518,7 +1518,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</td><!-- Public Price (سعر الجمهور - Editable Inline) --><td class=\"text-center align-middle tabular-nums\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "</td><!-- Public Price (سعر الجمهور - Editable Inline) --><td class=\"col-actions align-middle tabular-nums\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1588,7 +1588,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "</button></form></td><!-- Discount Percentage % (نسبة الخصم - Editable Inline) --><td class=\"text-center align-middle tabular-nums\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "</button></form></td><!-- Discount Percentage % (نسبة الخصم - Editable Inline) --><td class=\"col-actions align-middle tabular-nums\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1648,7 +1648,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 153, " <span>ج.م</span></span></td><!-- Quantity (Editable Inline) --><td class=\"text-center align-middle tabular-nums\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 153, " <span>ج.م</span></span></td><!-- Quantity (Editable Inline) --><td class=\"col-actions align-middle tabular-nums\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -369,9 +369,9 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			</form>
 		</td>
 
-		<td class="align-middle">
+		<td class="col-actions align-middle">
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="stack-2xs m-0">
-				<div class="row-center-xs gap-xs">
+				<div class="table-actions">
 					<input type="text" name="name" value={ row.NameProduct } class="form-input text-xs font-bold"
 					 />
 					<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الاسم">@components.IconCheck("icon-sm")</button>
@@ -382,8 +382,8 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			</form>
 		</td>
 
-		<td class="align-middle saving-catalog-cell">
-			<div class="row-center-sm gap-xs">
+		<td class="col-actions align-middle saving-catalog-cell">
+			<div class="table-actions">
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="stack-2xs flex-1">
 						<span class="text-xs font-black text-primary">{ row.MasterProductName }</span>
@@ -419,7 +419,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			}
 		</td>
 
-		<td class="text-center align-middle">
+		<td class="col-actions align-middle">
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
 				<input type="number" step="1" min="1" name="quantity" value={ fmt.Sprintf("%.0f", row.Quantity) }
 					class="form-input text-center tabular-nums text-xs" />
@@ -427,7 +427,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			</form>
 		</td>
 
-		<td class="text-center align-middle">
+		<td class="col-actions align-middle">
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
 				<input type="number" step="0.01" min="0" name="price" value={ row.Price.String() }
 					class="form-input text-center tabular-nums text-xs" />

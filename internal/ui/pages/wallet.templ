@@ -376,7 +376,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 										<td>{ dep.PaymentMethod }</td>
 										<td class="font-bold tabular-nums">{ dep.Amount.String() } ج.م</td>
 										<td class="tabular-nums text-secondary">{ dep.ReferenceNumber }</td>
-										<td>
+										<td class="col-actions">
 											if dep.AttachmentURL != "" {
 												<a href={ templ.SafeURL(dep.AttachmentURL) } target="_blank" class="btn btn-outline btn-xs font-semibold">
 													عرض الإيصال

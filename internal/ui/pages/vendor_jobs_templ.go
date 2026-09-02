@@ -217,7 +217,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المسمى الوظيفي</th><th>الموقع</th><th>نطاق الراتب</th><th class=\"text-center\">المتقدمون</th><th class=\"text-center\">الحالة</th><th>تاريخ النشر</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المسمى الوظيفي</th><th>الموقع</th><th>نطاق الراتب</th><th class=\"text-center\">المتقدمون</th><th class=\"text-center\">الحالة</th><th>تاريخ النشر</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -349,7 +349,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><!-- Applicants Count --><td class=\"text-center\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><!-- Applicants Count --><td class=\"col-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -415,7 +415,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><!-- Actions --><td class=\"text-end\"><div class=\"d-flex items-center justify-end gap-2\"><!-- Edit Job Button --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs px-3\" data-job-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</td><!-- Actions --><td class=\"col-actions\"><div class=\"table-actions\"><!-- Edit Job Button --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs px-3\" data-job-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

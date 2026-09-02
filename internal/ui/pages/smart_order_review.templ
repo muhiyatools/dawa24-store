@@ -225,9 +225,9 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										</td>
 
 										<!-- 3. Requested Quantity (with in-place stepper form) -->
-										<td>
+										<td class="col-actions">
 											<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
-            <div class="stack-sm">
+            <div class="table-actions">
 													<button type="button" class="btn btn-ghost btn-xs" onclick="stepReviewQty(this, -1)">−</button>
 													<input
 														type="number"
@@ -262,11 +262,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										</td>
 
 										<!-- 5. Supplier & Selection Decision -->
-										<td>
-											<div class="stack-xs text-sm">
+										<td class="col-actions">
+											<div class="table-actions">
 												{ l.VendorName }
 											</div>
-           <div class="stack-sm">
+           <div class="table-actions">
 												<span class="badge badge-slate">
 													{ decidedLabel(l.DecidedBy) }
 												</span>
@@ -317,8 +317,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										</td>
 
 										<!-- 9. Status & Line Actions -->
-										<td>
-           <div class="stack-sm">
+										<td class="col-actions">
+           <div class="table-actions">
 												<span class="badge badge-emerald">
 													جاهز للطلب 
 												</span>
@@ -395,7 +395,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 												{ SmartOrderOutcomeLabel(l.Outcome) }
 											</span>
 										</td>
-										<td>
+										<td class="col-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?q=%s", data.Run.PublicID, l.RawName)) } class="btn btn-secondary btn-xs font-bold">
 												ربط الصنف
 											</a>

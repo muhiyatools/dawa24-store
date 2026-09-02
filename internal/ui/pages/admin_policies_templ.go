@@ -110,7 +110,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>السياسة القانونية</th><th>رقم الإصدار</th><th>العنوان (عربي / English)</th><th>ملخص التعديلات</th><th class=\"text-center\">حالة النشر</th><th>تاريخ التحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>السياسة القانونية</th><th>رقم الإصدار</th><th>العنوان (عربي / English)</th><th>ملخص التعديلات</th><th class=\"text-center\">حالة النشر</th><th>تاريخ التحديث</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -239,7 +239,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"text-end\"><div class=\"table-actions\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -308,7 +308,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"stack-sm\"><div class=\"stack-sm\"><strong>ملخص التغييرات:</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"table-actions\"><div class=\"table-actions\"><strong>ملخص التغييرات:</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -321,7 +321,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"stack-sm\"><div class=\"stack-sm\"><h4 class=\"font-semibold text-sm m-0\">المحتوى بالعربية:</h4><div class=\"stack-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"table-actions\"><div class=\"table-actions\"><h4 class=\"font-semibold text-sm m-0\">المحتوى بالعربية:</h4><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -334,7 +334,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div><div class=\"stack-sm\"><h4 class=\"font-semibold text-sm m-0\">English Content:</h4><div class=\"stack-sm\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div><div class=\"table-actions\"><h4 class=\"font-semibold text-sm m-0\">English Content:</h4><div class=\"table-actions\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -347,7 +347,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></div><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إغلاق</button></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></div><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إغلاق</button></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

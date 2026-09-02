@@ -317,7 +317,7 @@ func tenantTeamList(v TenantTeamView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"glass-panel p-0 overflow-x-auto\"><table class=\"data-table w-full\"><thead><tr><th>الموظف</th><th>المسمى الوظيفي</th><th>الفرع</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"glass-panel p-0 overflow-x-auto\"><table class=\"data-table w-full\"><thead><tr><th>الموظف</th><th>المسمى الوظيفي</th><th>الفرع</th><th>الدور</th><th>الحالة</th><th class=\"col-actions\">إجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -476,7 +476,7 @@ func tenantTeamList(v TenantTeamView) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</td><td><div class=\"d-flex items-center gap-2\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

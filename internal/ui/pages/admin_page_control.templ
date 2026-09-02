@@ -219,8 +219,8 @@ templ pageControlRow(v SystemPagesView, row SystemPageRow) {
 			}
 		</td>
 		<td><span class="text-xs text-muted">{ row.UpdatedAt }</span></td>
-		<td>
-			<div class="d-flex items-center gap-2">
+		<td class="col-actions">
+			<div class="table-actions">
 				@pageControlToggle(v, row)
 				if v.CanDelete && row.Source == "manual" && !row.IsSystem {
 					<form

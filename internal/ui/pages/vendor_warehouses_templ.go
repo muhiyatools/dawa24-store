@@ -142,7 +142,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المخزن</th><th>الكود</th><th>الفرع المرتبط</th><th>العنوان ورقم التواصل</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المخزن</th><th>الكود</th><th>الفرع المرتبط</th><th>العنوان ورقم التواصل</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -279,7 +279,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"text-end\"><div class=\"d-flex items-center justify-end gap-2\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"col-actions\"><div class=\"table-actions\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1182,7 +1182,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>الصنف الدوائي والمواصفات</th><th>الأكواد والتشغيلة والصلاحية</th><th>الأسعار والخصم</th><th>الرصيد الفعلي المتاح</th><th class=\"text-center\">حد الأمان</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>#</th><th>الصنف الدوائي والمواصفات</th><th>الأكواد والتشغيلة والصلاحية</th><th>الأسعار والخصم</th><th>الرصيد الفعلي المتاح</th><th class=\"text-center\">حد الأمان</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1569,7 +1569,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "</span></td><!-- Actions --><td class=\"text-end\"><div class=\"d-flex items-center justify-end gap-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-black text-xs px-3\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 168, "</span></td><!-- Actions --><td class=\"col-actions\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-black text-xs px-3\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

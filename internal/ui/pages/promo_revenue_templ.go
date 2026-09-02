@@ -560,7 +560,7 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<!-- Packages Table --> <div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">الباقة والتصنيف</th><th class=\"py-3 text-start\">مستوى الأولوية (Tier)</th><th class=\"py-3 text-center\">السعر والمدة</th><th class=\"py-3 text-center\">رصيد الرعايات</th><th class=\"py-3 text-center\">أقصى عروض</th><th class=\"py-3 text-center\">الترتيب</th><th class=\"py-3 text-center\">الحالة</th><th class=\"py-3 text-end pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<!-- Packages Table --> <div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">الباقة والتصنيف</th><th class=\"py-3 text-start\">مستوى الأولوية (Tier)</th><th class=\"py-3 text-center\">السعر والمدة</th><th class=\"py-3 text-center\">رصيد الرعايات</th><th class=\"py-3 text-center\">أقصى عروض</th><th class=\"py-3 text-center\">الترتيب</th><th class=\"py-3 text-center\">الحالة</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -774,7 +774,7 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</td><!-- Actions --><td class=\"py-3.5 text-end pe-4\"><div class=\"d-flex items-center justify-end gap-1.5\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1 shadow-2xs\" @click=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</td><!-- Actions --><td class=\"col-actions py-3.5 pe-4\"><div class=\"table-actions\"><!-- Edit Button --><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1 shadow-2xs\" @click=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -896,7 +896,7 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">المورد (#ID)</th><th class=\"py-3 text-start\">نوع العنصر</th><th class=\"py-3 text-start\">معرف العنصر</th><th class=\"py-3 text-start\">الباقة المستخدمة</th><th class=\"py-3 text-center\">مستوى الأولوية</th><th class=\"py-3 text-center\">الرصيد المستهلك</th><th class=\"py-3 text-center\">الحالة</th><th class=\"py-3 text-center\">تاريخ التقديم</th><th class=\"py-3 text-end pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">المورد (#ID)</th><th class=\"py-3 text-start\">نوع العنصر</th><th class=\"py-3 text-start\">معرف العنصر</th><th class=\"py-3 text-start\">الباقة المستخدمة</th><th class=\"py-3 text-center\">مستوى الأولوية</th><th class=\"py-3 text-center\">الرصيد المستهلك</th><th class=\"py-3 text-center\">الحالة</th><th class=\"py-3 text-center\">تاريخ التقديم</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1058,12 +1058,12 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</td><td class=\"py-3.5 text-end pe-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</td><td class=\"col-actions py-3.5 pe-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if req.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<div class=\"d-flex items-center justify-end gap-1.5\"><!-- Approve --><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<div class=\"table-actions\"><!-- Approve --><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1157,7 +1157,7 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">الإعلان والوسائط</th><th class=\"py-3 text-start\">المورد (#ID)</th><th class=\"py-3 text-center\">النوع والموضع</th><th class=\"py-3 text-center tabular-nums\">المشاهدات</th><th class=\"py-3 text-center tabular-nums\">النقرات</th><th class=\"py-3 text-center tabular-nums\">معدل CTR %</th><th class=\"py-3 text-center\">الحالة</th><th class=\"py-3 text-end pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "<div class=\"glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6\"><div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 text-xs w-full\"><thead><tr class=\"bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold\"><th class=\"py-3 text-start ps-4\">الإعلان والوسائط</th><th class=\"py-3 text-start\">المورد (#ID)</th><th class=\"py-3 text-center\">النوع والموضع</th><th class=\"py-3 text-center tabular-nums\">المشاهدات</th><th class=\"py-3 text-center tabular-nums\">النقرات</th><th class=\"py-3 text-center tabular-nums\">معدل CTR %</th><th class=\"py-3 text-center\">الحالة</th><th class=\"col-actions py-3 pe-4\">الإجراءات</th></tr></thead> <tbody class=\"divide-y divide-slate-100\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1337,12 +1337,12 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "</td><!-- Actions --><td class=\"py-3.5 text-end pe-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 143, "</td><!-- Actions --><td class=\"col-actions py-3.5 pe-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if ad.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "<div class=\"d-flex items-center justify-end gap-1.5\"><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 144, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

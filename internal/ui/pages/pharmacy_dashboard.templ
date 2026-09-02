@@ -179,8 +179,8 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 												<td>
 													@components.StatusBadge(string(o.Status))
 												</td>
-												<td class="text-end">
-													<div class="d-flex items-center gap-1 justify-end">
+												<td class="col-actions">
+													<div class="table-actions">
 														<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-xs font-bold">
 															{ i18n.T(lang, "common.details") }
 														</a>

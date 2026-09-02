@@ -592,12 +592,12 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</td><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</td><td class=\"col-actions\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"d-flex flex-col gap-1\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -676,7 +676,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</td><td class=\"text-end\"><div class=\"table-actions justify-end gap-1.5\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" data-modal-open=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</td><td class=\"col-actions\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" data-modal-open=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -744,7 +744,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"d-flex flex-col gap-5 text-start\"><div class=\"d-grid grid-2-col gap-4 bg-surface-sunken p-5 rounded-2xl border text-sm\"><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">الاسم القانوني للمنشأة</span> <strong class=\"text-primary text-base\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"d-flex flex-col gap-5 text-start\"><div class=\"d-grid grid-2-col gap-4 bg-surface-sunken p-5 rounded-2xl border text-sm\"><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">الاسم القانوني للمنشأة</span> <strong class=\"text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -757,7 +757,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">نوع الحساب</span> <span class=\"badge badge-sky\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</strong></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">نوع الحساب</span> <span class=\"badge badge-sky\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -770,7 +770,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">الاسم التجاري (عربي)</span> <strong class=\"text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">الاسم التجاري (عربي)</span> <strong class=\"text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -783,7 +783,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">الاسم التجاري (إنجليزي)</span> <span class=\"text-primary\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</strong></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">الاسم التجاري (إنجليزي)</span> <span class=\"text-primary\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -796,7 +796,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">رقم السجل التجاري</span> <strong class=\"tabular-nums text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">رقم السجل التجاري</span> <strong class=\"tabular-nums text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -809,7 +809,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">الرقم الضريبي</span> <span class=\"tabular-nums text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</strong></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">الرقم الضريبي</span> <span class=\"tabular-nums text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -822,7 +822,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">رقم ترخيص المؤسسة الصيدلية</span> <strong class=\"tabular-nums text-accent\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">رقم ترخيص المؤسسة الصيدلية</span> <strong class=\"tabular-nums text-accent\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -835,7 +835,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</strong></div><div class=\"stack-sm\"><span class=\"text-muted d-block text-xs\">الحالة الحالية</span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</strong></div><div class=\"table-actions\"><span class=\"text-muted d-block text-xs\">الحالة الحالية</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -911,53 +911,53 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" class=\"d-flex flex-col gap-4 text-start\"><div class=\"bg-surface-sunken p-4 rounded-xl border text-sm\"><div class=\"d-grid grid-2-col gap-3 mb-2\"><div class=\"stack-sm\"><strong>الاسم التجاري:</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" class=\"d-flex flex-col gap-4 text-start\"><div class=\"bg-surface-sunken p-4 rounded-xl border text-sm\"><div class=\"d-grid grid-2-col gap-3 mb-2\"><div class=\"table-actions\"><strong>الاسم التجاري:</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var47 string
 					templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(o.TradeName["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 360, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 360, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><div class=\"stack-sm\"><strong>نوع المنشأة:</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><div class=\"table-actions\"><strong>نوع المنشأة:</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var48 string
 					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(orgTypeAr(string(o.Type)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 361, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 361, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div><div class=\"stack-sm\"><strong>السجل التجاري:</strong> <span class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div><div class=\"table-actions\"><strong>السجل التجاري:</strong> <span class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var49 string
 					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(o.CommercialRegister)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 362, Col: 128}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 362, Col: 133}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</span></div><div class=\"stack-sm\"><strong>ترخيص المهنة:</strong> <span class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</span></div><div class=\"table-actions\"><strong>ترخيص المهنة:</strong> <span class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var50 string
 					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(o.PharmacistLicense)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 363, Col: 125}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_approvals.templ`, Line: 363, Col: 130}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 					if templ_7745c5c3_Err != nil {
@@ -1455,7 +1455,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "</td><td class=\"text-end\"><div class=\"table-actions justify-end gap-1.5\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "</td><td class=\"col-actions\"><div class=\"table-actions\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1552,7 +1552,7 @@ func AdminApprovalsDocsTab(data *AdminApprovalsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, ")</div><div class=\"stack-sm\"><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, ")</div><div class=\"table-actions\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2146,7 +2146,7 @@ func AdminApprovalsRequestsTab(data *AdminApprovalsData) templ.Component {
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "</td><td class=\"text-end\"><div class=\"table-actions justify-end gap-1.5\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

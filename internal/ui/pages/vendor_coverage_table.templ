@@ -64,7 +64,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 									<th>مواعيد العمل</th>
 									<th>الفرع</th>
 									<th>الحالة</th>
-									<th class="text-center">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -160,8 +160,8 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 										</td>
 
 										<!-- Actions -->
-										<td class="text-center">
-											<div class="d-inline-flex items-center gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<button type="button" @click={ fmt.Sprintf("openEdit({ id: %d, branch_id: '%d', governorate_id: '%d', city_id: '%d', day_of_week: %d, distance_meters: %d, coverage_from: '%s', coverage_to: '%s', address: '%s', latitude: '%s', longitude: '%s', is_active: %t })",
 													c.ID,
 													c.BranchID,

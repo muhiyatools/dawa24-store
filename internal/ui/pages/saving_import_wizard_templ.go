@@ -365,7 +365,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div class=\"stack-sm\"><h3 class=\"text-sm font-black text-primary m-0\">سجل جلسات الاستيراد السابقة والنشطة</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الملف</th><th class=\"saving-col-date\">تاريخ الجلسة</th><th class=\"saving-col-count\">عدد الأصناف</th><th class=\"saving-col-status\">الحالة</th><th class=\"saving-col-actions\">الإجراءات</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div class=\"stack-sm\"><h3 class=\"text-sm font-black text-primary m-0\">سجل جلسات الاستيراد السابقة والنشطة</h3><p class=\"text-xs text-secondary m-0 mt-0.5\">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الملف</th><th class=\"saving-col-date\">تاريخ الجلسة</th><th class=\"saving-col-count\">عدد الأصناف</th><th class=\"saving-col-status\">الحالة</th><th class=\"col-actions saving-col-actions\">الإجراءات</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -442,7 +442,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><td class=\"text-center\"><div class=\"row-center-xs justify-center gap-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

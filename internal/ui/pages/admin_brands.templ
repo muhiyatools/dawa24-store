@@ -162,7 +162,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 									<th>الوصف ونبذة التعريف</th>
 									<th class="text-center">الأصناف المرتبطة</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -219,8 +219,8 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												<span class="badge badge-slate font-bold">معطل</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="table-actions justify-end">
+										<td class="col-actions">
+											<div class="table-actions">
 												<!-- Edit Trigger -->
 												<button
 													type="button"

@@ -58,7 +58,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 									<th>نص الرسالة</th>
 									<th class="text-center">الحالة</th>
 									<th>التاريخ والتوقيت</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -113,7 +113,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 											<div class="stack-xs text-sm">{ m.CreatedAt.Format("2006-01-02") }</div>
 											<div class="stack-xs text-sm">{ m.CreatedAt.Format("03:04:05 PM") }</div>
 										</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<div class="table-actions">
 												if m.Email != "" {
 													<a

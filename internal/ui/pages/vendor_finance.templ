@@ -502,7 +502,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 									<th>المبلغ</th>
 									<th class="text-center">الحالة</th>
 									<th>التاريخ</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -512,7 +512,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 										<td class="tabular-nums font-extrabold text-success">{ fmt.Sprintf("%s ج.م", s.TotalAmount.String()) }</td>
 										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ string(s.Status) }</span></td>
 										<td class="tabular-nums text-xs text-muted">{ s.CreatedAt.Format("2006-01-02") }</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<a href={ templ.SafeURL(fmt.Sprintf("/vendor/orders/offers/%d", s.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض الشحنة</a>
 										</td>
 									</tr>

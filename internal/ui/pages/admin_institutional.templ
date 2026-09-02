@@ -206,7 +206,7 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 								<th>الاتصالات المسموح بها (يتصل بـ)</th>
 								<th>التغطية والتسعير</th>
 								<th>الحالة</th>
-								<th>الإجراءات</th>
+								<th class="col-actions">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -332,8 +332,8 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 										</td>
 
 										<!-- 6. Actions -->
-										<td>
-           <div class="stack-sm">
+										<td class="col-actions">
+           <div class="table-actions">
 												<button
 													type="button"
 													class="btn btn-secondary btn-icon"

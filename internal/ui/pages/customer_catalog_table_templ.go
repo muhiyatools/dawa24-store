@@ -396,7 +396,7 @@ func CustomerCatalogTable(variants []*SupplierVariantCard, lang string) templ.Co
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></td><!-- Col 6: Cart & Favorite Actions --><td class=\"col-action text-center\"><div class=\"d-flex items-center justify-center gap-1.5\"><!-- Favorite Button --><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div></td><!-- Col 6: Cart & Favorite Actions --><td class=\"col-actions col-action\"><div class=\"table-actions\"><!-- Favorite Button --><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -230,7 +230,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 												<th class="nowrap">إشعار التحويل</th>
 												<th class="nowrap">تاريخ الطلب</th>
 												<th>الحالة والملاحظات</th>
-												<th class="text-end nowrap min-w-40">الإجراءات والتدقيق</th>
+												<th class="col-actions nowrap min-w-40">الإجراءات والتدقيق</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -266,7 +266,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															</div>
 														</div>
 													</td>
-													<td>
+													<td class="col-actions">
 														if d.AttachmentURL != "" {
 															<button
 																type="button"
@@ -319,9 +319,9 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															}
 														</div>
 													</td>
-													<td class="text-end nowrap">
+													<td class="col-actions nowrap">
 														if d.Status == billing.DepositPending {
-															<div class="d-inline-flex gap-2 justify-end items-center">
+															<div class="table-actions">
 																<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟');">
 																	<button
 																		type="submit"
@@ -395,7 +395,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 												<th>طريقة الدفع</th>
 												<th>الحالة</th>
 												<th>تاريخ الإصدار</th>
-												<th class="text-center min-w-32">الإجراءات</th>
+												<th class="col-actions min-w-32">الإجراءات</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -441,8 +441,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														}
 													</td>
 													<td class="tabular-nums text-xs text-muted">{ inv.IssueDate.Format("2006-01-02") }</td>
-													<td class="text-center">
-														<div class="d-inline-flex items-center gap-1.5">
+													<td class="col-actions">
+														<div class="table-actions">
 															<a href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) } target="_blank" class="btn btn-primary btn-xs font-bold" title="طباعة الفاتورة أو إيصال الكاشير">
 																<span>طباعة</span>
 															</a>
@@ -588,7 +588,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 												<th>العملة</th>
 												<th>إجمالي الحركات</th>
 												<th>تاريخ الإنشاء</th>
-												<th class="text-center">إجراءات إدارية</th>
+												<th class="col-actions">إجراءات إدارية</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -640,8 +640,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														</a>
 													</td>
 													<td class="tabular-nums text-sm text-muted">{ w.CreatedAt.Format("2006-01-02") }</td>
-													<td class="text-center">
-														<div class="d-inline-flex gap-2 items-center">
+													<td class="col-actions">
+														<div class="table-actions">
 															<button type="button" onclick={ templ.JSFuncCall("openWalletAdjustModal", w.ID, w.OrganizationName, w.UserName, w.Balance.String(), w.Currency) } class="btn btn-primary btn-xs font-bold">
 																<span>تعديل الرصيد</span>
 															</button>

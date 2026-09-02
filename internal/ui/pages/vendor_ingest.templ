@@ -173,7 +173,7 @@ templ importHistory(recent []*ingest.Session) {
 							<td>{ fmt.Sprint(s.UpdatedRows) }</td>
 							<td>{ fmt.Sprint(s.SkippedRows) }</td>
 							<td>{ fmt.Sprint(s.ErrorRows) }</td>
-							<td>
+							<td class="col-actions">
 								<a class="btn btn-ghost btn-sm" href={ templ.SafeURL("/vendor/ingest/" + s.PublicID) }>فتح</a>
 							</td>
 						</tr>

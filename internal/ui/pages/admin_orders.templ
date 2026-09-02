@@ -73,7 +73,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 										<th>ملاحظات التفاوض</th>
 										<th>حالة الطلب</th>
 										<th>التاريخ</th>
-										<th class="text-end">الإجراءات</th>
+										<th class="col-actions">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -106,7 +106,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 											</td>
 											<td><span class="badge badge-sky text-xs font-bold">{ string(o.Status) }</span></td>
 											<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
-											<td class="text-end">
+											<td class="col-actions">
 												<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm font-bold">عرض التفاصيل</a>
 											</td>
 										</tr>

@@ -2,11 +2,11 @@ package ui
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -15,11 +15,8 @@ func (h *UIHandler) AdminTranslationsPage(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit := 50
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
 	q := strings.TrimSpace(r.URL.Query().Get("q"))

@@ -78,7 +78,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 									<th>العنوان</th>
 									<th>الهاتف</th>
 									<th class="text-center">الحالة</th>
-									<th class="text-end">الإجراءات</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -125,7 +125,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 												<span class="badge badge-rose font-black">غير نشط</span>
 											}
 										</td>
-										<td class="text-end">
+										<td class="col-actions">
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", row.Warehouse.ID)) }
 												class="btn btn-secondary btn-sm font-bold text-xs px-3.5 py-1.5 rounded-lg gap-1.5 inline-flex items-center"

@@ -682,7 +682,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<th class=\"min-w-32\">النوع</th><th class=\"min-w-28\">عدد المنتجات</th><th class=\"min-w-40\">تاريخ الرفع</th><th class=\"min-w-64 text-center\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<th class=\"min-w-32\">النوع</th><th class=\"min-w-28\">عدد المنتجات</th><th class=\"min-w-40\">تاريخ الرفع</th><th class=\"col-actions min-w-64\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -867,7 +867,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</td><td><div class=\"d-flex gap-1.5 justify-center items-center flex-wrap\"><!-- View Items Button --><button type=\"button\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</td><td class=\"col-actions\"><div class=\"table-actions\"><!-- View Items Button --><button type=\"button\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

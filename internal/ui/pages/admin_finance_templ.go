@@ -615,7 +615,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"nowrap\"># الطلب</th><th>المستخدم / المنشأة</th><th class=\"nowrap\">المبلغ المودع</th><th>وسيلة الدفع والرقم المرجعي</th><th class=\"nowrap\">إشعار التحويل</th><th class=\"nowrap\">تاريخ الطلب</th><th>الحالة والملاحظات</th><th class=\"text-end nowrap min-w-40\">الإجراءات والتدقيق</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"nowrap\"># الطلب</th><th>المستخدم / المنشأة</th><th class=\"nowrap\">المبلغ المودع</th><th>وسيلة الدفع والرقم المرجعي</th><th class=\"nowrap\">إشعار التحويل</th><th class=\"nowrap\">تاريخ الطلب</th><th>الحالة والملاحظات</th><th class=\"col-actions nowrap min-w-40\">الإجراءات والتدقيق</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -744,7 +744,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div></div></td><td>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div></div></td><td class=\"col-actions\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -916,12 +916,12 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div></td><td class=\"text-end nowrap\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div></td><td class=\"col-actions nowrap\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if d.Status == billing.DepositPending {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div class=\"d-inline-flex gap-2 justify-end items-center\"><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1076,7 +1076,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الفاتورة</th><th>المورّد (البائع)</th><th>الصيدلية (المشتري)</th><th>أمر التوريد</th><th>المبلغ الإجمالي</th><th>طريقة الدفع</th><th>الحالة</th><th>تاريخ الإصدار</th><th class=\"text-center min-w-32\">الإجراءات</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الفاتورة</th><th>المورّد (البائع)</th><th>الصيدلية (المشتري)</th><th>أمر التوريد</th><th>المبلغ الإجمالي</th><th>طريقة الدفع</th><th>الحالة</th><th>تاريخ الإصدار</th><th class=\"col-actions min-w-32\">الإجراءات</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1279,7 +1279,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</td><td class=\"text-center\"><div class=\"d-inline-flex items-center gap-1.5\"><a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</td><td class=\"col-actions\"><div class=\"table-actions\"><a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1662,7 +1662,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 197, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم المحفظة</th><th>المنشأة والمالك</th><th>نوع النشاط</th><th>الرصيد المتاح</th><th>العملة</th><th>إجمالي الحركات</th><th>تاريخ الإنشاء</th><th class=\"text-center\">إجراءات إدارية</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 197, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم المحفظة</th><th>المنشأة والمالك</th><th>نوع النشاط</th><th>الرصيد المتاح</th><th>العملة</th><th>إجمالي الحركات</th><th>تاريخ الإنشاء</th><th class=\"col-actions\">إجراءات إدارية</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1902,7 +1902,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 220, "</td><td class=\"text-center\"><div class=\"d-inline-flex gap-2 items-center\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 220, "</td><td class=\"col-actions\"><div class=\"table-actions\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

@@ -418,7 +418,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><!-- 3. Requested Quantity (with in-place stepper form) --><td><form class=\"stack-md\" method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><!-- 3. Requested Quantity (with in-place stepper form) --><td class=\"col-actions\"><form class=\"stack-md\" method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -431,7 +431,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-ghost btn-xs\" onclick=\"stepReviewQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"><div class=\"table-actions\"><button type=\"button\" class=\"btn btn-ghost btn-xs\" onclick=\"stepReviewQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -491,7 +491,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</td><!-- 5. Supplier & Selection Decision --><td><div class=\"stack-xs text-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</td><!-- 5. Supplier & Selection Decision --><td class=\"col-actions\"><div class=\"table-actions\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -504,7 +504,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><div class=\"stack-sm\"><span class=\"badge badge-slate\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><div class=\"table-actions\"><span class=\"badge badge-slate\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -635,7 +635,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, " ج.م</div></td><!-- 9. Status & Line Actions --><td><div class=\"stack-sm\"><span class=\"badge badge-emerald\">جاهز للطلب </span><form class=\"stack-md\" method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, " ج.م</div></td><!-- 9. Status & Line Actions --><td class=\"col-actions\"><div class=\"table-actions\"><span class=\"badge badge-emerald\">جاهز للطلب </span><form class=\"stack-md\" method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -782,7 +782,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span></td><td><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span></td><td class=\"col-actions\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

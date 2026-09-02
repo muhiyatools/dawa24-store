@@ -855,7 +855,7 @@ func AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-12\">الصورة</th><th>المنتج / SKU</th><th>المنظمة (المورد)</th><th>سعر الجمهور</th><th>نسبة الخصم</th><th>المخزون</th><th>حالة العرض</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-12\">الصورة</th><th>المنتج / SKU</th><th>المنظمة (المورد)</th><th>سعر الجمهور</th><th>نسبة الخصم</th><th>المخزون</th><th>حالة العرض</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1164,7 +1164,7 @@ func AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) t
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "</td><!-- 8. الإجراءات --><td class=\"text-end\"><div class=\"table-actions justify-end gap-1.5\"><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "</td><!-- 8. الإجراءات --><td class=\"col-actions\"><div class=\"table-actions\"><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

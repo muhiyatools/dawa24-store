@@ -130,8 +130,8 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 													<span class="badge badge-amber text-xs font-bold">قيد التدقيق</span>
 											}
 										</td>
-										<td class="text-end">
-											<div class="d-inline-flex gap-2">
+										<td class="col-actions">
+											<div class="table-actions">
 												<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm font-bold text-xs">
 													<span>معاينة ↗</span>
 												</a>
