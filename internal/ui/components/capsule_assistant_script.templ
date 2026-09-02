@@ -57,6 +57,7 @@ templ CapsuleAssistantScript() {
 				isRecordingVoice: false,
 				recordingSeconds: 0,
 				recordingTimer: null,
+				noticeTimer: null,
 				mediaStream: null,
 				mediaRecorder: null,
 				audioChunks: [],
@@ -359,13 +360,78 @@ templ CapsuleAssistantScript() {
 				// Voice
 				// ---------------------------------------------------------------
 
+				// The container the recorder actually produces.
+				//
+				// Chrome gives webm/opus, Safari gives mp4/aac, and neither
+				// accepts the other's name. The blob used to be hardcoded to
+				// audio/webm regardless, so a Safari recording reached the
+				// Gateway as an mp4 wearing a webm label and the transcription
+				// model refused it. Ask the browser instead of assuming.
+				pickRecorderMime() {
+					if (typeof MediaRecorder === 'undefined') return '';
+					const candidates = [
+						'audio/webm;codecs=opus',
+						'audio/webm',
+						'audio/ogg;codecs=opus',
+						'audio/mp4',
+					];
+					for (const c of candidates) {
+						try { if (MediaRecorder.isTypeSupported(c)) return c; } catch (e) {}
+					}
+					return '';
+				},
+
+				voiceFilenameFor(mime) {
+					const base = (mime || '').split(';')[0].trim();
+					switch (base) {
+						case 'audio/mp4': return 'voice.mp4';
+						case 'audio/ogg': return 'voice.ogg';
+						case 'audio/mpeg': return 'voice.mp3';
+						case 'audio/wav':
+						case 'audio/x-wav': return 'voice.wav';
+						default: return 'voice.webm';
+					}
+				},
+
+				// One place that writes the composer notice, so no caller has to
+				// remember to clear it again.
+				showComposerNotice(message, ms) {
+					this.statusMessage = message;
+					if (this.noticeTimer) { clearTimeout(this.noticeTimer); this.noticeTimer = null; }
+					this.noticeTimer = setTimeout(() => {
+						if (!this.isStreaming) this.statusMessage = '';
+						this.noticeTimer = null;
+					}, ms || 8000);
+				},
+
 				async startVoiceRecord() {
 					if (this.isRecordingVoice) return;
+					this.statusMessage = '';
+
+					// navigator.mediaDevices is undefined outside a secure
+					// context, so on plain HTTP the old code threw a TypeError
+					// that read as "the microphone was refused" — which sent
+					// people to a browser permission screen that had nothing to
+					// do with it. Name the real cause instead.
+					if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+						this.showComposerNotice(window.isSecureContext === false
+							? 'التسجيل الصوتي يتطلب اتصالاً آمناً (HTTPS).'
+							: 'المتصفح لا يدعم التسجيل الصوتي.');
+						return;
+					}
+					if (typeof MediaRecorder === 'undefined') {
+						this.showComposerNotice('المتصفح لا يدعم التسجيل الصوتي.');
+						return;
+					}
+
 					try {
 						const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 						this.mediaStream = stream;
 						this.audioChunks = [];
-						this.mediaRecorder = new MediaRecorder(stream);
+						const mime = this.pickRecorderMime();
+						this.mediaRecorder = mime
+							? new MediaRecorder(stream, { mimeType: mime })
+							: new MediaRecorder(stream);
 						this.mediaRecorder.ondataavailable = (e) => {
 							if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
 						};
@@ -375,7 +441,16 @@ templ CapsuleAssistantScript() {
 						this.recordingTimer = setInterval(() => { this.recordingSeconds++; }, 1000);
 					} catch (e) {
 						this.cancelVoiceRecord();
-						this.statusMessage = 'تعذّر فتح الميكروفون. اسمح بالوصول من إعدادات المتصفح.';
+						const name = (e && e.name) || '';
+						if (name === 'NotAllowedError' || name === 'SecurityError') {
+							this.showComposerNotice('تم رفض الوصول إلى الميكروفون. اسمح به من إعدادات المتصفح ثم أعد المحاولة.');
+						} else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+							this.showComposerNotice('لا يوجد ميكروفون متاح على هذا الجهاز.');
+						} else if (name === 'NotReadableError') {
+							this.showComposerNotice('الميكروفون مشغول بتطبيق آخر.');
+						} else {
+							this.showComposerNotice('تعذّر فتح الميكروفون. اسمح بالوصول من إعدادات المتصفح.');
+						}
 					}
 				},
 
@@ -402,32 +477,38 @@ templ CapsuleAssistantScript() {
 						this.cancelVoiceRecord();
 						return;
 					}
+					const recordedMime = (this.mediaRecorder.mimeType || 'audio/webm').split(';')[0].trim();
 					this.mediaRecorder.onstop = async () => {
-						const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+						const blob = new Blob(this.audioChunks, { type: recordedMime });
 						this.audioChunks = [];
 						this.stopRecorderTracks();
+						if (blob.size === 0) {
+							this.showComposerNotice('لم يُسجَّل أي صوت. حاول مرة أخرى.');
+							return;
+						}
 						this.statusMessage = 'جاري تحويل الصوت إلى نص...';
 						try {
 							const form = new FormData();
-							form.append('file', blob, 'voice.webm');
+							form.append('file', blob, this.voiceFilenameFor(recordedMime));
 							const resp = await fetch('/api/v1/assistant/transcribe', { method: 'POST', body: form });
 							const data = await resp.json().catch(() => ({}));
-							if (resp.ok && data.text) {
+							if (resp.ok && data.text && data.text.trim()) {
 								this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + data.text.trim();
 								this.$nextTick(() => {
 									this.autoResizeTextarea();
 									if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
 								});
+							} else if (resp.ok) {
+								this.showComposerNotice('لم يُتعرَّف على أي كلام في التسجيل.');
+								return;
 							} else {
 								// The server sends an Arabic sentence naming the
 								// cause. Show that, never a raw failure.
-								this.statusMessage = data.message || 'تعذّر تفريغ التسجيل الصوتي.';
-								setTimeout(() => { this.statusMessage = ''; }, 6000);
+								this.showComposerNotice(data.message || 'تعذّر تفريغ التسجيل الصوتي.');
 								return;
 							}
 						} catch (e) {
-							this.statusMessage = 'تعذّر الاتصال بخدمة التفريغ الصوتي.';
-							setTimeout(() => { this.statusMessage = ''; }, 6000);
+							this.showComposerNotice('تعذّر الاتصال بخدمة التفريغ الصوتي.');
 							return;
 						}
 						this.statusMessage = '';
@@ -473,7 +554,29 @@ templ CapsuleAssistantScript() {
 						this.statusMessage = '';
 					}
 
-					const references = this.attachedFiles.filter(f => f.reference && !f.error).map(f => f.reference);
+					// A file with no reference never reached the server, so the
+					// model will never see it.
+					//
+					// This used to filter those out and send the question
+					// anyway. The attachment still appeared in the transcript
+					// beside the question, so the turn looked to the user like
+					// it had been sent with the file — and the answer that came
+					// back was about the text alone. Every "the assistant
+					// ignores my attachments" report is this: the upload was
+					// still running when Enter was pressed, or it had failed,
+					// and nothing said so.
+					const missing = this.attachedFiles.filter(f => !f.reference);
+					if (missing.length > 0) {
+						const names = missing.map(f => f.name).join('، ');
+						if (missing.some(f => f.uploading)) {
+							this.showComposerNotice('لم يكتمل رفع المرفقات بعد: ' + names + '. انتظر لحظة ثم أعد الإرسال.');
+						} else {
+							this.showComposerNotice('تعذّر رفع هذه المرفقات: ' + names + '. أزلها أو أعد إرفاقها ثم أعد الإرسال.');
+						}
+						return;
+					}
+
+					const references = this.attachedFiles.map(f => f.reference);
 					const sent = [...this.attachedFiles];
 
 					this.messages.push({

@@ -175,7 +175,14 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		h.Set("X-Content-Type-Options", "nosniff")
 		h.Set("X-Frame-Options", "SAMEORIGIN")
 		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
-		h.Set("Permissions-Policy", "geolocation=(self), camera=(), microphone=()")
+		// microphone=(self) and not microphone=(): the assistant's voice input
+		// calls getUserMedia({audio:true}) from this origin. With the
+		// microphone disabled for every origin including our own, that call
+		// rejected before the browser ever showed a permission prompt, so the
+		// microphone button did nothing at all and the failure was invisible.
+		// Camera stays closed: nothing here opens a camera stream, and file
+		// attachment via <input capture> goes through the OS picker instead.
+		h.Set("Permissions-Policy", "geolocation=(self), camera=(), microphone=(self)")
 		h.Set("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
 		h.Set("Content-Signal", "ai-train=no, search=yes, ai-input=no")
 		// htmx, Alpine and Leaflet are served from this origin now, so the three

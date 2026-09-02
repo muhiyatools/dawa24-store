@@ -1,10 +1,13 @@
 package assistant_test
 
 import (
+	"context"
 	"strings"
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 )
 
 // The fence is what separates content the caller typed from content that
@@ -117,5 +120,60 @@ func TestUnknownCodeFallsBack(t *testing.T) {
 	f := assistant.Fail(assistant.Code("something_new"))
 	if strings.TrimSpace(f.Message) == "" {
 		t.Fatal("unknown code produced no message")
+	}
+}
+
+// An attachment the primary model can open itself is sent as a content part.
+// The text part that leads it must never be empty: a file attached with no
+// typed question produced {"type":"text","text":""} as the first entry of the
+// content array, which the upstream rejects — so a photo sent on its own failed
+// the whole turn while the same photo sent with a question worked.
+func TestAttachmentWithNoQuestionStillCarriesAnInstruction(t *testing.T) {
+	svc := &assistant.Service{}
+	msgs := svc.BuildMessages(context.Background(), authctx.Actor{UserID: 1},
+		assistant.AgentConfig{SystemPrompt: "s"}, 0,
+		assistant.TurnInput{
+			Parts: []gateway.ContentPart{
+				{Kind: gateway.PartImage, DataURL: "data:image/png;base64,iVBORw0KGgo="},
+			},
+		}, 8000)
+
+	user := msgs[len(msgs)-1]
+	if len(user.Parts) != 2 {
+		t.Fatalf("expected a text part and the image, got %d parts", len(user.Parts))
+	}
+	if user.Parts[0].Kind != gateway.PartText {
+		t.Fatalf("first part is %q, want text", user.Parts[0].Kind)
+	}
+	if strings.TrimSpace(user.Parts[0].Text) == "" {
+		t.Fatal("the leading text part is empty; the upstream rejects that")
+	}
+}
+
+// Digests carry their own filename. They used to be paired with Attachments by
+// index, but Attachments holds every file in the turn while Digests holds only
+// the ones read rather than sent — so a photo plus a PDF labelled the PDF's
+// text with the photo's name.
+func TestDigestsAreLabelledWithTheirOwnFilename(t *testing.T) {
+	svc := &assistant.Service{}
+	msgs := svc.BuildMessages(context.Background(), authctx.Actor{UserID: 1},
+		assistant.AgentConfig{SystemPrompt: "s"}, 0,
+		assistant.TurnInput{
+			Text: "راجع المرفقات",
+			Attachments: []assistant.Attachment{
+				{Filename: "صورة.png"},
+				{Filename: "تقرير.pdf"},
+			},
+			Digests: []assistant.AttachmentDigest{
+				{Filename: "تقرير.pdf", Text: "إجمالي 1200 جنيه"},
+			},
+		}, 8000)
+
+	body := msgs[len(msgs)-1].Text
+	if !strings.Contains(body, "attachment:تقرير.pdf") {
+		t.Fatalf("digest is not labelled with its own file: %s", body)
+	}
+	if strings.Contains(body, "attachment:صورة.png") {
+		t.Fatalf("digest was labelled with another file's name: %s", body)
 	}
 }

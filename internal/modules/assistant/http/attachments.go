@@ -132,7 +132,7 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 // case the right behaviour is to answer the question without it.
 func (h *Handler) resolveAttachments(
 	ctx context.Context, actor authctx.Actor, refs []string,
-) ([]assistant.Attachment, []string, []gateway.ContentPart) {
+) ([]assistant.Attachment, []assistant.AttachmentDigest, []gateway.ContentPart) {
 	if len(refs) == 0 {
 		return nil, nil, nil
 	}
@@ -161,7 +161,7 @@ func (h *Handler) resolveAttachments(
 
 	var (
 		atts    []assistant.Attachment
-		digests []string
+		digests []assistant.AttachmentDigest
 		parts   []gateway.ContentPart
 	)
 	for _, ref := range refs {
@@ -197,7 +197,9 @@ func (h *Handler) resolveAttachments(
 		}
 
 		if text, ok := h.readPlainText(ctx, row); ok {
-			digests = append(digests, text)
+			digests = append(digests, assistant.AttachmentDigest{
+				Filename: row.Filename, Text: text,
+			})
 			continue
 		}
 
@@ -211,7 +213,9 @@ func (h *Handler) resolveAttachments(
 			}
 		}
 		if digest != "" {
-			digests = append(digests, digest)
+			digests = append(digests, assistant.AttachmentDigest{
+				Filename: row.Filename, Text: digest,
+			})
 		}
 	}
 	return atts, digests, parts

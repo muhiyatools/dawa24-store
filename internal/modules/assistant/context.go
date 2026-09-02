@@ -57,11 +57,23 @@ type TurnInput struct {
 	Attachments []Attachment
 	// Digests are the attachment-model readings of files the primary model
 	// cannot open itself. They are fenced as untrusted content.
-	Digests []string
+	//
+	// Each one carries its own filename. It used to be a bare []string that
+	// userBlock paired with Attachments by index — but Attachments holds every
+	// file in the turn while Digests holds only the ones that were read rather
+	// than sent, so attaching a photo and a PDF together labelled the PDF's
+	// text with the photo's filename.
+	Digests []AttachmentDigest
 	// Parts are files the primary model CAN open — an image for a vision model,
 	// a PDF for one that reads documents. They are sent as they are, because a
 	// description of a photograph is never as good as the photograph.
 	Parts []gateway.ContentPart
+}
+
+// AttachmentDigest is one file's reading, with the name it was read from.
+type AttachmentDigest struct {
+	Filename string
+	Text     string
 }
 
 // BuildMessages assembles the prompt for a turn.
@@ -93,8 +105,18 @@ func (s *Service) BuildMessages(
 	// vision, so the turn carried an apology where the picture should have been.
 	user := gateway.ChatMessage{Role: "user", Text: userBlock(in)}
 	if len(in.Parts) > 0 {
+		// The text part is never allowed to be empty. A file attached with no
+		// typed question produced exactly that — a content array whose first
+		// entry was {"type":"text","text":""} — and the upstream answered 400
+		// on it, so a photo sent on its own failed the whole turn while a photo
+		// sent with a question worked. userBlock now always returns something,
+		// and this is the second guard on the same thing.
+		lead := user.Text
+		if strings.TrimSpace(lead) == "" {
+			lead = defaultAttachmentAsk
+		}
 		user.Parts = append([]gateway.ContentPart{
-			{Kind: gateway.PartText, Text: user.Text},
+			{Kind: gateway.PartText, Text: lead},
 		}, in.Parts...)
 		user.Text = ""
 	}
@@ -158,21 +180,31 @@ func (s *Service) history(ctx context.Context, convID int64, budget int) []gatew
 	return kept
 }
 
+// defaultAttachmentAsk is what the turn asks when the user attached a file and
+// typed nothing. Without it the model receives an attachment and no
+// instruction, and what it does with that is anybody's guess.
+const defaultAttachmentAsk = "لخّص الملف المرفق واستخرج أهم ما فيه."
+
 // userBlock renders this turn's question, with any attachment readings fenced.
 func userBlock(in TurnInput) string {
 	var b strings.Builder
-	for i, digest := range in.Digests {
-		name := "ملف"
-		if i < len(in.Attachments) {
-			name = in.Attachments[i].Filename
+	for _, digest := range in.Digests {
+		if strings.TrimSpace(digest.Text) == "" {
+			continue
 		}
-		b.WriteString(Fence("attachment:"+name, digest))
+		name := digest.Filename
+		if name == "" {
+			name = "ملف"
+		}
+		b.WriteString(Fence("attachment:"+name, digest.Text))
 		b.WriteString("\n\n")
 	}
 
 	text := strings.TrimSpace(in.Text)
-	if text == "" && len(in.Digests) > 0 {
-		text = "لخّص الملف المرفق واستخرج أهم ما فيه."
+	// Parts counts too. Only Digests did, so a vision-readable image sent with
+	// no question produced an empty user block.
+	if text == "" && (len(in.Digests) > 0 || len(in.Parts) > 0) {
+		text = defaultAttachmentAsk
 	}
 	b.WriteString(text)
 	return b.String()

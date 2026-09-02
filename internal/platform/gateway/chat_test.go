@@ -323,3 +323,71 @@ func TestPhase2_CapabilitiesFallback(t *testing.T) {
 		t.Errorf("T2.7 failed: expected conservative default, got %+v", caps)
 	}
 }
+
+// TestAudioPartIsBareBase64 pins the one part of this dialect that does not
+// take a data URI.
+//
+// input_audio.data must be the base64 payload alone. Sending the whole
+// "data:audio/webm;base64,…" string there meant every voice note reached the
+// upstream with its own MIME header decoded as audio, and the format field —
+// hardcoded to "wav" for anything that was not mp3 — mislabelled the container
+// on top of it.
+func TestAudioPartIsBareBase64(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		mime       string
+		dataURL    string
+		wantData   string
+		wantFormat string
+	}{
+		{"webm", "audio/webm", "data:audio/webm;base64,GkXfo0==", "GkXfo0==", "webm"},
+		{"mp3", "audio/mpeg", "data:audio/mpeg;base64,SUQzBA==", "SUQzBA==", "mp3"},
+		{"m4a", "audio/mp4", "data:audio/mp4;base64,AAAAHGZ0", "AAAAHGZ0", "m4a"},
+		{"wav", "audio/wav", "data:audio/wav;base64,UklGRg==", "UklGRg==", "wav"},
+		{"ogg", "audio/ogg", "data:audio/ogg;base64,T2dnUw==", "T2dnUw==", "ogg"},
+		{"mime inferred from data uri", "", "data:audio/webm;base64,GkXfo0==", "GkXfo0==", "webm"},
+		{"already bare base64 is untouched", "audio/wav", "UklGRg==", "UklGRg==", "wav"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			msgs := buildWireMessages([]ChatMessage{{
+				Role:  "user",
+				Parts: []ContentPart{{Kind: PartAudio, MIMEType: tc.mime, DataURL: tc.dataURL}},
+			}})
+
+			parts, ok := msgs[0].Content.([]wireContentPart)
+			if !ok || len(parts) != 1 {
+				t.Fatalf("expected one content part, got %#v", msgs[0].Content)
+			}
+			if parts[0].InputAudio == nil {
+				t.Fatal("expected an input_audio part")
+			}
+			if got := parts[0].InputAudio.Data; got != tc.wantData {
+				t.Errorf("data = %q, want %q", got, tc.wantData)
+			}
+			if got := parts[0].InputAudio.Format; got != tc.wantFormat {
+				t.Errorf("format = %q, want %q", got, tc.wantFormat)
+			}
+		})
+	}
+}
+
+// TestImageAndFilePartsKeepDataURI is the other half of the rule: image_url,
+// video_url and file DO take a data URI, and stripping the prefix there would
+// break them.
+func TestImageAndFilePartsKeepDataURI(t *testing.T) {
+	const img = "data:image/png;base64,iVBORw0KGgo="
+	msgs := buildWireMessages([]ChatMessage{{
+		Role: "user",
+		Parts: []ContentPart{
+			{Kind: PartImage, MIMEType: "image/png", DataURL: img},
+			{Kind: PartFile, MIMEType: "application/pdf", DataURL: img, Filename: "d.pdf"},
+		},
+	}})
+	parts := msgs[0].Content.([]wireContentPart)
+	if parts[0].ImageURL == nil || parts[0].ImageURL.URL != img {
+		t.Errorf("image_url lost its data URI: %#v", parts[0].ImageURL)
+	}
+	if parts[1].File == nil || parts[1].File["url"] != img {
+		t.Errorf("file part lost its data URI: %#v", parts[1].File)
+	}
+}

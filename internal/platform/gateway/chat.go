@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"errors"
+	"strings"
 )
 
 // PartKind categorises multimodal content parts.
@@ -101,6 +102,51 @@ type StreamEvent struct {
 // are supported now; nothing in this package returns this any more.
 var ErrToolsNotSupported = errors.New("gateway: tools not supported in this phase")
 
+// base64Payload returns the bytes of a data URI without its "data:…;base64,"
+// prefix. A value that is not a data URI is returned unchanged, so a caller
+// that already holds bare base64 is not corrupted.
+func base64Payload(dataURL string) string {
+	if !strings.HasPrefix(dataURL, "data:") {
+		return dataURL
+	}
+	if idx := strings.Index(dataURL, ","); idx != -1 {
+		return dataURL[idx+1:]
+	}
+	return dataURL
+}
+
+// audioFormatFor names the container for an input_audio part.
+//
+// The MIME type is authoritative; the data URI is only consulted when the
+// caller did not record one, which happens for parts assembled from a stored
+// file whose row predates the MIME column being populated.
+func audioFormatFor(mime, dataURL string) string {
+	m := strings.ToLower(strings.TrimSpace(mime))
+	if m == "" && strings.HasPrefix(dataURL, "data:") {
+		if idx := strings.IndexAny(dataURL[5:], ";,"); idx != -1 {
+			m = strings.ToLower(dataURL[5 : 5+idx])
+		}
+	}
+	if idx := strings.Index(m, ";"); idx != -1 {
+		m = strings.TrimSpace(m[:idx])
+	}
+	switch m {
+	case "audio/mpeg", "audio/mp3":
+		return "mp3"
+	case "audio/webm":
+		return "webm"
+	case "audio/ogg":
+		return "ogg"
+	case "audio/mp4", "audio/m4a", "audio/x-m4a":
+		return "m4a"
+	case "audio/wav", "audio/x-wav", "audio/wave":
+		return "wav"
+	}
+	// Unknown containers keep the historical default rather than sending an
+	// empty format, which the upstream rejects outright.
+	return "wav"
+}
+
 func buildWireMessages(messages []ChatMessage) []wireChatMessage {
 	wireMsgs := make([]wireChatMessage, 0, len(messages))
 	for _, m := range messages {
@@ -137,15 +183,19 @@ func buildWireMessages(messages []ChatMessage) []wireChatMessage {
 						VideoURL: &wireURLPart{URL: p.DataURL},
 					})
 				case PartAudio:
-					format := "wav"
-					if p.MIMEType == "audio/mp3" || p.MIMEType == "audio/mpeg" {
-						format = "mp3"
-					}
+					// input_audio is the one part of this dialect that does NOT
+					// take a data URI. The Gateway forwards {data, format}
+					// straight through as OpenAI defines it: data is bare
+					// base64 and format names the container. Sending the whole
+					// "data:audio/webm;base64,…" string in data meant the
+					// upstream decoded the prefix as audio and rejected every
+					// voice note, and the hardcoded "wav" fallback mislabelled
+					// webm and m4a recordings on top of that.
 					parts = append(parts, wireContentPart{
 						Type: "input_audio",
 						InputAudio: &wireAudioPart{
-							Data:   p.DataURL,
-							Format: format,
+							Data:   base64Payload(p.DataURL),
+							Format: audioFormatFor(p.MIMEType, p.DataURL),
 						},
 					})
 				case PartFile:

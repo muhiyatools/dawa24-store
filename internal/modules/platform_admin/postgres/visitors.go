@@ -25,6 +25,15 @@ func (r *Repository) RecordVisitor(ctx context.Context, v *platformadmin.Visitor
 	})
 }
 
+// groupKey renders one grouping-set label, falling back for the NULL that a
+// row outside its own grouping set carries.
+func groupKey(v *string) string {
+	if v == nil || *v == "" {
+		return i18n.TDefault("w4_ui.s_178_178")
+	}
+	return *v
+}
+
 // VisitorAnalytics returns the aggregate traffic and platform health view.
 func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platformadmin.VisitorAnalytics, error) {
 	return r.VisitorAnalyticsWithTotal(ctx, limit, 0)
@@ -47,8 +56,11 @@ func (r *Repository) VisitorAnalyticsWithTotal(ctx context.Context, limit, offse
 		offset = 0
 	}
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.visitors;`).Scan(&out.Total)
-		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.visitors WHERE visited_at = CURRENT_DATE;`).Scan(&out.Today)
+		// One pass for both figures. They used to be two full scans of the
+		// largest table on the platform, run back to back.
+		_ = tx.QueryRow(txCtx, `
+			SELECT COUNT(*), COUNT(*) FILTER (WHERE visited_at = CURRENT_DATE)
+			FROM platform_admin.visitors;`).Scan(&out.Total, &out.Today)
 
 		// Platform business summary stats (strictly from live database tables)
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM org.organizations WHERE type IN ('pharmacy', 'customer') AND deleted_at IS NULL;`).Scan(&out.TotalPharmacies)
@@ -60,41 +72,66 @@ func (r *Repository) VisitorAnalyticsWithTotal(ctx context.Context, limit, offse
 		_ = tx.QueryRow(txCtx, `SELECT COALESCE(SUM(total_amount), 0) FROM commerce.orders WHERE status NOT IN ('cancelled', 'rejected');`).Scan(&totalGMVCents)
 		out.TotalGMV = fmt.Sprintf(i18n.TDefault("w4_mod.2f_425"), float64(totalGMVCents)/100.0)
 
-		scanGroup := func(query string) (map[string]int, error) {
-			m := map[string]int{}
-			rows, err := tx.Query(txCtx, query)
+		// Five breakdowns, one scan.
+		//
+		// This was five separate GROUP BY statements, each an unbounded
+		// sequential scan of the whole visitors table, run one after another
+		// inside this transaction — on top of the two COUNT scans above and a
+		// full sort below. On a table that grows with every visitor-day on the
+		// platform that is most of a minute of database CPU per admin
+		// dashboard load, held on one pooled connection out of twenty, which
+		// is how one admin signing in came to slow down everybody else and
+		// eventually time out into a 502.
+		//
+		// GROUPING SETS gets all five from a single pass. The results are read
+		// into maps, so the ORDER BY those statements carried never survived
+		// the trip and is not reproduced here.
+		if err := func() error {
+			rows, err := tx.Query(txCtx, `
+				SELECT GROUPING(v.country), GROUPING(v.city), GROUPING(v.device),
+				       GROUPING(v.os), GROUPING(v.browser),
+				       v.country, v.city, v.device, v.os, v.browser, COUNT(*)
+				FROM (
+					SELECT
+						CASE WHEN country IN ('شبكة داخلية 🖥️', 'غير محدد', '') THEN 'مصر 🇪🇬' ELSE country END AS country,
+						CASE WHEN city IN ('بيئة التطوير (Local)', 'غير محدد', '') THEN 'القاهرة' ELSE city END AS city,
+						COALESCE(NULLIF(device, ''), 'كمبيوتر مكتب (Desktop)') AS device,
+						COALESCE(NULLIF(os, ''), 'Windows') AS os,
+						COALESCE(NULLIF(browser, ''), 'Chrome') AS browser
+					FROM platform_admin.visitors
+				) v
+				GROUP BY GROUPING SETS ((v.country), (v.city), (v.device), (v.os), (v.browser));`)
 			if err != nil {
-				return m, err
+				return err
 			}
 			defer rows.Close()
-			for rows.Next() {
-				var key string
-				var n int
-				if err := rows.Scan(&key, &n); err != nil {
-					return m, err
-				}
-				if key == "" {
-					key = i18n.TDefault("w4_ui.s_178_178")
-				}
-				m[key] = n
-			}
-			return m, rows.Err()
-		}
 
-		var err error
-		if out.ByCountry, err = scanGroup(`SELECT CASE WHEN country = 'شبكة داخلية 🖥️' OR country = 'غير محدد' OR country = '' THEN 'مصر 🇪🇬' ELSE country END, COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
-			return err
-		}
-		if out.ByCity, err = scanGroup(`SELECT CASE WHEN city = 'بيئة التطوير (Local)' OR city = 'غير محدد' OR city = '' THEN 'القاهرة' ELSE city END, COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
-			return err
-		}
-		if out.ByDevice, err = scanGroup(`SELECT COALESCE(NULLIF(device, ''), 'كمبيوتر مكتب (Desktop)'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
-			return err
-		}
-		if out.ByOS, err = scanGroup(`SELECT COALESCE(NULLIF(os, ''), 'Windows'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
-			return err
-		}
-		if out.ByBrowser, err = scanGroup(`SELECT COALESCE(NULLIF(browser, ''), 'Chrome'), COUNT(*) FROM platform_admin.visitors GROUP BY 1 ORDER BY COUNT(*) DESC;`); err != nil {
+			for rows.Next() {
+				// In a grouping set the flag is 0 for the column being grouped
+				// on and 1 for every other, so exactly one of these five is the
+				// dimension this row belongs to.
+				var gCountry, gCity, gDevice, gOS, gBrowser int
+				var country, city, device, os, browser *string
+				var n int
+				if err := rows.Scan(&gCountry, &gCity, &gDevice, &gOS, &gBrowser,
+					&country, &city, &device, &os, &browser, &n); err != nil {
+					return err
+				}
+				switch {
+				case gCountry == 0:
+					out.ByCountry[groupKey(country)] = n
+				case gCity == 0:
+					out.ByCity[groupKey(city)] = n
+				case gDevice == 0:
+					out.ByDevice[groupKey(device)] = n
+				case gOS == 0:
+					out.ByOS[groupKey(os)] = n
+				case gBrowser == 0:
+					out.ByBrowser[groupKey(browser)] = n
+				}
+			}
+			return rows.Err()
+		}(); err != nil {
 			return err
 		}
 

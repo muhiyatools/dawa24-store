@@ -54,8 +54,12 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 		if recentList, err := h.orgSvc.ListOrganizations(ctx, nil, nil, 6, 0); err == nil {
 			recentOrganizations = recentList
 		}
-		if branches, err := h.orgSvc.ListBranches(sysCtx, 0); err == nil {
-			stats.TotalBranches = len(branches)
+		// AdminBranchStats and not ListBranches(0): the latter selects every
+		// branch on the platform, joined to identity.users with a correlated
+		// array_agg per row, and materialises the lot in Go so that len() can
+		// be taken of it. The count is a count.
+		if bs, err := h.orgSvc.AdminBranchStats(sysCtx); err == nil {
+			stats.TotalBranches = bs.TotalBranches
 		}
 	}
 	if h.commSvc != nil {

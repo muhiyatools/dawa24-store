@@ -3534,6 +3534,19 @@ input:focus {
   margin-top: auto;
 }
 
+/* Composer notice: voice + attachment status the drawer must show even when
+   no turn is streaming. Without it every microphone failure was silent. */
+.capsule-composer-notice {
+  margin-bottom: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--bg-surface-sunken, var(--surface-sunken));
+  border: 1px solid var(--border-subtle, var(--border));
+  color: var(--text-secondary, var(--text-muted));
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
 .capsule-input-capsule {
   display: flex;
   align-items: flex-end;
