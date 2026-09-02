@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -25,40 +26,93 @@ func NewHandler(service *catalog.Service, log *slog.Logger) *Handler {
 }
 
 // RegisterRoutes registers catalog endpoints on a Chi router.
+//
+// Reads are open to any authenticated, approved caller — the catalogue is the
+// platform's shared reference and every dashboard reads it. Writes are not, and
+// until now they were: every route below the read block was mounted with
+// authentication and an approved-organisation check and NOTHING ELSE, so any
+// employee of any approved pharmacy could POST a product into the shared
+// catalogue, PUT over an existing one, or DELETE a category every other tenant
+// depends on. The HTML admin screens have always been gated on
+// catalog.product.* — the JSON API was simply the way around them.
+//
+// Two audiences, two gates:
+//
+//   - catalog.products / categories / brands are the ADMINISTRATOR's catalogue.
+//     Gated on the same catalog.*.create/update/delete keys the admin pages use.
+//   - product VARIANTS are a vendor's own offer against a master product, which
+//     is why they take the vendor keys instead. RequirePermission rather than
+//     RequireAPITenantPermission: a staff member fixing a supplier's listing
+//     holds catalog.vendor_product.update and must not be refused for being
+//     staff.
 func (h *Handler) RegisterRoutes(r chi.Router) {
+	// --- reads -------------------------------------------------------------
 	// Feeds the cascading category -> brand selector in every product form.
 	r.Get("/api/v1/catalog/categories/{id}/brands", h.ListBrandsByCategory)
 	r.Get("/api/v1/catalog/search", h.Search)
 	r.Get("/api/v1/catalog/products/{id}", h.GetProduct)
-	r.Put("/api/v1/catalog/products/{id}", h.UpdateProduct)
-	r.Delete("/api/v1/catalog/products/{id}", h.DeleteProduct)
-	r.Post("/api/v1/catalog/products", h.CreateProduct)
 	r.Get("/api/v1/catalog/products", h.ListProducts)
-	r.Post("/api/v1/catalog/products/bulk-status", h.SetProductsStatus)
-
-	r.Post("/api/v1/catalog/products/{id}/variants", h.CreateVariant)
 	r.Get("/api/v1/catalog/products/{id}/variants/{variantId}", h.GetVariant)
-	r.Put("/api/v1/catalog/products/{id}/variants/{variantId}", h.UpdateVariant)
-	r.Delete("/api/v1/catalog/products/{id}/variants/{variantId}", h.DeleteVariant)
-
 	r.Get("/api/v1/catalog/categories/{id}", h.GetCategory)
-	r.Put("/api/v1/catalog/categories/{id}", h.UpdateCategory)
-	r.Delete("/api/v1/catalog/categories/{id}", h.DeleteCategory)
-
 	r.Get("/api/v1/catalog/brands/{id}", h.GetBrand)
-	r.Put("/api/v1/catalog/brands/{id}", h.UpdateBrand)
-	r.Delete("/api/v1/catalog/brands/{id}", h.DeleteBrand)
-
 	r.Get("/api/v1/catalog/categories", h.ListCategories)
-	r.Post("/api/v1/catalog/categories", h.CreateCategory)
 	r.Get("/api/v1/catalog/brands", h.ListBrands)
-	r.Post("/api/v1/catalog/brands", h.CreateBrand)
-
-	r.Post("/api/v1/catalog/pricing/customer", h.SetCustomerPricing)
 	r.Get("/api/v1/catalog/pricing/customer", h.GetCustomerPricing)
-
-	r.Post("/api/v1/catalog/alerts", h.CreateProductAlert)
 	r.Get("/api/v1/catalog/alerts", h.ListProductAlerts)
+
+	// --- master catalogue writes -------------------------------------------
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.product.create"))
+		g.Post("/api/v1/catalog/products", h.CreateProduct)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.product.update"))
+		g.Put("/api/v1/catalog/products/{id}", h.UpdateProduct)
+		g.Post("/api/v1/catalog/products/bulk-status", h.SetProductsStatus)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.product.delete"))
+		g.Delete("/api/v1/catalog/products/{id}", h.DeleteProduct)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.category.update"))
+		g.Post("/api/v1/catalog/categories", h.CreateCategory)
+		g.Put("/api/v1/catalog/categories/{id}", h.UpdateCategory)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.category.delete"))
+		g.Delete("/api/v1/catalog/categories/{id}", h.DeleteCategory)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.brand.update", "catalog.brand.manage"))
+		g.Post("/api/v1/catalog/brands", h.CreateBrand)
+		g.Put("/api/v1/catalog/brands/{id}", h.UpdateBrand)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("catalog.brand.delete"))
+		g.Delete("/api/v1/catalog/brands/{id}", h.DeleteBrand)
+	})
+
+	// --- a vendor's own variants and pricing --------------------------------
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.product.create", "catalog.vendor_product.update"))
+		g.Post("/api/v1/catalog/products/{id}/variants", h.CreateVariant)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.product.update", "catalog.vendor_product.update"))
+		g.Put("/api/v1/catalog/products/{id}/variants/{variantId}", h.UpdateVariant)
+		g.Post("/api/v1/catalog/pricing/customer", h.SetCustomerPricing)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.product.delete", "catalog.vendor_product.update"))
+		g.Delete("/api/v1/catalog/products/{id}/variants/{variantId}", h.DeleteVariant)
+	})
+
+	// A product alert is a caller's own reminder about a product. Any
+	// authenticated member may set one for themselves; the service scopes it.
+	r.Post("/api/v1/catalog/alerts", h.CreateProductAlert)
 
 	h.RegisterAdminRoutes(r)
 }
