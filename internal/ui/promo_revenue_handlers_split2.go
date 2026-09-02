@@ -78,6 +78,80 @@ func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) 
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_rejected_success"))
 }
 
+// AdminAdToggleSubmit toggles the active/inactive state of an ad.
+func (h *UIHandler) AdminAdToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.promoSvc == nil {
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
+		return
+	}
+	sysCtx := database.AsSystem(ctx)
+	ad, err := h.promoSvc.GetAd(sysCtx, id)
+	if err != nil || ad == nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", "لم يتم العثور على الإعلان")
+		return
+	}
+	ad.IsActive = !ad.IsActive
+	if err := h.promoSvc.UpdateAd(sysCtx, ad); err != nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, lang))
+		return
+	}
+	msg := "تم تفعيل الإعلان وظهوره على المنصة بنجاح."
+	if !ad.IsActive {
+		msg = "تم إيقاف وتعطيل ظهور الإعلان مؤقتاً."
+	}
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", msg)
+}
+
+// AdminAdApproveEditSubmit approves a vendor-submitted edit request and applies changes.
+func (h *UIHandler) AdminAdApproveEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.promoSvc == nil {
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
+		return
+	}
+	sysCtx := database.AsSystem(ctx)
+	if err := h.promoSvc.ApproveAdEditRequest(sysCtx, id); err != nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, lang))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", "تم اعتماد وتطبيق تعديلات الإعلان بنجاح.")
+}
+
+// AdminAdRejectEditSubmit rejects a vendor-submitted edit request and keeps the live ad intact.
+func (h *UIHandler) AdminAdRejectEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.promoSvc == nil {
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
+		return
+	}
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	sysCtx := database.AsSystem(ctx)
+	if err := h.promoSvc.RejectAdEditRequest(sysCtx, id, notes); err != nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, lang))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", "تم رفض طلب تعديل الإعلان، ويستمر الإعلان الأصلي بالعمل.")
+}
+
 // AdminOfferPackageCreateSubmit creates a new monetization / sponsorship package.
 func (h *UIHandler) AdminOfferPackageCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

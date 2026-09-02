@@ -130,13 +130,18 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.ad.view"))
-		g.Get("/admin/ads", h.AdminAdsListPage)
+		g.Use(authctx.RequirePagePermission("promo.ad.view", "promo.offer_package.view"))
+		g.Get("/admin/ads", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusMovedPermanently)
+		})
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.ad.update", "promo.ad.view"))
+		g.Use(authctx.RequirePagePermission("promo.ad.update", "promo.ad.view", "promo.offer_package.manage", "promo.offer_package.view"))
 		g.Post("/admin/ads/{id}/approve", h.AdminAdApproveSubmit)
 		g.Post("/admin/ads/{id}/reject", h.AdminAdRejectSubmit)
+		g.Post("/admin/ads/{id}/toggle", h.AdminAdToggleSubmit)
+		g.Post("/admin/ads/{id}/approve-edit", h.AdminAdApproveEditSubmit)
+		g.Post("/admin/ads/{id}/reject-edit", h.AdminAdRejectEditSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

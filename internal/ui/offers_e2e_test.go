@@ -229,6 +229,15 @@ func (m *mockPromoRepo) ListAllAdsWithTotal(ctx context.Context, limit, offset i
 func (m *mockPromoRepo) UpdateAdAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error {
 	return nil
 }
+func (m *mockPromoRepo) SubmitAdEditRequest(ctx context.Context, id int64, changes *promo.AdPendingChanges) error {
+	return nil
+}
+func (m *mockPromoRepo) ApproveAdEditRequest(ctx context.Context, id int64, reviewerID int64) error {
+	return nil
+}
+func (m *mockPromoRepo) RejectAdEditRequest(ctx context.Context, id int64, reviewerID int64, notes string) error {
+	return nil
+}
 func (m *mockPromoRepo) RecordAdImpression(ctx context.Context, adID int64, userID *int64, ip, ua string) error {
 	return nil
 }

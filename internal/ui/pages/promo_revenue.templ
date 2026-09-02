@@ -655,16 +655,20 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 												<!-- Ad Preview & Title -->
 												<td class="py-3.5 ps-4">
 													<div class="d-flex items-center gap-3">
-														if ad.MediaURL != "" {
-															<div class="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shrink-0 d-flex items-center justify-center">
-																if ad.MediaType == "video" {
-																	<span class="text-sky-600 font-bold text-2xs">فيديو</span>
-																} else {
-																	<img src={ ad.MediaURL } alt="Ad" class="w-full h-full object-cover"/>
-																}
+														if ad.MediaType == "video" && ad.MediaURL != "" {
+															<div class="w-16 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shrink-0 d-flex items-center justify-center">
+																<video src={ ad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover"></video>
+															</div>
+														} else if ad.MediaURL != "" {
+															<div class="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 bg-white shrink-0 d-flex items-center justify-center p-0.5">
+																<img src={ ad.MediaURL } alt="Ad" class="w-full h-full object-contain"/>
+															</div>
+														} else {
+															<div class="w-16 h-10 rounded-lg bg-slate-100 border border-slate-200 shrink-0 d-flex items-center justify-center text-slate-400">
+																@components.IconImage("icon-xs")
 															</div>
 														}
-              <div class="stack-sm">
+														<div class="stack-xs text-start">
 															<div class="font-extrabold text-primary text-sm">{ ad.DisplayTitle(lang) }</div>
 															if ad.DisplayText(lang) != "" {
 																<div class="text-secondary text-2xs font-medium line-clamp-1 max-w-xs">{ ad.DisplayText(lang) }</div>
@@ -682,9 +686,16 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 													}
 												</td>
 
-												<!-- Position -->
+												<!-- Position & Media Type -->
 												<td class="py-3.5 text-center">
-													<span class="badge badge-slate text-2xs font-bold">{ ad.Position }</span>
+													<div class="d-flex flex-col items-center gap-1">
+														<span class="badge badge-sky text-2xs font-extrabold">{ PlacementLabel(ad.Position) }</span>
+														if ad.MediaType == "video" {
+															<span class="badge badge-indigo text-2xs font-bold">فيديو MP4</span>
+														} else {
+															<span class="badge badge-slate text-2xs font-bold">صورة</span>
+														}
+													</div>
 												</td>
 
 												<!-- Impressions -->
@@ -704,19 +715,29 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 
 												<!-- Status -->
 												<td class="py-3.5 text-center">
-													if ad.AdminStatus == "pending" {
-														<span class="badge badge-amber font-extrabold text-xs animate-pulse">قيد المراجعة</span>
-													} else if ad.AdminStatus == "approved" {
-														<span class="badge badge-emerald font-extrabold text-xs">معتمد</span>
-													} else {
-														<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
-													}
+													<div class="d-flex flex-col items-center gap-1">
+														if ad.AdminStatus == "pending" {
+															<span class="badge badge-amber font-extrabold text-xs animate-pulse">قيد المراجعة</span>
+														} else if ad.AdminStatus == "approved" {
+															<span class="badge badge-emerald font-extrabold text-xs">معتمد</span>
+															if ad.IsActive {
+																<span class="badge badge-emerald text-2xs font-bold">مباشر نشط</span>
+															} else {
+																<span class="badge badge-slate text-2xs font-bold">معطل</span>
+															}
+														} else {
+															<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
+														}
+														if ad.HasPendingEdit() {
+															<span class="badge badge-amber text-2xs font-black animate-pulse">طلب تعديل معلق</span>
+														}
+													</div>
 												</td>
 
 												<!-- Actions -->
 												<td class="col-actions py-3.5 pe-4">
-													if ad.AdminStatus == "pending" {
-														<div class="table-actions">
+													<div class="d-flex items-center gap-1.5 flex-wrap">
+														if ad.AdminStatus == "pending" {
 															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
 																<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
 																	@components.IconCheck("icon-2xs")
@@ -729,10 +750,27 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 																	<span>رفض</span>
 																</button>
 															</form>
-														</div>
-													} else {
-														<span class="text-muted text-2xs font-semibold">مكتمل</span>
-													}
+														} else {
+															<!-- Direct Toggle Active / Inactive -->
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/toggle", ad.ID)) } class="m-0">
+																if ad.IsActive {
+																	<button type="submit" class="btn btn-secondary btn-xs font-bold text-amber-600 gap-1 shadow-2xs" title="إيقاف ظهور الإعلان مؤقتاً">
+																		@components.IconPause("icon-2xs")
+																		<span>تعطيل</span>
+																	</button>
+																} else {
+																	<button type="submit" class="btn btn-secondary btn-xs font-bold text-emerald-600 gap-1 shadow-2xs" title="تفعيل ظهور الإعلان فوراً">
+																		@components.IconPlay("icon-2xs")
+																		<span>تفعيل</span>
+																	</button>
+																}
+															</form>
+														}
+
+														if ad.HasPendingEdit() {
+															@AdminAdPendingEditModal(ad, lang, dir)
+														}
+													</div>
 												</td>
 											</tr>
 										}
@@ -1024,4 +1062,109 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 		</div>
 	}
 }
+
+// AdminAdPendingEditModal renders a modal for reviewing vendor-submitted ad edit requests.
+templ AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) {
+	if ad.PendingChanges != nil {
+		<div x-data="{ isOpen: false }" class="d-inline-block">
+			<button
+				type="button"
+				@click="isOpen = true"
+				class="btn btn-primary btn-xs font-black gap-1 shadow-2xs bg-amber-500 hover:bg-amber-600 text-white border-none"
+			>
+				@components.IconEdit("icon-2xs")
+				<span>مراجعة طلب التعديل</span>
+			</button>
+
+			<div
+				x-show="isOpen"
+				x-cloak
+				class="modal-backdrop"
+				@click.self="isOpen = false"
+			>
+				<div
+					class="modal-content max-w-xl w-full mx-4 glass-panel border border-amber-200/90 rounded-3xl shadow-2xl overflow-hidden text-start"
+					@click.stop
+				>
+					<div class="modal-header p-4 border-b border-slate-100 flex-between items-center bg-amber-50/80">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-8 h-8 rounded-xl bg-amber-500 text-white d-flex items-center justify-center">
+								@components.IconSparkles("icon-xs")
+							</div>
+							<div class="stack-xs text-start">
+								<h3 class="text-sm font-black text-primary m-0">طلب تعديل إعلان من المورد</h3>
+								<span class="text-2xs text-muted">ID: { fmt.Sprintf("%d", ad.ID) } • تاريخ الطلب: { ad.PendingChanges.SubmittedAt.Format("2006-01-02 15:04") }</span>
+							</div>
+						</div>
+						<button type="button" @click="isOpen = false" class="btn btn-ghost btn-icon btn-sm text-slate-400 hover:text-slate-600">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<div class="modal-body p-5 d-flex flex-col gap-4 max-h-[65vh] overflow-y-auto text-start">
+						<div class="p-3 bg-amber-50/50 rounded-2xl border border-amber-200 text-xs text-amber-900 font-medium">
+							يستمر الإعلان الحالي بالظهور على المنصة دون انقطاع. عند اعتماد هذا الطلب، سيتم استبدال بيانات الإعلان بالتعديلات الجديدة أدناه فوراً.
+						</div>
+
+						<!-- Comparison: Title -->
+						<div class="stack-xs">
+							<span class="text-2xs text-muted font-bold">العنوان المقترح:</span>
+							<strong class="text-xs text-primary font-black">{ ad.PendingChanges.TitleAr }</strong>
+							if ad.TitleAr != "" && ad.TitleAr != ad.PendingChanges.TitleAr {
+								<span class="text-2xs text-slate-400 line-through">السابق: { ad.TitleAr }</span>
+							}
+						</div>
+
+						<!-- Comparison: Description -->
+						if ad.PendingChanges.AdTextAr != "" {
+							<div class="stack-xs">
+								<span class="text-2xs text-muted font-bold">النص والوصف المقترح:</span>
+								<p class="text-xs text-secondary m-0">{ ad.PendingChanges.AdTextAr }</p>
+							</div>
+						}
+
+						<!-- Comparison: Placement -->
+						if ad.PendingChanges.Position != "" {
+							<div class="stack-xs">
+								<span class="text-2xs text-muted font-bold">موضع الظهور المقترح:</span>
+								<span class="badge badge-sky text-2xs font-extrabold">{ PlacementLabel(ad.PendingChanges.Position) }</span>
+							</div>
+						}
+
+						<!-- Proposed Media Preview -->
+						if ad.PendingChanges.MediaURL != "" {
+							<div class="stack-xs">
+								<span class="text-2xs text-muted font-bold">الوسائط المقترحة:</span>
+								<div class="w-48 h-28 rounded-2xl border p-1 bg-white overflow-hidden">
+									if ad.PendingChanges.MediaType == "video" {
+										<video src={ ad.PendingChanges.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
+									} else {
+										<img src={ ad.PendingChanges.MediaURL } alt="Proposed Media" class="w-full h-full object-contain" />
+									}
+								</div>
+							</div>
+						}
+					</div>
+
+					<div class="modal-footer p-3.5 border-t border-slate-100 bg-slate-50/80 flex-between items-center">
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject-edit", ad.ID)) } class="m-0">
+							<button type="submit" class="btn btn-secondary btn-sm text-rose-600 font-bold gap-1 shadow-2xs" onclick="return confirm('هل أنت متأكد من رفض طلب التعديل؟ سيبقى الإعلان الحالي كما هو.')">
+								@components.IconClose("icon-xs")
+								<span>رفض التعديل</span>
+							</button>
+						</form>
+
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve-edit", ad.ID)) } class="m-0">
+							<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-sm gap-1.5">
+								@components.IconCheck("icon-xs")
+								<span>اعتماد وتطبيق التعديل</span>
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
 

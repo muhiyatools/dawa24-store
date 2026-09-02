@@ -139,6 +139,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/promotions/track-click/{offer}", h.PublicPromotionTrackClick)
 		pub.Get("/promotions/track-click/{offer}/{promotion}", h.PublicPromotionTrackClick)
 		pub.Get("/ads/click/{ad}", h.PublicAdClick)
+		pub.Get("/ads/impression/{ad}", h.PublicAdImpression)
 
 		// Form actions that work signed-out (sign-up must be reachable pre-login)
 		pub.Post("/auth/login", h.LoginSubmit)

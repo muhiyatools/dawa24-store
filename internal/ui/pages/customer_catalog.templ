@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -142,15 +143,17 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 						for _, ad := range data.CatalogAds {
 							if ad != nil {
 								<a
-									href={ templ.SafeURL(ad.ResolveClickURL()) }
+									href={ templ.SafeURL(fmt.Sprintf("/ads/click/%d", ad.ID)) }
+									hx-get={ fmt.Sprintf("/ads/impression/%d", ad.ID) }
+									hx-trigger="intersect once"
 									class="glass-panel p-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none hover:shadow-md hover:border-brand-400"
 								>
 									<div class="d-flex items-center gap-4">
-										<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-2xs border border-slate-200/80">
-											if ad.MediaURL != "" && ad.MediaType != "video" {
+										<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-2xs border border-slate-200/80 overflow-hidden">
+											if ad.MediaType == "video" && ad.MediaURL != "" {
+												<video src={ ad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
+											} else if ad.MediaURL != "" {
 												<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-full h-full object-contain" />
-											} else if ad.MediaType == "video" {
-												<div class="w-full h-full bg-slate-900 text-white rounded-xl d-flex items-center justify-center text-2xs font-bold">فيديو</div>
 											} else {
 												@components.IconPill("icon-sm text-brand")
 											}

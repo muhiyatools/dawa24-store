@@ -153,6 +153,15 @@ func (stubRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*promo.Ad, int
 func (stubRepo) UpdateAdAdminStatus(context.Context, int64, promo.AdminStatus, string, int64) error {
 	return nil
 }
+func (stubRepo) SubmitAdEditRequest(context.Context, int64, *promo.AdPendingChanges) error {
+	return nil
+}
+func (stubRepo) ApproveAdEditRequest(context.Context, int64, int64) error {
+	return nil
+}
+func (stubRepo) RejectAdEditRequest(context.Context, int64, int64, string) error {
+	return nil
+}
 func (stubRepo) RecordAdImpression(context.Context, int64, *int64, string, string) error {
 	return nil
 }

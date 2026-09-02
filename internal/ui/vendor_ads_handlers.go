@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -130,6 +131,8 @@ func (h *UIHandler) VendorAdCreateSubmit(w http.ResponseWriter, r *http.Request)
 }
 
 // VendorAdUpdateSubmit handles the update of an existing advertisement.
+// If the ad is already approved and live, changes are submitted as a pending edit request
+// so the live ad continues running smoothly without interruption until admin approval.
 func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, _ := h.localeAndDir(r)
@@ -151,6 +154,17 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	sysCtx := database.AsSystem(ctx)
+	existingAd, err := h.promoSvc.GetAd(sysCtx, id)
+	if err != nil || existingAd == nil {
+		h.redirectWithNotice(w, r, "/vendor/ads", "error", "لم يتم العثور على الإعلان المطلوب تعديله")
+		return
+	}
+	if existingAd.OrganizationID != nil && *existingAd.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/ads", "error", "غير مصرح لك بتعديل هذا الإعلان")
+		return
+	}
+
 	_ = r.ParseMultipartForm(20 << 20)
 	ad := h.parseAdForm(r, actor.OrganizationID)
 	ad.ID = id
@@ -160,10 +174,42 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 		if data, readErr := io.ReadAll(file); readErr == nil && len(data) > 0 {
 			if u, saveErr := saveUploadedBytes(data, header.Filename, "ads"); saveErr == nil && u != "" {
 				ad.MediaURL = u
+				if strings.HasSuffix(strings.ToLower(header.Filename), ".mp4") || strings.HasSuffix(strings.ToLower(header.Filename), ".webm") {
+					ad.MediaType = promo.MediaVideo
+				} else {
+					ad.MediaType = promo.MediaImage
+				}
 			}
 		}
+	} else if ad.MediaURL == "" {
+		ad.MediaURL = existingAd.MediaURL
+		ad.MediaType = existingAd.MediaType
 	}
 
+	// If ad is already live and approved, submit an edit request without stopping the live ad
+	if existingAd.AdminStatus == promo.AdminApproved {
+		changes := &promo.AdPendingChanges{
+			TitleAr:         ad.TitleAr,
+			TitleEn:         ad.TitleEn,
+			AdTextAr:        ad.AdTextAr,
+			AdTextEn:        ad.AdTextEn,
+			MediaType:       ad.MediaType,
+			MediaURL:        ad.MediaURL,
+			ThumbnailURL:    ad.ThumbnailURL,
+			Position:        ad.Position,
+			TargetURL:       ad.TargetURL,
+			ClickTargetType: ad.ClickTargetType,
+			ClickTargetID:   ad.ClickTargetID,
+		}
+		if err := h.promoSvc.SubmitAdEditRequest(ctx, id, changes); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/ads", "error", h.safeMessage(err, lang))
+			return
+		}
+		h.redirectWithNotice(w, r, "/vendor/ads", "success", "تم إرسال طلب تعديل الإعلان للمراجعة الإدارية بنجاح، ويستمر إعلانك الحالي بالظهور حتى اعتماد التعديلات.")
+		return
+	}
+
+	// Otherwise (if still draft or pending), update directly
 	if err := h.promoSvc.UpdateAd(ctx, ad); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ads", "error", h.safeMessage(err, lang))
 		return

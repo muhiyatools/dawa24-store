@@ -166,12 +166,32 @@ type Ad struct {
 	CTR             float64       `json:"ctr,omitempty"`
 	SupplierName    string        `json:"supplier_name,omitempty"`
 	SupplierLogo    string        `json:"supplier_logo,omitempty"`
-	PublicPrice     string        `json:"public_price,omitempty"`
-	DiscountPercent string        `json:"discount_percent,omitempty"`
-	SupplyPrice     string        `json:"supply_price,omitempty"`
-	CreatedAt       time.Time     `json:"created_at"`
-	UpdatedAt       time.Time     `json:"updated_at"`
+	PublicPrice     string            `json:"public_price,omitempty"`
+	DiscountPercent string            `json:"discount_percent,omitempty"`
+	SupplyPrice     string            `json:"supply_price,omitempty"`
+	PendingChanges  *AdPendingChanges `json:"pending_changes,omitempty"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
 }
+
+// AdPendingChanges contains proposed updates to an ad awaiting admin approval.
+type AdPendingChanges struct {
+	TitleAr         string        `json:"title_ar,omitempty"`
+	TitleEn         string        `json:"title_en,omitempty"`
+	AdTextAr        string        `json:"ad_text_ar,omitempty"`
+	AdTextEn        string        `json:"ad_text_en,omitempty"`
+	MediaType       AdMediaType   `json:"media_type,omitempty"`
+	MediaURL        string        `json:"media_url,omitempty"`
+	ThumbnailURL    string        `json:"thumbnail_url,omitempty"`
+	Position        string        `json:"position,omitempty"`
+	TargetURL       string        `json:"target_url,omitempty"`
+	ClickTargetType AdClickTarget `json:"click_target_type,omitempty"`
+	ClickTargetID   *int64        `json:"click_target_id,omitempty"`
+	SubmittedAt     time.Time     `json:"submitted_at"`
+}
+
+// HasPendingEdit reports whether this ad has an unmoderated edit request.
+func (a *Ad) HasPendingEdit() bool { return a.PendingChanges != nil }
 
 // IsApproved reports whether the admin cleared this ad for display.
 func (a *Ad) IsApproved() bool { return a.AdminStatus == AdminApproved }

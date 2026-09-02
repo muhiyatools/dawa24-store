@@ -121,7 +121,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 						for i, ad := range stats.Ads {
 							if ad != nil {
 								<a
-									href={ templ.SafeURL(ad.ResolveClickURL()) }
+									href={ templ.SafeURL(fmt.Sprintf("/ads/click/%d", ad.ID)) }
+									hx-get={ fmt.Sprintf("/ads/impression/%d", ad.ID) }
+									hx-trigger="intersect once"
 									class="hero-ad-slide"
 									x-show={ fmt.Sprintf("currentSlide === %d", i) }
 									x-cloak
@@ -353,13 +355,17 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</div>
 		</section>
 
-		<!-- 5. Deals & Promoted Products Showcase Section -->
 		if len(stats.DealsAds) > 0 {
 			<section class="landing-deals-ad-section p-4 max-w-7xl mx-auto mb-8">
 				<div class="d-grid grid-auto-fit-md gap-4">
 					for _, dad := range stats.DealsAds {
 						if dad != nil {
-							<a href={ templ.SafeURL(dad.ResolveClickURL()) } class="deals-ad-card p-5 rounded-3xl border border-brand-200/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-between items-center gap-5 transition-all text-decoration-none shadow-md hover:border-brand-400">
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/ads/click/%d", dad.ID)) }
+								hx-get={ fmt.Sprintf("/ads/impression/%d", dad.ID) }
+								hx-trigger="intersect once"
+								class="deals-ad-card p-5 rounded-3xl border border-brand-200/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-between items-center gap-5 transition-all text-decoration-none shadow-md hover:border-brand-400"
+							>
 								<div class="d-flex items-center gap-4">
 									<div class="w-20 h-20 rounded-2xl bg-white p-2 d-flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-200">
 										if dad.MediaURL != "" {
@@ -397,15 +403,49 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 		}
 
 		if len(stats.BottomAds) > 0 {
-			<section class="landing-bottom-ad-section p-4">
-				for _, bad := range stats.BottomAds {
-					if bad != nil {
-						<a href={ templ.SafeURL(bad.ResolveClickURL()) } class="bottom-ad-card d-block p-4 rounded-xl border bg-surface-sunken">
-							<span class="badge badge-sky text-xs font-bold mb-2">إعلان ترويجي موثق</span>
-							<h3 class="bottom-ad-title text-base font-extrabold text-primary m-0">{ bad.DisplayTitle(lang) }</h3>
-						</a>
+			<section class="landing-bottom-ad-section p-4 max-w-7xl mx-auto mb-8">
+				<div class="d-grid grid-auto-fit-md gap-4">
+					for _, bad := range stats.BottomAds {
+						if bad != nil {
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/ads/click/%d", bad.ID)) }
+								hx-get={ fmt.Sprintf("/ads/impression/%d", bad.ID) }
+								hx-trigger="intersect once"
+								class="bottom-ad-card p-5 rounded-3xl border border-slate-700 bg-surface-sunken flex-between items-center gap-4 transition-all text-decoration-none shadow-sm hover:border-brand-500"
+							>
+								<div class="d-flex items-center gap-4">
+									<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-200">
+										if bad.MediaURL != "" {
+											<img src={ bad.MediaURL } alt={ bad.DisplayTitle(lang) } class="w-full h-full object-contain" />
+										} else {
+											@components.IconPill("icon-md text-brand")
+										}
+									</div>
+									<div class="stack-xs text-start">
+										if bad.SupplierName != "" {
+											<span class="text-2xs text-muted font-bold d-block">{ bad.SupplierName }</span>
+										}
+										<h3 class="bottom-ad-title text-sm font-black text-primary m-0">{ bad.DisplayTitle(lang) }</h3>
+										if bad.DisplayText(lang) != "" {
+											<p class="text-xs text-secondary m-0 line-clamp-1">{ bad.DisplayText(lang) }</p>
+										}
+										if bad.PublicPrice != "" && bad.PublicPrice != "سعر رسمي معتمد" {
+											<div class="d-flex items-center gap-2 mt-1">
+												<span class="text-2xs text-rose-500 line-through font-bold">{ bad.PublicPrice }</span>
+												<span class="badge badge-emerald text-2xs font-black">{ bad.DiscountPercent }</span>
+												<span class="text-xs font-black text-brand tabular-nums">{ bad.SupplyPrice }</span>
+											</div>
+										}
+									</div>
+								</div>
+								<div class="d-flex items-center gap-1.5 text-xs font-black text-brand flex-shrink-0">
+									<span>استعراض التفاصيل</span>
+									@components.IconArrowLeft("icon-2xs")
+								</div>
+							</a>
+						}
 					}
-				}
+				</div>
 			</section>
 		}
 

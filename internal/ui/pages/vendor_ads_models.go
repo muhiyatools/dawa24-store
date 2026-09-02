@@ -69,15 +69,32 @@ func GetStandardPlacements() []VendorPlacementOption {
 
 // PlacementLabel returns the Arabic title for a placement key.
 func PlacementLabel(key string) string {
-	for _, p := range GetStandardPlacements() {
-		if p.Key == key {
-			return p.TitleAr
+	switch key {
+	case promo.PositionHomeHero:
+		return "الرئيسية (البانر الرئيسي)"
+	case promo.PositionCatalogTop:
+		return "الكتالوج (صدارة الأصناف)"
+	case promo.PositionHomeDeals:
+		return "الرئيسية (العروض والصفقات)"
+	case promo.PositionHomeBanner:
+		return "الرئيسية (بانر وسطي)"
+	case promo.PositionHomeBottom:
+		return "الرئيسية (بانر أسفل الصفحة)"
+	case "top_banner":
+		return "أعلى الموقع (الشريط العلوي)"
+	case "sidebar":
+		return "الشريط الجانبي"
+	default:
+		for _, p := range GetStandardPlacements() {
+			if p.Key == key {
+				return p.TitleAr
+			}
 		}
+		if key == "" {
+			return "موضع افتراضي"
+		}
+		return key
 	}
-	if key == promo.PositionHomeBanner {
-		return "معرض وبنر الواجهة الرئيسية"
-	}
-	return key
 }
 
 // InStockItemsToJSON serializes only items that have positive available stock.

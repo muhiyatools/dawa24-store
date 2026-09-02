@@ -317,13 +317,52 @@ func (h *UIHandler) PublicPromotionTrackClick(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, fmt.Sprintf("/offers/%d", offerID), http.StatusSeeOther)
 }
 
-// PublicAdClick records click to promo.ad_clicks and redirects safely.
+// PublicAdClick records click to promo.ad_clicks and redirects safely to the destination URL.
 func (h *UIHandler) PublicAdClick(w http.ResponseWriter, r *http.Request) {
 	adIDStr := chi.URLParam(r, "ad")
-	adID, _ := strconv.ParseInt(adIDStr, 10, 64)
+	adID, err := strconv.ParseInt(adIDStr, 10, 64)
+	if err != nil || adID <= 0 {
+		http.Redirect(w, r, "/catalog", http.StatusSeeOther)
+		return
+	}
 
-	h.log.InfoContext(r.Context(), "tracked ad click", "ad_id", adID)
-	http.Redirect(w, r, fmt.Sprintf("/offers?ad=%d", adID), http.StatusSeeOther)
+	var userID *int64
+	if actor, ok := authctx.From(r.Context()); ok && actor.UserID > 0 {
+		userID = &actor.UserID
+	}
+
+	ip := r.RemoteAddr
+	ua := r.UserAgent()
+
+	// 1. Record real click in promo system
+	if h.promoSvc != nil {
+		_ = h.promoSvc.RecordAdClick(database.AsSystem(r.Context()), adID, userID, ip, ua)
+	}
+
+	// 2. Resolve destination URL
+	destURL := "/catalog"
+	if h.promoSvc != nil {
+		if ad, err := h.promoSvc.GetAd(database.AsSystem(r.Context()), adID); err == nil && ad != nil {
+			destURL = ad.ResolveClickURL()
+		}
+	}
+
+	h.log.InfoContext(r.Context(), "tracked ad click", "ad_id", adID, "destination", destURL)
+	http.Redirect(w, r, destURL, http.StatusSeeOther)
+}
+
+// PublicAdImpression tracks live advertisement views.
+func (h *UIHandler) PublicAdImpression(w http.ResponseWriter, r *http.Request) {
+	adIDStr := chi.URLParam(r, "ad")
+	adID, err := strconv.ParseInt(adIDStr, 10, 64)
+	if err == nil && adID > 0 && h.promoSvc != nil {
+		var userID *int64
+		if actor, ok := authctx.From(r.Context()); ok && actor.UserID > 0 {
+			userID = &actor.UserID
+		}
+		_ = h.promoSvc.RecordAdImpression(database.AsSystem(r.Context()), adID, userID, r.RemoteAddr, r.UserAgent())
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // AdminSponsorshipRequestApproveSubmit approves a pending sponsorship request from the admin UI.

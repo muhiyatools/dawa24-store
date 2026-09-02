@@ -263,6 +263,15 @@ func (m *mockPromoRepo) ListAllAdsWithTotal(_ context.Context, _, _ int) ([]*Ad,
 func (m *mockPromoRepo) UpdateAdAdminStatus(_ context.Context, _ int64, _ AdminStatus, _ string, _ int64) error {
 	return nil
 }
+func (m *mockPromoRepo) SubmitAdEditRequest(_ context.Context, _ int64, _ *AdPendingChanges) error {
+	return nil
+}
+func (m *mockPromoRepo) ApproveAdEditRequest(_ context.Context, _ int64, _ int64) error {
+	return nil
+}
+func (m *mockPromoRepo) RejectAdEditRequest(_ context.Context, _ int64, _ int64, _ string) error {
+	return nil
+}
 func (m *mockPromoRepo) RecordAdImpression(_ context.Context, _ int64, _ *int64, _, _ string) error {
 	return nil
 }

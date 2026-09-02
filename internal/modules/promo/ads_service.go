@@ -159,6 +159,36 @@ func (s *Service) AdminRejectAd(ctx context.Context, id int64, notes string) err
 	return s.repo.UpdateAdAdminStatus(database.AsSystem(ctx), id, AdminRejected, notes, reviewerID)
 }
 
+// SubmitAdEditRequest stores vendor-proposed ad edits for admin review without taking down the live ad.
+func (s *Service) SubmitAdEditRequest(ctx context.Context, id int64, changes *AdPendingChanges) error {
+	if id <= 0 {
+		return apperr.Validation("ad_id.invalid", "Invalid ad ID", nil)
+	}
+	if changes == nil {
+		return apperr.Validation("changes.required", "Changes payload is required", nil)
+	}
+	changes.SubmittedAt = time.Now()
+	return s.repo.SubmitAdEditRequest(database.AsSystem(ctx), id, changes)
+}
+
+// ApproveAdEditRequest applies vendor-proposed changes to the live ad and clears pending changes.
+func (s *Service) ApproveAdEditRequest(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("ad_id.invalid", "Invalid ad ID", nil)
+	}
+	reviewerID, _ := authctx.UserID(ctx)
+	return s.repo.ApproveAdEditRequest(database.AsSystem(ctx), id, reviewerID)
+}
+
+// RejectAdEditRequest rejects vendor-proposed changes and keeps the live ad intact.
+func (s *Service) RejectAdEditRequest(ctx context.Context, id int64, notes string) error {
+	if id <= 0 {
+		return apperr.Validation("ad_id.invalid", "Invalid ad ID", nil)
+	}
+	reviewerID, _ := authctx.UserID(ctx)
+	return s.repo.RejectAdEditRequest(database.AsSystem(ctx), id, reviewerID, notes)
+}
+
 // RecordAdImpression logs an ad view.
 func (s *Service) RecordAdImpression(ctx context.Context, adID int64, userID *int64, ip, ua string) error {
 	if adID <= 0 {

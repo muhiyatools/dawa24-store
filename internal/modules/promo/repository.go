@@ -64,6 +64,9 @@ type Repository interface {
 	ListAllAdsWithTotal(ctx context.Context, limit, offset int) ([]*Ad, int, error)
 	ListActiveAds(ctx context.Context, position string) ([]*Ad, error)
 	UpdateAdAdminStatus(ctx context.Context, id int64, status AdminStatus, notes string, reviewerID int64) error
+	SubmitAdEditRequest(ctx context.Context, id int64, changes *AdPendingChanges) error
+	ApproveAdEditRequest(ctx context.Context, id int64, reviewerID int64) error
+	RejectAdEditRequest(ctx context.Context, id int64, reviewerID int64, notes string) error
 	RecordAdClick(ctx context.Context, adID int64, userID *int64, ip, ua string) error
 	RecordAdImpression(ctx context.Context, adID int64, userID *int64, ip, ua string) error
 

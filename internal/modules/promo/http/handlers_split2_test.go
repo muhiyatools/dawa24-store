@@ -44,6 +44,15 @@ func (happyRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*promo.Ad, in
 func (happyRepo) UpdateAdAdminStatus(context.Context, int64, promo.AdminStatus, string, int64) error {
 	return nil
 }
+func (happyRepo) SubmitAdEditRequest(context.Context, int64, *promo.AdPendingChanges) error {
+	return nil
+}
+func (happyRepo) ApproveAdEditRequest(context.Context, int64, int64) error {
+	return nil
+}
+func (happyRepo) RejectAdEditRequest(context.Context, int64, int64, string) error {
+	return nil
+}
 func (happyRepo) RecordAdImpression(context.Context, int64, *int64, string, string) error {
 	return nil
 }

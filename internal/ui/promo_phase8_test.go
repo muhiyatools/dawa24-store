@@ -79,7 +79,7 @@ func TestPromoPhase8Routes(t *testing.T) {
 			wantStatus: http.StatusMovedPermanently,
 		},
 		{
-			name:   "Super admin GET /admin/ads returns 200",
+			name:   "Super admin GET /admin/ads returns 301 (redirected to /admin/offers-packages?tab=ads)",
 			path:   "/admin/ads",
 			method: "GET",
 			actor: &authctx.Actor{
@@ -88,7 +88,7 @@ func TestPromoPhase8Routes(t *testing.T) {
 				Role:        "super_admin",
 				Permissions: []string{"*"},
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusMovedPermanently,
 		},
 		{
 			name:   "Vendor GET /vendor/offers-packages returns 200",
