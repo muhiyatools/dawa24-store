@@ -32,4 +32,31 @@
 @media (min-width: 1024px) {
   .branches-split { grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 1fr); }
 }
+
+.compare-workspace-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1.25rem !important;
+  align-items: start !important;
+  width: 100% !important;
+  margin-bottom: 2rem !important;
+}
+
+@media (max-width: 900px) {
+  .compare-workspace-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.compare-col-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-2xl, 1rem);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-xs, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
 }

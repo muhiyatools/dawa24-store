@@ -7,13 +7,15 @@
    ========================================================================== */
 
 .compare-workspace-grid {
-	display: grid;
-	grid-template-columns: 1.25fr 1fr 1fr;
-	gap: 1.25rem;
-	align-items: start;
+	display: grid !important;
+	grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+	gap: 1.25rem !important;
+	align-items: start !important;
+	width: 100% !important;
+	margin-bottom: 2rem !important;
 }
 
-@media (max-width: 1024px) {
-	.compare-workspace-grid { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+	.compare-workspace-grid { grid-template-columns: 1fr !important; }
 }
 }
