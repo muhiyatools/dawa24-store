@@ -39,15 +39,16 @@ type VendorVariantQuery struct {
 	PerPage    int
 }
 
-// PageSizes are the rows-per-page choices the listing offers.
-//
-// The ceiling is two hundred because a page beyond that stops being a page: the
-// browser holds the whole table in the DOM, the row-level scripts bind to every
-// line of it, and scrolling degrades long before the query does.
-var PageSizes = []int{25, 50, 100, 200}
+// PageSizes are the rows-per-page choices the listing offers. It mirrors
+// pagination.RowsPerPageOptions so the vendor products table offers the same
+// choices as every other dashboard table; it is duplicated rather than imported
+// only because internal/shared/pagination must stay a dependency-free leaf and
+// this package is free to depend on it either way — keep the two in step.
+var PageSizes = []int{10, 25, 50, 100}
 
-// DefaultPageSize is what the listing opens on.
-const DefaultPageSize = 50
+// DefaultPageSize is what the listing opens on: the platform-wide table default
+// (pagination.TableRows), not the API's collection default.
+const DefaultPageSize = 25
 
 // Page resolves the query into a LIMIT and an OFFSET, clamped to the offered
 // sizes so a hand-edited URL cannot ask for a hundred thousand rows.

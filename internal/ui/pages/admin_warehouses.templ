@@ -334,16 +334,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							</select>
 						</div>
 
-						<!-- Page Size Selector -->
-						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">عدد النتائج بالصفحة</label>
-							<select name="limit" class="form-input text-sm h-10 rounded-lg">
-								<option value="25" selected?={ data.PageSize == 25 }>25 صنف</option>
-								<option value="50" selected?={ data.PageSize == 50 }>50 صنف</option>
-								<option value="100" selected?={ data.PageSize == 100 }>100 صنف</option>
-								<option value="250" selected?={ data.PageSize == 250 }>250 صنف</option>
-							</select>
-						</div>
+						<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PageSize) }/>
 					</div>
 
 					<!-- Filter Actions -->

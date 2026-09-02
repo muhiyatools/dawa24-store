@@ -141,14 +141,7 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					/>
 				</div>
 
-    <div class="stack-sm">
-					<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
-						<option value="25" selected?={ data.PerPage == 25 }>25 عنصر</option>
-						<option value="50" selected?={ data.PerPage == 50 || data.PerPage == 0 }>50 عنصر</option>
-						<option value="100" selected?={ data.PerPage == 100 }>100 عنصر</option>
-						<option value="200" selected?={ data.PerPage == 200 }>200 عنصر</option>
-					</select>
-				</div>
+    <input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) }/>
 
 				<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
 					<span>بحث</span>

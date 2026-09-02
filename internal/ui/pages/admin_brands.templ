@@ -126,14 +126,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</select>
 					</div>
 
-					<div class="w-auto">
-						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
-							<option value="25" selected?={ pageSize == 25 }>25 شركة لكل صفحة</option>
-							<option value="50" selected?={ pageSize == 50 }>50 شركة لكل صفحة</option>
-							<option value="100" selected?={ pageSize == 100 }>100 شركة لكل صفحة</option>
-							<option value="200" selected?={ pageSize == 200 }>200 شركة لكل صفحة</option>
-						</select>
-					</div>
+					<input type="hidden" name="limit" value={ fmt.Sprintf("%d", pageSize) }/>
 
 					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
 						تصفية

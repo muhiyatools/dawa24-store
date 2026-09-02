@@ -43,7 +43,6 @@ func (h *UIHandler) VendorProductsPage(w http.ResponseWriter, r *http.Request) {
 	data := pages.VendorVariantsData{
 		Branches:   branchOptions,
 		Filter:     query,
-		PageSizes:  catalog.PageSizes,
 		NoticeType: r.URL.Query().Get("notice_type"),
 		NoticeMsg:  r.URL.Query().Get("notice"),
 	}

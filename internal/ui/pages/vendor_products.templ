@@ -25,7 +25,6 @@ type VendorVariantsData struct {
 	Variants   []*VendorVariantView
 	Branches   []VendorBranchOption
 	Filter     catalog.VendorVariantQuery
-	PageSizes  []int
 	Total      int
 	Stats      catalog.VendorVariantStats
 	LoadError  string
@@ -262,50 +261,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				<!-- Bottom Pagination & Rows-Per-Page Controls -->
 				if data.Total > 0 {
 					<div class="glass-panel p-4 mt-4">
-						<div class="flex-between flex-wrap gap-4">
-							@components.B2BPagination(components.PaginationProps{
-								CurrentPage: data.Filter.PageNumber,
-								PageSize:    data.Filter.PerPage,
-								TotalCount:  data.Total,
-								BaseURL:     "/vendor/products",
-								QueryValues: vendorPaginationQuery(data.Filter),
-							})
-
-							<form method="GET" action="/vendor/products" class="d-flex items-center gap-2 m-0">
-								if data.Filter.Query != "" {
-									<input type="hidden" name="q" value={ data.Filter.Query } />
-								}
-								if data.Filter.Status != "" {
-									<input type="hidden" name="status" value={ data.Filter.Status } />
-								}
-								if data.Filter.Stock != "" {
-									<input type="hidden" name="stock" value={ string(data.Filter.Stock) } />
-								}
-								if data.Filter.Expiring {
-									<input type="hidden" name="expiring" value="1" />
-								}
-								if data.Filter.Sort != "" {
-									<input type="hidden" name="sort" value={ data.Filter.Sort } />
-								}
-								<input type="hidden" name="page" value="1" />
-								<label for="bottom-limit-select" class="text-xs text-secondary font-bold whitespace-nowrap">
-									عرض في الصفحة:
-								</label>
-								<select
-									id="bottom-limit-select"
-									name="limit"
-									class="form-input"
-									class="w-auto font-bold text-xs rounded-md px-2 py-1"
-									onchange="this.form.submit()"
-								>
-									for _, sz := range data.PageSizes {
-										<option value={ fmt.Sprintf("%d", sz) } selected?={ data.Filter.PerPage == sz }>
-											{ fmt.Sprintf("%d صنف", sz) }
-										</option>
-									}
-								</select>
-							</form>
-						</div>
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Filter.PageNumber,
+							PageSize:    data.Filter.PerPage,
+							TotalCount:  data.Total,
+							BaseURL:     "/vendor/products",
+							QueryValues: vendorPaginationQuery(data.Filter),
+						})
 					</div>
 				}
 

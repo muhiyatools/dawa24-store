@@ -151,14 +151,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 						/>
 					</div>
 
-					<div class="w-auto">
-						<select name="limit" onchange="this.form.submit()" class="form-select form-input">
-							<option value="25" selected?={ data.PerPage == 25 }>25 عنصر</option>
-							<option value="50" selected?={ data.PerPage == 50 || data.PerPage == 0 }>50 عنصر</option>
-							<option value="100" selected?={ data.PerPage == 100 }>100 عنصر</option>
-							<option value="200" selected?={ data.PerPage == 200 }>200 عنصر</option>
-						</select>
-					</div>
+					<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) }/>
 
 					<button type="submit" class="btn btn-primary btn-sm font-bold">
 						بحث

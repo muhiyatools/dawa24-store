@@ -144,14 +144,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 							</select>
 						</div>
 
-      <div class="stack-sm">
-							<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
-								<option value="10" selected?={ data.PerPage == 10 }>10 عناصر</option>
-								<option value="25" selected?={ data.PerPage == 25 || data.PerPage == 0 }>25 عنصر</option>
-								<option value="50" selected?={ data.PerPage == 50 }>50 عنصر</option>
-								<option value="100" selected?={ data.PerPage == 100 }>100 عنصر</option>
-							</select>
-						</div>
+      <input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) }/>
 
 						<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
 							<span>بحث</span>

@@ -96,14 +96,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</select>
 						</div>
 
-						<!-- Page Size Limit -->
-      <div class="stack-sm">
-							<select name="limit" class="form-input text-xs w-full" onchange="this.form.submit()">
-								<option value="24" selected?={ filter.Limit == 24 || filter.Limit == 0 }>24 عنصر</option>
-								<option value="48" selected?={ filter.Limit == 48 }>48 عنصر</option>
-								<option value="96" selected?={ filter.Limit == 96 }>96 عنصر</option>
-							</select>
-						</div>
+						<input type="hidden" name="limit" value={ strconv.Itoa(marketDiscountsLimit(filter)) }/>
 
 						<!-- Advanced Toggle & Search Submit -->
 						<button
@@ -372,42 +365,16 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 
 				<!-- Pagination Footer Deck -->
-				if result.TotalPages > 1 {
-					<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4 bg-surface-sunken">
-						<div class="text-xs text-secondary">
-							عرض صفحة <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", result.Page) }</strong> من إجمالي <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", result.TotalPages) }</strong> صفحات ({ fmt.Sprintf("%d", result.TotalCount) } عرض مسجل)
-						</div>
-
-						<div class="d-flex items-center gap-1">
-							if result.Page > 1 {
-								<a
-									href={ templ.SafeURL(buildMarketDiscountsURL(filter, result.Page-1, currentView)) }
-									class="btn btn-secondary btn-sm text-xs font-bold"
-								>
-									السابق
-								</a>
-							}
-
-							for p := 1; p <= result.TotalPages; p++ {
-								if p == 1 || p == result.TotalPages || (p >= result.Page-2 && p <= result.Page+2) {
-									<a
-										href={ templ.SafeURL(buildMarketDiscountsURL(filter, p, currentView)) }
-										class={ "btn btn-sm text-xs font-bold", templ.KV("btn-primary", p == result.Page), templ.KV("btn-secondary", p != result.Page) }
-									>
-										{ fmt.Sprintf("%d", p) }
-									</a>
-								}
-							}
-
-							if result.Page < result.TotalPages {
-								<a
-									href={ templ.SafeURL(buildMarketDiscountsURL(filter, result.Page+1, currentView)) }
-									class="btn btn-secondary btn-sm text-xs font-bold"
-								>
-									التالي
-								</a>
-							}
-						</div>
+				if result.TotalCount > 0 {
+					<div class="glass-panel p-4 bg-surface-sunken">
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage:     result.Page,
+							PageSize:        marketDiscountsLimit(filter),
+							TotalCount:      result.TotalCount,
+							BaseURL:         "/market-discounts",
+							QueryValues:     marketDiscountsQueryValues(filter, currentView),
+							PageSizeOptions: []int{24, 48, 96},
+						})
 					</div>
 				}
 			}
@@ -415,9 +382,19 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 	}
 }
 
-func buildMarketDiscountsURL(f compare.MarketDiscountsFilter, page int, view string) string {
-	u, _ := url.Parse("/market-discounts")
-	q := u.Query()
+// marketDiscountsLimit is the page size in effect: the filter's value, or the
+// grid default of 24.
+func marketDiscountsLimit(f compare.MarketDiscountsFilter) int {
+	if f.Limit == 24 || f.Limit == 48 || f.Limit == 96 {
+		return f.Limit
+	}
+	return 24
+}
+
+// marketDiscountsQueryValues carries every filter the screen supports through a
+// page change. components.B2BPagination adds page and limit itself.
+func marketDiscountsQueryValues(f compare.MarketDiscountsFilter, view string) url.Values {
+	q := url.Values{}
 	if f.Query != "" {
 		q.Set("q", f.Query)
 	}
@@ -426,9 +403,6 @@ func buildMarketDiscountsURL(f compare.MarketDiscountsFilter, page int, view str
 	}
 	if f.SortBy != "" {
 		q.Set("sort", f.SortBy)
-	}
-	if f.Limit > 0 && f.Limit != 24 {
-		q.Set("limit", strconv.Itoa(f.Limit))
 	}
 	if f.MinPrice != nil {
 		q.Set("min_price", fmt.Sprintf("%.2f", *f.MinPrice))
@@ -445,11 +419,7 @@ func buildMarketDiscountsURL(f compare.MarketDiscountsFilter, page int, view str
 	if view != "" {
 		q.Set("view", view)
 	}
-	if page > 1 {
-		q.Set("page", strconv.Itoa(page))
-	}
-	u.RawQuery = q.Encode()
-	return u.String()
+	return q
 }
 
 func formatOptionalFloat(val *float64) string {
