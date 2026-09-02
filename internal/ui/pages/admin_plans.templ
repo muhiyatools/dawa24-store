@@ -161,7 +161,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			<!-- Main Content Panel with Tabs -->
 			<div class="glass-panel p-6 mb-6">
 				<!-- Tab Navigation -->
-				<div class="tabs-nav m-0 mb-6 pb-4 border-b">
+				<div class="tabs-nav">
 					<a
 						href="/admin/plans?tab=plans"
 						class={ "tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") }

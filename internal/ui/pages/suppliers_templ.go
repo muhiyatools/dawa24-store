@@ -137,7 +137,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</form><!-- View Switcher (List View vs Map View) --><div class=\"tabs-nav m-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</form><!-- View Switcher (List View vs Map View) --><div class=\"tabs-nav\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -157,10 +157,12 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	# Ceiling lowered to 81 in Phase 5 Wave 4 (completed Wave 4 conversions across all pages).
+	# Ceiling lowered to 11 during the design-system unification. No inline style
+	# was added by it; the ceiling had simply drifted 70 above the real value,
+	# which is a ratchet that has stopped ratcheting.
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 81 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 81)."; \
+	if [ "$$n" -gt 11 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 11)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,7 +172,7 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 81)"
+	echo "OK: $$n inline styles (ceiling 11)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -224,22 +226,25 @@ check-unused-components: ## Fail if components no page uses grow
 .PHONY: check-important
 check-important: ## Fail if !important occurrences exceed defended ceiling (3)
 	@echo "==> checking !important in CSS"
-	@n=$$(grep -ro '!important' internal/ui/static/css/*.css 2>/dev/null | wc -l | tr -d ' '); \
+	# invoice_printable.css is excluded: it is a standalone print document with
+	# its own <!DOCTYPE>, its own :root and a * reset, loaded by no other page.
+	# There is no author cascade there for an !important to short-circuit.
+	@n=$$(grep -ro '!important' internal/ui/static/css/*.css 2>/dev/null | grep -v invoice_printable | wc -l | tr -d ' '); \
 	if [ "$$n" -gt 3 ]; then \
 	  echo "FAIL: $$n !important occurrences in CSS (ceiling 3). Cascade layers must resolve precedence."; \
 	  exit 1; \
 	fi; \
-	echo "  ok: $$n !important occurrences (ceiling 3)"
+	echo "  ok: $$n !important occurrences outside the print document (ceiling 3)"
 
 .PHONY: check-backdrop-filter
 check-backdrop-filter: ## Fail if backdrop-filter exceeds dialog overlay ceiling (4 including vendor prefix)
 	@echo "==> checking backdrop-filter in CSS"
 	@n=$$(grep -rn 'backdrop-filter:' internal/ui/static/css/*.css 2>/dev/null | grep -v '^\s*/\*' | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 4 ]; then \
-	  echo "FAIL: $$n backdrop-filter rules in CSS (ceiling 4). Only dialog/modal backdrops are permitted."; \
+	if [ "$$n" -gt 0 ]; then \
+	  echo "FAIL: $$n backdrop-filter rules in CSS (ceiling 0). The surfaces that used one are opaque now."; \
 	  exit 1; \
 	fi; \
-	echo "  ok: $$n backdrop-filter rules (ceiling 4)"
+	echo "  ok: $$n backdrop-filter rules (ceiling 0)"
 
 .PHONY: check-transition-all
 check-transition-all: ## Fail if transition: all appears in CSS
@@ -303,7 +308,7 @@ check-modal-handwritten: ## Fail if raw <dialog in pages exceeds ratchet ceiling
 
 .PHONY: check-css-layered
 check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade
-	@fail=0; for f in internal/ui/static/css/*.css; do case "$$(basename $$f)" in app.css) continue;; esac; if ! grep -q '@layer' "$$f"; then echo "  unlayered: $$f"; fail=1; fi; done; if [ "$$fail" = "1" ]; then echo "FAIL: a stylesheet outside @layer beats every layered rule. app.css is the one deliberate exception (hide/show primitives)."; exit 1; fi; echo "  ok: every stylesheet is layered"
+	@fail=0; for f in internal/ui/static/css/*.css; do case "$$(basename $$f)" in app.css|invoice_printable.css) continue;; esac; if ! grep -q '@layer' "$$f"; then echo "  unlayered: $$f"; fail=1; fi; done; if [ "$$fail" = "1" ]; then echo "FAIL: a stylesheet outside @layer beats every layered rule. app.css (hide/show primitives) and invoice_printable.css (a standalone print document) are the two deliberate exceptions."; exit 1; fi; echo "  ok: every stylesheet is layered"
 
 .PHONY: check-deadcode
 check-deadcode: ## Fail if unreachable exported code grows past the ceiling
@@ -314,4 +319,4 @@ check-deadcode: ## Fail if unreachable exported code grows past the ceiling
 check-undefined-classes: ## Fail if templates reference class names no stylesheet defines
 	@echo "==> checking for class names with no CSS rule"
 	@grep -rhoE 'class="[^"]*"' internal/ui/pages/*.templ internal/ui/layouts/*.templ internal/ui/components/*.templ 	  | sed 's/class="//; s/"$$//' | tr ' ' '
-' 	  | grep -E '^[a-zA-Z][a-zA-Z0-9_-]*$$' | sort -u > /tmp/dawa_used.txt; 	grep -rhoE '\.[a-zA-Z][a-zA-Z0-9_-]*' internal/ui/static/css/*.css | sed 's/^\.//' | sort -u > /tmp/dawa_defined.txt; 	n=$$(comm -23 /tmp/dawa_used.txt /tmp/dawa_defined.txt | wc -l | tr -d ' '); 	if [ "$$n" -gt 235 ]; then 	  echo "FAIL: $$n class names have no CSS rule (ceiling 235)."; 	  echo ""; 	  echo "An element carrying a class nothing defines is unstyled. This is how"; 	  echo "the inline-style conversion silently removed styling: the style attribute"; 	  echo "went, and the class replacing it was never written."; 	  comm -23 /tmp/dawa_used.txt /tmp/dawa_defined.txt | head -20; 	  exit 1; 	fi; 	echo "  ok: $$n undefined classes (ceiling 235; the remainder are Alpine state names in :class bindings)"
+' 	  | grep -E '^[a-zA-Z][a-zA-Z0-9_-]*$$' | sort -u > /tmp/dawa_used.txt; 	grep -rhoE '\.[a-zA-Z][a-zA-Z0-9_-]*' internal/ui/static/css/*.css | sed 's/^\.//' | sort -u > /tmp/dawa_defined.txt; 	n=$$(comm -23 /tmp/dawa_used.txt /tmp/dawa_defined.txt | wc -l | tr -d ' '); 	if [ "$$n" -gt 64 ]; then 	  echo "FAIL: $$n class names have no CSS rule (ceiling 64)."; 	  echo ""; 	  echo "An element carrying a class nothing defines is unstyled. This is how"; 	  echo "the inline-style conversion silently removed styling: the style attribute"; 	  echo "went, and the class replacing it was never written."; 	  comm -23 /tmp/dawa_used.txt /tmp/dawa_defined.txt | head -20; 	  exit 1; 	fi; 	echo "  ok: $$n undefined classes (ceiling 64; the remainder are Alpine state names in :class bindings)"

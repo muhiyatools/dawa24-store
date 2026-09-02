@@ -43,7 +43,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 				</div>
 
 				<!-- Navigation Tabs -->
-				<div class="tabs-nav m-0 mt-6 pt-4 border-t">
+				<div class="tabs-nav mt-6">
 					<a
 						href="/admin/approvals?tab=organizations"
 						class={ "tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "organizations") }

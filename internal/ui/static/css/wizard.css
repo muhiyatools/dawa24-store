@@ -519,7 +519,6 @@
 .import-stat-label { font-size: var(--text-xs); color: var(--text-secondary); }
 .import-stat--ok .import-stat-value { color: var(--success); }
 .import-stat--warn .import-stat-value { color: var(--warning); }
-.import-stat--error .import-stat-value { color: var(--danger); }
 .import-chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
 }

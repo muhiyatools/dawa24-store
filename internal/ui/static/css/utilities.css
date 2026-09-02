@@ -298,7 +298,6 @@
 .w-32 { inline-size: 8rem; }
 .w-36 { inline-size: 9rem; }
 .w-4 { inline-size: 1rem; }
-.w-52 { inline-size: 13rem; }
 .w-6 { inline-size: 1.5rem; }
 
 /* Spacing — 4pt scale and the semantic token names. */
@@ -443,7 +442,6 @@
 .w-fit { inline-size: fit-content; }
 .scroll-smooth { scroll-behavior: smooth; }
 .lh-relaxed { line-height: var(--leading-relaxed); }
-.hover-underline:hover { text-decoration: underline; }
 .hover-text-primary:hover { color: var(--primary); }
 .rounded-3xl { border-radius: 1.5rem; }
 @media (min-width: 768px) { }
@@ -451,7 +449,6 @@
 .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-md); }
 .grid-3-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); }
 .stack-2xs { display: flex; flex-direction: column; gap: var(--space-2xs); }
-.row-between-center { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
 .flex-column { display: flex; flex-direction: column; }
 .comparison-card { background: var(--surface-raised); border: 1px solid var(--border-card); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
 .applicants-list { display: flex; flex-direction: column; gap: var(--space-md); }

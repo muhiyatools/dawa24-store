@@ -165,7 +165,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 			<!-- 7. Tabs & Pagination -->
 			<section class="glass-panel p-4">
 				<h2 class="text-lg font-bold mb-3">7. Tabs & Pagination Navigation</h2>
-				<div class="tabs-nav mb-4">
+				<div class="tabs-nav">
 					<button type="button" class="tab-btn active">كل الأصناف (120)</button>
 					<button type="button" class="tab-btn">أصناف متوفرة (95)</button>
 					<button type="button" class="tab-btn">نفدت الكمية (25)</button>
@@ -213,7 +213,7 @@ templ ComponentGallery(props ComponentGalleryProps) {
 				@components.Modal(components.ModalProps{
 					ID:       "demo-gallery-modal",
 					Title:    "نافذة حوارية للعرض",
-					Subtitle: "مبنية على عنصر <dialog> الأصلي",
+					Subtitle: "مبنية على عنصر dialog الأصلي",
 					Size:     "md",
 				}) {
 					<div class="p-4">

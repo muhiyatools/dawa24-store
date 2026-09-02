@@ -80,7 +80,7 @@ func VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">طلبيات الصيدليات والشحنات</h1></div><p class=\"text-sm text-secondary m-0\">مراجعة تفاصيل أصناف أوامر التوريد الواردة من الصيدليات وتأكيد التجهيز وبدء الشحن</p></div></div><!-- Navigation Filter Tabs --><div class=\"tabs-nav mt-4 pt-3 border-t\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">طلبيات الصيدليات والشحنات</h1></div><p class=\"text-sm text-secondary m-0\">مراجعة تفاصيل أصناف أوامر التوريد الواردة من الصيدليات وتأكيد التجهيز وبدء الشحن</p></div></div><!-- Navigation Filter Tabs --><div class=\"tabs-nav mt-4\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -162,7 +162,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء الواردة من الصيدليات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p></div></div></div><!-- Status Filter Tabs --><div class=\"tabs-nav m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء الواردة من الصيدليات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p></div></div></div><!-- Status Filter Tabs --><div class=\"tabs-nav\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

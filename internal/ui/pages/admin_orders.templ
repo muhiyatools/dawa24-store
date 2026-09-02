@@ -42,7 +42,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 			</div>
 
 			<!-- Tab Navigation -->
-			<div class="tabs-nav mb-6">
+			<div class="tabs-nav">
 				<a href="/admin/orders?tab=all" class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }>
 					@components.IconTruck("icon-xs")
 					<span>جميع طلبات الشراء ({ fmt.Sprintf("%d", len(data.Orders)) })</span>

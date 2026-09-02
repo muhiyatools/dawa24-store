@@ -146,7 +146,7 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان وبنر جديد (معالج تفاعلي)</span></button><!-- Wizard Modal Backdrop & Dialog --><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop fixed inset-0 z-50 bg-slate-900/60 d-flex items-center justify-center p-4 overflow-y-auto\" @keydown.escape.window=\"isOpen = false\"><div class=\"modal-dialog modal-lg text-start\" @click.outside=\"isOpen = false\"><!-- Modal Top Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان وبنر جديد (معالج تفاعلي)</span></button><!-- Wizard Modal Backdrop & Dialog --><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"isOpen = false\"><div class=\"modal-dialog modal-lg text-start\" @click.outside=\"isOpen = false\"><!-- Modal Top Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

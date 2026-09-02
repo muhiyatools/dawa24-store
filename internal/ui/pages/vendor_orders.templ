@@ -50,7 +50,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 					</div>
 
 					<!-- Navigation Filter Tabs -->
-					<div class="tabs-nav mt-4 pt-3 border-t">
+					<div class="tabs-nav mt-4">
 						<a
 							href="/vendor/orders"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "") }

@@ -44,7 +44,7 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 				</div>
 
 				<!-- Filter Tabs -->
-				<div class="tabs-nav m-0 mt-6 pt-4 border-t">
+				<div class="tabs-nav mt-6">
 					<a href="/admin/users" class={ "tab-btn", templ.KV("active", activeFilter == "all") }>كافة المستخدمين</a>
 					<a href="/admin/users?type=customer" class={ "tab-btn", templ.KV("active", activeFilter == "customers") }>الصيدليات والعملاء</a>
 					<a href="/admin/users?type=vendor" class={ "tab-btn", templ.KV("active", activeFilter == "vendors") }>الموردون والشركات</a>

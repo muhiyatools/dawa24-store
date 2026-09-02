@@ -279,7 +279,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>جاهز لتلقي التوريد</span></span></div><div class=\"stat-card-sub\">مفعل على مستوى المحافظات</div></div></div><!-- Navigation Tabs --><div class=\"tabs-nav mb-4\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'branches' }\" @click=\"activeTab = 'branches'\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>جاهز لتلقي التوريد</span></span></div><div class=\"stat-card-sub\">مفعل على مستوى المحافظات</div></div></div><!-- Navigation Tabs --><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'branches' }\" @click=\"activeTab = 'branches'\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

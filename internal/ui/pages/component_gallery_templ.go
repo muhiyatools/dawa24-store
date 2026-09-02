@@ -148,7 +148,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></section><!-- 6. Table --><section class=\"glass-panel p-4\"><h2 class=\"text-lg font-bold mb-3\">6. Data Table</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الكود</th><th>اسم الصنف</th><th>المورّد</th><th class=\"text-end\">السعر</th><th class=\"text-center\">الحالة</th></tr></thead> <tbody><tr><td class=\"tabular-nums\">#MED-101</td><td class=\"font-bold\">باراسيتامول ٥٠٠ مجم أقراص</td><td>GlaxoSmithKline</td><td class=\"text-end tabular-nums\">98.50 ج.م</td><td class=\"text-center\"><span class=\"badge badge-emerald\">متوفر</span></td></tr><tr><td class=\"tabular-nums\">#MED-102</td><td class=\"font-bold\">أموكسيسيلين ٢٥٠ مجم شراب</td><td>Sigma Pharma</td><td class=\"text-end tabular-nums\">31.00 ج.م</td><td class=\"text-center\"><span class=\"badge badge-amber\">كمية محدودة</span></td></tr></tbody></table></div></section><!-- 7. Tabs & Pagination --><section class=\"glass-panel p-4\"><h2 class=\"text-lg font-bold mb-3\">7. Tabs & Pagination Navigation</h2><div class=\"tabs-nav mb-4\"><button type=\"button\" class=\"tab-btn active\">كل الأصناف (120)</button> <button type=\"button\" class=\"tab-btn\">أصناف متوفرة (95)</button> <button type=\"button\" class=\"tab-btn\">نفدت الكمية (25)</button></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></section><!-- 6. Table --><section class=\"glass-panel p-4\"><h2 class=\"text-lg font-bold mb-3\">6. Data Table</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الكود</th><th>اسم الصنف</th><th>المورّد</th><th class=\"text-end\">السعر</th><th class=\"text-center\">الحالة</th></tr></thead> <tbody><tr><td class=\"tabular-nums\">#MED-101</td><td class=\"font-bold\">باراسيتامول ٥٠٠ مجم أقراص</td><td>GlaxoSmithKline</td><td class=\"text-end tabular-nums\">98.50 ج.م</td><td class=\"text-center\"><span class=\"badge badge-emerald\">متوفر</span></td></tr><tr><td class=\"tabular-nums\">#MED-102</td><td class=\"font-bold\">أموكسيسيلين ٢٥٠ مجم شراب</td><td>Sigma Pharma</td><td class=\"text-end tabular-nums\">31.00 ج.م</td><td class=\"text-center\"><span class=\"badge badge-amber\">كمية محدودة</span></td></tr></tbody></table></div></section><!-- 7. Tabs & Pagination --><section class=\"glass-panel p-4\"><h2 class=\"text-lg font-bold mb-3\">7. Tabs & Pagination Navigation</h2><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn active\">كل الأصناف (120)</button> <button type=\"button\" class=\"tab-btn\">أصناف متوفرة (95)</button> <button type=\"button\" class=\"tab-btn\">نفدت الكمية (25)</button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -216,7 +216,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:       "demo-gallery-modal",
 				Title:    "نافذة حوارية للعرض",
-				Subtitle: "مبنية على عنصر <dialog> الأصلي",
+				Subtitle: "مبنية على عنصر dialog الأصلي",
 				Size:     "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

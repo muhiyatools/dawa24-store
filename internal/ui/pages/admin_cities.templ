@@ -646,7 +646,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			<div
 				x-show="isEditOpen"
 				x-cloak
-				class="modal-backdrop fixed inset-0 z-modal flex-center bg-black/70 p-4"
+				class="modal-backdrop"
 				@click.self="closeEdit()"
 			>
 				<div
@@ -774,7 +774,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			<div
 				x-show="isGovEditOpen"
 				x-cloak
-				class="modal-backdrop fixed inset-0 z-modal flex-center bg-black/70 p-4"
+				class="modal-backdrop"
 				@click.self="closeGovEdit()"
 			>
 				<div

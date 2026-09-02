@@ -53,12 +53,12 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 					</div>
 				</div>
 
-				<!-- Filter Tabs -->
-				<div class="flex-between flex-wrap gap-4 mb-6 border-b pb-3">
-					<div class="d-flex items-center gap-2 flex-wrap">
+				<!-- Filter tabs and search share one row. -->
+				<div class="filter-bar">
+					<div class="tabs-nav is-inline">
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn active font-bold"
+							class="tab-btn active"
 							onclick="filterOrders('all', this)"
 						>
 							<span>كل الطلبيات</span>
@@ -66,7 +66,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 						</button>
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn font-bold"
+							class="tab-btn"
 							onclick="filterOrders('active', this)"
 						>
 							<span>قيد التنفيذ</span>
@@ -74,7 +74,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 						</button>
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn font-bold"
+							class="tab-btn"
 							onclick="filterOrders('completed', this)"
 						>
 							<span>المكتملة</span>
@@ -83,7 +83,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 						if cancelledCount > 0 {
 							<button
 								type="button"
-								class="btn btn-secondary btn-sm tab-btn font-bold"
+								class="tab-btn"
 								onclick="filterOrders('cancelled', this)"
 							>
 								<span>الملغية</span>
@@ -112,12 +112,8 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 
 			<script>
 				function filterOrders(status, btn) {
-					document.querySelectorAll('.filter-tab').forEach(b => {
-						b.classList.remove('btn-primary');
-						b.classList.add('btn-secondary');
-					});
-					btn.classList.remove('btn-secondary');
-					btn.classList.add('btn-primary');
+					document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+					btn.classList.add('active');
 
 					const items = document.querySelectorAll('.order-card-item');
 					items.forEach(item => {

@@ -294,7 +294,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " <span class=\"text-xs text-muted font-normal\">باقة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">حصص الكوتا وتوليد الـ Virtual Keys</div></div></div><!-- Main Content Panel with Tabs --><div class=\"glass-panel p-6 mb-6\"><!-- Tab Navigation --><div class=\"tabs-nav m-0 mb-6 pb-4 border-b\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " <span class=\"text-xs text-muted font-normal\">باقة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">حصص الكوتا وتوليد الـ Virtual Keys</div></div></div><!-- Main Content Panel with Tabs --><div class=\"glass-panel p-6 mb-6\"><!-- Tab Navigation --><div class=\"tabs-nav\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

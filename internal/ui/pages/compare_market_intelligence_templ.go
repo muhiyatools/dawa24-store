@@ -59,7 +59,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>مركز الملفات</span></a></div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"tab-btn\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"tab-btn\">مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"tab-btn\">مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"tab-btn active\">تقرير ذكاء السوق</a></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>مركز الملفات</span></a></div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"tabs-nav mt-4\"><a href=\"/compare/results\" class=\"tab-btn\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"tab-btn\">مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"tab-btn\">مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"tab-btn active\">تقرير ذكاء السوق</a></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

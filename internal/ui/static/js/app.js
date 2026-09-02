@@ -540,7 +540,7 @@ function switchTab(tabId, specificList) {
   const siblingPanes = container.querySelectorAll('.tab-pane');
   siblingPanes.forEach((pane) => pane.classList.remove('active'));
 
-  const btnList = specificList || (targetBtn ? targetBtn.closest('.tab-list') : null) || container;
+  const btnList = specificList || (targetBtn ? targetBtn.closest('.tabs-nav') : null) || container;
   const siblingBtns = btnList.querySelectorAll('[data-tab-target]');
   siblingBtns.forEach((btn) => btn.classList.remove('active'));
 

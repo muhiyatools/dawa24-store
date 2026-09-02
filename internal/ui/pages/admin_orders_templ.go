@@ -114,7 +114,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"form-input text-xs\" placeholder=\"رقم الطلب أو اسم العميل…\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">بحث</button></form></div></div><!-- Tab Navigation --><div class=\"tabs-nav mb-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"form-input text-xs\" placeholder=\"رقم الطلب أو اسم العميل…\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">بحث</button></form></div></div><!-- Tab Navigation --><div class=\"tabs-nav\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -72,11 +72,11 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 			</div>
 
 			<!-- 2. Subtabs Navigation for Filter: All / Unread / Read -->
-			<div class="d-flex items-center gap-2 mt-5 pt-4 border-t flex-wrap">
+			<div class="tabs-nav mt-4">
 				<button
 					type="button"
 					@click="tab = 'all'"
-					class="tab-btn text-xs font-bold"
+					class="tab-btn"
 					:class="{ 'active': tab === 'all' }"
 				>
 					<span>كافة الإشعارات</span>
@@ -86,7 +86,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 				<button
 					type="button"
 					@click="tab = 'unread'"
-					class="tab-btn text-xs font-bold"
+					class="tab-btn"
 					:class="{ 'active': tab === 'unread' }"
 				>
 					<span>غير المقروءة فقط</span>
@@ -100,7 +100,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 				<button
 					type="button"
 					@click="tab = 'read'"
-					class="tab-btn text-xs font-bold"
+					class="tab-btn"
 					:class="{ 'active': tab === 'read' }"
 				>
 					<span>المقروءة سابقاً</span>

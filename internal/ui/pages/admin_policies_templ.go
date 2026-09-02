@@ -79,7 +79,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><!-- Filter by Policy Type --><div class=\"tabs-nav m-0 mb-6 pb-4 border-b\"><button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'all' ? 'active' : ''\" @click=\"policyFilter = 'all'\"><span>كافة السياسات (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><!-- Filter by Policy Type --><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'all' ? 'active' : ''\" @click=\"policyFilter = 'all'\"><span>كافة السياسات (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

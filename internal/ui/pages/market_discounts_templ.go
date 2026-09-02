@@ -282,7 +282,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>بحث</span></button><!-- View Switcher --><div class=\"tabs-nav m-0\"><button type=\"button\" @click=\"setView('list')\" class=\"tab-btn\" :class=\"{ 'active': currentView === 'list' }\" title=\"عرض كقائمة\"><span>☰</span></button> <button type=\"button\" @click=\"setView('grid')\" class=\"tab-btn\" :class=\"{ 'active': currentView === 'grid' }\" title=\"عرض ككروت\"><span>⊞</span></button></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>بحث</span></button><!-- View Switcher --><div class=\"tabs-nav\"><button type=\"button\" @click=\"setView('list')\" class=\"tab-btn\" :class=\"{ 'active': currentView === 'list' }\" title=\"عرض كقائمة\"><span>☰</span></button> <button type=\"button\" @click=\"setView('grid')\" class=\"tab-btn\" :class=\"{ 'active': currentView === 'grid' }\" title=\"عرض ككروت\"><span>⊞</span></button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

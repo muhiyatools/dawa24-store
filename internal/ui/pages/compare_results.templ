@@ -54,7 +54,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				</div>
 
 				<!-- Navigation Subtabs for all 4 Analysis Modes -->
-				<div class="tabs-nav mt-4 pt-3 border-t">
+				<div class="tabs-nav mt-4">
 					<a href="/compare/results" class="tab-btn active">
 						المقارنة المجمعة بين الموردين
 					</a>
@@ -123,7 +123,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<button
 							type="button"
-							class="btn btn-primary btn-sm tab-btn active font-bold"
+							class="tab-btn active"
 							data-filter="all"
 							onclick="applyTableFilter('all', this)"
 						>
@@ -132,7 +132,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn font-bold"
+							class="tab-btn"
 							data-filter="best-discount"
 							onclick="applyTableFilter('best-discount', this)"
 						>
@@ -141,7 +141,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn font-bold"
+							class="tab-btn"
 							data-filter="multi-offer"
 							onclick="applyTableFilter('multi-offer', this)"
 						>
@@ -150,7 +150,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn font-bold"
+							class="tab-btn"
 							data-filter="single-offer"
 							onclick="applyTableFilter('single-offer', this)"
 						>
@@ -159,7 +159,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm tab-btn font-bold"
+							class="tab-btn"
 							data-filter="coverage-gap"
 							onclick="applyTableFilter('coverage-gap', this)"
 						>
@@ -287,12 +287,8 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 			function applyTableFilter(filter, button) {
 				currentFilter = filter;
-				document.querySelectorAll('.filter-tab').forEach(b => {
-					b.classList.remove('btn-primary');
-					b.classList.add('btn-secondary');
-				});
-				button.classList.remove('btn-secondary');
-				button.classList.add('btn-primary');
+				document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+				button.classList.add('active');
 
 				filterRows();
 			}

@@ -88,7 +88,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة</p></div></div></div><!-- Filter Tabs --><div class=\"tabs-nav m-0 mt-6 pt-4 border-t\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة</p></div></div></div><!-- Filter Tabs --><div class=\"tabs-nav mt-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

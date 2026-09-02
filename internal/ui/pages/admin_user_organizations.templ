@@ -39,7 +39,7 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 
 				<!-- Filter Tabs -->
 				if data != nil {
-					<div class="tabs-nav m-0 mt-6 pt-4 border-t">
+					<div class="tabs-nav mt-6">
 						<a
 							href="/admin/user-organization?status=all"
 							class={ "tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "all") }

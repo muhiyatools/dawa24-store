@@ -150,7 +150,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div></div><!-- Search & Filter Controls --><div class=\"glass-panel p-4 mb-6 flex-between items-center gap-4 flex-wrap\"><div class=\"d-flex items-center gap-3 flex-1\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث باسم الكيان أو النشاط (عربي / إنجليزي)...\" class=\"form-input text-xs\"></div><div class=\"tabs-nav m-0\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': statusFilter === 'all' }\" @click=\"statusFilter = 'all'\">الكل (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div></div><!-- Search & Filter Controls --><div class=\"glass-panel p-4 mb-6 flex-between items-center gap-4 flex-wrap\"><div class=\"d-flex items-center gap-3 flex-1\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث باسم الكيان أو النشاط (عربي / إنجليزي)...\" class=\"form-input text-xs\"></div><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': statusFilter === 'all' }\" @click=\"statusFilter = 'all'\">الكل (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

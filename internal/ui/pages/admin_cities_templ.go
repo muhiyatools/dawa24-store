@@ -1100,7 +1100,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</div></div></div></div><!-- Dynamic Alpine Centered Edit City Modal with Leaflet Map --><div x-show=\"isEditOpen\" x-cloak class=\"modal-backdrop fixed inset-0 z-modal flex-center bg-black/70 p-4\" @click.self=\"closeEdit()\"><div class=\"glass-panel p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl rounded-2xl\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</div></div></div></div><!-- Dynamic Alpine Centered Edit City Modal with Leaflet Map --><div x-show=\"isEditOpen\" x-cloak class=\"modal-backdrop\" @click.self=\"closeEdit()\"><div class=\"glass-panel p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl rounded-2xl\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1199,7 +1199,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "<span>حفظ التعديلات</span></button></div></form></div></div><!-- Dynamic Alpine Centered Edit Governorate Modal with Leaflet Map --><div x-show=\"isGovEditOpen\" x-cloak class=\"modal-backdrop fixed inset-0 z-modal flex-center bg-black/70 p-4\" @click.self=\"closeGovEdit()\"><div class=\"glass-panel p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl rounded-2xl\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "<span>حفظ التعديلات</span></button></div></form></div></div><!-- Dynamic Alpine Centered Edit Governorate Modal with Leaflet Map --><div x-show=\"isGovEditOpen\" x-cloak class=\"modal-backdrop\" @click.self=\"closeGovEdit()\"><div class=\"glass-panel p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl rounded-2xl\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

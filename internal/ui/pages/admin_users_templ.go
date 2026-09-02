@@ -614,7 +614,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, ")</h1></div><p class=\"text-sm text-secondary m-0\">التحكم في صلاحيات الحسابات، تعليق وتفعيل المستخدمين، وإدارة طلبات حذف الحسابات</p></div></div><!-- Tabs Navigation Bar --><div class=\"tabs-nav mt-4 pt-3 border-t\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'all' ? 'active' : ''\" @click=\"setTab('all')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, ")</h1></div><p class=\"text-sm text-secondary m-0\">التحكم في صلاحيات الحسابات، تعليق وتفعيل المستخدمين، وإدارة طلبات حذف الحسابات</p></div></div><!-- Tabs Navigation Bar --><div class=\"tabs-nav mt-4\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'all' ? 'active' : ''\" @click=\"setTab('all')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -75,7 +75,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">إعدادات المنصة والمنظومة</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة الهوية البصرية، بيانات التواصل، السياسات، قنوات الدفع، ومفاتيح الميزات</p></div></div></div><!-- Main Persistent Tabs Bar --><div class=\"tabs-nav mb-2\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'features' ? 'active' : ''\" @click=\"setTab('features')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">إعدادات المنصة والمنظومة</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة الهوية البصرية، بيانات التواصل، السياسات، قنوات الدفع، ومفاتيح الميزات</p></div></div></div><!-- Main Persistent Tabs Bar --><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'features' ? 'active' : ''\" @click=\"setTab('features')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

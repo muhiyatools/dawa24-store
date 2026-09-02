@@ -69,7 +69,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 				return templ_7745c5c3_Err
 			}
 			if data != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"tabs-nav m-0 mt-6 pt-4 border-t\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"tabs-nav mt-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
