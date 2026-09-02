@@ -1,4 +1,4 @@
-﻿-- Migration 150 Down: Revert promo.ads check constraint
+-- Migration 163 Down: Revert promo.ads check constraint
 
 ALTER TABLE promo.ads DROP CONSTRAINT IF EXISTS ads_click_target_type_check;
 

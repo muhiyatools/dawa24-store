@@ -1,5 +1,12 @@
 # Pagination UI unification — audit & execution plan
 
+> **STATUS: EXECUTED 2026-09-02.** All six phases applied. `go build ./...` and
+> `go test ./internal/ui/... ./internal/ui/pages/... ./internal/shared/pagination/...
+> ./internal/modules/catalog/...` green. One unrelated pre-existing failure remains
+> outside this work: `internal/platform/database` `TestLoadMigrationsUniqueness`
+> (duplicate migration version 150 — nothing to do with pagination). See
+> "Execution notes" at the end.
+
 **Scope:** make the pagination bar and the "rows per page" control look and
 behave identically on every dashboard page (admin, vendor, customer/pharmacy,
 platform-admin), using the pagination style that already exists. **No new
@@ -223,3 +230,60 @@ All table pages are unaffected — they use `{10,25,50,100}`.
 ~20 `.templ` files, ~10 handlers, 1 CSS file, 1 lint rule. No new visual design;
 one component, one stylesheet, one option set (plus the documented grid
 exception), one placement rule — everywhere.
+
+---
+
+## Execution notes (2026-09-02)
+
+**Phase 0 — component.** `components.PaginationProps` gained four optional
+fields, all zero-value-compatible: `PageSizeOptions []int`, `AllowShowAll bool`,
+`HXTarget string`, `SizeParam string`. Link rendering was refactored into one
+`paginationLink` sub-template so first/prev/numbered/next/last share a single
+piece of markup. `buildPaginationURL` → `buildPageURL(props, page, limit)` and
+now honours `SizeParam` (default `limit`). `PageSize <= 0` renders as
+"show all": one page, every row, controls disabled, the "الكل" option selected.
+
+**Phase 1 — duplicate selects removed (8 templates).** admin_brands,
+admin_categories, admin_products, admin_warehouses, admin_match_decisions,
+customer_decision_memory, vendor_inventory, vendor_products. Each toolbar
+`<select name="limit">` became a hidden input that preserves the size across a
+filter submit; the B2BPagination bar is now the only rows-per-page control. The
+dropped 200 / 250 options were already dead — every one of these handlers parses
+through `pagination.RowsPerPage`, which honours only {10,25,50,100}.
+`catalog.PageSizes` / `DefaultPageSize` (vendor products listing) were realigned
+from {25,50,100,200}/50 to {10,25,50,100}/25.
+
+**Phase 2 — custom table pagers replaced.** market_discounts (grid options
+{24,48,96} kept via `PageSizeOptions`), smart_order_results (`AllowShowAll`),
+vendor_ingest_review, saving_import_review. Each got a small
+`*PaginationQuery`/`*QueryValues` helper carrying every filter through a page
+change. The saving-import handlers (customer + vendor) switched from an
+unchecked `strconv.Atoi` to `pagination.RowsPerPage` / `PageNumber`.
+
+**Phase 3 — catalogue grid.** `CustomerCatalogPagination` now delegates to
+`B2BPagination` with `PageSizeOptions {12,24,48,96}` and `SizeParam "page_size"`
+(the screen's pre-existing param, left untouched in the handler and
+`buildCatalogURL`). Toolbar "عرض:" select and the `changePageSize` JS removed;
+`catalogQueryValues` added beside `buildCatalogURL`.
+
+**Phase 4 — prev/next-only pages.**
+- suppliers_profile: handler moved to `pagination.RowsPerPage`/`PageNumber`
+  (was hard-coded `limit := 24`), `SupplierProfileData.PerPage` added,
+  `supplierCatalogQuery` helper added; bar replaced.
+- admin_import_review: `importRowsPager` now renders `B2BPagination` with
+  `HXTarget "#import-rows-container"` so the htmx partial swap is preserved;
+  `importQuery` carries `limit`; page size is `pagination.RowsPerPage`
+  (`importReviewPageSize`) — default drops from a fixed 100 to the platform 25,
+  raisable via the control. `importPageURL` deleted (now unused).
+- admin_temp_warehouses_modals: client-side Alpine pager reskinned to the exact
+  `.b2b-pagination` / `.b2b-pagination-btn` markup with `:class` bindings; still
+  Alpine-driven because the modal table is fetched without a round trip.
+
+**Phase 5 — cleanup.** `.so-pagination`, `.so-pagination-summary`,
+`.so-pagination-controls`, `.pagination-current`, `.so-filter-limit` deleted
+from `customer.css` (`.so-footer-actions` kept and de-duplicated). No template
+references any removed selector.
+
+**Not done:** the lint guard (§3 Phase 5 item 6) that would fail CI on a future
+`<select name="limit">` in `internal/ui/pages` — add to the Makefile `check`
+target when convenient.
