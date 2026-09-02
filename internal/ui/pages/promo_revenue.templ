@@ -6,6 +6,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -21,6 +22,9 @@ type SponsorshipRequestsData struct {
 	ItemOptions     []VendorOfferItemOption
 	ActiveOffers    []*promo.Offer
 	TotalCredits    int
+	WalletBalance   money.Amount
+	NoticeType      string
+	NoticeMsg       string
 	Page            int
 	PerPage         int
 	TotalCount      int

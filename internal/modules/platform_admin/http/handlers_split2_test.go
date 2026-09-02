@@ -148,8 +148,13 @@ func newAuthedRouter(repo platformadmin.Repository) http.Handler {
 			actor := authctx.Actor{
 				UserID:         1,
 				OrganizationID: 1,
-				Role:           "admin",
-				Permissions:    []string{"admin", "platform.admin"},
+				// IsStaff, because the write gates on these two modules use
+				// RequireAPIPermission — a platform-settings or homepage-
+				// highlight write is a staff action and a tenant member holding
+				// the key by accident must still be refused.
+				IsStaff:     true,
+				Role:        "admin",
+				Permissions: []string{"admin", "platform.admin"},
 			}
 			ctx := authctx.WithActor(r.Context(), actor)
 			ctx = database.WithTenant(ctx, 1)

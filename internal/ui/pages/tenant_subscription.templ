@@ -258,11 +258,11 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 				</div>
 			} else {
 				<!-- Horizontal Grid of Modern Pricing Cards -->
-    <div class="stack-sm">
+				<div class="dashboard-stat-grid cols-3 gap-6 items-stretch mb-6">
 					for _, p := range data.Plans {
 						{{ isCurrent := data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) }}
 						<div
-							class={ "glass-panel p-6 mb-0 d-flex flex-col justify-between rounded-2xl transition-all relative overflow-hidden",
+							class={ "glass-panel p-6 mb-0 d-flex flex-col justify-between rounded-2xl transition-all relative overflow-hidden h-full",
 								templ.KV("border-2 border-brand-500 bg-brand-50/10 shadow-md", isCurrent),
 								templ.KV("border border-slate-200/80 hover:border-slate-300 shadow-xs", !isCurrent) }
 						>

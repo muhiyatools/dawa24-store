@@ -25,21 +25,35 @@ func NewHandler(service *ingest.Service, log *slog.Logger) *Handler {
 	return &Handler{service: service, log: log}
 }
 
-// RegisterRoutes registers ingest routes on a Chi router.
+// RegisterRoutes registers ingest endpoints on a Chi router.
+//
+// Everything that starts, changes or commits an import takes vendor.ingest.run,
+// the same permission the HTML wizard requires. Without it, an approved
+// organisation's ordinary member could commit a price list into their company's
+// catalogue over JSON while being unable to open the screen that does it.
+//
+// Reads take vendor.ingest.view, which vendor.ingest.run implies.
 func (h *Handler) RegisterRoutes(r chi.Router) {
-	r.Post("/api/v1/ingest/uploads/presign", h.PresignUpload)
-	r.Post("/api/v1/ingest/uploads/chunk", h.UploadChunk)
-	r.Get("/api/v1/ingest/uploads/chunk/status", h.GetChunkStatus)
-	r.Post("/api/v1/ingest/uploads", h.RegisterUpload)
-	r.Post("/api/v1/ingest/sessions", h.StartSession)
-	r.Get("/api/v1/ingest/sessions", h.ListSessions)
-	r.Get("/api/v1/ingest/sessions/{id}", h.GetSession)
-	r.Get("/api/v1/ingest/sessions/{id}/rows", h.ListRows)
-	r.Post("/api/v1/ingest/sessions/{id}/mapping", h.UpdateMapping)
-	r.Post("/api/v1/ingest/sessions/{id}/commit", h.CommitSession)
-	r.Post("/api/v1/ingest/sessions/{id}/cancel", h.CancelSession)
-	r.Put("/api/v1/ingest/sessions/{id}/rows/{rid}", h.OverrideRowMatch)
-	r.Get("/api/v1/ingest/sessions/{id}/events", h.StreamEvents)
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.ingest.view", "vendor.ingest.run", "ingest.admin"))
+		g.Get("/api/v1/ingest/uploads/chunk/status", h.GetChunkStatus)
+		g.Get("/api/v1/ingest/sessions", h.ListSessions)
+		g.Get("/api/v1/ingest/sessions/{id}", h.GetSession)
+		g.Get("/api/v1/ingest/sessions/{id}/rows", h.ListRows)
+		g.Get("/api/v1/ingest/sessions/{id}/events", h.StreamEvents)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.ingest.run", "ingest.admin"))
+		g.Post("/api/v1/ingest/uploads/presign", h.PresignUpload)
+		g.Post("/api/v1/ingest/uploads/chunk", h.UploadChunk)
+		g.Post("/api/v1/ingest/uploads", h.RegisterUpload)
+		g.Post("/api/v1/ingest/sessions", h.StartSession)
+		g.Post("/api/v1/ingest/sessions/{id}/mapping", h.UpdateMapping)
+		g.Post("/api/v1/ingest/sessions/{id}/commit", h.CommitSession)
+		g.Post("/api/v1/ingest/sessions/{id}/cancel", h.CancelSession)
+		g.Put("/api/v1/ingest/sessions/{id}/rows/{rid}", h.OverrideRowMatch)
+	})
 
 	h.RegisterAdminRoutes(r)
 }

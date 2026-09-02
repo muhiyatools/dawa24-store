@@ -9,7 +9,9 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -52,6 +54,14 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 		}
 	}
 
+	var walletBal money.Amount
+	if h.billSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		if w, err := h.billSvc.GetWallet(sysCtx, actor.UserID, "EGP"); err == nil && w != nil {
+			walletBal = w.Balance
+		}
+	}
+
 	itemOptions := h.loadVendorInStockItems(ctx, actor.OrganizationID)
 
 	data := pages.SponsorshipRequestsData{
@@ -63,6 +73,9 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 		ItemOptions:     itemOptions,
 		ActiveOffers:    activeOffers,
 		TotalCredits:    totalCredits,
+		WalletBalance:   walletBal,
+		NoticeType:      r.URL.Query().Get("notice_type"),
+		NoticeMsg:       r.URL.Query().Get("notice"),
 		Page:            page,
 		PerPage:         limit,
 		TotalCount:      totalRequests,
@@ -171,14 +184,19 @@ func (h *UIHandler) VendorSponsorshipPackagePurchaseSubmit(w http.ResponseWriter
 		return
 	}
 
+	redirectURL := r.PostFormValue("redirect_url")
+	if redirectURL == "" {
+		redirectURL = "/vendor/sponsorship-requests"
+	}
+
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "common.service_unavailable"))
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
 	packageID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || packageID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "vendor.sponsorship.invalid_package_id"))
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "vendor.sponsorship.invalid_package_id"))
 		return
 	}
 
@@ -190,10 +208,10 @@ func (h *UIHandler) VendorSponsorshipPackagePurchaseSubmit(w http.ResponseWriter
 
 	_, err = h.promoSvc.PurchaseSponsorshipPackage(ctx, packageID, autoRenew, billingCycle)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", h.safeMessage(err, lang))
+		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", i18n.T(lang, "vendor.sponsorship.package_purchased_success"))
+	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "vendor.sponsorship.package_purchased_success"))
 }
 
 func (h *UIHandler) localeAndDirLang(r *http.Request) string {

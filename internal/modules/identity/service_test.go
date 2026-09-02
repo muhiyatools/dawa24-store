@@ -394,19 +394,3 @@ func (m *mockRepo) GetPlatformRole(_ context.Context, _ string) (*PlatformRole, 
 func (m *mockRepo) CreatePlatformRole(_ context.Context, _ *PlatformRole, _ int64) error { return nil }
 func (m *mockRepo) UpdatePlatformRole(_ context.Context, _ *PlatformRole, _ int64) error { return nil }
 func (m *mockRepo) DeletePlatformRole(_ context.Context, _ string) error                 { return nil }
-
-func (m *mockRepo) ListModerators(ctx context.Context) ([]*Moderator, error) {
-	return nil, nil
-}
-
-func (m *mockRepo) ModeratorSubordinateIDs(ctx context.Context, parentID int64) ([]int64, error) {
-	return nil, nil
-}
-
-func (m *mockRepo) ModeratorParentID(ctx context.Context, userID int64) (*int64, error) {
-	return nil, nil
-}
-
-func (m *mockRepo) SetModeratorParent(ctx context.Context, userID int64, parentID *int64, actorID int64) error {
-	return nil
-}

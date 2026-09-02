@@ -323,4 +323,3 @@ func (r *Repository) BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerI
 	})
 	return count, err
 }
-

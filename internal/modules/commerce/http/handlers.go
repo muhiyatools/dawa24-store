@@ -49,7 +49,13 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Delete("/api/v1/commerce/wishlist/{productId}", h.RemoveFromWishlist)
 
 	r.Post("/api/v1/commerce/quotes", h.CreateQuoteRequest)
-	r.Post("/api/v1/commerce/quotes/{id}/respond", h.RespondQuote)
+	// Responding to a price request is a commercial commitment by the supplier.
+	// It took nothing but approved-organisation membership.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission(
+			"vendor.purchase_request.respond", "commerce.quote.manage", "commerce.admin"))
+		g.Post("/api/v1/commerce/quotes/{id}/respond", h.RespondQuote)
+	})
 	r.Get("/api/v1/commerce/quotes", h.ListQuotes)
 
 	h.RegisterAdminRoutes(r)

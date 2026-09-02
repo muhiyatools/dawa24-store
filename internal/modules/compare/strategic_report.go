@@ -110,8 +110,8 @@ type MarketCoverage struct {
 	// that says "25 items are single-sourced" when 26,097 are is worse than one
 	// that says nothing.
 	ExclusiveProduct int `json:"exclusive_products"`
-	Suppliers         int `json:"suppliers"`
-	Files             int `json:"files"`
+	Suppliers        int `json:"suppliers"`
+	Files            int `json:"files"`
 	// Rejected is how many offers were thrown out as unusable — almost always
 	// a discount column that does not hold a discount. See MarketOffer.Usable.
 	Rejected int `json:"rejected"`

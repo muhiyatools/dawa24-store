@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -27,7 +28,16 @@ func NewHandler(service *platformadmin.Service, log *slog.Logger) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/platform/settings/public", h.ListPublicSettings)
 	r.Get("/api/v1/platform/settings/{key}", h.GetSetting)
-	r.Put("/api/v1/platform/settings/{key}", h.SetSetting)
+
+	// Writing a platform setting was reachable by any authenticated member of
+	// any approved organisation. platform_admin.system_settings holds the
+	// platform's own configuration — branding, contact details, feature
+	// switches — and the admin screen that edits it has always required
+	// platform.setting.update. This is the same gate on the same table.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireAPIPermission("platform.setting.update", "platform.admin"))
+		g.Put("/api/v1/platform/settings/{key}", h.SetSetting)
+	})
 	r.Get("/api/v1/platform/countries", h.ListCountries)
 	r.Get("/api/v1/platform/countries/{id}/cities", h.ListCities)
 

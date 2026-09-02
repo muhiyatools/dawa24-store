@@ -30,9 +30,9 @@ func ptr(v int64) *int64 { return &v }
 // reading "free versus 1,382.00, save 100%".
 func TestZeroNetOffersAreRejectedNotWinners(t *testing.T) {
 	ds := compare.BuildMarketDataset([]compare.MarketOffer{
-		offer(1, "مورد سليم", "بانادول إكسترا", ptr(101), 100, 20),   // net 80.00
-		offer(2, "مورد أغلى", "بانادول إكسترا", ptr(101), 100, 10),   // net 90.00
-		offer(3, "ملف معطوب", "بانادول إكسترا", ptr(101), 100, 100),  // net 0.00
+		offer(1, "مورد سليم", "بانادول إكسترا", ptr(101), 100, 20),  // net 80.00
+		offer(2, "مورد أغلى", "بانادول إكسترا", ptr(101), 100, 10),  // net 90.00
+		offer(3, "ملف معطوب", "بانادول إكسترا", ptr(101), 100, 100), // net 0.00
 	})
 
 	if ds.Rejected != 1 {

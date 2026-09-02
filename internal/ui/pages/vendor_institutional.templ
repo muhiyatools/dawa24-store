@@ -123,16 +123,20 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 				</div>
 			</div>
 
-			<!-- Filter Bar -->
-			<div class="filter-bar">
-				<form method="GET" action="/vendor/pharmacy-coverage" class="d-grid gap-3 items-end">
-     <div class="stack-sm">
-						<label class="form-label text-xs font-bold text-secondary mb-1">البحث بالاسم أو العنوان أو الهاتف</label>
-						<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder="اسم الصيدلية / الفرع / العنوان..." />
+			<!-- Horizontal Filter Bar Card -->
+			<div class="glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
+				<form method="GET" action="/vendor/pharmacy-coverage" class="d-flex items-end gap-3 flex-wrap m-0">
+					<!-- Search Input -->
+					<div class="flex-1" style="min-width: 240px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">البحث بالاسم أو العنوان أو الهاتف</label>
+						<div class="position-relative">
+							<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder="اسم الصيدلية / الفرع / العنوان..." />
+						</div>
 					</div>
 
-     <div class="stack-sm">
-						<label class="form-label text-xs font-bold text-secondary mb-1">يوم التوصيل</label>
+					<!-- Delivery Day Selector -->
+					<div style="min-width: 140px; flex: 1 1 140px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">يوم التوصيل</label>
 						<select name="day" class="form-select text-xs w-full">
 							<option value="">كافة الأيام</option>
 							<option value="today" selected?={ data.FilterDay == "today" }>اليوم الحالي فقط</option>
@@ -146,8 +150,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-     <div class="stack-sm">
-						<label class="form-label text-xs font-bold text-secondary mb-1">فرع التوزيع</label>
+					<!-- Distribution Branch Selector -->
+					<div style="min-width: 140px; flex: 1 1 140px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">فرع التوزيع</label>
 						<select name="branch" class="form-select text-xs w-full">
 							<option value="">كافة الفروع</option>
 							for _, b := range data.CoveredBranches {
@@ -156,8 +161,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-     <div class="stack-sm">
-						<label class="form-label text-xs font-bold text-secondary mb-1">المدينة / المنطقة</label>
+					<!-- City Selector -->
+					<div style="min-width: 140px; flex: 1 1 140px;">
+						<label class="form-label text-xs font-bold text-secondary mb-1.5 d-block">المدينة / المنطقة</label>
 						<select name="city" class="form-select text-xs w-full">
 							<option value="">كافة المدن</option>
 							for _, c := range data.CoveredCities {
@@ -166,10 +172,17 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div class="d-flex items-center gap-2">
-						<button type="submit" class="btn btn-primary text-xs font-bold px-4">تصفية</button>
+					<!-- Action Buttons -->
+					<div class="d-flex items-center gap-2" style="flex: 0 0 auto;">
+						<button type="submit" class="btn btn-primary text-xs font-bold px-4 gap-1.5 shadow-xs">
+							@components.IconSearch("icon-xs")
+							<span>تصفية</span>
+						</button>
 						if data.SearchQuery != "" || data.FilterDay != "" || data.FilterBranch != "" || data.FilterCity != "" {
-							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary text-xs px-3" title="إعادة تعيين"></a>
+							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary text-xs px-3 font-bold gap-1 shadow-2xs" title="إعادة تعيين">
+								@components.IconRefresh("icon-2xs")
+								<span>إلغاء</span>
+							</a>
 						}
 					</div>
 				</form>

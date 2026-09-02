@@ -14,19 +14,34 @@ import (
 )
 
 // RegisterVendorSponsorshipRoutes mounts the vendor sponsorship endpoints.
+//
+// Purchasing a sponsorship package spends the organisation's wallet balance and
+// submitting a sponsorship request commits it to a placement. Both were open to
+// any member of an approved organisation, while the screens that do the same
+// things require vendor.offer_package.manage and vendor.ad.manage.
+//
+// Impression recording stays open: it is a counter, and a gate on it would lose
+// the metric rather than protect anything.
 func (h *Handler) RegisterVendorSponsorshipRoutes(r chi.Router) {
 	r.Get("/api/v1/vendor/sponsorship/packages", h.VendorListSponsorshipPackages)
-	r.Post("/api/v1/vendor/sponsorship/packages/{id}/purchase", h.VendorPurchasePackage)
 	r.Get("/api/v1/vendor/sponsorship/purchases", h.VendorListPurchases)
 	r.Get("/api/v1/vendor/sponsorship/active-purchases", h.VendorListActivePurchases)
-	r.Post("/api/v1/vendor/sponsorship/requests", h.VendorSubmitSponsorshipRequest)
 	r.Get("/api/v1/vendor/sponsorship/requests", h.VendorListSponsorshipRequests)
-	r.Delete("/api/v1/vendor/sponsorship/requests/{id}", h.VendorCancelSponsorshipRequest)
-
 	r.Get("/api/v1/vendor/ads", h.VendorListAds)
-	r.Post("/api/v1/vendor/ads", h.VendorCreateAd)
-	r.Put("/api/v1/vendor/ads/{id}", h.VendorUpdateAd)
 	r.Post("/api/v1/vendor/ads/{id}/impression", h.VendorRecordAdImpression)
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.offer_package.manage", "promo.offer.manage", "promo.admin"))
+		g.Post("/api/v1/vendor/sponsorship/packages/{id}/purchase", h.VendorPurchasePackage)
+		g.Post("/api/v1/vendor/sponsorship/requests", h.VendorSubmitSponsorshipRequest)
+		g.Delete("/api/v1/vendor/sponsorship/requests/{id}", h.VendorCancelSponsorshipRequest)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.ad.manage", "promo.ad.update", "promo.admin"))
+		g.Post("/api/v1/vendor/ads", h.VendorCreateAd)
+		g.Put("/api/v1/vendor/ads/{id}", h.VendorUpdateAd)
+	})
 }
 
 // VendorListSponsorshipPackages returns available sponsorship packages.

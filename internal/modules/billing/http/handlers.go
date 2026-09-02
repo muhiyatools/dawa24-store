@@ -27,22 +27,51 @@ func NewHandler(service *billing.Service, log *slog.Logger) *Handler {
 }
 
 // RegisterRoutes registers billing routes on a Chi router.
+//
+// Money moves here, and every route that moves it was mounted with nothing but
+// an authenticated, approved-organisation check. Depositing to and withdrawing
+// from the organisation's wallet, adding and removing its payment methods,
+// raising and paying invoices — all of it reachable by any member of the
+// company, while the HTML wallet screen has always required
+// vendor.wallet.manage or pharmacy.wallet.manage.
+//
+// RequirePermission rather than the tenant-only variant: a staff member holding
+// billing.invoice.manage settles a tenant's invoice from /admin and must not be
+// refused for being staff.
 func (h *Handler) RegisterRoutes(r chi.Router) {
+	// --- reads -------------------------------------------------------------
 	r.Get("/api/v1/billing/wallet", h.GetWallet)
-	r.Post("/api/v1/billing/wallet/deposit", h.Deposit)
-	r.Post("/api/v1/billing/wallet/withdraw", h.Withdraw)
 	r.Get("/api/v1/billing/plans", h.ListPlans)
-	r.Post("/api/v1/billing/subscriptions", h.Subscribe)
 	r.Get("/api/v1/billing/entitlements/{key}", h.CheckEntitlement)
-
-	r.Post("/api/v1/billing/invoices", h.CreateInvoice)
 	r.Get("/api/v1/billing/invoices/{id}", h.GetInvoice)
 	r.Get("/api/v1/billing/invoices", h.ListInvoices)
-	r.Post("/api/v1/billing/invoices/{id}/pay", h.PayInvoice)
-
-	r.Post("/api/v1/billing/payment-methods", h.AddPaymentMethod)
 	r.Get("/api/v1/billing/payment-methods", h.ListPaymentMethods)
-	r.Delete("/api/v1/billing/payment-methods/{id}", h.DeletePaymentMethod)
+
+	// --- the wallet and its payment methods --------------------------------
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission(
+			"vendor.wallet.manage", "pharmacy.wallet.manage", "billing.wallet.manage",
+			"billing.admin"))
+		g.Post("/api/v1/billing/wallet/deposit", h.Deposit)
+		g.Post("/api/v1/billing/wallet/withdraw", h.Withdraw)
+		g.Post("/api/v1/billing/payment-methods", h.AddPaymentMethod)
+		g.Delete("/api/v1/billing/payment-methods/{id}", h.DeletePaymentMethod)
+	})
+
+	// --- subscriptions and invoices ----------------------------------------
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission(
+			"vendor.subscription.manage", "pharmacy.subscription.manage",
+			"billing.subscription_plan.update", "billing.invoice.manage", "billing.admin"))
+		g.Post("/api/v1/billing/subscriptions", h.Subscribe)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission(
+			"vendor.wallet.manage", "pharmacy.wallet.manage", "billing.invoice.manage",
+			"billing.admin"))
+		g.Post("/api/v1/billing/invoices", h.CreateInvoice)
+		g.Post("/api/v1/billing/invoices/{id}/pay", h.PayInvoice)
+	})
 
 	h.RegisterAdminRoutes(r)
 }

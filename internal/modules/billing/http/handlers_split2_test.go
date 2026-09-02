@@ -198,7 +198,15 @@ func newAuthedRouter(repo billing.Repository) http.Handler {
 				UserID:         1,
 				OrganizationID: 1,
 				Role:           "super_admin",
-				Permissions:    []string{"admin", "super_admin", "billing.admin"},
+				// The wallet, invoice and subscription writes are gated now —
+				// they used to take nothing but an approved organisation. A
+				// super admin holds the whole catalogue in production; the
+				// fixture names the keys these routes actually require.
+				Permissions: []string{
+					"admin", "super_admin", "billing.admin",
+					"billing.wallet.manage", "billing.invoice.manage",
+					"billing.subscription_plan.update",
+				},
 			}
 			ctx := authctx.WithActor(r.Context(), actor)
 			ctx = database.WithTenant(ctx, 1)

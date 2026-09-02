@@ -62,51 +62,51 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 	// --- master catalogue writes -------------------------------------------
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.product.create"))
+		g.Use(authctx.RequirePermission("catalog.product.create", "catalog.admin"))
 		g.Post("/api/v1/catalog/products", h.CreateProduct)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.product.update"))
+		g.Use(authctx.RequirePermission("catalog.product.update", "catalog.admin"))
 		g.Put("/api/v1/catalog/products/{id}", h.UpdateProduct)
 		g.Post("/api/v1/catalog/products/bulk-status", h.SetProductsStatus)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.product.delete"))
+		g.Use(authctx.RequirePermission("catalog.product.delete", "catalog.admin"))
 		g.Delete("/api/v1/catalog/products/{id}", h.DeleteProduct)
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.category.update"))
+		g.Use(authctx.RequirePermission("catalog.category.update", "catalog.admin"))
 		g.Post("/api/v1/catalog/categories", h.CreateCategory)
 		g.Put("/api/v1/catalog/categories/{id}", h.UpdateCategory)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.category.delete"))
+		g.Use(authctx.RequirePermission("catalog.category.delete", "catalog.admin"))
 		g.Delete("/api/v1/catalog/categories/{id}", h.DeleteCategory)
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.brand.update", "catalog.brand.manage"))
+		g.Use(authctx.RequirePermission("catalog.brand.update", "catalog.brand.manage", "catalog.admin"))
 		g.Post("/api/v1/catalog/brands", h.CreateBrand)
 		g.Put("/api/v1/catalog/brands/{id}", h.UpdateBrand)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("catalog.brand.delete"))
+		g.Use(authctx.RequirePermission("catalog.brand.delete", "catalog.admin"))
 		g.Delete("/api/v1/catalog/brands/{id}", h.DeleteBrand)
 	})
 
 	// --- a vendor's own variants and pricing --------------------------------
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("vendor.product.create", "catalog.vendor_product.update"))
+		g.Use(authctx.RequirePermission("vendor.product.create", "catalog.vendor_product.update", "catalog.admin"))
 		g.Post("/api/v1/catalog/products/{id}/variants", h.CreateVariant)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("vendor.product.update", "catalog.vendor_product.update"))
+		g.Use(authctx.RequirePermission("vendor.product.update", "catalog.vendor_product.update", "catalog.admin"))
 		g.Put("/api/v1/catalog/products/{id}/variants/{variantId}", h.UpdateVariant)
 		g.Post("/api/v1/catalog/pricing/customer", h.SetCustomerPricing)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePermission("vendor.product.delete", "catalog.vendor_product.update"))
+		g.Use(authctx.RequirePermission("vendor.product.delete", "catalog.vendor_product.update", "catalog.admin"))
 		g.Delete("/api/v1/catalog/products/{id}/variants/{variantId}", h.DeleteVariant)
 	})
 

@@ -485,13 +485,13 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Horizontal Grid of Modern Pricing Cards --> <div class=\"stack-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Horizontal Grid of Modern Pricing Cards --> <div class=\"dashboard-stat-grid cols-3 gap-6 items-stretch mb-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, p := range data.Plans {
 				isCurrent := data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault)
-				var templ_7745c5c3_Var21 = []any{"glass-panel p-6 mb-0 d-flex flex-col justify-between rounded-2xl transition-all relative overflow-hidden",
+				var templ_7745c5c3_Var21 = []any{"glass-panel p-6 mb-0 d-flex flex-col justify-between rounded-2xl transition-all relative overflow-hidden h-full",
 					templ.KV("border-2 border-brand-500 bg-brand-50/10 shadow-md", isCurrent),
 					templ.KV("border border-slate-200/80 hover:border-slate-300 shadow-xs", !isCurrent)}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var21...)

@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -218,10 +219,21 @@ func (h *UIHandler) VendorOffersPackagesPage(w http.ResponseWriter, r *http.Requ
 		purchases, _ = h.promoSvc.ListSponsorshipPurchases(ctx)
 	}
 
+	var walletBal money.Amount
+	if h.billSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		if w, err := h.billSvc.GetWallet(sysCtx, actor.UserID, "EGP"); err == nil && w != nil {
+			walletBal = w.Balance
+		}
+	}
+
 	data := pages.SponsorshipRequestsData{
-		Packages:  packages,
-		Purchases: purchases,
-		OrgID:     actor.OrganizationID,
+		Packages:      packages,
+		Purchases:     purchases,
+		OrgID:         actor.OrganizationID,
+		WalletBalance: walletBal,
+		NoticeType:    r.URL.Query().Get("notice_type"),
+		NoticeMsg:     r.URL.Query().Get("notice"),
 	}
 
 	h.renderPage(ctx, w, "render vendor offers packages", pages.VendorOffersPackagesPageWithData(lang, dir, data))

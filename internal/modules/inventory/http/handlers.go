@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -24,26 +25,66 @@ func NewHandler(service *inventory.Service, log *slog.Logger) *Handler {
 }
 
 // RegisterRoutes registers inventory endpoints on a Chi router.
+//
+// Every write here was mounted behind authentication and an approved-org check
+// and nothing more, so any employee of any approved organisation could create a
+// warehouse, adjust a stock balance or cancel somebody's transfer over JSON —
+// while the same actions on the HTML screens have always required
+// vendor.warehouse.manage or vendor.inventory.adjust.
+//
+// Row-level security still scopes what a query can touch to the caller's own
+// tenant, so this was not a cross-tenant hole; it was a within-tenant one, and
+// that is the one that matters here. A pharmacy's delivery driver holds an
+// approved-organisation session. Stock adjustment is how inventory is written
+// off.
+//
+// RequirePermission takes both audiences: a staff member holding
+// inventory.warehouse.manage administers a tenant's warehouses from /admin, and
+// a vendor's own clerk holds vendor.warehouse.manage.
 func (h *Handler) RegisterRoutes(r chi.Router) {
+	// --- reads -------------------------------------------------------------
 	r.Get("/api/v1/inventory/warehouses", h.ListWarehouses)
-	r.Post("/api/v1/inventory/warehouses", h.CreateWarehouse)
 	r.Get("/api/v1/inventory/warehouses/{id}", h.GetWarehouse)
-	r.Put("/api/v1/inventory/warehouses/{id}", h.UpdateWarehouse)
-	r.Delete("/api/v1/inventory/warehouses/{id}", h.DeleteWarehouse)
-
 	r.Get("/api/v1/inventory/warehouses/{id}/stocks", h.ListStocks)
-	r.Post("/api/v1/inventory/stocks/adjust", h.AdjustStock)
 	r.Get("/api/v1/inventory/stocks/low", h.ListLowStock)
 	r.Get("/api/v1/inventory/stocks/{id}/movements", h.ListMovements)
 	r.Get("/api/v1/inventory/movements", h.ListOrgMovements)
-
-	// Transfers are two-phase: POST dispatches (source deducted), receive
-	// credits the destination. See inventory/transfer_state.go.
-	r.Post("/api/v1/inventory/transfers", h.TransferStock)
 	r.Get("/api/v1/inventory/transfers", h.ListTransfers)
 	r.Get("/api/v1/inventory/transfers/{id}", h.GetTransfer)
-	r.Post("/api/v1/inventory/transfers/{id}/receive", h.ReceiveTransfer)
-	r.Post("/api/v1/inventory/transfers/{id}/cancel", h.CancelTransfer)
+
+	// --- warehouses --------------------------------------------------------
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.warehouse.manage", "inventory.warehouse.manage", "inventory.admin"))
+		g.Post("/api/v1/inventory/warehouses", h.CreateWarehouse)
+		g.Put("/api/v1/inventory/warehouses/{id}", h.UpdateWarehouse)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.warehouse.manage", "inventory.warehouse.delete", "inventory.admin"))
+		g.Delete("/api/v1/inventory/warehouses/{id}", h.DeleteWarehouse)
+	})
+
+	// --- balances ----------------------------------------------------------
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.inventory.adjust", "inventory.stock.adjust", "inventory.admin"))
+		g.Post("/api/v1/inventory/stocks/adjust", h.AdjustStock)
+	})
+
+	// --- transfers ---------------------------------------------------------
+	//
+	// Two-phase: POST dispatches (source deducted), receive credits the
+	// destination. See inventory/transfer_state.go. Receiving and cancelling
+	// move stock as surely as dispatching does, so all three take the same
+	// permission rather than only the first.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.inventory.adjust", "inventory.transfer.create", "inventory.admin"))
+		g.Post("/api/v1/inventory/transfers", h.TransferStock)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.inventory.adjust", "inventory.transfer.approve",
+			"inventory.transfer.update", "inventory.admin"))
+		g.Post("/api/v1/inventory/transfers/{id}/receive", h.ReceiveTransfer)
+		g.Post("/api/v1/inventory/transfers/{id}/cancel", h.CancelTransfer)
+	})
 
 	h.RegisterAdminRoutes(r)
 }

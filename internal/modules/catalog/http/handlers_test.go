@@ -11,6 +11,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	catalogHttp "github.com/muhiya/dawa24-store/internal/modules/catalog/http"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -306,7 +307,21 @@ func newTestRouter(t *testing.T) http.Handler {
 				httpx.Error(w, r, log, apperr.Unauthorized())
 				return
 			}
-			next.ServeHTTP(w, r)
+			// A valid session now also has to carry the permissions the write
+			// routes require. They used to require none: the catalogue's JSON
+			// writes were mounted behind authentication alone, which is the
+			// hole RegisterRoutes closed. The tests in this file are about the
+			// error envelope and the body decoding, so the actor holds the
+			// catalogue's API key and the assertions still measure what they
+			// were written to measure.
+			ctx := authctx.WithActor(r.Context(), authctx.Actor{
+				UserID:         1,
+				OrganizationID: 1,
+				IsStaff:        true,
+				Role:           "admin",
+				Permissions:    []string{"catalog.admin"},
+			})
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	})
 	catalogHttp.NewHandler(svc, log).RegisterRoutes(r)

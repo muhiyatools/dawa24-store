@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -24,12 +25,25 @@ func NewHandler(service *hr.Service, log *slog.Logger) *Handler {
 }
 
 // RegisterRoutes registers HR routes on a Chi router.
+//
+// Creating an employee record and writing working hours are team-management
+// actions, gated on the same keys the team screens use rather than on mere
+// membership of an approved organisation.
 func (h *Handler) RegisterRoutes(r chi.Router) {
-	r.Post("/api/v1/hr/employees", h.CreateEmployee)
 	r.Get("/api/v1/hr/employees/{id}", h.GetEmployee)
 	r.Get("/api/v1/hr/employees", h.ListEmployees)
-	r.Post("/api/v1/hr/work-times", h.SaveWorkTimes)
 	r.Get("/api/v1/hr/work-times", h.ListWorkTimes)
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission(
+			"vendor.team.create", "pharmacy.team.create", "hr.job.manage", "hr.admin"))
+		g.Post("/api/v1/hr/employees", h.CreateEmployee)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission(
+			"vendor.team.update", "pharmacy.team.update", "hr.job.manage", "hr.admin"))
+		g.Post("/api/v1/hr/work-times", h.SaveWorkTimes)
+	})
 
 	h.RegisterAdminRoutes(r)
 }

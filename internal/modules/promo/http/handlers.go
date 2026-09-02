@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -24,9 +25,14 @@ func NewHandler(service *promo.Service, log *slog.Logger) *Handler {
 }
 
 // RegisterRoutes registers promo routes on a Chi router.
+//
+// Click recording stays open to any authenticated caller: it is a counter on
+// somebody else's advertisement and refusing it would break the metric, not
+// protect anything. Creating an offer or a homepage highlight is not — a
+// highlight section is the platform's own storefront, and an offer is a
+// commercial commitment by a supplier.
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Get("/api/v1/promo/offers", h.ListOffers)
-	r.Post("/api/v1/promo/offers", h.CreateOffer)
 	r.Get("/api/v1/promo/offers/{id}", h.GetOffer)
 	r.Post("/api/v1/promo/offers/{id}/click", h.RecordClick)
 
@@ -35,7 +41,15 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/promo/ads/{id}/click", h.RecordAdClick)
 
 	r.Get("/api/v1/promo/highlights", h.ListHighlights)
-	r.Post("/api/v1/promo/highlights", h.CreateHighlight)
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePermission("vendor.offer.manage", "promo.offer.manage", "promo.admin"))
+		g.Post("/api/v1/promo/offers", h.CreateOffer)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireAPIPermission("platform.content.update", "promo.offer.manage", "promo.admin"))
+		g.Post("/api/v1/promo/highlights", h.CreateHighlight)
+	})
 
 	h.RegisterAdminRoutes(r)
 	h.RegisterVendorSponsorshipRoutes(r)
