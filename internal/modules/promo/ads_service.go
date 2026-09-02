@@ -53,7 +53,7 @@ func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 	if err := s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, selectedPurchase.ID, AdCreditCost); err != nil {
 		return nil, err
 	}
-	a.AdPlanID = &selectedPurchase.PackageID
+	a.AdPlanID = nil
 
 	if a.DurationDays <= 0 {
 		a.DurationDays = 30

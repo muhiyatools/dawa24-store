@@ -128,7 +128,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 						<div class="user-avatar-badge">
 							@components.IconMegaphone("icon-sm")
 						</div>
-						<div class="stack-sm">
+						<div class="stack-2xs">
 							<h3 class="text-base font-black text-primary m-0">معالج بناء وإنشاء الإعلان الترويجي</h3>
 							<p class="text-xs text-secondary m-0 font-medium">خطوات رقمية ميسرة لإطلاق حملتك الإعلانية بالصورة أو الفيديو وتوجيهها للكتالوج</p>
 						</div>
@@ -144,49 +144,49 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 				</div>
 
 				<!-- Step Progress Indicator Bar -->
-				<div class="px-6 pt-5 pb-3 border-b border-slate-100 bg-surface-raised">
+				<div class="px-5 pt-4 pb-3 border-b bg-surface-sunken">
 					<div class="d-grid grid-cols-4 gap-2 text-center text-xs">
 						<!-- Step 1 Indicator -->
 						<div
 							class="p-2 rounded-xl transition-all font-bold"
-							:class="step === 1 ? 'bg-brand-50 text-brand-700 border border-brand-200' : (step > 'bg-emerald-50 text-emerald-700 font-bold' 'text-muted')"
+							:class="step === 1 ? 'bg-primary-subtle text-primary border border-primary/20' : (step > 1 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted')"
 						>
-							<div class="d-flex items-center justify-center gap-1.5 mb-1">
-								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 1 ? 'bg-emerald-500 text-white' : (step === 'bg-brand-600 'bg-slate-200 text-slate-600')">1</span>
-								<span>الصنف والمخزون</span>
+							<div class="d-flex items-center justify-center gap-1.5 mb-0.5">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 1 ? 'bg-emerald-600 text-white' : (step === 1 ? 'bg-brand text-white' : 'bg-surface-raised text-muted')">1</span>
+								<span class="text-2xs">الصنف والمخزون</span>
 							</div>
 						</div>
 
 						<!-- Step 2 Indicator -->
 						<div
 							class="p-2 rounded-xl transition-all font-bold"
-							:class="step === 2 ? 'bg-brand-50 text-brand-700 border border-brand-200' : (step > 'bg-emerald-50 text-emerald-700 font-bold' 'text-muted')"
+							:class="step === 2 ? 'bg-primary-subtle text-primary border border-primary/20' : (step > 2 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted')"
 						>
-							<div class="d-flex items-center justify-center gap-1.5 mb-1">
-								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 2 ? 'bg-emerald-500 text-white' : (step === 'bg-brand-600 'bg-slate-200 text-slate-600')">2</span>
-								<span>الموضع والحملة</span>
+							<div class="d-flex items-center justify-center gap-1.5 mb-0.5">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 2 ? 'bg-emerald-600 text-white' : (step === 2 ? 'bg-brand text-white' : 'bg-surface-raised text-muted')">2</span>
+								<span class="text-2xs">الموضع والحملة</span>
 							</div>
 						</div>
 
 						<!-- Step 3 Indicator -->
 						<div
 							class="p-2 rounded-xl transition-all font-bold"
-							:class="step === 3 ? 'bg-brand-50 text-brand-700 border border-brand-200' : (step > 'bg-emerald-50 text-emerald-700 font-bold' 'text-muted')"
+							:class="step === 3 ? 'bg-primary-subtle text-primary border border-primary/20' : (step > 3 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted')"
 						>
-							<div class="d-flex items-center justify-center gap-1.5 mb-1">
-								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 3 ? 'bg-emerald-500 text-white' : (step === 'bg-brand-600 'bg-slate-200 text-slate-600')">3</span>
-								<span>الوسائط والمحتوى</span>
+							<div class="d-flex items-center justify-center gap-1.5 mb-0.5">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 3 ? 'bg-emerald-600 text-white' : (step === 3 ? 'bg-brand text-white' : 'bg-surface-raised text-muted')">3</span>
+								<span class="text-2xs">الوسائط والمحتوى</span>
 							</div>
 						</div>
 
 						<!-- Step 4 Indicator -->
 						<div
 							class="p-2 rounded-xl transition-all font-bold"
-							:class="step === 4 ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'text-muted'"
+							:class="step === 4 ? 'bg-primary-subtle text-primary border border-primary/20' : 'text-muted'"
 						>
-							<div class="d-flex items-center justify-center gap-1.5 mb-1">
-								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step === 4 ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-600'">4</span>
-								<span>مراجعة الرصيد</span>
+							<div class="d-flex items-center justify-center gap-1.5 mb-0.5">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step === 4 ? 'bg-brand text-white' : 'bg-surface-raised text-muted'">4</span>
+								<span class="text-2xs">مراجعة الرصيد</span>
 							</div>
 						</div>
 					</div>
@@ -199,13 +199,13 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 					enctype="multipart/form-data"
 					class="m-0"
 				>
-					<div class="modal-body p-6">
+					<div class="modal-body p-5">
 						<!-- STEP 1: Product Selection from In-Stock Inventory -->
 						<div x-show="step === 1" class="d-flex flex-col gap-4">
-							<div class="p-4 bg-sky-50/70 border border-sky-200/80 rounded-2xl">
-								<div class="d-flex items-start gap-3">
+							<div class="p-3.5 bg-sky-50/70 border border-sky-200/80 rounded-2xl">
+								<div class="d-flex items-start gap-2.5">
 									@components.IconPill("icon-sm text-sky-600 flex-shrink-0 mt-0.5")
-									<div class="stack-sm">
+									<div class="stack-2xs">
 										<strong class="text-xs text-sky-900 font-black d-block">شرط الأهلية لإنشاء الإعلان</strong>
 										<p class="text-xs text-sky-800 m-0 mt-0.5 leading-relaxed font-medium">
 											يُشترط لإنشاء الإعلان الترويجي أن يكون مرتبطاً بصنف دوائي متوفر لديك في المخزون حالياً، لضمان تلبية طلبات الشراء الواردة فوراً.
@@ -216,14 +216,14 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 
 							<!-- Selected Product Preview Card -->
 							<template x-if="selectedProduct">
-								<div class="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl d-flex items-center justify-between gap-4">
+								<div class="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl d-flex items-center justify-between gap-3">
 									<div class="d-flex items-center gap-3">
-										<div class="w-11 h-11 rounded-xl bg-emerald-500 text-white d-flex items-center justify-center shadow-sm">
+										<div class="w-10 h-10 rounded-xl bg-emerald-500 text-white d-flex items-center justify-center shadow-sm">
 											@components.IconCheckCircle("icon-sm")
 										</div>
-										<div class="stack-sm">
+										<div class="stack-2xs">
 											<strong class="text-sm font-black text-primary d-block" x-text="selectedProduct.name_ar || selectedProduct.name_en"></strong>
-											<div class="text-xs text-secondary d-flex items-center gap-3 mt-1 flex-wrap">
+											<div class="text-xs text-secondary d-flex items-center gap-2 mt-0.5 flex-wrap">
 												<span class="font-mono" x-text="'SKU: ' + selectedProduct.sku"></span>
 												<span class="badge badge-emerald font-extrabold text-2xs tabular-nums" x-text="'الرصيد المتاح: ' + selectedProduct.available_stock + ' عبوة'"></span>
 												<span class="badge badge-slate font-bold text-2xs" x-show="selectedProduct.warehouse_name" x-text="'مستودع: ' + selectedProduct.warehouse_name"></span>
@@ -272,13 +272,13 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 									<template x-for="item in filteredItems" :key="item.variant_id">
 										<div
 											@click="selectProduct(item)"
-											class="p-2.5 rounded-xl cursor-pointer d-flex items-center justify-between gap-3 border-b border-slate-100 last:border-b-0 transition-colors"
+											class="p-2.5 rounded-xl cursor-pointer d-flex items-center justify-between gap-3 border-b border-slate-100 last:border-b-0 transition-colors hover:bg-slate-50"
 										>
 											<div class="d-flex items-center gap-2.5">
 												<div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center">
 													@components.IconPill("icon-xs")
 												</div>
-												<div class="stack-sm">
+												<div class="stack-2xs">
 													<strong class="text-xs font-bold text-primary d-block" x-text="item.name_ar || item.name_en"></strong>
 													<div class="text-2xs text-muted font-mono" x-text="'SKU: ' + item.sku + (item.warehouse_name ? ' · ' + item.warehouse_name : '')"></div>
 												</div>
@@ -301,22 +301,22 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 
 						<!-- STEP 2: Placement & Campaign Settings -->
 						<div x-show="step === 2" class="d-flex flex-col gap-4">
-							<div class="stack-sm">
+							<div class="stack-2xs">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									حدد موضع ظهور الإعلان على المنصة *
 								</label>
-								<p class="text-xs text-secondary m-0 mb-3">اختر الموقع الاستراتيجي المستهدف لعرض البنر والإعلان أمام الصيدليات</p>
+								<p class="text-xs text-secondary m-0 mb-3 font-medium">اختر الموقع الاستراتيجي المستهدف لعرض البنر والإعلان أمام الصيدليات</p>
 							</div>
 
 							<!-- Placement Selector Radio Cards -->
-							<div class="d-grid grid-auto-fit-sm gap-3.5">
+							<div class="d-grid grid-cols-2 gap-3">
 								for _, p := range GetStandardPlacements() {
 									<label
-										class="p-4 rounded-2xl border-2 transition-all cursor-pointer d-flex flex-col justify-between"
-										:class={ fmt.Sprintf("placement === '%s' ? 'border-brand-500 bg-brand-50/40 shadow-xs' : 'border-slate-200 bg-white", p.Key) }
+										class="p-3.5 rounded-2xl border-2 transition-all cursor-pointer d-flex flex-col justify-between"
+										:class={ fmt.Sprintf("placement === '%s' ? 'border-brand bg-primary-subtle shadow-xs' : 'border-slate-200 bg-white'", p.Key) }
 									>
-										<div class="stack-sm">
-											<div class="flex-between items-start mb-2">
+										<div class="stack-2xs">
+											<div class="flex-between items-start mb-1.5">
 												<div class="d-flex items-center gap-2">
 													<input
 														type="radio"
@@ -329,7 +329,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 												</div>
 												<span class="badge badge-sky font-extrabold text-2xs shadow-2xs">{ p.Badge }</span>
 											</div>
-											<p class="text-xs text-secondary m-0 leading-relaxed font-medium ps-6">
+											<p class="text-2xs text-secondary m-0 leading-relaxed font-medium ps-6">
 												{ p.Description }
 											</p>
 										</div>
@@ -337,9 +337,9 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 								}
 							</div>
 
-							<div class="d-grid grid-auto-fit-sm gap-4 mt-2">
-								<div class="stack-sm">
-									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">وجهة النقر (Target Destination) *</label>
+							<div class="d-grid grid-cols-2 gap-3.5 mt-2">
+								<div class="stack-2xs">
+									<label class="form-label text-xs font-bold text-primary mb-1 d-block">وجهة النقر (Target Destination) *</label>
 									<select name="click_target_type" x-model="clickTargetType" class="form-input text-xs font-semibold">
 										<option value="product">صفحة الصنف الدوائي المختار بالكتالوج</option>
 										<option value="vendor_page">صفحة ملف المورد والمستودع</option>
@@ -347,8 +347,8 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 										<option value="external_url">رابط خارجي مخصص</option>
 									</select>
 								</div>
-								<div class="stack-sm">
-									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">مدة الحملة الإعلانية *</label>
+								<div class="stack-2xs">
+									<label class="form-label text-xs font-bold text-primary mb-1 d-block">مدة الحملة الإعلانية *</label>
 									<select name="duration_days" x-model.number="durationDays" class="form-input text-xs font-semibold tabular-nums">
 										<option value="7">7 أيام (أسبوع ترويجي)</option>
 										<option value="15">15 يوماً (نصف شهر)</option>
@@ -370,7 +370,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 												@components.IconUpload("icon-sm")
 											</div>
 											<strong class="text-xs font-black text-primary mt-1">رفع صورة أو فيديو الإعلان مباشرة</strong>
-											<span class="text-2xs text-muted">صيغ الصور المدعومة: PNG, JPG, WebP · صيغ الفيديو: MP4, WebM (حد أقصى: 10 ميجابايت)</span>
+											<span class="text-2xs text-muted">صيغ الصور: PNG, JPG, WebP · صيغ الفيديو: MP4, WebM (حد أقصى: 20 ميجابايت)</span>
 										</div>
 									</template>
 
@@ -398,9 +398,9 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 							</div>
 
 							<!-- Bilingual Ad Content -->
-							<div class="d-grid grid-auto-fit-sm gap-4">
-								<div class="stack-sm">
-									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">عنوان الإعلان (عربي) *</label>
+							<div class="d-grid grid-cols-2 gap-3.5">
+								<div class="stack-2xs">
+									<label class="form-label text-xs font-bold text-primary mb-1 d-block">عنوان الإعلان (عربي) *</label>
 									<input
 										type="text"
 										name="title_ar"
@@ -410,8 +410,8 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 										class="form-input text-xs font-bold"
 									/>
 								</div>
-								<div class="stack-sm">
-									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">عنوان الإعلان (إنجليزي)</label>
+								<div class="stack-2xs">
+									<label class="form-label text-xs font-bold text-primary mb-1 d-block">عنوان الإعلان (إنجليزي)</label>
 									<input
 										type="text"
 										name="title_en"
@@ -423,9 +423,9 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 								</div>
 							</div>
 
-							<div class="d-grid grid-auto-fit-sm gap-4">
-								<div class="stack-sm">
-									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نص الإعلان والرسالة الترويجية (عربي)</label>
+							<div class="d-grid grid-cols-2 gap-3.5">
+								<div class="stack-2xs">
+									<label class="form-label text-xs font-bold text-primary mb-1 d-block">نص الإعلان والرسالة الترويجية (عربي)</label>
 									<textarea
 										name="ad_text_ar"
 										x-model="adTextAr"
@@ -434,8 +434,8 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 										class="form-input text-xs"
 									></textarea>
 								</div>
-								<div class="stack-sm">
-									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نص الإعلان (إنجليزي)</label>
+								<div class="stack-2xs">
+									<label class="form-label text-xs font-bold text-primary mb-1 d-block">نص الإعلان (إنجليزي)</label>
 									<textarea
 										name="ad_text_en"
 										x-model="adTextEn"
@@ -450,8 +450,8 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 
 						<!-- STEP 4: Credit Summary & Final Confirmation -->
 						<div x-show="step === 4" class="d-flex flex-col gap-4">
-							<div class="p-5 bg-surface-sunken border border-slate-200/80 rounded-2xl">
-								<div class="flex-between items-center mb-3.5 pb-2.5 border-b border-slate-200/80">
+							<div class="p-4 bg-surface-sunken border border-slate-200/80 rounded-2xl">
+								<div class="flex-between items-center mb-3 pb-2 border-b border-slate-200/80">
 									<div class="d-flex items-center gap-2">
 										@components.IconZap("icon-xs text-amber-500")
 										<span class="font-black text-xs text-primary">تفاصيل وحساب تكلفة الإعلان</span>
@@ -459,19 +459,19 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 									<span class="badge badge-emerald font-black text-xs tabular-nums">تكلفة الإعلان: 2 رصيد</span>
 								</div>
 
-								<div class="d-grid grid-auto-fit-sm gap-3 text-center">
+								<div class="d-grid grid-cols-3 gap-2.5 text-center">
 									<div class="p-3 bg-white rounded-xl border border-slate-200/70">
 										<span class="text-2xs text-muted font-semibold d-block">رصيد الرعايات المتاح</span>
-										<strong class="text-lg font-black text-primary tabular-nums" x-text="totalCredits + ' رصيد'"></strong>
+										<strong class="text-base font-black text-primary tabular-nums" x-text="totalCredits + ' رصيد'"></strong>
 									</div>
 									<div class="p-3 bg-white rounded-xl border border-slate-200/70">
 										<span class="text-2xs text-muted font-semibold d-block">تكلفة هذا الإعلان</span>
-										<strong class="text-lg font-black text-amber-600 tabular-nums">- 2 رصيد</strong>
+										<strong class="text-base font-black text-amber-600 tabular-nums">- 2 رصيد</strong>
 									</div>
 									<div class="p-3 bg-white rounded-xl border border-slate-200/70">
-										<span class="text-2xs text-muted font-semibold d-block">الرصيد المتبقي بعد النشر</span>
+										<span class="text-2xs text-muted font-semibold d-block">الرصيد المتبقي</span>
 										<strong
-											class="text-lg font-black tabular-nums"
+											class="text-base font-black tabular-nums"
 											:class="totalCredits >= 2 ? 'text-emerald-600' : 'text-rose-600'"
 											x-text="(totalCredits - 2 >= 0 ? (totalCredits - 2) : 0) + ' رصيد'"
 										></strong>
@@ -481,17 +481,17 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 
 							<!-- Insufficient Credits Warning Alert -->
 							<template x-if="totalCredits < 2">
-								<div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl d-flex items-center justify-between gap-4 flex-wrap">
-									<div class="d-flex items-center gap-2.5 text-rose-800">
+								<div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl d-flex items-center justify-between gap-3 flex-wrap">
+									<div class="d-flex items-center gap-2 text-rose-800">
 										@components.IconAlert("icon-sm text-rose-600 flex-shrink-0")
-										<div class="stack-sm">
+										<div class="stack-2xs">
 											<strong class="text-xs font-black d-block">رصيدك الحالي غير كافٍ لإنشاء الإعلان</strong>
-											<span class="text-xs mt-0.5">يتطلب إنشاء ونشر الإعلان الترويجي توفر 2 رصيد رعاية على الأقل من باقة مفعلة.</span>
+											<span class="text-xs">يتطلب إنشاء ونشر الإعلان الترويجي توفر 2 رصيد رعاية على الأقل من باقة مفعلة.</span>
 										</div>
 									</div>
 									<a
 										href="/vendor/sponsorship-requests"
-										class="btn btn-primary btn-xs font-black px-4 shadow-sm"
+										class="btn btn-primary btn-xs font-black px-3.5 shadow-sm"
 									>
 										شراء باقة رعاية وشحن الرصيد
 									</a>
@@ -499,7 +499,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 							</template>
 
 							<!-- Summary Confirmation Box -->
-							<div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-secondary font-medium d-flex flex-col gap-2">
+							<div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-secondary font-medium d-flex flex-col gap-1.5">
 								<div class="d-flex justify-between">
 									<span>الصنف المختار:</span>
 									<strong class="text-primary font-black" x-text="selectedProduct ? (selectedProduct.name_ar || selectedProduct.name_en) : '—'"></strong>
@@ -521,7 +521,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 					</div>
 
 					<!-- Modal Bottom Navigation Footer -->
-					<div class="modal-footer p-4 border-t border-slate-100 bg-slate-50/70 flex-between items-center">
+					<div class="modal-footer p-3.5 border-t border-slate-100 bg-slate-50/70 flex-between items-center">
 						<div>
 							<button
 								type="button"
@@ -549,7 +549,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 								x-show="step < 4"
 								@click="nextStep()"
 								:disabled="(step === 1 && !selectedProduct) || (step === 3 && !titleAr)"
-								class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5"
+								class="btn btn-primary btn-sm font-black px-5 shadow-sm gap-1.5"
 							>
 								<span>التالي</span>
 								@components.IconArrowLeft("icon-xs")
@@ -560,7 +560,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 								type="submit"
 								x-show="step === 4"
 								:disabled="totalCredits < 2 || !selectedProduct || !titleAr"
-								class="btn btn-primary btn-sm font-black px-8 shadow-sm gap-2"
+								class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-2"
 							>
 								@components.IconCheck("icon-xs")
 								<span>تأكيد وخصم 2 رصيد وإرسال الإعلان للمراجعة</span>
