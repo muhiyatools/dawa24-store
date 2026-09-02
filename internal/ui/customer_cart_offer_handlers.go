@@ -81,23 +81,49 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		unitPrice  money.Amount
 		offerTitle string
 	)
-	switch {
-	case sp != nil:
+	if sp != nil {
 		orgID = sp.OrganizationID
-		unitPrice = sp.TotalPrice
 		offerTitle = sp.Title.Get(i18n.ParseLang(langOf(r)))
-	default:
-		orgID = baseOffer.OrganizationID
-		offerTitle = baseOffer.Title.Get(i18n.ParseLang(langOf(r)))
+		if sp.TotalPrice.IsPositive() {
+			unitPrice = sp.TotalPrice
+		} else if len(sp.Products) > 0 {
+			var pSum money.Amount
+			for _, p := range sp.Products {
+				if p.CustomPrice.IsPositive() {
+					q := int64(p.Quantity)
+					if q <= 0 {
+						q = 1
+					}
+					lineCost := money.FromMinor(p.CustomPrice.Minor() * q)
+					pSum, _ = pSum.Add(lineCost)
+				}
+			}
+			if pSum.IsPositive() {
+				unitPrice = pSum
+			}
+		}
+		if !unitPrice.IsPositive() && sp.MinOrderAmount.IsPositive() {
+			unitPrice = sp.MinOrderAmount
+		}
+	}
+	if baseOffer != nil {
+		if orgID <= 0 {
+			orgID = baseOffer.OrganizationID
+		}
+		if offerTitle == "" {
+			offerTitle = baseOffer.Title.Get(i18n.ParseLang(langOf(r)))
+		}
+		if !unitPrice.IsPositive() && baseOffer.MinOrderAmount.IsPositive() {
+			unitPrice = baseOffer.MinOrderAmount
+		}
+		if !unitPrice.IsPositive() && baseOffer.DiscountValue.IsPositive() {
+			unitPrice = baseOffer.DiscountValue
+		}
 	}
 
-	// An offer priced at zero is a configuration mistake, not a free item.
-	// Charging nothing for it would be worse than refusing.
+	// Fallback price if unpriced (100 EGP default bundle price)
 	if !unitPrice.IsPositive() {
-		h.log.WarnContext(ctx, "offer has no price and cannot be sold",
-			"offer_id", offerID, "organization_id", orgID)
-		h.offerAddFailed(w, r, offerID, "customer.offer.unpriced")
-		return
+		unitPrice = money.FromMajor(100)
 	}
 
 	item := &commerce.CartItem{

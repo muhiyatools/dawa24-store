@@ -22,46 +22,96 @@ templ SupplierProfileReviewsTab(reviews []*org.Review, overallRating float64, to
 				</p>
 			</div>
 		} else {
+			{{
+				totRep, totQuality, totSpeed := 0, 0, 0
+				for _, rv := range reviews {
+					if rv.ScoreRep > 0 {
+						totRep += rv.ScoreRep
+					} else {
+						totRep += rv.Rating
+					}
+					if rv.ScoreQuality > 0 {
+						totQuality += rv.ScoreQuality
+					} else {
+						totQuality += rv.Rating
+					}
+					if rv.ScoreSpeed > 0 {
+						totSpeed += rv.ScoreSpeed
+					} else {
+						totSpeed += rv.Rating
+					}
+				}
+				avgRep := float64(totRep) / float64(len(reviews))
+				avgQuality := float64(totQuality) / float64(len(reviews))
+				avgSpeed := float64(totSpeed) / float64(len(reviews))
+			}}
 			<div class="d-flex flex-col gap-4">
 				
 				<!-- Rating Summary Header Card -->
-				<div class="glass-panel p-4 flex-between flex-wrap gap-3 border rounded-2xl shadow-xs bg-surface-sunken">
-					<div class="d-flex items-center gap-3">
-						<div class="text-2xl font-black text-amber tabular-nums">
+				<div class="review-summary-card">
+					<div class="review-score-hero">
+						<div class="review-score-badge tabular-nums">
 							{ fmt.Sprintf("%.1f", overallRating) }
 						</div>
 						<div class="stack-2xs">
-							<div class="d-flex items-center gap-1.5">
-								@components.RatingStars(overallRating, totalCount)
-							</div>
-							<span class="text-2xs text-muted font-bold">
-								مبني على { fmt.Sprintf("%d", totalCount) } تقييم صيدلية موثق
+							@components.RatingStars(overallRating, 0)
+							<span class="text-xs text-secondary font-bold mt-0.5">
+								مبني على { fmt.Sprintf("%d", totalCount) } تقييم صيدلية معتمد
 							</span>
 						</div>
 					</div>
 
-					<div class="d-flex items-center gap-2 flex-wrap text-2xs text-secondary font-bold">
-						<span class="px-2.5 py-1 rounded-lg bg-surface border">تقييم المندوب ★</span>
-						<span class="px-2.5 py-1 rounded-lg bg-surface border">جودة الخدمة ★</span>
-						<span class="px-2.5 py-1 rounded-lg bg-surface border">سرعة التوصيل ★</span>
+					<div class="review-criteria-strip">
+						<span class="review-criteria-chip">
+							<span>مندوب التوصيل:</span>
+							<strong class="tabular-nums">{ fmt.Sprintf("%.1f ★", avgRep) }</strong>
+						</span>
+						<span class="review-criteria-chip">
+							<span>جودة الخدمة:</span>
+							<strong class="tabular-nums">{ fmt.Sprintf("%.1f ★", avgQuality) }</strong>
+						</span>
+						<span class="review-criteria-chip">
+							<span>سرعة التوريد:</span>
+							<strong class="tabular-nums">{ fmt.Sprintf("%.1f ★", avgSpeed) }</strong>
+						</span>
 					</div>
 				</div>
 
 				<!-- Reviews List Cards -->
 				for _, rv := range reviews {
-					<div class="glass-panel p-5 border rounded-2xl shadow-xs">
+					{{
+						scRep := rv.ScoreRep
+						if scRep <= 0 {
+							scRep = rv.Rating
+						}
+						scQuality := rv.ScoreQuality
+						if scQuality <= 0 {
+							scQuality = rv.Rating
+						}
+						scSpeed := rv.ScoreSpeed
+						if scSpeed <= 0 {
+							scSpeed = rv.Rating
+						}
+					}}
+					<div class="review-card-item">
 						
 						<!-- Reviewer Top Line -->
-						<div class="flex-between items-start flex-wrap gap-2 pb-3 border-b mb-3">
+						<div class="review-card-header">
 							<div class="d-flex items-center gap-2.5">
 								<div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 font-black d-flex items-center justify-center text-xs border border-emerald-200">
 									@components.IconBuilding("icon-2xs")
 								</div>
 								<div>
-									<strong class="text-xs font-black text-primary d-block">
-										{ rv.ReviewerOrgName }
-									</strong>
-									<span class="text-2xs text-muted font-medium">
+									<div class="d-flex items-center gap-2">
+										<strong class="text-xs font-black text-primary">
+											{ rv.ReviewerOrgName }
+										</strong>
+										<span class="badge badge-emerald text-2xs font-bold gap-1 py-0.5 px-1.5">
+											@components.IconCheck("icon-2xs")
+											<span>صيدلية معتمدة</span>
+										</span>
+									</div>
+									<span class="text-2xs text-muted font-medium d-block mt-0.5">
 										{ format.Date(rv.CreatedAt, lang) }
 									</span>
 								</div>
@@ -76,49 +126,31 @@ templ SupplierProfileReviewsTab(reviews []*org.Review, overallRating float64, to
 						</div>
 
 						<!-- 3 Criteria Badges -->
-						<div class="d-flex items-center gap-2 flex-wrap mb-3">
-							<span class="badge badge-surface text-2xs font-bold text-secondary border">
-								المندوب:
-								<strong class="text-primary tabular-nums ms-1">
-									if rv.ScoreRep > 0 {
-										{ fmt.Sprintf("%d ★", rv.ScoreRep) }
-									} else {
-										{ fmt.Sprintf("%d ★", rv.Rating) }
-									}
-								</strong>
+						<div class="review-criteria-strip">
+							<span class="review-criteria-chip">
+								<span>مندوب التوصيل:</span>
+								<strong class="tabular-nums">{ fmt.Sprintf("%d ★", scRep) }</strong>
 							</span>
-							<span class="badge badge-surface text-2xs font-bold text-secondary border">
-								الخدمة:
-								<strong class="text-primary tabular-nums ms-1">
-									if rv.ScoreQuality > 0 {
-										{ fmt.Sprintf("%d ★", rv.ScoreQuality) }
-									} else {
-										{ fmt.Sprintf("%d ★", rv.Rating) }
-									}
-								</strong>
+							<span class="review-criteria-chip">
+								<span>جودة الأصناف:</span>
+								<strong class="tabular-nums">{ fmt.Sprintf("%d ★", scQuality) }</strong>
 							</span>
-							<span class="badge badge-surface text-2xs font-bold text-secondary border">
-								السرعة:
-								<strong class="text-primary tabular-nums ms-1">
-									if rv.ScoreSpeed > 0 {
-										{ fmt.Sprintf("%d ★", rv.ScoreSpeed) }
-									} else {
-										{ fmt.Sprintf("%d ★", rv.Rating) }
-									}
-								</strong>
+							<span class="review-criteria-chip">
+								<span>سرعة التجهيز:</span>
+								<strong class="tabular-nums">{ fmt.Sprintf("%d ★", scSpeed) }</strong>
 							</span>
 						</div>
 
 						<!-- Pharmacy Review Text -->
 						if rv.ReviewText != "" {
-							<p class="text-xs text-primary font-medium leading-relaxed mb-3">
+							<blockquote class="review-quote-body">
 								{ rv.ReviewText }
-							</p>
+							</blockquote>
 						}
 
 						<!-- Vendor Reply Card -->
 						if rv.Response != "" {
-							<div class="p-3.5 bg-brand-subtle border border-brand/20 rounded-xl mt-3">
+							<div class="p-3.5 bg-brand-subtle border border-brand/20 rounded-xl mt-1">
 								<div class="flex-between items-center mb-1">
 									<div class="d-flex items-center gap-1.5 text-xs font-black text-brand">
 										@components.IconCheck("icon-2xs")

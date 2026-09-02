@@ -55,6 +55,77 @@ func TestCustomerOrderReviewModal_StructureAndStyling(t *testing.T) {
 	}
 }
 
+func TestSupplierProfileReviewsTab_StructureAndStyling(t *testing.T) {
+	respTime := time.Now()
+	reviewerOrgID := int64(50)
+	reviews := []*org.Review{
+		{
+			ID:              1,
+			OrganizationID:  51,
+			ReviewerOrgID:   &reviewerOrgID,
+			ReviewerOrgName: "صيدلية الهواة",
+			Rating:          2,
+			ScoreRep:        1,
+			ScoreQuality:    3,
+			ScoreSpeed:      2,
+			ReviewText:      "مورد محترم جدا",
+			Response:        "شكراً لتقييمكم ونسعى دائماً لخدمتكم",
+			ResponseAt:      &respTime,
+			CreatedAt:       time.Now(),
+		},
+	}
+
+	var buf bytes.Buffer
+	ctx := context.Background()
+	err := pages.SupplierProfileReviewsTab(reviews, 2.0, 1, "ar", "reviews").Render(ctx, &buf)
+	if err != nil {
+		t.Fatalf("Failed to render SupplierProfileReviewsTab: %v", err)
+	}
+
+	html := buf.String()
+
+	// 1. Must contain polished summary card & score hero
+	if !strings.Contains(html, `class="review-summary-card"`) {
+		t.Errorf("Expected class=\"review-summary-card\" in reviews tab HTML")
+	}
+	if !strings.Contains(html, `class="review-score-hero"`) {
+		t.Errorf("Expected class=\"review-score-hero\" in reviews tab HTML")
+	}
+	if !strings.Contains(html, `class="review-score-badge tabular-nums"`) {
+		t.Errorf("Expected class=\"review-score-badge tabular-nums\" in reviews tab HTML")
+	}
+
+	// 2. Must render criteria averages in review-criteria-chip
+	if !strings.Contains(html, `class="review-criteria-chip"`) {
+		t.Errorf("Expected class=\"review-criteria-chip\" in reviews tab HTML")
+	}
+	if !strings.Contains(html, "مندوب التوصيل:") || !strings.Contains(html, "جودة الخدمة:") || !strings.Contains(html, "سرعة التوريد:") {
+		t.Errorf("Expected 3 criteria labels in summary header")
+	}
+
+	// 3. Must render individual review card
+	if !strings.Contains(html, `class="review-card-item"`) {
+		t.Errorf("Expected class=\"review-card-item\" in review card HTML")
+	}
+	if !strings.Contains(html, `class="review-card-header"`) {
+		t.Errorf("Expected class=\"review-card-header\" in review card HTML")
+	}
+	if !strings.Contains(html, "صيدلية الهواة") {
+		t.Errorf("Expected reviewer pharmacy name 'صيدلية الهواة'")
+	}
+	if !strings.Contains(html, "مورد محترم جدا") {
+		t.Errorf("Expected review text")
+	}
+	if !strings.Contains(html, "رد المورد الرسمي:") {
+		t.Errorf("Expected vendor response banner")
+	}
+
+	// 4. Must have zero inline styles (Strict: no inline ever)
+	if strings.Contains(html, `style=`) {
+		t.Errorf("SupplierProfileReviewsTab contains forbidden inline style: %s", html)
+	}
+}
+
 func TestSupplierProfile_NoSpecialQuoteAndCleanStyles(t *testing.T) {
 	supplier := &org.Organization{
 		ID:        51,

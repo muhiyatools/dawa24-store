@@ -136,12 +136,23 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 
 			<div>
 				if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-					<form action="/cart/add-offer" method="POST" class="m-0 d-flex items-center gap-3">
+					<form action="/cart/add-offer" method="POST" class="m-0 d-flex items-center gap-3 flex-wrap">
 						<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", data.Offer.ID) } />
-						<input type="hidden" name="quantity" value="1" />
+						<div class="d-flex items-center gap-2">
+							<label for="offer-qty" class="text-xs font-bold text-secondary">الكمية المطلوبة (باقات):</label>
+							<input
+								type="number"
+								id="offer-qty"
+								name="quantity"
+								min="1"
+								max="99"
+								value="1"
+								class="form-input tabular-nums text-center font-bold text-sm w-20 py-2 rounded-xl"
+							/>
+						</div>
 						<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm">
 							@components.IconCart("icon-xs")
-							<span>إضافة العرض للسلة والشراء الآن</span>
+							<span>إضافة العرض إلى السلة والشراء الآن</span>
 						</button>
 					</form>
 				} else {
