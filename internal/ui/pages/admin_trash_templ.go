@@ -323,7 +323,7 @@ type TrashRowView struct {
 }
 
 // AdminTrashListModelPage lists the deleted rows of one table, with restore and purge actions.
-func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string) templ.Component {
+func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string, page, perPage, totalCount int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -382,9 +382,9 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(rows)))
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", totalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_trash.templ`, Line: 172, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_trash.templ`, Line: 172, Col: 124}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -530,6 +530,17 @@ func AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir str
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
+				}
+				if totalCount > 0 {
+					templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+						CurrentPage: page,
+						PageSize:    perPage,
+						TotalCount:  totalCount,
+						BaseURL:     fmt.Sprintf("/admin/trash-list/%s", modelKey),
+					}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div>")

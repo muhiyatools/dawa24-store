@@ -9,12 +9,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 // CustomerOfferOrdersPage renders offer-based orders.
-templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
+templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, perPage, totalCount int) {
 	@layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil) {
 		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
-					<h2 class="m-0 text-base font-bold text-primary">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", len(orders)) })</h2>
+					<h2 class="m-0 text-base font-bold text-primary">طلبات العروض والصفقات الخاصة ({ fmt.Sprintf("%d", totalCount) })</h2>
 					<p class="subtitle">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p>
 				</div>
 			</div>
@@ -47,9 +47,17 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 							}
 						</tbody>
 					</table>
-				</div>
-			}
-		</div>
+					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     "/orders/offers",
+						})
+					}
+				}
+			</div>
 	}
 }
 

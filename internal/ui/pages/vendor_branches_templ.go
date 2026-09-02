@@ -19,9 +19,12 @@ import (
 )
 
 type VendorBranchesData struct {
-	Branches  []*org.Branch
-	Cities    []*platformadmin.City
-	Employees []*org.EmployeeView
+	Branches   []*org.Branch
+	Cities     []*platformadmin.City
+	Employees  []*org.EmployeeView
+	Page       int
+	PerPage    int
+	TotalCount int
 }
 
 var institutionalWorkCategories = []struct {
@@ -100,7 +103,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 78, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 81, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -113,7 +116,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countColdStorageBranches(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 86, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 89, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -126,7 +129,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f م²", totalCapacitySQM(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 94, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 97, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -178,7 +181,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 147, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 150, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 					if templ_7745c5c3_Err != nil {
@@ -191,7 +194,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Code)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 148, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 151, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -204,7 +207,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 155, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 158, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -243,7 +246,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 168, Col: 40}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 171, Col: 40}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -266,7 +269,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var10 templ.SafeURL
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(b.GoogleMapsURL))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 175, Col: 52}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 178, Col: 52}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -284,7 +287,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 186, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 189, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -302,7 +305,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(b.ManagerName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 191, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 194, Col: 62}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -340,7 +343,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f م²", b.CapacitySQM))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 206, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 209, Col: 102}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -363,7 +366,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 							var templ_7745c5c3_Var14 string
 							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(formatInstitutionalWorkLabel(cat))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 219, Col: 49}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 222, Col: 49}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 							if templ_7745c5c3_Err != nil {
@@ -391,7 +394,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 230, Col: 72}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 233, Col: 72}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -409,7 +412,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 238, Col: 58}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 241, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
@@ -449,7 +452,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 						}(),
 						formatWorksSliceJSON(b.InstitutionalWorks)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 246, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 249, Col: 56}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -470,7 +473,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var18 templ.SafeURL
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 252, Col: 88}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 255, Col: 88}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -493,6 +496,17 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				if data.TotalCount > 0 {
+					templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalCount,
+						BaseURL:     "/vendor/branches",
+					}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><!-- Sticky form panel, add and edit modes (left in RTL, right in LTR) --><div id=\"branch-form-panel\" class=\"glass-panel p-6 d-flex flex-col gap-4 sticky top-6\"><!-- Form Header --><div class=\"flex-between items-center pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\" x-text=\"mode === 'edit' ? '' : ''\"></span><div class=\"stack-sm\"><h2 class=\"text-base font-black text-primary m-0\" x-text=\"mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'\"></h2><p class=\"text-xs text-secondary m-0 mt-0.5\" x-text=\"mode === 'edit' ? 'تحديث وتعديل بيانات الفرع المحدد وموقعه الجغرافي' : 'أدخل بيانات الفرع أو المستودع وموقعه لإضافته لشبكتك'\"></p></div></div><!-- Exit Edit Mode Button --><template x-if=\"mode === 'edit'\"><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold gap-1\" @click=\"resetToAddMode()\" title=\"الخروج من وضع التعديل والعودة لإضافة فرع جديد\"><span>الخروج من وضع التعديل</span></button></template></div><form method=\"POST\" :action=\"formAction\" class=\"d-flex flex-col gap-3 m-0\"><!-- Section 1: Names & Code --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required placeholder=\"مثال: الفرع الرئيسي - القاهرة\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اسم الفرع (بالإنجليزية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" placeholder=\"e.g. Main Branch - Cairo\" class=\"form-input text-xs w-full\" dir=\"ltr\"></div></div><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">كود الفرع (Branch Code)</label> <input type=\"text\" name=\"code\" x-model=\"form.code\" placeholder=\"مثال: BR-CAI-01\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">نوع المنشأة اللوجستية <span class=\"text-danger\">*</span></label> <select name=\"warehouse_type\" x-model=\"form.warehouse_type\" class=\"form-input text-xs w-full\"><option value=\"warehouse\">مخزن أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مخزن تبريد مخصص (Cold Depot)</option> <option value=\"pharmacy_branch\">فرع صيدلية (Pharmacy Branch)</option></select></div></div><!-- Section 2: Interactive Location Map & GPS --><div class=\"d-flex flex-col gap-1\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">موقع الفرع الجغرافي وخريطة OpenStreetMap</label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"border rounded-xl overflow-hidden bg-surface-sunken position-relative\"><div class=\"map-container map-canvas\"></div><div class=\"flex-between items-center p-2 bg-surface-raised border-t text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-brand\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\"><span>موقعي الحالي</span></button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" :value=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" :value=\"form.longitude\"></div></div><!-- Google Maps URL Input --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">رابط خرائط Google (Google Maps URL)</label> <input type=\"text\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-input=\"google_url\" placeholder=\"الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً...\" class=\"form-input text-xs w-full\"></div><!-- Section 3: City, Address, Manager --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المدينة / المحافظة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" x-model=\"form.city_id\" data-map-city class=\"form-input text-xs w-full\"><option value=\"\">-- اختر المدينة --</option> ")
 			if templ_7745c5c3_Err != nil {
@@ -506,7 +520,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 372, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 383, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
@@ -519,7 +533,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", c.Latitude))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 373, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 384, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
@@ -532,7 +546,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", c.Longitude))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 374, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 385, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -545,7 +559,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 376, Col: 40}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 387, Col: 40}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -569,7 +583,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", emp.Member.UserID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 390, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 401, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 					if templ_7745c5c3_Err != nil {
@@ -582,7 +596,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(emp.UserName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 391, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 402, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -595,7 +609,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(emp.RoleName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 391, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 402, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -619,7 +633,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(cat.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 431, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 442, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 				if templ_7745c5c3_Err != nil {
@@ -632,7 +646,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(cat.Icon)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 432, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 443, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -645,7 +659,7 @@ func VendorBranchesPage(data VendorBranchesData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(cat.LabelAr)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 432, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branches.templ`, Line: 443, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {

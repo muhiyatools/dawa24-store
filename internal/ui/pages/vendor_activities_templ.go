@@ -77,7 +77,7 @@ func formatShortID(id string) string {
 }
 
 // VendorActivitiesPage renders activity history for the vendor's team.
-func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string) templ.Component {
+func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string, page, perPage, totalCount int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -110,7 +110,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = tenantActivitiesBody(entries, "vendor", lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = tenantActivitiesBody(entries, "vendor", lang, dir, page, perPage, totalCount).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -125,7 +125,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 }
 
 // CustomerActivitiesPage renders activity history for the pharmacy team.
-func CustomerActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string) templ.Component {
+func CustomerActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string, page, perPage, totalCount int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -158,7 +158,7 @@ func CustomerActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir strin
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = tenantActivitiesBody(entries, "customer", lang, dir).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = tenantActivitiesBody(entries, "customer", lang, dir, page, perPage, totalCount).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -172,7 +172,7 @@ func CustomerActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir strin
 	})
 }
 
-func tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, lang, dir string) templ.Component {
+func tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, lang, dir string, page, perPage, totalCount int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -221,9 +221,9 @@ func tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, l
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عملية مسجلة", len(entries)))
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عملية مسجلة", totalCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_activities.templ`, Line: 111, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_activities.templ`, Line: 111, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -456,12 +456,32 @@ func tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, l
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</tbody></table></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</tbody></table></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if totalCount > 0 {
+				templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+					CurrentPage: page,
+					PageSize:    perPage,
+					TotalCount:  totalCount,
+					BaseURL: func() string {
+						if orgType == "vendor" {
+							return "/vendor/activities"
+						}
+						return "/customer/activities"
+					}(),
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

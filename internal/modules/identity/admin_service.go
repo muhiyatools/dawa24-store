@@ -112,6 +112,11 @@ func (s *Service) AdminListDeletionRequests(ctx context.Context, status string) 
 	return s.repo.ListAccountDeletionRequests(ctx, status)
 }
 
+// AdminListDeletionRequestsWithTotal lists paginated account deletion requests with total count.
+func (s *Service) AdminListDeletionRequestsWithTotal(ctx context.Context, status string, limit, offset int) ([]*AccountDeletionRequest, int, error) {
+	return s.repo.ListAccountDeletionRequestsWithTotal(ctx, status, limit, offset)
+}
+
 // AdminReviewDeletionRequest approves or rejects an account deletion request.
 func (s *Service) AdminReviewDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error {
 	return s.repo.ReviewAccountDeletionRequest(ctx, requestID, reviewerID, approve, adminNotes)

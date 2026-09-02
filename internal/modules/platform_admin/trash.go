@@ -83,6 +83,18 @@ func (s *Service) ListTrashedRows(ctx context.Context, key string, limit, offset
 	return s.repo.ListTrashedRows(ctx, schema, table, limit, offset)
 }
 
+// ListTrashedRowsWithTotal returns the soft-deleted records of one table with total count.
+func (s *Service) ListTrashedRowsWithTotal(ctx context.Context, key string, limit, offset int) ([]*TrashRow, int, error) {
+	schema, table, err := splitTrashKey(key)
+	if err != nil {
+		return nil, 0, err
+	}
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	return s.repo.ListTrashedRowsWithTotal(ctx, schema, table, limit, offset)
+}
+
 // RestoreTrashedRow clears deleted_at. It refuses when the row's parent is
 // itself still deleted, because restoring a child under a deleted parent
 // produces a row nothing can reach.

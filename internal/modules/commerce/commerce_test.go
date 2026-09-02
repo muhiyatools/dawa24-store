@@ -267,7 +267,12 @@ func (m *mockCommerceRepo) ListPurchaseRequestsByCustomer(_ context.Context, cus
 	return list, nil
 }
 
-func (m *mockCommerceRepo) ListPurchaseRequestsByVendor(_ context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, error) {
+func (m *mockCommerceRepo) ListPurchaseRequestsByVendor(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, error) {
+	reqs, _, err := m.ListPurchaseRequestsByVendorWithTotal(ctx, vendorOrgID, status, limit, offset)
+	return reqs, err
+}
+
+func (m *mockCommerceRepo) ListPurchaseRequestsByVendorWithTotal(_ context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, int, error) {
 	var list []*PurchaseRequest
 	for _, pr := range m.purchaseRequests {
 		if pr.VendorOrgID == vendorOrgID {
@@ -277,7 +282,8 @@ func (m *mockCommerceRepo) ListPurchaseRequestsByVendor(_ context.Context, vendo
 			}
 		}
 	}
-	return list, nil
+	total := len(list)
+	return list, total, nil
 }
 
 func (m *mockCommerceRepo) CountPurchaseRequestsByCustomer(_ context.Context, customerID int64, orgID *int64) (map[string]int, error) {

@@ -526,6 +526,17 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				if a.Total > 0 {
+					templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+						CurrentPage: a.Page,
+						PageSize:    a.PerPage,
+						TotalCount:  a.Total,
+						BaseURL:     "/admin/analytics",
+					}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div>")
 			if templ_7745c5c3_Err != nil {

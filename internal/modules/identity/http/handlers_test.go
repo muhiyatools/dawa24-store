@@ -130,6 +130,10 @@ func (r stubRepo) ListAccountDeletionRequests(context.Context, string) ([]*ident
 	r.fail("ListAccountDeletionRequests")
 	return nil, nil
 }
+func (r stubRepo) ListAccountDeletionRequestsWithTotal(context.Context, string, int, int) ([]*identity.AccountDeletionRequest, int, error) {
+	r.fail("ListAccountDeletionRequestsWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) ReviewAccountDeletionRequest(context.Context, int64, int64, bool, string) error {
 	r.fail("ReviewAccountDeletionRequest")
 	return nil
@@ -278,6 +282,9 @@ func (happyRepo) CreateAccountDeletionRequest(ctx context.Context, req *identity
 }
 func (happyRepo) ListAccountDeletionRequests(ctx context.Context, status string) ([]*identity.AccountDeletionRequest, error) {
 	return nil, nil
+}
+func (happyRepo) ListAccountDeletionRequestsWithTotal(ctx context.Context, status string, limit, offset int) ([]*identity.AccountDeletionRequest, int, error) {
+	return nil, 0, nil
 }
 func (happyRepo) ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error {
 	return nil

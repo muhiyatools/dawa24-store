@@ -23,7 +23,13 @@ type AdminDevelopersValues struct {
 	ErrorLevelFilter  string
 	ErrorStatusFilter string
 	ErrorSearch       string
-	AuditEntries      []*platformadmin.AuditEntry
+	ErrorPage         int
+	ErrorPerPage      int
+	ErrorTotalCount   int
+	AuditEntries    []*platformadmin.AuditEntry
+	AuditPage       int
+	AuditPerPage    int
+	AuditTotalCount int
 }
 
 templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {

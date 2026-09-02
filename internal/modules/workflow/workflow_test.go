@@ -164,6 +164,10 @@ func (m *mockWorkflowRepo) ListRequestsByOrg(_ context.Context, _ int64, _ strin
 	return nil, nil
 }
 
+func (m *mockWorkflowRepo) ListRequestsByOrgWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*Request, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockWorkflowRepo) UpdateRequestStatus(_ context.Context, _ int64, _ RequestStatus) error {
 	return nil
 }

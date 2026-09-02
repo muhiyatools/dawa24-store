@@ -15,14 +15,22 @@ func (h *UIHandler) AdminAnalyticsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	analytics := &platformadmin.VisitorAnalytics{
 		ByDevice:  map[string]int{},
 		ByOS:      map[string]int{},
 		ByBrowser: map[string]int{},
+		Page:      page,
+		PerPage:   limit,
 	}
 	if h.adminSvc != nil {
-		if a, err := h.adminSvc.VisitorAnalytics(ctx, 20); err == nil && a != nil {
+		if a, err := h.adminSvc.VisitorAnalyticsWithTotal(ctx, limit, offset); err == nil && a != nil {
 			analytics = a
+			analytics.Page = page
+			analytics.PerPage = limit
 		}
 	}
 

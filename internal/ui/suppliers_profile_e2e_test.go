@@ -16,6 +16,7 @@ import (
 
 // mockCommerceRepoForSupplierCartTest implements commerce.Repository for cart tests.
 type mockCommerceRepoForSupplierCartTest struct {
+	commerce.Repository
 	carts     map[int64]*commerce.Cart
 	cartItems map[int64][]*commerce.CartItem
 	nextID    int64

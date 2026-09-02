@@ -188,6 +188,19 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 						</tbody>
 					</table>
 				</div>
+				if data.FilteredCount > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.FilteredCount,
+						BaseURL:     "/admin/branches",
+						QueryValues: map[string][]string{
+							"q":      {data.SearchQuery},
+							"org_id": {fmt.Sprintf("%d", data.SelectedOrgID)},
+							"status": {data.StatusFilter},
+						},
+					})
+				}
 			}
 
 		</div>

@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -24,12 +25,17 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var payments []*billing.Payment
+	var total int
 	if h.billSvc != nil {
-		payments, _ = h.billSvc.ListPayments(ctx, actor.OrganizationID, 50, 0)
+		payments, total, _ = h.billSvc.ListPaymentsWithTotal(ctx, actor.OrganizationID, limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(payments, lang, dir))
+	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(payments, lang, dir, page, limit, total))
 }
 
 // VendorEarningsOrderPage renders orders revenue and comprehensive net profit report for the vendor.
@@ -84,12 +90,17 @@ func (h *UIHandler) VendorOfferOrdersPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var shipments []*commerce.OrderShipment
+	var total int
 	if h.commSvc != nil {
-		shipments, _ = h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 100, 0)
+		shipments, total, _ = h.commSvc.ListVendorShipmentsWithTotal(ctx, actor.OrganizationID, "", limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render vendor offer orders", pages.VendorOfferOrdersPage(shipments, lang, dir))
+	h.renderPage(ctx, w, "render vendor offer orders", pages.VendorOfferOrdersPage(shipments, lang, dir, page, limit, total))
 }
 
 // VendorOfferOrderDetailPage renders single offer order details.

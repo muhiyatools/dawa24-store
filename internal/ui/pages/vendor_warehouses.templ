@@ -12,7 +12,7 @@ import (
 )
 
 // VendorWarehousesPage renders the list of vendor warehouses.
-templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string) {
+templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string, page, perPage, totalCount int) {
 	@layouts.VendorShell("المخازن ومواقع التخزين", "warehouses", lang, dir) {
 		<div x-data="{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }" class="page-container">
 			
@@ -47,7 +47,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<div class="dashboard-stat-grid mb-6">
 				<div class="stat-card-3d">
 					<div class="stat-card-label">إجمالي المخازن</div>
-					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
+					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", totalCount) }</div>
 					<span class="text-xs text-secondary mt-1 d-block">مراكز التخزين المسجلة</span>
 				</div>
 
@@ -165,6 +165,14 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							</tbody>
 						</table>
 					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     "/vendor/warehouses",
+						})
+					}
 				}
 			</div>
 

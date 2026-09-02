@@ -26,3 +26,8 @@ func (s *Service) DeletePlatformPaymentMethod(ctx context.Context, id string) er
 func (s *Service) ListPayments(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error) {
 	return s.repo.ListPaymentsByOrg(ctx, orgID, limit, offset)
 }
+
+// ListPaymentsWithTotal returns paginated payments for an organization with total count.
+func (s *Service) ListPaymentsWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, int, error) {
+	return s.repo.ListPaymentsByOrgWithTotal(ctx, orgID, limit, offset)
+}

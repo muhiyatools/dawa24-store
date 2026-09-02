@@ -596,6 +596,22 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			if data.TotalCount > 0 {
+				templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL: func() string {
+						if data.IsVendor {
+							return "/vendor/ai-logs"
+						}
+						return "/customer/ai-logs"
+					}(),
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Client-side Filtering Script --><script>\r\n\t\tfunction filterAILogs() {\r\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\r\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\r\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\r\n\r\n\t\t\trows.forEach(row => {\r\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\r\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\r\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\r\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\r\n\r\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\r\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\r\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\r\n\r\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\r\n\t\t\t\t\trow.style.display = '';\r\n\t\t\t\t} else {\r\n\t\t\t\t\trow.style.display = 'none';\r\n\t\t\t\t}\r\n\t\t\t});\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {

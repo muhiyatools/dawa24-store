@@ -11,9 +11,12 @@ import (
 )
 
 type VendorBranchesData struct {
-	Branches  []*org.Branch
-	Cities    []*platformadmin.City
-	Employees []*org.EmployeeView
+	Branches   []*org.Branch
+	Cities     []*platformadmin.City
+	Employees  []*org.EmployeeView
+	Page       int
+	PerPage    int
+	TotalCount int
 }
 
 var institutionalWorkCategories = []struct {
@@ -259,6 +262,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								</div>
 							}
 						</div>
+						if data.TotalCount > 0 {
+							@components.B2BPagination(components.PaginationProps{
+								CurrentPage: data.Page,
+								PageSize:    data.PerPage,
+								TotalCount:  data.TotalCount,
+								BaseURL:     "/vendor/branches",
+							})
+						}
 					}
 				</div>
 

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -150,8 +151,25 @@ func (r *Repository) ListUserOrganizationsByUser(ctx context.Context, userID int
 
 // ListUserOrganizationsByVendor returns all customer links for a vendor with optional status filter.
 func (r *Repository) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
+	list, _, err := r.ListUserOrganizationsByVendorWithTotal(ctx, vendorOrgID, statusFilter, 500, 0)
+	return list, err
+}
+
+// ListUserOrganizationsByVendorWithTotal returns paginated customer links for a vendor with total count.
+func (r *Repository) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
 	var list []*org.UserOrganization
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQ := "SELECT count(*) FROM org.user_organizations WHERE vendor_org_id = $1 AND deleted_at IS NULL"
+		countArgs := []interface{}{vendorOrgID}
+		if statusFilter != "" && statusFilter != "all" {
+			countQ += " AND status = $2"
+			countArgs = append(countArgs, statusFilter)
+		}
+		if err := tx.QueryRow(txCtx, countQ, countArgs...).Scan(&total); err != nil {
+			return err
+		}
+
 		baseQuery := `
 			SELECT uo.id, uo.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.name::text, ''), COALESCE(u.email::text, ''),
 			       uo.customer_org_id, COALESCE(NULLIF(co.legal_name, ''), co.name->>'ar', co.name->>'en', ''),
@@ -168,7 +186,8 @@ func (r *Repository) ListUserOrganizationsByVendor(ctx context.Context, vendorOr
 			baseQuery += " AND uo.status = $2"
 			args = append(args, statusFilter)
 		}
-		baseQuery += " ORDER BY uo.created_at DESC;"
+		baseQuery += fmt.Sprintf(" ORDER BY uo.created_at DESC, uo.id DESC LIMIT $%d OFFSET $%d;", len(args)+1, len(args)+2)
+		args = append(args, limit, offset)
 
 		rows, err := tx.Query(txCtx, baseQuery, args...)
 		if err != nil {
@@ -192,13 +211,30 @@ func (r *Repository) ListUserOrganizationsByVendor(ctx context.Context, vendorOr
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // ListAllUserOrganizations returns all links across the platform (for admin oversight).
 func (r *Repository) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
+	list, _, err := r.ListAllUserOrganizationsWithTotal(ctx, statusFilter, 500, 0)
+	return list, err
+}
+
+// ListAllUserOrganizationsWithTotal returns paginated links across the platform with total count.
+func (r *Repository) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
 	var list []*org.UserOrganization
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQ := "SELECT count(*) FROM org.user_organizations WHERE deleted_at IS NULL"
+		countArgs := []interface{}{}
+		if statusFilter != "" && statusFilter != "all" {
+			countQ += " AND status = $1"
+			countArgs = append(countArgs, statusFilter)
+		}
+		if err := tx.QueryRow(txCtx, countQ, countArgs...).Scan(&total); err != nil {
+			return err
+		}
+
 		baseQuery := `
 			SELECT uo.id, uo.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.name::text, ''), COALESCE(u.email::text, ''),
 			       uo.customer_org_id, COALESCE(NULLIF(co.legal_name, ''), co.name->>'ar', co.name->>'en', ''),
@@ -215,7 +251,8 @@ func (r *Repository) ListAllUserOrganizations(ctx context.Context, statusFilter 
 			baseQuery += " AND uo.status = $1"
 			args = append(args, statusFilter)
 		}
-		baseQuery += " ORDER BY uo.created_at DESC LIMIT 500;"
+		baseQuery += fmt.Sprintf(" ORDER BY uo.created_at DESC, uo.id DESC LIMIT $%d OFFSET $%d;", len(args)+1, len(args)+2)
+		args = append(args, limit, offset)
 
 		rows, err := tx.Query(txCtx, baseQuery, args...)
 		if err != nil {
@@ -239,5 +276,5 @@ func (r *Repository) ListAllUserOrganizations(ctx context.Context, statusFilter 
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }

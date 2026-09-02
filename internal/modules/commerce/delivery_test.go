@@ -139,6 +139,9 @@ func (m *deliveryMockRepo) ListPurchaseRequestsByCustomer(_ context.Context, _ i
 func (m *deliveryMockRepo) ListPurchaseRequestsByVendor(_ context.Context, _ int64, _ string, _, _ int) ([]*commerce.PurchaseRequest, error) {
 	return nil, nil
 }
+func (m *deliveryMockRepo) ListPurchaseRequestsByVendorWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*commerce.PurchaseRequest, int, error) {
+	return nil, 0, nil
+}
 func (m *deliveryMockRepo) CountPurchaseRequestsByCustomer(_ context.Context, _ int64, _ *int64) (map[string]int, error) {
 	return nil, nil
 }

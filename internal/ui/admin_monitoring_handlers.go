@@ -11,6 +11,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -18,6 +19,10 @@ import (
 func (h *UIHandler) AdminFullErrorLogsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
 
 	statusFilter := r.URL.Query().Get("status")
 	severityFilter := r.URL.Query().Get("severity")
@@ -28,12 +33,12 @@ func (h *UIHandler) AdminFullErrorLogsPage(w http.ResponseWriter, r *http.Reques
 		logs, total, _ = h.adminSvc.ListErrorLogs(database.AsSystem(ctx), platformadmin.ErrorLogFilter{
 			Status: statusFilter,
 			Level:  severityFilter,
-			Limit:  50,
-			Offset: 0,
+			Limit:  limit,
+			Offset: offset,
 		})
 	}
 
-	h.renderPage(ctx, w, "render full error logs", pages.AdminFullErrorLogsPage(logs, total, statusFilter, severityFilter, lang, dir))
+	h.renderPage(ctx, w, "render full error logs", pages.AdminFullErrorLogsPage(logs, total, statusFilter, severityFilter, lang, dir, page, limit))
 }
 
 // AdminFullErrorLogDetailPage renders single diagnostic error log details.

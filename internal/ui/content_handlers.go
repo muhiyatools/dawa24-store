@@ -10,6 +10,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -162,12 +163,17 @@ func (h *UIHandler) AdminContentPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var blocks []*platformadmin.ContentBlock
+	var total int
 	if h.adminSvc != nil {
-		blocks, _ = h.adminSvc.ListContentBlocks(database.AsSystem(ctx))
+		blocks, total, _ = h.adminSvc.ListContentBlocksWithTotal(database.AsSystem(ctx), limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render admin content", pages.AdminContent(lang, dir, blocks))
+	h.renderPage(ctx, w, "render admin content", pages.AdminContent(lang, dir, blocks, page, limit, total))
 }
 
 // AdminContentSubmit creates or updates a CMS block or highlight section.

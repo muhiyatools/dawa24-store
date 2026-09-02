@@ -248,6 +248,9 @@ type AIConsumptionLogsPageData struct {
 	FeatureBreakdown  map[string]int
 	HasBudget         bool
 	CostIsComplete    bool
+	Page              int
+	PerPage           int
+	TotalCount        int
 }
 
 // TotalCostText renders the window's spend, marked as a floor when some of the

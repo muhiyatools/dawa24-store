@@ -15,8 +15,11 @@ type CustomerBranchesData struct {
 	Employees  []*org.EmployeeView
 	Cities     []*platformadmin.City
 	ActiveTab  string // "branches" or "employees"
-	NoticeType string
-	NoticeMsg  string
+	NoticeType    string
+	NoticeMsg     string
+	EmpPage       int
+	EmpPerPage    int
+	EmpTotalCount int
 }
 
 func (d CustomerBranchesData) GetBranchEmployees(branchID int64) []*org.EmployeeView {

@@ -92,6 +92,9 @@ func (happyRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount m
 func (happyRepo) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, error) {
 	return []*billing.Payment{{ID: 1, OrganizationID: &orgID, Amount: money.MustParse("100.00")}}, nil
 }
+func (happyRepo) ListPaymentsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, int, error) {
+	return []*billing.Payment{{ID: 1, OrganizationID: &orgID, Amount: money.MustParse("100.00")}}, 1, nil
+}
 func (happyRepo) AdminListInvoices(ctx context.Context, limit, offset int) ([]*billing.Invoice, error) {
 	return []*billing.Invoice{{ID: 1, InvoiceNumber: "INV-1"}}, nil
 }

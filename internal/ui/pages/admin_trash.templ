@@ -159,7 +159,7 @@ type TrashRowView struct {
 }
 
 // AdminTrashListModelPage lists the deleted rows of one table, with restore and purge actions.
-templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string) {
+templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string, page, perPage, totalCount int) {
 	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات: %s", modelKey), "trash", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
@@ -169,7 +169,7 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 							@components.IconTrash("icon-sm")
 						</div>
       <div class="stack-sm">
-							<h1 class="text-2xl font-black text-primary m-0">سلة محذوفات: { modelKey } ({ fmt.Sprintf("%d", len(rows)) })</h1>
+							<h1 class="text-2xl font-black text-primary m-0">سلة محذوفات: { modelKey } ({ fmt.Sprintf("%d", totalCount) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">استعراض كافة السجلات المحذوفة مؤقتاً في هذا القسم، مع خيارات الاسترجاع الفوري أو الحذف النهائي الموثق</p>
 						</div>
 					</div>
@@ -245,6 +245,14 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 							</tbody>
 						</table>
 					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     fmt.Sprintf("/admin/trash-list/%s", modelKey),
+						})
+					}
 				}
 			</div>
 		</div>

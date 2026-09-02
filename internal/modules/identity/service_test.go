@@ -211,6 +211,9 @@ func (m *mockRepo) CreateAccountDeletionRequest(_ context.Context, _ *AccountDel
 func (m *mockRepo) ListAccountDeletionRequests(_ context.Context, _ string) ([]*AccountDeletionRequest, error) {
 	return nil, nil
 }
+func (m *mockRepo) ListAccountDeletionRequestsWithTotal(_ context.Context, _ string, _, _ int) ([]*AccountDeletionRequest, int, error) {
+	return nil, 0, nil
+}
 func (m *mockRepo) ReviewAccountDeletionRequest(_ context.Context, _, _ int64, _ bool, _ string) error {
 	return nil
 }

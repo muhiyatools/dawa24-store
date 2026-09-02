@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -30,15 +31,21 @@ func (h *UIHandler) VendorPurchaseRequestsPage(w http.ResponseWriter, r *http.Re
 		status = "all"
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var requests []*commerce.PurchaseRequest
+	var total int
 	if h.commSvc != nil {
-		reqs, err := h.commSvc.ListVendorPurchaseRequests(ctx, actor.OrganizationID, status, 50, 0)
+		reqs, tot, err := h.commSvc.ListVendorPurchaseRequestsWithTotal(ctx, actor.OrganizationID, status, limit, offset)
 		if err == nil {
 			requests = reqs
+			total = tot
 		}
 	}
 
-	h.renderPage(ctx, w, "render vendor purchase requests page", pages.VendorPurchaseRequestsPage(lang, dir, requests, status))
+	h.renderPage(ctx, w, "render vendor purchase requests page", pages.VendorPurchaseRequestsPage(lang, dir, requests, status, page, limit, total))
 }
 
 // VendorPurchaseRequestDetailPage renders one incoming purchase request with line items.

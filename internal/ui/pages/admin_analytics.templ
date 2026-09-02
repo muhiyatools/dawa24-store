@@ -273,6 +273,14 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 							</tbody>
 						</table>
 					</div>
+					if a.Total > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: a.Page,
+							PageSize:    a.PerPage,
+							TotalCount:  a.Total,
+							BaseURL:     "/admin/analytics",
+						})
+					}
 				}
 			</div>
 

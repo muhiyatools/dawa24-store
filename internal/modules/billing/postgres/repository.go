@@ -233,19 +233,30 @@ func (r *Repository) GetPaymentByID(ctx context.Context, id int64) (*billing.Pay
 
 // ListPaymentsByOrg retrieves payments associated with an organization.
 func (r *Repository) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, error) {
+	list, _, err := r.ListPaymentsByOrgWithTotal(ctx, orgID, limit, offset)
+	return list, err
+}
+
+// ListPaymentsByOrgWithTotal retrieves paginated payments associated with an organization with total count.
+func (r *Repository) ListPaymentsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, int, error) {
 	var list []*billing.Payment
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM billing.payments WHERE organization_id = $1;`, orgID).Scan(&total); err != nil {
+			return err
+		}
+
 		const query = `
 			SELECT id, public_id, payment_integration_id, order_id, user_id, organization_id,
 			       amount, method, status, transaction_id, reference_number, paid_at,
 			       created_at, updated_at
 			FROM billing.payments
 			WHERE organization_id = $1
-			ORDER BY created_at DESC
+			ORDER BY created_at DESC, id DESC
 			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
-			limit = 20
+			limit = 25
 		}
 		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
 		if err != nil {
@@ -266,7 +277,7 @@ func (r *Repository) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, 
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // ListPlans lists all active subscription plans.

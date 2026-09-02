@@ -73,6 +73,10 @@ func (m *mockBillingRepo) ListPaymentsByOrg(_ context.Context, orgID int64, limi
 	return nil, nil
 }
 
+func (m *mockBillingRepo) ListPaymentsByOrgWithTotal(_ context.Context, orgID int64, limit, offset int) ([]*Payment, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockBillingRepo) AdminListInvoices(_ context.Context, limit, offset int) ([]*Invoice, error) {
 	return nil, nil
 }

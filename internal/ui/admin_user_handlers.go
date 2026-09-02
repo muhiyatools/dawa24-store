@@ -147,19 +147,23 @@ func (h *UIHandler) AdminUserOrganizationPage(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 	data := &pages.AdminUserOrgData{
 		ActiveTab: statusFilter,
+		Page:      page,
+		PerPage:   limit,
 	}
 
 	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
-		all, _ := h.orgSvc.ListAllUserOrganizations(sysCtx, "")
-		data.TotalCount = len(all)
-
-		list, err := h.orgSvc.ListAllUserOrganizations(sysCtx, statusFilter)
+		list, total, err := h.orgSvc.ListAllUserOrganizationsWithTotal(sysCtx, statusFilter, limit, offset)
 		if err == nil {
 			data.UserOrgs = list
+			data.TotalCount = total
 		}
 	}
 
@@ -171,12 +175,17 @@ func (h *UIHandler) AdminWantDeletePage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var requests []*identity.AccountDeletionRequest
+	var total int
 	if h.idSvc != nil {
-		requests, _ = h.idSvc.AdminListDeletionRequests(database.AsSystem(ctx), "")
+		requests, total, _ = h.idSvc.AdminListDeletionRequestsWithTotal(database.AsSystem(ctx), "", limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render deletion requests page", pages.AdminDeletionRequestsPage(requests, lang, dir))
+	h.renderPage(ctx, w, "render deletion requests page", pages.AdminDeletionRequestsPage(requests, lang, dir, page, limit, total))
 }
 
 // AdminEmployeeActivitiesPage renders employee audit trail with rich filters.

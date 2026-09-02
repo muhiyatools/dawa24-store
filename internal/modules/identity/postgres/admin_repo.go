@@ -249,8 +249,24 @@ func (r *Repository) CreateAccountDeletionRequest(ctx context.Context, req *iden
 
 // ListAccountDeletionRequests lists all deletion requests with user info.
 func (r *Repository) ListAccountDeletionRequests(ctx context.Context, status string) ([]*identity.AccountDeletionRequest, error) {
+	list, _, err := r.ListAccountDeletionRequestsWithTotal(ctx, status, 100, 0)
+	return list, err
+}
+
+// ListAccountDeletionRequestsWithTotal lists paginated deletion requests with total count.
+func (r *Repository) ListAccountDeletionRequestsWithTotal(ctx context.Context, status string, limit, offset int) ([]*identity.AccountDeletionRequest, int, error) {
 	var list []*identity.AccountDeletionRequest
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var statusPtr *string
+		if status != "" {
+			statusPtr = &status
+		}
+		countQ := `SELECT count(*) FROM identity.account_deletion_requests WHERE ($1::text IS NULL OR status = $1);`
+		if err := tx.QueryRow(txCtx, countQ, statusPtr).Scan(&total); err != nil {
+			return err
+		}
+
 		const query = `
 			SELECT r.id, r.user_id, COALESCE(u.name->>'ar', u.name->>'en', ''), COALESCE(u.email, ''), COALESCE(u.role, ''),
 			       r.organization_id, COALESCE(o.name->>'ar', o.name->>'en', ''), r.reason, r.status,
@@ -259,14 +275,10 @@ func (r *Repository) ListAccountDeletionRequests(ctx context.Context, status str
 			JOIN identity.users u ON u.id = r.user_id
 			LEFT JOIN org.organizations o ON o.id = r.organization_id
 			WHERE ($1::text IS NULL OR r.status = $1)
-			ORDER BY r.created_at DESC
-			LIMIT 100;
+			ORDER BY r.created_at DESC, r.id DESC
+			LIMIT $2 OFFSET $3;
 		`
-		var statusPtr *string
-		if status != "" {
-			statusPtr = &status
-		}
-		rows, err := tx.Query(txCtx, query, statusPtr)
+		rows, err := tx.Query(txCtx, query, statusPtr, limit, offset)
 		if err != nil {
 			return err
 		}
@@ -285,7 +297,7 @@ func (r *Repository) ListAccountDeletionRequests(ctx context.Context, status str
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // ReviewAccountDeletionRequest approves or rejects an account deletion request.

@@ -63,5 +63,6 @@ type Repository interface {
 
 	CreateAccountDeletionRequest(ctx context.Context, req *AccountDeletionRequest) error
 	ListAccountDeletionRequests(ctx context.Context, status string) ([]*AccountDeletionRequest, error)
+	ListAccountDeletionRequestsWithTotal(ctx context.Context, status string, limit, offset int) ([]*AccountDeletionRequest, int, error)
 	ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error
 }

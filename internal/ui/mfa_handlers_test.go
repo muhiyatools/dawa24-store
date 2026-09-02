@@ -212,6 +212,9 @@ func (m *testMockIdentityRepo) CreateAccountDeletionRequest(ctx context.Context,
 func (m *testMockIdentityRepo) ListAccountDeletionRequests(ctx context.Context, status string) ([]*identity.AccountDeletionRequest, error) {
 	return nil, nil
 }
+func (m *testMockIdentityRepo) ListAccountDeletionRequestsWithTotal(ctx context.Context, status string, limit, offset int) ([]*identity.AccountDeletionRequest, int, error) {
+	return nil, 0, nil
+}
 func (m *testMockIdentityRepo) ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error {
 	return nil
 }

@@ -350,6 +350,14 @@ func (m *institutionalMockRepo) ListUserOrganizationsByVendor(_ context.Context,
 	return []*org.UserOrganization{}, nil
 }
 
+func (m *institutionalMockRepo) ListUserOrganizationsByVendorWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*org.UserOrganization, int, error) {
+	return []*org.UserOrganization{}, 0, nil
+}
+
 func (m *institutionalMockRepo) ListAllUserOrganizations(_ context.Context, _ string) ([]*org.UserOrganization, error) {
 	return []*org.UserOrganization{}, nil
+}
+
+func (m *institutionalMockRepo) ListAllUserOrganizationsWithTotal(_ context.Context, _ string, _, _ int) ([]*org.UserOrganization, int, error) {
+	return []*org.UserOrganization{}, 0, nil
 }

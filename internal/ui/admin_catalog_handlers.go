@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -153,12 +154,17 @@ func (h *UIHandler) AdminStocksPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var stocks []*inventory.Stock
+	var total int
 	if h.invSvc != nil {
-		stocks, _ = h.invSvc.ListLowStock(database.AsSystem(ctx), 100, 0)
+		stocks, total, _ = h.invSvc.ListLowStockWithTotal(database.AsSystem(ctx), limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render admin stocks page", pages.AdminStocksPage(stocks, lang, dir))
+	h.renderPage(ctx, w, "render admin stocks page", pages.AdminStocksPage(stocks, lang, dir, page, limit, total))
 }
 
 // AdminSavingProductsPage renders saving products (منتجات التوفير) across all users and organizations.

@@ -122,6 +122,10 @@ func (m *mockPlatformAdminRepo) ListContactMessages(_ context.Context, status st
 	return m.messages, nil
 }
 
+func (m *mockPlatformAdminRepo) ListContactMessagesWithTotal(_ context.Context, status string, limit, offset int) ([]*ContactMessage, int, error) {
+	return m.messages, len(m.messages), nil
+}
+
 func (m *mockPlatformAdminRepo) UpdateContactMessageStatus(_ context.Context, id int64, status string) error {
 	for _, msg := range m.messages {
 		if msg.ID == id {
@@ -146,6 +150,10 @@ func (m *mockPlatformAdminRepo) ListContentBlocks(_ context.Context) ([]*Content
 	return nil, nil
 }
 
+func (m *mockPlatformAdminRepo) ListContentBlocksWithTotal(_ context.Context, _, _ int) ([]*ContentBlock, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockPlatformAdminRepo) GetContentBlockByKey(_ context.Context, _ string) (*ContentBlock, error) {
 	return nil, nil
 }
@@ -167,6 +175,9 @@ func (m *mockPlatformAdminRepo) RecordVisitor(_ context.Context, _ *Visitor) err
 }
 
 func (m *mockPlatformAdminRepo) VisitorAnalytics(_ context.Context, _ int) (*VisitorAnalytics, error) {
+	return &VisitorAnalytics{}, nil
+}
+func (m *mockPlatformAdminRepo) VisitorAnalyticsWithTotal(_ context.Context, _, _ int) (*VisitorAnalytics, error) {
 	return &VisitorAnalytics{}, nil
 }
 
@@ -232,6 +243,10 @@ func (m *mockPlatformAdminRepo) GetErrorDiagnosticsMetrics(_ context.Context) (t
 
 func (m *mockPlatformAdminRepo) ListAuditLogByOrg(_ context.Context, _ int64, _, _ int) ([]*AuditEntry, error) {
 	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) ListAuditLogByOrgWithTotal(_ context.Context, _ int64, _, _ int) ([]*AuditEntry, int, error) {
+	return nil, 0, nil
 }
 
 func (m *mockPlatformAdminRepo) ListTranslations(_ context.Context, _ TranslationFilter) ([]*Translation, int, error) {
@@ -344,6 +359,9 @@ func (m mockPlatformAdminRepo) ListSoftDeletableTables(context.Context) ([]*Tras
 }
 func (m mockPlatformAdminRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*TrashRow, error) {
 	return nil, nil
+}
+func (m mockPlatformAdminRepo) ListTrashedRowsWithTotal(context.Context, string, string, int, int) ([]*TrashRow, int, error) {
+	return nil, 0, nil
 }
 func (m mockPlatformAdminRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
 	return nil

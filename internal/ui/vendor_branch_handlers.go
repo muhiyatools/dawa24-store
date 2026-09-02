@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -25,17 +26,25 @@ func (h *UIHandler) VendorBranchesPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var branches []*org.Branch
 	var employees []*org.EmployeeView
+	var total int
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		branches, total, _ = h.orgSvc.ListBranchesWithTotal(ctx, org.BranchFilter{OrganizationID: actor.OrganizationID}, limit, offset)
 		employees, _ = h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
 	}
 
 	data := pages.VendorBranchesData{
-		Branches:  branches,
-		Cities:    h.listCities(ctx),
-		Employees: employees,
+		Branches:   branches,
+		Cities:     h.listCities(ctx),
+		Employees:  employees,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
 	}
 
 	h.renderPage(ctx, w, "render vendor branches page", pages.VendorBranchesPage(data, lang, dir))

@@ -172,6 +172,11 @@ func (s *Service) ListInbox(ctx context.Context, orgID int64, status string, lim
 	return s.repo.ListRequestsByOrg(ctx, orgID, status, limit, offset)
 }
 
+// ListInboxWithTotal returns requests sent to or from the caller's organization with total count.
+func (s *Service) ListInboxWithTotal(ctx context.Context, orgID int64, status string, limit, offset int) ([]*Request, int, error) {
+	return s.repo.ListRequestsByOrgWithTotal(ctx, orgID, status, limit, offset)
+}
+
 // RespondRequest accepts or declines a request.
 func (s *Service) RespondRequest(ctx context.Context, id int64, status RequestStatus) error {
 	if status != RequestAccepted && status != RequestDeclined && status != RequestCancelled {

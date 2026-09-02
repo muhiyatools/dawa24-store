@@ -19,6 +19,7 @@ import (
 )
 
 type courierMockCommerceRepo struct {
+	commerce.Repository
 	shipment *commerce.OrderShipment
 }
 

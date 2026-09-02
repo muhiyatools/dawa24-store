@@ -31,5 +31,6 @@ type Repository interface {
 	CreateRequest(ctx context.Context, r *Request) error
 	GetRequestByID(ctx context.Context, id int64) (*Request, error)
 	ListRequestsByOrg(ctx context.Context, orgID int64, status string, limit, offset int) ([]*Request, error)
+	ListRequestsByOrgWithTotal(ctx context.Context, orgID int64, status string, limit, offset int) ([]*Request, int, error)
 	UpdateRequestStatus(ctx context.Context, id int64, status RequestStatus) error
 }

@@ -84,8 +84,19 @@ func (r *Repository) CountStockInWarehouse(ctx context.Context, warehouseID int6
 
 // ListLowStock returns stock at or below its reorder threshold.
 func (r *Repository) ListLowStock(ctx context.Context, limit, offset int) ([]*inventory.Stock, error) {
+	list, _, err := r.ListLowStockWithTotal(ctx, limit, offset)
+	return list, err
+}
+
+// ListLowStockWithTotal returns paginated stock at or below its reorder threshold with total count.
+func (r *Repository) ListLowStockWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Stock, int, error) {
 	var list []*inventory.Stock
+	var total int
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM inventory.stocks WHERE deleted_at IS NULL AND quantity <= min_threshold;`).Scan(&total); err != nil {
+			return err
+		}
+
 		query := `
 			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
 			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
@@ -94,6 +105,9 @@ func (r *Repository) ListLowStock(ctx context.Context, limit, offset int) ([]*in
 			ORDER BY (quantity - min_threshold) ASC, id ASC
 			LIMIT $1 OFFSET $2;
 		`
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
 		rows, err := tx.Query(txCtx, query, limit, offset)
 		if err != nil {
 			return err
@@ -114,9 +128,9 @@ func (r *Repository) ListLowStock(ctx context.Context, limit, offset int) ([]*in
 		return rows.Err()
 	})
 	if err != nil {
-		return nil, fmt.Errorf("inventory postgres: list low stock: %w", err)
+		return nil, 0, fmt.Errorf("inventory postgres: list low stock: %w", err)
 	}
-	return list, nil
+	return list, total, nil
 }
 
 // ListMovementsByOrg returns the organisation-wide movement ledger.

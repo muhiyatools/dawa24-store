@@ -11,7 +11,7 @@ import (
 )
 
 // VendorPaymentsPage renders payments history for the vendor.
-templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
+templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string, page, perPage, totalCount int) {
 	@layouts.VendorShell("المدفوعات والمستحقات المالية", "payments", lang, dir) {
 		<div class="page-container">
 			<!-- Header -->
@@ -22,7 +22,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 							<div class="user-avatar-badge text-xl">
 								@components.IconCreditCard("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", len(payments)) })</h1>
+							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", totalCount) })</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">تتم تسوية المستحقات المالية وتحويلها إلى حساب المنشأة البنكي دورياً</p>
 					</div>
@@ -69,6 +69,14 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     "/vendor/payments",
+						})
+					}
 				</div>
 			}
 		</div>
@@ -469,7 +477,7 @@ templ VendorEarningsOffersPage(revenue money.Amount, lang, dir string) {
 }
 
 // VendorOfferOrdersPage renders vendor offer orders list.
-templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir string) {
+templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir string, page, perPage, totalCount int) {
 	@layouts.VendorShell("طلبات عروض الأسعار والتوريد", "offer_orders", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
@@ -479,7 +487,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 							<div class="user-avatar-badge text-xl">
 								@components.IconPackage("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h1>
+							<h1 class="text-2xl font-black text-primary m-0">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", totalCount) })</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">متابعة الشحنات والطلبيات المرتبطة بعروض أسعار خاصة أو خصومات إضافية</p>
 					</div>
@@ -520,6 +528,14 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 							</tbody>
 						</table>
 					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     "/vendor/orders/offers",
+						})
+					}
 				</div>
 			}
 		</div>

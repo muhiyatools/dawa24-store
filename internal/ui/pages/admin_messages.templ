@@ -9,7 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) {
+templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage, page, perPage, totalCount int) {
 	@layouts.AdminShell("رسائل واستفسارات التواصل", "messages", lang, dir) {
 		<div class="page-container">
 			
@@ -22,7 +22,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 						</div>
       <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
-								رسائل واستفسارات التواصل ({ fmt.Sprintf("%d", len(messages)) })
+								رسائل واستفسارات التواصل ({ fmt.Sprintf("%d", totalCount) })
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
 								صندوق الرسائل والطلبات الواردة عبر نموذج "تواصل معنا" من الصيدليات والشركات والعملاء
@@ -154,6 +154,14 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 							</tbody>
 						</table>
 					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     "/admin/messages",
+						})
+					}
 				}
 			</div>
 

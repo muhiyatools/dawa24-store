@@ -135,6 +135,11 @@ func (s *Service) ListContactMessages(ctx context.Context, status string, limit,
 	return s.repo.ListContactMessages(ctx, status, limit, offset)
 }
 
+// ListContactMessagesWithTotal returns contact inquiries with total count.
+func (s *Service) ListContactMessagesWithTotal(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, int, error) {
+	return s.repo.ListContactMessagesWithTotal(ctx, status, limit, offset)
+}
+
 // UpdateContactMessageStatus updates the read/in-progress status of a contact message.
 func (s *Service) UpdateContactMessageStatus(ctx context.Context, id int64, status string) error {
 	return s.repo.UpdateContactMessageStatus(ctx, id, status)
@@ -148,6 +153,11 @@ func (s *Service) DeleteContactMessage(ctx context.Context, id int64) error {
 // ListContentBlocks returns all CMS content blocks.
 func (s *Service) ListContentBlocks(ctx context.Context) ([]*ContentBlock, error) {
 	return s.repo.ListContentBlocks(ctx)
+}
+
+// ListContentBlocksWithTotal returns paginated CMS content blocks with total count.
+func (s *Service) ListContentBlocksWithTotal(ctx context.Context, limit, offset int) ([]*ContentBlock, int, error) {
+	return s.repo.ListContentBlocksWithTotal(ctx, limit, offset)
 }
 
 // GetContentBlockByKey returns one CMS block by key.
@@ -184,6 +194,11 @@ func (s *Service) RecordVisitor(ctx context.Context, v *Visitor) error {
 // VisitorAnalytics returns the aggregate traffic view for the admin page.
 func (s *Service) VisitorAnalytics(ctx context.Context, limit int) (*VisitorAnalytics, error) {
 	return s.repo.VisitorAnalytics(ctx, limit)
+}
+
+// VisitorAnalyticsWithTotal returns the aggregate traffic view with pagination.
+func (s *Service) VisitorAnalyticsWithTotal(ctx context.Context, limit, offset int) (*VisitorAnalytics, error) {
+	return s.repo.VisitorAnalyticsWithTotal(ctx, limit, offset)
 }
 
 // ListAuditLog returns the platform audit trail, newest first.

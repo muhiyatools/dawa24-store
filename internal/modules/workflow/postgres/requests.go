@@ -57,15 +57,32 @@ func (r *Repository) GetRequestByID(ctx context.Context, id int64) (*workflow.Re
 
 // ListRequestsByOrg returns requests involving the org, newest first.
 func (r *Repository) ListRequestsByOrg(ctx context.Context, orgID int64, status string, limit, offset int) ([]*workflow.Request, error) {
+	reqs, _, err := r.ListRequestsByOrgWithTotal(ctx, orgID, status, limit, offset)
+	return reqs, err
+}
+
+// ListRequestsByOrgWithTotal returns requests involving the org with total count, newest first.
+func (r *Repository) ListRequestsByOrgWithTotal(ctx context.Context, orgID int64, status string, limit, offset int) ([]*workflow.Request, int, error) {
 	var list []*workflow.Request
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const countQuery = `
+			SELECT count(*)
+			FROM workflow.requests
+			WHERE (from_org_id = $1 OR to_org_id = $1)
+			  AND ($2 = '' OR status = $2);
+		`
+		if err := tx.QueryRow(txCtx, countQuery, orgID, status).Scan(&total); err != nil {
+			return err
+		}
+
 		const query = `
 			SELECT id, public_id, type, title, description, status, action_url,
 			       from_user_id, from_org_id, to_org_id, created_at, updated_at
 			FROM workflow.requests
 			WHERE (from_org_id = $1 OR to_org_id = $1)
 			  AND ($2 = '' OR status = $2)
-			ORDER BY created_at DESC
+			ORDER BY created_at DESC, id DESC
 			LIMIT $3 OFFSET $4;
 		`
 		if limit <= 0 || limit > 100 {
@@ -91,7 +108,7 @@ func (r *Repository) ListRequestsByOrg(ctx context.Context, orgID int64, status 
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // UpdateRequestStatus changes a request's lifecycle state.

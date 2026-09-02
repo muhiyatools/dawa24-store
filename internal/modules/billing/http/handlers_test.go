@@ -203,6 +203,10 @@ func (r stubRepo) ListPaymentsByOrg(ctx context.Context, orgID int64, limit, off
 	r.fail("ListPaymentsByOrg")
 	return nil, nil
 }
+func (r stubRepo) ListPaymentsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Payment, int, error) {
+	r.fail("ListPaymentsByOrgWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) AdminListInvoices(ctx context.Context, limit, offset int) ([]*billing.Invoice, error) {
 	r.fail("AdminListInvoices")
 	return nil, nil

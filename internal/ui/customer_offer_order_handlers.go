@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -25,12 +26,17 @@ func (h *UIHandler) CustomerOfferOrdersPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var orders []*commerce.Order
+	var total int
 	if h.commSvc != nil {
-		orders, _ = h.commSvc.ListCustomerOrders(ctx, actor.OrganizationID, 100, 0)
+		orders, total, _ = h.commSvc.ListCustomerOrdersWithTotal(ctx, actor.OrganizationID, limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render customer offer orders", pages.CustomerOfferOrdersPage(orders, lang, dir))
+	h.renderPage(ctx, w, "render customer offer orders", pages.CustomerOfferOrdersPage(orders, lang, dir, page, limit, total))
 }
 
 // CustomerOfferOrderDetailPage renders single offer order details.

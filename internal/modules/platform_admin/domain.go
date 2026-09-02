@@ -148,6 +148,8 @@ type VisitorAnalytics struct {
 	TotalProducts   int
 	TotalGMV        string
 	Recent          []*Visitor
+	Page            int
+	PerPage         int
 }
 
 // AuditEntry is one row of the platform audit trail, for /admin/audit.

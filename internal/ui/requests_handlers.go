@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -24,9 +25,17 @@ func (h *UIHandler) RequestsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := pages.RequestsData{CurrentOrgID: actor.OrganizationID}
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
+	data := pages.RequestsData{
+		CurrentOrgID: actor.OrganizationID,
+		Page:         page,
+		PerPage:      limit,
+	}
 	if h.wfSvc != nil && actor.OrganizationID > 0 {
-		data.Requests, _ = h.wfSvc.ListInbox(ctx, actor.OrganizationID, r.URL.Query().Get("status"), 50, 0)
+		data.Requests, data.TotalCount, _ = h.wfSvc.ListInboxWithTotal(ctx, actor.OrganizationID, r.URL.Query().Get("status"), limit, offset)
 	}
 	if h.orgSvc != nil {
 		typ := org.TypeVendor

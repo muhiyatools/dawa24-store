@@ -171,6 +171,20 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 							</tbody>
 						</table>
 					</div>
+					if values.ErrorTotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: values.ErrorPage,
+							PageSize:    values.ErrorPerPage,
+							TotalCount:  values.ErrorTotalCount,
+							BaseURL:     "/admin/developers",
+							QueryValues: map[string][]string{
+								"tab":        {"errors"},
+								"err_level":  {values.ErrorLevelFilter},
+								"err_status": {values.ErrorStatusFilter},
+								"err_q":      {values.ErrorSearch},
+							},
+						})
+					}
 				}
 
 				<!-- Error Details Diagnostic Modal -->
@@ -268,7 +282,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 					<div class="flex-between items-center mb-4 pb-3 border-b">
       <div class="stack-sm">
 							<h3 class="m-0 text-lg font-black">
-								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.AuditEntries)) })
+								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", values.AuditTotalCount) })
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 mb-0">
 								سجل متزامن للعمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
@@ -376,6 +390,17 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 								</tbody>
 							</table>
 						</div>
+						if values.AuditTotalCount > 0 {
+							@components.B2BPagination(components.PaginationProps{
+								CurrentPage: values.AuditPage,
+								PageSize:    values.AuditPerPage,
+								TotalCount:  values.AuditTotalCount,
+								BaseURL:     "/admin/developers",
+								QueryValues: map[string][]string{
+									"tab": {"audit"},
+								},
+							})
+						}
 					}
 				</div>
 

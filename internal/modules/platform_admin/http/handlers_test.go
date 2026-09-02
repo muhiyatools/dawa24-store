@@ -99,6 +99,10 @@ func (r stubRepo) ListContactMessages(context.Context, string, int, int) ([]*pla
 	r.fail("ListContactMessages")
 	return nil, nil
 }
+func (r stubRepo) ListContactMessagesWithTotal(context.Context, string, int, int) ([]*platformadmin.ContactMessage, int, error) {
+	r.fail("ListContactMessagesWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) UpdateContactMessageStatus(context.Context, int64, string) error {
 	r.fail("UpdateContactMessageStatus")
 	return nil
@@ -111,6 +115,10 @@ func (r stubRepo) DeleteContactMessage(context.Context, int64) error {
 func (r stubRepo) ListContentBlocks(context.Context) ([]*platformadmin.ContentBlock, error) {
 	r.fail("ListContentBlocks")
 	return nil, nil
+}
+func (r stubRepo) ListContentBlocksWithTotal(context.Context, int, int) ([]*platformadmin.ContentBlock, int, error) {
+	r.fail("ListContentBlocksWithTotal")
+	return nil, 0, nil
 }
 
 func (r stubRepo) GetContentBlockByKey(context.Context, string) (*platformadmin.ContentBlock, error) {
@@ -140,6 +148,10 @@ func (r stubRepo) VisitorAnalytics(context.Context, int) (*platformadmin.Visitor
 	r.fail("VisitorAnalytics")
 	return nil, nil
 }
+func (r stubRepo) VisitorAnalyticsWithTotal(context.Context, int, int) (*platformadmin.VisitorAnalytics, error) {
+	r.fail("VisitorAnalyticsWithTotal")
+	return nil, nil
+}
 
 func (r stubRepo) ListAuditLog(context.Context, int, int) ([]*platformadmin.AuditEntry, error) {
 	r.fail("ListAuditLog")
@@ -148,6 +160,10 @@ func (r stubRepo) ListAuditLog(context.Context, int, int) ([]*platformadmin.Audi
 func (r stubRepo) ListAuditLogByOrg(context.Context, int64, int, int) ([]*platformadmin.AuditEntry, error) {
 	r.fail("ListAuditLogByOrg")
 	return nil, nil
+}
+func (r stubRepo) ListAuditLogByOrgWithTotal(context.Context, int64, int, int) ([]*platformadmin.AuditEntry, int, error) {
+	r.fail("ListAuditLogByOrgWithTotal")
+	return nil, 0, nil
 }
 func (r stubRepo) ListAuditLogWithFilter(context.Context, platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
 	r.fail("ListAuditLogWithFilter")
@@ -299,6 +315,9 @@ func (happyRepo) CreateContactMessage(ctx context.Context, m *platformadmin.Cont
 }
 func (happyRepo) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
 	return []*platformadmin.ContactMessage{{ID: 1, Name: "User", Email: "u@example.com", Message: "Help"}}, nil
+}
+func (happyRepo) ListContactMessagesWithTotal(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, int, error) {
+	return []*platformadmin.ContactMessage{{ID: 1, Name: "User", Email: "u@example.com", Message: "Help"}}, 1, nil
 }
 func (happyRepo) UpdateContactMessageStatus(ctx context.Context, id int64, status string) error {
 	return nil

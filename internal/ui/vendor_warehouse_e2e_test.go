@@ -51,6 +51,14 @@ func (m *mockInventoryRepoForWarehouseTest) ListWarehouses(_ context.Context) ([
 	return list, nil
 }
 
+func (m *mockInventoryRepoForWarehouseTest) ListWarehousesWithTotal(_ context.Context, limit, offset int) ([]*inventory.Warehouse, int, error) {
+	var list []*inventory.Warehouse
+	for _, w := range m.warehouses {
+		list = append(list, w)
+	}
+	return list, len(list), nil
+}
+
 func (m *mockInventoryRepoForWarehouseTest) UpdateWarehouse(_ context.Context, w *inventory.Warehouse) error {
 	m.warehouses[w.ID] = w
 	return nil
@@ -152,6 +160,10 @@ func (m *mockInventoryRepoForWarehouseTest) ListStockMovements(_ context.Context
 
 func (m *mockInventoryRepoForWarehouseTest) ListLowStock(_ context.Context, limit, offset int) ([]*inventory.Stock, error) {
 	return nil, nil
+}
+
+func (m *mockInventoryRepoForWarehouseTest) ListLowStockWithTotal(_ context.Context, limit, offset int) ([]*inventory.Stock, int, error) {
+	return nil, 0, nil
 }
 
 func (m *mockInventoryRepoForWarehouseTest) ListMovementsByOrg(_ context.Context, limit, offset int) ([]*inventory.StockMovement, error) {

@@ -13,6 +13,8 @@ type AdminUserOrgData struct {
 	UserOrgs   []*org.UserOrganization
 	ActiveTab  string
 	TotalCount int
+	Page       int
+	PerPage    int
 }
 
 templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
@@ -139,6 +141,17 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 						</tbody>
 					</table>
 				</div>
+				if data != nil && data.TotalCount > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalCount,
+						BaseURL:     "/admin/user-organization",
+						QueryValues: map[string][]string{
+							"status": {data.ActiveTab},
+						},
+					})
+				}
 			}
 			</div>
 		</div>

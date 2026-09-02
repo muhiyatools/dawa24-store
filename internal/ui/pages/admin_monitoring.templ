@@ -9,7 +9,7 @@ import (
 )
 
 // AdminFullErrorLogsPage renders error logs directory.
-templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeStatus, activeSeverity string, lang, dir string) {
+templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeStatus, activeSeverity string, lang, dir string, page, perPage int) {
 	@layouts.AdminShell("سجلات الأخطاء والتشخيص (Full Error Logs)", "developers", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
@@ -19,7 +19,7 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 							🩺
 						</div>
       <div class="stack-sm">
-							<h1 class="text-2xl font-black text-primary m-0">سجلات تشخيص واستثناءات النظام ({ fmt.Sprintf("%d", len(logs)) })</h1>
+							<h1 class="text-2xl font-black text-primary m-0">سجلات تشخيص واستثناءات النظام ({ fmt.Sprintf("%d", total) })</h1>
 							<p class="text-sm text-secondary m-0 mt-1">مراقبة الأخطاء البرمجية، استثناءات قاعدة البيانات، واستجابات 5xx</p>
 						</div>
 					</div>
@@ -70,6 +70,18 @@ templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeSt
 							</tbody>
 						</table>
 					</div>
+					if total > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  total,
+							BaseURL:     "/admin/full-error-logs",
+							QueryValues: map[string][]string{
+								"status":   {activeStatus},
+								"severity": {activeSeverity},
+							},
+						})
+					}
 				}
 			</div>
 		</div>

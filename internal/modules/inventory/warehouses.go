@@ -94,6 +94,14 @@ func (s *Service) ListLowStock(ctx context.Context, limit, offset int) ([]*Stock
 	return s.repo.ListLowStock(ctx, limit, offset)
 }
 
+// ListLowStockWithTotal returns paginated stock at or below its reorder threshold with total count.
+func (s *Service) ListLowStockWithTotal(ctx context.Context, limit, offset int) ([]*Stock, int, error) {
+	if _, ok := database.TenantFrom(ctx); !ok {
+		return nil, 0, database.ErrNoTenant
+	}
+	return s.repo.ListLowStockWithTotal(ctx, limit, offset)
+}
+
 // ListOrgMovements returns the organisation-wide stock movement ledger.
 func (s *Service) ListOrgMovements(ctx context.Context, limit, offset int) ([]*StockMovement, error) {
 	if _, ok := database.TenantFrom(ctx); !ok {

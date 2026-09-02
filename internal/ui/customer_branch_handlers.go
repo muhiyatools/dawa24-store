@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -28,7 +29,7 @@ func (h *UIHandler) CustomerBranchEditPage(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/customer/branches", http.StatusSeeOther)
 }
 
-// CustomerBranchesPage renders the pharmacy's own branches and employees management screen in CustomerShell.
+// CustomerBranchesPage renders the branches and employees management page for the logged-in customer.
 func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -43,11 +44,16 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var branches []*org.Branch
 	var employees []*org.EmployeeView
+	var empTotal int
 	if h.orgSvc != nil {
 		branches, _ = h.orgSvc.ListBranches(ctx, orgID)
-		employees, _ = h.orgSvc.ListEmployees(ctx, orgID)
+		employees, empTotal, _ = h.orgSvc.ListEmployeesWithTotal(ctx, orgID, limit, offset)
 	}
 
 	activeTab := r.URL.Query().Get("tab")
@@ -65,12 +71,15 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	data := pages.CustomerBranchesData{
-		Branches:   branches,
-		Employees:  employees,
-		Cities:     h.listCities(ctx),
-		ActiveTab:  activeTab,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
+		Branches:      branches,
+		Employees:     employees,
+		Cities:        h.listCities(ctx),
+		ActiveTab:     activeTab,
+		NoticeType:    noticeType,
+		NoticeMsg:     noticeMsg,
+		EmpPage:       page,
+		EmpPerPage:    limit,
+		EmpTotalCount: empTotal,
 	}
 
 	h.renderPage(ctx, w, "render customer branches page", pages.CustomerBranches(data, lang, dir, actor.Permissions))

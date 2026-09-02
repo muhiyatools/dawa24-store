@@ -347,6 +347,20 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			if data.TotalCount > 0 {
+				templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL:     "/requests",
+					QueryValues: map[string][]string{
+						"status": {statusFilter},
+					},
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div>")
 		if templ_7745c5c3_Err != nil {

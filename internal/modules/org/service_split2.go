@@ -324,7 +324,20 @@ func (s *Service) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID
 	return s.repo.ListUserOrganizationsByVendor(ctx, vendorOrgID, statusFilter)
 }
 
+// ListUserOrganizationsByVendorWithTotal returns paginated customer links for a vendor with total count.
+func (s *Service) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*UserOrganization, int, error) {
+	if vendorOrgID <= 0 {
+		return []*UserOrganization{}, 0, nil
+	}
+	return s.repo.ListUserOrganizationsByVendorWithTotal(ctx, vendorOrgID, statusFilter, limit, offset)
+}
+
 // ListAllUserOrganizations returns all links across the platform for admin.
 func (s *Service) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error) {
 	return s.repo.ListAllUserOrganizations(ctx, statusFilter)
+}
+
+// ListAllUserOrganizationsWithTotal returns paginated links across the platform for admin with total count.
+func (s *Service) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*UserOrganization, int, error) {
+	return s.repo.ListAllUserOrganizationsWithTotal(ctx, statusFilter, limit, offset)
 }

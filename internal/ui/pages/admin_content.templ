@@ -41,7 +41,7 @@ func getPositionBadgeLabel(pos string) string {
 	}
 }
 
-templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
+templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock, page, perPage, totalCount int) {
 	@layouts.AdminShell("محتوى الصفحات والأقسام", "content", lang, dir) {
 		<div class="page-container" x-data="{ activeTab: 'all', searchQuery: '' }">
 			
@@ -54,7 +54,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 						</div>
       <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
-								محتوى الصفحات والأقسام الترويجية ({ fmt.Sprintf("%d", len(blocks)) })
+								محتوى الصفحات والأقسام الترويجية ({ fmt.Sprintf("%d", totalCount) })
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
 								التحكم الكامل في نصوص الصفحات الثابتة (من نحن، الأسئلة الشائعة، كيف يعمل)، والأقسام المميزة والبانرات الإعلانية في المنصة
@@ -350,6 +350,14 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 							</tbody>
 						</table>
 					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     "/admin/content",
+						})
+					}
 				}
 			</div>
 

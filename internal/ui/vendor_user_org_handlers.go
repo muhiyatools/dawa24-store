@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -65,10 +66,11 @@ func (h *UIHandler) VendorUserSearchJSON(w http.ResponseWriter, r *http.Request)
 	_ = json.NewEncoder(w).Encode(results)
 }
 
-// VendorUserOrganizationsPage renders the vendor's customer user connections and requests.
+// VendorUserOrganizationsPage renders all customer organization number links for the logged in vendor.
 func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsVendor() {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/user-organization", http.StatusSeeOther)
@@ -84,11 +86,17 @@ func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 	data := &pages.VendorUserOrgData{
 		ActiveTab:  statusFilter,
 		NoticeType: r.URL.Query().Get("notice_type"),
 		NoticeMsg:  r.URL.Query().Get("notice_msg"),
+		Page:       page,
+		PerPage:    limit,
 	}
 
 	sysCtx := database.AsSystem(ctx)
@@ -109,9 +117,10 @@ func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.R
 			}
 		}
 
-		filteredLinks, err := h.orgSvc.ListUserOrganizationsByVendor(sysCtx, orgID, statusFilter)
+		filteredLinks, total, err := h.orgSvc.ListUserOrganizationsByVendorWithTotal(sysCtx, orgID, statusFilter, limit, offset)
 		if err == nil {
 			data.UserOrgs = filteredLinks
+			data.FilteredTotal = total
 		}
 	}
 

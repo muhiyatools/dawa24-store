@@ -40,6 +40,10 @@ type AdminOffersPackagesData struct {
 	ActiveTab         string
 	NoticeType        string
 	NoticeMsg         string
+	ReqPage           int
+	ReqPerPage        int
+	AdsPage           int
+	AdsPerPage        int
 }
 
 func getTierName(tier int) string {
@@ -590,6 +594,17 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 								</tbody>
 							</table>
 						</div>
+						if data.TotalRequests > 0 {
+							@components.B2BPagination(components.PaginationProps{
+								CurrentPage: data.ReqPage,
+								PageSize:    data.ReqPerPage,
+								TotalCount:  data.TotalRequests,
+								BaseURL:     "/admin/offers-packages",
+								QueryValues: map[string][]string{
+									"tab": {"requests"},
+								},
+							})
+						}
 					</div>
 				}
 			</div>
@@ -725,6 +740,17 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 								</tbody>
 							</table>
 						</div>
+						if data.TotalAds > 0 {
+							@components.B2BPagination(components.PaginationProps{
+								CurrentPage: data.AdsPage,
+								PageSize:    data.AdsPerPage,
+								TotalCount:  data.TotalAds,
+								BaseURL:     "/admin/offers-packages",
+								QueryValues: map[string][]string{
+									"tab": {"ads"},
+								},
+							})
+						}
 					</div>
 				}
 			</div>

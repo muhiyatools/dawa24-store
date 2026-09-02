@@ -56,6 +56,14 @@ func (m *mockInventoryRepo) ListWarehouses(_ context.Context) ([]*inventory.Ware
 	return list, nil
 }
 
+func (m *mockInventoryRepo) ListWarehousesWithTotal(_ context.Context, limit, offset int) ([]*inventory.Warehouse, int, error) {
+	var list []*inventory.Warehouse
+	for _, w := range m.warehouses {
+		list = append(list, w)
+	}
+	return list, len(list), nil
+}
+
 func stockKey(warehouseID, variantID int64) string {
 	return fmt.Sprintf("%d:%d", warehouseID, variantID)
 }

@@ -14,14 +14,29 @@ import (
 
 // ListContentBlocks returns all CMS blocks ordered by sort order.
 func (r *Repository) ListContentBlocks(ctx context.Context) ([]*platformadmin.ContentBlock, error) {
+	list, _, err := r.ListContentBlocksWithTotal(ctx, 500, 0)
+	return list, err
+}
+
+// ListContentBlocksWithTotal returns paginated CMS blocks with total count.
+func (r *Repository) ListContentBlocksWithTotal(ctx context.Context, limit, offset int) ([]*platformadmin.ContentBlock, int, error) {
 	var list []*platformadmin.ContentBlock
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM platform_admin.content_blocks;`).Scan(&total); err != nil {
+			return err
+		}
+
 		const query = `
 			SELECT id, key, title, body, position, sort_order, is_active, updated_at
 			FROM platform_admin.content_blocks
-			ORDER BY sort_order ASC, id ASC;
+			ORDER BY sort_order ASC, id ASC
+			LIMIT $1 OFFSET $2;
 		`
-		rows, err := tx.Query(txCtx, query)
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		rows, err := tx.Query(txCtx, query, limit, offset)
 		if err != nil {
 			return err
 		}
@@ -35,7 +50,7 @@ func (r *Repository) ListContentBlocks(ctx context.Context) ([]*platformadmin.Co
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // GetContentBlockByKey returns one active CMS block by key.
@@ -149,8 +164,19 @@ func (r *Repository) ListAuditLog(ctx context.Context, limit, offset int) ([]*pl
 
 // ListAuditLogByOrg returns audit trail entries filtered to a specific organization.
 func (r *Repository) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, error) {
+	list, _, err := r.ListAuditLogByOrgWithTotal(ctx, orgID, limit, offset)
+	return list, err
+}
+
+// ListAuditLogByOrgWithTotal returns paginated audit trail entries filtered to a specific organization with total count.
+func (r *Repository) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, int, error) {
 	var list []*platformadmin.AuditEntry
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM platform.audit_log WHERE organization_id = $1;`, orgID).Scan(&total); err != nil {
+			return err
+		}
+
 		const query = `
 			SELECT a.id, a.organization_id,
 			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), 'المنصة الرئيسية') AS org_name,
@@ -165,11 +191,11 @@ func (r *Repository) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, 
 			LEFT JOIN identity.users u ON a.actor_user_id = u.id
 			LEFT JOIN org.organizations o ON a.organization_id = o.id
 			WHERE a.organization_id = $1
-			ORDER BY a.created_at DESC
+			ORDER BY a.created_at DESC, a.id DESC
 			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
-			limit = 50
+			limit = 25
 		}
 		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
 		if err != nil {
@@ -192,7 +218,7 @@ func (r *Repository) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, 
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // ListAuditLogWithFilter returns filtered audit log entries and total count matching the criteria.

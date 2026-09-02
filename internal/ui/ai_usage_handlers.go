@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -103,6 +104,10 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	lang, dir := h.localeAndDir(r)
 	subView := h.loadOrgSubscriptionView(ctx, actor, lang)
 	isVendor := actor.IsVendor()
@@ -115,6 +120,8 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 		PlanName:         i18n.T(lang, "sub.default_plan_name"),
 		PlanSlug:         "basic",
 		AIPlanID:         gateway.FallbackPlanID,
+		Page:             page,
+		PerPage:          limit,
 	}
 	if subView != nil {
 		pageData.AIUserID = subView.AIUserID
@@ -129,7 +136,7 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.aiUsage != nil && actor.OrganizationID > 0 {
-		h.fillAIUsageFromLedger(ctx, &pageData, actor.OrganizationID, isVendor, lang)
+		h.fillAIUsageFromLedger(ctx, &pageData, actor.OrganizationID, isVendor, limit, offset, lang)
 	}
 
 	h.renderPage(ctx, w, "render ai consumption logs", pages.AIConsumptionLogsPage(pageData, lang, dir))
@@ -141,18 +148,20 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 // security scopes it to their organisation. That is the isolation guarantee;
 // the previous version enforced it by comparing a user id string in a loop
 // after fetching, which is a filter rather than a boundary.
-func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AIConsumptionLogsPageData, orgID int64, isVendor bool, lang ...string) {
+func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AIConsumptionLogsPageData, orgID int64, isVendor bool, limit, offset int, lang ...string) {
 	since := time.Now().Add(-aiLedgerWindow)
 
-	entries, _, err := h.aiUsage.List(ctx, aiusage.Filter{
+	entries, total, err := h.aiUsage.List(ctx, aiusage.Filter{
 		OrganizationID: orgID,
 		Since:          since,
-		Limit:          200,
+		Limit:          limit,
+		Offset:         offset,
 	})
 	if err != nil {
 		h.log.WarnContext(ctx, "could not read ai usage ledger", "org_id", orgID, "error", err)
 		return
 	}
+	data.TotalCount = total
 
 	data.Logs = make([]*pages.AILogItemView, 0, len(entries))
 	for _, e := range entries {

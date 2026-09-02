@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -29,9 +30,14 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var warehouses []*inventory.Warehouse
+	var total int
 	if h.invSvc != nil {
-		warehouses, _ = h.invSvc.ListWarehouses(ctx)
+		warehouses, total, _ = h.invSvc.ListWarehousesWithTotal(ctx, limit, offset)
 	}
 
 	var branches []*org.Branch
@@ -39,7 +45,7 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
 	}
 
-	h.renderPage(ctx, w, "render vendor warehouses page", pages.VendorWarehousesPage(warehouses, branches, lang, dir))
+	h.renderPage(ctx, w, "render vendor warehouses page", pages.VendorWarehousesPage(warehouses, branches, lang, dir, page, limit, total))
 }
 
 // VendorWarehouseDetailPage renders single warehouse details and current stock rows.

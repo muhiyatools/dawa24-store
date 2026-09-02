@@ -11,6 +11,9 @@ type RequestsData struct {
 	Requests     []*workflow.Request
 	CurrentOrgID int64
 	Suppliers    []*org.Organization
+	Page         int
+	PerPage      int
+	TotalCount   int
 }
 
 // TabClass returns the button classes for a status filter tab.

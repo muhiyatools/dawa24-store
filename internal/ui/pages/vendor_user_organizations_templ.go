@@ -28,6 +28,9 @@ type VendorUserOrgData struct {
 	RejectedCount int
 	NoticeType    string
 	NoticeMsg     string
+	Page          int
+	PerPage       int
+	FilteredTotal int
 }
 
 func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) templ.Component {
@@ -84,7 +87,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 34, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 37, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -110,7 +113,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 39, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 42, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -210,7 +213,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 192, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 195, Col: 84}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -245,7 +248,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PendingCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 200, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 203, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -280,7 +283,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ApprovedCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 208, Col: 101}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 211, Col: 101}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -315,7 +318,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.RejectedCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 216, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 219, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -353,7 +356,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var18 string
 							templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(uo.UserName)[0:1]))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 236, Col: 45}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 239, Col: 45}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 							if templ_7745c5c3_Err != nil {
@@ -380,7 +383,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(uo.UserName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 244, Col: 71}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 247, Col: 71}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -398,7 +401,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var20 string
 							templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(uo.CustomerOrgName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 246, Col: 73}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 249, Col: 73}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 							if templ_7745c5c3_Err != nil {
@@ -416,7 +419,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(uo.OrganizationNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 250, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 253, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -429,7 +432,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(uo.UserEmail)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 255, Col: 25}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 258, Col: 25}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -442,7 +445,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(uo.CreatedAt, "ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 259, Col: 104}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 262, Col: 104}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -460,7 +463,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var24 string
 							templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 264, Col: 55}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 267, Col: 55}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 							if templ_7745c5c3_Err != nil {
@@ -483,7 +486,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var25 templ.SafeURL
 							templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/approve", uo.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 277, Col: 112}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 280, Col: 112}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 							if templ_7745c5c3_Err != nil {
@@ -504,7 +507,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var26 templ.SafeURL
 							templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/reject", uo.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 284, Col: 111}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 287, Col: 111}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 							if templ_7745c5c3_Err != nil {
@@ -540,7 +543,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 301, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 304, Col: 73}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 						if templ_7745c5c3_Err != nil {
@@ -561,7 +564,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var28 templ.SafeURL
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/delete", uo.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 307, Col: 110}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 310, Col: 110}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -598,7 +601,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var30 templ.SafeURL
 							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/edit", uo.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 320, Col: 142}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 323, Col: 142}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 							if templ_7745c5c3_Err != nil {
@@ -611,7 +614,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var31 string
 							templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-num-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 322, Col: 101}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 325, Col: 101}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 							if templ_7745c5c3_Err != nil {
@@ -624,7 +627,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var32 string
 							templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-num-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 327, Col: 57}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 330, Col: 57}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 							if templ_7745c5c3_Err != nil {
@@ -637,7 +640,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var33 string
 							templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(uo.OrganizationNumber)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 329, Col: 41}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 332, Col: 41}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 							if templ_7745c5c3_Err != nil {
@@ -650,7 +653,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var34 string
 							templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-notes-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 337, Col: 103}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 340, Col: 103}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 							if templ_7745c5c3_Err != nil {
@@ -663,7 +666,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var35 string
 							templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-notes-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 341, Col: 59}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 344, Col: 59}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 							if templ_7745c5c3_Err != nil {
@@ -676,7 +679,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var36 string
 							templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 345, Col: 22}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 348, Col: 22}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 							if templ_7745c5c3_Err != nil {
@@ -689,7 +692,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var37 string
 							templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 352, Col: 76}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 355, Col: 76}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 							if templ_7745c5c3_Err != nil {
@@ -718,6 +721,20 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
+				}
+				if data != nil && data.FilteredTotal > 0 {
+					templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.FilteredTotal,
+						BaseURL:     "/vendor/user-organization",
+						QueryValues: map[string][]string{
+							"status": {data.ActiveTab},
+						},
+					}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><script>\r\n\t\t\tlet searchDebounceTimer = null;\r\n\r\n\t\t\tfunction handleVendorUserSearch(val) {\r\n\t\t\t\tclearTimeout(searchDebounceTimer);\r\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\r\n\t\t\t\tconst spinner = document.getElementById('vendor-search-spinner');\r\n\t\t\t\tif (!dropdown) return;\r\n\r\n\t\t\t\tconst query = (val || '').trim();\r\n\t\t\t\tif (!query) {\r\n\t\t\t\t\tdropdown.style.display = 'none';\r\n\t\t\t\t\tdropdown.innerHTML = '';\r\n\t\t\t\t\tif (spinner) spinner.style.display = 'none';\r\n\t\t\t\t\treturn;\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif (spinner) spinner.style.display = 'block';\r\n\r\n\t\t\t\tsearchDebounceTimer = setTimeout(() => {\r\n\t\t\t\t\tfetch('/vendor/api/users/search?q=' + encodeURIComponent(query))\r\n\t\t\t\t\t\t.then(res => res.json())\r\n\t\t\t\t\t\t.then(users => {\r\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\r\n\t\t\t\t\t\t\tif (!users || users.length === 0) {\r\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-muted text-center\">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';\r\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\r\n\t\t\t\t\t\t\t\treturn;\r\n\t\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t\tlet html = '';\r\n\t\t\t\t\t\t\tusers.forEach(u => {\r\n\t\t\t\t\t\t\t\tconst safeName = (u.name || 'بدون اسم').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\tconst safeEmail = (u.email || '').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\tconst safePhone = (u.phone || '').replace(/'/g, \"\\\\'\");\r\n\t\t\t\t\t\t\t\thtml += `\r\n\t\t\t\t\t\t\t\t\t<div class=\"uo-search-item\"\r\n\t\t\t\t\t\t\t\t\t\tonclick=\"selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')\"\r\n\t\t\t\t\t\t\t\t\t>\r\n\t\t\t\t\t\t\t\t\t\t<div>\r\n\t\t\t\t\t\t\t\t\t\t\t<strong class=\"d-block text-xs font-bold text-primary\">${u.name}</strong>\r\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"text-2xs text-muted\" dir=\"ltr\">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>\r\n\t\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge badge-sky text-2xs tabular-nums\">#${u.id}</span>\r\n\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t`;\r\n\t\t\t\t\t\t\t});\r\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\r\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\r\n\t\t\t\t\t\t})\r\n\t\t\t\t\t\t.catch(err => {\r\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\r\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div class=\"p-3 text-xs text-danger text-center\">حدث خطأ أثناء البحث</div>';\r\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\r\n\t\t\t\t\t\t});\r\n\t\t\t\t}, 250);\r\n\t\t\t}\r\n\r\n\t\t\tfunction selectVendorUser(id, name, email, phone) {\r\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\r\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\r\n\t\t\t\tconst chipName = document.getElementById('vendor-selected-user-name');\r\n\t\t\t\tconst chipDetails = document.getElementById('vendor-selected-user-details');\r\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\r\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\r\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\r\n\r\n\t\t\t\tif (hiddenInput) hiddenInput.value = id;\r\n\t\t\t\tif (chipName) chipName.textContent = name;\r\n\t\t\t\tif (chipDetails) chipDetails.textContent = email + (phone ? ' • ' + phone : '') + ' (ID: #' + id + ')';\r\n\t\t\t\tif (chip) chip.style.display = 'flex';\r\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'none';\r\n\t\t\t\tif (dropdown) {\r\n\t\t\t\t\tdropdown.style.display = 'none';\r\n\t\t\t\t\tdropdown.innerHTML = '';\r\n\t\t\t\t}\r\n\t\t\t\tif (searchInput) searchInput.value = '';\r\n\t\t\t}\r\n\r\n\t\t\tfunction clearVendorSelectedUser() {\r\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\r\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\r\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\r\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\r\n\r\n\t\t\t\tif (hiddenInput) hiddenInput.value = '';\r\n\t\t\t\tif (chip) chip.style.display = 'none';\r\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'block';\r\n\t\t\t\tif (searchInput) {\r\n\t\t\t\t\tsearchInput.value = '';\r\n\t\t\t\t\tsearchInput.focus();\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\tdocument.addEventListener('click', (e) => {\r\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\r\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\r\n\t\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\r\n\t\t\t\t\tdropdown.style.display = 'none';\r\n\t\t\t\t}\r\n\t\t\t});\r\n\t\t</script>")

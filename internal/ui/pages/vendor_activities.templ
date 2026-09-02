@@ -69,26 +69,26 @@ func formatShortID(id string) string {
 }
 
 // VendorActivitiesPage renders activity history for the vendor's team.
-templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string) {
+templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string, page, perPage, totalCount int) {
 	@layouts.VendorShell("سجل نشاطات وعمليات الموظفين", "activities", lang, dir) {
-		@tenantActivitiesBody(entries, "vendor", lang, dir)
+		@tenantActivitiesBody(entries, "vendor", lang, dir, page, perPage, totalCount)
 	}
 }
 
 // CustomerActivitiesPage renders activity history for the pharmacy team.
-templ CustomerActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string) {
+templ CustomerActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string, page, perPage, totalCount int) {
 	@layouts.CustomerShell("سجل نشاطات وعمليات الموظفين", "activities", lang, dir, nil) {
-		@tenantActivitiesBody(entries, "customer", lang, dir)
+		@tenantActivitiesBody(entries, "customer", lang, dir, page, perPage, totalCount)
 	}
 }
 
-templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, lang, dir string) {
+templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, lang, dir string, page, perPage, totalCount int) {
 	<div class="page-container" x-data="{ search: '', selectedEntry: null, isDetailsOpen: false }">
 		
 		<!-- Header & Action Summary -->
 		<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 			<div class="flex-between items-start flex-wrap gap-4">
-    <div class="stack-sm">
+     <div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 							@components.IconClock("icon-sm")
@@ -108,7 +108,7 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 
 				<div class="d-flex items-center">
 					<span class="badge badge-sky text-xs font-extrabold px-3.5 py-2 shadow-2xs tabular-nums">
-						{ fmt.Sprintf("%d عملية مسجلة", len(entries)) }
+						{ fmt.Sprintf("%d عملية مسجلة", totalCount) }
 					</span>
 				</div>
 			</div>
@@ -225,9 +225,21 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 							}
 						</tbody>
 					</table>
+					</div>
+					if totalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: page,
+							PageSize:    perPage,
+							TotalCount:  totalCount,
+							BaseURL:     func() string {
+								if orgType == "vendor" {
+									return "/vendor/activities"
+								}
+								return "/customer/activities"
+							}(),
+						})
+					}
 				</div>
-			</div>
-		}
-	</div>
+			}
+		</div>
 }
-

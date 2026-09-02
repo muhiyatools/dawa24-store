@@ -19,6 +19,7 @@ import (
 )
 
 type mockCoverageRepo struct {
+	workflow.Repository
 	coverages map[int64]*workflow.WeeklyCoverage
 	nextID    int64
 }
@@ -129,6 +130,9 @@ func (m *mockCoverageRepo) GetRequestByID(_ context.Context, _ int64) (*workflow
 }
 func (m *mockCoverageRepo) ListRequestsByOrg(_ context.Context, _ int64, _ string, _, _ int) ([]*workflow.Request, error) {
 	return nil, nil
+}
+func (m *mockCoverageRepo) ListRequestsByOrgWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*workflow.Request, int, error) {
+	return nil, 0, nil
 }
 func (m *mockCoverageRepo) UpdateRequestStatus(_ context.Context, _ int64, _ workflow.RequestStatus) error {
 	return nil

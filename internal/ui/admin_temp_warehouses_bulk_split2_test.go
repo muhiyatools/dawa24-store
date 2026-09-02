@@ -386,10 +386,8 @@ func TestAdminTempWarehouse_BulkActions_Archive_Unarchive_Delete(t *testing.T) {
 	reqDelete := httptest.NewRequest(http.MethodPost, "/admin/my/temparte-warehouses/bulk", strings.NewReader(formDelete.Encode()))
 	reqDelete.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	reqDelete = reqDelete.WithContext(authctx.WithActor(reqDelete.Context(), adminActor))
-
 	recDelete := httptest.NewRecorder()
 	r.ServeHTTP(recDelete, reqDelete)
-
 	if recDelete.Code != http.StatusSeeOther {
 		t.Fatalf("expected 303 redirect on bulk delete, got %d", recDelete.Code)
 	}

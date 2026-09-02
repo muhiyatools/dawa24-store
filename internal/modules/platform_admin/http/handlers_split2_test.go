@@ -37,6 +37,9 @@ func (happyRepo) GetErrorDiagnosticsMetrics(ctx context.Context) (int, int, int,
 func (happyRepo) ListContentBlocks(ctx context.Context) ([]*platformadmin.ContentBlock, error) {
 	return []*platformadmin.ContentBlock{{ID: 1, Key: "about", Title: i18n.Text{"ar": "من نحن"}, Body: i18n.Text{"ar": "نص"}}}, nil
 }
+func (happyRepo) ListContentBlocksWithTotal(ctx context.Context, limit, offset int) ([]*platformadmin.ContentBlock, int, error) {
+	return []*platformadmin.ContentBlock{{ID: 1, Key: "about", Title: i18n.Text{"ar": "من نحن"}, Body: i18n.Text{"ar": "نص"}}}, 1, nil
+}
 
 func (happyRepo) GetContentBlockByKey(ctx context.Context, key string) (*platformadmin.ContentBlock, error) {
 	return &platformadmin.ContentBlock{ID: 1, Key: key, Title: i18n.Text{"ar": key}, Body: i18n.Text{"ar": "نص"}}, nil
@@ -63,12 +66,18 @@ func (happyRepo) RecordVisitor(ctx context.Context, v *platformadmin.Visitor) er
 func (happyRepo) VisitorAnalytics(ctx context.Context, limit int) (*platformadmin.VisitorAnalytics, error) {
 	return &platformadmin.VisitorAnalytics{Total: 10, Today: 2, ByDevice: map[string]int{"desktop": 8}, ByOS: map[string]int{"android": 6}, ByBrowser: map[string]int{"chrome": 9}}, nil
 }
+func (happyRepo) VisitorAnalyticsWithTotal(ctx context.Context, limit, offset int) (*platformadmin.VisitorAnalytics, error) {
+	return &platformadmin.VisitorAnalytics{Total: 10, Today: 2, ByDevice: map[string]int{"desktop": 8}, ByOS: map[string]int{"android": 6}, ByBrowser: map[string]int{"chrome": 9}}, nil
+}
 
 func (happyRepo) ListAuditLog(ctx context.Context, limit, offset int) ([]*platformadmin.AuditEntry, error) {
 	return []*platformadmin.AuditEntry{{ID: 1, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, nil
 }
 func (happyRepo) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, error) {
 	return []*platformadmin.AuditEntry{{ID: 1, OrganizationID: &orgID, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, nil
+}
+func (happyRepo) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*platformadmin.AuditEntry, int, error) {
+	return []*platformadmin.AuditEntry{{ID: 1, OrganizationID: &orgID, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, 1, nil
 }
 func (happyRepo) ListAuditLogWithFilter(ctx context.Context, filter platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
 	return []*platformadmin.AuditEntry{{ID: 1, Action: "org.registered", EntityType: "organization", EntityID: "x"}}, 1, nil
@@ -269,6 +278,9 @@ func (s stubRepo) ListSoftDeletableTables(context.Context) ([]*platformadmin.Tra
 func (s stubRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, error) {
 	return nil, nil
 }
+func (s stubRepo) ListTrashedRowsWithTotal(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, int, error) {
+	return nil, 0, nil
+}
 func (s stubRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
 	return nil
 }
@@ -283,6 +295,9 @@ func (h happyRepo) ListSoftDeletableTables(context.Context) ([]*platformadmin.Tr
 }
 func (h happyRepo) ListTrashedRows(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, error) {
 	return nil, nil
+}
+func (h happyRepo) ListTrashedRowsWithTotal(context.Context, string, string, int, int) ([]*platformadmin.TrashRow, int, error) {
+	return nil, 0, nil
 }
 func (h happyRepo) RestoreTrashedRow(context.Context, string, string, int64, int64) error {
 	return nil

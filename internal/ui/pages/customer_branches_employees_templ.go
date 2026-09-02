@@ -420,6 +420,20 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			if data.EmpTotalCount > 0 {
+				templ_7745c5c3_Err = components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.EmpPage,
+					PageSize:    data.EmpPerPage,
+					TotalCount:  data.EmpTotalCount,
+					BaseURL:     "/customer/branches",
+					QueryValues: map[string][]string{
+						"tab": {"employees"},
+					},
+				}).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<!-- MODALS --><!-- 1. Add Employee Modal -->")
 		if templ_7745c5c3_Err != nil {
@@ -449,7 +463,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 228, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 239, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
@@ -463,7 +477,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 230, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 241, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -473,7 +487,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 232, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 243, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -532,7 +546,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var24 templ.SafeURL
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 270, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 281, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -545,7 +559,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(emp.UserName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 274, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 285, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 					if templ_7745c5c3_Err != nil {
@@ -558,7 +572,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(emp.UserEmail)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 278, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 289, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 					if templ_7745c5c3_Err != nil {
@@ -571,7 +585,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(emp.Member.JobTitle)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 285, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 296, Col: 70}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -584,7 +598,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(emp.Member.EmployeeCode)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 289, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 300, Col: 78}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 					if templ_7745c5c3_Err != nil {
@@ -602,7 +616,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 						var templ_7745c5c3_Var29 string
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 299, Col: 48}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 310, Col: 48}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 						if templ_7745c5c3_Err != nil {
@@ -626,7 +640,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 							var templ_7745c5c3_Var30 string
 							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["ar"])
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 301, Col: 25}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 312, Col: 25}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 							if templ_7745c5c3_Err != nil {
@@ -636,7 +650,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 							var templ_7745c5c3_Var31 string
 							templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["en"])
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 303, Col: 25}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 314, Col: 25}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 							if templ_7745c5c3_Err != nil {
@@ -725,7 +739,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", emp.Member.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 331, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_employees.templ`, Line: 342, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 					if templ_7745c5c3_Err != nil {

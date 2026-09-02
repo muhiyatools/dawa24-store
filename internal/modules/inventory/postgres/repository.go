@@ -74,16 +74,31 @@ func (r *Repository) GetWarehouseByID(ctx context.Context, id int64) (*inventory
 
 // ListWarehouses lists all active warehouses for the current tenant.
 func (r *Repository) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse, error) {
+	list, _, err := r.ListWarehousesWithTotal(ctx, 1000, 0)
+	return list, err
+}
+
+// ListWarehousesWithTotal lists paginated active warehouses for the current tenant with total count.
+func (r *Repository) ListWarehousesWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Warehouse, int, error) {
 	var list []*inventory.Warehouse
+	var total int
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM inventory.warehouses WHERE deleted_at IS NULL;`).Scan(&total); err != nil {
+			return err
+		}
+
 		query := `
 			SELECT id, public_id, organization_id, branch_id, name, code, address, phone,
 			       latitude, longitude, is_active, created_at, updated_at, deleted_at
 			FROM inventory.warehouses
 			WHERE deleted_at IS NULL
-			ORDER BY name ASC;
+			ORDER BY name ASC, id DESC
+			LIMIT $1 OFFSET $2;
 		`
-		rows, err := tx.Query(txCtx, query)
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		rows, err := tx.Query(txCtx, query, limit, offset)
 		if err != nil {
 			return err
 		}
@@ -102,7 +117,7 @@ func (r *Repository) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // GetStock retrieves a stock record for a given warehouse and product variant.

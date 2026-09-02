@@ -69,8 +69,20 @@ func (r *Repository) ListSoftDeletableTables(ctx context.Context) ([]*platformad
 // ListTrashedRows returns the soft-deleted rows of one table with a readable
 // label taken from whichever of the usual name columns the table has.
 func (r *Repository) ListTrashedRows(ctx context.Context, schema, table string, limit, offset int) ([]*platformadmin.TrashRow, error) {
+	rows, _, err := r.ListTrashedRowsWithTotal(ctx, schema, table, limit, offset)
+	return rows, err
+}
+
+// ListTrashedRowsWithTotal returns the soft-deleted rows of one table with total count.
+func (r *Repository) ListTrashedRowsWithTotal(ctx context.Context, schema, table string, limit, offset int) ([]*platformadmin.TrashRow, int, error) {
 	var out []*platformadmin.TrashRow
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQ := fmt.Sprintf(`SELECT count(*) FROM %q.%q WHERE deleted_at IS NOT NULL`, schema, table)
+		if err := tx.QueryRow(txCtx, countQ).Scan(&total); err != nil {
+			return err
+		}
+
 		labelExpr, err := trashLabelExpr(txCtx, tx, schema, table)
 		if err != nil {
 			return err
@@ -79,7 +91,7 @@ func (r *Repository) ListTrashedRows(ctx context.Context, schema, table string, 
 			SELECT id, %s, to_char(deleted_at, 'YYYY-MM-DD HH24:MI')
 			FROM %q.%q
 			WHERE deleted_at IS NOT NULL
-			ORDER BY deleted_at DESC
+			ORDER BY deleted_at DESC, id DESC
 			LIMIT $1 OFFSET $2`, labelExpr, schema, table)
 		rows, err := tx.Query(txCtx, q, limit, offset)
 		if err != nil {
@@ -95,7 +107,7 @@ func (r *Repository) ListTrashedRows(ctx context.Context, schema, table string, 
 		}
 		return rows.Err()
 	})
-	return out, err
+	return out, total, err
 }
 
 // RestoreTrashedRow clears deleted_at, refusing when the row's parent

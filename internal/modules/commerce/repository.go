@@ -63,6 +63,7 @@ type Repository interface {
 	GetPurchaseRequestByNumber(ctx context.Context, number string) (*PurchaseRequest, error)
 	ListPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64, status string, limit, offset int) ([]*PurchaseRequest, error)
 	ListPurchaseRequestsByVendor(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, error)
+	ListPurchaseRequestsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, int, error)
 	CountPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error)
 	UpdatePurchaseRequestStatus(ctx context.Context, id int64, status PurchaseRequestStatus, vendorNotes string, responderID *int64) error
 	UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error

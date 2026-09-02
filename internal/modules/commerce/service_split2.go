@@ -277,6 +277,14 @@ func (s *Service) ListVendorPurchaseRequests(ctx context.Context, vendorOrgID in
 	return s.repo.ListPurchaseRequestsByVendor(ctx, vendorOrgID, status, limit, offset)
 }
 
+// ListVendorPurchaseRequestsWithTotal lists incoming purchase requests for a supplier with total count.
+func (s *Service) ListVendorPurchaseRequestsWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*PurchaseRequest, int, error) {
+	if limit <= 0 {
+		limit = 25
+	}
+	return s.repo.ListPurchaseRequestsByVendorWithTotal(ctx, vendorOrgID, status, limit, offset)
+}
+
 // CountCustomerPurchaseRequests returns count statistics by status.
 func (s *Service) CountCustomerPurchaseRequests(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error) {
 	return s.repo.CountPurchaseRequestsByCustomer(ctx, customerID, orgID)

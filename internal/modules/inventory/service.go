@@ -49,6 +49,11 @@ func (s *Service) ListWarehouses(ctx context.Context) ([]*Warehouse, error) {
 	return s.repo.ListWarehouses(ctx)
 }
 
+// ListWarehousesWithTotal returns paginated active warehouses for the current tenant with total count.
+func (s *Service) ListWarehousesWithTotal(ctx context.Context, limit, offset int) ([]*Warehouse, int, error) {
+	return s.repo.ListWarehousesWithTotal(ctx, limit, offset)
+}
+
 // ClearWarehouseStocks deletes all stocks for a warehouse (for clear_and_add import mode).
 func (s *Service) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error {
 	return s.repo.ClearWarehouseStocks(ctx, warehouseID)

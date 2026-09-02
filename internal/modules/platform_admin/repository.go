@@ -31,10 +31,12 @@ type Repository interface {
 	ListLanguages(ctx context.Context) ([]*Language, error)
 	CreateContactMessage(ctx context.Context, m *ContactMessage) error
 	ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, error)
+	ListContactMessagesWithTotal(ctx context.Context, status string, limit, offset int) ([]*ContactMessage, int, error)
 	UpdateContactMessageStatus(ctx context.Context, id int64, status string) error
 	DeleteContactMessage(ctx context.Context, id int64) error
 
 	ListContentBlocks(ctx context.Context) ([]*ContentBlock, error)
+	ListContentBlocksWithTotal(ctx context.Context, limit, offset int) ([]*ContentBlock, int, error)
 	GetContentBlockByKey(ctx context.Context, key string) (*ContentBlock, error)
 	UpsertContentBlock(ctx context.Context, b *ContentBlock) error
 	ToggleContentBlockStatus(ctx context.Context, id int64) error
@@ -42,9 +44,11 @@ type Repository interface {
 
 	RecordVisitor(ctx context.Context, v *Visitor) error
 	VisitorAnalytics(ctx context.Context, limit int) (*VisitorAnalytics, error)
+	VisitorAnalyticsWithTotal(ctx context.Context, limit, offset int) (*VisitorAnalytics, error)
 
 	ListAuditLog(ctx context.Context, limit, offset int) ([]*AuditEntry, error)
 	ListAuditLogByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, error)
+	ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*AuditEntry, int, error)
 	ListAuditLogWithFilter(ctx context.Context, filter AuditLogFilter) ([]*AuditEntry, int, error)
 	QueueStats(ctx context.Context) (map[string]int, error)
 
@@ -59,6 +63,7 @@ type Repository interface {
 	// from information_schema rather than hand-maintained.
 	ListSoftDeletableTables(ctx context.Context) ([]*TrashModel, error)
 	ListTrashedRows(ctx context.Context, schema, table string, limit, offset int) ([]*TrashRow, error)
+	ListTrashedRowsWithTotal(ctx context.Context, schema, table string, limit, offset int) ([]*TrashRow, int, error)
 	RestoreTrashedRow(ctx context.Context, schema, table string, id, actorID int64) error
 	PurgeTrashedRow(ctx context.Context, schema, table string, id, actorID int64) error
 

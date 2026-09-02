@@ -106,5 +106,7 @@ type Repository interface {
 	DeleteUserOrganization(ctx context.Context, id int64) error
 	ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*UserOrganization, error)
 	ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*UserOrganization, error)
+	ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*UserOrganization, int, error)
 	ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error)
+	ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*UserOrganization, int, error)
 }

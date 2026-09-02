@@ -9,6 +9,7 @@ type Repository interface {
 	CreateWarehouse(ctx context.Context, w *Warehouse) error
 	GetWarehouseByID(ctx context.Context, id int64) (*Warehouse, error)
 	ListWarehouses(ctx context.Context) ([]*Warehouse, error)
+	ListWarehousesWithTotal(ctx context.Context, limit, offset int) ([]*Warehouse, int, error)
 	UpdateWarehouse(ctx context.Context, w *Warehouse) error
 	SoftDeleteWarehouse(ctx context.Context, id int64) error
 	// CountStockInWarehouse backs the refusal to delete a warehouse that still
@@ -36,6 +37,7 @@ type Repository interface {
 	// ListLowStock returns rows at or below their reorder threshold, which is
 	// what the vendor replenishment screen is built on.
 	ListLowStock(ctx context.Context, limit, offset int) ([]*Stock, error)
+	ListLowStockWithTotal(ctx context.Context, limit, offset int) ([]*Stock, int, error)
 	// ListMovementsByOrg is the organisation-wide ledger, newest first.
 	ListMovementsByOrg(ctx context.Context, limit, offset int) ([]*StockMovement, error)
 

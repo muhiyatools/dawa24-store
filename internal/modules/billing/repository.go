@@ -66,6 +66,7 @@ type Repository interface {
 	AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*WalletDeposit, error)
 
 	ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error)
+	ListPaymentsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, int, error)
 
 	AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*Subscription, error)
 	AdminListSubscriptionsWithTotal(ctx context.Context, limit, offset int) ([]*Subscription, int, error)

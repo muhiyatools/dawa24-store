@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -59,7 +60,12 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 		h.redirectWithNotice(w, r, "/admin/dashboard", "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
-	rows, err := h.adminSvc.ListTrashedRows(ctx, modelKey, 100, 0)
+
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
+	rows, total, err := h.adminSvc.ListTrashedRowsWithTotal(ctx, modelKey, limit, offset)
 	if err != nil {
 		h.log.ErrorContext(ctx, "list trashed rows", "error", err, "model", modelKey)
 		h.renderError(w, r, err)
@@ -71,7 +77,7 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 		items = append(items, pages.TrashRowView{ID: row.ID, Label: row.Label, DeletedAt: row.DeletedAt})
 	}
 
-	h.renderPage(ctx, w, "render admin trash list model", pages.AdminTrashListModelPage(modelKey, items, lang, dir))
+	h.renderPage(ctx, w, "render admin trash list model", pages.AdminTrashListModelPage(modelKey, items, lang, dir, page, limit, total))
 }
 
 // AdminTrashRestoreSubmit clears deleted_at on one row.

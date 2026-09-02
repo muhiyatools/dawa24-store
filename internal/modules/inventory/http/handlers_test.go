@@ -39,6 +39,10 @@ func (r stubRepo) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse, e
 	r.fail("ListWarehouses")
 	return nil, nil
 }
+func (r stubRepo) ListWarehousesWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Warehouse, int, error) {
+	r.fail("ListWarehousesWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error {
 	r.fail("UpdateWarehouse")
 	return nil
@@ -92,6 +96,10 @@ func (r stubRepo) ListLowStock(ctx context.Context, limit, offset int) ([]*inven
 	r.fail("ListLowStock")
 	return nil, nil
 }
+func (r stubRepo) ListLowStockWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Stock, int, error) {
+	r.fail("ListLowStockWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) ListMovementsByOrg(ctx context.Context, limit, offset int) ([]*inventory.StockMovement, error) {
 	r.fail("ListMovementsByOrg")
 	return nil, nil
@@ -129,6 +137,9 @@ func (happyRepo) GetWarehouseByID(ctx context.Context, id int64) (*inventory.War
 }
 func (happyRepo) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse, error) {
 	return []*inventory.Warehouse{{ID: 1, Name: "Main WH", OrganizationID: 1}}, nil
+}
+func (happyRepo) ListWarehousesWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Warehouse, int, error) {
+	return []*inventory.Warehouse{{ID: 1, Name: "Main WH", OrganizationID: 1}}, 1, nil
 }
 func (happyRepo) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error { return nil }
 func (happyRepo) SoftDeleteWarehouse(ctx context.Context, id int64) error         { return nil }
@@ -173,6 +184,9 @@ func (happyRepo) ListStockMovements(ctx context.Context, stockID int64, limit in
 }
 func (happyRepo) ListLowStock(ctx context.Context, limit, offset int) ([]*inventory.Stock, error) {
 	return []*inventory.Stock{{ID: 1, OrganizationID: 1, Quantity: 5, MinThreshold: 10}}, nil
+}
+func (happyRepo) ListLowStockWithTotal(ctx context.Context, limit, offset int) ([]*inventory.Stock, int, error) {
+	return []*inventory.Stock{{ID: 1, OrganizationID: 1, Quantity: 5, MinThreshold: 10}}, 1, nil
 }
 func (happyRepo) ListMovementsByOrg(ctx context.Context, limit, offset int) ([]*inventory.StockMovement, error) {
 	return []*inventory.StockMovement{{ID: 1, OrganizationID: 1, Type: inventory.MovementIn, QuantityDelta: 10}}, nil

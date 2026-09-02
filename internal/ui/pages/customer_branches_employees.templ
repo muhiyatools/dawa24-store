@@ -175,6 +175,17 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 				</table>
 			</div>
 		</div>
+		if data.EmpTotalCount > 0 {
+			@components.B2BPagination(components.PaginationProps{
+				CurrentPage: data.EmpPage,
+				PageSize:    data.EmpPerPage,
+				TotalCount:  data.EmpTotalCount,
+				BaseURL:     "/customer/branches",
+				QueryValues: map[string][]string{
+					"tab": {"employees"},
+				},
+			})
+		}
 	}
 
 	<!-- MODALS -->

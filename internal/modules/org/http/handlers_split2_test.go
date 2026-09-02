@@ -198,8 +198,14 @@ func (happyRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) 
 func (happyRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
 	return nil, nil
 }
+func (happyRepo) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
+	return nil, 0, nil
+}
 func (happyRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
 	return nil, nil
+}
+func (happyRepo) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
+	return nil, 0, nil
 }
 func (stubRepo) CreateUserOrganization(ctx context.Context, uo *org.UserOrganization) error {
 	return nil
@@ -219,8 +225,14 @@ func (stubRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) (
 func (stubRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
 	return nil, nil
 }
+func (stubRepo) ListUserOrganizationsByVendorWithTotal(ctx context.Context, vendorOrgID int64, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
+	return nil, 0, nil
+}
 func (stubRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
 	return nil, nil
+}
+func (stubRepo) ListAllUserOrganizationsWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*org.UserOrganization, int, error) {
+	return nil, 0, nil
 }
 
 const testCookieName = "dawa24_session"

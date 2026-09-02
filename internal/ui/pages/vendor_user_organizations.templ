@@ -11,15 +11,18 @@ import (
 )
 
 type VendorUserOrgData struct {
-	UserOrgs     []*org.UserOrganization
-	AllCustomers []*identity.User
-	ActiveTab    string
-	TotalCount   int
-	PendingCount int
+	UserOrgs      []*org.UserOrganization
+	AllCustomers  []*identity.User
+	ActiveTab     string
+	TotalCount    int
+	PendingCount  int
 	ApprovedCount int
 	RejectedCount int
-	NoticeType   string
-	NoticeMsg    string
+	NoticeType    string
+	NoticeMsg     string
+	Page          int
+	PerPage       int
+	FilteredTotal int
 }
 
 templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
@@ -364,6 +367,17 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						}
 					}
 				</div>
+				if data != nil && data.FilteredTotal > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.FilteredTotal,
+						BaseURL:     "/vendor/user-organization",
+						QueryValues: map[string][]string{
+							"status": {data.ActiveTab},
+						},
+					})
+				}
 			}
 
 		</div>

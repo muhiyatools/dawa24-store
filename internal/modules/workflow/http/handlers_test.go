@@ -99,6 +99,10 @@ func (r stubRepo) ListRequestsByOrg(context.Context, int64, string, int, int) ([
 	r.fail("ListRequestsByOrg")
 	return nil, nil
 }
+func (r stubRepo) ListRequestsByOrgWithTotal(context.Context, int64, string, int, int) ([]*workflow.Request, int, error) {
+	r.fail("ListRequestsByOrgWithTotal")
+	return nil, 0, nil
+}
 
 func (r stubRepo) UpdateRequestStatus(context.Context, int64, workflow.RequestStatus) error {
 	r.fail("UpdateRequestStatus")
@@ -186,6 +190,9 @@ func (happyRepo) GetRequestByID(ctx context.Context, id int64) (*workflow.Reques
 
 func (happyRepo) ListRequestsByOrg(ctx context.Context, orgID int64, status string, limit, offset int) ([]*workflow.Request, error) {
 	return []*workflow.Request{{ID: 1, Type: workflow.RequestDocument, Status: workflow.RequestPending}}, nil
+}
+func (happyRepo) ListRequestsByOrgWithTotal(ctx context.Context, orgID int64, status string, limit, offset int) ([]*workflow.Request, int, error) {
+	return []*workflow.Request{{ID: 1, Type: workflow.RequestDocument, Status: workflow.RequestPending}}, 1, nil
 }
 
 func (happyRepo) UpdateRequestStatus(ctx context.Context, id int64, status workflow.RequestStatus) error {

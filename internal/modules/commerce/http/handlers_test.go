@@ -173,6 +173,10 @@ func (r stubRepo) ListPurchaseRequestsByVendor(ctx context.Context, vendorOrgID 
 	r.fail("ListPurchaseRequestsByVendor")
 	return nil, nil
 }
+func (r stubRepo) ListPurchaseRequestsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.PurchaseRequest, int, error) {
+	r.fail("ListPurchaseRequestsByVendorWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) CountPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error) {
 	r.fail("CountPurchaseRequestsByCustomer")
 	return nil, nil
@@ -315,6 +319,9 @@ func (happyRepo) ListPurchaseRequestsByCustomer(ctx context.Context, customerID 
 }
 func (happyRepo) ListPurchaseRequestsByVendor(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.PurchaseRequest, error) {
 	return []*commerce.PurchaseRequest{{ID: 1, RequestNumber: "PR-1", Status: commerce.PurchaseRequestPending}}, nil
+}
+func (happyRepo) ListPurchaseRequestsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.PurchaseRequest, int, error) {
+	return []*commerce.PurchaseRequest{{ID: 1, RequestNumber: "PR-1", Status: commerce.PurchaseRequestPending}}, 1, nil
 }
 func (happyRepo) CountPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error) {
 	return map[string]int{"all": 1, "pending": 1}, nil

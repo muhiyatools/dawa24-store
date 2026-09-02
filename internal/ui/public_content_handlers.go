@@ -10,6 +10,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -53,12 +54,17 @@ func (h *UIHandler) AdminMessagesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var messages []*platformadmin.ContactMessage
+	var total int
 	if h.adminSvc != nil {
-		messages, _ = h.adminSvc.ListContactMessages(database.AsSystem(ctx), "", 200, 0)
+		messages, total, _ = h.adminSvc.ListContactMessagesWithTotal(database.AsSystem(ctx), "", limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render admin messages", pages.AdminMessages(lang, dir, messages))
+	h.renderPage(ctx, w, "render admin messages", pages.AdminMessages(lang, dir, messages, page, limit, total))
 }
 
 // AdminMessageToggleSubmit toggles the status of a contact message between unread and read.

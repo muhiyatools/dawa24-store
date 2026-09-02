@@ -121,8 +121,16 @@ func (m *mockOrgRepo) ListUserOrganizationsByVendor(_ context.Context, _ int64, 
 	return []*UserOrganization{}, nil
 }
 
+func (m *mockOrgRepo) ListUserOrganizationsByVendorWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*UserOrganization, int, error) {
+	return []*UserOrganization{}, 0, nil
+}
+
 func (m *mockOrgRepo) ListAllUserOrganizations(_ context.Context, _ string) ([]*UserOrganization, error) {
 	return []*UserOrganization{}, nil
+}
+
+func (m *mockOrgRepo) ListAllUserOrganizationsWithTotal(_ context.Context, _ string, _, _ int) ([]*UserOrganization, int, error) {
+	return []*UserOrganization{}, 0, nil
 }
 
 func TestOrgLifecycleAndBranches(t *testing.T) {

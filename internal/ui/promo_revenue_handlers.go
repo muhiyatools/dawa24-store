@@ -27,6 +27,10 @@ func (h *UIHandler) AdminOffersPackagesHubPage(w http.ResponseWriter, r *http.Re
 		tab = "packages"
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var packages []*promo.OfferPackage
 	var requests []*promo.SponsorshipRequest
 	var ads []*promo.Ad
@@ -46,9 +50,9 @@ func (h *UIHandler) AdminOffersPackagesHubPage(w http.ResponseWriter, r *http.Re
 			}
 		}
 
-		if reqs, err := h.promoSvc.AdminListSponsorshipRequests(database.AsSystem(ctx), 200, 0); err == nil {
+		if reqs, total, err := h.promoSvc.AdminListSponsorshipRequestsWithTotal(database.AsSystem(ctx), limit, offset); err == nil {
 			requests = reqs
-			totalRequests = len(reqs)
+			totalRequests = total
 			for _, req := range reqs {
 				if req != nil {
 					if req.AdminStatus == "pending" {
@@ -60,9 +64,9 @@ func (h *UIHandler) AdminOffersPackagesHubPage(w http.ResponseWriter, r *http.Re
 			}
 		}
 
-		if adList, err := h.promoSvc.AdminListAds(database.AsSystem(ctx), 200, 0); err == nil {
+		if adList, total, err := h.promoSvc.AdminListAdsWithTotal(database.AsSystem(ctx), limit, offset); err == nil {
 			ads = adList
-			totalAds = len(adList)
+			totalAds = total
 			for _, a := range adList {
 				if a != nil && a.AdminStatus == "pending" {
 					pendingAds++
@@ -94,6 +98,10 @@ func (h *UIHandler) AdminOffersPackagesHubPage(w http.ResponseWriter, r *http.Re
 		ActiveTab:        tab,
 		NoticeType:       noticeType,
 		NoticeMsg:        noticeMsg,
+		ReqPage:          page,
+		ReqPerPage:       limit,
+		AdsPage:          page,
+		AdsPerPage:       limit,
 	}
 
 	h.renderPage(ctx, w, "render admin offers packages hub", pages.AdminOffersPackagesHubPage(lang, dir, data))

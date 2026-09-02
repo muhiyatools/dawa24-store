@@ -48,6 +48,17 @@ func (m *mockInventoryRepo) ListLowStock(_ context.Context, limit, offset int) (
 	return pageSlice(low, limit, offset), nil
 }
 
+func (m *mockInventoryRepo) ListLowStockWithTotal(_ context.Context, limit, offset int) ([]*inventory.Stock, int, error) {
+	var low []*inventory.Stock
+	for _, s := range m.stocksByID {
+		if s.Quantity <= s.MinThreshold {
+			low = append(low, s)
+		}
+	}
+	sort.Slice(low, func(i, j int) bool { return low[i].ID < low[j].ID })
+	return pageSlice(low, limit, offset), len(low), nil
+}
+
 func (m *mockInventoryRepo) ListMovementsByOrg(_ context.Context, limit, offset int) ([]*inventory.StockMovement, error) {
 	var all []*inventory.StockMovement
 	for _, ms := range m.movements {

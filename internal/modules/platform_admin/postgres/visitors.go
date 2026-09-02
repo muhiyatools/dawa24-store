@@ -27,6 +27,11 @@ func (r *Repository) RecordVisitor(ctx context.Context, v *platformadmin.Visitor
 
 // VisitorAnalytics returns the aggregate traffic and platform health view.
 func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platformadmin.VisitorAnalytics, error) {
+	return r.VisitorAnalyticsWithTotal(ctx, limit, 0)
+}
+
+// VisitorAnalyticsWithTotal returns the aggregate traffic and platform health view with pagination.
+func (r *Repository) VisitorAnalyticsWithTotal(ctx context.Context, limit, offset int) (*platformadmin.VisitorAnalytics, error) {
 	out := &platformadmin.VisitorAnalytics{
 		ByCountry: map[string]int{},
 		ByCity:    map[string]int{},
@@ -37,6 +42,9 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 	}
 	if limit <= 0 || limit > 100 {
 		limit = 25
+	}
+	if offset < 0 {
+		offset = 0
 	}
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM platform_admin.visitors;`).Scan(&out.Total)
@@ -95,8 +103,8 @@ func (r *Repository) VisitorAnalytics(ctx context.Context, limit int) (*platform
 			       CASE WHEN country = 'شبكة داخلية 🖥️' OR country = 'غير محدد' OR country = '' THEN 'مصر 🇪🇬' ELSE country END AS country,
 			       CASE WHEN city = 'بيئة التطوير (Local)' OR city = 'غير محدد' OR city = '' THEN 'القاهرة' ELSE city END AS city,
 			       visited_at, created_at
-			FROM platform_admin.visitors ORDER BY created_at DESC LIMIT $1;`,
-			limit)
+			FROM platform_admin.visitors ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2;`,
+			limit, offset)
 		if err != nil {
 			return err
 		}

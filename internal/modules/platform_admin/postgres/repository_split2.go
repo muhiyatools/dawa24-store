@@ -107,14 +107,27 @@ func (r *Repository) CreateContactMessage(ctx context.Context, m *platformadmin.
 }
 
 // ListContactMessages returns contact inquiries.
+// ListContactMessages returns contact inquiries.
 func (r *Repository) ListContactMessages(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, error) {
+	list, _, err := r.ListContactMessagesWithTotal(ctx, status, limit, offset)
+	return list, err
+}
+
+// ListContactMessagesWithTotal returns contact inquiries with total count.
+func (r *Repository) ListContactMessagesWithTotal(ctx context.Context, status string, limit, offset int) ([]*platformadmin.ContactMessage, int, error) {
 	var list []*platformadmin.ContactMessage
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQ := `SELECT count(*) FROM platform_admin.contact_messages WHERE ($1 = '' OR status = $1);`
+		if err := tx.QueryRow(txCtx, countQ, status).Scan(&total); err != nil {
+			return err
+		}
+
 		query := `
 			SELECT id, public_id, name, email, phone, subject, message, status, created_at
 			FROM platform_admin.contact_messages
 			WHERE ($1 = '' OR status = $1)
-			ORDER BY created_at DESC
+			ORDER BY created_at DESC, id DESC
 			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
@@ -139,7 +152,7 @@ func (r *Repository) ListContactMessages(ctx context.Context, status string, lim
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // UpdateContactMessageStatus updates the status of a contact message.
