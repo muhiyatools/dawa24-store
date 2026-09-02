@@ -7,8 +7,13 @@
 // unit tests never touch a database. The only thing that finds it is executing
 // the SQL against the real schema, which is what this does.
 //
+//	go run ./cmd/migratecheck                     # drift check + apply all, roll back
 //	go run ./cmd/migratecheck -from 66            # apply 66..latest, roll back
 //	go run ./cmd/migratecheck -from 66 -roundtrip # then run every down, roll back
+//
+// It also refuses when a migration file changed after being applied to this
+// database. That is what the deploy runner does, and finding it here costs a
+// second instead of a failed release. See drift.go.
 //
 // The transaction is never committed under any exit path, so it is safe to run
 // against production. It does take brief DDL locks, so prefer a quiet moment.
@@ -72,6 +77,24 @@ func main() {
 		os.Exit(2)
 	}
 	defer conn.Close(ctx)
+
+	// Drift first: a file edited after it ran means the runner will refuse to
+	// migrate at all, so rehearsing SQL it will never reach proves nothing.
+	// Checked against every migration on disk, not just the -from range.
+	all, err := load(*dir, 0, 1<<30)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(2)
+	}
+	drift, err := checkDrift(ctx, conn, all)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "drift check:", err)
+		os.Exit(2)
+	}
+	if len(drift) > 0 {
+		reportDrift(drift)
+		os.Exit(1)
+	}
 
 	if code := run(ctx, conn, migrations, *roundtrip); code != 0 {
 		os.Exit(code)
