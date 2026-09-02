@@ -27,6 +27,7 @@ type Repository interface {
 	UpdateOrderStatus(ctx context.Context, orderID int64, toStatus OrderStatus, history OrderStatusHistory) error
 	UpdateCustomerPendingOrder(ctx context.Context, order *Order, lines []OrderLineEditItem, changedByUserID int64) (*Order, error)
 	ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*Order, error)
+	ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*Order, int, error)
 	CountOrders(ctx context.Context) (int, error)
 	CountVendorShipmentsByStatus(ctx context.Context, orgID int64, statuses []string) (int, error)
 	// MonthSalesByVendor sums a vendor's sold order-line totals for the current
@@ -37,6 +38,7 @@ type Repository interface {
 	// GetVendorFinancialSummary computes the complete, unified financial and profit analytics for a vendor.
 	GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error)
 	ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error)
+	ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*OrderShipment, int, error)
 	GetShipmentByID(ctx context.Context, id int64) (*OrderShipment, error)
 	// UpdateShipmentStatus is a compare-and-swap on the expected prior status,
 	// so two vendor staff acting at once cannot both advance the same shipment.
@@ -66,6 +68,8 @@ type Repository interface {
 	UpdatePurchaseRequestLineOffer(ctx context.Context, lineID int64, price money.Amount, discount float64, status string) error
 
 	AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*Order, error)
+	AdminSearchOrdersWithTotal(ctx context.Context, query, tab string, limit, offset int) ([]*Order, int, error)
+	AdminOrderStats(ctx context.Context) (allCount, directCount, negotiationCount int, err error)
 	AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error
 	RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error
 }

@@ -98,6 +98,14 @@ func (r stubRepo) AdminListUsers(context.Context, string, string) ([]*identity.U
 	r.fail("AdminListUsers")
 	return nil, nil
 }
+func (r stubRepo) AdminListUsersWithTotal(context.Context, identity.AdminUserFilter, int, int) ([]*identity.User, int, error) {
+	r.fail("AdminListUsersWithTotal")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminUserStats(context.Context) (identity.AdminUserStatsResult, error) {
+	r.fail("AdminUserStats")
+	return identity.AdminUserStatsResult{}, nil
+}
 func (r stubRepo) AdminUpdateUserStatus(context.Context, int64, string, int64) error {
 	r.fail("AdminUpdateUserStatus")
 	return nil
@@ -211,6 +219,12 @@ func (happyRepo) ListFavorites(ctx context.Context, userID int64) ([]int64, erro
 }
 func (happyRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
 	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil
+}
+func (happyRepo) AdminListUsersWithTotal(ctx context.Context, filter identity.AdminUserFilter, limit, offset int) ([]*identity.User, int, error) {
+	return []*identity.User{{ID: 1, Email: "user@example.com"}}, 1, nil
+}
+func (happyRepo) AdminUserStats(ctx context.Context) (identity.AdminUserStatsResult, error) {
+	return identity.AdminUserStatsResult{Total: 1, Active: 1}, nil
 }
 func (happyRepo) SearchUsers(ctx context.Context, query, role string, limit int) ([]*identity.User, error) {
 	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil

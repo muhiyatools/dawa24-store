@@ -12,8 +12,10 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -22,32 +24,35 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	query := r.URL.Query().Get("q")
-	tab := r.URL.Query().Get("tab")
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
 	if tab == "" {
 		tab = "all"
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var orders []*commerce.Order
-	var directOrders []*commerce.Order
-	var negOrders []*commerce.Order
+	var totalCount int
+	var allCount, directCount, negCount int
+
 	if h.commSvc != nil {
-		orders, _ = h.commSvc.AdminSearchOrders(ctx, query, 200, 0)
-		for _, o := range orders {
-			if o.IsNegotiation {
-				negOrders = append(negOrders, o)
-			} else {
-				directOrders = append(directOrders, o)
-			}
-		}
+		allCount, directCount, negCount, _ = h.commSvc.AdminOrderStats(ctx)
+		orders, totalCount, _ = h.commSvc.AdminSearchOrdersWithTotal(ctx, query, tab, limit, offset)
 	}
 
 	data := pages.AdminOrdersData{
-		ActiveTab:         tab,
-		Query:             query,
-		Orders:            orders,
-		DirectOrders:      directOrders,
-		NegotiationOrders: negOrders,
+		ActiveTab:        tab,
+		Query:            query,
+		Orders:           orders,
+		Page:             page,
+		PerPage:          limit,
+		TotalCount:       totalCount,
+		AllCount:         allCount,
+		DirectCount:      directCount,
+		NegotiationCount: negCount,
 	}
 
 	h.renderPage(ctx, w, "render admin orders", pages.AdminOrdersHub(data, lang, dir))
@@ -57,34 +62,24 @@ func (h *UIHandler) AdminOrdersPage(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) AdminOffersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	statusFilter := r.URL.Query().Get("status")
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 
-	var allOffers []*promo.SpecialOffer
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	var offers []*promo.SpecialOffer
+	var totalCount int
 	if h.promoSvc != nil {
-		allOffers, _ = h.promoSvc.ListAllSpecialOffers(ctx, 200, 0)
-	}
-
-	var filteredOffers []*promo.SpecialOffer
-	for _, o := range allOffers {
-		if o == nil {
-			continue
-		}
-		if statusFilter == "" || statusFilter == "all" {
-			filteredOffers = append(filteredOffers, o)
-		} else if statusFilter == "pending" && (o.AdminStatus == "pending" || o.AdminStatus == "") {
-			filteredOffers = append(filteredOffers, o)
-		} else if statusFilter == "active" && o.AdminStatus == "approved" && o.Status == "active" {
-			filteredOffers = append(filteredOffers, o)
-		} else if statusFilter == "rejected" && o.AdminStatus == "rejected" {
-			filteredOffers = append(filteredOffers, o)
-		} else if statusFilter == "draft" && (o.Status == "draft" || o.Status == "inactive") {
-			filteredOffers = append(filteredOffers, o)
-		}
+		offers, totalCount, _ = h.promoSvc.ListAllSpecialOffersWithTotal(ctx, statusFilter, limit, offset)
 	}
 
 	data := pages.AdminOffersData{
-		Offers:       filteredOffers,
+		Offers:       offers,
 		FilterStatus: statusFilter,
+		Page:         page,
+		PerPage:      limit,
+		TotalCount:   totalCount,
 	}
 
 	h.renderPage(ctx, w, "render admin offers", pages.AdminOffers(data, lang, dir))

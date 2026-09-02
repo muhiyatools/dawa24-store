@@ -172,6 +172,16 @@ func (m *mockRepo) AdminListUsers(ctx context.Context, role, status string) ([]*
 	}
 	return list, nil
 }
+func (m *mockRepo) AdminListUsersWithTotal(ctx context.Context, filter AdminUserFilter, limit, offset int) ([]*User, int, error) {
+	var list []*User
+	for _, u := range m.users {
+		list = append(list, u)
+	}
+	return list, len(list), nil
+}
+func (m *mockRepo) AdminUserStats(ctx context.Context) (AdminUserStatsResult, error) {
+	return AdminUserStatsResult{Total: len(m.users)}, nil
+}
 func (m *mockRepo) SearchUsers(ctx context.Context, query, role string, limit int) ([]*User, error) {
 	var list []*User
 	for _, u := range m.users {

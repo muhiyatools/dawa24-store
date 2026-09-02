@@ -54,6 +54,9 @@ func (m *deliveryMockRepo) UpdateCustomerPendingOrder(_ context.Context, _ *comm
 func (m *deliveryMockRepo) ListOrdersByCustomer(_ context.Context, _ int64, _, _ int) ([]*commerce.Order, error) {
 	return nil, nil
 }
+func (m *deliveryMockRepo) ListOrdersByCustomerWithTotal(_ context.Context, _ int64, _, _ int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 func (m *deliveryMockRepo) CountOrders(_ context.Context) (int, error) { return 0, nil }
 func (m *deliveryMockRepo) CountVendorShipmentsByStatus(_ context.Context, _ int64, _ []string) (int, error) {
 	return 0, nil
@@ -66,6 +69,9 @@ func (m *deliveryMockRepo) MonthSpendByCustomer(_ context.Context, _ int64) (mon
 }
 func (m *deliveryMockRepo) ListShipmentsByVendor(_ context.Context, _ int64, _, _ int) ([]*commerce.OrderShipment, error) {
 	return nil, nil
+}
+func (m *deliveryMockRepo) ListShipmentsByVendorWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*commerce.OrderShipment, int, error) {
+	return nil, 0, nil
 }
 func (m *deliveryMockRepo) GetShipmentByID(_ context.Context, id int64) (*commerce.OrderShipment, error) {
 	for _, s := range m.shipments {
@@ -144,6 +150,12 @@ func (m *deliveryMockRepo) UpdatePurchaseRequestLineOffer(_ context.Context, _ i
 }
 func (m *deliveryMockRepo) AdminSearchOrders(_ context.Context, _ string, _, _ int) ([]*commerce.Order, error) {
 	return nil, nil
+}
+func (m *deliveryMockRepo) AdminSearchOrdersWithTotal(_ context.Context, _, _ string, _, _ int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
+func (m *deliveryMockRepo) AdminOrderStats(_ context.Context) (int, int, int, error) {
+	return 0, 0, 0, nil
 }
 func (m *deliveryMockRepo) AcceptNegotiation(_ context.Context, _, _ int64) error { return nil }
 func (m *deliveryMockRepo) RejectNegotiation(_ context.Context, _ int64, _ string, _ int64) error {

@@ -8,6 +8,14 @@ func (s *Service) AdminListUsers(ctx context.Context, role, status string) ([]*U
 	return s.repo.AdminListUsers(ctx, role, status)
 }
 
+func (s *Service) AdminListUsersWithTotal(ctx context.Context, filter AdminUserFilter, limit, offset int) ([]*User, int, error) {
+	return s.repo.AdminListUsersWithTotal(ctx, filter, limit, offset)
+}
+
+func (s *Service) AdminUserStats(ctx context.Context) (AdminUserStatsResult, error) {
+	return s.repo.AdminUserStats(ctx)
+}
+
 func (s *Service) SearchUsers(ctx context.Context, query, role string, limit int) ([]*User, error) {
 	return s.repo.SearchUsers(ctx, query, role, limit)
 }

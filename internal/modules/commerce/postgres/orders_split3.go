@@ -14,8 +14,32 @@ import (
 
 // ListShipmentsByVendor retrieves shipment partitions for a vendor organization.
 func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*commerce.OrderShipment, error) {
+	shipments, _, err := r.ListShipmentsByVendorWithTotal(ctx, vendorOrgID, "", limit, offset)
+	return shipments, err
+}
+
+// ListShipmentsByVendorWithTotal retrieves shipment partitions for a vendor organization with optional status filter and total count.
+func (r *Repository) ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.OrderShipment, int, error) {
 	var shipments []*commerce.OrderShipment
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countSQL := `
+			SELECT count(*)
+			FROM commerce.order_shipments s
+			WHERE s.organization_id = $1
+			  AND ($2::text = '' OR s.status = $2);
+		`
+		if err := tx.QueryRow(txCtx, countSQL, vendorOrgID, status).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
 		query := `
 			SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
 			       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
@@ -36,13 +60,11 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 			LEFT JOIN org.organizations org ON org.id = ord.organization_id
 			LEFT JOIN org.branches b ON b.id = ord.branch_id
 			WHERE s.organization_id = $1
-			ORDER BY s.created_at DESC
-			LIMIT $2 OFFSET $3;
+			  AND ($2::text = '' OR s.status = $2)
+			ORDER BY s.created_at DESC, s.id DESC
+			LIMIT $3 OFFSET $4;
 		`
-		if limit <= 0 || limit > 100 {
-			limit = 50
-		}
-		rows, err := tx.Query(txCtx, query, vendorOrgID, limit, offset)
+		rows, err := tx.Query(txCtx, query, vendorOrgID, status, limit, offset)
 		if err != nil {
 			return err
 		}
@@ -90,14 +112,15 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 				defer lRows.Close()
 				for lRows.Next() {
 					var l commerce.OrderLine
+					var rating *float64
 					if err := lRows.Scan(
 						&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
 						&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
 						&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
 						&l.TotalPrice, &l.CostPrice, &l.CostDiscountPercentage,
-						&l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &l.Rating,
+						&l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &rating,
 					); err == nil {
-						if sh, ok := shipmentMap[l.ShipmentID]; ok {
+						if sh, exists := shipmentMap[l.ShipmentID]; exists {
 							sh.Lines = append(sh.Lines, &l)
 						}
 					}
@@ -106,7 +129,7 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 		}
 		return rows.Err()
 	})
-	return shipments, err
+	return shipments, total, err
 }
 
 var _ time.Time

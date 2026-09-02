@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -29,18 +30,29 @@ func (h *UIHandler) CustomerOrdersPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	if h.commSvc == nil {
-		h.renderPage(ctx, w, "render customer orders page", pages.CustomerOrders(nil, lang, dir, h.isHTMX(r)))
+		h.renderPage(ctx, w, "render customer orders page", pages.CustomerOrders(pages.CustomerOrdersData{}, lang, dir, h.isHTMX(r)))
 		return
 	}
 
-	orders, err := h.commSvc.ListCustomerOrders(ctx, userID, h.pageLimit(r), h.pageOffset(r))
+	orders, total, err := h.commSvc.ListCustomerOrdersWithTotal(ctx, userID, limit, offset)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
-	h.renderPage(ctx, w, "render customer orders page", pages.CustomerOrders(orders, lang, dir, h.isHTMX(r)))
+	data := pages.CustomerOrdersData{
+		Orders:     orders,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
+	}
+
+	h.renderPage(ctx, w, "render customer orders page", pages.CustomerOrders(data, lang, dir, h.isHTMX(r)))
 }
 
 func (h *UIHandler) CustomerOrderDetailPage(w http.ResponseWriter, r *http.Request) {

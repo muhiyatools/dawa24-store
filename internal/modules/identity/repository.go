@@ -34,6 +34,8 @@ type Repository interface {
 	ListFavorites(ctx context.Context, userID int64) ([]int64, error)
 
 	AdminListUsers(ctx context.Context, role, status string) ([]*User, error)
+	AdminListUsersWithTotal(ctx context.Context, filter AdminUserFilter, limit, offset int) ([]*User, int, error)
+	AdminUserStats(ctx context.Context) (AdminUserStatsResult, error)
 	SearchUsers(ctx context.Context, query, role string, limit int) ([]*User, error)
 	AdminCountUsers(ctx context.Context) (int, error)
 	DefaultOrgForUser(ctx context.Context, userID int64) (int64, error)

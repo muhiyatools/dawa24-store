@@ -196,6 +196,10 @@ func (r stubRepo) ListAllSpecialOffers(context.Context, int, int) ([]*promo.Spec
 	r.fail("ListAllSpecialOffers")
 	return nil, nil
 }
+func (r stubRepo) ListAllSpecialOffersWithTotal(context.Context, string, int, int) ([]*promo.SpecialOffer, int, error) {
+	r.fail("ListAllSpecialOffersWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) UpdateSpecialOfferAdminStatus(context.Context, int64, string, string, int64) error {
 	r.fail("UpdateSpecialOfferAdminStatus")
 	return nil

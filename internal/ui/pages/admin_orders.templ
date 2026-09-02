@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -11,15 +12,19 @@ import (
 
 // AdminOrdersData contains dataset for unified orders and procurement oversight.
 type AdminOrdersData struct {
-	ActiveTab         string // "all", "direct", "negotiations"
-	Query             string
-	Orders            []*commerce.Order
-	DirectOrders      []*commerce.Order
-	NegotiationOrders []*commerce.Order
+	ActiveTab        string // "all", "direct", "negotiations"
+	Query            string
+	Orders           []*commerce.Order
+	Page             int
+	PerPage          int
+	TotalCount       int
+	AllCount         int
+	DirectCount      int
+	NegotiationCount int
 }
 
 templ AdminOrders(lang, dir, query string, orders []*commerce.Order) {
-	@AdminOrdersHub(AdminOrdersData{ActiveTab: "all", Query: query, Orders: orders}, lang, dir)
+	@AdminOrdersHub(AdminOrdersData{ActiveTab: "all", Query: query, Orders: orders, TotalCount: len(orders)}, lang, dir)
 }
 
 templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
@@ -45,166 +50,169 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 			<div class="tabs-nav">
 				<a href="/admin/orders?tab=all" class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }>
 					@components.IconTruck("icon-xs")
-					<span>جميع طلبات الشراء ({ fmt.Sprintf("%d", len(data.Orders)) })</span>
+					<span>جميع طلبات الشراء ({ fmt.Sprintf("%d", data.AllCount) })</span>
 				</a>
 				<a href="/admin/orders?tab=direct" class={ "tab-btn", templ.KV("active", data.ActiveTab == "direct") }>
 					@components.IconLayers("icon-xs")
-					<span>أوامر التوريد المباشر ({ fmt.Sprintf("%d", len(data.DirectOrders)) })</span>
+					<span>أوامر التوريد المباشر ({ fmt.Sprintf("%d", data.DirectCount) })</span>
 				</a>
 				<a href="/admin/orders?tab=negotiations" class={ "tab-btn", templ.KV("active", data.ActiveTab == "negotiations") }>
 					<span>@components.IconUsers("icon-sm")</span>
-					<span>طلبات التفاوض ({ fmt.Sprintf("%d", len(data.NegotiationOrders)) })</span>
+					<span>طلبات التفاوض ({ fmt.Sprintf("%d", data.NegotiationCount) })</span>
 				</a>
 			</div>
 
 			<div class="glass-panel p-0 mb-0 overflow-hidden">
-				if data.ActiveTab == "negotiations" {
-					if len(data.NegotiationOrders) == 0 {
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات تفاوض على الأسعار", Message: "لم يتم تقديم أي طلبات تفاوض على أسعار الأصناف حتى الآن."})
-					} else {
-						<div class="table-container m-0">
-							<table class="data-table m-0">
-								<thead>
+				if len(data.Orders) == 0 {
+					@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات مطابقة", Message: "لم يتم تسجيل أي طلبات شراء تطابق معايير البحث."})
+				} else if data.ActiveTab == "negotiations" {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>رقم الطلب</th>
+									<th>المنشأة المشترية</th>
+									<th>حالة التفاوض</th>
+									<th class="tabular-nums">المبلغ الإجمالي</th>
+									<th>ملاحظات التفاوض</th>
+									<th>حالة الطلب</th>
+									<th>التاريخ</th>
+									<th class="col-actions">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, o := range data.Orders {
 									<tr>
-										<th>رقم الطلب</th>
-										<th>المنشأة المشترية</th>
-										<th>حالة التفاوض</th>
-										<th class="tabular-nums">المبلغ الإجمالي</th>
-										<th>ملاحظات التفاوض</th>
-										<th>حالة الطلب</th>
-										<th>التاريخ</th>
-										<th class="col-actions">الإجراءات</th>
+										<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
+										<td>
+											if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+												<strong class="text-sm font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
+											} else if o.OrganizationID != nil {
+												<span class="text-xs text-secondary">منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
+											} else {
+												<span class="text-xs text-secondary">عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
+											}
+										</td>
+										<td>
+											if o.NegotiationStatus == "accepted" {
+												<span class="badge badge-emerald text-xs font-bold">تم قبول التفاوض</span>
+											} else if o.NegotiationStatus == "rejected" {
+												<span class="badge badge-rose text-xs font-bold">تم رفض السعر</span>
+											} else {
+												<span class="badge badge-amber text-xs font-bold">⏳ قيد المراجعة</span>
+											}
+										</td>
+										<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
+										<td>
+											<span class="text-xs text-muted text-truncate max-w-260 d-inline-block">
+												{ o.NegotiationNotes }
+											</span>
+										</td>
+										<td><span class="badge badge-sky text-xs font-bold">{ string(o.Status) }</span></td>
+										<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
+										<td class="col-actions">
+											<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm font-bold">عرض التفاصيل</a>
+										</td>
 									</tr>
-								</thead>
-								<tbody>
-									for _, o := range data.NegotiationOrders {
-										<tr>
-											<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
-											<td>
-												if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
-													<strong class="text-sm font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
-												} else if o.OrganizationID != nil {
-													<span class="text-xs text-secondary">منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
-												} else {
-													<span class="text-xs text-secondary">عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
-												}
-											</td>
-											<td>
-												if o.NegotiationStatus == "accepted" {
-													<span class="badge badge-emerald text-xs font-bold">تم قبول التفاوض</span>
-												} else if o.NegotiationStatus == "rejected" {
-													<span class="badge badge-rose text-xs font-bold">تم رفض السعر</span>
-												} else {
-													<span class="badge badge-amber text-xs font-bold">⏳ قيد المراجعة</span>
-												}
-											</td>
-											<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
-											<td>
-												<span class="text-xs text-muted text-truncate max-w-260 d-inline-block">
-													{ o.NegotiationNotes }
-												</span>
-											</td>
-											<td><span class="badge badge-sky text-xs font-bold">{ string(o.Status) }</span></td>
-											<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
-											<td class="col-actions">
-												<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-sm font-bold">عرض التفاصيل</a>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					}
+								}
+							</tbody>
+						</table>
+					</div>
 				} else if data.ActiveTab == "direct" {
-					if len(data.DirectOrders) == 0 {
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أوامر توريد مباشر", Message: "لم يتم تسجيل أوامر توريد مباشر تطابق معايير البحث."})
-					} else {
-						<div class="table-container m-0">
-							<table class="data-table m-0">
-								<thead>
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>رقم الطلب</th>
+									<th>العميل / المنشأة</th>
+									<th>طريقة الدفع</th>
+									<th>حالة الدفع</th>
+									<th>حالة الطلب</th>
+									<th class="tabular-nums">الإجمالي</th>
+									<th>التاريخ</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, o := range data.Orders {
 									<tr>
-										<th>رقم الطلب</th>
-										<th>العميل / المنشأة</th>
-										<th>طريقة الدفع</th>
-										<th>حالة الدفع</th>
-										<th>حالة الطلب</th>
-										<th class="tabular-nums">الإجمالي</th>
-										<th>التاريخ</th>
+										<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
+										<td>
+											if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+												<strong class="text-sm font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
+											} else if o.OrganizationID != nil {
+												<span class="text-xs text-secondary">منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
+											} else {
+												<span class="text-xs text-secondary">عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
+											}
+										</td>
+										<td><span class="badge badge-secondary text-xs">{ o.PaymentMethod }</span></td>
+										<td><span class="badge badge-emerald text-xs font-bold">{ string(o.PaymentStatus) }</span></td>
+										<td><span class="badge badge-amber text-xs font-bold">{ string(o.Status) }</span></td>
+										<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
+										<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
 									</tr>
-								</thead>
-								<tbody>
-									for _, o := range data.DirectOrders {
-										<tr>
-											<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
-											<td>
-												if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
-													<strong class="text-sm font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
-												} else if o.OrganizationID != nil {
-													<span class="text-xs text-secondary">منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
-												} else {
-													<span class="text-xs text-secondary">عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
-												}
-											</td>
-											<td><span class="badge badge-secondary text-xs">{ o.PaymentMethod }</span></td>
-											<td><span class="badge badge-emerald text-xs font-bold">{ string(o.PaymentStatus) }</span></td>
-											<td><span class="badge badge-amber text-xs font-bold">{ string(o.Status) }</span></td>
-											<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
-											<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					}
+								}
+							</tbody>
+						</table>
+					</div>
 				} else {
-					if len(data.Orders) == 0 {
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات مطابقة", Message: "لم يتم تسجيل أي طلبات شراء تطابق معايير البحث."})
-					} else {
-						<div class="table-container m-0">
-							<table class="data-table m-0">
-								<thead>
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>رقم الطلب</th>
+									<th>النوع</th>
+									<th>العميل / المنشأة</th>
+									<th>طريقة الدفع</th>
+									<th>حالة الدفع</th>
+									<th>حالة الطلب</th>
+									<th class="tabular-nums">الإجمالي</th>
+									<th>التاريخ</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, o := range data.Orders {
 									<tr>
-										<th>رقم الطلب</th>
-										<th>النوع</th>
-										<th>العميل / المنشأة</th>
-										<th>طريقة الدفع</th>
-										<th>حالة الدفع</th>
-										<th>حالة الطلب</th>
-										<th class="tabular-nums">الإجمالي</th>
-										<th>التاريخ</th>
+										<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
+										<td>
+											if o.IsNegotiation {
+												<span class="badge badge-amber text-xs font-bold">تفاوض</span>
+											} else {
+												<span class="badge badge-slate text-xs font-bold">توريد مباشر</span>
+											}
+										</td>
+										<td>
+											if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+												<strong class="text-sm font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
+											} else if o.OrganizationID != nil {
+												<span class="text-xs text-secondary">منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
+											} else {
+												<span class="text-xs text-secondary">عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
+											}
+										</td>
+										<td><span class="badge badge-secondary text-xs">{ o.PaymentMethod }</span></td>
+										<td><span class="badge badge-emerald text-xs font-bold">{ string(o.PaymentStatus) }</span></td>
+										<td><span class="badge badge-amber text-xs font-bold">{ string(o.Status) }</span></td>
+										<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
+										<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
 									</tr>
-								</thead>
-								<tbody>
-									for _, o := range data.Orders {
-										<tr>
-											<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
-											<td>
-												if o.IsNegotiation {
-													<span class="badge badge-amber text-xs font-bold">تفاوض</span>
-												} else {
-													<span class="badge badge-slate text-xs font-bold">توريد مباشر</span>
-												}
-											</td>
-											<td>
-												if o.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
-													<strong class="text-sm font-bold text-primary">{ o.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
-												} else if o.OrganizationID != nil {
-													<span class="text-xs text-secondary">منشأة #{ fmt.Sprintf("%d", *o.OrganizationID) }</span>
-												} else {
-													<span class="text-xs text-secondary">عميل #{ fmt.Sprintf("%d", o.CustomerID) }</span>
-												}
-											</td>
-											<td><span class="badge badge-secondary text-xs">{ o.PaymentMethod }</span></td>
-											<td><span class="badge badge-emerald text-xs font-bold">{ string(o.PaymentStatus) }</span></td>
-											<td><span class="badge badge-amber text-xs font-bold">{ string(o.Status) }</span></td>
-											<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", o.TotalAmount.String()) }</td>
-											<td class="tabular-nums text-xs text-muted">{ o.CreatedAt.Format("2006-01-02") }</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					}
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+
+				if data.TotalCount > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalCount,
+						BaseURL:     "/admin/orders",
+						QueryValues: url.Values{
+							"tab": {data.ActiveTab},
+							"q":   {data.Query},
+						},
+					})
 				}
 			</div>
 		</div>

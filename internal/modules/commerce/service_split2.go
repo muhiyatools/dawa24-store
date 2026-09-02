@@ -49,9 +49,19 @@ func (s *Service) ListCustomerOrders(ctx context.Context, customerID int64, limi
 	return s.repo.ListOrdersByCustomer(ctx, customerID, limit, offset)
 }
 
+// ListCustomerOrdersWithTotal retrieves paginated orders for a customer with total count.
+func (s *Service) ListCustomerOrdersWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*Order, int, error) {
+	return s.repo.ListOrdersByCustomerWithTotal(ctx, customerID, limit, offset)
+}
+
 // ListVendorShipments retrieves paginated shipments for a vendor.
 func (s *Service) ListVendorShipments(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error) {
 	return s.repo.ListShipmentsByVendor(ctx, vendorOrgID, limit, offset)
+}
+
+// ListVendorShipmentsWithTotal retrieves paginated shipments for a vendor with status filter and total count.
+func (s *Service) ListVendorShipmentsWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*OrderShipment, int, error) {
+	return s.repo.ListShipmentsByVendorWithTotal(ctx, vendorOrgID, status, limit, offset)
 }
 
 // MonthSalesByVendor returns the vendor's sales total for the current month.

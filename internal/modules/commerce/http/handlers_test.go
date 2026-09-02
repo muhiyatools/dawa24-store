@@ -74,9 +74,17 @@ func (r stubRepo) ListOrdersByCustomer(ctx context.Context, customerID int64, li
 	r.fail("ListOrdersByCustomer")
 	return nil, nil
 }
+func (r stubRepo) ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, int, error) {
+	r.fail("ListOrdersByCustomerWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*commerce.OrderShipment, error) {
 	r.fail("ListShipmentsByVendor")
 	return nil, nil
+}
+func (r stubRepo) ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.OrderShipment, int, error) {
+	r.fail("ListShipmentsByVendorWithTotal")
+	return nil, 0, nil
 }
 func (r stubRepo) GetShipmentByID(ctx context.Context, id int64) (*commerce.OrderShipment, error) {
 	r.fail("GetShipmentByID")
@@ -136,6 +144,14 @@ func (r stubRepo) ListQuoteRequestsByOrg(ctx context.Context, orgID int64, asSup
 func (r stubRepo) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
 	r.fail("AdminSearchOrders")
 	return nil, nil
+}
+func (r stubRepo) AdminSearchOrdersWithTotal(ctx context.Context, query, tab string, limit, offset int) ([]*commerce.Order, int, error) {
+	r.fail("AdminSearchOrdersWithTotal")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminOrderStats(ctx context.Context) (int, int, int, error) {
+	r.fail("AdminOrderStats")
+	return 0, 0, 0, nil
 }
 func (r stubRepo) CreatePurchaseRequest(ctx context.Context, pr *commerce.PurchaseRequest, lines []*commerce.PurchaseRequestLine) error {
 	r.fail("CreatePurchaseRequest")
@@ -225,8 +241,14 @@ func (happyRepo) UpdateOrderStatus(ctx context.Context, orderID int64, toStatus 
 func (happyRepo) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
 	return []*commerce.Order{{ID: 1, CustomerID: customerID, OrderNumber: "ORD-1"}}, nil
 }
+func (happyRepo) ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, int, error) {
+	return []*commerce.Order{{ID: 1, CustomerID: customerID, OrderNumber: "ORD-1"}}, 1, nil
+}
 func (happyRepo) ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*commerce.OrderShipment, error) {
 	return []*commerce.OrderShipment{{ID: 1, OrganizationID: vendorOrgID, ShipmentNumber: "SH-1"}}, nil
+}
+func (happyRepo) ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.OrderShipment, int, error) {
+	return []*commerce.OrderShipment{{ID: 1, OrganizationID: vendorOrgID, ShipmentNumber: "SH-1"}}, 1, nil
 }
 func (happyRepo) GetShipmentByID(ctx context.Context, id int64) (*commerce.OrderShipment, error) {
 	return &commerce.OrderShipment{ID: id, OrganizationID: 1, Status: commerce.StatusPending}, nil
@@ -270,6 +292,12 @@ func (happyRepo) ListQuoteRequestsByOrg(ctx context.Context, orgID int64, asSupp
 }
 func (happyRepo) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
 	return []*commerce.Order{{ID: 1, CustomerID: 1, OrderNumber: "ORD-1"}}, nil
+}
+func (happyRepo) AdminSearchOrdersWithTotal(ctx context.Context, query, tab string, limit, offset int) ([]*commerce.Order, int, error) {
+	return []*commerce.Order{{ID: 1, CustomerID: 1, OrderNumber: "ORD-1"}}, 1, nil
+}
+func (happyRepo) AdminOrderStats(ctx context.Context) (int, int, int, error) {
+	return 1, 1, 0, nil
 }
 func (happyRepo) CreatePurchaseRequest(ctx context.Context, pr *commerce.PurchaseRequest, lines []*commerce.PurchaseRequestLine) error {
 	pr.ID = 1

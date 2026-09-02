@@ -14,6 +14,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -49,16 +50,8 @@ func (h *UIHandler) AdminProductsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 {
-		limit = 50
-	} else if limit > 200 {
-		limit = 200
-	}
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
 	var products []*catalog.Product

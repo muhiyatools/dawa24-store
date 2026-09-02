@@ -6,6 +6,7 @@ import (
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -37,11 +38,15 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 	action := strings.TrimSpace(r.URL.Query().Get("action"))
 	severity := strings.TrimSpace(r.URL.Query().Get("severity"))
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	filter := platformadmin.AuditLogFilter{
 		Action: action,
 		Search: q,
-		Limit:  100,
-		Offset: 0,
+		Limit:  limit,
+		Offset: offset,
 	}
 
 	var entries []*platformadmin.AuditEntry
@@ -62,6 +67,8 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 	values := pages.AdminAuditValues{
 		Entries:       entries,
 		TotalCount:    total,
+		Page:          page,
+		PerPage:       limit,
 		SelectedActor: q,
 		ActionFilter:  action,
 		Severity:      severity,

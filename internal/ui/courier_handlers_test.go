@@ -62,6 +62,9 @@ func (m *courierMockCommerceRepo) UpdateCustomerPendingOrder(_ context.Context, 
 func (m *courierMockCommerceRepo) ListOrdersByCustomer(_ context.Context, _ int64, _, _ int) ([]*commerce.Order, error) {
 	return nil, nil
 }
+func (m *courierMockCommerceRepo) ListOrdersByCustomerWithTotal(_ context.Context, _ int64, _, _ int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 func (m *courierMockCommerceRepo) CountOrders(_ context.Context) (int, error) { return 0, nil }
 func (m *courierMockCommerceRepo) CountVendorShipmentsByStatus(_ context.Context, _ int64, _ []string) (int, error) {
 	return 0, nil
@@ -74,6 +77,9 @@ func (m *courierMockCommerceRepo) MonthSpendByCustomer(_ context.Context, _ int6
 }
 func (m *courierMockCommerceRepo) ListShipmentsByVendor(_ context.Context, _ int64, _, _ int) ([]*commerce.OrderShipment, error) {
 	return nil, nil
+}
+func (m *courierMockCommerceRepo) ListShipmentsByVendorWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*commerce.OrderShipment, int, error) {
+	return nil, 0, nil
 }
 func (m *courierMockCommerceRepo) GetShipmentByID(_ context.Context, id int64) (*commerce.OrderShipment, error) {
 	if m.shipment != nil && m.shipment.ID == id {
@@ -146,6 +152,12 @@ func (m *courierMockCommerceRepo) UpdatePurchaseRequestLineOffer(_ context.Conte
 }
 func (m *courierMockCommerceRepo) AdminSearchOrders(_ context.Context, _ string, _, _ int) ([]*commerce.Order, error) {
 	return nil, nil
+}
+func (m *courierMockCommerceRepo) AdminSearchOrdersWithTotal(_ context.Context, _, _ string, _, _ int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
+func (m *courierMockCommerceRepo) AdminOrderStats(_ context.Context) (int, int, int, error) {
+	return 0, 0, 0, nil
 }
 func (m *courierMockCommerceRepo) AcceptNegotiation(_ context.Context, _, _ int64) error { return nil }
 func (m *courierMockCommerceRepo) RejectNegotiation(_ context.Context, _ int64, _ string, _ int64) error {

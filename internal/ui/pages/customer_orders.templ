@@ -2,23 +2,31 @@ package pages
 
 import (
 	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) {
+type CustomerOrdersData struct {
+	Orders     []*commerce.Order
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
+templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@CustomerOrdersList(orders, lang)
+		@CustomerOrdersList(data.Orders, lang)
 	} else {
 		@layouts.CustomerShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
 			{{
-				ordersCount := len(orders)
+				ordersCount := data.TotalCount
 				activeCount := 0
 				completedCount := 0
 				cancelledCount := 0
-				for _, o := range orders {
+				for _, o := range data.Orders {
 					if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
 						completedCount++
 					} else if o.Status == commerce.StatusCancelled || o.Status == commerce.StatusRefunded || o.Status == commerce.StatusFailed {
@@ -102,8 +110,17 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 
 				<!-- Orders List Container -->
 				<div class="stack-sm" id="orders-list">
-					@CustomerOrdersList(orders, lang)
+					@CustomerOrdersList(data.Orders, lang)
 				</div>
+
+				if data.TotalCount > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalCount,
+						BaseURL:     "/orders",
+					})
+				}
 			</div>
 
 			<script>

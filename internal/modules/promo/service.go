@@ -341,6 +341,11 @@ func (s *Service) ListAllSpecialOffers(ctx context.Context, limit, offset int) (
 	return s.repo.ListAllSpecialOffers(ctx, limit, offset)
 }
 
+// ListAllSpecialOffersWithTotal lists paginated special offers across the platform with status filter.
+func (s *Service) ListAllSpecialOffersWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*SpecialOffer, int, error) {
+	return s.repo.ListAllSpecialOffersWithTotal(ctx, statusFilter, limit, offset)
+}
+
 // UpdateSpecialOfferAdminStatus handles approval/rejection moderation by platform staff.
 func (s *Service) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error {
 	return s.repo.UpdateSpecialOfferAdminStatus(ctx, id, adminStatus, notes, approvedBy)

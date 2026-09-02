@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -11,6 +13,8 @@ import (
 type VendorOrdersData struct {
 	Shipments      []*commerce.OrderShipment
 	FilterStatus   string
+	Page           int
+	PerPage        int
 	TotalCount     int
 	PendingCount   int
 	ConfirmedCount int
@@ -464,6 +468,18 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 						</div>
 					</div>
 				</div>
+			}
+
+			if data.TotalCount > 0 {
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL:     "/vendor/orders",
+					QueryValues: url.Values{
+						"status": {data.FilterStatus},
+					},
+				})
 			}
 		</div>
 	}

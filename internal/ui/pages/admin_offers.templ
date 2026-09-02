@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -13,6 +14,9 @@ type AdminOffersData struct {
 	Offers       []*promo.SpecialOffer
 	FilterStatus string
 	Counts       map[string]int
+	Page         int
+	PerPage      int
+	TotalCount   int
 }
 
 func countAdminSpecialOffers(offers []*promo.SpecialOffer, status string) int {
@@ -361,6 +365,18 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/admin/offers",
+							QueryValues: url.Values{
+								"status": {data.FilterStatus},
+							},
+						})
+					}
 				}
 			</div>
 		</div>

@@ -342,3 +342,21 @@ type UserPreferences struct {
 	MarketingConsent     bool            `json:"marketing_consent"`
 	UpdatedAt            time.Time       `json:"updated_at"`
 }
+
+// AdminUserFilter specifies criteria for paginated administrative user queries.
+type AdminUserFilter struct {
+	Role   string `json:"role,omitempty"`
+	Status string `json:"status,omitempty"`
+	Search string `json:"search,omitempty"`
+}
+
+// AdminUserStatsResult holds aggregated user metrics for the admin user management screen.
+type AdminUserStatsResult struct {
+	Total     int `json:"total"`
+	Staff     int `json:"staff"`
+	Vendor    int `json:"vendor"`
+	Customer  int `json:"customer"`
+	Active    int `json:"active"`
+	Suspended int `json:"suspended"`
+}
+

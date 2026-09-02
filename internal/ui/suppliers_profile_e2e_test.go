@@ -41,11 +41,17 @@ func (m *mockCommerceRepoForSupplierCartTest) GetOrderByNumber(ctx context.Conte
 func (m *mockCommerceRepoForSupplierCartTest) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
 	return nil, nil
 }
+func (m *mockCommerceRepoForSupplierCartTest) ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 func (m *mockCommerceRepoForSupplierCartTest) CountOrders(ctx context.Context) (int, error) {
 	return 0, nil
 }
 func (m *mockCommerceRepoForSupplierCartTest) ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*commerce.OrderShipment, error) {
 	return nil, nil
+}
+func (m *mockCommerceRepoForSupplierCartTest) ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.OrderShipment, int, error) {
+	return nil, 0, nil
 }
 func (m *mockCommerceRepoForSupplierCartTest) GetShipmentByID(ctx context.Context, id int64) (*commerce.OrderShipment, error) {
 	return nil, nil
@@ -127,6 +133,12 @@ func (m *mockCommerceRepoForSupplierCartTest) UpdatePurchaseRequestLineOffer(ctx
 }
 func (m *mockCommerceRepoForSupplierCartTest) AdminSearchOrders(ctx context.Context, query string, limit, offset int) ([]*commerce.Order, error) {
 	return nil, nil
+}
+func (m *mockCommerceRepoForSupplierCartTest) AdminSearchOrdersWithTotal(ctx context.Context, query, tab string, limit, offset int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCommerceRepoForSupplierCartTest) AdminOrderStats(ctx context.Context) (int, int, int, error) {
+	return 0, 0, 0, nil
 }
 func (m *mockCommerceRepoForSupplierCartTest) AcceptNegotiation(ctx context.Context, orderID int64, actorID int64) error {
 	return nil

@@ -2,11 +2,9 @@ package ui
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -17,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -30,7 +29,16 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 	roleFilter := strings.TrimSpace(r.URL.Query().Get("role"))
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 
+	if roleFilter == "" {
+		roleFilter = strings.TrimSpace(r.URL.Query().Get("type"))
+	}
+
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var users []*identity.User
+	var totalCount int
 	var allOrgs []*org.Organization
 	orgNames := make(map[int64]string)
 	var deletionRequests []*identity.AccountDeletionRequest
@@ -47,86 +55,26 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if roleFilter == "" {
-		roleFilter = strings.TrimSpace(r.URL.Query().Get("type"))
-	}
-
 	if h.idSvc != nil {
-		allUsers, _ := h.idSvc.AdminListUsers(sysCtx, "", "")
-		for _, u := range allUsers {
-			if u == nil {
-				continue
-			}
-			totalUsers++
-			rLower := strings.ToLower(u.Role)
-			if rLower == "super_admin" || rLower == "admin" || rLower == "staff" || rLower == "support" || rLower == "developer" || rLower == "finance" || rLower == "auditor" || rLower == "employer" {
-				staffUsers++
-			} else if rLower == "vendor" || rLower == "supplier" || rLower == "warehouse_keeper" || rLower == "sales_rep" || rLower == "driver" {
-				vendorUsers++
-			} else {
-				customerUsers++
-			}
-			if u.Status == identity.StatusActive {
-				activeUsers++
-			} else if u.Status == identity.StatusSuspended {
-				suspendedUsers++
-			}
+		if stats, err := h.idSvc.AdminUserStats(sysCtx); err == nil {
+			totalUsers = stats.Total
+			staffUsers = stats.Staff
+			vendorUsers = stats.Vendor
+			customerUsers = stats.Customer
+			activeUsers = stats.Active
+			suspendedUsers = stats.Suspended
 		}
 
-		for _, u := range allUsers {
-			if u == nil {
-				continue
-			}
-			if statusFilter != "" && string(u.Status) != statusFilter {
-				continue
-			}
-			if roleFilter != "" {
-				rLower := strings.ToLower(u.Role)
-				switch strings.ToLower(roleFilter) {
-				case "customer", "pharmacy", "pharmacies":
-					if rLower != "customer" && rLower != "pharmacy" && rLower != "individual" && rLower != "pharmacist" && rLower != "buyer" && rLower != "pharmacist_assistant" {
-						continue
-					}
-				case "vendor", "supplier", "suppliers", "vendors":
-					if rLower != "vendor" && rLower != "supplier" && rLower != "warehouse_keeper" && rLower != "sales_rep" && rLower != "driver" {
-						continue
-					}
-				case "staff", "admin", "admins", "super_admin":
-					if rLower != "super_admin" && rLower != "admin" && rLower != "staff" && rLower != "support" && rLower != "developer" && rLower != "finance" && rLower != "auditor" && rLower != "employer" {
-						continue
-					}
-				case "new":
-					if time.Since(u.CreatedAt) > 30*24*time.Hour {
-						continue
-					}
-				default:
-					if !strings.EqualFold(u.Role, roleFilter) {
-						continue
-					}
-				}
-			}
-			if searchQuery != "" {
-				qLower := strings.ToLower(searchQuery)
-				nameAr := strings.ToLower(u.Name.Get("ar"))
-				nameEn := strings.ToLower(u.Name.Get("en"))
-				email := strings.ToLower(u.Email)
-				phone := strings.ToLower(u.Phone)
-				role := strings.ToLower(u.Role)
-				idStr := fmt.Sprintf("%d", u.ID)
-				usrStr := fmt.Sprintf("usr-%d", u.ID)
-				if !strings.Contains(nameAr, qLower) &&
-					!strings.Contains(nameEn, qLower) &&
-					!strings.Contains(email, qLower) &&
-					!strings.Contains(phone, qLower) &&
-					!strings.Contains(role, qLower) &&
-					!strings.Contains(idStr, qLower) &&
-					!strings.Contains(usrStr, qLower) {
-					continue
-				}
-			}
-			users = append(users, u)
+		filter := identity.AdminUserFilter{
+			Role:   roleFilter,
+			Status: statusFilter,
+			Search: searchQuery,
 		}
-
+		uList, tot, err := h.idSvc.AdminListUsersWithTotal(sysCtx, filter, limit, offset)
+		if err == nil {
+			users = uList
+			totalCount = tot
+		}
 		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(sysCtx, "")
 	}
 
@@ -141,11 +89,14 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		StaffUsers:       staffUsers,
 		ActiveUsers:      activeUsers,
 		SuspendedUsers:   suspendedUsers,
+		Page:             page,
+		PerPage:          limit,
+		TotalCount:       totalCount,
 		SearchQuery:      searchQuery,
 		RoleFilter:       roleFilter,
 		StatusFilter:     statusFilter,
-		NoticeKind:       r.URL.Query().Get("notice"),
-		Notice:           r.URL.Query().Get("msg"),
+		Notice:           r.URL.Query().Get("notice"),
+		NoticeKind:       r.URL.Query().Get("kind"),
 	}
 
 	// The create-administrator form appears only for a viewer who may assign

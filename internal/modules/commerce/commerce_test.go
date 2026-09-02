@@ -115,6 +115,11 @@ func (m *mockCommerceRepo) ListOrdersByCustomer(_ context.Context, customerID in
 	return list, nil
 }
 
+func (m *mockCommerceRepo) ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*Order, int, error) {
+	list, err := m.ListOrdersByCustomer(ctx, customerID, limit, offset)
+	return list, len(list), err
+}
+
 func (m *mockCommerceRepo) ListShipmentsByVendor(_ context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error) {
 	var list []*OrderShipment
 	for _, sList := range m.shipments {
@@ -125,6 +130,11 @@ func (m *mockCommerceRepo) ListShipmentsByVendor(_ context.Context, vendorOrgID 
 		}
 	}
 	return list, nil
+}
+
+func (m *mockCommerceRepo) ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*OrderShipment, int, error) {
+	list, err := m.ListShipmentsByVendor(ctx, vendorOrgID, limit, offset)
+	return list, len(list), err
 }
 
 func (m *mockCommerceRepo) AddToWishlist(_ context.Context, userID int64, productID int64) error {
@@ -190,6 +200,18 @@ func (m *mockCommerceRepo) AdminSearchOrders(_ context.Context, query string, li
 		list = append(list, o)
 	}
 	return list, nil
+}
+
+func (m *mockCommerceRepo) AdminSearchOrdersWithTotal(_ context.Context, query, tab string, limit, offset int) ([]*Order, int, error) {
+	var list []*Order
+	for _, o := range m.orders {
+		list = append(list, o)
+	}
+	return list, len(list), nil
+}
+
+func (m *mockCommerceRepo) AdminOrderStats(_ context.Context) (allCount, directCount, negotiationCount int, err error) {
+	return len(m.orders), len(m.orders), 0, nil
 }
 
 func (m *mockCommerceRepo) MonthSalesByVendor(_ context.Context, _ int64) (money.Amount, error) {

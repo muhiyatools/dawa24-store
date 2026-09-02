@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -33,37 +34,28 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 100, 0)
+	filterStatus := strings.TrimSpace(r.URL.Query().Get("status"))
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	shipments, totalMatching, err := h.commSvc.ListVendorShipmentsWithTotal(ctx, actor.OrganizationID, filterStatus, limit, offset)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
-	filterStatus := r.URL.Query().Get("status")
-	var pendingCount, confirmedCount, shippedCount, deliveredCount int
-	var filtered []*commerce.OrderShipment
-
-	for _, s := range shipments {
-		switch s.Status {
-		case commerce.StatusPending:
-			pendingCount++
-		case commerce.StatusConfirmed:
-			confirmedCount++
-		case commerce.StatusShipped:
-			shippedCount++
-		case commerce.StatusDelivered:
-			deliveredCount++
-		}
-
-		if filterStatus == "" || string(s.Status) == filterStatus {
-			filtered = append(filtered, s)
-		}
-	}
+	pendingCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusPending)})
+	confirmedCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusConfirmed)})
+	shippedCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusShipped)})
+	deliveredCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusDelivered)})
 
 	data := pages.VendorOrdersData{
-		Shipments:      filtered,
+		Shipments:      shipments,
 		FilterStatus:   filterStatus,
-		TotalCount:     len(shipments),
+		Page:           page,
+		PerPage:        limit,
+		TotalCount:     totalMatching,
 		PendingCount:   pendingCount,
 		ConfirmedCount: confirmedCount,
 		ShippedCount:   shippedCount,

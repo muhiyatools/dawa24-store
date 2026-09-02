@@ -225,18 +225,38 @@ func (r *Repository) UpdateOrderStatus(
 
 // ListOrdersByCustomer retrieves customer orders.
 func (r *Repository) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
+	orders, _, err := r.ListOrdersByCustomerWithTotal(ctx, customerID, limit, offset)
+	return orders, err
+}
+
+// ListOrdersByCustomerWithTotal retrieves paginated customer orders along with the total count.
+func (r *Repository) ListOrdersByCustomerWithTotal(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, int, error) {
 	var orders []*commerce.Order
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countSQL := `
+			SELECT count(*)
+			FROM commerce.orders
+			WHERE customer_id = $1 AND deleted_at IS NULL;
+		`
+		if err := tx.QueryRow(txCtx, countSQL, customerID).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
 		query := `
 			SELECT ` + orderColumns + `
 			FROM commerce.orders
 			WHERE customer_id = $1 AND deleted_at IS NULL
-			ORDER BY created_at DESC
+			ORDER BY created_at DESC, id DESC
 			LIMIT $2 OFFSET $3;
 		`
-		if limit <= 0 || limit > 100 {
-			limit = 20
-		}
 		rows, err := tx.Query(txCtx, query, customerID, limit, offset)
 		if err != nil {
 			return err
@@ -252,5 +272,5 @@ func (r *Repository) ListOrdersByCustomer(ctx context.Context, customerID int64,
 		}
 		return rows.Err()
 	})
-	return orders, err
+	return orders, total, err
 }

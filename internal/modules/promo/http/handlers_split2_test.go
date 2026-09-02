@@ -83,6 +83,9 @@ func (happyRepo) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*pr
 func (happyRepo) ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*promo.SpecialOffer, error) {
 	return []*promo.SpecialOffer{{ID: 1, Title: i18n.New("عرض خاص", "Special Offer")}}, nil
 }
+func (happyRepo) ListAllSpecialOffersWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*promo.SpecialOffer, int, error) {
+	return []*promo.SpecialOffer{{ID: 1, Title: i18n.New("عرض خاص", "Special Offer")}}, 1, nil
+}
 func (happyRepo) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error {
 	return nil
 }

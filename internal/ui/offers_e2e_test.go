@@ -131,6 +131,12 @@ func (m *mockPromoRepo) ListAllSpecialOffers(ctx context.Context, limit, offset 
 	}
 	return nil, nil
 }
+func (m *mockPromoRepo) ListAllSpecialOffersWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*promo.SpecialOffer, int, error) {
+	if m.spec != nil {
+		return []*promo.SpecialOffer{m.spec}, 1, nil
+	}
+	return nil, 0, nil
+}
 func (m *mockPromoRepo) UpdateSpecialOfferAdminStatus(ctx context.Context, id int64, adminStatus, notes string, approvedBy int64) error {
 	return nil
 }

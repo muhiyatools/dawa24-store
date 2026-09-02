@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
@@ -21,6 +22,9 @@ type AdminUsersPageData struct {
 	StaffUsers       int
 	ActiveUsers      int
 	SuspendedUsers   int
+	Page             int
+	PerPage          int
+	TotalCount       int
 	SearchQuery      string
 	RoleFilter       string
 	StatusFilter     string
@@ -213,6 +217,20 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/admin/users",
+							QueryValues: url.Values{
+								"q":      {data.SearchQuery},
+								"role":   {data.RoleFilter},
+								"status": {data.StatusFilter},
+							},
+						})
+					}
 				</div>
 			}
 

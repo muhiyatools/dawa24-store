@@ -12,8 +12,48 @@ import (
 
 // ListAllSpecialOffers returns all special offers across suppliers with organizations, products and locations for admin.
 func (r *Repository) ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*promo.SpecialOffer, error) {
+	offers, _, err := r.ListAllSpecialOffersWithTotal(ctx, "", limit, offset)
+	return offers, err
+}
+
+// ListAllSpecialOffersWithTotal returns a paginated slice of special offers with status filter and total count.
+func (r *Repository) ListAllSpecialOffersWithTotal(ctx context.Context, statusFilter string, limit, offset int) ([]*promo.SpecialOffer, int, error) {
 	var list []*promo.SpecialOffer
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		where := []string{"o.deleted_at IS NULL"}
+
+		switch statusFilter {
+		case "pending":
+			where = append(where, "(o.admin_status = 'pending' OR o.admin_status IS NULL OR o.admin_status = '')")
+		case "active":
+			where = append(where, "(o.admin_status = 'approved' AND o.is_active = true AND o.is_draft = false)")
+		case "rejected":
+			where = append(where, "(o.admin_status = 'rejected')")
+		case "draft":
+			where = append(where, "(o.is_draft = true OR o.is_active = false)")
+		}
+
+		clause := ""
+		for i, w := range where {
+			if i > 0 {
+				clause += " AND "
+			}
+			clause += w
+		}
+
+		countSQL := "SELECT count(*) FROM promo.offers o WHERE " + clause + ";"
+		if err := tx.QueryRow(txCtx, countSQL).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
 		query := `
 			SELECT o.id, o.public_id, o.organization_id, COALESCE(org.legal_name, ''), o.branch_id, COALESCE(b.name->>'ar', ''),
 			       o.title, o.description,
@@ -29,13 +69,10 @@ func (r *Repository) ListAllSpecialOffers(ctx context.Context, limit, offset int
 			FROM promo.offers o
 			LEFT JOIN org.organizations org ON org.id = o.organization_id
 			LEFT JOIN org.branches b ON b.id = o.branch_id
-			WHERE o.deleted_at IS NULL
-			ORDER BY o.created_at DESC
+			WHERE ` + clause + `
+			ORDER BY o.created_at DESC, o.id DESC
 			LIMIT $1 OFFSET $2;
 		`
-		if limit <= 0 || limit > 200 {
-			limit = 100
-		}
 		rows, err := tx.Query(txCtx, query, limit, offset)
 		if err != nil {
 			return err
@@ -117,7 +154,7 @@ func (r *Repository) ListAllSpecialOffers(ctx context.Context, limit, offset int
 
 		return nil
 	})
-	return list, err
+	return list, total, err
 }
 
 // UpdateSpecialOfferAdminStatus updates the moderation state (approved/rejected) of a special offer.

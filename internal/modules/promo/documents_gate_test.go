@@ -154,6 +154,9 @@ func (s *stubPromoRepo) ListSpecialOffersByOrg(context.Context, int64) ([]*Speci
 func (s *stubPromoRepo) ListAllSpecialOffers(context.Context, int, int) ([]*SpecialOffer, error) {
 	return nil, nil
 }
+func (s *stubPromoRepo) ListAllSpecialOffersWithTotal(context.Context, string, int, int) ([]*SpecialOffer, int, error) {
+	return nil, 0, nil
+}
 func (s *stubPromoRepo) UpdateSpecialOfferAdminStatus(context.Context, int64, string, string, int64) error {
 	return nil
 }

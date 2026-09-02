@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -11,6 +12,8 @@ import (
 type AdminAuditValues struct {
 	Entries       []*platformadmin.AuditEntry
 	TotalCount    int
+	Page          int
+	PerPage       int
 	SelectedActor string
 	ActionFilter  string
 	Severity      string
@@ -211,6 +214,20 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+
+					if values.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: values.Page,
+							PageSize:    values.PerPage,
+							TotalCount:  values.TotalCount,
+							BaseURL:     "/admin/audit",
+							QueryValues: url.Values{
+								"q":        {values.SelectedActor},
+								"severity": {values.Severity},
+								"action":   {values.ActionFilter},
+							},
+						})
+					}
 				}
 			</div>
 
