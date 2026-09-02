@@ -136,44 +136,89 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									<!-- Fallback Gradient Layer -->
 									<div class="hero-ad-fallback-bg"></div>
 
-									if ad.MediaType == "video" && ad.MediaURL != "" {
-										<video
-											src={ ad.MediaURL }
-											poster={ ad.ThumbnailURL }
-											autoplay
-											muted
-											loop
-											playsinline
-											class="hero-ad-video-media"
-										></video>
-									} else if ad.MediaURL != "" {
-										<img
-											src={ ad.MediaURL }
-											alt={ ad.DisplayTitle(lang) }
-											loading="eager"
-											class="hero-ad-bg-media"
-											onerror="this.style.display='none'"
-										/>
-									}
-									<div class="hero-ad-gradient-overlay"></div>
-									<div class="hero-ad-floating-badges">
-										<span class="hero-ad-badge-sponsor">
-											@components.IconSparkles("icon-2xs")
-											<span>إعلانات الموردين والشركات</span>
-										</span>
-										<span class="hero-ad-badge-verified">
-											@components.IconShield("icon-2xs")
-											<span>مورد ومصنع معتمد</span>
-										</span>
-									</div>
+									<!-- Left Content & Pricing Block -->
 									<div class="hero-ad-content">
+										<!-- Supplier Identity Badge (Logo + Name) -->
+										<div class="hero-ad-supplier-identity">
+											if ad.SupplierLogo != "" {
+												<img src={ ad.SupplierLogo } alt={ ad.SupplierName } class="hero-ad-supplier-logo" />
+											} else {
+												<div class="hero-ad-supplier-icon-box">
+													@components.IconBuilding("icon-2xs")
+												</div>
+											}
+											<span class="hero-ad-supplier-name">
+												if ad.SupplierName != "" {
+													{ ad.SupplierName }
+												} else {
+													مورد دوائي معتمد
+												}
+											</span>
+										</div>
+
 										<h2 class="hero-ad-title">{ ad.DisplayTitle(lang) }</h2>
 										if ad.DisplayText(lang) != "" {
 											<p class="hero-ad-description">{ ad.DisplayText(lang) }</p>
 										}
+
+										<!-- Commercial B2B Pricing Pill Bar -->
+										if ad.PublicPrice != "" {
+											<div class="hero-ad-pricing-bar">
+												if ad.PublicPrice != "سعر رسمي معتمد" {
+													<div class="hero-ad-price-item">
+														<span class="hero-ad-price-label">سعر الجمهور</span>
+														<span class="hero-ad-public-price">{ ad.PublicPrice }</span>
+													</div>
+												}
+												if ad.DiscountPercent != "" && ad.DiscountPercent != "خصم تجاري خاص" {
+													<div class="hero-ad-discount-badge">
+														<span>خصم { ad.DiscountPercent }</span>
+													</div>
+												}
+												if ad.SupplyPrice != "" {
+													<div class="hero-ad-price-item hero-ad-net-item">
+														<span class="hero-ad-price-label">سعر التوريد</span>
+														<span class="hero-ad-net-price">{ ad.SupplyPrice }</span>
+													</div>
+												}
+											</div>
+										}
+
 										<div class="hero-ad-cta-pill">
-											<span>استعراض الصنف والطلب الآن</span>
+											<span>اطلب الآن بالسعر المخفض</span>
 											@components.IconArrowLeft("icon-2xs")
+										</div>
+									</div>
+
+									<!-- Right Product Showcase Stage (Full View) -->
+									<div class="hero-ad-stage">
+										<div class="hero-ad-product-card">
+											if ad.MediaType == "video" && ad.MediaURL != "" {
+												<video
+													src={ ad.MediaURL }
+													poster={ ad.ThumbnailURL }
+													autoplay
+													muted
+													loop
+													playsinline
+													class="hero-ad-product-video"
+												></video>
+											} else if ad.MediaURL != "" {
+												<img
+													src={ ad.MediaURL }
+													alt={ ad.DisplayTitle(lang) }
+													loading="eager"
+													class="hero-ad-product-img"
+													onerror="this.style.display='none'"
+												/>
+											} else {
+												<div class="hero-ad-product-placeholder">
+													@components.IconPill("icon-xl text-brand-400")
+												</div>
+											}
+											if ad.DiscountPercent != "" && ad.DiscountPercent != "خصم تجاري خاص" {
+												<span class="hero-ad-card-discount-tag">وفر { ad.DiscountPercent }</span>
+											}
 										</div>
 									</div>
 								</a>
@@ -268,15 +313,11 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</div>
 		</section>
 
-		<!-- 4. Platform Guarantees (Clean, Crisp, Trust-Building) -->
-		<section class="landing-section-block">
-			<div class="section-title-wrap text-center">
-				<h2 class="section-main-title">
-					لماذا تعتمد كبرى الصيدليات على دواء 24؟
-				</h2>
-				<p class="section-main-subtitle">
-					بنية تحتية موثوقة مصممة لتأمين سلاسل الإمداد وتوفير أعلى نسبة ربحية للصيدلي
-				</p>
+		<!-- 4. Quality & Cold-Chain Operational Guarantees -->
+		<section class="landing-guarantees-section">
+			<div class="guarantees-header text-center mb-8">
+				<h2 class="text-2xl font-black text-primary m-0">معايير وضمانات التوريد الطبي المعتمد</h2>
+				<p class="text-xs text-secondary mt-1">تداول دوائي آمن وموثق يخضع لأعلى معايير سلاسل الإمداد العالمية</p>
 			</div>
 
 			<div class="guarantees-grid">
@@ -312,17 +353,46 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</div>
 		</section>
 
-		<!-- 5. Unified Call To Action Section -->
+		<!-- 5. Deals & Promoted Products Showcase Section -->
 		if len(stats.DealsAds) > 0 {
-			<section class="landing-deals-ad-section p-4">
-				for _, dad := range stats.DealsAds {
-					if dad != nil {
-						<a href={ templ.SafeURL(dad.ResolveClickURL()) } class="deals-ad-card d-block p-4 rounded-xl border bg-surface-sunken">
-							<span class="badge badge-amber text-xs font-bold mb-2">صفقة ترويجية مميزة</span>
-							<h3 class="deals-ad-title text-base font-extrabold text-primary m-0">{ dad.DisplayTitle(lang) }</h3>
-						</a>
+			<section class="landing-deals-ad-section p-4 max-w-7xl mx-auto mb-8">
+				<div class="d-grid grid-auto-fit-md gap-4">
+					for _, dad := range stats.DealsAds {
+						if dad != nil {
+							<a href={ templ.SafeURL(dad.ResolveClickURL()) } class="deals-ad-card p-5 rounded-3xl border border-brand-200/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-between items-center gap-5 transition-all text-decoration-none shadow-md hover:border-brand-400">
+								<div class="d-flex items-center gap-4">
+									<div class="w-20 h-20 rounded-2xl bg-white p-2 d-flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-200">
+										if dad.MediaURL != "" {
+											<img src={ dad.MediaURL } alt={ dad.DisplayTitle(lang) } class="w-full h-full object-contain" />
+										} else {
+											@components.IconPill("icon-md text-brand")
+										}
+									</div>
+									<div class="stack-xs text-start">
+										if dad.SupplierName != "" {
+											<span class="text-2xs text-brand-300 font-extrabold d-block">{ dad.SupplierName }</span>
+										}
+										<h3 class="deals-ad-title text-base font-black text-white m-0">{ dad.DisplayTitle(lang) }</h3>
+										if dad.DisplayText(lang) != "" {
+											<p class="text-xs text-slate-300 m-0 line-clamp-1">{ dad.DisplayText(lang) }</p>
+										}
+										if dad.PublicPrice != "" && dad.PublicPrice != "سعر رسمي معتمد" {
+											<div class="d-flex items-center gap-2.5 mt-1">
+												<span class="text-2xs text-rose-400 line-through font-bold">{ dad.PublicPrice }</span>
+												<span class="badge badge-emerald text-2xs font-black">{ dad.DiscountPercent }</span>
+												<span class="text-xs font-black text-sky-400 tabular-nums">{ dad.SupplyPrice }</span>
+											</div>
+										}
+									</div>
+								</div>
+								<div class="d-flex items-center gap-1.5 text-xs font-black text-sky-400 flex-shrink-0">
+									<span>اطلب الآن</span>
+									@components.IconArrowLeft("icon-2xs")
+								</div>
+							</a>
+						}
 					}
-				}
+				</div>
 			</section>
 		}
 

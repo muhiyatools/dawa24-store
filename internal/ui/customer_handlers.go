@@ -76,7 +76,11 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	dosageForm := strings.TrimSpace(r.URL.Query().Get("dosage_form"))
 	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
-	inStock := r.URL.Query().Get("in_stock") == "true"
+	inStockParam := r.URL.Query().Get("in_stock")
+	inStock := true
+	if inStockParam == "false" || inStockParam == "0" {
+		inStock = false
+	}
 	hasDiscount := r.URL.Query().Get("has_discount") == "true"
 	viewMode := r.URL.Query().Get("view")
 	if viewMode != "table" && viewMode != "grid" {
@@ -269,6 +273,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	if h.promoSvc != nil {
 		if ads, err := h.promoSvc.ListActiveAds(ctx, promo.PositionCatalogTop); err == nil {
 			catalogAds = ads
+			h.enrichAds(ctx, catalogAds)
 		}
 	}
 

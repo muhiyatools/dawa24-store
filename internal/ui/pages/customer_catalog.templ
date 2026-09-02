@@ -143,27 +143,37 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							if ad != nil {
 								<a
 									href={ templ.SafeURL(ad.ResolveClickURL()) }
-									class="glass-panel p-4 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none"
+									class="glass-panel p-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none hover:shadow-md hover:border-brand-400"
 								>
-									<div class="d-flex items-center gap-3.5">
-										if ad.MediaURL != "" && ad.MediaType != "video" {
-											<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0" />
-										} else if ad.MediaType == "video" {
-											<div class="w-16 h-16 rounded-xl bg-slate-900 text-white d-flex items-center justify-center text-xs font-black flex-shrink-0">فيديو</div>
-										}
-										<div class="stack-sm">
-											<div class="d-flex items-center gap-2">
-												<span class="badge badge-amber font-black text-2xs shadow-2xs">إعلان مميز في صدارة الكتالوج</span>
-												<span class="badge badge-emerald text-2xs font-bold">موثق</span>
-											</div>
-											<h3 class="text-sm font-black text-primary m-0 mt-0.5">{ ad.DisplayTitle(lang) }</h3>
+									<div class="d-flex items-center gap-4">
+										<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-2xs border border-slate-200/80">
+											if ad.MediaURL != "" && ad.MediaType != "video" {
+												<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-full h-full object-contain" />
+											} else if ad.MediaType == "video" {
+												<div class="w-full h-full bg-slate-900 text-white rounded-xl d-flex items-center justify-center text-2xs font-bold">فيديو</div>
+											} else {
+												@components.IconPill("icon-sm text-brand")
+											}
+										</div>
+										<div class="stack-xs text-start">
+											if ad.SupplierName != "" {
+												<span class="text-2xs text-muted font-extrabold d-block">{ ad.SupplierName }</span>
+											}
+											<h3 class="text-sm font-black text-primary m-0">{ ad.DisplayTitle(lang) }</h3>
 											if ad.DisplayText(lang) != "" {
 												<p class="text-xs text-secondary m-0 line-clamp-1">{ ad.DisplayText(lang) }</p>
+											}
+											if ad.PublicPrice != "" && ad.PublicPrice != "سعر رسمي معتمد" {
+												<div class="d-flex items-center gap-2.5 mt-1">
+													<span class="text-2xs text-rose-500 line-through font-bold">{ ad.PublicPrice }</span>
+													<span class="badge badge-emerald text-2xs font-black">{ ad.DiscountPercent }</span>
+													<span class="text-xs font-black text-brand tabular-nums">{ ad.SupplyPrice }</span>
+												</div>
 											}
 										</div>
 									</div>
 									<div class="d-flex items-center gap-2 text-xs font-black text-brand">
-										<span>استعراض العرض والتفاصيل</span>
+										<span>اطلب الصنف والتفاصيل</span>
 										@components.IconArrowLeft("icon-xs")
 									</div>
 								</a>

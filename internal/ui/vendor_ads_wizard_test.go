@@ -210,13 +210,13 @@ func TestStorefrontAdPlacements_Render(t *testing.T) {
 
 	html := buf.String()
 
-	if !strings.Contains(html, "إعلانات الموردين والشركات") || !strings.Contains(html, "إعلان الواجهة الرئيسية البارز") {
+	if !strings.Contains(html, "إعلان الواجهة الرئيسية البارز") {
 		t.Errorf("Expected CustomerHome to render Hero Ad gallery")
 	}
-	if !strings.Contains(html, "صفقة ترويجية مميزة") || !strings.Contains(html, "إعلان صفقات وعروض حصرية") {
+	if !strings.Contains(html, "إعلان صفقات وعروض حصرية") {
 		t.Errorf("Expected CustomerHome to render Deals Ad banner")
 	}
-	if !strings.Contains(html, "إعلان ترويجي موثق") || !strings.Contains(html, "إعلان أسفل الصفحة الترويجي") {
+	if !strings.Contains(html, "إعلان أسفل الصفحة الترويجي") {
 		t.Errorf("Expected CustomerHome to render Bottom Ad banner")
 	}
 }
@@ -249,7 +249,7 @@ func TestCatalogTopAdPlacement_Render(t *testing.T) {
 
 	html := buf.String()
 
-	if !strings.Contains(html, "إعلان مميز في صدارة الكتالوج") || !strings.Contains(html, "إعلان صدارة الكتالوج الرسمي") {
+	if !strings.Contains(html, "إعلان صدارة الكتالوج الرسمي") {
 		t.Errorf("Expected CustomerCatalog to render Catalog Top Ad Banner")
 	}
 }

@@ -317,10 +317,7 @@ templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 												}
 											</td>
 											<td class="col-actions py-3 pe-4">
-												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ads/%d/edit", ad.ID)) } class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs">
-													@components.IconEdit("icon-2xs")
-													<span>تعديل</span>
-												</a>
+												@VendorAdEditModal(ad, lang, dir)
 											</td>
 										</tr>
 									}

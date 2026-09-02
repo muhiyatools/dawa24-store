@@ -4,6 +4,7 @@ package promo
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -163,6 +164,11 @@ type Ad struct {
 	Impressions     int64         `json:"impressions"`
 	Clicks          int64         `json:"clicks"`
 	CTR             float64       `json:"ctr,omitempty"`
+	SupplierName    string        `json:"supplier_name,omitempty"`
+	SupplierLogo    string        `json:"supplier_logo,omitempty"`
+	PublicPrice     string        `json:"public_price,omitempty"`
+	DiscountPercent string        `json:"discount_percent,omitempty"`
+	SupplyPrice     string        `json:"supply_price,omitempty"`
 	CreatedAt       time.Time     `json:"created_at"`
 	UpdatedAt       time.Time     `json:"updated_at"`
 }
@@ -195,6 +201,12 @@ func (a *Ad) DisplayText(lang string) string {
 // ResolveClickURL builds the destination URL based on the click target type.
 func (a *Ad) ResolveClickURL() string {
 	if a.TargetURL != "" {
+		if strings.Contains(a.TargetURL, "/products?variant_id=") {
+			parts := strings.Split(a.TargetURL, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				return "/catalog/" + parts[1]
+			}
+		}
 		return a.TargetURL
 	}
 	switch a.ClickTargetType {

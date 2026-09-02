@@ -68,6 +68,9 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 		if bottomAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBottom); err == nil {
 			stats.BottomAds = bottomAds
 		}
+		h.enrichAds(ctx, stats.Ads)
+		h.enrichAds(ctx, stats.DealsAds)
+		h.enrichAds(ctx, stats.BottomAds)
 	}
 
 	if h.orgSvc != nil {
