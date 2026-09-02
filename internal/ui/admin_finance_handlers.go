@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -34,6 +35,10 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	walletIDStr := strings.TrimSpace(r.URL.Query().Get("wallet_id"))
 	walletID, _ := strconv.ParseInt(walletIDStr, 10, 64)
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var (
 		invoices             []*billing.AdminInvoiceView
 		payments             []*billing.AdminPaymentView
@@ -49,38 +54,67 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if h.billSvc != nil {
+		depLimit, depOffset := 1, 0
+		if tab == "deposits" {
+			depLimit, depOffset = limit, offset
+		}
 		deposits, totalDeposits, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
 			Search:        searchQuery,
 			Status:        statusFilter,
 			PaymentMethod: methodFilter,
 			WalletID:      walletID,
-			Limit:         100,
+			Limit:         depLimit,
+			Offset:        depOffset,
 		})
 		_, pendingDepositsCount, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
 			Status: "pending",
 			Limit:  1,
 		})
+
+		invLimit, invOffset := 1, 0
+		if tab == "invoices" {
+			invLimit, invOffset = limit, offset
+		}
 		invoices, totalInvoices, _ = h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
 			Search: searchQuery,
 			Status: statusFilter,
-			Limit:  100,
+			Limit:  invLimit,
+			Offset: invOffset,
 		})
+
+		payLimit, payOffset := 1, 0
+		if tab == "payments" {
+			payLimit, payOffset = limit, offset
+		}
 		payments, totalPayments, _ = h.billSvc.AdminListDetailedPayments(ctx, billing.PaymentFilter{
 			Search: searchQuery,
 			Status: statusFilter,
 			Method: methodFilter,
-			Limit:  100,
+			Limit:  payLimit,
+			Offset: payOffset,
 		})
+
+		walLimit, walOffset := 1, 0
+		if tab == "wallets" {
+			walLimit, walOffset = limit, offset
+		}
 		wallets, totalWallets, _ = h.billSvc.AdminListDetailedWallets(ctx, billing.WalletFilter{
 			Search: searchQuery,
 			Type:   typeFilter,
-			Limit:  100,
+			Limit:  walLimit,
+			Offset: walOffset,
 		})
+
+		txLimit, txOffset := 1, 0
+		if tab == "transactions" {
+			txLimit, txOffset = limit, offset
+		}
 		transactions, totalTransactions, _ = h.billSvc.AdminListDetailedTransactions(ctx, billing.TransactionFilter{
 			WalletID: walletID,
 			Search:   searchQuery,
 			Type:     typeFilter,
-			Limit:    100,
+			Limit:    txLimit,
+			Offset:   txOffset,
 		})
 	}
 
@@ -132,6 +166,8 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		TypeFilter:           typeFilter,
 		MethodFilter:         methodFilter,
 		SelectedWalletID:     walletID,
+		Page:                 page,
+		PerPage:              limit,
 	}
 
 	h.renderPage(ctx, w, "render admin finance page", pages.AdminFinance(data, lang, dir))

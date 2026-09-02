@@ -36,6 +36,11 @@ func (s *Service) ListWalletTransactions(ctx context.Context, walletID int64, li
 	return s.repo.ListTransactions(ctx, walletID, limit, offset)
 }
 
+// ListWalletTransactionsWithTotal returns the paginated ledger for a wallet with total count.
+func (s *Service) ListWalletTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*WalletTransaction, int, error) {
+	return s.repo.ListTransactionsWithTotal(ctx, walletID, limit, offset)
+}
+
 // Deposit credits funds to a wallet.
 func (s *Service) Deposit(
 	ctx context.Context,

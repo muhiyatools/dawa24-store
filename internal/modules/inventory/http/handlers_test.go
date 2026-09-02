@@ -80,6 +80,10 @@ func (r stubRepo) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventor
 	r.fail("ListStocksByOrg")
 	return nil, nil
 }
+func (r stubRepo) ListStocksByOrgWithTotal(ctx context.Context, orgID int64, warehouseID int64, search string, limit, offset int) ([]*inventory.Stock, int, error) {
+	r.fail("ListStocksByOrgWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	r.fail("ListStockMovements")
 	return nil, nil
@@ -109,6 +113,10 @@ func (r stubRepo) ListTransfers(ctx context.Context, status string, limit, offse
 	r.fail("ListTransfers")
 	return nil, nil
 }
+func (r stubRepo) ListTransfersWithTotal(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, int, error) {
+	r.fail("ListTransfersWithTotal")
+	return nil, 0, nil
+}
 
 type happyRepo struct{}
 
@@ -117,41 +125,48 @@ func (happyRepo) CreateWarehouse(ctx context.Context, w *inventory.Warehouse) er
 	return nil
 }
 func (happyRepo) GetWarehouseByID(ctx context.Context, id int64) (*inventory.Warehouse, error) {
-	return &inventory.Warehouse{ID: id, OrganizationID: 1, Name: "Main Warehouse", IsActive: true}, nil
+	return &inventory.Warehouse{ID: id, Name: "Main WH", OrganizationID: 1}, nil
 }
 func (happyRepo) ListWarehouses(ctx context.Context) ([]*inventory.Warehouse, error) {
-	return []*inventory.Warehouse{{ID: 1, OrganizationID: 1, Name: "Main Warehouse", IsActive: true}}, nil
+	return []*inventory.Warehouse{{ID: 1, Name: "Main WH", OrganizationID: 1}}, nil
 }
-func (happyRepo) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error {
-	return nil
-}
-func (happyRepo) SoftDeleteWarehouse(ctx context.Context, id int64) error {
-	return nil
-}
+func (happyRepo) UpdateWarehouse(ctx context.Context, w *inventory.Warehouse) error { return nil }
+func (happyRepo) SoftDeleteWarehouse(ctx context.Context, id int64) error         { return nil }
 func (happyRepo) CountStockInWarehouse(ctx context.Context, warehouseID int64) (int, error) {
 	return 0, nil
 }
 func (happyRepo) GetStock(ctx context.Context, warehouseID, variantID int64) (*inventory.Stock, error) {
-	return &inventory.Stock{ID: 1, OrganizationID: 1, WarehouseID: warehouseID, ProductVariantID: variantID, Quantity: 100}, nil
+	return &inventory.Stock{ID: 1, WarehouseID: warehouseID, ProductVariantID: variantID, Quantity: 100}, nil
 }
 func (happyRepo) UpsertStock(ctx context.Context, s *inventory.Stock) error {
 	s.ID = 1
 	return nil
 }
-func (happyRepo) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error {
-	return nil
-}
+func (happyRepo) ClearWarehouseStocks(ctx context.Context, warehouseID int64) error { return nil }
 func (happyRepo) AdjustStock(ctx context.Context, stockID int64, delta int, movement inventory.StockMovement) (*inventory.Stock, error) {
-	return &inventory.Stock{ID: stockID, OrganizationID: 1, WarehouseID: 1, ProductVariantID: 1, Quantity: 110}, nil
+	return &inventory.Stock{ID: stockID, Quantity: 100 + delta}, nil
+}
+func (happyRepo) AvailableQuantity(ctx context.Context, variantID int64) (int, error) {
+	return 100, nil
+}
+func (happyRepo) AvailableQuantities(ctx context.Context, variantIDs []int64) (map[int64]int, error) {
+	m := make(map[int64]int, len(variantIDs))
+	for _, id := range variantIDs {
+		m[id] = 100
+	}
+	return m, nil
 }
 func (happyRepo) ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.Stock, error) {
-	return []*inventory.Stock{{ID: 1, OrganizationID: 1, WarehouseID: warehouseID, ProductVariantID: 1, Quantity: 100}}, nil
+	return []*inventory.Stock{{ID: 1, WarehouseID: warehouseID, ProductVariantID: 1, Quantity: 100}}, nil
 }
 func (happyRepo) ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
 	return []*inventory.DetailedWarehouseStockView{{StockID: 1, WarehouseID: warehouseID, ProductName: "Test Med", Quantity: 100}}, nil
 }
 func (happyRepo) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inventory.Stock, error) {
 	return []*inventory.Stock{{ID: 1, OrganizationID: orgID, WarehouseID: 1, ProductVariantID: 1, Quantity: 100}}, nil
+}
+func (happyRepo) ListStocksByOrgWithTotal(ctx context.Context, orgID int64, warehouseID int64, search string, limit, offset int) ([]*inventory.Stock, int, error) {
+	return []*inventory.Stock{{ID: 1, OrganizationID: orgID, WarehouseID: 1, ProductVariantID: 1, Quantity: 100}}, 1, nil
 }
 func (happyRepo) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return []*inventory.StockMovement{{ID: 1, StockID: stockID, Type: inventory.MovementIn, QuantityDelta: 10}}, nil
@@ -175,6 +190,9 @@ func (happyRepo) UpdateTransferStatus(ctx context.Context, id int64, from, to in
 }
 func (happyRepo) ListTransfers(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, error) {
 	return []*inventory.WarehouseTransfer{{ID: 1, OrganizationID: 1, Status: inventory.TransferInTransit}}, nil
+}
+func (happyRepo) ListTransfersWithTotal(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, int, error) {
+	return []*inventory.WarehouseTransfer{{ID: 1, OrganizationID: 1, Status: inventory.TransferInTransit}}, 1, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {
@@ -350,16 +368,5 @@ func (s stubRepo) AvailableQuantity(context.Context, int64) (int, error) {
 }
 
 func (s stubRepo) AvailableQuantities(context.Context, []int64) (map[int64]int, error) {
-	return map[int64]int{}, nil
-}
-
-// AvailableQuantity stub. Real stock totalling is covered by the repository
-// integration tests; catalog.ProductVariant.StockQty is never populated, which
-// is why this lookup exists at all.
-func (h happyRepo) AvailableQuantity(context.Context, int64) (int, error) {
-	return 0, nil
-}
-
-func (h happyRepo) AvailableQuantities(context.Context, []int64) (map[int64]int, error) {
 	return map[int64]int{}, nil
 }

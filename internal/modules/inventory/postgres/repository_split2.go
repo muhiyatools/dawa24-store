@@ -152,3 +152,70 @@ func (r *Repository) AvailableQuantity(ctx context.Context, variantID int64) (in
 	}
 	return qty, err
 }
+
+// ListStocksByOrgWithTotal retrieves paginated stocks matching warehouse/search with total count.
+func (r *Repository) ListStocksByOrgWithTotal(
+	ctx context.Context,
+	orgID int64,
+	warehouseID int64,
+	search string,
+	limit, offset int,
+) ([]*inventory.Stock, int, error) {
+	var list []*inventory.Stock
+	var total int
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `
+			SELECT count(*)
+			FROM inventory.stocks s
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			WHERE s.organization_id = $1
+			  AND s.deleted_at IS NULL
+			  AND ($2 = 0 OR s.warehouse_id = $2)
+			  AND ($3 = '' OR v.name->>'ar' ILIKE '%' || $3 || '%' OR v.name->>'en' ILIKE '%' || $3 || '%' OR v.sku ILIKE '%' || $3 || '%' OR v.barcode ILIKE '%' || $3 || '%' OR v.batch_number ILIKE '%' || $3 || '%');
+		`
+		if err := tx.QueryRow(txCtx, countQuery, orgID, warehouseID, search).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		query := `
+			SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+			       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+			FROM inventory.stocks s
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			WHERE s.organization_id = $1
+			  AND s.deleted_at IS NULL
+			  AND ($2 = 0 OR s.warehouse_id = $2)
+			  AND ($3 = '' OR v.name->>'ar' ILIKE '%' || $3 || '%' OR v.name->>'en' ILIKE '%' || $3 || '%' OR v.sku ILIKE '%' || $3 || '%' OR v.barcode ILIKE '%' || $3 || '%' OR v.batch_number ILIKE '%' || $3 || '%')
+			ORDER BY s.id DESC
+			LIMIT $4 OFFSET $5;
+		`
+		rows, err := tx.Query(txCtx, query, orgID, warehouseID, search, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var s inventory.Stock
+			if err := rows.Scan(
+				&s.ID, &s.OrganizationID, &s.WarehouseID, &s.ProductID, &s.ProductVariantID,
+				&s.Quantity, &s.MinThreshold, &s.Negotiation, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &s)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}

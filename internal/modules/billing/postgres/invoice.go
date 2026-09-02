@@ -172,19 +172,39 @@ func (r *Repository) UpdateInvoiceStatus(ctx context.Context, id int64, status b
 
 // ListInvoicesByOrg returns invoices for an organization.
 func (r *Repository) ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, error) {
+	list, _, err := r.ListInvoicesByOrgWithTotal(ctx, orgID, limit, offset)
+	return list, err
+}
+
+// ListInvoicesByOrgWithTotal returns paginated invoices for an organization with total count.
+func (r *Repository) ListInvoicesByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, int, error) {
 	var list []*billing.Invoice
+	var total int
+
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `
+			SELECT count(*)
+			FROM billing.invoices
+			WHERE organization_id = $1 OR customer_org_id = $1;
+		`
+		if err := tx.QueryRow(txCtx, countQuery, orgID).Scan(&total); err != nil {
+			return err
+		}
+
 		query := `
 			SELECT id, public_id, organization_id, customer_org_id, order_id, invoice_number,
 			       issue_date, due_date, subtotal, tax_amount, discount_amount, total_amount,
 			       status, payment_method, notes, created_at, updated_at
 			FROM billing.invoices
 			WHERE organization_id = $1 OR customer_org_id = $1
-			ORDER BY issue_date DESC
+			ORDER BY issue_date DESC, id DESC
 			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
-			limit = 20
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
 		}
 		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
 		if err != nil {
@@ -211,7 +231,7 @@ func (r *Repository) ListInvoicesByOrg(ctx context.Context, orgID int64, limit, 
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // AddPaymentMethod stores a user payment method.

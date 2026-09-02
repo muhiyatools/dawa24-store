@@ -64,6 +64,15 @@ type Organization struct {
 	UpdatedAt          time.Time          `json:"updated_at"`
 }
 
+// AdminOrgStatsResult provides platform-wide organization metrics in a single aggregation.
+type AdminOrgStatsResult struct {
+	TotalOrgs       int
+	TotalPharmacies int
+	TotalVendors    int
+	PendingCount    int
+	ApprovedCount   int
+}
+
 // SupplierOrgProfile holds all fields required for managing a supplier organization's commercial identity and profile.
 type SupplierOrgProfile struct {
 	ID                 int64        `json:"id"`

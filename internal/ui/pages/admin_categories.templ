@@ -32,17 +32,6 @@ func getParentCategoryName(parentID *int64, allCategories []*catalog.Category) s
 	return ""
 }
 
-func buildAdminCategoriesPageURL(page, limit int, q, status string) string {
-	u := fmt.Sprintf("/admin/categories?page=%d&limit=%d", page, limit)
-	if q != "" {
-		u += "&q=" + url.QueryEscape(q)
-	}
-	if status != "" && status != "all" {
-		u += "&status=" + url.QueryEscape(status)
-	}
-	return u
-}
-
 templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog.Category, totalCount, currentPage, pageSize int, searchQuery, statusFilter, lang, dir string) {
 	@layouts.AdminShell("فئات المنتجات", "categories", lang, dir) {
 		<div class="page-container">
@@ -316,69 +305,16 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-      <div class="stack-sm">
-							<div class="stack-xs text-sm">
-								{ fmt.Sprintf("عرض %d - %d من إجمالي %d فئة منتجات", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
-							</div>
-
-							<!-- Page navigation numbers -->
-       <div class="stack-sm">
-								if currentPage > 1 {
-									<a
-										href={ templ.SafeURL(buildAdminCategoriesPageURL(1, pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-										title="الصفحة الأولى"
-									>
-										«
-									</a>
-									<a
-										href={ templ.SafeURL(buildAdminCategoriesPageURL(currentPage-1, pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-									>
-										السابق
-									</a>
-								}
-
-								for _, pNum := range calculateAdminPageNumbers(currentPage, totalPages(totalCount, pageSize)) {
-									if pNum == currentPage {
-										<span
-											class="btn btn-primary btn-sm"
-										
-										>
-											{ fmt.Sprintf("%d", pNum) }
-										</span>
-									} else {
-										<a
-											href={ templ.SafeURL(buildAdminCategoriesPageURL(pNum, pageSize, searchQuery, statusFilter)) }
-											class="btn btn-secondary btn-sm"
-										
-										>
-											{ fmt.Sprintf("%d", pNum) }
-										</a>
-									}
-								}
-
-								if currentPage < totalPages(totalCount, pageSize) {
-									<a
-										href={ templ.SafeURL(buildAdminCategoriesPageURL(currentPage+1, pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-									>
-										التالي
-									</a>
-									<a
-										href={ templ.SafeURL(buildAdminCategoriesPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-										title="الصفحة الأخيرة"
-									>
-										»
-									</a>
-								}
-							</div>
-						</div>
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: currentPage,
+							PageSize:    pageSize,
+							TotalCount:  totalCount,
+							BaseURL:     "/admin/categories",
+							QueryValues: url.Values{
+								"q":      {searchQuery},
+								"status": {statusFilter},
+							},
+						})
 					}
 				}
 			</div>

@@ -43,6 +43,9 @@ func (happyRepo) UpdateInvoiceStatus(ctx context.Context, id int64, status billi
 func (happyRepo) ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, error) {
 	return []*billing.Invoice{{ID: 1, OrganizationID: orgID}}, nil
 }
+func (happyRepo) ListInvoicesByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, int, error) {
+	return []*billing.Invoice{{ID: 1, OrganizationID: orgID}}, 1, nil
+}
 func (happyRepo) AddPaymentMethod(ctx context.Context, pm *billing.UserPaymentMethod) error {
 	pm.ID = 1
 	return nil

@@ -138,17 +138,33 @@ func (r *Repository) RecordTransaction(
 
 // ListTransactions retrieves paginated transactions for a wallet.
 func (r *Repository) ListTransactions(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, error) {
+	list, _, err := r.ListTransactionsWithTotal(ctx, walletID, limit, offset)
+	return list, err
+}
+
+// ListTransactionsWithTotal retrieves paginated transactions for a wallet with total count.
+func (r *Repository) ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, int, error) {
 	var list []*billing.WalletTransaction
+	var total int
+
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `SELECT count(*) FROM billing.wallet_transactions WHERE wallet_id = $1;`
+		if err := tx.QueryRow(txCtx, countQuery, walletID).Scan(&total); err != nil {
+			return err
+		}
+
 		query := `
 			SELECT id, wallet_id, type, amount, balance_after, reference_type, reference_id, description, created_at
 			FROM billing.wallet_transactions
 			WHERE wallet_id = $1
-			ORDER BY id DESC
+			ORDER BY created_at DESC, id DESC
 			LIMIT $2 OFFSET $3;
 		`
 		if limit <= 0 || limit > 100 {
-			limit = 20
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
 		}
 		rows, err := tx.Query(txCtx, query, walletID, limit, offset)
 		if err != nil {
@@ -170,7 +186,7 @@ func (r *Repository) ListTransactions(ctx context.Context, walletID int64, limit
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // CreatePayment inserts a payment record.

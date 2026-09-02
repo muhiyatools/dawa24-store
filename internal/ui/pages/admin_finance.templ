@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -35,6 +37,8 @@ type AdminFinanceData struct {
 	TypeFilter           string
 	MethodFilter         string
 	SelectedWalletID     int64
+	Page                 int
+	PerPage              int
 }
 
 // AdminFinance renders the unified financial management hub.
@@ -349,6 +353,21 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										</tbody>
 									</table>
 								</div>
+
+								if data.TotalDeposits > 0 {
+									@components.B2BPagination(components.PaginationProps{
+										CurrentPage: data.Page,
+										PageSize:    data.PerPage,
+										TotalCount:  data.TotalDeposits,
+										BaseURL:     "/admin/finance",
+										QueryValues: url.Values{
+											"tab":    {"deposits"},
+											"q":      {data.Query},
+											"status": {data.StatusFilter},
+											"method": {data.MethodFilter},
+										},
+									})
+								}
 							}
 						</div>
 					}
@@ -456,6 +475,20 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										</tbody>
 									</table>
 								</div>
+
+								if data.TotalInvoices > 0 {
+									@components.B2BPagination(components.PaginationProps{
+										CurrentPage: data.Page,
+										PageSize:    data.PerPage,
+										TotalCount:  data.TotalInvoices,
+										BaseURL:     "/admin/finance",
+										QueryValues: url.Values{
+											"tab":    {"invoices"},
+											"q":      {data.Query},
+											"status": {data.StatusFilter},
+										},
+									})
+								}
 							}
 						</div>
 					}
@@ -546,6 +579,21 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										</tbody>
 									</table>
 								</div>
+
+								if data.TotalPayments > 0 {
+									@components.B2BPagination(components.PaginationProps{
+										CurrentPage: data.Page,
+										PageSize:    data.PerPage,
+										TotalCount:  data.TotalPayments,
+										BaseURL:     "/admin/finance",
+										QueryValues: url.Values{
+											"tab":    {"payments"},
+											"q":      {data.Query},
+											"status": {data.StatusFilter},
+											"method": {data.MethodFilter},
+										},
+									})
+								}
 							}
 						</div>
 					}
@@ -655,6 +703,20 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										</tbody>
 									</table>
 								</div>
+
+								if data.TotalWallets > 0 {
+									@components.B2BPagination(components.PaginationProps{
+										CurrentPage: data.Page,
+										PageSize:    data.PerPage,
+										TotalCount:  data.TotalWallets,
+										BaseURL:     "/admin/finance",
+										QueryValues: url.Values{
+											"tab":  {"wallets"},
+											"q":    {data.Query},
+											"type": {data.TypeFilter},
+										},
+									})
+								}
 							}
 						</div>
 					}
@@ -779,6 +841,21 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 										</tbody>
 									</table>
 								</div>
+
+								if data.TotalTransactions > 0 {
+									@components.B2BPagination(components.PaginationProps{
+										CurrentPage: data.Page,
+										PageSize:    data.PerPage,
+										TotalCount:  data.TotalTransactions,
+										BaseURL:     "/admin/finance",
+										QueryValues: url.Values{
+											"tab":       {"transactions"},
+											"q":         {data.Query},
+											"type":      {data.TypeFilter},
+											"wallet_id": {strconv.FormatInt(data.SelectedWalletID, 10)},
+										},
+									})
+								}
 							}
 						</div>
 					}

@@ -286,6 +286,9 @@ func (mockCatalogRepoStub) GetCategoryByID(context.Context, int64) (*catalog.Cat
 func (mockCatalogRepoStub) ListCategories(context.Context) ([]*catalog.Category, error) {
 	return nil, nil
 }
+func (mockCatalogRepoStub) ListCategoriesWithProductCount(context.Context, string, string, int, int) ([]*catalog.CategoryWithCount, int, error) {
+	return nil, 0, nil
+}
 func (mockCatalogRepoStub) UpdateCategory(context.Context, *catalog.Category) error { return nil }
 func (mockCatalogRepoStub) DeleteCategory(context.Context, int64) error             { return nil }
 func (mockCatalogRepoStub) CountProductsByOrg(context.Context, int64, string) (int, error) {
@@ -299,6 +302,9 @@ func (mockCatalogRepoStub) GetBrandByID(context.Context, int64) (*catalog.Brand,
 	return nil, nil
 }
 func (mockCatalogRepoStub) ListBrands(context.Context) ([]*catalog.Brand, error) { return nil, nil }
+func (mockCatalogRepoStub) ListBrandsWithProductCount(context.Context, string, string, int, int) ([]*catalog.BrandWithCount, int, error) {
+	return nil, 0, nil
+}
 func (mockCatalogRepoStub) UpdateBrand(context.Context, *catalog.Brand) error    { return nil }
 func (mockCatalogRepoStub) DeleteBrand(context.Context, int64) error             { return nil }
 func (mockCatalogRepoStub) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) {

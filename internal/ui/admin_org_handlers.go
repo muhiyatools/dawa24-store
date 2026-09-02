@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -121,10 +122,15 @@ func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Reques
 	typeParam := strings.TrimSpace(r.URL.Query().Get("type"))
 	statusParam := strings.TrimSpace(r.URL.Query().Get("status"))
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var orgs []*org.Organization
-	branchCounts := make(map[int64]int)
+	var totalMatching int
+	var stats org.AdminOrgStatsResult
+	var branchCounts map[int64]int
 	userCounts := make(map[int64]int)
-	var totalOrgs, totalPharmacies, totalVendors, pendingCount, approvedCount int
 
 	if h.orgSvc != nil {
 		var filterType *org.OrganizationType
@@ -138,62 +144,26 @@ func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Reques
 			filterStatus = &s
 		}
 
-		allOrgs, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0)
-		for _, o := range allOrgs {
-			if o == nil {
-				continue
-			}
-			totalOrgs++
-			if o.Type == org.TypeVendor {
-				totalVendors++
-			} else {
-				totalPharmacies++
-			}
-			if o.Status == org.StatusPending {
-				pendingCount++
-			} else if o.Status == org.StatusApproved {
-				approvedCount++
-			}
-		}
-
-		allBranches, _ := h.orgSvc.ListBranches(sysCtx, 0)
-		for _, b := range allBranches {
-			if b != nil {
-				branchCounts[b.OrganizationID]++
-			}
-		}
-
-		list, _ := h.orgSvc.ListOrganizations(sysCtx, filterType, filterStatus, 300, 0)
-		for _, o := range list {
-			if o == nil {
-				continue
-			}
-			if searchQuery != "" {
-				qLower := strings.ToLower(searchQuery)
-				nameMatch := strings.Contains(strings.ToLower(o.LegalName), qLower)
-				crMatch := strings.Contains(o.CommercialRegister, searchQuery)
-				taxMatch := strings.Contains(o.TaxNumber, searchQuery)
-				licMatch := strings.Contains(o.PharmacistLicense, searchQuery)
-				if !nameMatch && !crMatch && !taxMatch && !licMatch {
-					continue
-				}
-			}
-			orgs = append(orgs, o)
-		}
+		stats, _ = h.orgSvc.AdminOrgStats(sysCtx)
+		branchCounts, _ = h.orgSvc.CountBranchesByOrg(sysCtx)
+		orgs, totalMatching, _ = h.orgSvc.ListOrganizationsWithTotal(sysCtx, searchQuery, filterType, filterStatus, limit, offset)
 	}
 
 	data := pages.AdminOrganizationsPageData{
 		Organizations:   orgs,
-		TotalOrgs:       totalOrgs,
-		TotalPharmacies: totalPharmacies,
-		TotalVendors:    totalVendors,
-		PendingCount:    pendingCount,
-		ApprovedCount:   approvedCount,
+		TotalOrgs:       stats.TotalOrgs,
+		TotalPharmacies: stats.TotalPharmacies,
+		TotalVendors:    stats.TotalVendors,
+		PendingCount:    stats.PendingCount,
+		ApprovedCount:   stats.ApprovedCount,
 		BranchCounts:    branchCounts,
 		UserCounts:      userCounts,
 		SearchQuery:     searchQuery,
 		TypeFilter:      typeParam,
 		StatusFilter:    statusParam,
+		Page:            page,
+		PerPage:         limit,
+		TotalCount:      totalMatching,
 	}
 
 	h.renderPage(ctx, w, "render admin organizations page", pages.AdminOrganizationsPage(data, lang, dir))

@@ -33,6 +33,10 @@ func (r stubRepo) ListTransactions(ctx context.Context, walletID int64, limit, o
 	r.fail("ListTransactions")
 	return nil, nil
 }
+func (r stubRepo) ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, int, error) {
+	r.fail("ListTransactionsWithTotal")
+	return nil, 0, nil
+}
 
 func (r stubRepo) CreatePayment(ctx context.Context, p *billing.Payment) error {
 	r.fail("CreatePayment")
@@ -132,6 +136,10 @@ func (r stubRepo) UpdateInvoiceStatus(ctx context.Context, id int64, status bill
 func (r stubRepo) ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, error) {
 	r.fail("ListInvoicesByOrg")
 	return nil, nil
+}
+func (r stubRepo) ListInvoicesByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*billing.Invoice, int, error) {
+	r.fail("ListInvoicesByOrgWithTotal")
+	return nil, 0, nil
 }
 
 func (r stubRepo) AddPaymentMethod(ctx context.Context, pm *billing.UserPaymentMethod) error {
@@ -273,6 +281,9 @@ func (happyRepo) RecordTransaction(ctx context.Context, walletID int64, txType b
 }
 func (happyRepo) ListTransactions(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, error) {
 	return []*billing.WalletTransaction{{ID: 1, WalletID: walletID}}, nil
+}
+func (happyRepo) ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, int, error) {
+	return []*billing.WalletTransaction{{ID: 1, WalletID: walletID}}, 1, nil
 }
 func (happyRepo) CreatePayment(ctx context.Context, p *billing.Payment) error {
 	p.ID = 1

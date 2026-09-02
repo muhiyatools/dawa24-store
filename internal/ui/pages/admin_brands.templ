@@ -260,69 +260,16 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-						<div class="flex-between items-center flex-wrap gap-3 mt-4 pt-4 border-t">
-							<div class="text-sm text-secondary">
-								{ fmt.Sprintf("عرض %d - %d من إجمالي %d شركة مصنعة", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
-							</div>
-
-							<!-- Page navigation numbers -->
-							<div class="d-flex items-center gap-1 flex-wrap">
-								if currentPage > 1 {
-									<a
-										href={ templ.SafeURL(buildAdminBrandsPageURL(1, pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-										title="الصفحة الأولى"
-									>
-										«
-									</a>
-									<a
-										href={ templ.SafeURL(buildAdminBrandsPageURL(currentPage-1, pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-									>
-										السابق
-									</a>
-								}
-
-								for _, pNum := range calculateAdminPageNumbers(currentPage, totalPages(totalCount, pageSize)) {
-									if pNum == currentPage {
-										<span
-											class="btn btn-primary btn-sm"
-										
-										>
-											{ fmt.Sprintf("%d", pNum) }
-										</span>
-									} else {
-										<a
-											href={ templ.SafeURL(buildAdminBrandsPageURL(pNum, pageSize, searchQuery, statusFilter)) }
-											class="btn btn-secondary btn-sm"
-										
-										>
-											{ fmt.Sprintf("%d", pNum) }
-										</a>
-									}
-								}
-
-								if currentPage < totalPages(totalCount, pageSize) {
-									<a
-										href={ templ.SafeURL(buildAdminBrandsPageURL(currentPage+1, pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-									>
-										التالي
-									</a>
-									<a
-										href={ templ.SafeURL(buildAdminBrandsPageURL(totalPages(totalCount, pageSize), pageSize, searchQuery, statusFilter)) }
-										class="btn btn-secondary btn-sm"
-									
-										title="الصفحة الأخيرة"
-									>
-										»
-									</a>
-								}
-							</div>
-						</div>
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: currentPage,
+							PageSize:    pageSize,
+							TotalCount:  totalCount,
+							BaseURL:     "/admin/brands",
+							QueryValues: url.Values{
+								"q":      {searchQuery},
+								"status": {statusFilter},
+							},
+						})
 					}
 				}
 			</div>

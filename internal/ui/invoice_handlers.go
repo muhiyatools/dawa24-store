@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -35,22 +36,30 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	var orgID *int64
+	if !actor.IsStaff && actor.OrganizationID > 0 {
+		orgID = &actor.OrganizationID
+	}
+
 	var detailedInvoices []*billing.AdminInvoiceView
+	var totalCount int
 	if h.billSvc != nil {
-		invoices, _, err := h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
-			Search: q,
-			Status: status,
-			Limit:  100,
+		invoices, total, err := h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
+			Search:         q,
+			Status:         status,
+			OrganizationID: orgID,
+			Limit:          limit,
+			Offset:         offset,
 		})
 		if err != nil {
 			h.log.WarnContext(ctx, "account: list detailed invoices", "error", err)
 		} else {
-			// Filter by vendor organization unless platform staff
-			for _, inv := range invoices {
-				if actor.IsStaff || inv.OrganizationID == actor.OrganizationID {
-					detailedInvoices = append(detailedInvoices, inv)
-				}
-			}
+			detailedInvoices = invoices
+			totalCount = total
 		}
 	}
 
@@ -59,6 +68,9 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 		Search:       q,
 		StatusFilter: status,
 		IsVendor:     true,
+		Page:         page,
+		PerPage:      limit,
+		TotalCount:   totalCount,
 	}
 
 	h.renderPage(ctx, w, "render invoices page", pages.InvoicesPage(lang, dir, data))

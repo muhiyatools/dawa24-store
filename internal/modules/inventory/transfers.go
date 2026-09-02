@@ -144,6 +144,22 @@ func (s *Service) ListTransfers(ctx context.Context, status string, limit, offse
 	return s.repo.ListTransfers(ctx, status, limit, offset)
 }
 
+// ListTransfersWithTotal returns transfers for the active tenant with total count.
+func (s *Service) ListTransfersWithTotal(ctx context.Context, status string, limit, offset int) ([]*WarehouseTransfer, int, error) {
+	if _, ok := database.TenantFrom(ctx); !ok {
+		return nil, 0, database.ErrNoTenant
+	}
+
+	switch TransferStatus(status) {
+	case "", TransferPending, TransferInTransit, TransferCompleted, TransferCancelled:
+	default:
+		return nil, 0, apperr.Validation("transfer.unknown_status",
+			"Unknown transfer status filter.", map[string]string{"status": status})
+	}
+
+	return s.repo.ListTransfersWithTotal(ctx, status, limit, offset)
+}
+
 // GetTransfer returns a single transfer.
 func (s *Service) GetTransfer(ctx context.Context, id int64) (*WarehouseTransfer, error) {
 	if _, ok := database.TenantFrom(ctx); !ok {

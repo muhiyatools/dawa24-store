@@ -135,6 +135,29 @@ func (m *mockOrgRepo) ListOrganizations(_ context.Context, orgType *Organization
 	return list, nil
 }
 
+func (m *mockOrgRepo) ListOrganizationsWithTotal(ctx context.Context, _ string, orgType *OrganizationType, status *OrganizationStatus, limit, offset int) ([]*Organization, int, error) {
+	list, err := m.ListOrganizations(ctx, orgType, status, limit, offset)
+	return list, len(list), err
+}
+
+func (m *mockOrgRepo) AdminOrgStats(_ context.Context) (AdminOrgStatsResult, error) {
+	return AdminOrgStatsResult{
+		TotalOrgs:       len(m.orgs),
+		TotalPharmacies: len(m.orgs),
+		TotalVendors:    0,
+		PendingCount:    0,
+		ApprovedCount:   len(m.orgs),
+	}, nil
+}
+
+func (m *mockOrgRepo) CountBranchesByOrg(_ context.Context) (map[int64]int, error) {
+	counts := make(map[int64]int)
+	for orgID, bs := range m.branches {
+		counts[orgID] = len(bs)
+	}
+	return counts, nil
+}
+
 func (m *mockOrgRepo) CreateBranch(_ context.Context, b *Branch) error {
 	b.ID = m.nextID
 	m.nextID++

@@ -68,6 +68,17 @@ func (m *mockInventoryRepo) ListTransfers(_ context.Context, status string, limi
 	return pageSlice(list, limit, offset), nil
 }
 
+func (m *mockInventoryRepo) ListTransfersWithTotal(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, int, error) {
+	var list []*inventory.WarehouseTransfer
+	for _, t := range m.transfers {
+		if status == "" || string(t.Status) == status {
+			list = append(list, t)
+		}
+	}
+	sort.Slice(list, func(i, j int) bool { return list[i].ID > list[j].ID })
+	return pageSlice(list, limit, offset), len(list), nil
+}
+
 func (m *mockInventoryRepo) ListDetailedStocksByWarehouse(_ context.Context, warehouseID int64) ([]*inventory.DetailedWarehouseStockView, error) {
 	var list []*inventory.DetailedWarehouseStockView
 	for _, s := range m.stocksByID {

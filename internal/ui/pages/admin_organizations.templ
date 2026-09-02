@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -20,6 +21,9 @@ type AdminOrganizationsPageData struct {
 	SearchQuery     string
 	TypeFilter      string
 	StatusFilter    string
+	Page            int
+	PerPage         int
+	TotalCount      int
 }
 
 type AdminEnterpriseHubData struct {
@@ -223,6 +227,20 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 						</tbody>
 					</table>
 				</div>
+
+				if data.TotalCount > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage: data.Page,
+						PageSize:    data.PerPage,
+						TotalCount:  data.TotalCount,
+						BaseURL:     "/admin/organizations",
+						QueryValues: url.Values{
+							"q":      {data.SearchQuery},
+							"type":   {data.TypeFilter},
+							"status": {data.StatusFilter},
+						},
+					})
+				}
 			}
 
 		</div>

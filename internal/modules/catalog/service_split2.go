@@ -113,6 +113,11 @@ func (s *Service) CountProductsInCategory(ctx context.Context, categoryID int64)
 	return s.repo.CountProductsInCategory(ctx, categoryID)
 }
 
+// ListCategoriesWithProductCount returns paginated categories with live product counts and total matching count.
+func (s *Service) ListCategoriesWithProductCount(ctx context.Context, search, status string, limit, offset int) ([]*CategoryWithCount, int, error) {
+	return s.repo.ListCategoriesWithProductCount(ctx, search, status, limit, offset)
+}
+
 // ListBrands returns all brands.
 func (s *Service) ListBrands(ctx context.Context) ([]*Brand, error) {
 	if s.cache != nil {
@@ -129,6 +134,11 @@ func (s *Service) ListBrands(ctx context.Context) ([]*Brand, error) {
 		_ = s.cache.SetJSON(ctx, "catalog:global:brands", brands, 30*time.Minute)
 	}
 	return brands, nil
+}
+
+// ListBrandsWithProductCount returns paginated brands with live product counts and total matching count.
+func (s *Service) ListBrandsWithProductCount(ctx context.Context, search, status string, limit, offset int) ([]*BrandWithCount, int, error) {
+	return s.repo.ListBrandsWithProductCount(ctx, search, status, limit, offset)
 }
 
 // CreateBrand adds a brand.

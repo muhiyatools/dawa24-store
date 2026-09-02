@@ -95,6 +95,9 @@ func (m *mockCatalogImageRepo) DeleteCategory(_ context.Context, _ int64) error 
 func (m *mockCatalogImageRepo) ListCategories(_ context.Context) ([]*catalog.Category, error) {
 	return nil, nil
 }
+func (m *mockCatalogImageRepo) ListCategoriesWithProductCount(_ context.Context, _ string, _ string, _ int, _ int) ([]*catalog.CategoryWithCount, int, error) {
+	return nil, 0, nil
+}
 func (m *mockCatalogImageRepo) CountProductsByOrg(_ context.Context, _ int64, _ string) (int, error) {
 	return 0, nil
 }
@@ -118,6 +121,9 @@ func (m *mockCatalogImageRepo) SetBrandCategories(_ context.Context, _ int64, _ 
 }
 func (m *mockCatalogImageRepo) ListBrands(_ context.Context) ([]*catalog.Brand, error) {
 	return nil, nil
+}
+func (m *mockCatalogImageRepo) ListBrandsWithProductCount(_ context.Context, _, _ string, _, _ int) ([]*catalog.BrandWithCount, int, error) {
+	return nil, 0, nil
 }
 func (m *mockCatalogImageRepo) CountProductsInBrand(_ context.Context, _ int64) (int, error) {
 	return 0, nil

@@ -57,6 +57,73 @@ func (r *Repository) ListCategories(ctx context.Context) ([]*catalog.Category, e
 	return categories, err
 }
 
+// ListCategoriesWithProductCount returns paginated categories with product counts and total matching count.
+func (r *Repository) ListCategoriesWithProductCount(
+	ctx context.Context,
+	search, status string,
+	limit, offset int,
+) ([]*catalog.CategoryWithCount, int, error) {
+	var list []*catalog.CategoryWithCount
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `
+			SELECT count(*)
+			FROM catalog.categories c
+			WHERE c.deleted_at IS NULL
+			  AND ($1 = '' OR c.status = $1)
+			  AND ($2 = '' OR c.name->>'ar' ILIKE '%' || $2 || '%' OR c.name->>'en' ILIKE '%' || $2 || '%' OR c.description->>'ar' ILIKE '%' || $2 || '%' OR c.description->>'en' ILIKE '%' || $2 || '%');
+		`
+		if err := tx.QueryRow(txCtx, countQuery, status, search).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		query := `
+			SELECT c.id, c.public_id, c.parent_id, c.name, c.description, c.icon, c.image, c.status,
+			       c.sort_order, c.created_at, c.updated_at, c.deleted_at,
+			       COUNT(DISTINCT p.id) AS product_count
+			FROM catalog.categories c
+			LEFT JOIN catalog.products p ON p.category_id = c.id AND p.deleted_at IS NULL
+			WHERE c.deleted_at IS NULL
+			  AND ($1 = '' OR c.status = $1)
+			  AND ($2 = '' OR c.name->>'ar' ILIKE '%' || $2 || '%' OR c.name->>'en' ILIKE '%' || $2 || '%' OR c.description->>'ar' ILIKE '%' || $2 || '%' OR c.description->>'en' ILIKE '%' || $2 || '%')
+			GROUP BY c.id
+			ORDER BY c.sort_order ASC, c.name->>'ar' ASC, c.id ASC
+			LIMIT $3 OFFSET $4;
+		`
+		rows, err := tx.Query(txCtx, query, status, search, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var c catalog.Category
+			var productCount int
+			if err := rows.Scan(
+				&c.ID, &c.PublicID, &c.ParentID, &c.Name, &c.Description, &c.Icon,
+				&c.Image, &c.Status, &c.SortOrder, &c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
+				&productCount,
+			); err != nil {
+				return err
+			}
+			list = append(list, &catalog.CategoryWithCount{
+				Category:     &c,
+				ProductCount: productCount,
+			})
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
 // CreateBrand adds a brand.
 func (r *Repository) CreateBrand(ctx context.Context, b *catalog.Brand) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -100,6 +167,69 @@ func (r *Repository) ListBrands(ctx context.Context) ([]*catalog.Brand, error) {
 		return rows.Err()
 	})
 	return brands, err
+}
+
+// ListBrandsWithProductCount returns paginated brands with joined active product counts and total matching count.
+func (r *Repository) ListBrandsWithProductCount(ctx context.Context, search, status string, limit, offset int) ([]*catalog.BrandWithCount, int, error) {
+	var list []*catalog.BrandWithCount
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `
+			SELECT count(*)
+			FROM catalog.brands b
+			WHERE b.deleted_at IS NULL
+			  AND ($1 = '' OR b.name->>'ar' ILIKE '%' || $1 || '%' OR b.name->>'en' ILIKE '%' || $1 || '%' OR b.description->>'ar' ILIKE '%' || $1 || '%' OR b.description->>'en' ILIKE '%' || $1 || '%')
+			  AND ($2 = '' OR $2 = 'all' OR b.status = $2);
+		`
+		if err := tx.QueryRow(txCtx, countQuery, search, status).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		query := `
+			SELECT b.id, b.public_id, b.name, b.description, b.image, b.status,
+			       b.created_at, b.updated_at, b.deleted_at,
+			       COUNT(p.id) AS product_count
+			FROM catalog.brands b
+			LEFT JOIN catalog.products p ON p.brand_id = b.id AND p.deleted_at IS NULL
+			WHERE b.deleted_at IS NULL
+			  AND ($1 = '' OR b.name->>'ar' ILIKE '%' || $1 || '%' OR b.name->>'en' ILIKE '%' || $1 || '%' OR b.description->>'ar' ILIKE '%' || $1 || '%' OR b.description->>'en' ILIKE '%' || $1 || '%')
+			  AND ($2 = '' OR $2 = 'all' OR b.status = $2)
+			GROUP BY b.id
+			ORDER BY b.name->>'ar' ASC, b.id DESC
+			LIMIT $3 OFFSET $4;
+		`
+		rows, err := tx.Query(txCtx, query, search, status, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var b catalog.Brand
+			var productCount int
+			if err := rows.Scan(
+				&b.ID, &b.PublicID, &b.Name, &b.Description, &b.Image, &b.Status,
+				&b.CreatedAt, &b.UpdatedAt, &b.DeletedAt,
+				&productCount,
+			); err != nil {
+				return err
+			}
+			list = append(list, &catalog.BrandWithCount{
+				Brand:        &b,
+				ProductCount: productCount,
+			})
+		}
+		return rows.Err()
+	})
+	return list, total, err
 }
 
 // GetCategoryByID retrieves a category by ID.

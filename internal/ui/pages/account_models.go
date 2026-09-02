@@ -21,6 +21,9 @@ type InvoicesData struct {
 	Search       string
 	StatusFilter string
 	IsVendor     bool
+	Page         int
+	PerPage      int
+	TotalCount   int
 }
 
 // TxLabel maps a wallet transaction type onto an Arabic label.

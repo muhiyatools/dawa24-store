@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -23,76 +22,26 @@ func (h *UIHandler) AdminBrandsPage(w http.ResponseWriter, r *http.Request) {
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
 
-	pageSize, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if pageSize <= 0 {
-		pageSize = pagination.TableRows
-	}
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page <= 0 {
-		page = 1
-	}
-
-	var allBrands []*catalog.Brand
-	if h.catSvc != nil {
-		allBrands, _ = h.catSvc.ListBrands(sysCtx)
-	}
-
-	var filtered []*catalog.Brand
-	normSearch := arabic.Normalize(search)
-	for _, b := range allBrands {
-		if b == nil {
-			continue
-		}
-		if status != "" && status != "all" && b.Status != status {
-			continue
-		}
-		if search != "" {
-			nameAr := arabic.Normalize(b.Name.Get("ar"))
-			nameEn := strings.ToLower(b.Name.Get("en"))
-			descAr := arabic.Normalize(b.Description.Get("ar"))
-			descEn := strings.ToLower(b.Description.Get("en"))
-			sLower := strings.ToLower(search)
-
-			if !strings.Contains(nameAr, normSearch) &&
-				!strings.Contains(nameEn, sLower) &&
-				!strings.Contains(descAr, normSearch) &&
-				!strings.Contains(descEn, sLower) {
-				continue
-			}
-		}
-		filtered = append(filtered, b)
-	}
-
-	totalCount := len(filtered)
-	totalPages := (totalCount + pageSize - 1) / pageSize
-	if totalPages < 1 {
-		totalPages = 1
-	}
-	if page > totalPages {
-		page = totalPages
-	}
-
-	start := (page - 1) * pageSize
-	if start < 0 {
-		start = 0
-	}
-	end := start + pageSize
-	if end > totalCount {
-		end = totalCount
-	}
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
 
 	var brandItems []pages.BrandViewItem
-	if start < totalCount {
-		for _, b := range filtered[start:end] {
-			count, _ := h.catSvc.CountProductsInBrand(sysCtx, b.ID)
-			brandItems = append(brandItems, pages.BrandViewItem{
-				Brand:        b,
-				ProductCount: count,
-			})
+	var totalCount int
+	if h.catSvc != nil {
+		brandsWithCount, total, err := h.catSvc.ListBrandsWithProductCount(sysCtx, search, status, limit, offset)
+		if err == nil {
+			totalCount = total
+			for _, item := range brandsWithCount {
+				brandItems = append(brandItems, pages.BrandViewItem{
+					Brand:        item.Brand,
+					ProductCount: item.ProductCount,
+				})
+			}
 		}
 	}
 
-	h.renderPage(ctx, w, "render admin brands", pages.AdminBrandsPage(brandItems, totalCount, page, pageSize, search, status, lang, dir))
+	h.renderPage(ctx, w, "render admin brands", pages.AdminBrandsPage(brandItems, totalCount, page, limit, search, status, lang, dir))
 }
 
 // AdminBrandCreateSubmit creates a new pharmaceutical brand / manufacturer in the database.

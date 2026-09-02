@@ -133,6 +133,11 @@ func (m *mockInventoryRepo) ListStocksByOrg(_ context.Context, orgID int64) ([]*
 	return list, nil
 }
 
+func (m *mockInventoryRepo) ListStocksByOrgWithTotal(ctx context.Context, orgID int64, _ int64, _ string, limit, offset int) ([]*inventory.Stock, int, error) {
+	list, err := m.ListStocksByOrg(ctx, orgID)
+	return list, len(list), err
+}
+
 func (m *mockInventoryRepo) ListStockMovements(_ context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return m.movements[stockID], nil
 }

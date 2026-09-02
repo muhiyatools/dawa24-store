@@ -107,10 +107,12 @@ type TransactionFilter struct {
 
 // InvoiceFilter specifies parameters for querying invoices.
 type InvoiceFilter struct {
-	Search string
-	Status string
-	Limit  int
-	Offset int
+	Search         string
+	Status         string
+	OrganizationID *int64
+	CustomerOrgID  *int64
+	Limit          int
+	Offset         int
 }
 
 // PaymentFilter specifies parameters for querying payments.

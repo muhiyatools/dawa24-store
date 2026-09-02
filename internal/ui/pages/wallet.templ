@@ -19,6 +19,9 @@ type WalletViewData struct {
 	PlatformPaymentMethods []*billing.PlatformPaymentMethod
 	NoticeType             string
 	NoticeMessage          string
+	Page                   int
+	PerPage                int
+	TotalCount             int
 }
 
 templ WalletPage(data WalletViewData, lang, dir string) {
@@ -163,7 +166,11 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 		<!-- Section 1: Unified Transactions Table -->
 		<div x-show="activeSection === 'transactions'">
-			@WalletTransactionsTable(data.Transactions, data.DepositRequests)
+			if data.IsVendor {
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet")
+			} else {
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet")
+			}
 		</div>
 
 		<!-- Section 2: Saved Payment Methods -->

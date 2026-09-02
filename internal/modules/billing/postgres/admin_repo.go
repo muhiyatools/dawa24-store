@@ -225,6 +225,18 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.OrganizationID != nil && *filter.OrganizationID > 0 {
+			baseQuery += fmt.Sprintf(` AND inv.organization_id = $%d`, argIdx)
+			args = append(args, *filter.OrganizationID)
+			argIdx++
+		}
+
+		if filter.CustomerOrgID != nil && *filter.CustomerOrgID > 0 {
+			baseQuery += fmt.Sprintf(` AND inv.customer_org_id = $%d`, argIdx)
+			args = append(args, *filter.CustomerOrgID)
+			argIdx++
+		}
+
 		if filter.Search != "" {
 			searchPattern := "%" + strings.ToLower(filter.Search) + "%"
 			baseQuery += fmt.Sprintf(` AND (
@@ -261,7 +273,7 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 				inv.payment_method,
 				COALESCE(inv.notes, ''),
 				inv.created_at
-		` + baseQuery + fmt.Sprintf(` ORDER BY inv.created_at DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
+		` + baseQuery + fmt.Sprintf(` ORDER BY inv.created_at DESC, inv.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))
 

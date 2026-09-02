@@ -96,6 +96,11 @@ func (m *mockBillingRepo) ListTransactions(_ context.Context, walletID int64, li
 	return m.transactions[walletID], nil
 }
 
+func (m *mockBillingRepo) ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*WalletTransaction, int, error) {
+	txs := m.transactions[walletID]
+	return txs, len(txs), nil
+}
+
 func (m *mockBillingRepo) CreatePayment(_ context.Context, p *Payment) error { return nil }
 func (m *mockBillingRepo) GetPaymentByID(_ context.Context, id int64) (*Payment, error) {
 	return nil, apperr.NotFound("payment")
@@ -310,6 +315,11 @@ func (m *mockBillingRepo) ListInvoicesByOrg(_ context.Context, orgID int64, limi
 		}
 	}
 	return list, nil
+}
+
+func (m *mockBillingRepo) ListInvoicesByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, int, error) {
+	list, err := m.ListInvoicesByOrg(ctx, orgID, limit, offset)
+	return list, len(list), err
 }
 
 func (m *mockBillingRepo) AddPaymentMethod(_ context.Context, pm *UserPaymentMethod) error {

@@ -31,6 +31,7 @@ type Repository interface {
 	ListStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*Stock, error)
 	ListDetailedStocksByWarehouse(ctx context.Context, warehouseID int64) ([]*DetailedWarehouseStockView, error)
 	ListStocksByOrg(ctx context.Context, orgID int64) ([]*Stock, error)
+	ListStocksByOrgWithTotal(ctx context.Context, orgID int64, warehouseID int64, search string, limit, offset int) ([]*Stock, int, error)
 	ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error)
 	// ListLowStock returns rows at or below their reorder threshold, which is
 	// what the vendor replenishment screen is built on.
@@ -47,4 +48,5 @@ type Repository interface {
 	// race gets zero rows affected and a conflict.
 	UpdateTransferStatus(ctx context.Context, id int64, from, to TransferStatus) error
 	ListTransfers(ctx context.Context, status string, limit, offset int) ([]*WarehouseTransfer, error)
+	ListTransfersWithTotal(ctx context.Context, status string, limit, offset int) ([]*WarehouseTransfer, int, error)
 }

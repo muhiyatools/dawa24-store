@@ -129,6 +129,12 @@ func (m *institutionalMockRepo) DeleteOrganization(_ context.Context, _ int64) e
 func (m *institutionalMockRepo) ListOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus, _, _ int) ([]*org.Organization, error) {
 	return nil, nil
 }
+func (m *institutionalMockRepo) ListOrganizationsWithTotal(_ context.Context, _ string, _ *org.OrganizationType, _ *org.OrganizationStatus, _, _ int) ([]*org.Organization, int, error) {
+	return nil, 0, nil
+}
+func (m *institutionalMockRepo) AdminOrgStats(_ context.Context) (org.AdminOrgStatsResult, error) {
+	return org.AdminOrgStatsResult{}, nil
+}
 func (m *institutionalMockRepo) CountOrganizations(_ context.Context, _ *org.OrganizationType, _ *org.OrganizationStatus) (int, error) {
 	return 0, nil
 }
@@ -139,6 +145,9 @@ func (m *institutionalMockRepo) GetBranchByID(_ context.Context, _ int64) (*org.
 func (m *institutionalMockRepo) UpdateBranch(_ context.Context, _ *org.Branch) error { return nil }
 func (m *institutionalMockRepo) DeleteBranch(_ context.Context, _, _ int64) error    { return nil }
 func (m *institutionalMockRepo) ListBranchesByOrg(_ context.Context, _ int64) ([]*org.Branch, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) CountBranchesByOrg(_ context.Context) (map[int64]int, error) {
 	return nil, nil
 }
 func (m *institutionalMockRepo) GetBranchesByIDs(_ context.Context, _ []int64) ([]*org.Branch, error) {

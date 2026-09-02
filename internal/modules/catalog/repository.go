@@ -64,6 +64,7 @@ type Repository interface {
 	UpdateCategory(ctx context.Context, c *Category) error
 	DeleteCategory(ctx context.Context, id int64) error
 	ListCategories(ctx context.Context) ([]*Category, error)
+	ListCategoriesWithProductCount(ctx context.Context, search, status string, limit, offset int) ([]*CategoryWithCount, int, error)
 	// CountProductsInCategory backs the refusal to delete a taxonomy row that
 	// products still reference; deleting one would leave them uncategorised
 	// with no way to find them in the vendor UI.
@@ -81,6 +82,7 @@ type Repository interface {
 	SetBrandCategories(ctx context.Context, brandID int64, categoryIDs []int64) error
 
 	ListBrands(ctx context.Context) ([]*Brand, error)
+	ListBrandsWithProductCount(ctx context.Context, search, status string, limit, offset int) ([]*BrandWithCount, int, error)
 	CountProductsInBrand(ctx context.Context, brandID int64) (int, error)
 
 	SetCustomerPricing(ctx context.Context, m *CustomerProductMapping) error

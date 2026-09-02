@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -36,8 +37,13 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 	isVendor := actor.IsVendor()
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var wallet *billing.Wallet
 	var txs []*billing.WalletTransaction
+	var totalTxCount int
 	var depositRequests []*billing.WalletDeposit
 	var paymentMethods []*billing.UserPaymentMethod
 	var platformPaymentMethods []*billing.PlatformPaymentMethod
@@ -49,13 +55,14 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
 			platformPaymentMethods = ppms
 		}
-		if deps, err := h.billSvc.ListUserDeposits(ctx, actor.UserID, 100, 0); err == nil {
+		if deps, err := h.billSvc.ListUserDeposits(ctx, actor.UserID, 50, 0); err == nil {
 			depositRequests = deps
 		}
 		if wItem, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wItem != nil {
 			wallet = wItem
-			if list, err := h.billSvc.ListWalletTransactions(ctx, wItem.ID, 100, 0); err == nil {
+			if list, total, err := h.billSvc.ListWalletTransactionsWithTotal(ctx, wItem.ID, limit, offset); err == nil {
 				txs = list
+				totalTxCount = total
 			}
 		}
 	}
@@ -69,6 +76,9 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 		PlatformPaymentMethods: platformPaymentMethods,
 		NoticeType:             r.URL.Query().Get("notice"),
 		NoticeMessage:          r.URL.Query().Get("msg"),
+		Page:                   page,
+		PerPage:                limit,
+		TotalCount:             totalTxCount,
 	}
 
 	h.renderPage(ctx, w, "render tenant wallet page", pages.WalletPage(viewData, lang, dir))

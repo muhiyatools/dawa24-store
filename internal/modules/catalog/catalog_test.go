@@ -190,6 +190,18 @@ func (m *mockCatalogRepo) ListCategories(_ context.Context) ([]*Category, error)
 	return list, nil
 }
 
+func (m *mockCatalogRepo) ListCategoriesWithProductCount(ctx context.Context, _ string, _ string, limit, offset int) ([]*CategoryWithCount, int, error) {
+	cats, err := m.ListCategories(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	var res []*CategoryWithCount
+	for _, c := range cats {
+		res = append(res, &CategoryWithCount{Category: c, ProductCount: 0})
+	}
+	return res, len(res), nil
+}
+
 func (m *mockCatalogRepo) CreateBrand(_ context.Context, b *Brand) error {
 	b.ID = m.nextID
 	m.nextID++
@@ -216,6 +228,14 @@ func (m *mockCatalogRepo) ListBrands(_ context.Context) ([]*Brand, error) {
 		list = append(list, b)
 	}
 	return list, nil
+}
+
+func (m *mockCatalogRepo) ListBrandsWithProductCount(_ context.Context, _, _ string, _, _ int) ([]*BrandWithCount, int, error) {
+	var list []*BrandWithCount
+	for _, b := range m.brands {
+		list = append(list, &BrandWithCount{Brand: b, ProductCount: 0})
+	}
+	return list, len(list), nil
 }
 
 func (m *mockCatalogRepo) SetCustomerPricing(_ context.Context, cm *CustomerProductMapping) error {

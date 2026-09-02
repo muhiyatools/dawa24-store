@@ -51,6 +51,18 @@ type Brand struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
+// BrandWithCount decorates a Brand with its live product count.
+type BrandWithCount struct {
+	Brand        *Brand
+	ProductCount int
+}
+
+// CategoryWithCount decorates a Category with its live product count.
+type CategoryWithCount struct {
+	Category     *Category
+	ProductCount int
+}
+
 // Product represents a tenant-owned master catalogue product.
 type Product struct {
 	ID                     int64         `json:"id"`

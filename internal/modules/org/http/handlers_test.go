@@ -46,6 +46,18 @@ func (r stubRepo) ListOrganizations(ctx context.Context, orgType *org.Organizati
 	r.fail("ListOrganizations")
 	return nil, nil
 }
+func (r stubRepo) ListOrganizationsWithTotal(ctx context.Context, _ string, orgType *org.OrganizationType, status *org.OrganizationStatus, limit, offset int) ([]*org.Organization, int, error) {
+	r.fail("ListOrganizationsWithTotal")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminOrgStats(ctx context.Context) (org.AdminOrgStatsResult, error) {
+	r.fail("AdminOrgStats")
+	return org.AdminOrgStatsResult{}, nil
+}
+func (r stubRepo) CountBranchesByOrg(ctx context.Context) (map[int64]int, error) {
+	r.fail("CountBranchesByOrg")
+	return nil, nil
+}
 func (r stubRepo) GetOrganizationsByIDs(ctx context.Context, ids []int64) ([]*org.Organization, error) {
 	r.fail("GetOrganizationsByIDs")
 	return nil, nil

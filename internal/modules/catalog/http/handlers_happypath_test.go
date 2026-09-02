@@ -89,6 +89,9 @@ func (happyRepo) DeleteCategory(ctx context.Context, id int64) error            
 func (happyRepo) ListCategories(ctx context.Context) ([]*catalog.Category, error) {
 	return []*catalog.Category{{ID: 1, Name: i18n.Text{"en": "Painkillers"}}}, nil
 }
+func (happyRepo) ListCategoriesWithProductCount(ctx context.Context, _ string, _ string, limit, offset int) ([]*catalog.CategoryWithCount, int, error) {
+	return []*catalog.CategoryWithCount{{Category: &catalog.Category{ID: 1, Name: i18n.Text{"en": "Painkillers"}}, ProductCount: 0}}, 1, nil
+}
 func (happyRepo) CountProductsInCategory(ctx context.Context, categoryID int64) (int, error) {
 	return 0, nil
 }
@@ -106,6 +109,9 @@ func (happyRepo) UpdateBrand(ctx context.Context, b *catalog.Brand) error { retu
 func (happyRepo) DeleteBrand(ctx context.Context, id int64) error         { return nil }
 func (happyRepo) ListBrands(ctx context.Context) ([]*catalog.Brand, error) {
 	return []*catalog.Brand{{ID: 1, Name: i18n.Text{"en": "GSK"}}}, nil
+}
+func (happyRepo) ListBrandsWithProductCount(ctx context.Context, _, _ string, _, _ int) ([]*catalog.BrandWithCount, int, error) {
+	return []*catalog.BrandWithCount{{Brand: &catalog.Brand{ID: 1, Name: i18n.Text{"en": "GSK"}}, ProductCount: 5}}, 1, nil
 }
 func (happyRepo) SetCustomerPricing(ctx context.Context, m *catalog.CustomerProductMapping) error {
 	return nil

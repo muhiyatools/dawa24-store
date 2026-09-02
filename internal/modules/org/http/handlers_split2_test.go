@@ -66,6 +66,15 @@ func (happyRepo) DeleteOrganization(ctx context.Context, id int64) error {
 func (happyRepo) ListOrganizations(ctx context.Context, orgType *org.OrganizationType, status *org.OrganizationStatus, limit, offset int) ([]*org.Organization, error) {
 	return []*org.Organization{{ID: 1, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Status: org.StatusApproved}}, nil
 }
+func (happyRepo) ListOrganizationsWithTotal(ctx context.Context, _ string, orgType *org.OrganizationType, status *org.OrganizationStatus, limit, offset int) ([]*org.Organization, int, error) {
+	return []*org.Organization{{ID: 1, LegalName: "Al-Amal Pharmacy", CommercialRegister: "CR-101", Status: org.StatusApproved}}, 1, nil
+}
+func (happyRepo) AdminOrgStats(ctx context.Context) (org.AdminOrgStatsResult, error) {
+	return org.AdminOrgStatsResult{TotalOrgs: 1, TotalPharmacies: 1, TotalVendors: 0, PendingCount: 0, ApprovedCount: 1}, nil
+}
+func (happyRepo) CountBranchesByOrg(ctx context.Context) (map[int64]int, error) {
+	return map[int64]int{1: 2}, nil
+}
 func (happyRepo) GetOrganizationsByIDs(ctx context.Context, ids []int64) ([]*org.Organization, error) {
 	return nil, nil
 }

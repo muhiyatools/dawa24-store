@@ -142,6 +142,10 @@ func (m *mockInventoryRepoForWarehouseTest) ListStocksByOrg(_ context.Context, o
 	return m.stocks, nil
 }
 
+func (m *mockInventoryRepoForWarehouseTest) ListStocksByOrgWithTotal(_ context.Context, _ int64, _ int64, _ string, _ int, _ int) ([]*inventory.Stock, int, error) {
+	return m.stocks, len(m.stocks), nil
+}
+
 func (m *mockInventoryRepoForWarehouseTest) ListStockMovements(_ context.Context, stockID int64, limit int) ([]*inventory.StockMovement, error) {
 	return nil, nil
 }
@@ -168,6 +172,10 @@ func (m *mockInventoryRepoForWarehouseTest) UpdateTransferStatus(_ context.Conte
 
 func (m *mockInventoryRepoForWarehouseTest) ListTransfers(_ context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, error) {
 	return nil, nil
+}
+
+func (m *mockInventoryRepoForWarehouseTest) ListTransfersWithTotal(_ context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, int, error) {
+	return nil, 0, nil
 }
 
 func TestVendorWarehouseDetailPage_Overhaul_E2E(t *testing.T) {

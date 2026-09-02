@@ -120,6 +120,10 @@ func (r stubRepo) ListCategories(ctx context.Context) ([]*catalog.Category, erro
 	r.fail("ListCategories")
 	return nil, nil
 }
+func (r stubRepo) ListCategoriesWithProductCount(ctx context.Context, _ string, _ string, limit, offset int) ([]*catalog.CategoryWithCount, int, error) {
+	r.fail("ListCategoriesWithProductCount")
+	return nil, 0, nil
+}
 func (r stubRepo) CountProductsInCategory(ctx context.Context, categoryID int64) (int, error) {
 	r.fail("CountProductsInCategory")
 	return 0, nil
@@ -144,6 +148,10 @@ func (r stubRepo) DeleteBrand(ctx context.Context, id int64) error {
 func (r stubRepo) ListBrands(ctx context.Context) ([]*catalog.Brand, error) {
 	r.fail("ListBrands")
 	return nil, nil
+}
+func (r stubRepo) ListBrandsWithProductCount(ctx context.Context, _, _ string, _, _ int) ([]*catalog.BrandWithCount, int, error) {
+	r.fail("ListBrandsWithProductCount")
+	return nil, 0, nil
 }
 
 func (r stubRepo) SetCustomerPricing(ctx context.Context, m *catalog.CustomerProductMapping) error {

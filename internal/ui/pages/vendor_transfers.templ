@@ -1,15 +1,23 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string, isPartial bool) {
+type VendorTransfersData struct {
+	Transfers  []*inventory.WarehouseTransfer
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
+templ VendorTransfers(data VendorTransfersData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@VendorTransfersTable(transfers)
+		@VendorTransfersTable(data)
 	} else {
 		@layouts.VendorShell("التحويلات المخزنية | Stock Transfers", "transfers", lang, dir) {
 			<div class="page-container">
@@ -29,15 +37,15 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 				</div>
 
 				<div class="stack-sm" id="vendor-transfers-content">
-					@VendorTransfersTable(transfers)
+					@VendorTransfersTable(data)
 				</div>
 			</div>
 		}
 	}
 }
 
-templ VendorTransfersTable(transfers []*inventory.WarehouseTransfer) {
-	if len(transfers) == 0 {
+templ VendorTransfersTable(data VendorTransfersData) {
+	if len(data.Transfers) == 0 {
 		<div class="glass-panel p-8 text-center empty-state-glass">
 			<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 			<h3 class="text-lg font-black text-primary mb-2">لا توجد تحويلات مخزنية سابقة</h3>
@@ -58,7 +66,7 @@ templ VendorTransfersTable(transfers []*inventory.WarehouseTransfer) {
 						</tr>
 					</thead>
 					<tbody>
-						for _, t := range transfers {
+						for _, t := range data.Transfers {
 							<tr>
 								<td class="font-extrabold text-primary tabular-nums">
 									#{ fmt.Sprintf("%d", t.ID) }
@@ -87,6 +95,14 @@ templ VendorTransfersTable(transfers []*inventory.WarehouseTransfer) {
 					</tbody>
 				</table>
 			</div>
+			if data.TotalCount > 0 {
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL:     "/vendor/transfers",
+				})
+			}
 		</div>
 	}
 }

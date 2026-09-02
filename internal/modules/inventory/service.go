@@ -164,6 +164,14 @@ func (s *Service) ListStocksByOrg(ctx context.Context, orgID int64) ([]*Stock, e
 	return s.repo.ListStocksByOrg(ctx, orgID)
 }
 
+// ListStocksByOrgWithTotal retrieves paginated stock rows for an organization matching filters with total count.
+func (s *Service) ListStocksByOrgWithTotal(ctx context.Context, orgID, warehouseID int64, search string, limit, offset int) ([]*Stock, int, error) {
+	if orgID <= 0 {
+		return nil, 0, nil
+	}
+	return s.repo.ListStocksByOrgWithTotal(ctx, orgID, warehouseID, search, limit, offset)
+}
+
 // ListStockMovements retrieves the movement ledger for a stock row.
 func (s *Service) ListStockMovements(ctx context.Context, stockID int64, limit int) ([]*StockMovement, error) {
 	return s.repo.ListStockMovements(ctx, stockID, limit)

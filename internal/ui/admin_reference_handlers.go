@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -24,72 +23,27 @@ func (h *UIHandler) AdminCategoriesPage(w http.ResponseWriter, r *http.Request) 
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
 
-	pageSize, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if pageSize <= 0 {
-		pageSize = pagination.TableRows
-	}
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page <= 0 {
-		page = 1
-	}
+	page := pagination.PageNumber(r)
+	pageSize := pagination.RowsPerPage(r)
+	offset := (page - 1) * pageSize
 
 	var allCats []*catalog.Category
+	var items []pages.CategoryViewItem
+	var totalCount int
+
 	if h.catSvc != nil {
 		allCats, _ = h.catSvc.ListCategories(sysCtx)
-	}
-
-	var filtered []*catalog.Category
-	normSearch := arabic.Normalize(search)
-	for _, c := range allCats {
-		if c == nil {
-			continue
-		}
-		if status != "" && status != "all" && c.Status != status {
-			continue
-		}
-		if search != "" {
-			nameAr := arabic.Normalize(c.Name.Get("ar"))
-			nameEn := strings.ToLower(c.Name.Get("en"))
-			descAr := arabic.Normalize(c.Description.Get("ar"))
-			descEn := strings.ToLower(c.Description.Get("en"))
-			sLower := strings.ToLower(search)
-
-			if !strings.Contains(nameAr, normSearch) &&
-				!strings.Contains(nameEn, sLower) &&
-				!strings.Contains(descAr, normSearch) &&
-				!strings.Contains(descEn, sLower) {
-				continue
+		catCounts, total, err := h.catSvc.ListCategoriesWithProductCount(sysCtx, search, status, pageSize, offset)
+		if err == nil {
+			totalCount = total
+			for _, cc := range catCounts {
+				if cc != nil && cc.Category != nil {
+					items = append(items, pages.CategoryViewItem{
+						Category:     cc.Category,
+						ProductCount: cc.ProductCount,
+					})
+				}
 			}
-		}
-		filtered = append(filtered, c)
-	}
-
-	totalCount := len(filtered)
-	totalPages := (totalCount + pageSize - 1) / pageSize
-	if totalPages < 1 {
-		totalPages = 1
-	}
-	if page > totalPages {
-		page = totalPages
-	}
-
-	start := (page - 1) * pageSize
-	if start < 0 {
-		start = 0
-	}
-	end := start + pageSize
-	if end > totalCount {
-		end = totalCount
-	}
-
-	var items []pages.CategoryViewItem
-	if start < totalCount {
-		for _, c := range filtered[start:end] {
-			count, _ := h.catSvc.CountProductsInCategory(sysCtx, c.ID)
-			items = append(items, pages.CategoryViewItem{
-				Category:     c,
-				ProductCount: count,
-			})
 		}
 	}
 

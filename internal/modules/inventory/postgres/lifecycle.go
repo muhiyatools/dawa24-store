@@ -194,3 +194,58 @@ func (r *Repository) ListTransfers(ctx context.Context, status string, limit, of
 	}
 	return list, nil
 }
+
+// ListTransfersWithTotal returns warehouse transfers and total count, optionally filtered by status.
+func (r *Repository) ListTransfersWithTotal(ctx context.Context, status string, limit, offset int) ([]*inventory.WarehouseTransfer, int, error) {
+	var list []*inventory.WarehouseTransfer
+	var total int
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `
+			SELECT count(*)
+			FROM inventory.warehouse_transfers
+			WHERE ($1 = '' OR status = $1);
+		`
+		if err := tx.QueryRow(txCtx, countQuery, status).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		query := `
+			SELECT id, organization_id, from_warehouse_id, to_warehouse_id,
+			       product_id, product_variant_id, quantity, status,
+			       initiated_by, notes, created_at, updated_at
+			FROM inventory.warehouse_transfers
+			WHERE ($1 = '' OR status = $1)
+			ORDER BY created_at DESC, id DESC
+			LIMIT $2 OFFSET $3;
+		`
+		rows, err := tx.Query(txCtx, query, status, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var t inventory.WarehouseTransfer
+			if err := rows.Scan(
+				&t.ID, &t.OrganizationID, &t.FromWarehouseID, &t.ToWarehouseID,
+				&t.ProductID, &t.ProductVariantID, &t.Quantity, &t.Status,
+				&t.InitiatedBy, &t.Notes, &t.CreatedAt, &t.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &t)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("inventory postgres: list transfers: %w", err)
+	}
+	return list, total, nil
+}

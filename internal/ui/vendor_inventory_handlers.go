@@ -30,93 +30,51 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var allStocks []*inventory.Stock
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	whID, _ := strconv.ParseInt(r.URL.Query().Get("warehouse_id"), 10, 64)
+
+	var pagedStocks []*inventory.Stock
+	var total int
 	var warehouses []*inventory.Warehouse
 	if h.invSvc != nil {
-		allStocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		pagedStocks, total, _ = h.invSvc.ListStocksByOrgWithTotal(ctx, actor.OrganizationID, whID, q, limit, offset)
 		warehouses, _ = h.invSvc.ListWarehouses(ctx)
 	}
 
 	var variants []*catalog.ProductVariant
-	variantMap := make(map[int64]*catalog.ProductVariant)
-	if h.catSvc != nil {
-		vars, _, _ := h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{
-			Limit: 1000,
-		})
-		variants = vars
-		for _, v := range vars {
-			if v != nil {
-				variantMap[v.ID] = v
+	if h.catSvc != nil && len(pagedStocks) > 0 {
+		var productIDs []int64
+		for _, s := range pagedStocks {
+			if s != nil {
+				productIDs = append(productIDs, s.ProductID)
+			}
+		}
+		if len(productIDs) > 0 {
+			vMap, _ := h.catSvc.ListVariantsByProducts(ctx, productIDs)
+			for _, vList := range vMap {
+				variants = append(variants, vList...)
 			}
 		}
 	}
 
-	// Filter stocks by query and warehouse_id
-	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
-	whID, _ := strconv.ParseInt(r.URL.Query().Get("warehouse_id"), 10, 64)
-
-	var filteredStocks []*inventory.Stock
-	for _, s := range allStocks {
-		if s == nil {
-			continue
-		}
-		if whID > 0 && s.WarehouseID != whID {
-			continue
-		}
-		if q != "" {
-			match := false
-			if v, ok := variantMap[s.ProductVariantID]; ok && v != nil {
-				if strings.Contains(strings.ToLower(v.Name["ar"]), q) ||
-					strings.Contains(strings.ToLower(v.Name["en"]), q) ||
-					strings.Contains(strings.ToLower(v.SKU), q) ||
-					strings.Contains(strings.ToLower(v.BatchNumber), q) ||
-					strings.Contains(strings.ToLower(v.Barcode), q) {
-					match = true
-				}
-			}
-			if !match {
-				continue
-			}
-		}
-		filteredStocks = append(filteredStocks, s)
-	}
-
-	// Pagination
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit := pagination.RowsPerPage(r)
-
-	total := len(filteredStocks)
 	totalPages := (total + limit - 1) / limit
 	if totalPages < 1 {
 		totalPages = 1
 	}
-	if page > totalPages {
-		page = totalPages
-	}
-
-	start := (page - 1) * limit
-	end := start + limit
-	if start > total {
-		start = total
-	}
-	if end > total {
-		end = total
-	}
-	pagedStocks := filteredStocks[start:end]
 
 	data := pages.VendorInventoryData{
 		Stocks:      pagedStocks,
-		AllStocks:   allStocks,
 		Warehouses:  warehouses,
 		Variants:    variants,
 		Total:       total,
 		Page:        page,
 		PerPage:     limit,
 		TotalPages:  totalPages,
-		Query:       r.URL.Query().Get("q"),
+		Query:       q,
 		WarehouseID: whID,
 		NoticeType:  r.URL.Query().Get("notice_type"),
 		NoticeMsg:   r.URL.Query().Get("notice"),
@@ -136,18 +94,29 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	if h.invSvc == nil {
-		h.renderPage(ctx, w, "render vendor transfers fallback", pages.VendorTransfers(nil, lang, dir, h.isHTMX(r)))
+		h.renderPage(ctx, w, "render vendor transfers fallback", pages.VendorTransfers(pages.VendorTransfersData{}, lang, dir, h.isHTMX(r)))
 		return
 	}
 
-	transfers, err := h.invSvc.ListTransfers(ctx, "", h.pageLimit(r), h.pageOffset(r))
+	transfers, totalCount, err := h.invSvc.ListTransfersWithTotal(ctx, "", limit, offset)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
-	h.renderPage(ctx, w, "render vendor transfers page", pages.VendorTransfers(transfers, lang, dir, h.isHTMX(r)))
+	data := pages.VendorTransfersData{
+		Transfers:  transfers,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: totalCount,
+	}
+
+	h.renderPage(ctx, w, "render vendor transfers page", pages.VendorTransfers(data, lang, dir, h.isHTMX(r)))
 }
 
 // VendorStockAdjustSubmit adjusts a stock level with a reason.

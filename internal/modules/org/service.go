@@ -139,6 +139,27 @@ func (s *Service) ListOrganizations(
 	return s.repo.ListOrganizations(ctx, orgType, status, limit, offset)
 }
 
+// ListOrganizationsWithTotal returns paginated organizations matching search & filters with total count.
+func (s *Service) ListOrganizationsWithTotal(
+	ctx context.Context,
+	search string,
+	orgType *OrganizationType,
+	status *OrganizationStatus,
+	limit, offset int,
+) ([]*Organization, int, error) {
+	return s.repo.ListOrganizationsWithTotal(ctx, search, orgType, status, limit, offset)
+}
+
+// AdminOrgStats returns aggregated platform metrics for organizations.
+func (s *Service) AdminOrgStats(ctx context.Context) (AdminOrgStatsResult, error) {
+	return s.repo.AdminOrgStats(ctx)
+}
+
+// CountBranchesByOrg returns branch counts grouped by organization.
+func (s *Service) CountBranchesByOrg(ctx context.Context) (map[int64]int, error) {
+	return s.repo.CountBranchesByOrg(ctx)
+}
+
 // CreateBranch adds a branch location, enforcing that only one branch has is_main = true.
 func (s *Service) CreateBranch(ctx context.Context, b *Branch) error {
 	if err := b.Validate(); err != nil {

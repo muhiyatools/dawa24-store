@@ -278,6 +278,11 @@ func (s *Service) ListInvoices(ctx context.Context, orgID int64, limit, offset i
 	return s.repo.ListInvoicesByOrg(ctx, orgID, limit, offset)
 }
 
+// ListInvoicesWithTotal lists paginated invoices for an organization with total count.
+func (s *Service) ListInvoicesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, int, error) {
+	return s.repo.ListInvoicesByOrgWithTotal(ctx, orgID, limit, offset)
+}
+
 // MarkInvoicePaid updates invoice status to paid.
 func (s *Service) MarkInvoicePaid(ctx context.Context, id int64) error {
 	return s.repo.UpdateInvoiceStatus(ctx, id, InvoicePaid)
