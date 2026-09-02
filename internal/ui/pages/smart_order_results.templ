@@ -5,8 +5,28 @@ import (
 	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+// smartOrderResultsQuery carries the match tab, sort and search through a page
+// change; components.B2BPagination appends page and limit itself.
+func smartOrderResultsQuery(data SmartOrderResultsData) url.Values {
+	vals := url.Values{}
+	if data.Match != "" {
+		vals.Set("match", data.Match)
+	}
+	if data.SortBy != "" {
+		vals.Set("sort", data.SortBy)
+	}
+	if data.SortOrder != "" {
+		vals.Set("order", data.SortOrder)
+	}
+	if data.Search != "" {
+		vals.Set("q", data.Search)
+	}
+	return vals
+}
 
 type SmartOrderResultsData struct {
 	Run    *smartorder.Run
@@ -275,15 +295,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 						/>
 					</div>
 
-					<div class="so-filter-limit">
-						<select name="limit" onchange="this.form.submit()" class="form-select">
-							<option value="10" selected?={ data.PerPage == 10 }>10 صفوف</option>
-							<option value="25" selected?={ data.PerPage == 25 || data.PerPage == 0 }>25 صنف</option>
-							<option value="50" selected?={ data.PerPage == 50 }>50 صنف</option>
-							<option value="100" selected?={ data.PerPage == 100 }>100 صنف</option>
-							<option value="-1" selected?={ data.PerPage == -1 }>عرض الكل</option>
-						</select>
-					</div>
+					<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.PerPage) }/>
 
 					<button type="submit" class="btn btn-primary btn-sm font-bold so-filter-submit">
 						بحث
@@ -343,46 +355,15 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 				</div>
 
 				<!-- Pagination Bar -->
-				if data.Total > 0 && data.PerPage != -1 {
-					{{
-						pageSize := data.PerPage
-						if pageSize <= 0 {
-							pageSize = 25
-						}
-						totalP := (data.Total + pageSize - 1) / pageSize
-						startItem := (data.Page-1)*pageSize + 1
-						endItem := data.Page * pageSize
-						if endItem > data.Total {
-							endItem = data.Total
-						}
-					}}
-					<div class="so-pagination">
-						<div class="so-pagination-summary">
-							عرض <strong>{ fmt.Sprintf("%d - %d", startItem, endItem) }</strong> من إجمالي <strong>{ fmt.Sprintf("%d", data.Total) }</strong> صنف
-						</div>
-
-						<div class="so-pagination-controls">
-							if data.Page > 1 {
-								<a href={ templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, 1, data.PerPage, data.Search)) } class="btn btn-secondary btn-xs" title="الصفحة الأولى">&laquo;</a>
-								<a href={ templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, data.Page-1, data.PerPage, data.Search)) } class="btn btn-secondary btn-xs" title="السابق">&lsaquo;</a>
-							} else {
-								<span class="btn btn-secondary btn-xs disabled">&laquo;</span>
-								<span class="btn btn-secondary btn-xs disabled">&lsaquo;</span>
-							}
-
-							<span class="btn btn-primary btn-xs font-bold pagination-current">
-								{ fmt.Sprintf("صفحة %d من %d", data.Page, totalP) }
-							</span>
-
-							if data.Page < totalP {
-								<a href={ templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, data.Page+1, data.PerPage, data.Search)) } class="btn btn-secondary btn-xs" title="التالي">&rsaquo;</a>
-								<a href={ templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, totalP, data.PerPage, data.Search)) } class="btn btn-secondary btn-xs" title="الصفحة الأخيرة">&raquo;</a>
-							} else {
-								<span class="btn btn-secondary btn-xs disabled">&rsaquo;</span>
-								<span class="btn btn-secondary btn-xs disabled">&raquo;</span>
-							}
-						</div>
-					</div>
+				if data.Total > 0 {
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage:  data.Page,
+						PageSize:     data.PerPage,
+						TotalCount:   data.Total,
+						BaseURL:      fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID),
+						QueryValues:  smartOrderResultsQuery(data),
+						AllowShowAll: true,
+					})
 				}
 			</div>
 

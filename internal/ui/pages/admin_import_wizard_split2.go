@@ -78,12 +78,6 @@ func includedToggleValue(row *catalog.StagingRow) string {
 	return "1"
 }
 
-// importPageURL keeps the active filter while moving through pages.
-func importPageURL(view ImportReviewView, page int) templ.SafeURL {
-	return templ.SafeURL("/admin/products/import/" + view.Session.PublicID +
-		"?" + importQuery(view, view.currentFilterKey(), page).Encode())
-}
-
 // importFilterURL switches the active filter and returns to the first page.
 func importFilterURL(view ImportReviewView, key string) templ.SafeURL {
 	return templ.SafeURL("/admin/products/import/" + view.Session.PublicID +
@@ -97,6 +91,9 @@ func importQuery(view ImportReviewView, filterKey string, page int) url.Values {
 	}
 	if view.Filter.Search != "" {
 		q.Set("q", view.Filter.Search)
+	}
+	if view.Filter.Limit > 0 {
+		q.Set("limit", fmt.Sprintf("%d", view.Filter.Limit))
 	}
 	if page > 1 {
 		q.Set("page", fmt.Sprintf("%d", page))

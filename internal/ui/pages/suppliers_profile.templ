@@ -614,23 +614,15 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</div>
 
 					<!-- Pagination Bar -->
-					if data.TotalPages > 1 {
-						<div class="d-flex items-center justify-center gap-2 mt-4">
-							if data.CurrentPage > 1 {
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage-1)) } class="btn btn-secondary btn-sm">
-									@components.IconArrowRight("icon-xs")
-									<span>الصفحة السابقة</span>
-								</a>
-							}
-							<span class="tabular-nums text-xs text-muted">
-								صفحة { fmt.Sprintf("%d", data.CurrentPage) } من { fmt.Sprintf("%d", data.TotalPages) }
-							</span>
-							if data.CurrentPage < data.TotalPages {
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d?q=%s&page=%d", data.Org.ID, data.SearchQuery, data.CurrentPage+1)) } class="btn btn-secondary btn-sm">
-									<span>الصفحة التالية</span>
-									@components.IconArrowLeft("icon-xs")
-								</a>
-							}
+					if data.TotalVariants > 0 {
+						<div class="mt-4">
+							@components.B2BPagination(components.PaginationProps{
+								CurrentPage: data.CurrentPage,
+								PageSize:    data.PerPage,
+								TotalCount:  data.TotalVariants,
+								BaseURL:     fmt.Sprintf("/suppliers/%d", data.Org.ID),
+								QueryValues: supplierCatalogQuery(data),
+							})
 						</div>
 					}
 				}

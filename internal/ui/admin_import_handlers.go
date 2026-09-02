@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -26,9 +27,13 @@ const maxImportUploadBytes int64 = 32 << 20
 // before anything checks the size.
 const maxImportRequestBytes int64 = maxImportUploadBytes + (1 << 20)
 
-// reviewPageSize is how many staged rows one page of the review table shows.
-// A browser handed nine thousand table rows becomes unusable.
-const reviewPageSize = 100
+// importReviewPageSize is the staged-rows review table's page size for this
+// request: the reader's choice off ?limit= (pagination.RowsPerPageOptions), or
+// the platform default. A browser handed nine thousand table rows at once
+// becomes unusable, so there is no "show all".
+func importReviewPageSize(r *http.Request) int {
+	return pagination.RowsPerPage(r)
+}
 
 // requirePlatformAdmin refuses any catalogue-import action from an actor that
 // is not platform staff. The routes carry middleware that should already have
@@ -162,7 +167,7 @@ func (h *UIHandler) renderImportReview(w http.ResponseWriter, r *http.Request, n
 	}
 
 	view := pages.NewImportReviewView(session, catalog.StagingCounts{}, nil, 0,
-		pages.ParseStagingFilter(r.URL.Query(), reviewPageSize),
+		pages.ParseStagingFilter(r.URL.Query(), importReviewPageSize(r)),
 		h.importCategories(ctx), h.aiAvailable(ctx))
 	view.Notice = notice
 	view.SetStructure(session.Structure)

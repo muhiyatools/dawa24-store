@@ -27,6 +27,18 @@ type PaginationProps struct {
 	// that selector instead of a full navigation. Used where re-rendering the
 	// whole page per click is measurably slow (import review).
 	HXTarget string
+
+	// SizeParam is the query key the page-size control writes. Empty means the
+	// platform standard, "limit". The catalogue screen predates that standard
+	// and reads "page_size"; it passes that here rather than being rewritten.
+	SizeParam string
+}
+
+func sizeParamOf(props PaginationProps) string {
+	if props.SizeParam != "" {
+		return props.SizeParam
+	}
+	return "limit"
 }
 
 func minIntHelper(a, b int) int {
@@ -87,24 +99,26 @@ func resolvePageSizeOptions(props PaginationProps) []int {
 // buildPageSizeURL changes the page size and returns to the first page, because
 // "show 100 per page" while sitting on page 7 of a 25-row listing lands the
 // reader past the end of the result set.
-func buildPageSizeURL(baseURL string, limit int, q url.Values) string {
-	return buildPaginationURL(baseURL, 1, limit, q)
+func buildPageSizeURL(props PaginationProps, limit int) string {
+	return buildPageURL(props, 1, limit)
 }
 
-func buildPaginationURL(baseURL string, page, limit int, q url.Values) string {
+func buildPageURL(props PaginationProps, page, limit int) string {
+	sizeKey := sizeParamOf(props)
 	vals := url.Values{}
-	if q != nil {
-		for k, v := range q {
-			if k != "page" && k != "limit" && k != "offset" {
-				for _, val := range v {
-					vals.Add(k, val)
-				}
+	if props.QueryValues != nil {
+		for k, v := range props.QueryValues {
+			if k == "page" || k == "offset" || k == sizeKey || k == "limit" {
+				continue
+			}
+			for _, val := range v {
+				vals.Add(k, val)
 			}
 		}
 	}
 	vals.Set("page", fmt.Sprintf("%d", page))
-	vals.Set("limit", fmt.Sprintf("%d", limit))
-	return fmt.Sprintf("%s?%s", baseURL, vals.Encode())
+	vals.Set(sizeKey, fmt.Sprintf("%d", limit))
+	return fmt.Sprintf("%s?%s", props.BaseURL, vals.Encode())
 }
 
 // paginationLink is one control button. It is a link when the target page
@@ -117,8 +131,8 @@ templ paginationLink(props PaginationProps, page int, label, title string, disab
 		<span class="b2b-pagination-btn active">{ label }</span>
 	} else if props.HXTarget != "" {
 		<a
-			href={ templ.SafeURL(buildPaginationURL(props.BaseURL, page, props.PageSize, props.QueryValues)) }
-			hx-get={ buildPaginationURL(props.BaseURL, page, props.PageSize, props.QueryValues) }
+			href={ templ.SafeURL(buildPageURL(props, page, props.PageSize)) }
+			hx-get={ buildPageURL(props, page, props.PageSize) }
 			hx-target={ props.HXTarget }
 			hx-select={ props.HXTarget }
 			hx-swap="outerHTML"
@@ -128,7 +142,7 @@ templ paginationLink(props PaginationProps, page int, label, title string, disab
 		>{ label }</a>
 	} else {
 		<a
-			href={ templ.SafeURL(buildPaginationURL(props.BaseURL, page, props.PageSize, props.QueryValues)) }
+			href={ templ.SafeURL(buildPageURL(props, page, props.PageSize)) }
 			class="b2b-pagination-btn"
 			title={ title }
 		>{ label }</a>
@@ -166,13 +180,13 @@ templ B2BPagination(props PaginationProps) {
 				>
 					for _, n := range resolvePageSizeOptions(props) {
 						<option
-							value={ buildPageSizeURL(props.BaseURL, n, props.QueryValues) }
+							value={ buildPageSizeURL(props, n) }
 							selected?={ n == props.PageSize }
 						>{ fmt.Sprintf("%d", n) }</option>
 					}
 					if props.AllowShowAll {
 						<option
-							value={ buildPageSizeURL(props.BaseURL, -1, props.QueryValues) }
+							value={ buildPageSizeURL(props, -1) }
 							selected?={ props.PageSize <= 0 }
 						>الكل</option>
 					}

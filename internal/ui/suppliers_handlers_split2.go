@@ -17,6 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -51,13 +52,8 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	workingHours, coverageDays, coverageAreas, isOpenNow, statusNote := computeVendorWorkingStatus(branches, coverages)
 
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
-	page := 1
-	if pStr := r.URL.Query().Get("page"); pStr != "" {
-		if p, err := strconv.Atoi(pStr); err == nil && p > 0 {
-			page = p
-		}
-	}
-	limit := 24
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
 
 	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
 	if tab == "" {
@@ -74,6 +70,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		IsOpenNow:     isOpenNow,
 		StatusNote:    statusNote,
 		CurrentPage:   page,
+		PerPage:       limit,
 		SearchQuery:   q,
 		ActiveTab:     tab,
 	}

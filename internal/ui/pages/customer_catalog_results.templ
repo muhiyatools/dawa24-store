@@ -2,7 +2,6 @@ package pages
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -262,65 +261,17 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 }
 
 templ CustomerCatalogPagination(data CatalogPageData) {
-	<div class="glass-panel p-4 border rounded-2xl shadow-xs flex-between flex-wrap gap-3">
-		
-		<!-- Results Summary -->
-		<div class="text-xs text-secondary font-medium">
-			if data.TotalItems > 0 {
-				<span>عرض <strong class="tabular-nums text-primary font-bold">{ strconv.Itoa(data.StartItem) } - { strconv.Itoa(data.EndItem) }</strong> من إجمالي <strong class="tabular-nums text-primary font-black">{ strconv.Itoa(data.TotalItems) }</strong> صنف دوائي</span>
-				<span class="ms-1.5 text-muted">(صفحة <span class="tabular-nums font-bold text-primary">{ strconv.Itoa(data.Page) }</span> من <span class="tabular-nums font-bold text-primary">{ strconv.Itoa(data.TotalPages) }</span>)</span>
-			} else {
-				<span>لا توجد أصناف للعرض</span>
-			}
+	if data.TotalItems > 0 {
+		<div class="glass-panel p-4 border rounded-2xl shadow-xs">
+			@components.B2BPagination(components.PaginationProps{
+				CurrentPage:     data.Page,
+				PageSize:        data.PageSize,
+				TotalCount:      data.TotalItems,
+				BaseURL:         "/catalog",
+				QueryValues:     catalogQueryValues(data),
+				PageSizeOptions: []int{12, 24, 48, 96},
+				SizeParam:       "page_size",
+			})
 		</div>
-
-		<!-- Page Number Navigation Buttons -->
-		if data.TotalPages > 1 {
-			<div class="d-flex items-center gap-1.5">
-				<!-- Previous Button -->
-				if data.Page > 1 {
-					<a
-						href={ templ.SafeURL(buildCatalogURL(data, data.Page-1, data.PageSize, data.Sort, data.ViewMode)) }
-						class="btn btn-secondary btn-icon btn-xs shadow-xs"
-						title="الصفحة السابقة"
-					>
-						@components.IconArrowRight("icon-xs")
-					</a>
-				} else {
-					<button disabled class="btn btn-secondary btn-icon btn-xs opacity-50 cursor-not-allowed">
-						@components.IconArrowRight("icon-xs")
-					</button>
-				}
-
-				<!-- Page Numbers -->
-				for p := 1; p <= data.TotalPages; p++ {
-					if p == 1 || p == data.TotalPages || (p >= data.Page-2 && p <= data.Page+2) {
-						<a
-							href={ templ.SafeURL(buildCatalogURL(data, p, data.PageSize, data.Sort, data.ViewMode)) }
-							class={ "btn btn-xs font-bold tabular-nums min-w-8 text-center", templ.KV("btn-primary shadow-xs font-black", p == data.Page), templ.KV("btn-secondary", p != data.Page) }
-						>
-							{ strconv.Itoa(p) }
-						</a>
-					} else if p == data.Page-3 || p == data.Page+3 {
-						<span class="text-muted text-xs px-1">...</span>
-					}
-				}
-
-				<!-- Next Button -->
-				if data.Page < data.TotalPages {
-					<a
-						href={ templ.SafeURL(buildCatalogURL(data, data.Page+1, data.PageSize, data.Sort, data.ViewMode)) }
-						class="btn btn-secondary btn-icon btn-xs shadow-xs"
-						title="الصفحة التالية"
-					>
-						@components.IconArrowLeft("icon-xs")
-					</a>
-				} else {
-					<button disabled class="btn btn-secondary btn-icon btn-xs opacity-50 cursor-not-allowed">
-						@components.IconArrowLeft("icon-xs")
-					</button>
-				}
-			</div>
-		}
-	</div>
+	}
 }

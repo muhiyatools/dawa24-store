@@ -2,6 +2,7 @@ package pages
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -68,6 +69,7 @@ type SupplierProfileData struct {
 	VariantMeta   map[int64]SupplierVariantMeta
 	TotalVariants int
 	CurrentPage   int
+	PerPage       int
 	TotalPages    int
 	SearchQuery   string
 	Reviews       []*org.Review
@@ -77,6 +79,19 @@ type SupplierProfileData struct {
 	Rating        float64
 	ReviewCount   int
 	ActiveTab     string // "catalog", "sections", "policies", "branches", "reviews"
+}
+
+// supplierCatalogQuery carries the search box and the active tab through a
+// catalogue page change; components.B2BPagination appends page and limit itself.
+func supplierCatalogQuery(d SupplierProfileData) url.Values {
+	q := url.Values{}
+	if d.SearchQuery != "" {
+		q.Set("q", d.SearchQuery)
+	}
+	if d.ActiveTab != "" && d.ActiveTab != "catalog" {
+		q.Set("tab", d.ActiveTab)
+	}
+	return q
 }
 
 // GetAvailableStock returns the actual warehouse inventory balance for this variant.

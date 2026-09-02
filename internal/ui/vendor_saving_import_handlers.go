@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -157,14 +157,8 @@ func (h *UIHandler) VendorSavingProductsImportSessionPage(w http.ResponseWriter,
 	sortOrder := strings.TrimSpace(r.URL.Query().Get("order"))
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
 
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit < 1 {
-		limit = 25
-	}
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
 
 	filter := SavingRowFilter{
 		Search:      search,

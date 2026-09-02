@@ -64,6 +64,43 @@ func buildCatalogURL(data CatalogPageData, page int, pageSize int, sort, view st
 	return u.String()
 }
 
+// catalogQueryValues carries every catalogue filter through a page change.
+// components.B2BPagination appends page and the size param itself.
+func catalogQueryValues(data CatalogPageData) url.Values {
+	q := url.Values{}
+	if data.Query != "" {
+		q.Set("q", data.Query)
+	}
+	if data.CategoryID != nil {
+		q.Set("category_id", strconv.FormatInt(*data.CategoryID, 10))
+	}
+	if data.BrandID != nil {
+		q.Set("brand_id", strconv.FormatInt(*data.BrandID, 10))
+	}
+	if data.MinPrice != "" {
+		q.Set("min_price", data.MinPrice)
+	}
+	if data.MaxPrice != "" {
+		q.Set("max_price", data.MaxPrice)
+	}
+	if data.DosageForm != "" {
+		q.Set("dosage_form", data.DosageForm)
+	}
+	if data.InStock {
+		q.Set("in_stock", "true")
+	}
+	if data.HasDiscount {
+		q.Set("has_discount", "true")
+	}
+	if data.Sort != "" {
+		q.Set("sort", data.Sort)
+	}
+	if data.ViewMode != "" {
+		q.Set("view", data.ViewMode)
+	}
+	return q
+}
+
 templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCatalogResults(data, lang)
@@ -217,23 +254,8 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									/>
 								</div>
 
-								<!-- Controls: Rows per page, Sort, View Toggle -->
+								<!-- Controls: Sort, View Toggle. Rows-per-page lives in the pagination bar. -->
 								<div class="d-flex items-center gap-3 flex-wrap">
-									
-									<!-- Rows Per Page Selector -->
-									<div class="d-flex items-center gap-1.5 text-xs font-bold text-secondary">
-										<label class="form-label">عرض:</label>
-										<select
-											name="page_size"
-											class="form-select text-xs w-auto"
-											onchange={ templ.ComponentScript{Call: "changePageSize(this.value)"} }
-										>
-											<option value="12" selected?={ data.PageSize == 12 }>12</option>
-											<option value="24" selected?={ data.PageSize == 24 || data.PageSize == 0 }>24</option>
-											<option value="48" selected?={ data.PageSize == 48 }>48</option>
-											<option value="96" selected?={ data.PageSize == 96 }>96</option>
-										</select>
-									</div>
 
 									<!-- Sort Selector -->
 									<div class="d-flex items-center gap-1.5 text-xs font-bold text-secondary">
@@ -335,13 +357,6 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 			@CustomerNegotiationModal()
 
 			<script>
-				function changePageSize(size) {
-					const url = new URL(window.location.href);
-					url.searchParams.set('page_size', size);
-					url.searchParams.set('page', '1');
-					window.location.href = url.toString();
-				}
-
 				function changeSort(sortVal) {
 					const url = new URL(window.location.href);
 					url.searchParams.set('sort', sortVal);

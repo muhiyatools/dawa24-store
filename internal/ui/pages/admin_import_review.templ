@@ -308,7 +308,7 @@ templ importRowsCard(view ImportReviewView) {
 				</tbody>
 			</table>
 		</div>
-		if view.Pages > 1 {
+		if view.Total > 0 {
 			@importRowsPager(view)
 		}
 	</div>
@@ -385,34 +385,14 @@ templ rowFilterChip(view ImportReviewView, key, label string) {
 }
 
 templ importRowsPager(view ImportReviewView) {
-	<div class="wiz-toolbar">
-		<span class="wiz-row-meta">
-			{ fmt.Sprintf("صفحة %d من %d", view.Page, view.Pages) }
-		</span>
-		<span class="wiz-toolbar-spacer"></span>
-		if view.Page > 1 {
-			<a
-				class="wiz-chip"
-				href={ importPageURL(view, view.Page-1) }
-				hx-get={ string(importPageURL(view, view.Page-1)) }
-				hx-target="#import-rows-container"
-				hx-select="#import-rows-container"
-				hx-swap="outerHTML"
-				hx-push-url="true"
-			>السابق</a>
-		}
-		if view.Page < view.Pages {
-			<a
-				class="wiz-chip"
-				href={ importPageURL(view, view.Page+1) }
-				hx-get={ string(importPageURL(view, view.Page+1)) }
-				hx-target="#import-rows-container"
-				hx-select="#import-rows-container"
-				hx-swap="outerHTML"
-				hx-push-url="true"
-			>التالي</a>
-		}
-	</div>
+	@components.B2BPagination(components.PaginationProps{
+		CurrentPage: view.Page,
+		PageSize:    view.Filter.Limit,
+		TotalCount:  view.Total,
+		BaseURL:     "/admin/products/import/" + view.Session.PublicID,
+		QueryValues: importQuery(view, view.currentFilterKey(), 1),
+		HXTarget:    "#import-rows-container",
+	})
 }
 
 templ importConfirmCard(view ImportReviewView) {

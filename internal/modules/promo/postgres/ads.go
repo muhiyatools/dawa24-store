@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -55,12 +56,23 @@ func (r *Repository) CreateAd(ctx context.Context, a *promo.Ad) error {
 		if imageURL == "" && a.MediaURL != "" {
 			imageURL = a.MediaURL
 		}
-		return tx.QueryRow(txCtx, query,
+		err := tx.QueryRow(txCtx, query,
 			a.OrganizationID, a.Title, a.TitleAr, a.TitleEn, a.AdTextAr, a.AdTextEn,
 			imageURL, string(a.MediaType), a.MediaURL, a.ThumbnailURL, a.TargetURL,
 			string(a.ClickTargetType), a.ClickTargetID, a.Position, a.IsActive, string(a.AdminStatus),
 			a.AdPlanID, a.DurationDays, a.StartsAt, a.ExpiresAt,
 		).Scan(&a.ID, &a.PublicID, &a.CreatedAt, &a.UpdatedAt)
+		if err != nil && strings.Contains(err.Error(), "ads_click_target_type_check") {
+			// Compatibility fallback for unmigrated databases where 'product' is not yet in the check constraint:
+			// Fallback to 'vendor_page' in click_target_type column while preserving the exact target_url
+			return tx.QueryRow(txCtx, query,
+				a.OrganizationID, a.Title, a.TitleAr, a.TitleEn, a.AdTextAr, a.AdTextEn,
+				imageURL, string(a.MediaType), a.MediaURL, a.ThumbnailURL, a.TargetURL,
+				string(promo.ClickTargetVendor), a.ClickTargetID, a.Position, a.IsActive, string(a.AdminStatus),
+				a.AdPlanID, a.DurationDays, a.StartsAt, a.ExpiresAt,
+			).Scan(&a.ID, &a.PublicID, &a.CreatedAt, &a.UpdatedAt)
+		}
+		return err
 	})
 }
 
@@ -81,6 +93,14 @@ func (r *Repository) UpdateAd(ctx context.Context, a *promo.Ad) error {
 			string(a.ClickTargetType), a.ClickTargetID, a.Position, a.IsActive,
 			a.DurationDays, a.StartsAt, a.ExpiresAt,
 		)
+		if err != nil && strings.Contains(err.Error(), "ads_click_target_type_check") {
+			tag, err = tx.Exec(txCtx, query,
+				a.ID, a.Title, a.TitleAr, a.TitleEn, a.AdTextAr, a.AdTextEn,
+				a.ImageURL, string(a.MediaType), a.MediaURL, a.ThumbnailURL, a.TargetURL,
+				string(promo.ClickTargetVendor), a.ClickTargetID, a.Position, a.IsActive,
+				a.DurationDays, a.StartsAt, a.ExpiresAt,
+			)
+		}
 		if err != nil {
 			return err
 		}

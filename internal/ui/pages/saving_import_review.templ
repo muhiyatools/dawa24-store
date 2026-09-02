@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -105,12 +106,7 @@ templ savingReviewStage(view SavingImportView) {
 					}
 					<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
 						class="form-input text-xs"/>
-					<select name="limit" onchange="this.form.submit()" class="form-select text-xs">
-						<option value="10" selected?={ view.Filter.Limit == 10 }>10 صفوف</option>
-						<option value="25" selected?={ view.Filter.Limit == 25 || view.Filter.Limit == 0 }>25 صنف</option>
-						<option value="50" selected?={ view.Filter.Limit == 50 }>50 صنف</option>
-						<option value="100" selected?={ view.Filter.Limit == 100 }>100 صنف</option>
-					</select>
+					<input type="hidden" name="limit" value={ fmt.Sprint(view.Filter.Limit) }/>
 					<button type="submit" class="btn btn-secondary btn-xs font-bold">بحث</button>
 					if view.Filter.Search != "" {
 						<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, sess.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, 1, view.Filter.Limit, "")) } class="btn btn-ghost btn-xs text-xs">إلغاء</a>
@@ -443,36 +439,37 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 
 templ savingPagination(view SavingImportView) {
 	{{
-		limit := view.Filter.Limit
-		if limit <= 0 {
-			limit = 25
-		}
-		totalPages := (view.RowTotal + limit - 1) / limit
 		currPage := view.Filter.Page
 		if currPage <= 0 {
 			currPage = 1
 		}
 	}}
-	<div class="b2b-pagination p-4 border-t flex-between items-center flex-wrap gap-3">
-		<div class="b2b-pagination-info text-xs text-secondary">
-			عرض <strong class="text-primary tabular-nums font-bold">{ fmt.Sprint(len(view.Rows)) }</strong> من إجمالي <strong class="text-primary tabular-nums font-bold">{ fmt.Sprint(view.RowTotal) }</strong> صنف
-		</div>
-		if totalPages > 1 {
-			<div class="b2b-pagination-controls d-flex items-center gap-2">
-				if currPage > 1 {
-					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)) }
-						class="btn btn-secondary btn-xs font-bold">
-						السابق
-					</a>
-				}
-				<span class="text-xs text-secondary px-2 tabular-nums">صفحة <strong class="text-primary font-bold">{ fmt.Sprint(currPage) }</strong> من <strong class="text-primary font-bold">{ fmt.Sprint(totalPages) }</strong></span>
-				if currPage < totalPages {
-					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)) }
-						class="btn btn-secondary btn-xs font-bold">
-						التالي
-					</a>
-				}
-			</div>
-		}
-	</div>
+	if view.RowTotal > 0 {
+		@components.B2BPagination(components.PaginationProps{
+			CurrentPage: currPage,
+			PageSize:    view.Filter.Limit,
+			TotalCount:  view.RowTotal,
+			BaseURL:     fmt.Sprintf("%s/%s", view.ImportURL, view.Session.ID),
+			QueryValues: savingPaginationQuery(view),
+		})
+	}
+}
+
+// savingPaginationQuery carries the match tab, sort and search through a page
+// change; components.B2BPagination appends page and limit itself.
+func savingPaginationQuery(view SavingImportView) url.Values {
+	q := url.Values{}
+	if view.Filter.MatchFilter != "" {
+		q.Set("match", view.Filter.MatchFilter)
+	}
+	if view.Filter.SortBy != "" {
+		q.Set("sort", view.Filter.SortBy)
+	}
+	if view.Filter.SortOrder != "" {
+		q.Set("order", view.Filter.SortOrder)
+	}
+	if view.Filter.Search != "" {
+		q.Set("q", view.Filter.Search)
+	}
+	return q
 }

@@ -1,10 +1,12 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
+	"net/url"
+
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
 templ importReviewStage(view VendorImportView) {
@@ -75,12 +77,7 @@ templ importReviewStage(view VendorImportView) {
 				}
 				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
 					class="form-input text-xs"/>
-				<select name="limit" onchange="this.form.submit()" class="form-select text-xs">
-					<option value="10" selected?={ view.PerPage == 10 }>10 صفوف</option>
-					<option value="25" selected?={ view.PerPage == 25 || view.PerPage == 0 }>25 صنف</option>
-					<option value="50" selected?={ view.PerPage == 50 }>50 صنف</option>
-					<option value="100" selected?={ view.PerPage == 100 }>100 صنف</option>
-				</select>
+				<input type="hidden" name="limit" value={ fmt.Sprint(view.PerPage) }/>
 				<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">بحث</button>
 				if view.Filter.Search != "" {
 					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
@@ -801,38 +798,39 @@ func rowNetPriceValue(row *ingest.RowOutcome) string {
 
 templ reviewPagination(view VendorImportView) {
 	{{
-		limit := view.PerPage
-		if limit <= 0 {
-			limit = 25
-		}
-		totalPages := (view.RowTotal + limit - 1) / limit
 		currPage := view.Page
 		if currPage <= 0 {
 			currPage = 1
 		}
 	}}
-	<div class="b2b-pagination">
-		<div class="b2b-pagination-info">
-			عرض <strong>{ fmt.Sprint(len(view.Rows)) }</strong> من إجمالي <strong>{ fmt.Sprint(view.RowTotal) }</strong> صنف
-		</div>
-		if totalPages > 1 {
-			<div class="b2b-pagination-controls">
-				if currPage > 1 {
-					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)) }
-						class="b2b-pagination-btn">
-						السابق
-					</a>
-				}
-				<span class="text-xs px-2">صفحة { fmt.Sprint(currPage) } من { fmt.Sprint(totalPages) }</span>
-				if currPage < totalPages {
-					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)) }
-						class="b2b-pagination-btn">
-						التالي
-					</a>
-				}
-			</div>
-		}
-	</div>
+	if view.RowTotal > 0 {
+		@components.B2BPagination(components.PaginationProps{
+			CurrentPage: currPage,
+			PageSize:    view.PerPage,
+			TotalCount:  view.RowTotal,
+			BaseURL:     "/vendor/ingest/" + view.Session.PublicID,
+			QueryValues: reviewPaginationQuery(view),
+		})
+	}
+}
+
+// reviewPaginationQuery carries the match-level tab, sort and search through a
+// page change; components.B2BPagination appends page and limit itself.
+func reviewPaginationQuery(view VendorImportView) url.Values {
+	q := url.Values{}
+	if view.Filter.MatchLevel != "" {
+		q.Set("match", view.Filter.MatchLevel)
+	}
+	if view.Filter.SortBy != "" {
+		q.Set("sort", view.Filter.SortBy)
+	}
+	if view.Filter.SortOrder != "" {
+		q.Set("order", view.Filter.SortOrder)
+	}
+	if view.Filter.Search != "" {
+		q.Set("q", view.Filter.Search)
+	}
+	return q
 }
 
 func buildReviewURL(publicID, match, sortBy, sortOrder string, page, limit int, search string) string {
