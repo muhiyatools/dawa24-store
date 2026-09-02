@@ -21,14 +21,14 @@ templ reviewBulkBar(view VendorImportView) {
 		<div class="review-bulk-row">
 			<label class="review-bulk-pickall">
 				<input type="checkbox" onchange="reviewToggleAll(this)"/>
-				<span class="font-extrabold text-xs">Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã™Æ’Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€ Ã˜Â§Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â±Ã™Ë†Ã˜Â¶Ã˜Â©</span>
+				<span class="font-extrabold text-xs">تحديد كل الأصناف المعروضة</span>
 			</label>
-			<span class="text-xs text-muted review-bulk-count" id="review-bulk-count">Ã™â€žÃ™â€¦ Ã™Å Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã˜Â£Ã™Å  Ã˜ÂµÃ™â€ Ã™Â</span>
+			<span class="text-xs text-muted review-bulk-count" id="review-bulk-count">لم يتم تحديد أي صنف</span>
 
 			<label class="review-bulk-scope">
 				<input type="checkbox" name="select_scope" value="filter"/>
 				<span class="text-xs">
-					Ã˜Â·Ã˜Â¨Ã™â€˜Ã™â€š Ã˜Â¹Ã™â€žÃ™â€° Ã™Æ’Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€ Ã˜Â§Ã™Â Ã™ÂÃ™Å  Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã™Ë†Ã™Å Ã˜Â¨ Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â§Ã™â€žÃ™Å  ({ fmt.Sprint(view.RowTotal) }) Ã™Ë†Ã™â€žÃ™Å Ã˜Â³ Ã™â€¡Ã˜Â°Ã™â€¡ Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ˜Â­Ã˜Â© Ã™ÂÃ™â€šÃ˜Â·
+					طبّق على كل الأصناف في التبويب الحالي ({ fmt.Sprint(view.RowTotal) }) وليس هذه الصفحة فقط
 				</span>
 			</label>
 
@@ -36,32 +36,32 @@ templ reviewBulkBar(view VendorImportView) {
 				if scope != "matched" {
 					<button type="submit" name="bulk_action" value="confirm"
 						class="btn btn-primary btn-sm font-extrabold text-xs"
-						title="Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™â€ Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã™â€šÃ˜ÂªÃ˜Â±Ã˜Â­ Ã™â€žÃ™Æ’Ã™â€ž Ã˜ÂµÃ™Â Ã™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯ Ã™Ë†Ã™â€ Ã™â€šÃ™â€žÃ™â€¡ Ã˜Â¥Ã™â€žÃ™â€° Ã‚Â«Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ‚Â» Ã™â€žÃ™Å Ã™ÂÃ˜Â³Ã˜ÂªÃ™Ë†Ã˜Â±Ã˜Â¯">
-						Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯ Ã™Æ’Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€š
+						title="اعتماد الصنف المقترح لكل صف محدد ونقله إلى «مطابق» ليُستورد">
+						اعتماد المحدد كمطابق
 					</button>
 				}
 				<button type="submit" name="bulk_action" value="unlink"
 					class="btn btn-secondary btn-sm font-bold text-xs"
-					title="Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¨Ã˜Â· Ã˜Â¨Ã˜Â§Ã™â€žÃ™Æ’Ã˜ÂªÃ˜Â§Ã™â€žÃ™Ë†Ã˜Â¬ Ã˜Â¹Ã™â€  Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯Ã˜Â©">
-					Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¨Ã˜Â·
+					title="إلغاء الربط بالكتالوج عن الصفوف المحددة">
+					إلغاء الربط
 				</button>
 				<button type="submit" name="bulk_action" value="exclude"
 					class="btn btn-ghost btn-sm font-bold text-xs text-danger"
-					title="Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â¨Ã˜Â¹Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯Ã˜Â© Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™Å Ã˜Â±Ã˜Â§Ã˜Â¯">
-					Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â¨Ã˜Â¹Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯
+					title="استبعاد الصفوف المحددة من الاستيراد">
+					استبعاد المحدد
 				</button>
 				<button type="submit" name="bulk_action" value="include"
 					class="btn btn-ghost btn-sm font-bold text-xs"
-					title="Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯Ã˜Â© Ã˜Â¥Ã™â€žÃ™â€° Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™Å Ã˜Â±Ã˜Â§Ã˜Â¯">
-					Ã¢â€ Âº Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯
+					title="إعادة الصفوف المحددة إلى الاستيراد">
+					↺ إعادة المحدد
 				</button>
 			</div>
 		</div>
 
 		if scope == "review" || scope == "unmatched" {
 			<div class="review-bulk-hint text-xs">
-				Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€ Ã˜Â§Ã™Â Ã™ÂÃ™Å  Ã™â€¡Ã˜Â°Ã˜Â§ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã™Ë†Ã™Å Ã˜Â¨ <strong>Ã™â€žÃ™â€  Ã˜ÂªÃ™ÂÃ˜Â³Ã˜ÂªÃ™Ë†Ã˜Â±Ã˜Â¯</strong> Ã˜Â­Ã˜ÂªÃ™â€° Ã˜ÂªÃ˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â¯Ã™â€¡Ã˜Â§. Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹ Ã˜Â§Ã™â€žÃ˜ÂµÃ™â€ Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã™â€šÃ˜ÂªÃ˜Â±Ã˜Â­ Ã™â€žÃ™Æ’Ã™â€ž Ã˜ÂµÃ™ÂÃ˜Å’
-				Ã˜Â£Ã™â€žÃ˜ÂºÃ™Â Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â§Ã˜Â·Ã˜Â¦Ã˜Â©Ã˜Å’ Ã˜Â«Ã™â€¦ Ã˜Â§Ã˜Â¶Ã˜ÂºÃ˜Â· Ã‚Â«Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯ Ã™Æ’Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ‚Â» Ã¢â‚¬â€ Ã˜Â£Ã™Ë† Ã˜Â§Ã˜Â±Ã˜Â¨Ã˜Â· Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â Ã™Å Ã˜Â¯Ã™Ë†Ã™Å Ã˜Â§Ã™â€¹ Ã˜Â¨Ã˜Â²Ã˜Â± Ã‚Â«Ã˜Â±Ã˜Â¨Ã˜Â·Ã‚Â».
+				الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف،
+				ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «ربط».
 			</div>
 		}
 	</form>
@@ -82,14 +82,14 @@ templ reviewSortHeader(view VendorImportView, colKey, label string) {
 	{{
 		isCurrent := view.Filter.SortBy == colKey || (view.Filter.SortBy == "" && colKey == "row")
 		nextOrder := "asc"
-		icon := "Ã¢â€¡â€¦"
+		icon := "⇅"
 		if isCurrent {
 			if view.Filter.SortOrder == "desc" {
 				nextOrder = "asc"
-				icon = "Ã¢â€“Â¼"
+				icon = "▼"
 			} else {
 				nextOrder = "desc"
-				icon = "Ã¢â€“Â²"
+				icon = "▲"
 			}
 		} else if colKey == "score" || colKey == "price" || colKey == "quantity" {
 			nextOrder = "desc"
@@ -98,7 +98,7 @@ templ reviewSortHeader(view VendorImportView, colKey, label string) {
 	}}
 	<a href={ templ.SafeURL(href) }
 		class="row-center-xs gap-xs text-secondary hover-text-primary"
-		title={ fmt.Sprintf("Ã˜ÂªÃ˜Â±Ã˜ÂªÃ™Å Ã˜Â¨ Ã˜Â­Ã˜Â³Ã˜Â¨ %s", label) }>
+		title={ fmt.Sprintf("ترتيب حسب %s", label) }>
 		<span>{ label }</span>
 		<span class="text-xs">{ icon }</span>
 	</a>
@@ -160,19 +160,19 @@ func buildReviewURL(publicID, match, sortBy, sortOrder string, page, limit int, 
 func matchLevelText(level string) string {
 	switch productmatch.MatchLevel(level) {
 	case productmatch.MatchBarcode:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜Â¨Ã˜Â§Ã™â€žÃ˜Â¨Ã˜Â§Ã˜Â±Ã™Æ’Ã™Ë†Ã˜Â¯"
+		return "تطابق بالباركود"
 	case productmatch.MatchCode:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜Â¨Ã˜Â§Ã™â€žÃ™Æ’Ã™Ë†Ã˜Â¯"
+		return "تطابق بالكود"
 	case productmatch.MatchExact:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜ÂªÃ˜Â§Ã™â€¦"
+		return "تطابق تام"
 	case productmatch.MatchStrong:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã™â€šÃ™Ë†Ã™Å "
+		return "تطابق قوي"
 	case productmatch.MatchReview:
-		return "Ã™Å Ã˜Â­Ã˜ÂªÃ˜Â§Ã˜Â¬ Ã™â€¦Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹Ã˜Â©"
+		return "يحتاج مراجعة"
 	case productmatch.MatchAmbiguous:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜ÂºÃ˜Â§Ã™â€¦Ã˜Â¶"
+		return "تطابق غامض"
 	default:
-		return "Ã˜ÂºÃ™Å Ã˜Â± Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€š"
+		return "غير مطابق"
 	}
 }
 

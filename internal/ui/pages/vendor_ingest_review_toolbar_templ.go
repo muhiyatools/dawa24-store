@@ -91,35 +91,35 @@ func reviewBulkBar(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"review-bulk-row\"><label class=\"review-bulk-pickall\"><input type=\"checkbox\" onchange=\"reviewToggleAll(this)\"> <span class=\"font-extrabold text-xs\">Ã˜ÂªÃ˜Â\u00adÃ˜Â¯Ã™Å\u00a0Ã˜Â¯ Ã™Æ’Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€\u00a0Ã˜Â§Ã™Â\u0081 Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â±Ã™Ë†Ã˜Â¶Ã˜Â©</span></label> <span class=\"text-xs text-muted review-bulk-count\" id=\"review-bulk-count\">Ã™â€žÃ™â€¦ Ã™Å\u00a0Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â\u00adÃ˜Â¯Ã™Å\u00a0Ã˜Â¯ Ã˜Â£Ã™Å\u00a0 Ã˜ÂµÃ™â€\u00a0Ã™Â\u0081</span> <label class=\"review-bulk-scope\"><input type=\"checkbox\" name=\"select_scope\" value=\"filter\"> <span class=\"text-xs\">Ã˜Â·Ã˜Â¨Ã™â€˜Ã™â€š Ã˜Â¹Ã™â€žÃ™â€° Ã™Æ’Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€\u00a0Ã˜Â§Ã™Â\u0081 Ã™Â\u0081Ã™Å\u00a0 Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã™Ë†Ã™Å\u00a0Ã˜Â¨ Ã˜Â§Ã™â€žÃ˜Â\u00adÃ˜Â§Ã™â€žÃ™Å\u00a0 (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div class=\"review-bulk-row\"><label class=\"review-bulk-pickall\"><input type=\"checkbox\" onchange=\"reviewToggleAll(this)\"> <span class=\"font-extrabold text-xs\">تحديد كل الأصناف المعروضة</span></label> <span class=\"text-xs text-muted review-bulk-count\" id=\"review-bulk-count\">لم يتم تحديد أي صنف</span> <label class=\"review-bulk-scope\"><input type=\"checkbox\" name=\"select_scope\" value=\"filter\"> <span class=\"text-xs\">طبّق على كل الأصناف في التبويب الحالي (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(view.RowTotal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review_toolbar.templ`, Line: 31, Col: 337}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review_toolbar.templ`, Line: 31, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, ") Ã™Ë†Ã™â€žÃ™Å\u00a0Ã˜Â³ Ã™â€¡Ã˜Â°Ã™â€¡ Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â\u0081Ã˜Â\u00adÃ˜Â© Ã™Â\u0081Ã™â€šÃ˜Â·</span></label><div class=\"review-bulk-actions\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, ") وليس هذه الصفحة فقط</span></label><div class=\"review-bulk-actions\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if scope != "matched" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<button type=\"submit\" name=\"bulk_action\" value=\"confirm\" class=\"btn btn-primary btn-sm font-extrabold text-xs\" title=\"Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™â€\u00a0Ã™Â\u0081 Ã˜Â§Ã™â€žÃ™â€¦Ã™â€šÃ˜ÂªÃ˜Â±Ã˜Â\u00ad Ã™â€žÃ™Æ’Ã™â€ž Ã˜ÂµÃ™Â\u0081 Ã™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯ Ã™Ë†Ã™â€\u00a0Ã™â€šÃ™â€žÃ™â€¡ Ã˜Â¥Ã™â€žÃ™â€° Ã‚Â«Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ‚Â» Ã™â€žÃ™Å\u00a0Ã™Â\u008fÃ˜Â³Ã˜ÂªÃ™Ë†Ã˜Â±Ã˜Â¯\">Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯ Ã™Æ’Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€š</button> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<button type=\"submit\" name=\"bulk_action\" value=\"confirm\" class=\"btn btn-primary btn-sm font-extrabold text-xs\" title=\"اعتماد الصنف المقترح لكل صف محدد ونقله إلى «مطابق» ليُستورد\">اعتماد المحدد كمطابق</button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<button type=\"submit\" name=\"bulk_action\" value=\"unlink\" class=\"btn btn-secondary btn-sm font-bold text-xs\" title=\"Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¨Ã˜Â· Ã˜Â¨Ã˜Â§Ã™â€žÃ™Æ’Ã˜ÂªÃ˜Â§Ã™â€žÃ™Ë†Ã˜Â¬ Ã˜Â¹Ã™â€\u00a0 Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â\u0081Ã™Ë†Ã™Â\u0081 Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯Ã˜Â©\">Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¨Ã˜Â·</button> <button type=\"submit\" name=\"bulk_action\" value=\"exclude\" class=\"btn btn-ghost btn-sm font-bold text-xs text-danger\" title=\"Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â¨Ã˜Â¹Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â\u0081Ã™Ë†Ã™Â\u0081 Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯Ã˜Â© Ã™â€¦Ã™â€\u00a0 Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™Å\u00a0Ã˜Â±Ã˜Â§Ã˜Â¯\">Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â¨Ã˜Â¹Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯</button> <button type=\"submit\" name=\"bulk_action\" value=\"include\" class=\"btn btn-ghost btn-sm font-bold text-xs\" title=\"Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â\u0081Ã™Ë†Ã™Â\u0081 Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯Ã˜Â© Ã˜Â¥Ã™â€žÃ™â€° Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™Å\u00a0Ã˜Â±Ã˜Â§Ã˜Â¯\">Ã¢â€\u00a0Âº Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<button type=\"submit\" name=\"bulk_action\" value=\"unlink\" class=\"btn btn-secondary btn-sm font-bold text-xs\" title=\"إلغاء الربط بالكتالوج عن الصفوف المحددة\">إلغاء الربط</button> <button type=\"submit\" name=\"bulk_action\" value=\"exclude\" class=\"btn btn-ghost btn-sm font-bold text-xs text-danger\" title=\"استبعاد الصفوف المحددة من الاستيراد\">استبعاد المحدد</button> <button type=\"submit\" name=\"bulk_action\" value=\"include\" class=\"btn btn-ghost btn-sm font-bold text-xs\" title=\"إعادة الصفوف المحددة إلى الاستيراد\">↺ إعادة المحدد</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if scope == "review" || scope == "unmatched" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"review-bulk-hint text-xs\">Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€\u00a0Ã˜Â§Ã™Â\u0081 Ã™Â\u0081Ã™Å\u00a0 Ã™â€¡Ã˜Â°Ã˜Â§ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã™Ë†Ã™Å\u00a0Ã˜Â¨ <strong>Ã™â€žÃ™â€\u00a0 Ã˜ÂªÃ™Â\u008fÃ˜Â³Ã˜ÂªÃ™Ë†Ã˜Â±Ã˜Â¯</strong> Ã˜Â\u00adÃ˜ÂªÃ™â€° Ã˜ÂªÃ˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â¯Ã™â€¡Ã˜Â§. Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹ Ã˜Â§Ã™â€žÃ˜ÂµÃ™â€\u00a0Ã™Â\u0081 Ã˜Â§Ã™â€žÃ™â€¦Ã™â€šÃ˜ÂªÃ˜Â±Ã˜Â\u00ad Ã™â€žÃ™Æ’Ã™â€ž Ã˜ÂµÃ™Â\u0081Ã˜Å’ Ã˜Â£Ã™â€žÃ˜ÂºÃ™Â\u0090 Ã˜ÂªÃ˜Â\u00adÃ˜Â¯Ã™Å\u00a0Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â\u0081Ã™Ë†Ã™Â\u0081 Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â§Ã˜Â·Ã˜Â¦Ã˜Â©Ã˜Å’ Ã˜Â«Ã™â€¦ Ã˜Â§Ã˜Â¶Ã˜ÂºÃ˜Â· Ã‚Â«Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â\u00adÃ˜Â¯Ã˜Â¯ Ã™Æ’Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ‚Â» Ã¢â‚¬â€\u009d Ã˜Â£Ã™Ë† Ã˜Â§Ã˜Â±Ã˜Â¨Ã˜Â· Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â\u0081 Ã™Å\u00a0Ã˜Â¯Ã™Ë†Ã™Å\u00a0Ã˜Â§Ã™â€¹ Ã˜Â¨Ã˜Â²Ã˜Â± Ã‚Â«Ã˜Â±Ã˜Â¨Ã˜Â·Ã‚Â».</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"review-bulk-hint text-xs\">الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف، ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «ربط».</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -230,14 +230,14 @@ func reviewSortHeader(view VendorImportView, colKey, label string) templ.Compone
 		ctx = templ.ClearChildren(ctx)
 		isCurrent := view.Filter.SortBy == colKey || (view.Filter.SortBy == "" && colKey == "row")
 		nextOrder := "asc"
-		icon := "Ã¢â€¡â€¦"
+		icon := "⇅"
 		if isCurrent {
 			if view.Filter.SortOrder == "desc" {
 				nextOrder = "asc"
-				icon = "Ã¢â€“Â¼"
+				icon = "▼"
 			} else {
 				nextOrder = "desc"
-				icon = "Ã¢â€“Â²"
+				icon = "▲"
 			}
 		} else if colKey == "score" || colKey == "price" || colKey == "quantity" {
 			nextOrder = "desc"
@@ -261,9 +261,9 @@ func reviewSortHeader(view VendorImportView, colKey, label string) templ.Compone
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("Ã˜ÂªÃ˜Â±Ã˜ÂªÃ™Å Ã˜Â¨ Ã˜Â­Ã˜Â³Ã˜Â¨ %s", label))
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("ترتيب حسب %s", label))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review_toolbar.templ`, Line: 101, Col: 101}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_review_toolbar.templ`, Line: 101, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -382,19 +382,19 @@ func buildReviewURL(publicID, match, sortBy, sortOrder string, page, limit int, 
 func matchLevelText(level string) string {
 	switch productmatch.MatchLevel(level) {
 	case productmatch.MatchBarcode:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜Â¨Ã˜Â§Ã™â€žÃ˜Â¨Ã˜Â§Ã˜Â±Ã™Æ’Ã™Ë†Ã˜Â¯"
+		return "تطابق بالباركود"
 	case productmatch.MatchCode:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜Â¨Ã˜Â§Ã™â€žÃ™Æ’Ã™Ë†Ã˜Â¯"
+		return "تطابق بالكود"
 	case productmatch.MatchExact:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜ÂªÃ˜Â§Ã™â€¦"
+		return "تطابق تام"
 	case productmatch.MatchStrong:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã™â€šÃ™Ë†Ã™Å "
+		return "تطابق قوي"
 	case productmatch.MatchReview:
-		return "Ã™Å Ã˜Â­Ã˜ÂªÃ˜Â§Ã˜Â¬ Ã™â€¦Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹Ã˜Â©"
+		return "يحتاج مراجعة"
 	case productmatch.MatchAmbiguous:
-		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜ÂºÃ˜Â§Ã™â€¦Ã˜Â¶"
+		return "تطابق غامض"
 	default:
-		return "Ã˜ÂºÃ™Å Ã˜Â± Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€š"
+		return "غير مطابق"
 	}
 }
 
