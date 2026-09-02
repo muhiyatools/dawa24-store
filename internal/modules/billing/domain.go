@@ -101,6 +101,9 @@ type Payment struct {
 	ID                   int64        `json:"id"`
 	PublicID             string       `json:"public_id"`
 	PaymentIntegrationID *int64       `json:"payment_integration_id,omitempty"`
+	InvoiceID            *int64       `json:"invoice_id,omitempty"`
+	InvoiceNumber        string       `json:"invoice_number,omitempty"`
+	CustomerName         string       `json:"customer_name,omitempty"`
 	OrderID              *int64       `json:"order_id,omitempty"`
 	UserID               int64        `json:"user_id"`
 	OrganizationID       *int64       `json:"organization_id,omitempty"`
@@ -235,33 +238,36 @@ func ValidateCreditAmount(a money.Amount) error {
 type InvoiceStatus string
 
 const (
-	InvoiceDraft     InvoiceStatus = "draft"
-	InvoiceIssued    InvoiceStatus = "issued"
-	InvoicePaid      InvoiceStatus = "paid"
-	InvoiceOverdue   InvoiceStatus = "overdue"
-	InvoiceCancelled InvoiceStatus = "cancelled"
+	InvoiceDraft         InvoiceStatus = "draft"
+	InvoiceIssued        InvoiceStatus = "issued"
+	InvoicePartiallyPaid InvoiceStatus = "partially_paid"
+	InvoicePaid          InvoiceStatus = "paid"
+	InvoiceOverdue       InvoiceStatus = "overdue"
+	InvoiceCancelled     InvoiceStatus = "cancelled"
 )
 
 // Invoice represents a B2B commercial tax invoice.
 type Invoice struct {
-	ID             int64         `json:"id"`
-	PublicID       string        `json:"public_id"`
-	OrganizationID int64         `json:"organization_id"`
-	CustomerOrgID  *int64        `json:"customer_org_id,omitempty"`
-	OrderID        *int64        `json:"order_id,omitempty"`
-	InvoiceNumber  string        `json:"invoice_number"`
-	IssueDate      time.Time     `json:"issue_date"`
-	DueDate        time.Time     `json:"due_date"`
-	Subtotal       money.Amount  `json:"subtotal"`
-	TaxAmount      money.Amount  `json:"tax_amount"`
-	DiscountAmount money.Amount  `json:"discount_amount"`
-	TotalAmount    money.Amount  `json:"total_amount"`
-	Status         InvoiceStatus `json:"status"`
-	PaymentMethod  string        `json:"payment_method"`
-	Notes          string        `json:"notes,omitempty"`
-	Lines          []InvoiceLine `json:"lines,omitempty"`
-	CreatedAt      time.Time     `json:"created_at"`
-	UpdatedAt      time.Time     `json:"updated_at"`
+	ID              int64         `json:"id"`
+	PublicID        string        `json:"public_id"`
+	OrganizationID  int64         `json:"organization_id"`
+	CustomerOrgID   *int64        `json:"customer_org_id,omitempty"`
+	OrderID         *int64        `json:"order_id,omitempty"`
+	InvoiceNumber   string        `json:"invoice_number"`
+	IssueDate       time.Time     `json:"issue_date"`
+	DueDate         time.Time     `json:"due_date"`
+	Subtotal        money.Amount  `json:"subtotal"`
+	TaxAmount       money.Amount  `json:"tax_amount"`
+	DiscountAmount  money.Amount  `json:"discount_amount"`
+	TotalAmount     money.Amount  `json:"total_amount"`
+	PaidAmount      money.Amount  `json:"paid_amount"`
+	RemainingAmount money.Amount  `json:"remaining_amount"`
+	Status          InvoiceStatus `json:"status"`
+	PaymentMethod   string        `json:"payment_method"`
+	Notes           string        `json:"notes,omitempty"`
+	Lines           []InvoiceLine `json:"lines,omitempty"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 // InvoiceLine is a line item on an invoice.

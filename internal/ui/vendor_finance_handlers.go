@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -25,17 +26,125 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	search := strings.TrimSpace(r.URL.Query().Get("q"))
+	method := strings.TrimSpace(r.URL.Query().Get("method"))
+	status := strings.TrimSpace(r.URL.Query().Get("status"))
+
 	limit := pagination.RowsPerPage(r)
 	page := pagination.PageNumber(r)
 	offset := (page - 1) * limit
 
-	var payments []*billing.Payment
+	var payments []*billing.AdminPaymentView
 	var total int
+	var stats *billing.VendorPaymentStats
+	var openInvoices []*billing.AdminInvoiceView
+
 	if h.billSvc != nil {
-		payments, total, _ = h.billSvc.ListPaymentsWithTotal(ctx, actor.OrganizationID, limit, offset)
+		s, err := h.billSvc.GetVendorPaymentStats(ctx, actor.OrganizationID)
+		if err == nil {
+			stats = s
+		}
+
+		filter := billing.PaymentFilter{
+			OrganizationID: &actor.OrganizationID,
+			Search:         search,
+			Method:         method,
+			Status:         status,
+			Limit:          limit,
+			Offset:         offset,
+		}
+		pList, count, err := h.billSvc.ListDetailedPayments(ctx, filter)
+		if err == nil {
+			payments = pList
+			total = count
+		}
+
+		invList, _, _ := h.billSvc.ListDetailedInvoices(ctx, billing.InvoiceFilter{
+			OrganizationID: &actor.OrganizationID,
+			Limit:          100,
+		})
+		for _, inv := range invList {
+			if inv.Status != billing.InvoicePaid && inv.Status != billing.InvoiceCancelled {
+				openInvoices = append(openInvoices, inv)
+			}
+		}
 	}
 
-	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(payments, lang, dir, page, limit, total))
+	if stats == nil {
+		stats = &billing.VendorPaymentStats{}
+	}
+
+	data := pages.VendorPaymentsPageData{
+		Payments:     payments,
+		Invoices:     openInvoices,
+		Stats:        stats,
+		Search:       search,
+		Method:       method,
+		Status:       status,
+		Page:         page,
+		PerPage:      limit,
+		TotalCount:   total,
+		Lang:         lang,
+		Dir:          dir,
+	}
+
+	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(data))
+}
+
+// VendorRecordPaymentSubmit records a payment against a vendor invoice.
+func (h *UIHandler) VendorRecordPaymentSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/payments", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/payments", "error", "تعذر قراءة بيانات النموذج")
+		return
+	}
+
+	invoiceID, err := strconv.ParseInt(r.PostFormValue("invoice_id"), 10, 64)
+	if err != nil || invoiceID <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/payments", "error", "يجب اختيار فاتورة صحيحة لتسجيل الدفعة عليها")
+		return
+	}
+
+	amountStr := strings.TrimSpace(r.PostFormValue("amount"))
+	amt, err := money.Parse(amountStr)
+	if err != nil || amt.Minor() <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/payments", "error", "يرجى إدخال مبلغ دفع صالح أكبر من صفر")
+		return
+	}
+
+	method := strings.TrimSpace(r.PostFormValue("method"))
+	if method == "" {
+		method = "bank_transfer"
+	}
+
+	refNum := strings.TrimSpace(r.PostFormValue("reference_number"))
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+
+	req := billing.RecordInvoicePaymentRequest{
+		InvoiceID:       invoiceID,
+		OrganizationID:  actor.OrganizationID,
+		UserID:          actor.UserID,
+		Amount:          amt,
+		Method:          method,
+		ReferenceNumber: refNum,
+		Notes:           notes,
+	}
+
+	_, err = h.billSvc.RecordInvoicePayment(ctx, req)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/vendor/payments", "error", h.safeMessage(err, lang))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/payments", "success", "تم تسجيل دفعة الفاتورة وتحديث الرصيد المتبقي بنجاح.")
 }
 
 // VendorEarningsOrderPage renders orders revenue and comprehensive net profit report for the vendor.

@@ -137,6 +137,14 @@ func (m *mockBillingRepo) AdminRejectDepositRequest(_ context.Context, _ int64, 
 	return nil, nil
 }
 
+func (m *mockBillingRepo) GetVendorPaymentStats(_ context.Context, _ int64) (*VendorPaymentStats, error) {
+	return &VendorPaymentStats{}, nil
+}
+
+func (m *mockBillingRepo) RecordInvoicePayment(_ context.Context, req RecordInvoicePaymentRequest) (*Payment, error) {
+	return &Payment{ID: 1, Amount: req.Amount, Method: req.Method, Status: "completed"}, nil
+}
+
 func TestWalletDepositAndWithdraw(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()
@@ -251,5 +259,38 @@ func TestCreatePlanValidation(t *testing.T) {
 	}
 	if p.ID == 0 {
 		t.Fatal("expected plan id to be set")
+	}
+}
+
+func TestVendorPaymentStats_And_RecordInvoicePayment(t *testing.T) {
+	repo := newMockBillingRepo()
+	svc := NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ctx := context.Background()
+
+	stats, err := svc.GetVendorPaymentStats(ctx, 42)
+	if err != nil {
+		t.Fatalf("GetVendorPaymentStats failed: %v", err)
+	}
+	if stats == nil {
+		t.Fatal("expected non-nil stats")
+	}
+
+	amt, _ := money.Parse("1500.50")
+	payment, err := svc.RecordInvoicePayment(ctx, RecordInvoicePaymentRequest{
+		InvoiceID:       10,
+		OrganizationID:  42,
+		UserID:          100,
+		Amount:          amt,
+		Method:          "bank_transfer",
+		ReferenceNumber: "REF-12345",
+	})
+	if err != nil {
+		t.Fatalf("RecordInvoicePayment failed: %v", err)
+	}
+	if payment == nil || payment.ID == 0 {
+		t.Fatal("expected valid payment record")
+	}
+	if payment.Amount.String() != "1500.50" {
+		t.Fatalf("expected 1500.50, got %s", payment.Amount.String())
 	}
 }

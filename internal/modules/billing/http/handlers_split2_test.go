@@ -144,6 +144,18 @@ func (happyRepo) AdminApproveDepositRequest(ctx context.Context, depositID int64
 func (happyRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*billing.WalletDeposit, error) {
 	return &billing.WalletDeposit{ID: depositID, Status: billing.DepositRejected, RejectionReason: reason}, nil
 }
+func (happyRepo) GetVendorPaymentStats(ctx context.Context, orgID int64) (*billing.VendorPaymentStats, error) {
+	return &billing.VendorPaymentStats{}, nil
+}
+func (happyRepo) RecordInvoicePayment(ctx context.Context, req billing.RecordInvoicePaymentRequest) (*billing.Payment, error) {
+	return &billing.Payment{ID: 1, Amount: req.Amount, Method: req.Method, Status: "completed"}, nil
+}
+func (s stubRepo) GetVendorPaymentStats(ctx context.Context, orgID int64) (*billing.VendorPaymentStats, error) {
+	return &billing.VendorPaymentStats{}, nil
+}
+func (s stubRepo) RecordInvoicePayment(ctx context.Context, req billing.RecordInvoicePaymentRequest) (*billing.Payment, error) {
+	return &billing.Payment{ID: 1, Amount: req.Amount, Method: req.Method, Status: "completed"}, nil
+}
 
 func newTestRouter(t *testing.T) http.Handler {
 	t.Helper()

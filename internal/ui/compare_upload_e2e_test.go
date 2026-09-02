@@ -178,6 +178,15 @@ func (m *mockCompareRepoE2E) ArchiveFile(ctx context.Context, id int64, reason s
 }
 func (m *mockCompareRepoE2E) UnarchiveFile(ctx context.Context, id int64) error { return nil }
 func (m *mockCompareRepoE2E) DeleteFile(ctx context.Context, id int64) error    { return nil }
+func (m *mockCompareRepoE2E) BulkDeleteFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	return int64(len(ids)), nil
+}
+func (m *mockCompareRepoE2E) BulkArchiveFiles(ctx context.Context, ids []int64, ownerID *int64, reason string) (int64, error) {
+	return int64(len(ids)), nil
+}
+func (m *mockCompareRepoE2E) BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	return int64(len(ids)), nil
+}
 func (m *mockCompareRepoE2E) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
 	return 0, nil
 }

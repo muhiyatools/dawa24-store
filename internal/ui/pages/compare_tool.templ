@@ -215,7 +215,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 												type="button"
 												class="btn btn-secondary btn-icon btn-xs"
 												title="تعديل اسم المورد"
-												onclick={ templ.ComponentScript{Call: fmt.Sprintf("promptRenameFile(%d, '%s')", f.ID, f.SupplierName)} }
+												onclick={ templ.ComponentScript{Call: fmt.Sprintf("openRenameModal(%d, '%s')", f.ID, f.SupplierName)} }
 											>
 												@components.IconEdit("icon-2xs")
 											</button>
@@ -480,19 +480,24 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				return true;
 			}
 
-			function promptRenameFile(id, currentName) {
-				const newName = prompt("أدخل الاسم الجديد للمورد / الملف:", currentName);
-				if (newName && newName.trim() !== "" && newName !== currentName) {
-					const form = document.createElement('form');
-					form.method = 'POST';
-					form.action = `/compare/files/${id}/rename`;
-					const input = document.createElement('input');
-					input.type = 'hidden';
-					input.name = 'supplier_name';
-					input.value = newName.trim();
-					form.appendChild(input);
-					document.body.appendChild(form);
-					form.submit();
+			function openRenameModal(fileId, currentName) {
+				const modal = document.getElementById('rename-file-modal');
+				const form = document.getElementById('rename-file-form');
+				const input = document.getElementById('rename-supplier-input');
+				if (modal && form && input) {
+					form.action = `/compare/files/${fileId}/rename`;
+					input.value = currentName || '';
+					modal.classList.remove('d-none');
+					modal.classList.add('d-flex');
+					setTimeout(() => input.focus(), 50);
+				}
+			}
+
+			function closeRenameModal() {
+				const modal = document.getElementById('rename-file-modal');
+				if (modal) {
+					modal.classList.add('d-none');
+					modal.classList.remove('d-flex');
 				}
 			}
 
@@ -839,6 +844,47 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 		<!-- Root container for dynamically injected mapping modal -->
 		<div id="mapping-modal-root"></div>
+
+		<!-- Centered File Rename Modal -->
+		<div id="rename-file-modal" class="d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs" onclick="closeRenameModal()">
+			<div class="glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border" onclick="event.stopPropagation()">
+				<div class="flex-between items-center mb-4 pb-3 border-b border-border">
+					<div class="d-flex items-center gap-2">
+						<div class="w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold">
+							@components.IconEdit("icon-xs")
+						</div>
+						<h3 class="text-base font-black text-primary m-0">تعديل اسم المورد / الملف</h3>
+					</div>
+					<button type="button" onclick="closeRenameModal()" class="btn btn-secondary btn-icon btn-xs text-muted" title="إغلاق">
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<form id="rename-file-form" method="POST" action="">
+					<div class="mb-4">
+						<label for="rename-supplier-input" class="form-label text-xs font-bold mb-1.5 d-block">اسم المورد أو المستودع الجديد:</label>
+						<input
+							type="text"
+							id="rename-supplier-input"
+							name="supplier_name"
+							class="form-input w-full text-sm font-bold"
+							placeholder="مثال: المتحدة للصيادلة، فارما أوفرسيز..."
+							required
+							maxlength="120"
+						/>
+					</div>
+
+					<div class="flex-end gap-2 pt-2 border-t border-border">
+						<button type="button" onclick="closeRenameModal()" class="btn btn-secondary btn-sm font-bold">
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm font-black">
+							حفظ التعديل
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	}
 }
 

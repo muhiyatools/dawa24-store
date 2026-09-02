@@ -280,6 +280,7 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.payment.view"))
 		g.Get("/vendor/payments", h.VendorPaymentsPage)
+		g.Post("/vendor/payments/record", h.VendorRecordPaymentSubmit)
 		g.Get("/vendor/invoices", h.InvoicesPage)
 	})
 	r.Group(func(g chi.Router) {

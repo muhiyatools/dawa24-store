@@ -236,3 +236,79 @@ func scanAdminTempWarehouse(row pgx.Row) (*compare.AdminTempWarehouse, error) {
 	f.Status = compare.CompareFileStatus(statusStr)
 	return &compare.AdminTempWarehouse{CompareFile: &f, UploaderName: uploaderName, OrgName: orgName}, nil
 }
+
+// BulkDeleteFiles marks multiple compare files as deleted in a single atomic query.
+func (r *Repository) BulkDeleteFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	var count int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if ownerID != nil && *ownerID > 0 {
+			res, err := tx.Exec(txCtx, `UPDATE compare.files SET deleted_at = now(), updated_at = now() WHERE id = ANY($1) AND user_id = $2 AND deleted_at IS NULL;`, ids, *ownerID)
+			if err != nil {
+				return err
+			}
+			count = res.RowsAffected()
+		} else {
+			res, err := tx.Exec(txCtx, `UPDATE compare.files SET deleted_at = now(), updated_at = now() WHERE id = ANY($1) AND deleted_at IS NULL;`, ids)
+			if err != nil {
+				return err
+			}
+			count = res.RowsAffected()
+		}
+		return nil
+	})
+	return count, err
+}
+
+// BulkArchiveFiles marks multiple compare files as archived in a single atomic query.
+func (r *Repository) BulkArchiveFiles(ctx context.Context, ids []int64, ownerID *int64, reason string) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	var count int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if ownerID != nil && *ownerID > 0 {
+			res, err := tx.Exec(txCtx, `UPDATE compare.files SET status = 'archived', archived_at = now(), archive_reason = $2, updated_at = now() WHERE id = ANY($1) AND user_id = $3 AND deleted_at IS NULL;`, ids, reason, *ownerID)
+			if err != nil {
+				return err
+			}
+			count = res.RowsAffected()
+		} else {
+			res, err := tx.Exec(txCtx, `UPDATE compare.files SET status = 'archived', archived_at = now(), archive_reason = $2, updated_at = now() WHERE id = ANY($1) AND deleted_at IS NULL;`, ids, reason)
+			if err != nil {
+				return err
+			}
+			count = res.RowsAffected()
+		}
+		return nil
+	})
+	return count, err
+}
+
+// BulkUnarchiveFiles restores multiple archived compare files to 'ready' in a single atomic query.
+func (r *Repository) BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	var count int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if ownerID != nil && *ownerID > 0 {
+			res, err := tx.Exec(txCtx, `UPDATE compare.files SET status = 'ready', archived_at = NULL, archive_reason = '', updated_at = now() WHERE id = ANY($1) AND user_id = $2 AND deleted_at IS NULL;`, ids, *ownerID)
+			if err != nil {
+				return err
+			}
+			count = res.RowsAffected()
+		} else {
+			res, err := tx.Exec(txCtx, `UPDATE compare.files SET status = 'ready', archived_at = NULL, archive_reason = '', updated_at = now() WHERE id = ANY($1) AND deleted_at IS NULL;`, ids)
+			if err != nil {
+				return err
+			}
+			count = res.RowsAffected()
+		}
+		return nil
+	})
+	return count, err
+}
+

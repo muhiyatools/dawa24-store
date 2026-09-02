@@ -122,16 +122,22 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	var orgIDPtr *int64
+	if actor.OrganizationID > 0 {
+		orgIDPtr = &actor.OrganizationID
+	}
+
 	filter := compare.MarketDiscountsFilter{
-		Query:       query,
-		Supplier:    supplier,
-		MinPrice:    minPricePtr,
-		MaxPrice:    maxPricePtr,
-		MinDiscount: minDiscPtr,
-		MaxDiscount: maxDiscPtr,
-		SortBy:      sortBy,
-		Page:        page,
-		Limit:       limit,
+		Query:          query,
+		Supplier:       supplier,
+		OrganizationID: orgIDPtr,
+		MinPrice:       minPricePtr,
+		MaxPrice:       maxPricePtr,
+		MinDiscount:    minDiscPtr,
+		MaxDiscount:    maxDiscPtr,
+		SortBy:         sortBy,
+		Page:           page,
+		Limit:          limit,
 	}
 
 	var result *compare.MarketDiscountsResult

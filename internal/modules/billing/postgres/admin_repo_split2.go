@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -25,10 +27,18 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 			LEFT JOIN identity.users u ON p.user_id = u.id
 			LEFT JOIN org.organizations org ON p.organization_id = org.id
 			LEFT JOIN commerce.orders o ON p.order_id = o.id
+			LEFT JOIN billing.invoices inv ON p.invoice_id = inv.id
+			LEFT JOIN org.organizations cust ON inv.customer_org_id = cust.id
 			WHERE 1=1
 		`
 		args := []any{}
 		argIdx := 1
+
+		if filter.OrganizationID != nil && *filter.OrganizationID > 0 {
+			baseQuery += fmt.Sprintf(` AND p.organization_id = $%d`, argIdx)
+			args = append(args, *filter.OrganizationID)
+			argIdx++
+		}
 
 		if filter.Status != "" && filter.Status != "all" {
 			baseQuery += fmt.Sprintf(` AND p.status = $%d`, argIdx)
@@ -47,11 +57,14 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 			baseQuery += fmt.Sprintf(` AND (
 				LOWER(COALESCE(p.transaction_id, '')) LIKE $%d OR
 				LOWER(COALESCE(p.reference_number, '')) LIKE $%d OR
+				LOWER(COALESCE(inv.invoice_number, '')) LIKE $%d OR
+				LOWER(COALESCE(cust.legal_name, '')) LIKE $%d OR
+				LOWER(COALESCE(cust.trade_name->>'ar', '')) LIKE $%d OR
 				LOWER(COALESCE(u.name->>'ar', '')) LIKE $%d OR
 				LOWER(u.email) LIKE $%d OR
 				LOWER(COALESCE(org.legal_name, '')) LIKE $%d OR
 				LOWER(COALESCE(o.order_number, '')) LIKE $%d
-			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
+			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
 			args = append(args, searchPattern)
 			argIdx++
 		}
@@ -69,8 +82,12 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 				COALESCE(u.name->>'ar', u.name->>'en', u.email, 'مستخدم'),
 				p.organization_id,
 				COALESCE(org.legal_name, org.trade_name->>'ar', ''),
-				p.amount, p.method, p.status, p.transaction_id, p.reference_number, p.paid_at, p.created_at
-		` + baseQuery + fmt.Sprintf(` ORDER BY p.created_at DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
+				p.amount, p.method, p.status, p.transaction_id, p.reference_number, p.paid_at, p.created_at,
+				p.invoice_id,
+				COALESCE(inv.invoice_number, ''),
+				COALESCE(cust.legal_name, cust.trade_name->>'ar', 'صيدلية معتمدة'),
+				COALESCE(p.notes, '')
+		` + baseQuery + fmt.Sprintf(` ORDER BY p.created_at DESC, p.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))
 
@@ -87,6 +104,7 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 				&pv.OrderNumber, &pv.UserID, &pv.UserName, &pv.OrganizationID,
 				&pv.OrganizationName, &pv.Amount, &pv.Method, &pv.Status,
 				&pv.TransactionID, &pv.ReferenceNumber, &pv.PaidAt, &pv.CreatedAt,
+				&pv.InvoiceID, &pv.InvoiceNumber, &pv.CustomerName, &pv.Notes,
 			); err != nil {
 				return err
 			}
@@ -259,3 +277,145 @@ func (r *Repository) AdminAdjustWallet(
 ) error {
 	return r.AdminPerformWalletAdjustment(ctx, walletID, amount, billing.TxAdjustment, reason, actorID)
 }
+
+// GetVendorPaymentStats returns KPI aggregation for vendor payments.
+func (r *Repository) GetVendorPaymentStats(ctx context.Context, orgID int64) (*billing.VendorPaymentStats, error) {
+	stats := &billing.VendorPaymentStats{}
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		row := tx.QueryRow(txCtx, `
+			SELECT 
+				COUNT(*),
+				COALESCE(SUM(amount), 0),
+				COALESCE(SUM(CASE WHEN (paid_at >= CURRENT_DATE OR created_at >= CURRENT_DATE) THEN amount ELSE 0 END), 0),
+				COALESCE(SUM(CASE WHEN (paid_at >= date_trunc('month', CURRENT_DATE) OR created_at >= date_trunc('month', CURRENT_DATE)) THEN amount ELSE 0 END), 0)
+			FROM billing.payments
+			WHERE organization_id = $1 AND status = 'completed';
+		`, orgID)
+		return row.Scan(&stats.TotalCount, &stats.TotalAmount, &stats.TodayAmount, &stats.MonthAmount)
+	})
+	return stats, err
+}
+
+// RecordInvoicePayment records a payment against an invoice, updates invoice status (including partially_paid), and keeps order synced.
+func (r *Repository) RecordInvoicePayment(ctx context.Context, req billing.RecordInvoicePaymentRequest) (*billing.Payment, error) {
+	if req.InvoiceID <= 0 {
+		return nil, apperr.Validation("payment.invoice_required", "يجب تحديد الفاتورة المرتبطة بالدفعة", nil)
+	}
+	if req.Amount.Minor() <= 0 {
+		return nil, apperr.Validation("payment.amount_positive", "يجب أن يكون مبلغ الدفعة أكبر من صفر", nil)
+	}
+
+	var p billing.Payment
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Fetch invoice
+		var invID, orgID int64
+		var orderID *int64
+		var invTotal money.Amount
+		var invStatus string
+		err := tx.QueryRow(txCtx, `
+			SELECT id, organization_id, order_id, total_amount, status
+			FROM billing.invoices
+			WHERE id = $1;
+		`, req.InvoiceID).Scan(&invID, &orgID, &orderID, &invTotal, &invStatus)
+		if err != nil {
+			return fmt.Errorf("invoice not found: %w", err)
+		}
+
+		if req.OrganizationID > 0 && req.OrganizationID != orgID {
+			return apperr.Forbidden("payment.forbidden", "غير مصرح لك بتسجيل دفعة على هذه الفاتورة")
+		}
+
+		// 2. Generate transaction ID if empty
+		txID := req.ReferenceNumber
+		if txID == "" {
+			txID = fmt.Sprintf("TXN-%s", strings.ToUpper(uuid.NewString()[:8]))
+		}
+
+		refNum := req.ReferenceNumber
+		if refNum == "" {
+			refNum = txID
+		}
+
+		method := strings.TrimSpace(req.Method)
+		if method == "" {
+			method = "bank_transfer"
+		}
+
+		paidAt := req.PaidAt
+		if paidAt == nil {
+			now := time.Now()
+			paidAt = &now
+		}
+
+		// 3. Insert payment
+		const insertPayment = `
+			INSERT INTO billing.payments (
+				invoice_id, order_id, user_id, organization_id, amount,
+				method, status, transaction_id, reference_number, notes, paid_at
+			) VALUES (
+				$1, $2, $3, $4, $5,
+				$6, 'completed', $7, $8, $9, $10
+			) RETURNING id, public_id::text, created_at, updated_at;
+		`
+		if err := tx.QueryRow(txCtx, insertPayment,
+			invID, orderID, req.UserID, orgID, req.Amount,
+			method, txID, refNum, req.Notes, paidAt,
+		).Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt); err != nil {
+			return fmt.Errorf("insert payment: %w", err)
+		}
+
+		p.InvoiceID = &invID
+		p.OrderID = orderID
+		p.UserID = req.UserID
+		p.OrganizationID = &orgID
+		p.Amount = req.Amount
+		p.Method = method
+		p.Status = "completed"
+		p.TransactionID = txID
+		p.ReferenceNumber = refNum
+		p.PaidAt = paidAt
+
+		// 4. Calculate total paid on this invoice
+		var totalPaid money.Amount
+		err = tx.QueryRow(txCtx, `
+			SELECT COALESCE(SUM(amount), 0)
+			FROM billing.payments
+			WHERE (invoice_id = $1 OR (invoice_id IS NULL AND order_id IS NOT NULL AND order_id = $2))
+			  AND status = 'completed';
+		`, invID, orderID).Scan(&totalPaid)
+		if err != nil {
+			return fmt.Errorf("calculate total paid: %w", err)
+		}
+
+		// 5. Update invoice status
+		newStatus := "partially_paid"
+		if totalPaid.Minor() >= invTotal.Minor() {
+			newStatus = "paid"
+		} else if totalPaid.Minor() <= 0 {
+			newStatus = "issued"
+		}
+
+		_, err = tx.Exec(txCtx, `
+			UPDATE billing.invoices
+			SET status = $1, updated_at = now()
+			WHERE id = $2;
+		`, newStatus, invID)
+		if err != nil {
+			return fmt.Errorf("update invoice status: %w", err)
+		}
+
+		// 6. If linked to an order, keep order status updated if fully paid
+		if orderID != nil && newStatus == "paid" {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE commerce.orders
+				SET payment_status = 'paid', updated_at = now()
+				WHERE id = $1 AND payment_status != 'paid';
+			`, *orderID)
+		}
+
+		return nil
+	})
+
+	return &p, err
+}
+

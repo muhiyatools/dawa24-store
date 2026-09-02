@@ -60,13 +60,13 @@ func (h *UIHandler) CompareFileMatchSubmit(w http.ResponseWriter, r *http.Reques
 		orgPtr = &actor.OrganizationID
 	}
 
-	stats, err := h.compareSvc.MatchFileRows(ctx, fileID, useAI, orgPtr)
+	err = h.compareSvc.StartBackgroundCatalogMatch(fileID, useAI, orgPtr)
 	if err != nil {
 		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, back, "success", compareMatchNotice(stats, useAI, lang))
+	h.redirectWithNotice(w, r, back, "success", "بدأت عملية المطابقة مع الكتالوج في الخلفية بنجاح. يمكنك متابعة العمل وسيتحدث الملف تلقائياً.")
 }
 
 // compareMatchNotice says what the run resolved, in the order the user cares

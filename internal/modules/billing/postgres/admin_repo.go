@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // EnsureAllOrgWallets guarantees that every registered organization has an active wallet account.
@@ -272,7 +273,8 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 				inv.status,
 				inv.payment_method,
 				COALESCE(inv.notes, ''),
-				inv.created_at
+				inv.created_at,
+				COALESCE((SELECT SUM(p.amount) FROM billing.payments p WHERE (p.invoice_id = inv.id OR (p.invoice_id IS NULL AND p.order_id IS NOT NULL AND p.order_id = inv.order_id)) AND p.status = 'completed'), 0) AS paid_amount
 		` + baseQuery + fmt.Sprintf(` ORDER BY inv.created_at DESC, inv.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))
@@ -292,13 +294,21 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 				&iv.CustomerOrgID, &iv.CustomerName, &iv.OrderID, &iv.OrderNumber,
 				&iv.InvoiceNumber, &issueDate, &dueDate, &iv.Subtotal,
 				&iv.TaxAmount, &iv.DiscountAmount, &iv.TotalAmount, &statusStr,
-				&iv.PaymentMethod, &iv.Notes, &iv.CreatedAt,
+				&iv.PaymentMethod, &iv.Notes, &iv.CreatedAt, &iv.PaidAmount,
 			); err != nil {
 				return err
 			}
 			iv.IssueDate = issueDate
 			iv.DueDate = dueDate
 			iv.Status = billing.InvoiceStatus(statusStr)
+			if iv.TotalAmount.Minor() > iv.PaidAmount.Minor() {
+				iv.RemainingAmount = money.FromMinor(iv.TotalAmount.Minor() - iv.PaidAmount.Minor())
+			} else {
+				iv.RemainingAmount = money.FromMinor(0)
+			}
+			if iv.PaidAmount.Minor() > 0 && iv.RemainingAmount.Minor() > 0 && iv.Status != billing.InvoiceCancelled {
+				iv.Status = billing.InvoicePartiallyPaid
+			}
 			list = append(list, &iv)
 		}
 		return rows.Err()

@@ -308,3 +308,25 @@ func (s *Service) GetEffectivePlan(ctx context.Context, userID int64, orgID *int
 	}
 	return s.repo.GetPlanBySlug(ctx, "basic")
 }
+
+// GetVendorPaymentStats returns aggregated KPIs for vendor payments dashboard.
+func (s *Service) GetVendorPaymentStats(ctx context.Context, orgID int64) (*VendorPaymentStats, error) {
+	return s.repo.GetVendorPaymentStats(ctx, orgID)
+}
+
+// RecordInvoicePayment records a payment against an invoice and updates remaining balances and status.
+func (s *Service) RecordInvoicePayment(ctx context.Context, req RecordInvoicePaymentRequest) (*Payment, error) {
+	return s.repo.RecordInvoicePayment(ctx, req)
+}
+
+// ListDetailedPayments returns enriched payment records with invoice and customer metadata.
+func (s *Service) ListDetailedPayments(ctx context.Context, filter PaymentFilter) ([]*AdminPaymentView, int, error) {
+	return s.repo.AdminListDetailedPayments(ctx, filter)
+}
+
+// ListDetailedInvoices returns enriched invoice records for administration or vendor dashboards.
+func (s *Service) ListDetailedInvoices(ctx context.Context, filter InvoiceFilter) ([]*AdminInvoiceView, int, error) {
+	return s.repo.AdminListDetailedInvoices(ctx, filter)
+}
+
+

@@ -120,7 +120,8 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 				<table class="data-table mb-0">
 					<thead>
 						<tr>
-							<th>نوع العملية والحالة</th>
+							<th>نوع العملية</th>
+							<th>الحالة</th>
 							<th>المبلغ</th>
 							<th>الرصيد بعدها</th>
 							<th>البيان والتفاصيل</th>
@@ -130,19 +131,21 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 					<tbody>
 						for _, item := range items {
 							<tr>
-								<!-- Col 1: Type & Status Badge -->
+								<!-- Col 1: Type Badge -->
 								<td>
-									<div class="d-flex items-center gap-1.5 flex-wrap">
-										<span class={ "badge", item.TypeBadgeClass, "text-xs font-bold" }>
-											{ item.TypeLabel }
-										</span>
-										<span class={ "badge", item.StatusBadgeClass, "text-2xs font-bold" }>
-											{ item.StatusLabel }
-										</span>
-									</div>
+									<span class={ "badge", item.TypeBadgeClass, "text-xs font-bold" }>
+										{ item.TypeLabel }
+									</span>
 								</td>
 
-								<!-- Col 2: Amount -->
+								<!-- Col 2: Status Badge -->
+								<td>
+									<span class={ "badge", item.StatusBadgeClass, "text-2xs font-bold" }>
+										{ item.StatusLabel }
+									</span>
+								</td>
+
+								<!-- Col 3: Amount -->
 								<td class="font-black tabular-nums text-sm">
 									if item.IsPositive {
 										<span class="text-emerald">{ item.AmountFormatted }</span>

@@ -193,6 +193,57 @@ func (m *mockBulkCompareRepo) UnarchiveFile(ctx context.Context, id int64) error
 	return nil
 }
 
+func (m *mockBulkCompareRepo) BulkDeleteFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var count int64
+	for _, id := range ids {
+		if f, ok := m.files[id]; ok {
+			if ownerID == nil || *ownerID <= 0 || f.UserID == *ownerID {
+				delete(m.files, id)
+				delete(m.fileRows, id)
+				count++
+			}
+		}
+	}
+	return count, nil
+}
+
+func (m *mockBulkCompareRepo) BulkArchiveFiles(ctx context.Context, ids []int64, ownerID *int64, reason string) (int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var count int64
+	now := time.Now()
+	for _, id := range ids {
+		if f, ok := m.files[id]; ok {
+			if ownerID == nil || *ownerID <= 0 || f.UserID == *ownerID {
+				f.Status = compare.FileArchived
+				f.ArchiveReason = reason
+				f.ArchivedAt = &now
+				count++
+			}
+		}
+	}
+	return count, nil
+}
+
+func (m *mockBulkCompareRepo) BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var count int64
+	for _, id := range ids {
+		if f, ok := m.files[id]; ok {
+			if ownerID == nil || *ownerID <= 0 || f.UserID == *ownerID {
+				f.Status = compare.FileReady
+				f.ArchivedAt = nil
+				f.ArchiveReason = ""
+				count++
+			}
+		}
+	}
+	return count, nil
+}
+
 func (m *mockBulkCompareRepo) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
 	return 0, nil
 }

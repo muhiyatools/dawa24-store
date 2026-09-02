@@ -40,6 +40,22 @@ func (s *Service) DeleteFile(ctx context.Context, fileID int64) error {
 	return s.repo.DeleteFile(ctx, fileID)
 }
 
+// BulkDeleteFiles deletes multiple files in an atomic query.
+func (s *Service) BulkDeleteFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	return s.repo.BulkDeleteFiles(ctx, ids, ownerID)
+}
+
+// BulkArchiveFiles archives multiple files in an atomic query.
+func (s *Service) BulkArchiveFiles(ctx context.Context, ids []int64, ownerID *int64, reason string) (int64, error) {
+	return s.repo.BulkArchiveFiles(ctx, ids, ownerID, reason)
+}
+
+// BulkUnarchiveFiles unarchives multiple files in an atomic query.
+func (s *Service) BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error) {
+	return s.repo.BulkUnarchiveFiles(ctx, ids, ownerID)
+}
+
+
 // ListFiles lists files for the given tenant / user.
 func (s *Service) ListFiles(ctx context.Context, userID int64, orgID *int64, status *CompareFileStatus) ([]*CompareFile, error) {
 	return s.repo.ListFiles(ctx, userID, orgID, status)

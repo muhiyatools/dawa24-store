@@ -156,12 +156,12 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"table-responsive\"><table class=\"data-table mb-0\"><thead><tr><th>نوع العملية والحالة</th><th>المبلغ</th><th>الرصيد بعدها</th><th>البيان والتفاصيل</th><th>التاريخ والوقت</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"table-responsive\"><table class=\"data-table mb-0\"><thead><tr><th>نوع العملية</th><th>الحالة</th><th>المبلغ</th><th>الرصيد بعدها</th><th>البيان والتفاصيل</th><th>التاريخ والوقت</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, item := range items {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<tr><!-- Col 1: Type & Status Badge --><td><div class=\"d-flex items-center gap-1.5 flex-wrap\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<tr><!-- Col 1: Type Badge --><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -190,13 +190,13 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(item.TypeLabel)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 137, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 137, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></td><!-- Col 2: Status Badge --><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -225,13 +225,13 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(item.StatusLabel)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 140, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 144, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></div></td><!-- Col 2: Amount --><td class=\"font-black tabular-nums text-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></td><!-- Col 3: Amount --><td class=\"font-black tabular-nums text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -243,7 +243,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(item.AmountFormatted)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 148, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 151, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -261,7 +261,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(item.AmountFormatted)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 150, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 153, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -279,7 +279,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(item.BalanceAfter)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 156, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 159, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -292,7 +292,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(item.Description)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 162, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 165, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -310,7 +310,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(item.Reference)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 167, Col: 38}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 170, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -329,7 +329,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 					var templ_7745c5c3_Var13 templ.SafeURL
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(item.AttachmentURL))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 171, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 174, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.W
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 180, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet_transactions_table.templ`, Line: 183, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {

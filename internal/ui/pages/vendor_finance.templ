@@ -10,30 +10,196 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// VendorPaymentsPageData carries all view state for the vendor payments ledger.
+type VendorPaymentsPageData struct {
+	Payments   []*billing.AdminPaymentView
+	Invoices   []*billing.AdminInvoiceView
+	Stats      *billing.VendorPaymentStats
+	Search     string
+	Method     string
+	Status     string
+	Page       int
+	PerPage    int
+	TotalCount int
+	Lang       string
+	Dir        string
+}
+
+func vendorPaymentMethodLabel(m string) string {
+	switch m {
+	case "bank_transfer":
+		return "تحويل بنكي"
+	case "cash":
+		return "نقدي"
+	case "cheque":
+		return "شيك مصرفي"
+	case "electronic_wallet":
+		return "محفظة إلكترونية"
+	default:
+		if m == "" {
+			return "غير محدد"
+		}
+		return m
+	}
+}
+
+func vendorPaymentStatusBadge(s string) (string, string) {
+	switch s {
+	case "completed":
+		return "مكتملة", "badge-emerald"
+	case "pending":
+		return "قيد المعالجة", "badge-amber"
+	case "failed":
+		return "ملغاة", "badge-rose"
+	default:
+		return s, "badge-slate"
+	}
+}
+
 // VendorPaymentsPage renders payments history for the vendor.
-templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string, page, perPage, totalCount int) {
-	@layouts.VendorShell("المدفوعات والمستحقات المالية", "payments", lang, dir) {
+templ VendorPaymentsPage(data VendorPaymentsPageData) {
+	@layouts.VendorShell("المدفوعات والمستحقات المالية", "payments", data.Lang, data.Dir) {
 		<div class="page-container">
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between flex-wrap gap-4">
-     <div class="stack-sm">
+				<div class="flex-between flex-wrap gap-4 items-center">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconCreditCard("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", totalCount) })</h1>
+							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحصيلات المالية</h1>
 						</div>
-						<p class="text-sm text-secondary m-0">تتم تسوية المستحقات المالية وتحويلها إلى حساب المنشأة البنكي دورياً</p>
+						<p class="text-sm text-secondary m-0">إدارة ومتابعة كافة المقبوضات والتحويلات المسجلة وربطها المباشر بفواتير العملاء</p>
 					</div>
+					<button
+						type="button"
+						onclick="openRecordPaymentModal()"
+						class="btn btn-primary btn-md font-bold d-flex items-center gap-2"
+					>
+						@components.IconPlus("icon-xs")
+						<span>تسجيل دفعة جديدة</span>
+					</button>
 				</div>
 			</div>
 
-			if len(payments) == 0 {
-				<div class="glass-panel p-8 text-center empty-state-glass">
-					<div class="text-4xl mb-3">@components.IconCreditCard("icon-sm")</div>
-					<h3 class="text-lg font-black text-primary mb-2">لا توجد دفعات مسجلة</h3>
-					<p class="text-sm text-secondary m-0">ستظهر هنا الدفعات والتحويلات المالية فور تسويتها.</p>
+			<!-- KPI Cards -->
+			<div class="stats-grid mb-6">
+				<!-- Total Count -->
+				<div class="glass-panel stat-card p-5">
+					<div class="flex-between items-center mb-2">
+						<span class="stat-card-label font-bold text-xs">إجمالي العمليات</span>
+						<div class="w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center">
+							@components.IconLayers("icon-xs")
+						</div>
+					</div>
+					<div class="stat-card-value font-black tabular-nums text-xl text-primary">
+						{ fmt.Sprintf("%d", data.Stats.TotalCount) }
+					</div>
+					<div class="stat-card-sub text-2xs text-muted font-bold mt-1">عمليات تحصيل مسجلة</div>
+				</div>
+
+				<!-- Total Amount -->
+				<div class="glass-panel stat-card p-5">
+					<div class="flex-between items-center mb-2">
+						<span class="stat-card-label font-bold text-xs">إجمالي المبالغ المحصلة</span>
+						<div class="w-8 h-8 rounded-lg bg-emerald-subtle text-emerald flex-center">
+							@components.IconWallet("icon-xs")
+						</div>
+					</div>
+					<div class="stat-card-value font-black tabular-nums text-xl text-emerald">
+						{ fmt.Sprintf("%s ج.م", data.Stats.TotalAmount.String()) }
+					</div>
+					<div class="stat-card-sub text-2xs text-muted font-bold mt-1">إجمالي ما تم تحصيله بالكامل</div>
+				</div>
+
+				<!-- Today Amount -->
+				<div class="glass-panel stat-card p-5">
+					<div class="flex-between items-center mb-2">
+						<span class="stat-card-label font-bold text-xs">تحصيلات اليوم</span>
+						<div class="w-8 h-8 rounded-lg bg-blue-subtle text-blue flex-center">
+							@components.IconClock("icon-xs")
+						</div>
+					</div>
+					<div class="stat-card-value font-black tabular-nums text-xl text-primary">
+						{ fmt.Sprintf("%s ج.م", data.Stats.TodayAmount.String()) }
+					</div>
+					<div class="stat-card-sub text-2xs text-muted font-bold mt-1">المبالغ الواردة خلال اليوم</div>
+				</div>
+
+				<!-- Month Amount -->
+				<div class="glass-panel stat-card p-5">
+					<div class="flex-between items-center mb-2">
+						<span class="stat-card-label font-bold text-xs">تحصيلات الشهر</span>
+						<div class="w-8 h-8 rounded-lg bg-purple-subtle text-purple flex-center">
+							@components.IconTrendingUp("icon-xs")
+						</div>
+					</div>
+					<div class="stat-card-value font-black tabular-nums text-xl text-primary">
+						{ fmt.Sprintf("%s ج.م", data.Stats.MonthAmount.String()) }
+					</div>
+					<div class="stat-card-sub text-2xs text-muted font-bold mt-1">تحصيلات الشهر الحالي حتى الآن</div>
+				</div>
+			</div>
+
+			<!-- Filter Bar -->
+			<div class="glass-panel p-4 mb-6">
+				<form method="GET" action="/vendor/payments" class="filter-form d-flex items-center gap-3 flex-wrap m-0">
+					<div class="flex-1 min-w-48">
+						<input
+							type="text"
+							name="q"
+							value={ data.Search }
+							placeholder="بحث برقم المعاملة، رقم الفاتورة، أو اسم الصيدلية..."
+							class="form-input w-full text-xs font-bold"
+						/>
+					</div>
+
+					<div class="w-44">
+						<select name="method" class="form-select w-full text-xs font-bold">
+							<option value="">كافة طرق الدفع</option>
+							<option value="bank_transfer" selected?={ data.Method == "bank_transfer" }>تحويل بنكي</option>
+							<option value="cash" selected?={ data.Method == "cash" }>نقدي</option>
+							<option value="cheque" selected?={ data.Method == "cheque" }>شيك مصرفي</option>
+							<option value="electronic_wallet" selected?={ data.Method == "electronic_wallet" }>محفظة إلكترونية</option>
+						</select>
+					</div>
+
+					<div class="w-40">
+						<select name="status" class="form-select w-full text-xs font-bold">
+							<option value="">كافة الحالات</option>
+							<option value="completed" selected?={ data.Status == "completed" }>مكتملة</option>
+							<option value="pending" selected?={ data.Status == "pending" }>قيد المعالجة</option>
+							<option value="failed" selected?={ data.Status == "failed" }>ملغاة</option>
+						</select>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<button type="submit" class="btn btn-secondary btn-sm font-bold">
+							تطبيق الفلترة
+						</button>
+						if data.Search != "" || data.Method != "" || data.Status != "" {
+							<a href="/vendor/payments" class="btn btn-ghost btn-sm font-bold text-muted">
+								إعادة تعيين
+							</a>
+						}
+					</div>
+				</form>
+			</div>
+
+			<!-- Payments Table -->
+			if len(data.Payments) == 0 {
+				<div class="glass-panel p-10 text-center empty-state-glass">
+					<div class="text-4xl mb-3">@components.IconCreditCard("icon-sm text-muted")</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد دفعات مطابقة</h3>
+					<p class="text-sm text-secondary mb-4">لم يتم العثور على أي حركات سداد مسجلة بهذه المعايير.</p>
+					<button
+						type="button"
+						onclick="openRecordPaymentModal()"
+						class="btn btn-primary btn-sm font-bold"
+					>
+						تسجيل دفعة جديدة الآن
+					</button>
 				</div>
 			} else {
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
@@ -41,45 +207,265 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string, page, pe
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>رقم العملية / المرجع</th>
+									<th>رقم المعاملة / المرجع</th>
+									<th>الفاتورة المرتبطة</th>
+									<th>العميل / الصيدلية</th>
 									<th>المبلغ</th>
 									<th>طريقة الدفع</th>
-									<th class="text-center">الحالة</th>
-									<th class="text-end">التاريخ</th>
+									<th>الحالة</th>
+									<th>تاريخ التحصيل</th>
+									<th class="text-center">إجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
-								for _, p := range payments {
-									<tr>
+								for _, p := range data.Payments {
+									<tr class="cursor-pointer" onclick={ templ.ComponentScript{Call: fmt.Sprintf("handlePaymentRowClick('%s')", p.InvoiceNumber)} }>
+										<!-- Col 1: Transaction / Ref -->
 										<td class="tabular-nums font-bold">
-											if p.ReferenceNumber != "" {
-												<strong>{ p.ReferenceNumber }</strong>
-											} else if p.TransactionID != "" {
-												<strong>{ p.TransactionID }</strong>
+											<div class="d-flex flex-col">
+												if p.ReferenceNumber != "" {
+													<strong class="text-primary text-xs">{ p.ReferenceNumber }</strong>
+												} else if p.TransactionID != "" {
+													<strong class="text-primary text-xs">{ p.TransactionID }</strong>
+												} else {
+													<strong class="text-primary text-xs">{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
+												}
+												if p.Notes != "" {
+													<span class="text-3xs text-muted truncate max-w-xs">{ p.Notes }</span>
+												}
+											</div>
+										</td>
+
+										<!-- Col 2: Related Invoice -->
+										<td>
+											if p.InvoiceNumber != "" {
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/vendor/invoices?q=%s", p.InvoiceNumber)) }
+													class="badge badge-brand text-xs font-black d-inline-flex items-center gap-1 hover:underline"
+													onclick="event.stopPropagation()"
+													title="انقر لفتح الفاتورة المرتبطة"
+												>
+													@components.IconFileText("icon-3xs")
+													<span>{ p.InvoiceNumber }</span>
+												</a>
 											} else {
-												<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
+												<span class="text-muted text-xs">—</span>
 											}
 										</td>
-										<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
-										<td><span class="badge badge-slate text-xs font-bold">{ p.Method }</span></td>
-										<td class="text-center"><span class="badge badge-emerald text-xs font-bold">{ string(p.Status) }</span></td>
-										<td class="text-end tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
+
+										<!-- Col 3: Customer -->
+										<td>
+											<span class="text-xs font-bold text-primary">{ p.CustomerName }</span>
+										</td>
+
+										<!-- Col 4: Amount -->
+										<td class="tabular-nums font-black text-emerald text-sm">
+											{ fmt.Sprintf("%s ج.م", p.Amount.String()) }
+										</td>
+
+										<!-- Col 5: Method -->
+										<td>
+											<span class="badge badge-slate text-xs font-bold">
+												{ vendorPaymentMethodLabel(p.Method) }
+											</span>
+										</td>
+
+										<!-- Col 6: Status -->
+										<td>
+											{{ label, badgeClass := vendorPaymentStatusBadge(p.Status) }}
+											<span class={ "badge", badgeClass, "text-2xs font-black" }>
+												{ label }
+											</span>
+										</td>
+
+										<!-- Col 7: Date -->
+										<td class="tabular-nums text-xs text-secondary font-medium">
+											if p.PaidAt != nil {
+												{ p.PaidAt.Format("2006-01-02 03:04 PM") }
+											} else {
+												{ p.CreatedAt.Format("2006-01-02 03:04 PM") }
+											}
+										</td>
+
+										<!-- Col 8: Action -->
+										<td class="text-center" onclick="event.stopPropagation()">
+											if p.InvoiceNumber != "" {
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/vendor/invoices?q=%s", p.InvoiceNumber)) }
+													class="btn btn-secondary btn-icon btn-xs text-brand"
+													title="فتح الفاتورة"
+												>
+													@components.IconExternalLink("icon-2xs")
+												</a>
+											}
+										</td>
 									</tr>
 								}
 							</tbody>
 						</table>
 					</div>
-					if totalCount > 0 {
+
+					if data.TotalCount > 0 {
 						@components.B2BPagination(components.PaginationProps{
-							CurrentPage: page,
-							PageSize:    perPage,
-							TotalCount:  totalCount,
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
 							BaseURL:     "/vendor/payments",
 						})
 					}
 				</div>
 			}
 		</div>
+
+		<!-- Modal for Recording Invoice Payment -->
+		<div id="record-payment-modal" class="d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs" onclick="closeRecordPaymentModal()">
+			<div class="glass-panel w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-border" onclick="event.stopPropagation()">
+				<div class="flex-between items-center mb-4 pb-3 border-b border-border">
+					<div class="d-flex items-center gap-2">
+						<div class="w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold">
+							@components.IconCreditCard("icon-xs")
+						</div>
+						<h3 class="text-base font-black text-primary m-0">تسجيل دفعة جديدة على فاتورة</h3>
+					</div>
+					<button type="button" onclick="closeRecordPaymentModal()" class="btn btn-secondary btn-icon btn-xs text-muted" title="إغلاق">
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<form method="POST" action="/vendor/payments/record" class="d-flex flex-col gap-4 m-0">
+					<!-- Invoice Selection -->
+					<div>
+						<label for="modal-payment-invoice" class="form-label text-xs font-bold mb-1.5 d-block">
+							اختيار الفاتورة المستحقة: <span class="text-danger">*</span>
+						</label>
+						if len(data.Invoices) == 0 {
+							<select id="modal-payment-invoice" name="invoice_id" class="form-select w-full text-xs font-bold" disabled>
+								<option value="">لا توجد فواتير مفتوحة بحاجة لسداد حالياً</option>
+							</select>
+							<p class="text-3xs text-muted mt-1">كافة الفواتير الحالية مسددة بالكامل أو ملغاة.</p>
+						} else {
+							<select id="modal-payment-invoice" name="invoice_id" class="form-select w-full text-xs font-bold" required onchange="updateSuggestedAmount(this)">
+								<option value="">-- اختر الفاتورة المطلوب تحصيلها --</option>
+								for _, inv := range data.Invoices {
+									<option
+										value={ fmt.Sprintf("%d", inv.ID) }
+										data-remaining={ inv.RemainingAmount.String() }
+									>
+										{ fmt.Sprintf("%s — %s (المتبقي: %s ج.م من %s ج.م)", inv.InvoiceNumber, inv.CustomerName, inv.RemainingAmount.String(), inv.TotalAmount.String()) }
+									</option>
+								}
+							</select>
+						}
+					</div>
+
+					<!-- Payment Amount -->
+					<div>
+						<label for="modal-payment-amount" class="form-label text-xs font-bold mb-1.5 d-block">
+							مبلغ الدفعة (ج.م): <span class="text-danger">*</span>
+						</label>
+						<input
+							type="number"
+							id="modal-payment-amount"
+							name="amount"
+							step="0.01"
+							min="0.01"
+							class="form-input w-full text-sm font-black tabular-nums"
+							placeholder="0.00"
+							required
+						/>
+						<span class="text-3xs text-muted mt-1 d-block">يمكنك تسجيل دفعة كاملة أو دفعة جزئية وسيتم تحديث رصيد الفاتورة آلياً.</span>
+					</div>
+
+					<!-- Method & Reference in Grid -->
+					<div class="grid grid-cols-2 gap-3">
+						<div>
+							<label for="modal-payment-method" class="form-label text-xs font-bold mb-1.5 d-block">طريقة التحصيل:</label>
+							<select id="modal-payment-method" name="method" class="form-select w-full text-xs font-bold">
+								<option value="bank_transfer">تحويل بنكي</option>
+								<option value="cash">نقدي</option>
+								<option value="cheque">شيك مصرفي</option>
+								<option value="electronic_wallet">محفظة إلكترونية</option>
+							</select>
+						</div>
+
+						<div>
+							<label for="modal-payment-ref" class="form-label text-xs font-bold mb-1.5 d-block">رقم الإيصال / المرجع:</label>
+							<input
+								type="text"
+								id="modal-payment-ref"
+								name="reference_number"
+								class="form-input w-full text-xs font-bold"
+								placeholder="مثال: TRX-99824"
+							/>
+						</div>
+					</div>
+
+					<!-- Notes -->
+					<div>
+						<label for="modal-payment-notes" class="form-label text-xs font-bold mb-1.5 d-block">ملاحظات التحصيل:</label>
+						<textarea
+							id="modal-payment-notes"
+							name="notes"
+							rows="2"
+							class="form-input w-full text-xs font-medium"
+							placeholder="أي تفاصيل أو ملاحظات إضافية حول الدفعة..."
+						></textarea>
+					</div>
+
+					<!-- Submit Buttons -->
+					<div class="flex-end gap-2 pt-3 border-t border-border">
+						<button type="button" onclick="closeRecordPaymentModal()" class="btn btn-secondary btn-sm font-bold">
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm font-black" disabled?={ len(data.Invoices) == 0 }>
+							تأكيد وتسجيل الدفعة
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Script for Modal and Row Navigation -->
+		<script>
+			function openRecordPaymentModal() {
+				const modal = document.getElementById('record-payment-modal');
+				if (modal) {
+					modal.classList.remove('d-none');
+					modal.classList.add('d-flex');
+				}
+			}
+
+			function closeRecordPaymentModal() {
+				const modal = document.getElementById('record-payment-modal');
+				if (modal) {
+					modal.classList.add('d-none');
+					modal.classList.remove('d-flex');
+				}
+			}
+
+			function updateSuggestedAmount(selectEl) {
+				const selectedOption = selectEl.options[selectEl.selectedIndex];
+				if (selectedOption) {
+					const remaining = selectedOption.getAttribute('data-remaining');
+					const amountInput = document.getElementById('modal-payment-amount');
+					if (amountInput && remaining) {
+						amountInput.value = remaining;
+					}
+				}
+			}
+
+			function handlePaymentRowClick(invoiceNumber) {
+				if (invoiceNumber && invoiceNumber.trim() !== "") {
+					window.location.href = `/vendor/invoices?q=${encodeURIComponent(invoiceNumber)}`;
+				}
+			}
+
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') {
+					closeRecordPaymentModal();
+				}
+			});
+		</script>
 	}
 }
 

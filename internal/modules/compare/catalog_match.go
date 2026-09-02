@@ -20,9 +20,10 @@ package compare
 import (
 	"context"
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
+	"time"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
@@ -240,3 +241,39 @@ func methodFor(level productmatch.MatchLevel) MatchMethod {
 		return MatchMethodFuzzy
 	}
 }
+
+// StartBackgroundCatalogMatch starts catalog matching in the background without blocking the HTTP request.
+// It executes safely in a goroutine with panic recovery and timeout protection, preventing HTTP 502 gateway timeouts.
+func (s *Service) StartBackgroundCatalogMatch(fileID int64, useAI bool, orgID *int64) error {
+	if s == nil || s.repo == nil {
+		return fmt.Errorf("compare: service not configured")
+	}
+	if s.catalog == nil {
+		return fmt.Errorf("%s", i18n.TDefault("w4_mod.s_362_362"))
+	}
+
+	go func() {
+		defer func() {
+			if r := recover(); r != nil && s.log != nil {
+				s.log.Error("panic recovered during background catalog match", "panic", r, "file_id", fileID)
+			}
+		}()
+
+		bgCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+
+		stats, err := s.MatchFileRows(bgCtx, fileID, useAI, orgID)
+		if err != nil {
+			if s.log != nil {
+				s.log.ErrorContext(bgCtx, "background catalog match failed", "error", err, "file_id", fileID)
+			}
+			return
+		}
+		if s.log != nil {
+			s.log.InfoContext(bgCtx, "background catalog match completed", "file_id", fileID, "matched", stats.Matched(), "total", stats.Rows)
+		}
+	}()
+
+	return nil
+}
+

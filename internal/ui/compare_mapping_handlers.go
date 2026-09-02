@@ -285,6 +285,13 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
+
+		// Automatically start catalog matching in the background for uploaded file
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
+		}
+		_ = h.compareSvc.StartBackgroundCatalogMatch(id, false, orgPtr)
 	}
 
 	queue := strings.TrimSpace(r.FormValue("setup_queue"))
@@ -324,5 +331,5 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.mapping.saved_success"))
+	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين، وبدأت عملية المطابقة التلقائية مع الكتالوج في الخلفية بنجاح.")
 }

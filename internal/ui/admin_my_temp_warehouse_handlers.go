@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
@@ -203,44 +204,40 @@ func (h *UIHandler) AdminMyTempWarehouseBulkSubmit(w http.ResponseWriter, r *htt
 		return
 	}
 
+	actor, ok := authctx.From(ctx)
 	currentUID := currentActorUserID(r)
-	successCount := 0
+	var ownerPtr *int64
+	// If the user is not staff, restrict bulk operations to their own files
+	if !ok || !actor.IsStaff {
+		ownerPtr = &currentUID
+	}
+
+	var affected int64
+	var opErr error
 
 	switch action {
 	case "archive":
 		reason := i18n.T(lang, "admin.temp_wh.manual_archive_reason")
-		for _, id := range ids {
-			f, err := h.compareSvc.GetFile(database.AsSystem(ctx), id)
-			if err != nil || f == nil || f.UserID != currentUID {
-				continue
-			}
-			if err := h.compareSvc.ArchiveFile(database.AsSystem(ctx), id, reason); err == nil {
-				successCount++
-			}
+		affected, opErr = h.compareSvc.BulkArchiveFiles(database.AsSystem(ctx), ids, ownerPtr, reason)
+		if opErr != nil || affected == 0 {
+			h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", "لم يتم العثور على مستودعات قابلة للأرشفة أو حدث خطأ أثناء التنفيذ")
+			return
 		}
-		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم أرشفة %d مستودع بنجاح", successCount))
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم أرشفة %d مستودع بنجاح", affected))
 	case "unarchive":
-		for _, id := range ids {
-			f, err := h.compareSvc.GetFile(database.AsSystem(ctx), id)
-			if err != nil || f == nil || f.UserID != currentUID {
-				continue
-			}
-			if err := h.compareSvc.UnarchiveFile(database.AsSystem(ctx), id); err == nil {
-				successCount++
-			}
+		affected, opErr = h.compareSvc.BulkUnarchiveFiles(database.AsSystem(ctx), ids, ownerPtr)
+		if opErr != nil || affected == 0 {
+			h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", "لم يتم العثور على مستودعات قابلة للتفعيل أو حدث خطأ أثناء التنفيذ")
+			return
 		}
-		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم تفعيل واسترجاع %d مستودع بنجاح", successCount))
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم تفعيل واسترجاع %d مستودع بنجاح", affected))
 	case "delete":
-		for _, id := range ids {
-			f, err := h.compareSvc.GetFile(database.AsSystem(ctx), id)
-			if err != nil || f == nil || f.UserID != currentUID {
-				continue
-			}
-			if err := h.compareSvc.DeleteFile(database.AsSystem(ctx), id); err == nil {
-				successCount++
-			}
+		affected, opErr = h.compareSvc.BulkDeleteFiles(database.AsSystem(ctx), ids, ownerPtr)
+		if opErr != nil || affected == 0 {
+			h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", "لم يتم العثور على المستودعات المحددة لحذفها أو قد تم حذفها مسبقاً")
+			return
 		}
-		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم حذف %d مستودع وكافة أصنافها نهائياً", successCount))
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم حذف %d مستودع وكافة أصنافها نهائياً", affected))
 	default:
 		h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", "إجراء غير معروف")
 	}

@@ -303,15 +303,16 @@ const (
 
 // MarketDiscountsFilter contains filter and pagination parameters for the public market discounts page.
 type MarketDiscountsFilter struct {
-	Query       string   `json:"query"`
-	Supplier    string   `json:"supplier"`
-	MinPrice    *float64 `json:"min_price"`
-	MaxPrice    *float64 `json:"max_price"`
-	MinDiscount *float64 `json:"min_discount"`
-	MaxDiscount *float64 `json:"max_discount"`
-	SortBy      string   `json:"sort_by"` // "newest", "oldest", "discount_desc", "price_asc", "price_desc"
-	Page        int      `json:"page"`
-	Limit       int      `json:"limit"`
+	Query          string   `json:"query"`
+	Supplier       string   `json:"supplier"`
+	OrganizationID *int64   `json:"organization_id,omitempty"`
+	MinPrice       *float64 `json:"min_price"`
+	MaxPrice       *float64 `json:"max_price"`
+	MinDiscount    *float64 `json:"min_discount"`
+	MaxDiscount    *float64 `json:"max_discount"`
+	SortBy         string   `json:"sort_by"` // "newest", "oldest", "discount_desc", "price_asc", "price_desc"
+	Page           int      `json:"page"`
+	Limit          int      `json:"limit"`
 }
 
 // MarketDiscountRow represents a single discount item displayed on the market discounts page.

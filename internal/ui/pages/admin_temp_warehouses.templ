@@ -143,8 +143,21 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							return;
 						}
 					}
+					const form = document.getElementById('warehouse-bulk-form');
+					if (!form) return;
 					document.getElementById('bulk-action-input').value = action;
-					document.getElementById('warehouse-bulk-form').submit();
+					const idsInput = document.getElementById('bulk-selected-ids-input');
+					if (idsInput) idsInput.value = this.selectedIds.join(',');
+					form.querySelectorAll('input.dynamic-bulk-id').forEach(el => el.remove());
+					this.selectedIds.forEach(id => {
+						const inp = document.createElement('input');
+						inp.type = 'hidden';
+						inp.name = 'selected_ids';
+						inp.className = 'dynamic-bulk-id';
+						inp.value = id;
+						form.appendChild(inp);
+					});
+					form.submit();
 				},
 				uploadModal: false,
 				itemsModal: false,
@@ -690,9 +703,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			<div x-show="selectedIds.length > 0" x-cloak class="warehouse-bulk-bar">
 				<form id="warehouse-bulk-form" method="POST" action={ templ.SafeURL(data.Base + "/bulk") } class="w-full flex-between items-center flex-wrap gap-3 m-0">
 					<input type="hidden" name="bulk_action" id="bulk-action-input" value=""/>
-					<template x-for="id in selectedIds" :key="id">
-						<input type="hidden" name="selected_ids" :value="id"/>
-					</template>
+					<input type="hidden" name="selected_ids" id="bulk-selected-ids-input" value=""/>
 
 					<div class="warehouse-bulk-info">
 						<div class="w-8 h-8 rounded-lg bg-accent-subtle text-accent flex-center font-black text-sm">

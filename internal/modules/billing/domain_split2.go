@@ -8,25 +8,27 @@ import (
 
 // AdminInvoiceView represents an enriched B2B invoice view for administration.
 type AdminInvoiceView struct {
-	ID             int64         `json:"id"`
-	PublicID       string        `json:"public_id"`
-	OrganizationID int64         `json:"organization_id"`
-	VendorName     string        `json:"vendor_name"`
-	CustomerOrgID  *int64        `json:"customer_org_id,omitempty"`
-	CustomerName   string        `json:"customer_name"`
-	OrderID        *int64        `json:"order_id,omitempty"`
-	OrderNumber    string        `json:"order_number,omitempty"`
-	InvoiceNumber  string        `json:"invoice_number"`
-	IssueDate      time.Time     `json:"issue_date"`
-	DueDate        time.Time     `json:"due_date"`
-	Subtotal       money.Amount  `json:"subtotal"`
-	TaxAmount      money.Amount  `json:"tax_amount"`
-	DiscountAmount money.Amount  `json:"discount_amount"`
-	TotalAmount    money.Amount  `json:"total_amount"`
-	Status         InvoiceStatus `json:"status"`
-	PaymentMethod  string        `json:"payment_method"`
-	Notes          string        `json:"notes,omitempty"`
-	CreatedAt      time.Time     `json:"created_at"`
+	ID              int64         `json:"id"`
+	PublicID        string        `json:"public_id"`
+	OrganizationID  int64         `json:"organization_id"`
+	VendorName      string        `json:"vendor_name"`
+	CustomerOrgID   *int64        `json:"customer_org_id,omitempty"`
+	CustomerName    string        `json:"customer_name"`
+	OrderID         *int64        `json:"order_id,omitempty"`
+	OrderNumber     string        `json:"order_number,omitempty"`
+	InvoiceNumber   string        `json:"invoice_number"`
+	IssueDate       time.Time     `json:"issue_date"`
+	DueDate         time.Time     `json:"due_date"`
+	Subtotal        money.Amount  `json:"subtotal"`
+	TaxAmount       money.Amount  `json:"tax_amount"`
+	DiscountAmount  money.Amount  `json:"discount_amount"`
+	TotalAmount     money.Amount  `json:"total_amount"`
+	PaidAmount      money.Amount  `json:"paid_amount"`
+	RemainingAmount money.Amount  `json:"remaining_amount"`
+	Status          InvoiceStatus `json:"status"`
+	PaymentMethod   string        `json:"payment_method"`
+	Notes           string        `json:"notes,omitempty"`
+	CreatedAt       time.Time     `json:"created_at"`
 }
 
 // AdminPaymentView represents an enriched payment record for administration.
@@ -34,6 +36,9 @@ type AdminPaymentView struct {
 	ID                   int64        `json:"id"`
 	PublicID             string       `json:"public_id"`
 	PaymentIntegrationID *int64       `json:"payment_integration_id,omitempty"`
+	InvoiceID            *int64       `json:"invoice_id,omitempty"`
+	InvoiceNumber        string       `json:"invoice_number,omitempty"`
+	CustomerName         string       `json:"customer_name,omitempty"`
 	OrderID              *int64       `json:"order_id,omitempty"`
 	OrderNumber          string       `json:"order_number,omitempty"`
 	UserID               int64        `json:"user_id"`
@@ -45,6 +50,7 @@ type AdminPaymentView struct {
 	Status               string       `json:"status"`
 	TransactionID        string       `json:"transaction_id,omitempty"`
 	ReferenceNumber      string       `json:"reference_number,omitempty"`
+	Notes                string       `json:"notes,omitempty"`
 	PaidAt               *time.Time   `json:"paid_at,omitempty"`
 	CreatedAt            time.Time    `json:"created_at"`
 }
@@ -117,11 +123,32 @@ type InvoiceFilter struct {
 
 // PaymentFilter specifies parameters for querying payments.
 type PaymentFilter struct {
-	Search string
-	Method string
-	Status string
-	Limit  int
-	Offset int
+	Search         string
+	Method         string
+	Status         string
+	OrganizationID *int64
+	Limit          int
+	Offset         int
+}
+
+// VendorPaymentStats contains KPI summaries for vendor payments dashboard.
+type VendorPaymentStats struct {
+	TotalCount  int          `json:"total_count"`
+	TotalAmount money.Amount `json:"total_amount"`
+	TodayAmount money.Amount `json:"today_amount"`
+	MonthAmount money.Amount `json:"month_amount"`
+}
+
+// RecordInvoicePaymentRequest contains payload to register a payment against an invoice.
+type RecordInvoicePaymentRequest struct {
+	InvoiceID       int64        `json:"invoice_id"`
+	OrganizationID  int64        `json:"organization_id"`
+	UserID          int64        `json:"user_id"`
+	Amount          money.Amount `json:"amount"`
+	Method          string       `json:"method"`
+	ReferenceNumber string       `json:"reference_number"`
+	Notes           string       `json:"notes"`
+	PaidAt          *time.Time   `json:"paid_at,omitempty"`
 }
 
 // PrintableOrgInfo holds commercial and tax registration details of a party on an invoice.

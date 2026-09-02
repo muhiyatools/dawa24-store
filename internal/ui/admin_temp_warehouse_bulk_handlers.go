@@ -1,4 +1,4 @@
-﻿package ui
+package ui
 
 import (
 	"fmt"
@@ -39,30 +39,32 @@ func (h *UIHandler) AdminTempWarehouseBulkSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	successCount := 0
+	var affected int64
+	var opErr error
+
 	switch action {
 	case "archive":
 		reason := i18n.T(lang, "admin.temp_wh.manual_archive_reason")
-		for _, id := range ids {
-			if err := h.compareSvc.ArchiveFile(database.AsSystem(ctx), id, reason); err == nil {
-				successCount++
-			}
+		affected, opErr = h.compareSvc.BulkArchiveFiles(database.AsSystem(ctx), ids, nil, reason)
+		if opErr != nil || affected == 0 {
+			h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", "لم يتم العثور على مستودعات قابلة للأرشفة أو حدث خطأ أثناء التنفيذ")
+			return
 		}
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم أرشفة %d مستودع بنجاح", successCount))
+		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم أرشفة %d مستودع بنجاح", affected))
 	case "unarchive":
-		for _, id := range ids {
-			if err := h.compareSvc.UnarchiveFile(database.AsSystem(ctx), id); err == nil {
-				successCount++
-			}
+		affected, opErr = h.compareSvc.BulkUnarchiveFiles(database.AsSystem(ctx), ids, nil)
+		if opErr != nil || affected == 0 {
+			h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", "لم يتم العثور على مستودعات قابلة للتفعيل أو حدث خطأ أثناء التنفيذ")
+			return
 		}
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم تفعيل واسترجاع %d مستودع بنجاح", successCount))
+		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم تفعيل واسترجاع %d مستودع بنجاح", affected))
 	case "delete":
-		for _, id := range ids {
-			if err := h.compareSvc.DeleteFile(database.AsSystem(ctx), id); err == nil {
-				successCount++
-			}
+		affected, opErr = h.compareSvc.BulkDeleteFiles(database.AsSystem(ctx), ids, nil)
+		if opErr != nil || affected == 0 {
+			h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", "لم يتم العثور على المستودعات المحددة لحذفها أو قد تم حذفها مسبقاً")
+			return
 		}
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم حذف %d مستودع وكافة أصنافها نهائياً", successCount))
+		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم حذف %d مستودع وكافة أصنافها نهائياً", affected))
 	default:
 		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", "إجراء غير معروف")
 	}
