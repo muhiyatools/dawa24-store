@@ -140,13 +140,13 @@ func TestVendorVariantQueryPageClamping(t *testing.T) {
 			wantOffset: 200,
 		},
 		{
-			name: "invalid limit falls back to default 50",
+			name: "invalid limit falls back to default 25",
 			query: VendorVariantQuery{
 				PageNumber: 2,
 				PerPage:    99999,
 			},
 			wantLimit:  DefaultPageSize,
-			wantOffset: 50,
+			wantOffset: 25,
 		},
 		{
 			name: "negative or zero page becomes 1",
