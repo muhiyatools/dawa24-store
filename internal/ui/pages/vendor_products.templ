@@ -139,7 +139,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				}
 
 				<!-- Search, Filter & Sort Toolbar -->
-				<div class="glass-panel p-4 mb-6">
+				<div class="filter-bar">
 					<form method="GET" action="/vendor/products" id="vendor-products-filter-form" class="m-0">
 						if data.Filter.PerPage > 0 {
 							<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.Filter.PerPage) } />

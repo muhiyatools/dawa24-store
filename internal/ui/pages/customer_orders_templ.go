@@ -89,7 +89,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>طلب توريد جديد</span></a></div></div><!-- Filter Tabs --><div class=\"flex-between flex-wrap gap-4 mb-6 border-b pb-3\"><div class=\"d-flex items-center gap-2 flex-wrap\"><button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab active font-bold\" onclick=\"filterOrders('all', this)\"><span>كل الطلبيات</span> <span class=\"badge badge-slate text-xs tabular-nums ms-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>طلب توريد جديد</span></a></div></div><!-- Filter Tabs --><div class=\"flex-between flex-wrap gap-4 mb-6 border-b pb-3\"><div class=\"d-flex items-center gap-2 flex-wrap\"><button type=\"button\" class=\"btn btn-secondary btn-sm tab-btn active font-bold\" onclick=\"filterOrders('all', this)\"><span>كل الطلبيات</span> <span class=\"badge badge-slate text-xs tabular-nums ms-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -102,7 +102,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab font-bold\" onclick=\"filterOrders('active', this)\"><span>قيد التنفيذ</span> <span class=\"badge badge-amber text-xs tabular-nums ms-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm tab-btn font-bold\" onclick=\"filterOrders('active', this)\"><span>قيد التنفيذ</span> <span class=\"badge badge-amber text-xs tabular-nums ms-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -115,7 +115,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab font-bold\" onclick=\"filterOrders('completed', this)\"><span>المكتملة</span> <span class=\"badge badge-emerald text-xs tabular-nums ms-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></button> <button type=\"button\" class=\"btn btn-secondary btn-sm tab-btn font-bold\" onclick=\"filterOrders('completed', this)\"><span>المكتملة</span> <span class=\"badge badge-emerald text-xs tabular-nums ms-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -133,7 +133,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 					return templ_7745c5c3_Err
 				}
 				if cancelledCount > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<button type=\"button\" class=\"btn btn-secondary btn-sm filter-tab font-bold\" onclick=\"filterOrders('cancelled', this)\"><span>الملغية</span> <span class=\"badge badge-rose text-xs tabular-nums ms-1\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<button type=\"button\" class=\"btn btn-secondary btn-sm tab-btn font-bold\" onclick=\"filterOrders('cancelled', this)\"><span>الملغية</span> <span class=\"badge badge-rose text-xs tabular-nums ms-1\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -159,7 +159,7 @@ func CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div><script>\n\t\t\t\tfunction filterOrders(status, btn) {\n\t\t\t\t\tdocument.querySelectorAll('.filter-tab').forEach(b => {\n\t\t\t\t\t\tb.classList.remove('btn-primary');\n\t\t\t\t\t\tb.classList.add('btn-secondary');\n\t\t\t\t\t});\n\t\t\t\t\tbtn.classList.remove('btn-secondary');\n\t\t\t\t\tbtn.classList.add('btn-primary');\n\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\n\t\t\t\t\titems.forEach(item => {\n\t\t\t\t\t\tconst s = item.getAttribute('data-status-category');\n\t\t\t\t\t\tif (status === 'all' || s === status) {\n\t\t\t\t\t\t\titem.style.display = 'flex';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\titem.style.display = 'none';\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\n\t\t\t\tfunction searchOrders(q) {\n\t\t\t\t\tconst query = (q || '').trim().toLowerCase();\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\n\t\t\t\t\titems.forEach(item => {\n\t\t\t\t\t\tconst num = (item.getAttribute('data-order-num') || '').toLowerCase();\n\t\t\t\t\t\tif (!query || num.includes(query)) {\n\t\t\t\t\t\t\titem.style.display = 'flex';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\titem.style.display = 'none';\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div><script>\r\n\t\t\t\tfunction filterOrders(status, btn) {\r\n\t\t\t\t\tdocument.querySelectorAll('.filter-tab').forEach(b => {\r\n\t\t\t\t\t\tb.classList.remove('btn-primary');\r\n\t\t\t\t\t\tb.classList.add('btn-secondary');\r\n\t\t\t\t\t});\r\n\t\t\t\t\tbtn.classList.remove('btn-secondary');\r\n\t\t\t\t\tbtn.classList.add('btn-primary');\r\n\r\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\r\n\t\t\t\t\titems.forEach(item => {\r\n\t\t\t\t\t\tconst s = item.getAttribute('data-status-category');\r\n\t\t\t\t\t\tif (status === 'all' || s === status) {\r\n\t\t\t\t\t\t\titem.style.display = 'flex';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\titem.style.display = 'none';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t}\r\n\r\n\t\t\t\tfunction searchOrders(q) {\r\n\t\t\t\t\tconst query = (q || '').trim().toLowerCase();\r\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\r\n\t\t\t\t\titems.forEach(item => {\r\n\t\t\t\t\t\tconst num = (item.getAttribute('data-order-num') || '').toLowerCase();\r\n\t\t\t\t\t\tif (!query || num.includes(query)) {\r\n\t\t\t\t\t\t\titem.style.display = 'flex';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\titem.style.display = 'none';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t}\r\n\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -237,7 +237,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " <span class=\"text-xs font-normal text-muted\">عملية</span></div><div class=\"stat-card-sub\">مسجلة في دفتر الأستاذ</div></div></div><!-- Section Tabs Navigation --><div class=\"tab-list mb-4\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'transactions' }\" @click=\"activeSection = 'transactions'\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " <span class=\"text-xs font-normal text-muted\">عملية</span></div><div class=\"stat-card-sub\">مسجلة في دفتر الأستاذ</div></div></div><!-- Section Tabs Navigation --><div class=\"tabs-nav mb-4\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeSection === 'transactions' }\" @click=\"activeSection = 'transactions'\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -420,7 +420,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						const totalMb = (totalSize / 1024 / 1024).toFixed(2);
 						previewEl.innerHTML = `
        <div class="stack-sm">
-								<div class="stat-label text-sm text-secondary">تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>
+								<div class="stat-card-label">تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>
         <div class="stack-sm">
 									${fileNames.map(n => `• ${n}`).join('<br/>')}
 								</div>
@@ -649,7 +649,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						resultsContainer.innerHTML = html;
 					})
 					.catch(err => {
-						resultsContainer.innerHTML = '<div class="stat-label text-sm text-secondary">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
+						resultsContainer.innerHTML = '<div class="stat-card-label">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
 					});
 				}, 250);
 			}
@@ -669,9 +669,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				root.innerHTML = `
      <div class="stack-sm">
 						<div class="glass-panel p-4">
-							<div class="stat-label text-sm text-secondary">@components.IconSettings("icon-sm")</div>
-							<div class="stat-label text-sm text-secondary">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
-							<div class="stat-label text-sm text-secondary">جاري قراءة البيانات وإعداد المعاينة الذكية</div>
+							<div class="stat-card-label">@components.IconSettings("icon-sm")</div>
+							<div class="stat-card-label">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
+							<div class="stat-card-label">جاري قراءة البيانات وإعداد المعاينة الذكية</div>
 						</div>
 					</div>
 				`;
@@ -701,8 +701,8 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				root.innerHTML = `
      <div class="stack-sm">
 						<div class="glass-panel p-4">
-							<div class="stat-label text-sm text-secondary">⏳</div>
-							<div class="stat-label text-sm text-secondary">جاري قراءة أعمدة الملف ومعاينتها...</div>
+							<div class="stat-card-label">⏳</div>
+							<div class="stat-card-label">جاري قراءة أعمدة الملف ومعاينتها...</div>
 						</div>
 					</div>
 				`;
@@ -776,8 +776,8 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					root.innerHTML = `
       <div class="stack-sm">
 							<div class="glass-panel p-4">
-								<div class="stat-label text-sm text-secondary">⏩</div>
-								<div class="stat-label text-sm text-secondary">جاري تخطي الملف والانتقال للملف التالي...</div>
+								<div class="stat-card-label">⏩</div>
+								<div class="stat-card-label">جاري تخطي الملف والانتقال للملف التالي...</div>
 							</div>
 						</div>
 					`;

@@ -45,10 +45,10 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				</div>
 
 				<!-- Main Persistent Tabs Bar -->
-				<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
+				<div class="tabs-nav m-0 mt-6 pt-4 border-t">
 					<button
 						type="button"
-						class="cb-tab-btn"
+						class="tab-btn"
 						:class="{ 'active': activeTab === 'sql' }"
 						@click="setTab('sql')"
 					>
@@ -58,7 +58,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 					<button
 						type="button"
-						class="cb-tab-btn"
+						class="tab-btn"
 						:class="{ 'active': activeTab === 'ai' }"
 						@click="setTab('ai')"
 					>
@@ -68,7 +68,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 					<button
 						type="button"
-						class="cb-tab-btn"
+						class="tab-btn"
 						:class="{ 'active': activeTab === 'errors' }"
 						@click="setTab('errors')"
 					>
@@ -78,7 +78,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 					<button
 						type="button"
-						class="cb-tab-btn"
+						class="tab-btn"
 						:class="{ 'active': activeTab === 'audit' }"
 						@click="setTab('audit')"
 					>

@@ -305,10 +305,7 @@
     border-inline-start: 1px solid var(--nav-rule);
   }
 
-  .nav-drawer-toggle { display: none; }
-
   @media (max-width: 1024px) {
-    .nav-drawer-toggle { display: inline-flex; }
     .nav-context { display: none; }
   }
 
@@ -386,6 +383,17 @@
   @media (max-width: 768px) {
     .nav-btn { min-block-size: var(--touch-min); }
     .nav-btn--icon { inline-size: var(--touch-min); }
+  }
+
+  /* The drawer toggle exists only where the sidebar is off-canvas. This has to
+     sit after .nav-btn: the toggle is a .nav-btn, both selectors are a single
+     class, so whichever rule comes last in the file wins the display property.
+     Declared before .nav-btn, "display: none" lost and the toggle appeared on
+     every desktop dashboard beside an already-open sidebar. */
+  .nav-drawer-toggle { display: none; }
+
+  @media (max-width: 1024px) {
+    .nav-drawer-toggle { display: inline-flex; }
   }
 
   .nav-mobile-only { display: inline-flex; }

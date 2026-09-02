@@ -122,7 +122,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Nav Tabs matching System --><div class=\"tab-list mb-4\"><a href=\"/vendor/organization\" class=\"tab-btn\">المؤسسة</a> <a href=\"/vendor/team\" class=\"tab-btn\">الموظفون</a> <a href=\"/vendor/user-organization\" class=\"tab-btn active\">المستخدم-المنظمة</a> <a href=\"/vendor/branches\" class=\"tab-btn\">الفروع</a> <a href=\"/vendor/roles\" class=\"tab-btn\">الأدوار</a></div><!-- Header Banner matching system --><div class=\"glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><div class=\"user-avatar-badge\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Nav Tabs matching System --><div class=\"tabs-nav mb-4\"><a href=\"/vendor/organization\" class=\"tab-btn\">المؤسسة</a> <a href=\"/vendor/team\" class=\"tab-btn\">الموظفون</a> <a href=\"/vendor/user-organization\" class=\"tab-btn active\">المستخدم-المنظمة</a> <a href=\"/vendor/branches\" class=\"tab-btn\">الفروع</a> <a href=\"/vendor/roles\" class=\"tab-btn\">الأدوار</a></div><!-- Header Banner matching system --><div class=\"glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-2 mb-1\"><div class=\"user-avatar-badge\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

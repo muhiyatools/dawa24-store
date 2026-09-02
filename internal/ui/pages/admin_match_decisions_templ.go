@@ -135,7 +135,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Stats Grid --><div class=\"dashboard-stat-grid mb-6\"><div class=\"glass-panel stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Stats Grid --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-value tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,7 +148,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"stat-label text-sm text-secondary\">إجمالي القرارات المخزنة</div></div><div class=\"glass-panel stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"stat-card-label\">إجمالي القرارات المخزنة</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-value tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -165,7 +165,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stat-label text-sm text-secondary\">مرات إعادة الاستخدام في الصفحة</div></div><div class=\"glass-panel stat-card\"><div class=\"stat-value tabular-nums font-bold text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"stat-card-label\">مرات إعادة الاستخدام في الصفحة</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-value tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -180,7 +180,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"stat-label text-sm text-secondary\">حالة المفتاح العام للنظام</div></div></div><!-- Search & Filter Card --><div class=\"glass-panel mb-6\"><form method=\"GET\" action=\"/admin/match-decisions\" class=\"filter-bar d-flex items-center gap-3 flex-wrap p-4\"><div class=\"flex-1 min-w-48\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"stat-card-label\">حالة المفتاح العام للنظام</div></div></div><!-- Search & Filter Card --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/match-decisions\" class=\"filter-bar d-flex items-center gap-3 flex-wrap p-4\"><div class=\"flex-1 min-w-48\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

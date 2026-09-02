@@ -180,11 +180,11 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><!-- Status Filter Tabs --><div class=\"glass-panel p-6 mb-6\"><div class=\"cb-tabs-nav m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><!-- Status Filter Tabs --><div class=\"glass-panel p-6 mb-6\"><div class=\"tabs-nav m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all")}
+			var templ_7745c5c3_Var7 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -219,7 +219,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "pending")}
+			var templ_7745c5c3_Var10 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "pending")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -264,7 +264,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "active")}
+			var templ_7745c5c3_Var13 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "active")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var13...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -299,7 +299,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var16 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "draft")}
+			var templ_7745c5c3_Var16 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "draft")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -334,7 +334,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var19 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "rejected")}
+			var templ_7745c5c3_Var19 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "rejected")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var19...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

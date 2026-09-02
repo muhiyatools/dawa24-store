@@ -87,7 +87,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"text-xs text-muted mt-0.5\">حسابات صادفت أخطاء</div></div></div><!-- Filter Strip --><div class=\"glass-panel mb-0 p-4\"><form method=\"GET\" action=\"/admin/developers\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"errors\"><div class=\"flex-1 min-w-60\"><input type=\"text\" name=\"err_q\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"text-xs text-muted mt-0.5\">حسابات صادفت أخطاء</div></div></div><!-- Filter Strip --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/developers\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"errors\"><div class=\"flex-1 min-w-60\"><input type=\"text\" name=\"err_q\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -641,7 +641,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var30 = []any{"badge", auditBadgeClass(e.Action)}
+				var templ_7745c5c3_Var30 = []any{"badge", auditBadgeClass(e.Action), "font-bold", "text-xs", "self-start"}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var30...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -659,7 +659,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\" class=\"font-bold text-xs self-start\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -772,7 +772,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 					return templ_7745c5c3_Err
 				}
 				if e.Severity != "" && e.Severity != "-" {
-					var templ_7745c5c3_Var39 = []any{"badge", severityBadgeClass(e.Severity)}
+					var templ_7745c5c3_Var39 = []any{"badge", severityBadgeClass(e.Severity), "text-xs", "font-bold"}
 					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var39...)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -790,7 +790,7 @@ func AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) templ
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" class=\"text-xs font-bold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

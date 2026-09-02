@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -20,7 +21,7 @@ func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request)
 	if page < 1 {
 		page = 1
 	}
-	perPage := 50
+	perPage := pagination.TableRows
 	offset := (page - 1) * perPage
 
 	var aiConvs []*assistant.ConversationSummary

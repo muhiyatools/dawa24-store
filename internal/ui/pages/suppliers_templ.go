@@ -137,11 +137,11 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</form><!-- View Switcher (List View vs Map View) --><div class=\"cb-tabs-nav m-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</form><!-- View Switcher (List View vs Map View) --><div class=\"tabs-nav m-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab != "map")}
+		var templ_7745c5c3_Var6 = []any{"tab-btn", templ.KV("active", data.ActiveTab != "map")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -171,7 +171,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "map")}
+		var templ_7745c5c3_Var8 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "map")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

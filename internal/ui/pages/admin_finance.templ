@@ -144,8 +144,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 			<!-- Unified Tabs Navigation -->
 			<div class="glass-panel p-6 mb-6">
-				<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
-					<a href="/admin/finance?tab=deposits" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "deposits" || data.ActiveTab == "") }>
+				<div class="tabs-nav m-0 mb-6 pb-4 border-b">
+					<a href="/admin/finance?tab=deposits" class={ "tab-btn", templ.KV("active", data.ActiveTab == "deposits" || data.ActiveTab == "") }>
 						@components.IconWallet("icon-xs")
 						<span>مراجعة طلبات شحن المحفظة</span>
 						if data.PendingDepositsCount > 0 {
@@ -154,27 +154,27 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalDeposits) }</span>
 						}
 					</a>
-					<a href="/admin/finance?tab=invoices" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "invoices") }>
+					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices") }>
 						@components.IconFile("icon-xs")
 						<span>الفواتير الضريبية والمطالبات</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
 					</a>
-					<a href="/admin/finance?tab=payments" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "payments") }>
+					<a href="/admin/finance?tab=payments" class={ "tab-btn", templ.KV("active", data.ActiveTab == "payments") }>
 						@components.IconWallet("icon-xs")
 						<span>سجل المدفوعات والتحصيلات</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalPayments) }</span>
 					</a>
-					<a href="/admin/finance?tab=wallets" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "wallets") }>
+					<a href="/admin/finance?tab=wallets" class={ "tab-btn", templ.KV("active", data.ActiveTab == "wallets") }>
 						@components.IconLayers("icon-xs")
 						<span>محافظ المنشآت والأرصدة</span>
 						<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
 					</a>
-					<a href="/admin/finance?tab=transactions" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "transactions") }>
+					<a href="/admin/finance?tab=transactions" class={ "tab-btn", templ.KV("active", data.ActiveTab == "transactions") }>
 						@components.IconLayers("icon-xs")
 						<span>سجل حركات ومعاملات المحافظ</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalTransactions) }</span>
 					</a>
-					<a href="/admin/finance?tab=earnings" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "earnings") }>
+					<a href="/admin/finance?tab=earnings" class={ "tab-btn", templ.KV("active", data.ActiveTab == "earnings") }>
 						@components.IconChart("icon-xs")
 						<span>تقرير الأرباح والعمولات</span>
 					</a>
@@ -183,7 +183,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
     <div class="stack-sm">
 					<!-- TAB 0: DEPOSIT REQUESTS REVIEW -->
 					if data.ActiveTab == "deposits" || data.ActiveTab == "" {
-						<div class="tab-content-pane active space-y-4">
+						<div class="tab-panel active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
@@ -355,7 +355,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 1: INVOICES -->
 					if data.ActiveTab == "invoices" {
-						<div class="tab-content-pane active space-y-4">
+						<div class="tab-panel active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">الفواتير والمطالبات الضريبية</h2>
@@ -462,7 +462,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 2: PAYMENTS -->
 					if data.ActiveTab == "payments" {
-						<div class="tab-content-pane active space-y-4">
+						<div class="tab-panel active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">سجل المدفوعات والتحصيلات الإلكترونية</h2>
@@ -552,7 +552,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 3: WALLETS (محافظ المنشآت والأرصدة) -->
 					if data.ActiveTab == "wallets" {
-						<div class="tab-content-pane active space-y-4">
+						<div class="tab-panel active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">محافظ الصيدليات والموردين والأرصدة</h2>
@@ -661,7 +661,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 4: TRANSACTIONS (سجل حركات ومعاملات المحافظ) -->
 					if data.ActiveTab == "transactions" {
-						<div class="tab-content-pane active space-y-4">
+						<div class="tab-panel active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">سجل حركات ومعاملات المحافظ التفصيلي</h2>
@@ -785,7 +785,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 5: EARNINGS & COMMISSIONS -->
 					if data.ActiveTab == "earnings" {
-						<div class="tab-content-pane active space-y-6">
+						<div class="tab-panel active space-y-6">
 							<div class="pb-3 border-b">
 								<h2 class="text-lg font-black text-primary m-0">تقرير أرباح وعمولات المنظومة</h2>
 								<p class="text-xs text-secondary mt-1 mb-0">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد المكتملة.</p>

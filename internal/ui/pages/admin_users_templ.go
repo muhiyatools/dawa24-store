@@ -187,7 +187,7 @@ func AdminUsersPage(data AdminUsersPageData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div></div><!-- Filter Bar --><div class=\"glass-panel p-4 mb-5 border rounded-2xl shadow-xs\"><form method=\"GET\" action=\"/admin/users\" class=\"flex-between items-center flex-wrap gap-3 m-0\"><div class=\"d-flex gap-2 items-center flex-wrap flex-1\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div></div><!-- Filter Bar --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/users\" class=\"flex-between items-center flex-wrap gap-3 m-0\"><div class=\"d-flex gap-2 items-center flex-wrap flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -593,7 +593,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tactiveTab: 'all',\n\t\t\t\tsearchQuery: '',\n\t\t\t\tstatusFilter: 'all',\n\t\t\t\troleFilter: 'all',\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tlet tab = urlParams.get('tab') || localStorage.getItem('dawa24-users-tab') || 'all';\n\t\t\t\t\tif (['all', 'pharmacies', 'suppliers', 'staff', 'deletion_requests'].includes(tab)) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetTab(tab) {\n\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\tlocalStorage.setItem('dawa24-users-tab', tab);\n\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t},\n\t\t\t\tmatchesFilter(name, email, role, status) {\n\t\t\t\t\tconst q = (this.searchQuery || '').toLowerCase().trim();\n\t\t\t\t\tif (q && !name.toLowerCase().includes(q) && !email.toLowerCase().includes(q) && !role.toLowerCase().includes(q)) {\n\t\t\t\t\t\treturn false;\n\t\t\t\t\t}\n\t\t\t\t\tif (this.statusFilter !== 'all' && status !== this.statusFilter) {\n\t\t\t\t\t\treturn false;\n\t\t\t\t\t}\n\t\t\t\t\tif (this.roleFilter !== 'all' && role !== this.roleFilter) {\n\t\t\t\t\t\treturn false;\n\t\t\t\t\t}\n\t\t\t\t\treturn true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"page-container\" x-data=\"{\r\n\t\t\t\tactiveTab: 'all',\r\n\t\t\t\tsearchQuery: '',\r\n\t\t\t\tstatusFilter: 'all',\r\n\t\t\t\troleFilter: 'all',\r\n\t\t\t\tinit() {\r\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\r\n\t\t\t\t\tlet tab = urlParams.get('tab') || localStorage.getItem('dawa24-users-tab') || 'all';\r\n\t\t\t\t\tif (['all', 'pharmacies', 'suppliers', 'staff', 'deletion_requests'].includes(tab)) {\r\n\t\t\t\t\t\tthis.activeTab = tab;\r\n\t\t\t\t\t}\r\n\t\t\t\t},\r\n\t\t\t\tsetTab(tab) {\r\n\t\t\t\t\tthis.activeTab = tab;\r\n\t\t\t\t\tlocalStorage.setItem('dawa24-users-tab', tab);\r\n\t\t\t\t\tconst u = new URL(window.location);\r\n\t\t\t\t\tu.searchParams.set('tab', tab);\r\n\t\t\t\t\twindow.history.replaceState({}, '', u);\r\n\t\t\t\t},\r\n\t\t\t\tmatchesFilter(name, email, role, status) {\r\n\t\t\t\t\tconst q = (this.searchQuery || '').toLowerCase().trim();\r\n\t\t\t\t\tif (q && !name.toLowerCase().includes(q) && !email.toLowerCase().includes(q) && !role.toLowerCase().includes(q)) {\r\n\t\t\t\t\t\treturn false;\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (this.statusFilter !== 'all' && status !== this.statusFilter) {\r\n\t\t\t\t\t\treturn false;\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (this.roleFilter !== 'all' && role !== this.roleFilter) {\r\n\t\t\t\t\t\treturn false;\r\n\t\t\t\t\t}\r\n\t\t\t\t\treturn true;\r\n\t\t\t\t}\r\n\t\t\t}\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -614,7 +614,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, ")</h1></div><p class=\"text-sm text-secondary m-0\">التحكم في صلاحيات الحسابات، تعليق وتفعيل المستخدمين، وإدارة طلبات حذف الحسابات</p></div></div><!-- Tabs Navigation Bar --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><button type=\"button\" class=\"cb-tab-btn\" :class=\"activeTab === 'all' ? 'active' : ''\" @click=\"setTab('all')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, ")</h1></div><p class=\"text-sm text-secondary m-0\">التحكم في صلاحيات الحسابات، تعليق وتفعيل المستخدمين، وإدارة طلبات حذف الحسابات</p></div></div><!-- Tabs Navigation Bar --><div class=\"tabs-nav mt-4 pt-3 border-t\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'all' ? 'active' : ''\" @click=\"setTab('all')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -635,7 +635,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"activeTab === 'pharmacies' ? 'active' : ''\" @click=\"setTab('pharmacies')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'pharmacies' ? 'active' : ''\" @click=\"setTab('pharmacies')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -656,7 +656,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"activeTab === 'suppliers' ? 'active' : ''\" @click=\"setTab('suppliers')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'suppliers' ? 'active' : ''\" @click=\"setTab('suppliers')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -677,7 +677,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"activeTab === 'staff' ? 'active' : ''\" @click=\"setTab('staff')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'staff' ? 'active' : ''\" @click=\"setTab('staff')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -698,7 +698,7 @@ func AdminUsers(data AdminUsersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, ")</span></button> <button type=\"button\" class=\"cb-tab-btn d-flex items-center gap-2\" :class=\"activeTab === 'deletion_requests' ? 'active' : ''\" @click=\"setTab('deletion_requests')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, ")</span></button> <button type=\"button\" class=\"tab-btn d-flex items-center gap-2\" :class=\"activeTab === 'deletion_requests' ? 'active' : ''\" @click=\"setTab('deletion_requests')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -88,7 +88,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">أدوات المطورين وتشخيص النظام</h1><p class=\"text-sm text-secondary m-0 mt-1\">وحدة استعلامات SQL، بوابة الذكاء الاصطناعي، نظام مراقبة الأخطاء المتقدم، وسجلات التدقيق</p></div></div></div><!-- Main Persistent Tabs Bar --><div class=\"cb-tabs-nav m-0 mt-6 pt-4 border-t\"><button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'sql' }\" @click=\"setTab('sql')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">أدوات المطورين وتشخيص النظام</h1><p class=\"text-sm text-secondary m-0 mt-1\">وحدة استعلامات SQL، بوابة الذكاء الاصطناعي، نظام مراقبة الأخطاء المتقدم، وسجلات التدقيق</p></div></div></div><!-- Main Persistent Tabs Bar --><div class=\"tabs-nav m-0 mt-6 pt-4 border-t\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'sql' }\" @click=\"setTab('sql')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -96,7 +96,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>1. وحدة استعلامات SQL</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'ai' }\" @click=\"setTab('ai')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>1. وحدة استعلامات SQL</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'ai' }\" @click=\"setTab('ai')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -104,7 +104,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>2. بوابة الذكاء الاصطناعي</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'errors' }\" @click=\"setTab('errors')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>2. بوابة الذكاء الاصطناعي</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'errors' }\" @click=\"setTab('errors')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -112,7 +112,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>3. سجلات وتشخيص الأخطاء</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'audit' }\" @click=\"setTab('audit')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>3. سجلات وتشخيص الأخطاء</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'audit' }\" @click=\"setTab('audit')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

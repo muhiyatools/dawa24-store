@@ -122,7 +122,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>محرك المقارنة</span></a></div></div></div><!-- 2. Compact Filter Deck --><div class=\"glass-panel p-4 mb-0\"><form method=\"GET\" action=\"/market-discounts\" class=\"d-flex flex-col gap-3 m-0\" id=\"market-filter-form\"><input type=\"hidden\" name=\"view\" x-bind:value=\"currentView\"><!-- Main Filter Row --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Search Input --><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>محرك المقارنة</span></a></div></div></div><!-- 2. Compact Filter Deck --><div class=\"filter-bar\"><form method=\"GET\" action=\"/market-discounts\" class=\"d-flex flex-col gap-3 m-0\" id=\"market-filter-form\"><input type=\"hidden\" name=\"view\" x-bind:value=\"currentView\"><!-- Main Filter Row --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Search Input --><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -282,7 +282,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>بحث</span></button><!-- View Switcher --><div class=\"cb-tabs-nav m-0\"><button type=\"button\" @click=\"setView('list')\" class=\"cb-tab-btn\" :class=\"{ 'active': currentView === 'list' }\" title=\"عرض كقائمة\"><span>☰</span></button> <button type=\"button\" @click=\"setView('grid')\" class=\"cb-tab-btn\" :class=\"{ 'active': currentView === 'grid' }\" title=\"عرض ككروت\"><span>⊞</span></button></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>بحث</span></button><!-- View Switcher --><div class=\"tabs-nav m-0\"><button type=\"button\" @click=\"setView('list')\" class=\"tab-btn\" :class=\"{ 'active': currentView === 'list' }\" title=\"عرض كقائمة\"><span>☰</span></button> <button type=\"button\" @click=\"setView('grid')\" class=\"tab-btn\" :class=\"{ 'active': currentView === 'grid' }\" title=\"عرض ككروت\"><span>⊞</span></button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

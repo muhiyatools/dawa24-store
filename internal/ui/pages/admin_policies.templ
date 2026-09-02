@@ -41,10 +41,10 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 		</div>
 
 		<!-- Filter by Policy Type -->
-		<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
+		<div class="tabs-nav m-0 mb-6 pb-4 border-b">
 			<button
 				type="button"
-				class="cb-tab-btn"
+				class="tab-btn"
 				:class="policyFilter === 'all' ? 'active' : ''"
 				@click="policyFilter = 'all'"
 			>
@@ -52,7 +52,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			</button>
 			<button
 				type="button"
-				class="cb-tab-btn"
+				class="tab-btn"
 				:class="policyFilter === 'terms' ? 'active' : ''"
 				@click="policyFilter = 'terms'"
 			>
@@ -60,7 +60,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			</button>
 			<button
 				type="button"
-				class="cb-tab-btn"
+				class="tab-btn"
 				:class="policyFilter === 'privacy' ? 'active' : ''"
 				@click="policyFilter = 'privacy'"
 			>
@@ -68,7 +68,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			</button>
 			<button
 				type="button"
-				class="cb-tab-btn"
+				class="tab-btn"
 				:class="policyFilter === 'shipping_return' ? 'active' : ''"
 				@click="policyFilter = 'shipping_return'"
 			>
@@ -76,7 +76,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			</button>
 			<button
 				type="button"
-				class="cb-tab-btn"
+				class="tab-btn"
 				:class="policyFilter === 'cookies' ? 'active' : ''"
 				@click="policyFilter = 'cookies'"
 			>
@@ -84,7 +84,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			</button>
 			<button
 				type="button"
-				class="cb-tab-btn"
+				class="tab-btn"
 				:class="policyFilter === 'payment' ? 'active' : ''"
 				@click="policyFilter = 'payment'"
 			>
@@ -122,9 +122,9 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 									<strong class="tabular-nums">v{ p.Version }</strong>
 								</td>
 								<td>
-									<div class="stat-label text-sm text-secondary">{ p.Title["ar"] }</div>
+									<div class="stat-card-label">{ p.Title["ar"] }</div>
 									if p.Title["en"] != "" {
-										<div class="stat-label text-sm text-secondary">{ p.Title["en"] }</div>
+										<div class="stat-card-label">{ p.Title["en"] }</div>
 									}
 								</td>
 								<td>

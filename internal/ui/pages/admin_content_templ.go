@@ -111,7 +111,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إضافة كتلة / قسم جديد +</span></button></div></div><!-- Navigation Tabs and Search --><div class=\"flex-between items-center gap-4 flex-wrap mt-6 pt-4 border-t\"><!-- Tabs --><div class=\"cb-tabs-nav m-0\"><button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'all' }\" @click=\"activeTab = 'all'\">الكل (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إضافة كتلة / قسم جديد +</span></button></div></div><!-- Navigation Tabs and Search --><div class=\"flex-between items-center gap-4 flex-wrap mt-6 pt-4 border-t\"><!-- Tabs --><div class=\"tabs-nav m-0\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'all' }\" @click=\"activeTab = 'all'\">الكل (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -124,7 +124,7 @@ func AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'page' }\" @click=\"activeTab = 'page'\">صفحات المنصة العامة (Pages)</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'section' }\" @click=\"activeTab = 'section'\">الأقسام المميزة والبانرات (Sections & Banners)</button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"{ 'active': activeTab === 'custom' }\" @click=\"activeTab = 'custom'\">أخرى ومخصصة</button></div><!-- Search Box --><div class=\"stack-sm\"><input type=\"text\" x-model=\"searchQuery\" class=\"form-input text-xs w-full\" placeholder=\"بحث بالمفتاح أو العنوان...\"></div></div></div><!-- Content Blocks Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'page' }\" @click=\"activeTab = 'page'\">صفحات المنصة العامة (Pages)</button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'section' }\" @click=\"activeTab = 'section'\">الأقسام المميزة والبانرات (Sections & Banners)</button> <button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'custom' }\" @click=\"activeTab = 'custom'\">أخرى ومخصصة</button></div><!-- Search Box --><div class=\"stack-sm\"><input type=\"text\" x-model=\"searchQuery\" class=\"form-input text-xs w-full\" placeholder=\"بحث بالمفتاح أو العنوان...\"></div></div></div><!-- Content Blocks Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

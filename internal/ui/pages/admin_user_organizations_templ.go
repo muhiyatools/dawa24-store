@@ -69,11 +69,11 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 				return templ_7745c5c3_Err
 			}
 			if data != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"cb-tabs-nav m-0 mt-6 pt-4 border-t\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"tabs-nav m-0 mt-6 pt-4 border-t\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var3 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "all")}
+				var templ_7745c5c3_Var3 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "all")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -108,7 +108,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "pending")}
+				var templ_7745c5c3_Var6 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "pending")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -130,7 +130,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var8 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "approved")}
+				var templ_7745c5c3_Var8 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "approved")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -152,7 +152,7 @@ func AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var10 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "rejected")}
+				var templ_7745c5c3_Var10 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "rejected")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

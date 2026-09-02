@@ -188,7 +188,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- Navigation Tabs -->
-			<div class="tab-list mb-4">
+			<div class="tabs-nav mb-4">
 				<button
 					type="button"
 					class="tab-btn"
@@ -475,24 +475,10 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				@CustomerEmployeesTab(data, lang, dir, perms)
 			</div>
 		<script>
-			function switchCustomerBranchTab(tabName) {
-				const branchesBtn = document.getElementById('cb-tab-btn-branches');
-				const empsBtn = document.getElementById('cb-tab-btn-employees');
-				const branchesPanel = document.getElementById('cb-tab-panel-branches');
-				const empsPanel = document.getElementById('cb-tab-panel-employees');
-
-				if (tabName === 'employees') {
-					if (branchesBtn) branchesBtn.classList.remove('active');
-					if (empsBtn) empsBtn.classList.add('active');
-					if (branchesPanel) branchesPanel.classList.add('hidden');
-					if (empsPanel) empsPanel.classList.remove('hidden');
-				} else {
-					if (branchesBtn) branchesBtn.classList.add('active');
-					if (empsBtn) empsBtn.classList.remove('active');
-					if (branchesPanel) branchesPanel.classList.remove('hidden');
-					if (empsPanel) empsPanel.classList.add('hidden');
-				}
-			}
+			// switchCustomerBranchTab was removed: nothing called it, and all four
+			// elements it looked up (cb-tab-btn-branches, cb-tab-btn-employees and
+			// their panels) do not exist on this page -- the tabs are driven by
+			// Alpine's activeTab above. It was toggling classes on nulls.
 
 			function filterCustomerEmployees() {
 				const search = (document.getElementById('cb-emp-search-input')?.value || '').toLowerCase().trim();

@@ -185,7 +185,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 4: Financial Accountant --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">المحاسب المالي (Accountant)</h3><span class=\"text-xs text-muted\">الفواتير والمحفظة</span></div><span class=\"badge badge-indigo font-bold text-xs\">مالي</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 4: Financial Accountant --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div class=\"stack-sm\"><div class=\"flex-between items-start mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-extrabold text-primary m-0\">المحاسب المالي (Accountant)</h3><span class=\"text-xs text-muted\">الفواتير والمحفظة</span></div><span class=\"badge badge-indigo font-bold text-xs\">مالي</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إصدار وتدقيق فواتير التوريد، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -193,7 +193,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>تصدير الفواتير الإلكترونية المعتمدة للضرائب</span></div><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>تصدير سجل الفواتير وكشوف التوريد</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

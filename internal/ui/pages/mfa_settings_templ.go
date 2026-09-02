@@ -317,7 +317,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p></div></div><div class=\"d-grid grid-auto-fit-sm gap-4 pt-4 border-t\"><div class=\"stat-card p-4 bg-surface-sunken rounded-xl border\"><div class=\"stat-label text-xs text-muted font-bold mb-1\">طريقة المصادقة</div><div class=\"text-sm font-bold text-primary\">تطبيق Google Authenticator</div></div><div class=\"stat-card p-4 bg-surface-sunken rounded-xl border\"><div class=\"stat-label text-xs text-muted font-bold mb-1\">رموز الاسترداد الاحتياطية</div><div class=\"text-sm font-bold text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p></div></div><div class=\"d-grid grid-auto-fit-sm gap-4 pt-4 border-t\"><div class=\"stat-card-3d stat-card-compact\"><div class=\"stat-card-label\">طريقة المصادقة</div><div class=\"text-sm font-bold text-primary\">تطبيق Google Authenticator</div></div><div class=\"stat-card-3d stat-card-compact\"><div class=\"stat-card-label\">رموز الاسترداد الاحتياطية</div><div class=\"text-sm font-bold text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

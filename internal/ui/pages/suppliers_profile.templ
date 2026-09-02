@@ -186,7 +186,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 3. Navigation Tabs -->
-			<div class="tab-list">
+			<div class="tabs-nav">
 				<button type="button" class={ "tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
 					@components.IconPackage("icon-xs")
 					<span>كتالوج الأصناف والتشغيلات ({ fmt.Sprintf("%d", data.TotalVariants) })</span>
@@ -216,7 +216,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 4. Tab 1: Catalog & Batches Content -->
-			<div id="tab-content-catalog" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
+			<div id="tab-content-catalog" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
 				
 				<!-- Catalog Controls Toolbar -->
 				<div class="sp-catalog-toolbar">
@@ -649,7 +649,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 			<!-- 5. Tab 2: About & Highlights -->
 			if len(data.Sections) > 0 {
-				<div id="tab-content-sections" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "sections") }>
+				<div id="tab-content-sections" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "sections") }>
 					<div class="jobs-grid">
 						for _, s := range data.Sections {
 							if s.IsActive {
@@ -680,7 +680,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			}
 
 			<!-- 6. Tab 3: Supply Policies -->
-			<div id="tab-content-policies" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "policies") }>
+			<div id="tab-content-policies" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "policies") }>
 				if len(data.Policies) == 0 {
 					<div class="glass-panel p-6 text-center">
 						<div class="d-flex items-center justify-center gap-2 mb-2">
@@ -717,7 +717,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 7. Tab 4: Branches & Warehouses -->
-			<div id="tab-content-branches" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "branches") }>
+			<div id="tab-content-branches" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "branches") }>
 				if len(data.Branches) == 0 {
 					<div class="glass-panel p-6 text-center">
 						@components.IconBuilding("icon-lg")
@@ -768,7 +768,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 8. Tab 5: Reviews -->
-			<div id="tab-content-reviews" class="sp-tab-panel" class={ templ.KV("d-none", data.ActiveTab != "reviews") }>
+			<div id="tab-content-reviews" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
 					<div class="glass-panel p-6 text-center">
 						<div class="mb-2 text-amber">@components.IconStar("icon-sm")</div>
@@ -867,7 +867,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				if (!tabs.includes(tabName)) tabName = 'catalog';
 
 				tabs.forEach(t => {
-					const btn = document.getElementById('tab-btn-' + t);
+					const btn = document.getElementById('tab-' + t);
 					const panel = document.getElementById('tab-content-' + t);
 					if (btn) {
 						if (t === tabName) {

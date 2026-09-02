@@ -175,7 +175,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Filter & Search Toolbar --><div class=\"glass-panel p-5 mb-6\"><form method=\"GET\" action=\"/admin/saving-products\" class=\"stack-md\"><div class=\"d-grid grid-auto-fit-md gap-4 items-end\"><!-- Org Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">المنشأة / الصيدلية</label> <select name=\"org_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- كل المنشآت (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Filter & Search Toolbar --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/saving-products\" class=\"stack-md\"><div class=\"d-grid grid-auto-fit-md gap-4 items-end\"><!-- Org Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">المنشأة / الصيدلية</label> <select name=\"org_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- كل المنشآت (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

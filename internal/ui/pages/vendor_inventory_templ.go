@@ -249,7 +249,7 @@ func VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Filter & Rows-Per-Page Form --><div class=\"glass-panel p-4 mb-0\"><form method=\"GET\" action=\"/vendor/inventory\" class=\"d-flex items-center gap-3 flex-wrap m-0\"><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Filter & Rows-Per-Page Form --><div class=\"filter-bar\"><form method=\"GET\" action=\"/vendor/inventory\" class=\"d-flex items-center gap-3 flex-wrap m-0\"><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -383,7 +383,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">المستودعات المؤرشفة</div></div></div><!-- 3. Search & Status Tabs Bar --><div class=\"glass-panel mb-0 border rounded-2xl p-5 bg-surface-raised\"><form method=\"GET\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"text-sm font-bold text-secondary mt-1.5\">المستودعات المؤرشفة</div></div></div><!-- 3. Search & Status Tabs Bar --><div class=\"filter-bar\"><form method=\"GET\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -7,59 +7,68 @@ import (
 )
 
 templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
-	<div class="glass-panel p-0 mb-6 overflow-hidden shadow-xs border">
+	<div class="glass-panel p-0 mb-6 overflow-hidden shadow-xs border rounded-2xl">
 		<div class="table-container m-0 overflow-x-auto">
-			<table class="catalog-data-table m-0 text-xs w-full">
+			<table class="catalog-data-table m-0 w-full">
 				<thead>
 					<tr>
-						<th class="col-img text-center"></th>
-						<th class="col-name">الصنف الدوائي والمادة الفعالة</th>
+						<th class="col-product">الصنف الدوائي والتفاصيل</th>
 						<th class="col-brand">الشركة المصنعة</th>
 						<th class="col-supplier">المورد والفرع</th>
 						<th class="col-stock text-center">المخزون والصلاحية</th>
-						<th class="col-public text-center tabular-nums">سعر الجمهور</th>
-						<th class="col-discount text-center">نسبة الخصم</th>
-						<th class="col-price tabular-nums text-end">السعر بعد الخصم</th>
-						<th class="col-action text-center">الكمية والطلب</th>
+						<th class="col-price text-start">سعر التوريد والخصم</th>
+						<th class="col-action text-center">الطلب والإجراءات</th>
 					</tr>
 				</thead>
 				<tbody>
 					for _, v := range variants {
 						<tr>
-							<td class="text-center col-img">
-								<div class="w-9 h-9 rounded-lg bg-surface-sunken overflow-hidden flex-center mx-auto border">
-									if v.ProductImage != "" {
-										<img src={ v.ProductImage } alt={ v.ProductNameAr } class="w-full h-full object-contain p-0.5" loading="lazy" />
-									} else {
-										<span class="text-muted">
-											@components.IconPill("icon-xs")
-										</span>
-									}
-								</div>
-							</td>
-							<td class="col-name">
-								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="text-inherit no-underline block">
-									<div class="font-extrabold text-primary text-xs transition-colors">
-										if v.ProductNameAr != "" {
-											{ v.ProductNameAr }
+							<!-- Col 1: Product info, image, dosage, active ingredient -->
+							<td class="col-product">
+								<div class="d-flex items-center gap-2.5">
+									<div class="catalog-thumb-box">
+										if v.ProductImage != "" {
+											<img src={ v.ProductImage } alt={ v.ProductNameAr } class="w-full h-full object-contain p-0.5" loading="lazy" />
 										} else {
-											{ v.ProductNameEn }
+											<span class="text-muted">
+												@components.IconPill("icon-xs")
+											</span>
 										}
 									</div>
-									if v.ScientificName != "" {
-										<div class="text-2xs text-muted mt-0.5 font-medium">
-											{ v.ScientificName }
+									<div class="stack-2xs min-w-0 flex-1">
+										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="text-inherit no-underline block">
+											<div class="font-black text-primary text-xs transition-colors hover-text-brand leading-snug">
+												if v.ProductNameAr != "" {
+													{ v.ProductNameAr }
+												} else {
+													{ v.ProductNameEn }
+												}
+											</div>
+										</a>
+										<div class="d-flex items-center gap-1.5 flex-wrap">
+											if v.DosageForm != "" {
+												<span class="badge badge-slate text-2xs font-semibold py-0 px-1.5">
+													{ v.DosageForm }
+												</span>
+											}
+											if v.ScientificName != "" {
+												<span class="text-2xs text-muted font-medium">
+													{ v.ScientificName }
+												</span>
+											}
 										</div>
-									}
-								</a>
-								if v.IsSponsored {
-									<div class="mt-1">
-										@components.SponsoredBadge(lang)
+										if v.IsSponsored {
+											<div class="mt-0.5">
+												@components.SponsoredBadge(lang)
+											</div>
+										}
 									</div>
-								}
+								</div>
 							</td>
+
+							<!-- Col 2: Manufacturer / Brand -->
 							<td class="col-brand">
-								<div class="font-bold text-primary">
+								<div class="font-bold text-primary text-xs">
 									if v.BrandName != "" {
 										{ v.BrandName }
 									} else if v.Manufacturer != "" {
@@ -68,17 +77,14 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 										<span class="text-muted">-</span>
 									}
 								</div>
-								if v.DosageForm != "" {
-									<span class="badge badge-slate text-2xs mt-0.5 font-semibold">
-										{ v.DosageForm }
-									</span>
-								}
 							</td>
+
+							<!-- Col 3: Supplier & Branch & Distance -->
 							<td class="col-supplier">
-								<div class="supplier-pill-cell">
-									<span class="font-extrabold text-primary">{ v.SupplierName }</span>
+								<div class="d-flex items-center gap-1.5 flex-wrap">
+									<span class="font-extrabold text-primary text-xs">{ v.SupplierName }</span>
 									if v.IsVerified {
-										<span class="badge badge-emerald text-2xs font-bold">معتمد</span>
+										<span class="badge badge-emerald text-2xs font-bold py-0 px-1">معتمد</span>
 									}
 								</div>
 								<div class="d-flex items-center gap-1 mt-0.5">
@@ -88,12 +94,14 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 										</span>
 									}
 									if v.DistanceText != "" {
-										<span class="badge badge-sky text-2xs font-mono">
+										<span class="badge badge-sky text-2xs font-mono py-0 px-1">
 											{ v.DistanceText }
 										</span>
 									}
 								</div>
 							</td>
+
+							<!-- Col 4: Stock & Expiry -->
 							<td class="col-stock text-center">
 								if v.AvailableStock > 0 {
 									<span class="badge badge-emerald font-extrabold text-2xs tabular-nums">
@@ -110,33 +118,28 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 									</div>
 								}
 							</td>
-							<td class="col-public text-center tabular-nums font-bold text-primary">
-								if v.PublicPrice.IsPositive() {
-									<div>
-										{ v.PublicPrice.String() } <span class="text-2xs text-secondary font-medium">ج.م</span>
+
+							<!-- Col 5: Net Price & Public Price & Discount -->
+							<td class="col-price">
+								<div class="d-flex flex-col gap-0.5">
+									<div class="d-flex items-baseline gap-1 font-black text-brand text-sm tabular-nums">
+										<span>{ v.Price.String() }</span>
+										<span class="text-2xs font-bold text-secondary">ج.م</span>
 									</div>
-								} else if v.OriginalPrice.IsPositive() {
-									<div>
-										{ v.OriginalPrice.String() } <span class="text-2xs text-secondary font-medium">ج.م</span>
-									</div>
-								} else {
-									<div>
-										{ v.Price.String() } <span class="text-2xs text-secondary font-medium">ج.م</span>
-									</div>
-								}
+									if v.PublicPrice.IsPositive() && v.DiscountPercent > 0 {
+										<div class="d-flex items-center gap-1.5 text-2xs text-muted tabular-nums">
+											<span class="line-through">{ v.PublicPrice.String() } ج.م</span>
+											<span class="badge badge-emerald text-2xs font-bold py-0 px-1">-{ fmt.Sprintf("%d%%", v.DiscountPercent) }</span>
+										</div>
+									} else if v.PublicPrice.IsPositive() {
+										<div class="text-2xs text-muted tabular-nums">
+											<span>سعر الجمهور: { v.PublicPrice.String() } ج.م</span>
+										</div>
+									}
+								</div>
 							</td>
-							<td class="col-discount text-center">
-								if v.DiscountPercent > 0 {
-									<span class="badge badge-emerald tabular-nums font-black text-2xs">
-										{ fmt.Sprintf("%d%%", v.DiscountPercent) }
-									</span>
-								} else {
-									<span class="text-muted text-2xs font-medium">0%</span>
-								}
-							</td>
-							<td class="col-price tabular-nums text-end font-black text-brand text-sm">
-								{ v.Price.String() } <span class="text-2xs font-bold text-secondary">ج.م</span>
-							</td>
+
+							<!-- Col 6: Cart & Favorite Actions -->
 							<td class="col-action text-center">
 								<div class="d-flex items-center justify-center gap-1.5">
 									<!-- Favorite Button -->
@@ -163,7 +166,7 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 											<input type="hidden" name="offer_price" value={ v.Price.String() } />
 											<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) } />
 											
-											<button type="submit" class="btn btn-primary btn-xs font-bold shadow-2xs gap-1 px-2">
+											<button type="submit" class="btn btn-primary btn-xs font-bold shadow-2xs gap-1 px-2.5">
 												@components.IconPlus("icon-2xs")
 												<span>للسلة</span>
 											</button>

@@ -372,7 +372,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></div></div></div><!-- 3. Navigation Tabs --><div class=\"tab-list\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></div></div></div><!-- 3. Navigation Tabs --><div class=\"tabs-nav\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -593,12 +593,12 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var29 = []any{templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog")}
+			var templ_7745c5c3_Var29 = []any{"tab-panel", templ.KV("d-none", data.ActiveTab != "" && data.ActiveTab != "catalog")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var29...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div id=\"tab-content-catalog\" class=\"sp-tab-panel\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div id=\"tab-content-catalog\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1881,12 +1881,12 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 				return templ_7745c5c3_Err
 			}
 			if len(data.Sections) > 0 {
-				var templ_7745c5c3_Var95 = []any{templ.KV("d-none", data.ActiveTab != "sections")}
+				var templ_7745c5c3_Var95 = []any{"tab-panel", templ.KV("d-none", data.ActiveTab != "sections")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var95...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 203, "<div id=\"tab-content-sections\" class=\"sp-tab-panel\" class=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 203, "<div id=\"tab-content-sections\" class=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1985,12 +1985,12 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var102 = []any{templ.KV("d-none", data.ActiveTab != "policies")}
+			var templ_7745c5c3_Var102 = []any{"tab-panel", templ.KV("d-none", data.ActiveTab != "policies")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var102...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, "<div id=\"tab-content-policies\" class=\"sp-tab-panel\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, "<div id=\"tab-content-policies\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2074,12 +2074,12 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var106 = []any{templ.KV("d-none", data.ActiveTab != "branches")}
+			var templ_7745c5c3_Var106 = []any{"tab-panel", templ.KV("d-none", data.ActiveTab != "branches")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var106...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 224, "<div id=\"tab-content-branches\" class=\"sp-tab-panel\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 224, "<div id=\"tab-content-branches\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2250,12 +2250,12 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var113 = []any{templ.KV("d-none", data.ActiveTab != "reviews")}
+			var templ_7745c5c3_Var113 = []any{"tab-panel", templ.KV("d-none", data.ActiveTab != "reviews")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var113...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 247, "<div id=\"tab-content-reviews\" class=\"sp-tab-panel\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 247, "<div id=\"tab-content-reviews\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2479,7 +2479,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 268, "</div><!-- Client Tab & View Switcher Script --> <script>\r\n\t\t\tfunction switchProfileTab(tabName, updateUrl) {\r\n\t\t\t\tif (updateUrl === undefined) updateUrl = true;\r\n\t\t\t\tconst tabs = ['catalog', 'sections', 'policies', 'branches', 'reviews'];\r\n\t\t\t\tif (!tabs.includes(tabName)) tabName = 'catalog';\r\n\r\n\t\t\t\ttabs.forEach(t => {\r\n\t\t\t\t\tconst btn = document.getElementById('tab-btn-' + t);\r\n\t\t\t\t\tconst panel = document.getElementById('tab-content-' + t);\r\n\t\t\t\t\tif (btn) {\r\n\t\t\t\t\t\tif (t === tabName) {\r\n\t\t\t\t\t\t\tbtn.classList.add('active');\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tbtn.classList.remove('active');\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (panel) {\r\n\t\t\t\t\t\tif (t === tabName) {\r\n\t\t\t\t\t\t\tpanel.style.display = 'block';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tpanel.style.display = 'none';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\ttry {\r\n\t\t\t\t\tif (updateUrl) {\r\n\t\t\t\t\t\tif (window.history && window.history.replaceState) {\r\n\t\t\t\t\t\t\twindow.history.replaceState(null, null, '#' + tabName);\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\twindow.location.hash = '#' + tabName;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tsessionStorage.setItem('dawa24_active_tab_' + window.location.pathname, tabName);\r\n\t\t\t\t} catch (e) {}\r\n\t\t\t}\r\n\r\n\t\t\tfunction restoreActiveProfileTab() {\r\n\t\t\t\tlet targetTab = '';\r\n\t\t\t\t// 1. Priority to URL Hash (#policies)\r\n\t\t\t\tif (window.location.hash) {\r\n\t\t\t\t\ttargetTab = window.location.hash.replace('#', '').trim();\r\n\t\t\t\t}\r\n\t\t\t\t// 2. Query param (?tab=policies)\r\n\t\t\t\tif (!targetTab) {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\r\n\t\t\t\t\t\ttargetTab = params.get('tab') || '';\r\n\t\t\t\t\t} catch (e) {}\r\n\t\t\t\t}\r\n\t\t\t\t// 3. Session storage\r\n\t\t\t\tif (!targetTab) {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\ttargetTab = sessionStorage.getItem('dawa24_active_tab_' + window.location.pathname) || '';\r\n\t\t\t\t\t} catch (e) {}\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif (targetTab && ['catalog', 'sections', 'policies', 'branches', 'reviews'].includes(targetTab)) {\r\n\t\t\t\t\tswitchProfileTab(targetTab, false);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\tif (document.readyState === 'loading') {\r\n\t\t\t\tdocument.addEventListener('DOMContentLoaded', restoreActiveProfileTab);\r\n\t\t\t} else {\r\n\t\t\t\trestoreActiveProfileTab();\r\n\t\t\t}\r\n\t\t\twindow.addEventListener('hashchange', function() {\r\n\t\t\t\trestoreActiveProfileTab();\r\n\t\t\t});\r\n\r\n\t\t\tfunction switchCatalogView(view) {\r\n\t\t\t\tconst tbl = document.getElementById('catalog-table-view');\r\n\t\t\t\tconst grd = document.getElementById('catalog-grid-view');\r\n\t\t\t\tconst tblBtn = document.getElementById('cat-view-table-btn');\r\n\t\t\t\tconst grdBtn = document.getElementById('cat-view-grid-btn');\r\n\r\n\t\t\t\tif (view === 'grid') {\r\n\t\t\t\t\tif (tbl) tbl.style.display = 'none';\r\n\t\t\t\t\tif (grd) grd.style.display = 'grid';\r\n\t\t\t\t\tif (tblBtn) { tblBtn.classList.remove('btn-primary'); tblBtn.classList.add('btn-secondary'); }\r\n\t\t\t\t\tif (grdBtn) { grdBtn.classList.remove('btn-secondary'); grdBtn.classList.add('btn-primary'); }\r\n\t\t\t\t} else {\r\n\t\t\t\t\tif (tbl) tbl.style.display = 'block';\r\n\t\t\t\t\tif (grd) grd.style.display = 'none';\r\n\t\t\t\t\tif (tblBtn) { tblBtn.classList.remove('btn-secondary'); tblBtn.classList.add('btn-primary'); }\r\n\t\t\t\t\tif (grdBtn) { grdBtn.classList.remove('btn-primary'); grdBtn.classList.add('btn-secondary'); }\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 268, "</div><!-- Client Tab & View Switcher Script --> <script>\r\n\t\t\tfunction switchProfileTab(tabName, updateUrl) {\r\n\t\t\t\tif (updateUrl === undefined) updateUrl = true;\r\n\t\t\t\tconst tabs = ['catalog', 'sections', 'policies', 'branches', 'reviews'];\r\n\t\t\t\tif (!tabs.includes(tabName)) tabName = 'catalog';\r\n\r\n\t\t\t\ttabs.forEach(t => {\r\n\t\t\t\t\tconst btn = document.getElementById('tab-' + t);\r\n\t\t\t\t\tconst panel = document.getElementById('tab-content-' + t);\r\n\t\t\t\t\tif (btn) {\r\n\t\t\t\t\t\tif (t === tabName) {\r\n\t\t\t\t\t\t\tbtn.classList.add('active');\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tbtn.classList.remove('active');\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (panel) {\r\n\t\t\t\t\t\tif (t === tabName) {\r\n\t\t\t\t\t\t\tpanel.style.display = 'block';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\tpanel.style.display = 'none';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\r\n\t\t\t\ttry {\r\n\t\t\t\t\tif (updateUrl) {\r\n\t\t\t\t\t\tif (window.history && window.history.replaceState) {\r\n\t\t\t\t\t\t\twindow.history.replaceState(null, null, '#' + tabName);\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\twindow.location.hash = '#' + tabName;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tsessionStorage.setItem('dawa24_active_tab_' + window.location.pathname, tabName);\r\n\t\t\t\t} catch (e) {}\r\n\t\t\t}\r\n\r\n\t\t\tfunction restoreActiveProfileTab() {\r\n\t\t\t\tlet targetTab = '';\r\n\t\t\t\t// 1. Priority to URL Hash (#policies)\r\n\t\t\t\tif (window.location.hash) {\r\n\t\t\t\t\ttargetTab = window.location.hash.replace('#', '').trim();\r\n\t\t\t\t}\r\n\t\t\t\t// 2. Query param (?tab=policies)\r\n\t\t\t\tif (!targetTab) {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\r\n\t\t\t\t\t\ttargetTab = params.get('tab') || '';\r\n\t\t\t\t\t} catch (e) {}\r\n\t\t\t\t}\r\n\t\t\t\t// 3. Session storage\r\n\t\t\t\tif (!targetTab) {\r\n\t\t\t\t\ttry {\r\n\t\t\t\t\t\ttargetTab = sessionStorage.getItem('dawa24_active_tab_' + window.location.pathname) || '';\r\n\t\t\t\t\t} catch (e) {}\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif (targetTab && ['catalog', 'sections', 'policies', 'branches', 'reviews'].includes(targetTab)) {\r\n\t\t\t\t\tswitchProfileTab(targetTab, false);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\tif (document.readyState === 'loading') {\r\n\t\t\t\tdocument.addEventListener('DOMContentLoaded', restoreActiveProfileTab);\r\n\t\t\t} else {\r\n\t\t\t\trestoreActiveProfileTab();\r\n\t\t\t}\r\n\t\t\twindow.addEventListener('hashchange', function() {\r\n\t\t\t\trestoreActiveProfileTab();\r\n\t\t\t});\r\n\r\n\t\t\tfunction switchCatalogView(view) {\r\n\t\t\t\tconst tbl = document.getElementById('catalog-table-view');\r\n\t\t\t\tconst grd = document.getElementById('catalog-grid-view');\r\n\t\t\t\tconst tblBtn = document.getElementById('cat-view-table-btn');\r\n\t\t\t\tconst grdBtn = document.getElementById('cat-view-grid-btn');\r\n\r\n\t\t\t\tif (view === 'grid') {\r\n\t\t\t\t\tif (tbl) tbl.style.display = 'none';\r\n\t\t\t\t\tif (grd) grd.style.display = 'grid';\r\n\t\t\t\t\tif (tblBtn) { tblBtn.classList.remove('btn-primary'); tblBtn.classList.add('btn-secondary'); }\r\n\t\t\t\t\tif (grdBtn) { grdBtn.classList.remove('btn-secondary'); grdBtn.classList.add('btn-primary'); }\r\n\t\t\t\t} else {\r\n\t\t\t\t\tif (tbl) tbl.style.display = 'block';\r\n\t\t\t\t\tif (grd) grd.style.display = 'none';\r\n\t\t\t\t\tif (tblBtn) { tblBtn.classList.remove('btn-secondary'); tblBtn.classList.add('btn-primary'); }\r\n\t\t\t\t\tif (grdBtn) { grdBtn.classList.remove('btn-primary'); grdBtn.classList.add('btn-secondary'); }\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

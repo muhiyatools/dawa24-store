@@ -117,11 +117,11 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 					</div>
 
 					<!-- Status Filter Tabs -->
-					<div class="cb-tabs-nav m-0">
-						<a href="/vendor/purchase-requests?status=all" class={ "cb-tab-btn", templ.KV("active", activeStatus == "all" || activeStatus == "") }>الكل</a>
-						<a href="/vendor/purchase-requests?status=pending" class={ "cb-tab-btn", templ.KV("active", activeStatus == "pending") }>قيد الانتظار</a>
-						<a href="/vendor/purchase-requests?status=approved" class={ "cb-tab-btn", templ.KV("active", activeStatus == "approved") }>تمت الموافقة</a>
-						<a href="/vendor/purchase-requests?status=completed" class={ "cb-tab-btn", templ.KV("active", activeStatus == "completed") }>مكتمل</a>
+					<div class="tabs-nav m-0">
+						<a href="/vendor/purchase-requests?status=all" class={ "tab-btn", templ.KV("active", activeStatus == "all" || activeStatus == "") }>الكل</a>
+						<a href="/vendor/purchase-requests?status=pending" class={ "tab-btn", templ.KV("active", activeStatus == "pending") }>قيد الانتظار</a>
+						<a href="/vendor/purchase-requests?status=approved" class={ "tab-btn", templ.KV("active", activeStatus == "approved") }>تمت الموافقة</a>
+						<a href="/vendor/purchase-requests?status=completed" class={ "tab-btn", templ.KV("active", activeStatus == "completed") }>مكتمل</a>
 					</div>
 				</div>
 			</div>

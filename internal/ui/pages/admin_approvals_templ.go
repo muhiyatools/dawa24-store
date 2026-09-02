@@ -66,11 +66,11 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>طلب مستند رسمي من منشأة +</span></button></div></div><!-- Navigation Tabs --><div class=\"cb-tabs-nav m-0 mt-6 pt-4 border-t\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>طلب مستند رسمي من منشأة +</span></button></div></div><!-- Navigation Tabs --><div class=\"tabs-nav m-0 mt-6 pt-4 border-t\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "organizations")}
+			var templ_7745c5c3_Var3 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "organizations")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -113,7 +113,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "documents")}
+			var templ_7745c5c3_Var6 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "documents")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -156,7 +156,7 @@ func AdminApprovals(data *AdminApprovalsData, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "requests")}
+			var templ_7745c5c3_Var9 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "requests")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

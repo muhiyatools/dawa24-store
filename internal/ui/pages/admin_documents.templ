@@ -28,17 +28,17 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 					</div>
 
 					<!-- Navigation Tabs -->
-					<div class="cb-tabs-nav m-0">
-						<a href="/admin/documents" class={ "cb-tab-btn", templ.KV("active", filter.Status == nil) }>
+					<div class="tabs-nav m-0">
+						<a href="/admin/documents" class={ "tab-btn", templ.KV("active", filter.Status == nil) }>
 							<span>الكل</span>
 						</a>
-						<a href="/admin/documents?status=pending" class={ "cb-tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusPending) }>
+						<a href="/admin/documents?status=pending" class={ "tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusPending) }>
 							<span>قيد المراجعة</span>
 						</a>
-						<a href="/admin/documents?status=verified" class={ "cb-tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusVerified) }>
+						<a href="/admin/documents?status=verified" class={ "tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusVerified) }>
 							<span>تم التحقق</span>
 						</a>
-						<a href="/admin/documents?status=rejected" class={ "cb-tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusRejected) }>
+						<a href="/admin/documents?status=rejected" class={ "tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusRejected) }>
 							<span>مرفوضة</span>
 						</a>
 					</div>

@@ -114,11 +114,11 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"form-input text-xs\" placeholder=\"رقم الطلب أو اسم العميل…\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">بحث</button></form></div></div><!-- Tab Navigation --><div class=\"cb-tabs-nav mb-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"form-input text-xs\" placeholder=\"رقم الطلب أو اسم العميل…\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">بحث</button></form></div></div><!-- Tab Navigation --><div class=\"tabs-nav mb-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "")}
+			var templ_7745c5c3_Var6 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -161,7 +161,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "direct")}
+			var templ_7745c5c3_Var9 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "direct")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -204,7 +204,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "negotiations")}
+			var templ_7745c5c3_Var12 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "negotiations")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

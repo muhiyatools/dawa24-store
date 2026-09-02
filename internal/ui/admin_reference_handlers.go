@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -25,7 +26,7 @@ func (h *UIHandler) AdminCategoriesPage(w http.ResponseWriter, r *http.Request) 
 
 	pageSize, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	if pageSize <= 0 {
-		pageSize = 25
+		pageSize = pagination.TableRows
 	}
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	if page <= 0 {

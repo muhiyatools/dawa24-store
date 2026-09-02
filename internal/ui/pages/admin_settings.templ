@@ -140,10 +140,10 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			</div>
 
 			<!-- Main Persistent Tabs Bar -->
-			<div class="cb-tabs-nav mb-2">
+			<div class="tabs-nav mb-2">
 				<button
 					type="button"
-					class="cb-tab-btn"
+					class="tab-btn"
 					:class="activeTab === 'features' ? 'active' : ''"
 					@click="setTab('features')"
 				>
@@ -153,7 +153,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<button
 					type="button"
-					class="cb-tab-btn"
+					class="tab-btn"
 					:class="activeTab === 'site' ? 'active' : ''"
 					@click="setTab('site')"
 				>
@@ -163,7 +163,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<button
 					type="button"
-					class="cb-tab-btn"
+					class="tab-btn"
 					:class="activeTab === 'policies' ? 'active' : ''"
 					@click="setTab('policies')"
 				>
@@ -173,7 +173,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<button
 					type="button"
-					class="cb-tab-btn"
+					class="tab-btn"
 					:class="activeTab === 'payment_methods' ? 'active' : ''"
 					@click="setTab('payment_methods')"
 				>

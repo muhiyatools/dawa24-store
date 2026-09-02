@@ -139,14 +139,6 @@
   flex-shrink: 0;
 }
 
-.brand-lockup {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  text-decoration: none;
-  max-height: 42px;
-  overflow: hidden;
-}
 
 .sidebar-logo {
   height: 34px;
@@ -164,7 +156,7 @@
 }
 
 .sidebar-brand-name {
-  font-size: var(--text-md);
+  font-size: var(--text-base);
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1.15;
@@ -300,50 +292,52 @@
 }
 
 /* ---- Branch Selector Island ---- */
-.branch-selector-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.25rem 0.65rem;
-  background: var(--bg-surface-sunken);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-}
 
-.branch-selector-icon-label {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--primary);
-  font-size: var(--text-xs);
-  font-weight: 700;
-}
 
-.branch-selector-select {
-  background: transparent;
-  border: none;
-  padding: 0.15rem 0.4rem;
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--text-primary);
-  cursor: pointer;
-  outline: none;
-  max-width: 180px;
-}
 
-/* ---- Unified Dashboard Layout Grids & Sections ---- */
+/* ---- The stat strip that opens a dashboard page ----
+   One definition, in a stylesheet every shell loads. The base grid was here
+   but the .cols-N modifiers were in customer.css, which only the pharmacy
+   shell loads -- so `dashboard-stat-grid cols-4` gave four columns on a
+   pharmacy screen and an auto-fit row of whatever fitted on the twenty admin
+   and vendor pages that ask for the same thing. Same markup, two layouts,
+   depending only on which stylesheet the shell happened to include. */
 .dashboard-stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  width: 100%;
+  gap: var(--space-md);
+  inline-size: 100%;
+  margin-block-end: var(--space-lg);
 }
 
+.dashboard-stat-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dashboard-stat-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dashboard-stat-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dashboard-stat-grid.cols-6 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+@media (max-width: 1024px) {
+  .dashboard-stat-grid.cols-4,
+  .dashboard-stat-grid.cols-6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard-stat-grid.cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .dashboard-stat-grid,
+  .dashboard-stat-grid.cols-3,
+  .dashboard-stat-grid.cols-4,
+  .dashboard-stat-grid.cols-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* One column below 640px rather than two 140px cards: a stat card holds a
+   label, a figure and a sub-line, and none of them fit in 140px of Arabic. */
 @media (max-width: 640px) {
-  .dashboard-stat-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.75rem;
+  .dashboard-stat-grid,
+  .dashboard-stat-grid.cols-2,
+  .dashboard-stat-grid.cols-3,
+  .dashboard-stat-grid.cols-4,
+  .dashboard-stat-grid.cols-6 {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
   }
 }
 
@@ -400,7 +394,7 @@
 /* ---- Catalog Sidebar & Content Layout ---- */
 .catalog-main-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 1.5rem;
   align-items: start;
   margin-bottom: 1.5rem;
@@ -409,17 +403,26 @@
 @media (max-width: 1024px) {
   .catalog-main-layout {
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 }
 
 .catalog-sidebar-filter {
   background: var(--bg-surface-raised);
   border: 1px solid var(--border-card);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xl);
   padding: 1.25rem;
   position: sticky;
-  top: 1rem;
+  top: 5rem;
+  max-height: calc(100vh - 6.5rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+  .catalog-sidebar-filter {
+    position: static;
+    max-height: none;
+  }
 }
 
 .catalog-main-content {
@@ -484,7 +487,7 @@
 
 .order-progress-bar {
   height: 100%;
-  background: var(--brand-500);
+  background: var(--primary);
   border-radius: 2px;
   transition: width 0.4s var(--ease-smooth);
 }
@@ -518,9 +521,9 @@
 }
 
 .order-step-badge.done {
-  background: var(--brand-600);
+  background: var(--primary);
   color: #ffffff;
-  border: 2px solid var(--brand-400);
+  border: 2px solid var(--primary-border);
 }
 
 .order-step-badge.completed {
@@ -564,33 +567,7 @@
   background: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.12) 0%, transparent 70%), var(--bg-surface-raised);
 }
 
-.account-name-lg {
-  font-size: var(--text-sm);
-  font-weight: 800;
-  max-width: none;
-}
 
-
-/* ---- Catalog Page Layout & Sidebar Filter System ---- */
-.catalog-main-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-@media (max-width: 1024px) {
-  .catalog-main-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.catalog-sidebar-filter {
-  position: sticky;
-  top: 5rem;
-  max-height: calc(100vh - 6.5rem);
-  overflow-y: auto;
-}
 
 .dosage-pills-strip {
   scrollbar-width: thin;
@@ -605,4 +582,5 @@
   border-radius: 4px;
 }
 
+/* Closes the @layer layout block opened at the top of this file. */
 }

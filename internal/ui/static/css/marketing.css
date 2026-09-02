@@ -668,6 +668,11 @@
     align-items: stretch;
     gap: 0;
     overflow-x: auto;
+    /* Explicitly hidden on the block axis. `overflow-x: auto` alone computes
+       the block axis to `auto` as well, and the buttons' inked underline sits a
+       pixel outside the box — enough for the browser to fit a vertical
+       scrollbar down the side of a single-row rail. */
+    overflow-y: hidden;
     overscroll-behavior-inline: contain;
     scrollbar-width: thin;
     border-block-end: 1px solid var(--border-subtle);

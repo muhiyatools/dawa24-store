@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -193,7 +194,7 @@ func (h *UIHandler) AdminEmployeeActivitiesPage(w http.ResponseWriter, r *http.R
 	if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
 		page = p
 	}
-	perPage := 50
+	perPage := pagination.TableRows
 	offset := (page - 1) * perPage
 
 	var orgID *int64

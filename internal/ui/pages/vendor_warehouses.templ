@@ -554,7 +554,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			</div>
 
 			<!-- Filter & Control Toolbar Card -->
-			<div class="glass-panel p-4 mb-6">
+			<div class="filter-bar">
 				<form method="GET" action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="d-flex flex-col gap-3" hx-boost="false">
 					<div class="d-grid gap-3 items-end">
 						

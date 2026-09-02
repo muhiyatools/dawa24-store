@@ -79,7 +79,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><!-- Filter by Policy Type --><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\"><button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'all' ? 'active' : ''\" @click=\"policyFilter = 'all'\"><span>كافة السياسات (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><!-- Filter by Policy Type --><div class=\"tabs-nav m-0 mb-6 pb-4 border-b\"><button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'all' ? 'active' : ''\" @click=\"policyFilter = 'all'\"><span>كافة السياسات (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -92,7 +92,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'terms' ? 'active' : ''\" @click=\"policyFilter = 'terms'\"><span>شروط الاستخدام</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'privacy' ? 'active' : ''\" @click=\"policyFilter = 'privacy'\"><span>سياسة الخصوصية</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'shipping_return' ? 'active' : ''\" @click=\"policyFilter = 'shipping_return'\"><span>الشحن والاسترجاع والإلغاء</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'cookies' ? 'active' : ''\" @click=\"policyFilter = 'cookies'\"><span>ملفات الكوكيز</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'payment' ? 'active' : ''\" @click=\"policyFilter = 'payment'\"><span>سياسة الدفع</span></button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'terms' ? 'active' : ''\" @click=\"policyFilter = 'terms'\"><span>شروط الاستخدام</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'privacy' ? 'active' : ''\" @click=\"policyFilter = 'privacy'\"><span>سياسة الخصوصية</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'shipping_return' ? 'active' : ''\" @click=\"policyFilter = 'shipping_return'\"><span>الشحن والاسترجاع والإلغاء</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'cookies' ? 'active' : ''\" @click=\"policyFilter = 'cookies'\"><span>ملفات الكوكيز</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"policyFilter === 'payment' ? 'active' : ''\" @click=\"policyFilter = 'payment'\"><span>سياسة الدفع</span></button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -154,14 +154,14 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</strong></td><td><div class=\"stat-label text-sm text-secondary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</strong></td><td><div class=\"stat-card-label\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 125, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 125, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -172,14 +172,14 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					return templ_7745c5c3_Err
 				}
 				if p.Title["en"] != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"stat-label text-sm text-secondary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"stat-card-label\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 127, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_policies.templ`, Line: 127, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {

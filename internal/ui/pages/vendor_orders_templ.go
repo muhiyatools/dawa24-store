@@ -80,11 +80,11 @@ func VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">طلبيات الصيدليات والشحنات</h1></div><p class=\"text-sm text-secondary m-0\">مراجعة تفاصيل أصناف أوامر التوريد الواردة من الصيدليات وتأكيد التجهيز وبدء الشحن</p></div></div><!-- Navigation Filter Tabs --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">طلبيات الصيدليات والشحنات</h1></div><p class=\"text-sm text-secondary m-0\">مراجعة تفاصيل أصناف أوامر التوريد الواردة من الصيدليات وتأكيد التجهيز وبدء الشحن</p></div></div><!-- Navigation Filter Tabs --><div class=\"tabs-nav mt-4 pt-3 border-t\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var3 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "")}
+				var templ_7745c5c3_Var3 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -119,7 +119,7 @@ func VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "pending")}
+				var templ_7745c5c3_Var6 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "pending")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -154,7 +154,7 @@ func VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var9 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "confirmed")}
+				var templ_7745c5c3_Var9 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "confirmed")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -189,7 +189,7 @@ func VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var12 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "shipped")}
+				var templ_7745c5c3_Var12 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "shipped")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -224,7 +224,7 @@ func VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var15 = []any{"cb-tab-btn", templ.KV("active", data.FilterStatus == "delivered")}
+				var templ_7745c5c3_Var15 = []any{"tab-btn", templ.KV("active", data.FilterStatus == "delivered")}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

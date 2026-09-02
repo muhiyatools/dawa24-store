@@ -162,11 +162,11 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء الواردة من الصيدليات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p></div></div></div><!-- Status Filter Tabs --><div class=\"cb-tabs-nav m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">طلبات الشراء الواردة من الصيدليات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p></div></div></div><!-- Status Filter Tabs --><div class=\"tabs-nav m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 = []any{"cb-tab-btn", templ.KV("active", activeStatus == "all" || activeStatus == "")}
+			var templ_7745c5c3_Var5 = []any{"tab-btn", templ.KV("active", activeStatus == "all" || activeStatus == "")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -188,7 +188,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 = []any{"cb-tab-btn", templ.KV("active", activeStatus == "pending")}
+			var templ_7745c5c3_Var7 = []any{"tab-btn", templ.KV("active", activeStatus == "pending")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var7...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -210,7 +210,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 = []any{"cb-tab-btn", templ.KV("active", activeStatus == "approved")}
+			var templ_7745c5c3_Var9 = []any{"tab-btn", templ.KV("active", activeStatus == "approved")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -232,7 +232,7 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 = []any{"cb-tab-btn", templ.KV("active", activeStatus == "completed")}
+			var templ_7745c5c3_Var11 = []any{"tab-btn", templ.KV("active", activeStatus == "completed")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

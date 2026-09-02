@@ -39,28 +39,28 @@ templ AdminUserOrganizationsPage(lang, dir string, data *AdminUserOrgData) {
 
 				<!-- Filter Tabs -->
 				if data != nil {
-					<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
+					<div class="tabs-nav m-0 mt-6 pt-4 border-t">
 						<a
 							href="/admin/user-organization?status=all"
-							class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "all") }
+							class={ "tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "all") }
 						>
 							<span>الكل ({ fmt.Sprintf("%d", data.TotalCount) })</span>
 						</a>
 						<a
 							href="/admin/user-organization?status=pending"
-							class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "pending") }
+							class={ "tab-btn", templ.KV("active", data.ActiveTab == "pending") }
 						>
 							<span>قيد الانتظار</span>
 						</a>
 						<a
 							href="/admin/user-organization?status=approved"
-							class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "approved") }
+							class={ "tab-btn", templ.KV("active", data.ActiveTab == "approved") }
 						>
 							<span>معتمد (Approval )</span>
 						</a>
 						<a
 							href="/admin/user-organization?status=rejected"
-							class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "rejected") }
+							class={ "tab-btn", templ.KV("active", data.ActiveTab == "rejected") }
 						>
 							<span>مرفوض </span>
 						</a>

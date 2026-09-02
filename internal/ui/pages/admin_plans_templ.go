@@ -294,11 +294,11 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " <span class=\"text-xs text-muted font-normal\">باقة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">حصص الكوتا وتوليد الـ Virtual Keys</div></div></div><!-- Main Content Panel with Tabs --><div class=\"glass-panel p-6 mb-6\"><!-- Tab Navigation --><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " <span class=\"text-xs text-muted font-normal\">باقة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">حصص الكوتا وتوليد الـ Virtual Keys</div></div></div><!-- Main Content Panel with Tabs --><div class=\"glass-panel p-6 mb-6\"><!-- Tab Navigation --><div class=\"tabs-nav m-0 mb-6 pb-4 border-b\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "")}
+			var templ_7745c5c3_Var12 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -341,7 +341,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var15 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "subscriptions")}
+			var templ_7745c5c3_Var15 = []any{"tab-btn", templ.KV("active", data.ActiveTab == "subscriptions")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

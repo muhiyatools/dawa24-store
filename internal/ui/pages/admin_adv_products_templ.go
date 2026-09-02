@@ -298,7 +298,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Navigation Tabs matching platform design --><div class=\"tab-list mb-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Navigation Tabs matching platform design --><div class=\"tabs-nav mb-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -488,7 +488,7 @@ func AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></a></div><!-- Filter & Live Search Toolbar --><div class=\"glass-panel p-3 mb-4\"><form method=\"GET\" action=\"/admin/adv-products\" class=\"d-flex items-center gap-3 flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></a></div><!-- Filter & Live Search Toolbar --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/adv-products\" class=\"d-flex items-center gap-3 flex-wrap m-0\"><input type=\"hidden\" name=\"tab\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

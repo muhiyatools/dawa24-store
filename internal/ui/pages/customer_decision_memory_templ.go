@@ -258,7 +258,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">نطاق الحماية والخصوصية</div><div class=\"text-lg font-black text-success mt-1\">عزل تام ومؤمّن</div></div></div><!-- Search & Rows-Per-Page Form --><div class=\"glass-panel p-4 mb-0\"><form method=\"GET\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">نطاق الحماية والخصوصية</div><div class=\"text-lg font-black text-success mt-1\">عزل تام ومؤمّن</div></div></div><!-- Search & Rows-Per-Page Form --><div class=\"filter-bar\"><form method=\"GET\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -693,7 +693,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div><!-- Clear All Script --><script>\n\t\tfunction confirmClearMyDecisions() {\n\t\t\tif (confirm(\"هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\n\t\t\t\tvar form = document.createElement('form');\n\t\t\t\tform.method = 'POST';\n\t\t\t\tform.action = basePath + '/clear';\n\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\tform.submit();\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div><!-- Clear All Script --><script>\r\n\t\tfunction confirmClearMyDecisions() {\r\n\t\t\tif (confirm(\"هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\r\n\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\tform.method = 'POST';\r\n\t\t\t\tform.action = basePath + '/clear';\r\n\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\tform.submit();\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

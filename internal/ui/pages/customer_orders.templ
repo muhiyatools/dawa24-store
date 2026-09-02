@@ -58,7 +58,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab active font-bold"
+							class="btn btn-secondary btn-sm tab-btn active font-bold"
 							onclick="filterOrders('all', this)"
 						>
 							<span>كل الطلبيات</span>
@@ -66,7 +66,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 						</button>
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab font-bold"
+							class="btn btn-secondary btn-sm tab-btn font-bold"
 							onclick="filterOrders('active', this)"
 						>
 							<span>قيد التنفيذ</span>
@@ -74,7 +74,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 						</button>
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab font-bold"
+							class="btn btn-secondary btn-sm tab-btn font-bold"
 							onclick="filterOrders('completed', this)"
 						>
 							<span>المكتملة</span>
@@ -83,7 +83,7 @@ templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool)
 						if cancelledCount > 0 {
 							<button
 								type="button"
-								class="btn btn-secondary btn-sm filter-tab font-bold"
+								class="btn btn-secondary btn-sm tab-btn font-bold"
 								onclick="filterOrders('cancelled', this)"
 							>
 								<span>الملغية</span>

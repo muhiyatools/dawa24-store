@@ -96,24 +96,24 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 			</div>
 
 			<!-- Navigation Subtabs for all 4 Analysis Modes -->
-			<div class="cb-tabs-nav mt-4 pt-3 border-t">
-				<a href="/compare/results" class="cb-tab-btn">
+			<div class="tabs-nav mt-4 pt-3 border-t">
+				<a href="/compare/results" class="tab-btn">
 					المقارنة المجمعة بين الموردين
 				</a>
-				<a href="/compare/head-to-head" class="cb-tab-btn active">
+				<a href="/compare/head-to-head" class="tab-btn active">
 					مقارنة مورد بمورد
 				</a>
-				<a href="/compare/market-benchmark" class="cb-tab-btn">
+				<a href="/compare/market-benchmark" class="tab-btn">
 					مقارنة مع موردين السوق
 				</a>
-				<a href="/compare/market-intelligence" class="cb-tab-btn">
+				<a href="/compare/market-intelligence" class="tab-btn">
 					تقرير ذكاء السوق
 				</a>
 			</div>
 		</div>
 
 		<!-- Supplier Selector Form -->
-		<div class="glass-panel p-6 mb-6">
+		<div class="filter-bar">
 			<form method="GET" action="/compare/head-to-head" class="d-grid gap-4 items-end m-0">
     <div class="stack-sm">
 					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
@@ -211,7 +211,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 			</div>
 
 			<!-- Filter Bar -->
-			<div class="glass-panel p-6 mb-6 d-flex flex-col gap-4">
+			<div class="filter-bar">
 				<form method="GET" action="/compare/head-to-head" class="m-0">
 					<input type="hidden" name="source" value={ fmt.Sprintf("%d", data.SourceFileID) } />
 					<input type="hidden" name="target" value={ fmt.Sprintf("%d", data.TargetFileID) } />

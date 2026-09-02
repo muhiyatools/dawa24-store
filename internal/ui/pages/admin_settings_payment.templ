@@ -125,24 +125,14 @@ templ adminSettingsPaymentTab(paymentMethods []*billing.PlatformPaymentMethod) {
 }
 
 templ adminSettingsPaymentModal() {
-	<dialog id="payment-method-modal" class="modal-dialog">
-		<div class="glass-panel p-6 w-full max-w-xl shadow-2xl rounded-2xl">
-			<div class="flex-between items-center pb-3 mb-4 border-b">
-				<div class="d-flex items-center gap-2">
-					<div class="user-avatar-badge text-base">
-						@components.IconWallet("icon-sm")
-					</div>
-					<div>
-						<h3 class="text-base font-black text-primary m-0" x-text="isEditingMethod ? 'تعديل وسيلة الدفع' : 'إضافة وسيلة دفع جديدة'"></h3>
-						<div class="text-xs text-secondary mt-0.5">ضبط الحسابات والقنوات المعتمدة لسداد الفواتير والشحن</div>
-					</div>
-				</div>
-				<button type="button" onclick="document.getElementById('payment-method-modal').close()" class="btn btn-secondary btn-xs btn-icon">
-					@components.IconClose("icon-sm")
-				</button>
-			</div>
-
-			<form action="/admin/settings/payment-methods" method="POST" class="d-flex flex-col gap-4 m-0">
+	@components.Modal(components.ModalProps{
+		ID:       "payment-method-modal",
+		Title:    "وسيلة الدفع",
+		Subtitle: "ضبط الحسابات والقنوات المعتمدة لسداد المستحقات وشحن المحفظة",
+		Icon:     "wallet",
+		Size:     "lg",
+	}) {
+		<form action="/admin/settings/payment-methods" method="POST" class="modal-body d-flex flex-col gap-4 m-0">
 				<div class="form-grid-2">
 					<div class="form-group mb-0">
 						<label class="form-label text-xs font-bold">المعرف الفريد (ID) *</label>
@@ -247,16 +237,15 @@ templ adminSettingsPaymentModal() {
 					</div>
 				</div>
 
-				<div class="modal-footer pt-3 border-t">
-					<button type="button" onclick="document.getElementById('payment-method-modal').close()" class="btn btn-secondary btn-sm font-bold text-xs">
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary btn-sm font-black text-xs px-6">
-						@components.IconCheck("icon-xs")
-						<span x-text="isEditingMethod ? 'حفظ التعديلات' : 'إضافة وسيلة الدفع'"></span>
-					</button>
-				</div>
-			</form>
-		</div>
-	</dialog>
+			<div class="modal-footer">
+				<button type="button" onclick="document.getElementById('payment-method-modal').close()" class="btn btn-secondary">
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary">
+					@components.IconCheck("icon-xs")
+					<span x-text="isEditingMethod ? 'حفظ التعديلات' : 'إضافة وسيلة الدفع'"></span>
+				</button>
+			</div>
+		</form>
+	}
 }

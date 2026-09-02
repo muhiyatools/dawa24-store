@@ -638,7 +638,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div><div class=\"text-xs text-muted mt-1\">رصيد صفري (غير متاح)</div></div></div><!-- Filter & Search Toolbar Card --><div class=\"glass-panel mb-0 border rounded-2xl p-5 bg-surface-raised\"><form method=\"GET\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div><div class=\"text-xs text-muted mt-1\">رصيد صفري (غير متاح)</div></div></div><!-- Filter & Search Toolbar Card --><div class=\"filter-bar\"><form method=\"GET\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

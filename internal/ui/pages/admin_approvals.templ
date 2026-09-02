@@ -43,24 +43,24 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 				</div>
 
 				<!-- Navigation Tabs -->
-				<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
+				<div class="tabs-nav m-0 mt-6 pt-4 border-t">
 					<a
 						href="/admin/approvals?tab=organizations"
-						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "organizations") }
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "organizations") }
 					>
 						@components.IconBuilding("icon-xs")
 						<span>اعتماد المنشآت والتراخيص ({ fmt.Sprintf("%d", len(data.Organizations)) })</span>
 					</a>
 					<a
 						href="/admin/approvals?tab=documents"
-						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "documents") }
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "documents") }
 					>
 						@components.IconFile("icon-xs")
 						<span>تدقيق وثائق المنشآت المرفوعة ({ fmt.Sprintf("%d", len(data.UploadedDocs)) })</span>
 					</a>
 					<a
 						href="/admin/approvals?tab=requests"
-						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "requests") }
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "requests") }
 					>
 						@components.IconClock("icon-xs")
 						<span>المستندات المطلوبة والمتابعة ({ fmt.Sprintf("%d", len(data.DocRequests)) })</span>

@@ -16,6 +16,18 @@ const DefaultLimit = 50
 // MaxLimit is the maximum permissible page size ceiling.
 const MaxLimit = 200
 
+// TableRows is how many rows a dashboard table shows per page.
+//
+// The list screens had picked their own: brands and reference data showed 25,
+// chat history and users showed 50. Same table chrome, same filter bar, twice
+// the scroll depending on which link you followed -- and a reader who has
+// learned "the second page starts at 26" on one screen is wrong on the next.
+//
+// This is deliberately not DefaultLimit. DefaultLimit (50) is the API's answer
+// for a machine reading a collection; this is the answer for a person reading
+// rows on a screen, and the two do not have to agree.
+const TableRows = 25
+
 // Params captures parsed client pagination request parameters.
 type Params struct {
 	Limit  int    `json:"limit"`

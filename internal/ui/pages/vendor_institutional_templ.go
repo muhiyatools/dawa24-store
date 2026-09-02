@@ -275,7 +275,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مراكز التوزيع النشطة</span></div></div><!-- Filter Bar --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/vendor/pharmacy-coverage\" class=\"d-grid gap-3 items-end\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">البحث بالاسم أو العنوان أو الهاتف</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مراكز التوزيع النشطة</span></div></div><!-- Filter Bar --><div class=\"filter-bar\"><form method=\"GET\" action=\"/vendor/pharmacy-coverage\" class=\"d-grid gap-3 items-end\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">البحث بالاسم أو العنوان أو الهاتف</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

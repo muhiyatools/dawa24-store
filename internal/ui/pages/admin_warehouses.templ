@@ -290,7 +290,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 			</div>
 
 			<!-- Filter & Search Toolbar Card -->
-			<div class="glass-panel mb-0 border rounded-2xl p-5 bg-surface-raised">
+			<div class="filter-bar">
 				<form method="GET" action={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="stack-md">
 					<div class="warehouse-filter-grid">
 

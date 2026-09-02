@@ -148,7 +148,7 @@ func NotificationsContent(logs []*notifications.NotificationLog, unreadCount int
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- 2. Subtabs Navigation for Filter: All / Unread / Read --><div class=\"d-flex items-center gap-2 mt-5 pt-4 border-t flex-wrap\"><button type=\"button\" @click=\"tab = 'all'\" class=\"cb-tab-btn text-xs font-bold\" :class=\"{ 'active': tab === 'all' }\"><span>كافة الإشعارات</span> <span class=\"badge badge-secondary text-2xs font-bold tabular-nums ms-1.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><!-- 2. Subtabs Navigation for Filter: All / Unread / Read --><div class=\"d-flex items-center gap-2 mt-5 pt-4 border-t flex-wrap\"><button type=\"button\" @click=\"tab = 'all'\" class=\"tab-btn text-xs font-bold\" :class=\"{ 'active': tab === 'all' }\"><span>كافة الإشعارات</span> <span class=\"badge badge-secondary text-2xs font-bold tabular-nums ms-1.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -161,7 +161,7 @@ func NotificationsContent(logs []*notifications.NotificationLog, unreadCount int
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></button> <button type=\"button\" @click=\"tab = 'unread'\" class=\"cb-tab-btn text-xs font-bold\" :class=\"{ 'active': tab === 'unread' }\"><span>غير المقروءة فقط</span> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></button> <button type=\"button\" @click=\"tab = 'unread'\" class=\"tab-btn text-xs font-bold\" :class=\"{ 'active': tab === 'unread' }\"><span>غير المقروءة فقط</span> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -189,7 +189,7 @@ func NotificationsContent(logs []*notifications.NotificationLog, unreadCount int
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</button> <button type=\"button\" @click=\"tab = 'read'\" class=\"cb-tab-btn text-xs font-bold\" :class=\"{ 'active': tab === 'read' }\"><span>المقروءة سابقاً</span> <span class=\"badge badge-secondary text-2xs font-bold tabular-nums ms-1.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</button> <button type=\"button\" @click=\"tab = 'read'\" class=\"tab-btn text-xs font-bold\" :class=\"{ 'active': tab === 'read' }\"><span>المقروءة سابقاً</span> <span class=\"badge badge-secondary text-2xs font-bold tabular-nums ms-1.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

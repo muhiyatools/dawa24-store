@@ -109,26 +109,26 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 			<!-- Status Filter Tabs -->
 			<div class="glass-panel p-6 mb-6">
-				<div class="cb-tabs-nav m-0">
-					<a href="/admin/offers" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all") }>
+				<div class="tabs-nav m-0">
+					<a href="/admin/offers" class={ "tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all") }>
 						<span>كافة العروض</span>
 						<span class="badge badge-slate text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.Offers)) }</span>
 					</a>
-					<a href="/admin/offers?status=pending" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "pending") }>
+					<a href="/admin/offers?status=pending" class={ "tab-btn", templ.KV("active", data.FilterStatus == "pending") }>
 						<span>بانتظار الاعتماد</span>
 						if pendingCount := countAdminSpecialOffers(data.Offers, "pending"); pendingCount > 0 {
 							<span class="badge badge-amber text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", pendingCount) }</span>
 						}
 					</a>
-					<a href="/admin/offers?status=active" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "active") }>
+					<a href="/admin/offers?status=active" class={ "tab-btn", templ.KV("active", data.FilterStatus == "active") }>
 						<span>المعتمدة والنشطة</span>
 						<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "active")) }</span>
 					</a>
-					<a href="/admin/offers?status=draft" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "draft") }>
+					<a href="/admin/offers?status=draft" class={ "tab-btn", templ.KV("active", data.FilterStatus == "draft") }>
 						<span>المسودات والمعطلة</span>
 						<span class="badge badge-slate text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "draft")) }</span>
 					</a>
-					<a href="/admin/offers?status=rejected" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "rejected") }>
+					<a href="/admin/offers?status=rejected" class={ "tab-btn", templ.KV("active", data.FilterStatus == "rejected") }>
 						<span>المرفوضة</span>
 						<span class="badge badge-rose text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "rejected")) }</span>
 					</a>

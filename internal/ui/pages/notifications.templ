@@ -76,7 +76,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 				<button
 					type="button"
 					@click="tab = 'all'"
-					class="cb-tab-btn text-xs font-bold"
+					class="tab-btn text-xs font-bold"
 					:class="{ 'active': tab === 'all' }"
 				>
 					<span>كافة الإشعارات</span>
@@ -86,7 +86,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 				<button
 					type="button"
 					@click="tab = 'unread'"
-					class="cb-tab-btn text-xs font-bold"
+					class="tab-btn text-xs font-bold"
 					:class="{ 'active': tab === 'unread' }"
 				>
 					<span>غير المقروءة فقط</span>
@@ -100,7 +100,7 @@ templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount in
 				<button
 					type="button"
 					@click="tab = 'read'"
-					class="cb-tab-btn text-xs font-bold"
+					class="tab-btn text-xs font-bold"
 					:class="{ 'active': tab === 'read' }"
 				>
 					<span>المقروءة سابقاً</span>

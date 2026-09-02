@@ -175,9 +175,9 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--neutral-100) 25%,
-    var(--neutral-200) 37%,
-    var(--neutral-100) 63%
+    var(--bg-surface-sunken) 25%,
+    var(--border-subtle) 37%,
+    var(--bg-surface-sunken) 63%
   );
   background-size: 400% 100%;
   animation: skeleton-sheen 1.4s ease infinite;
@@ -194,7 +194,7 @@
 
 /* A reader who asked for less motion gets a flat placeholder. */
 @media (prefers-reduced-motion: reduce) {
-  .skeleton { animation: none; background: var(--neutral-100); }
+  .skeleton { animation: none; background: var(--bg-surface-sunken); }
 }
 
 /* Modal & Dialog System -------------------------------------------------- */
@@ -255,9 +255,15 @@ dialog.modal::backdrop {
   }
 }
 
-.modal-box{
-  background: var(--surface-raised, #ffffff);
-  border: 1px solid var(--border, #e2e8f0);
+/* .modal-dialog + .modal-content are the two Alpine-driven modals' shells.
+   They are not <dialog>, so components.Modal cannot own them, but they get the
+   same surface here rather than each inventing a card -- one of them was
+   painting itself bg-white with slate borders, which meant a modal that stayed
+   light while the rest of the dashboard went dark. */
+.modal-box,
+.modal-dialog{
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card);
   border-radius: var(--radius-2xl, 1rem);
   box-shadow: 0 20px 38px -6px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.06);
   display: flex;
@@ -277,22 +283,27 @@ dialog.modal::backdrop {
 /* Modal Sizing Modifiers */
 .modal-sm,
 .modal-box.modal-sm,
+.modal-dialog.modal-sm,
 .modal-card.modal-sm { max-width: min(92vw, 420px); }
 
 .modal-md,
 .modal-box.modal-md,
+.modal-dialog.modal-md,
 .modal-card.modal-md { max-width: min(94vw, 580px); }
 
 .modal-lg,
 .modal-box.modal-lg,
+.modal-dialog.modal-lg,
 .modal-card.modal-lg { max-width: min(94vw, 780px); }
 
 .modal-xl,
 .modal-box.modal-xl,
+.modal-dialog.modal-xl,
 .modal-card.modal-xl { max-width: min(96vw, 980px); }
 
 .modal-full,
 .modal-box.modal-full,
+.modal-dialog.modal-full,
 .modal-card.modal-full { max-width: min(96vw, 1200px); }
 
 .modal-header {
@@ -383,7 +394,7 @@ dialog.modal[open] {
   padding: 0.85rem 1.15rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-card);
-  background: var(--bg-card);
+  background: var(--bg-surface-raised);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   font-size: 0.875rem;
   font-weight: 700;
@@ -403,7 +414,7 @@ dialog.modal[open] {
 .tabs {
   display: flex;
   gap: 0.25rem;
-  border-bottom: 1px solid var(--neutral-200);
+  border-bottom: 1px solid var(--border-subtle);
   margin-bottom: 1.25rem;
   overflow-x: auto;
 }
@@ -416,15 +427,13 @@ dialog.modal[open] {
   font: inherit;
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--neutral-600);
+  color: var(--text-secondary);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   white-space: nowrap;
   text-decoration: none;
 }
-.tab:hover { color: var(--neutral-900); }
-.tab.active { color: var(--primary-700); border-bottom-color: var(--primary-600); }
 
 /* The generic .dropdown / .dropdown-menu / .dropdown-item surface is gone.
    Every popover in the product is now .nav-menu in nav.css, which is what
@@ -477,17 +486,17 @@ dialog.modal[open] {
   justify-content: center;
   gap: 0.6rem;
   padding: 2.5rem 1.5rem;
-  border: 2px dashed var(--neutral-300);
+  border: 2px dashed var(--border-card);
   border-radius: var(--radius-xl);
-  background: var(--neutral-50);
+  background: var(--bg-surface-sunken);
   text-align: center;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
-.dropzone:hover { border-color: var(--primary-400); background: var(--primary-50); }
-.dropzone.is-dragging { border-color: var(--primary-600); background: var(--primary-100); }
-.dropzone-title { font-weight: 700; color: var(--neutral-800); }
-.dropzone-hint { font-size: 0.825rem; color: var(--neutral-500); }
+.dropzone:hover { border-color: var(--primary-border); background: var(--primary-subtle); }
+.dropzone.is-dragging { border-color: var(--primary); background: var(--primary-subtle); }
+.dropzone-title { font-weight: 700; color: var(--text-primary); }
+.dropzone-hint { font-size: 0.825rem; color: var(--text-muted); }
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -504,7 +513,7 @@ dialog.modal[open] {
 .saving-complete-mark {
   display: inline-grid;
   place-items: center;
-  color: var(--primary-600);
+  color: var(--primary);
 }
 .saving-upload-mark {
   width: 2.5rem;
@@ -558,8 +567,8 @@ dialog.modal[open] {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  background: var(--primary-100);
-  color: var(--primary-800);
+  background: var(--primary-subtle);
+  color: var(--primary-hover);
   font-weight: 700;
   flex-shrink: 0;
   overflow: hidden;
@@ -571,7 +580,7 @@ dialog.modal[open] {
 .money {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  color: var(--neutral-900);
+  color: var(--text-primary);
   white-space: nowrap;
 }
 .money-negative { color: var(--danger); }
@@ -582,8 +591,8 @@ dialog.modal[open] {
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid var(--neutral-300);
-  border-top-color: var(--primary-600);
+  border: 2px solid var(--border-card);
+  border-top-color: var(--primary);
   border-radius: var(--radius-full);
   animation: spin 0.7s linear infinite;
   display: inline-block;
@@ -733,10 +742,10 @@ dialog.modal[open] {
 .gap-md { gap: 0.75rem; }
 
 /* Stacks & Rows */
-.row-center    { display: flex; align-items: center; gap: var(--space-3); }
+.row-center    { display: flex; align-items: center; gap: var(--space-sm); }
 .row-center-sm { display: flex; align-items: center; gap: 0.5rem; }
 .row-center-xs { display: flex; align-items: center; gap: 0.25rem; }
-.stack         { display: flex; flex-direction: column; gap: var(--space-4); }
+.stack         { display: flex; flex-direction: column; gap: var(--space-md); }
 .stack-sm      { display: flex; flex-direction: column; gap: 0.5rem; }
 .stack-md      { display: flex; flex-direction: column; gap: 1rem; }
 .stack-lg      { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -760,7 +769,7 @@ dialog.modal[open] {
 .form-grid-2 {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: var(--space-4);
+	gap: var(--space-md);
 }
 .grid-2 {
 	display: grid;
@@ -786,9 +795,9 @@ dialog.modal[open] {
 .text-secondary { color: var(--text-secondary); }
 .text-muted     { color: var(--text-muted); }
 .text-accent    { color: var(--accent); }
-.text-success   { color: var(--success-text, #10b981); }
-.text-warning   { color: var(--warning-text, #f59e0b); }
-.text-danger    { color: var(--danger-text, #ef4444); }
+.text-success   { color: var(--success, #10b981); }
+.text-warning   { color: var(--warning, #f59e0b); }
+.text-danger    { color: var(--danger, #ef4444); }
 
 .text-end   { text-align: end; }
 .text-start { text-align: start; }
@@ -1213,7 +1222,7 @@ select.form-control {
 .form-select:hover,
 select.form-input:hover,
 select.form-control:hover {
-  border-color: var(--border-hover, #94a3b8);
+  border-color: var(--border-card, #94a3b8);
 }
 
 .form-select:focus,
@@ -1511,43 +1520,8 @@ input:focus {
   box-shadow: 0 0 0 3px var(--primary-subtle, rgba(2, 132, 199, 0.18));
 }
 
-.cb-tabs-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-
-.cb-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1rem;
-  border-radius: var(--radius-lg);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-decoration: none;
-  background: transparent;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  transition: background-color var(--duration-fast) ease,
-              color var(--duration-fast) ease,
-              border-color var(--duration-fast) ease;
-}
-
-.cb-tab-btn:hover {
-  background: var(--bg-surface-sunken);
-  color: var(--text-primary);
-}
-
-.cb-tab-btn.active {
-  background: var(--primary-subtle);
-  color: var(--primary);
-  border-color: var(--primary-border);
-  font-weight: 800;
-}
+/* .cb-tabs-nav / .cb-tab-btn were a second copy of the tab system. Every
+   template now uses .tabs-nav / .tab-btn above. */
 
 /* Day Pill Selector */
 .day-pill-toggle {
@@ -1608,54 +1582,145 @@ input:focus {
   border-color: var(--border-subtle, #334155);
 }
 
-.tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.15rem;
-  border-radius: var(--radius-lg, 0.75rem);
-  border: none;
-  background: transparent;
-  color: var(--text-secondary, #64748b);
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color var(--duration-fast, 150ms) ease,
-              color var(--duration-fast, 150ms) ease,
-              box-shadow var(--duration-fast, 150ms) ease;
-  user-select: none;
-}
-.tab-btn:hover {
-  background: var(--bg-surface-sunken, #f1f5f9);
-  color: var(--text-primary, #0f172a);
-}
-[data-theme="dark"] .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-}
-.tab-btn.active, .tab-btn:has(input:checked) {
-  background: var(--primary, #0284c7);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
-}
-.tab-btn.active svg, .tab-btn.active .icon {
-  stroke: #ffffff;
-  fill: none;
+/* ==========================================================================
+   TABS — one system
+
+   There were five. `.tab-btn` was a filled pill; `.cb-tab-btn` was declared
+   twice, as a pill in components.css and as an underline tab in customer.css,
+   so the same class rendered differently depending only on which stylesheet a
+   page happened to load last -- and the customer variant painted its active
+   state with --primary-600, which is declared nowhere, so the active tab there
+   had no colour and no underline at all. `.filter-tab` was a third shape,
+   `.tab` a fourth, `.sp-tab-btn` a fifth that no template used.
+
+   This is the rail: the same device as the navigation links and the marketing
+   pages' role switch, one level down. A hairline under the row, a graduation
+   tick between items, and the active item inking its segment of the rail.
+   ========================================================================== */
+
+.tabs-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  inline-size: 100%;
+  overflow-x: auto;
+  /* Explicit, because overflow-x:auto computes the block axis to auto too and
+     the inked underline sits a pixel proud of the box -- enough for a browser
+     to fit a vertical scrollbar beside a single row of tabs. */
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  border-block-end: 1px solid var(--border-subtle);
+  margin-block-end: var(--space-lg);
 }
 
-.tab-pane {
-  background: var(--bg-surface-raised, #ffffff);
-  border: 1px solid var(--border-subtle, #e2e8f0);
-  border-radius: var(--radius-2xl, 1.25rem);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: opacity var(--duration-normal, 250ms) ease,
-              transform var(--duration-normal, 250ms) ease;
+.tab-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  flex: 0 0 auto;
+  padding-inline: var(--space-md);
+  padding-block: var(--space-xs) calc(var(--space-xs) + 1px);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--duration-fast) var(--ease-smooth);
 }
-[data-theme="dark"] .tab-pane {
-  background: var(--bg-surface-raised, #1e293b);
-  border-color: var(--border-subtle, #334155);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+
+/* The graduation tick between items. */
+.tab-btn + .tab-btn::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 0;
+  inline-size: 1px;
+  block-size: 0.375rem;
+  background: var(--border-subtle);
+}
+
+/* The inked segment: the rail thickens under the current tab. */
+.tab-btn::after {
+  content: "";
+  position: absolute;
+  inset-inline: var(--space-sm);
+  inset-block-end: -1px;
+  block-size: 2px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn:hover::after { transform: scaleX(0.4); }
+
+.tab-btn.active,
+.tab-btn[aria-selected="true"],
+.tab-btn:has(input:checked) {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tab-btn.active::after,
+.tab-btn[aria-selected="true"]::after,
+.tab-btn:has(input:checked)::after { transform: scaleX(1); }
+
+.tab-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-xs);
+}
+
+.tab-btn > svg { flex-shrink: 0; color: var(--text-muted); }
+.tab-btn.active > svg,
+.tab-btn[aria-selected="true"] > svg { color: var(--primary); }
+
+/* A count beside a tab label -- "الطلبات 12". Tabular so the rail does not
+   shift as the numbers change. */
+.tab-btn-count {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-inline: var(--space-2xs);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-sunken);
+}
+
+.tab-btn.active .tab-btn-count,
+.tab-btn[aria-selected="true"] .tab-btn-count {
+  background: var(--primary-subtle);
+  color: var(--primary);
+}
+
+/* The panel is the content below the rail. It carries no border of its own --
+   the rail already separates it, and a bordered panel under a bordered rail is
+   two boxes where the reader sees one region. */
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .tab-btn {
+    min-block-size: var(--touch-min);
+    padding-inline: var(--space-sm);
+  }
+  .tabs-nav { margin-block-end: var(--space-md); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-btn, .tab-btn::after { transition-duration: 1ms; }
 }
 
 .b2b-icon-box-sm {
@@ -1775,7 +1840,7 @@ input:focus {
 }
 
 .review-gate-note {
-  color: var(--warning-fg, var(--text-secondary));
+  color: var(--warning, var(--text-secondary));
   font-weight: 700;
   line-height: 1.6;
 }
@@ -1915,7 +1980,7 @@ input:focus {
   font-weight: 900;
   font-size: 0.95rem;
   text-align: center;
-  color: var(--warning-fg, var(--text));
+  color: var(--warning, var(--text));
 }
 
 .so-blocked-label {
@@ -2147,27 +2212,27 @@ input:focus {
 }
 
 .stat-card-icon-wrapper.emerald {
-  background: var(--emerald-50);
+  background: var(--success-subtle);
   border-color: rgba(16, 185, 129, 0.3);
-  color: var(--emerald-500);
+  color: var(--success);
 }
 
 .stat-card-icon-wrapper.amber {
-  background: var(--amber-50);
+  background: var(--warning-subtle);
   border-color: rgba(245, 158, 11, 0.3);
-  color: var(--amber-500);
+  color: var(--warning);
 }
 
 .stat-card-icon-wrapper.rose {
-  background: var(--rose-50);
+  background: var(--danger-subtle);
   border-color: rgba(244, 63, 94, 0.3);
-  color: var(--rose-500);
+  color: var(--danger);
 }
 
 .stat-card-icon-wrapper.violet {
-  background: var(--violet-50);
+  background: var(--accent-subtle);
   border-color: rgba(139, 92, 246, 0.3);
-  color: var(--violet-500);
+  color: var(--accent);
 }
 
 .stat-card-title {
@@ -2224,27 +2289,27 @@ input:focus {
 .pill-3d.pill-success {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(52, 211, 153, 0.22) 100%);
   border-color: rgba(16, 185, 129, 0.4);
-  color: var(--emerald-500);
-  box-shadow: 0 0 12px 0 var(--emerald-glow);
+  color: var(--success);
+  box-shadow: 0 0 12px 0 var(--success);
 }
 
 .pill-3d.pill-warning {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(251, 191, 36, 0.22) 100%);
   border-color: rgba(245, 158, 11, 0.4);
-  color: var(--amber-500);
-  box-shadow: 0 0 12px 0 var(--amber-glow);
+  color: var(--warning);
+  box-shadow: 0 0 12px 0 var(--warning);
 }
 
 .pill-3d.pill-danger {
   background: linear-gradient(135deg, rgba(244, 63, 94, 0.12) 0%, rgba(251, 113, 133, 0.22) 100%);
   border-color: rgba(244, 63, 94, 0.4);
-  color: var(--rose-500);
-  box-shadow: 0 0 12px 0 var(--rose-glow);
+  color: var(--danger);
+  box-shadow: 0 0 12px 0 var(--danger);
 }
 .tier-card-glass.active {
   transform: translateY(-6px);
-  border-color: var(--cyan-400);
-  box-shadow: var(--shadow-2xl), 0 0 28px -4px var(--cyan-glow);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-2xl), 0 0 28px -4px var(--accent-glow);
 }
 }
 
@@ -2357,7 +2422,6 @@ input:focus {
 .container-fluid { inline-size: 100%; padding-inline: var(--space-md); }
 .grid-2-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-md); }
 .stack-xs   { display: flex; flex-direction: column; gap: var(--space-2xs); }
-.tab-content-pane { display: none; }
 .tab-content-pane.active { display: block; }
 
 .progress,
@@ -2383,7 +2447,6 @@ input:focus {
 .sp-ops-content { display: flex; flex-direction: column; min-inline-size: 0; }
 .sp-ops-label { font-size: var(--text-xs); color: var(--text-muted); }
 .sp-ops-val   { font-size: var(--text-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
-.sp-tab-panel { display: none; }
 .sp-tab-panel.active { display: block; }
 .so-field   { display: flex; flex-direction: column; gap: var(--space-2xs); }
 .so-preview { padding: var(--space-md); background: var(--bg-surface-sunken); border-radius: var(--radius-md); }
@@ -2499,7 +2562,9 @@ input:focus {
   border: 1px solid transparent;
   color: var(--text-secondary, #94a3b8);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-smooth);
+  transition: background-color var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth),
+              color var(--duration-fast) var(--ease-smooth);
 }
 
 .sidebar-toggle:hover {
@@ -2528,7 +2593,7 @@ input:focus {
   align-items: center;
   justify-content: center;
   padding: var(--space-xl) var(--space-md);
-  background: var(--bg-canvas);
+  background: var(--bg-app);
   margin-inline: auto;
   inline-size: 100%;
 }
@@ -2562,8 +2627,8 @@ input:focus {
   margin-block-end: var(--space-2xs);
 }
 .status-icon-circle.status-pending { background: var(--bg-surface-sunken); color: var(--primary); }
-.status-icon-circle.status-review { background: var(--amber-subtle, #fef3c7); color: var(--amber-fg, #b45309); }
-.status-icon-circle.status-rejected { background: var(--rose-subtle, #ffe4e6); color: var(--danger); }
+.status-icon-circle.status-review { background: var(--warning-subtle, #fef3c7); color: var(--warning, #b45309); }
+.status-icon-circle.status-rejected { background: var(--danger-subtle, #ffe4e6); color: var(--danger); }
 .status-icon-circle.status-suspended { background: var(--danger-subtle, #fee2e2); color: var(--danger); }
 
 .status-title {
@@ -2626,14 +2691,14 @@ input:focus {
 .badge-brand { background: var(--primary-subtle); color: var(--primary); }
 .badge-gray { background: var(--bg-surface-sunken); color: var(--text-muted); }
 .badge-pill { border-radius: var(--radius-full); padding: 0.15rem 0.5rem; }
-.badge-success-subtle { background: var(--emerald-subtle, #ecfdf5); color: var(--emerald, #059669); }
-.badge-teal { background: var(--teal-subtle, #ccfbf1); color: var(--teal-fg, #0f766e); }
+.badge-success-subtle { background: var(--success-subtle, #ecfdf5); color: var(--success, #059669); }
+.badge-teal { background: var(--success-subtle, #ccfbf1); color: var(--success, #0f766e); }
 .badge-dot { inline-size: 0.5rem; block-size: 0.5rem; border-radius: var(--radius-full); display: inline-block; }
-.dot-emerald { background: var(--emerald, #10b981); }
-.btn-emerald { background: var(--emerald, #10b981); color: #fff; }
-.btn-emerald:hover { background: var(--emerald-hover, #059669); }
+.dot-emerald { background: var(--success, #10b981); }
+.btn-emerald { background: var(--success, #10b981); color: #fff; }
+.btn-emerald:hover { background: var(--success-hover, #059669); }
 .btn-link { background: transparent; border: none; color: var(--primary); padding: 0; cursor: pointer; text-decoration: underline; }
-.btn-outline-amber { background: transparent; border: 1px solid var(--amber, #f59e0b); color: var(--amber, #f59e0b); }
+.btn-outline-amber { background: transparent; border: 1px solid var(--warning, #f59e0b); color: var(--warning, #f59e0b); }
 .btn-outline-secondary { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); }
 .btn-outline-success { background: transparent; border: 1px solid var(--success); color: var(--success); }
 .btn-outline-warning { background: transparent; border: 1px solid var(--warning); color: var(--warning); }
@@ -2644,7 +2709,6 @@ input:focus {
 .page-body { padding: var(--space-lg); }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--space-md); }
 .status-badge { display: inline-flex; align-items: center; gap: var(--space-2xs); padding: 0.2rem 0.5rem; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 700; }
-.tabs-nav { display: flex; gap: var(--space-xs); border-block-end: 1px solid var(--border-subtle); padding-block-end: var(--space-2xs); }
 .toolbar-btn-group { display: inline-flex; gap: var(--space-2xs); align-items: center; }
 .form-check-label { font-size: var(--text-sm); color: var(--text); cursor: pointer; }
 .form-radio { accent-color: var(--primary); }
@@ -2677,9 +2741,9 @@ input:focus {
 .jobs-kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
 .jobs-kpi-icon { width: 44px; height: 44px; border-radius: var(--radius-lg, 0.75rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .jobs-kpi-icon.primary { background: var(--primary-subtle, rgba(2, 132, 199, 0.1)); color: var(--primary, #0284c7); }
-.jobs-kpi-icon.success { background: var(--emerald-subtle, rgba(16, 185, 129, 0.1)); color: var(--emerald, #10b981); }
-.jobs-kpi-icon.amber   { background: var(--amber-subtle, rgba(245, 158, 11, 0.1)); color: var(--amber, #f59e0b); }
-.jobs-kpi-icon.indigo  { background: var(--indigo-subtle, rgba(99, 102, 241, 0.1)); color: var(--indigo, #6366f1); }
+.jobs-kpi-icon.success { background: var(--success-subtle, rgba(16, 185, 129, 0.1)); color: var(--success, #10b981); }
+.jobs-kpi-icon.amber   { background: var(--warning-subtle, rgba(245, 158, 11, 0.1)); color: var(--warning, #f59e0b); }
+.jobs-kpi-icon.indigo  { background: var(--info-subtle, rgba(99, 102, 241, 0.1)); color: var(--info, #6366f1); }
 .jobs-kpi-info { display: flex; flex-direction: column; gap: 0.15rem; }
 .jobs-kpi-label { font-size: var(--text-xs, 0.75rem); font-weight: 600; color: var(--text-muted, #94a3b8); }
 .jobs-kpi-value { font-size: 1.15rem; font-weight: 800; color: var(--text-primary, #0f172a); }
@@ -2711,7 +2775,7 @@ input:focus {
 .job-card-salary-block { display: flex; flex-direction: column; gap: 0.1rem; }
 .job-card-salary-val { font-size: var(--text-xs, 0.8125rem); font-weight: 800; color: var(--text-primary, #0f172a); }
 .job-detail-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start; }
-@media (max-width: 960px) { .job-detail-layout { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) { .job-detail-layout { grid-template-columns: 1fr; } }
 .job-detail-card { background: var(--bg-surface-raised, #ffffff); border: 1px solid var(--border-card, #e2e8f0); border-radius: var(--radius-2xl, 1rem); padding: 1.5rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 1rem; }
 .job-specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; }
 .job-spec-tile { background: var(--bg-surface-sunken, #f8fafc); border: 1px solid var(--border-subtle, #f1f5f9); border-radius: var(--radius-lg, 0.75rem); padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
@@ -2725,13 +2789,13 @@ input:focus {
   align-items: start;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
   .cities-layout-grid {
     grid-template-columns: 1fr 360px;
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .cities-layout-grid {
     grid-template-columns: 1fr;
   }
@@ -2790,7 +2854,9 @@ input:focus {
   flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
-  transition: all var(--duration-fast) ease;
+  transition: background-color var(--duration-fast) ease,
+              border-color var(--duration-fast) ease,
+              color var(--duration-fast) ease;
 }
 
 .payment-method-card:hover {
@@ -3015,7 +3081,7 @@ input:focus {
 
 .capsule-session-card:hover {
   border-color: var(--brand, var(--primary));
-  background: var(--bg-surface-hover, var(--surface-hover));
+  background: var(--bg-surface-sunken, var(--bg-surface-sunken));
 }
 
 .capsule-session-card.active {
@@ -3223,7 +3289,7 @@ input:focus {
 }
 
 .capsule-tool-btn:hover:not(:disabled) {
-  background: var(--bg-surface-hover, var(--surface-hover));
+  background: var(--bg-surface-sunken, var(--bg-surface-sunken));
   color: var(--text-primary);
 }
 
@@ -3386,7 +3452,6 @@ input:focus {
 .line-disc-amount, .line-qty-input, .line-total-cell, .line-unit-price, .row-discount-input, .row-qty-input, .row-total-display, .row-unit-price-input { font-family: var(--font-mono); }
 .map-picker-container { inline-size: 100%; block-size: 20rem; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-subtle); }
 .map-supplier-item { padding: var(--space-sm); border-block-end: 1px solid var(--border-subtle); cursor: pointer; }
-.mobile-nav-user-box { padding: var(--space-md); border-block-end: 1px solid var(--border-subtle); margin-block-end: var(--space-sm); }
 .msg-mine { background: var(--primary-subtle); border-radius: var(--radius-lg); padding: var(--space-sm); margin-inline-start: auto; max-inline-size: 80%; }
 .no-print-toolbar { display: flex; gap: var(--space-sm); justify-content: flex-end; margin-block-end: var(--space-md); }
 @media print { .no-print-toolbar { display: none; } }
@@ -3398,34 +3463,7 @@ input:focus {
 .pharmacy-staged-row-cb, .vendor-staged-row-cb { accent-color: var(--primary); }
 
 /* B2B E-Commerce Catalog & Product Card System */
-.catalog-main-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 1.5rem;
-  align-items: start;
-  margin-bottom: 2rem;
-}
-
-@media (max-width: 1024px) {
-  .catalog-main-layout {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-}
-
-.catalog-sidebar-filter {
-  order: 2;
-  background: var(--bg-surface-raised, var(--surface-raised));
-  border: 1px solid var(--border-card, var(--border));
-  border-radius: var(--radius-xl, 1rem);
-  padding: 1.25rem;
-  position: sticky;
-  top: 1rem;
-  box-shadow: var(--shadow-xs);
-}
-
 .catalog-results-section {
-  order: 1;
   min-inline-size: 0;
 }
 
@@ -3456,7 +3494,7 @@ input:focus {
 }
 
 .category-filter-item:hover {
-  background: var(--bg-surface-hover, var(--surface-hover));
+  background: var(--bg-surface-sunken, var(--bg-surface-sunken));
   color: var(--text-primary);
 }
 
@@ -3485,7 +3523,7 @@ input:focus {
   margin-bottom: 2rem;
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1280px) {
   .product-grid-wrapper {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -3518,7 +3556,7 @@ input:focus {
 .product-card-glass:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
-  border-color: var(--primary-300, var(--brand));
+  border-color: var(--primary-border, var(--brand));
 }
 
 .product-card-media {
@@ -3602,7 +3640,9 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--duration-fast) var(--ease-smooth);
+  transition: background-color var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth),
+              color var(--duration-fast) var(--ease-smooth);
 }
 
 .fav-icon-btn:hover {
@@ -3617,37 +3657,71 @@ input:focus {
 
 /* Catalog Data Table System */
 .catalog-data-table {
-  min-inline-size: 62rem;
   width: 100%;
   border-collapse: collapse;
+  text-align: start;
 }
 
-.catalog-data-table th,
-.catalog-data-table td {
-  padding: 0.75rem 1rem;
+.catalog-data-table thead th {
+  padding: 0.75rem 0.85rem;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--text-secondary);
+  background: var(--bg-surface-sunken);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.catalog-data-table tbody td {
+  padding: 0.65rem 0.85rem;
   vertical-align: middle;
-  white-space: nowrap;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  transition: background var(--duration-fast) ease;
 }
 
-.catalog-data-table td.col-name {
-  white-space: normal;
-  min-inline-size: 13rem;
+.catalog-data-table tbody tr:hover td {
+  background: var(--bg-surface-raised);
 }
 
-.catalog-data-table td.col-brand {
-  min-inline-size: 8rem;
-}
-
-.catalog-data-table td.col-supplier {
-  min-inline-size: 11rem;
-  white-space: nowrap;
-}
-
-.supplier-pill-cell {
+.catalog-thumb-box {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-sunken);
+  overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  white-space: nowrap;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+}
+
+.catalog-data-table .col-product {
+  min-width: 170px;
+}
+
+.catalog-data-table .col-brand {
+  min-width: 100px;
+}
+
+.catalog-data-table .col-supplier {
+  min-width: 110px;
+}
+
+.catalog-data-table .col-stock {
+  min-width: 80px;
+  text-align: center;
+}
+
+.catalog-data-table .col-price {
+  min-width: 100px;
+  text-align: start;
+}
+
+.catalog-data-table .col-action {
+  min-width: 90px;
+  text-align: center;
 }
 
 .cart-stepper-control {
@@ -3676,7 +3750,7 @@ input:focus {
 }
 
 .cart-stepper-btn:hover {
-  background: var(--bg-surface-hover, var(--surface-hover));
+  background: var(--bg-surface-sunken, var(--bg-surface-sunken));
 }
 
 .cart-stepper-input {
@@ -3706,7 +3780,7 @@ input:focus {
   align-items: start;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
   .product-detail-hero-grid {
     grid-template-columns: 300px 1fr;
   }
@@ -3922,10 +3996,6 @@ input:focus {
   text-align: center;
 }
 
-.sp-tab-btn.active {
-  color: var(--primary, #0ea5e9);
-  border-bottom-color: var(--primary, #0ea5e9);
-}
 
 /* ==========================================================================
    CUSTOMER & VENDOR BRANCHES 2-COLUMN SPLIT
@@ -4123,7 +4193,7 @@ input:focus {
 
 .hero-ad-cta-btn:hover {
   transform: translateY(-2px);
-  background: var(--primary-600, #0369a1);
+  background: var(--primary, #0369a1);
 }
 
 .hero-ad-nav-btn {
@@ -4198,7 +4268,7 @@ input:focus {
   align-items: start;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .catalog-product-detail-layout {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -4222,12 +4292,14 @@ input:focus {
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xs);
-  transition: all 150ms ease;
+  transition: background-color 150ms ease,
+              border-color 150ms ease,
+              color 150ms ease;
   flex-wrap: wrap;
 }
 
 .doc-req-card:hover {
-  border-color: var(--border-hover, #cbd5e1);
+  border-color: var(--border-card, #cbd5e1);
   box-shadow: var(--shadow-sm);
 }
 
@@ -4295,4 +4367,172 @@ input:focus {
 .progress-pct-75  { width: 75%; }
 .progress-pct-80  { width: 80%; }
 .progress-pct-90  { width: 90%; }
-.progress-pct-100 { width: 100%; }
+.progress-pct-100 { width: 100%; 
+
+/* ==========================================================================
+   SUPPLIER PROFILE — shared shell chrome
+
+   /suppliers/{id} renders through layouts.ShellFor, which means it appears
+   inside whichever shell the viewer belongs to: public for a visitor, customer
+   for a pharmacy, vendor for a supplier, admin for staff. Its hero was defined
+   in public.css AND in vendor.css, with different values, and in neither
+   customer.css nor admin.css -- so the same page had one hero for a visitor, a
+   different one for a supplier, and no hero at all for a pharmacy or an admin.
+
+   These live here, in the stylesheet every shell loads. The rest of the sp-*
+   set was already here.
+   ========================================================================== */
+
+.sp-container {
+  max-inline-size: 1180px;
+  margin-inline: auto;
+  padding: var(--space-xl) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sp-hero-card {
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+}
+
+.sp-hero-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-inline-size: 0;
+}
+
+.sp-hero-logo {
+  display: grid;
+  place-items: center;
+  inline-size: 4rem;
+  block-size: 4rem;
+  flex-shrink: 0;
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-xl);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  overflow: hidden;
+}
+
+.sp-hero-logo img {
+  display: block;
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  object-fit: contain;
+}
+
+.sp-hero-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  min-inline-size: 0;
+}
+
+.sp-hero-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.sp-hero-title {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .sp-hero-card { padding: var(--space-md); }
+  .sp-hero-logo { inline-size: 3rem; block-size: 3rem; }
+}
+
+/* ==========================================================================
+   FILTER BAR — the strip above a table
+
+   Every list screen built its own out of utilities: "glass-panel p-4 mb-6" on
+   one, "glass-panel p-6 mb-6" on the next, "glass-panel mb-0 border
+   rounded-2xl p-5 bg-surface-raised" on a third, and a bare flex row on a
+   fourth. Fifteen combinations for one object, so the distance between the
+   filters and the table, the padding inside them and the corner radius all
+   changed as the reader moved between pages.
+
+   One shape: fields grow to fill, actions sit at the trailing edge, and below
+   the tablet breakpoint the whole thing stacks and the actions go full width
+   so they stay thumb-reachable.
+   ========================================================================== */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  margin-block-end: var(--space-lg);
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* The form itself, when the bar is a form rather than wrapping one. */
+form.filter-bar { margin: 0; }
+
+.filter-bar-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-sm);
+  flex: 1 1 20rem;
+  min-inline-size: 0;
+}
+
+.filter-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+/* A count or summary sitting with the filters -- "٤٢ نتيجة". */
+.filter-bar-summary {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .filter-bar {
+    padding: var(--space-sm);
+    margin-block-end: var(--space-md);
+  }
+  .filter-bar-fields { grid-template-columns: 1fr; flex-basis: 100%; }
+  .filter-bar-actions { margin-inline-start: 0; inline-size: 100%; }
+  .filter-bar-actions > .btn { flex: 1 1 auto; }
+}
+
+/* The inner wrapper one of the Alpine modals uses. It carries no surface of
+   its own -- .modal-dialog above is the surface -- it only supplies the
+   column and the scroll bound the dialog body needs. */
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  max-block-size: calc(100vh - 3rem);
+  overflow: hidden;
+}
+}

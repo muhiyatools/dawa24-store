@@ -119,16 +119,16 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 
 			<!-- Stats Grid -->
 			<div class="dashboard-stat-grid mb-6">
-				<div class="glass-panel stat-card">
-					<div class="stat-value tabular-nums font-bold text-xl">
+				<div class="stat-card-3d">
+					<div class="stat-card-value tabular-nums">
 						{ fmt.Sprintf("%d", data.Total) }
 					</div>
-					<div class="stat-label text-sm text-secondary">
+					<div class="stat-card-label">
 						إجمالي القرارات المخزنة
 					</div>
 				</div>
-				<div class="glass-panel stat-card">
-					<div class="stat-value tabular-nums font-bold text-xl">
+				<div class="stat-card-3d">
+					<div class="stat-card-value tabular-nums">
 						{{
 							hitTotal := int64(0)
 							for _, d := range data.Decisions {
@@ -137,26 +137,26 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 						}}
 						{ fmt.Sprintf("%d", hitTotal) }
 					</div>
-					<div class="stat-label text-sm text-secondary">
+					<div class="stat-card-label">
 						مرات إعادة الاستخدام في الصفحة
 					</div>
 				</div>
-				<div class="glass-panel stat-card">
-					<div class="stat-value tabular-nums font-bold text-xl">
+				<div class="stat-card-3d">
+					<div class="stat-card-value tabular-nums">
 						if data.IsEnabled {
 							<span class="text-success">مفعّل (ON)</span>
 						} else {
 							<span class="text-danger">معطّل (OFF)</span>
 						}
 					</div>
-					<div class="stat-label text-sm text-secondary">
+					<div class="stat-card-label">
 						حالة المفتاح العام للنظام
 					</div>
 				</div>
 			</div>
 
 			<!-- Search & Filter Card -->
-			<div class="glass-panel mb-6">
+			<div class="filter-bar">
 				<form method="GET" action="/admin/match-decisions" class="filter-bar d-flex items-center gap-3 flex-wrap p-4">
 					<div class="flex-1 min-w-48">
 						<input

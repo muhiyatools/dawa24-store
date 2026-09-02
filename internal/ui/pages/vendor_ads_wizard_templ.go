@@ -146,7 +146,7 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان وبنر جديد (معالج تفاعلي)</span></button><!-- Wizard Modal Backdrop & Dialog --><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop fixed inset-0 z-50 bg-slate-900/60 d-flex items-center justify-center p-4 overflow-y-auto\" @keydown.escape.window=\"isOpen = false\"><div class=\"modal-dialog w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden text-start my-8\" @click.outside=\"isOpen = false\"><!-- Modal Top Header --><div class=\"modal-header p-5 border-b border-slate-100 bg-slate-50/70 flex-between items-center\"><div class=\"d-flex items-center gap-3\"><div class=\"w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان وبنر جديد (معالج تفاعلي)</span></button><!-- Wizard Modal Backdrop & Dialog --><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop fixed inset-0 z-50 bg-slate-900/60 d-flex items-center justify-center p-4 overflow-y-auto\" @keydown.escape.window=\"isOpen = false\"><div class=\"modal-dialog modal-lg text-start\" @click.outside=\"isOpen = false\"><!-- Modal Top Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -161,17 +161,17 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			<!-- Main Content Panel with Tabs -->
 			<div class="glass-panel p-6 mb-6">
 				<!-- Tab Navigation -->
-				<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
+				<div class="tabs-nav m-0 mb-6 pb-4 border-b">
 					<a
 						href="/admin/plans?tab=plans"
-						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") }
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") }
 					>
 						@components.IconTag("icon-xs")
 						<span>دليل باقات الاشتراك الموحدة ({ fmt.Sprintf("%d", len(data.Plans)) })</span>
 					</a>
 					<a
 						href="/admin/plans?tab=subscriptions"
-						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") }
+						class={ "tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") }
 					>
 						@components.IconWallet("icon-xs")
 						<span>سجلات المشتركين والمنشآت ({ fmt.Sprintf("%d", len(data.Subscriptions)) })</span>

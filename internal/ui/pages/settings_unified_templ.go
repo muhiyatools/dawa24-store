@@ -117,7 +117,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></a></div></div><!-- Unified Tabs Navigation Bar --><div class=\"tab-list\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'profile' }\" @click=\"activeTab = 'profile'; history.replaceState(null, null, '#profile')\" data-tab-target=\"profile\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></a></div></div><!-- Unified Tabs Navigation Bar --><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"{ 'active': activeTab === 'profile' }\" @click=\"activeTab = 'profile'; history.replaceState(null, null, '#profile')\" data-tab-target=\"profile\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

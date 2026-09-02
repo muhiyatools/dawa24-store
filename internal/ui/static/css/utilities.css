@@ -105,7 +105,7 @@
 .text-xs      { font-size: var(--text-xs); }
 .text-sm      { font-size: var(--text-sm); }
 .text-base    { font-size: var(--text-base); }
-.text-md      { font-size: var(--text-md); }
+.text-md      { font-size: var(--text-base); }
 .text-lg      { font-size: var(--text-lg); }
 .text-xl      { font-size: var(--text-xl); }
 .text-2xl     { font-size: var(--text-2xl); }
@@ -322,36 +322,36 @@
 /* Colour scale — expressed in oklch, chroma reduced toward the light end
    so a 50 does not read as garish. Same ramp both themes; the surfaces around
    them come from tokens, which is what actually flips. */
-.bg-emerald-100 { background-color: oklch(0.94 0.04 155); }
-.bg-emerald-500 { background-color: oklch(0.6 0.14 155); }
-.bg-indigo-50 { background-color: oklch(0.97 0.02 275); }
-.bg-purple-50 { background-color: oklch(0.97 0.02 300); }
-.bg-rose-100 { background-color: oklch(0.94 0.04 15); }
-.bg-rose-500 { background-color: oklch(0.6 0.14 15); }
-.bg-sky-50 { background-color: oklch(0.97 0.02 230); }
-.bg-sky-600 { background-color: oklch(0.52 0.15 230); }
+.bg-emerald-100 { background-color: var(--success-subtle); }
+.bg-emerald-500 { background-color: var(--success); }
+.bg-indigo-50 { background-color: var(--accent-subtle); }
+.bg-purple-50 { background-color: var(--accent-subtle); }
+.bg-rose-100 { background-color: var(--danger-subtle); }
+.bg-rose-500 { background-color: var(--danger); }
+.bg-sky-50 { background-color: var(--info-subtle); }
+.bg-sky-600 { background-color: var(--info); }
 .bg-slate-900 { background-color: oklch(0.28 0.09 255); }
-.border-emerald-100 { border-color: oklch(0.94 0.04 155); }
-.border-emerald-200 { border-color: oklch(0.89 0.06 155); }
-.border-emerald-300 { border-color: oklch(0.8 0.09 155); }
-.border-rose-100 { border-color: oklch(0.94 0.04 15); }
-.border-rose-200 { border-color: oklch(0.89 0.06 15); }
-.border-sky-100 { border-color: oklch(0.94 0.04 230); }
-.border-sky-200 { border-color: oklch(0.89 0.06 230); }
+.border-emerald-100 { border-color: var(--success-subtle); }
+.border-emerald-200 { border-color: var(--success-border); }
+.border-emerald-300 { border-color: var(--success-border); }
+.border-rose-100 { border-color: var(--danger-subtle); }
+.border-rose-200 { border-color: var(--danger-border); }
+.border-sky-100 { border-color: var(--info-subtle); }
+.border-sky-200 { border-color: var(--info-border); }
 .border-slate-700 { border-color: oklch(0.45 0.14 255); }
-.text-amber-700 { color: oklch(0.45 0.14 75); }
-.text-amber-900 { color: oklch(0.28 0.09 75); }
-.text-emerald-700 { color: oklch(0.45 0.14 155); }
-.text-emerald-900 { color: oklch(0.28 0.09 155); }
-.text-emerald-950 { color: oklch(0.2 0.06 155); }
-.text-indigo-600 { color: oklch(0.52 0.15 275); }
-.text-purple-500 { color: oklch(0.6 0.14 300); }
-.text-purple-600 { color: oklch(0.52 0.15 300); }
-.text-rose-800 { color: oklch(0.38 0.12 15); }
-.text-rose-900 { color: oklch(0.28 0.09 15); }
-.text-sky-400 { color: oklch(0.7 0.12 230); }
-.text-sky-700 { color: oklch(0.45 0.14 230); }
-.text-sky-800 { color: oklch(0.38 0.12 230); }
+.text-amber-700 { color: var(--warning); }
+.text-amber-900 { color: var(--warning); }
+.text-emerald-700 { color: var(--success); }
+.text-emerald-900 { color: var(--success); }
+.text-emerald-950 { color: var(--success); }
+.text-indigo-600 { color: var(--accent); }
+.text-purple-500 { color: var(--accent); }
+.text-purple-600 { color: var(--accent); }
+.text-rose-800 { color: var(--danger); }
+.text-rose-900 { color: var(--danger); }
+.text-sky-400 { color: var(--info); }
+.text-sky-700 { color: var(--info); }
+.text-sky-800 { color: var(--info); }
 
 /* Semantic colour — these resolve through tokens so both themes follow. */
 .bg-accent-subtle { background-color: var(--primary-subtle); }
@@ -402,7 +402,6 @@
 .whitespace-nowrap { white-space: nowrap; }
 .hide-mobile { }
 @media (max-width: 768px) { .hide-mobile { display: none; } }
-@media (min-width: 769px) { }
 .disabled { opacity: 0.55; pointer-events: none; }
 .opacity-0 { opacity: 0.0; }
 .opacity-50 { opacity: 0.5; }
@@ -420,7 +419,7 @@
 .align-self-start, .self-start { align-self: flex-start; }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-.bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops, var(--bg-surface), var(--bg-surface-raised))); }
+.bg-gradient-to-r { background-image: linear-gradient(to right, var(--bg-surface), var(--bg-surface-raised)); }
 .container { inline-size: 100%; margin-inline: auto; padding-inline: var(--space-md); }
 .max-w-7xl { max-inline-size: 80rem; }
 .max-w-140 { max-inline-size: 8.75rem; }
@@ -454,7 +453,6 @@
 .stack-2xs { display: flex; flex-direction: column; gap: var(--space-2xs); }
 .row-between-center { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
 .flex-column { display: flex; flex-direction: column; }
-.filter-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); flex-wrap: wrap; }
 .comparison-card { background: var(--surface-raised); border: 1px solid var(--border-card); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
 .applicants-list { display: flex; flex-direction: column; gap: var(--space-md); }
 .bg-danger { background-color: var(--danger-subtle, rgba(239, 68, 68, 0.12)); color: var(--danger, #ef4444); }
@@ -468,4 +466,27 @@
 .h-1 { block-size: 0.25rem; }
 .-translate-y-1:hover { transform: translateY(-0.25rem); }
 
+/* ---- Gaps in the scale ----
+   Every class below was carried by markup somewhere in the dashboard and
+   defined by no stylesheet, so the element simply had no width, no height, no
+   clamp -- an icon slot with no size, a log pane with no scroll bound. They
+   follow the existing 0.25rem step, and they are logical properties so RTL
+   keeps working. */
+.w-2  { inline-size: 0.5rem; }
+.w-5  { inline-size: 1.25rem; }
+.w-44 { inline-size: 11rem; }
+.h-5  { block-size: 1.25rem; }
+.h-36 { block-size: 9rem; }
+.h-44 { block-size: 11rem; }
+.my-3 { margin-block: 0.75rem; }
+.pe-7 { padding-inline-end: 1.75rem; }
+.top-3 { inset-block-start: 0.75rem; }
+.max-h-60 { max-block-size: 15rem; overflow-y: auto; }
+.min-w-xs { min-inline-size: min(20rem, 100%); }
+.flex-2 { flex: 2 1 0%; }
+.opacity-90 { opacity: 0.9; }
+.whitespace-pre-wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+.user-select-none { user-select: none; }
+.dir-rtl { direction: rtl; }
+.dir-ltr { direction: ltr; }
 }

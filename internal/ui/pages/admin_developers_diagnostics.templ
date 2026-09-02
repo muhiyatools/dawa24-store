@@ -48,7 +48,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 				</div>
 
 				<!-- Filter Strip -->
-				<div class="glass-panel mb-0 p-4">
+				<div class="filter-bar">
 					<form method="GET" action="/admin/developers" class="d-flex gap-3 items-center flex-wrap m-0">
 						<input type="hidden" name="tab" value="errors"/>
 
@@ -318,7 +318,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 											</td>
 											<td class="text-start">
 												<div class="d-flex flex-col gap-1">
-													<span class={ "badge", auditBadgeClass(e.Action) } class="font-bold text-xs self-start">
+													<span class={ "badge", auditBadgeClass(e.Action), "font-bold", "text-xs", "self-start" }>
 														if e.ActionLabelAr != "" {
 															{ e.ActionLabelAr }
 														} else {
@@ -352,7 +352,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 											</td>
 											<td class="text-center">
 												if e.Severity != "" && e.Severity != "-" {
-													<span class={ "badge", severityBadgeClass(e.Severity) } class="text-xs font-bold">
+													<span class={ "badge", severityBadgeClass(e.Severity), "text-xs", "font-bold" }>
 														{ e.Severity }
 													</span>
 												} else {

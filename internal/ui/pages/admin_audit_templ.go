@@ -91,7 +91,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>تحديث السجل</span></a></div></div></div><!-- Filter Strip --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/admin/audit\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>تحديث السجل</span></a></div></div></div><!-- Filter Strip --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/audit\" class=\"d-flex gap-3 items-center flex-wrap m-0\"><div class=\"flex-1\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

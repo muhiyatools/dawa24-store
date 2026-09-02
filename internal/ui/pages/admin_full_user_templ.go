@@ -88,11 +88,11 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة</p></div></div></div><!-- Filter Tabs --><div class=\"cb-tabs-nav m-0 mt-6 pt-4 border-t\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة</p></div></div></div><!-- Filter Tabs --><div class=\"tabs-nav m-0 mt-6 pt-4 border-t\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 = []any{"cb-tab-btn", templ.KV("active", activeFilter == "all")}
+			var templ_7745c5c3_Var4 = []any{"tab-btn", templ.KV("active", activeFilter == "all")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -114,7 +114,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", activeFilter == "customers")}
+			var templ_7745c5c3_Var6 = []any{"tab-btn", templ.KV("active", activeFilter == "customers")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -136,7 +136,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 = []any{"cb-tab-btn", templ.KV("active", activeFilter == "vendors")}
+			var templ_7745c5c3_Var8 = []any{"tab-btn", templ.KV("active", activeFilter == "vendors")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -158,7 +158,7 @@ func AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir st
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 = []any{"cb-tab-btn", templ.KV("active", activeFilter == "staff")}
+			var templ_7745c5c3_Var10 = []any{"tab-btn", templ.KV("active", activeFilter == "staff")}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -839,7 +839,7 @@ func AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span>تحديث السجل</span></a></div></div></div><!-- Filter Strip --><div class=\"glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs\"><form method=\"GET\" action=\"/admin/employee-activities\" class=\"d-flex flex-col gap-3 m-0\"><div class=\"d-grid grid-auto-fit-sm gap-3 items-end\"><!-- Search Query --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">البحث العام</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span>تحديث السجل</span></a></div></div></div><!-- Filter Strip --><div class=\"filter-bar\"><form method=\"GET\" action=\"/admin/employee-activities\" class=\"d-flex flex-col gap-3 m-0\"><div class=\"d-grid grid-auto-fit-sm gap-3 items-end\"><!-- Search Query --><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-secondary mb-1 d-block\">البحث العام</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

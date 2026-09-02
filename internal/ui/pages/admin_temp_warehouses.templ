@@ -622,7 +622,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			</div>
 
 			<!-- 3. Search & Status Tabs Bar -->
-			<div class="glass-panel mb-0 border rounded-2xl p-5 bg-surface-raised">
+			<div class="filter-bar">
 				<form method="GET" action={ templ.SafeURL(data.PageURL) } class="flex-between items-center flex-wrap gap-4 m-0">
 					if !data.MineOnly {
 						<input type="hidden" name="type" value={ data.SourceFilter } />

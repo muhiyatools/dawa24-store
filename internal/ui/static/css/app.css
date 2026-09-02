@@ -39,7 +39,6 @@
 dialog:not([open]) { display: none !important; }
 
 .modal.hidden,
-.drawer-overlay.hidden { display: none !important; }
 
 .tab-pane {
   display: none;

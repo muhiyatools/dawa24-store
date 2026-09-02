@@ -42,16 +42,16 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 			</div>
 
 			<!-- Tab Navigation -->
-			<div class="cb-tabs-nav mb-6">
-				<a href="/admin/orders?tab=all" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }>
+			<div class="tabs-nav mb-6">
+				<a href="/admin/orders?tab=all" class={ "tab-btn", templ.KV("active", data.ActiveTab == "all" || data.ActiveTab == "") }>
 					@components.IconTruck("icon-xs")
 					<span>جميع طلبات الشراء ({ fmt.Sprintf("%d", len(data.Orders)) })</span>
 				</a>
-				<a href="/admin/orders?tab=direct" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "direct") }>
+				<a href="/admin/orders?tab=direct" class={ "tab-btn", templ.KV("active", data.ActiveTab == "direct") }>
 					@components.IconLayers("icon-xs")
 					<span>أوامر التوريد المباشر ({ fmt.Sprintf("%d", len(data.DirectOrders)) })</span>
 				</a>
-				<a href="/admin/orders?tab=negotiations" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "negotiations") }>
+				<a href="/admin/orders?tab=negotiations" class={ "tab-btn", templ.KV("active", data.ActiveTab == "negotiations") }>
 					<span>@components.IconUsers("icon-sm")</span>
 					<span>طلبات التفاوض ({ fmt.Sprintf("%d", len(data.NegotiationOrders)) })</span>
 				</a>

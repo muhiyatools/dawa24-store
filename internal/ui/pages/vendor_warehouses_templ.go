@@ -951,7 +951,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</span></div></div><!-- Filter & Control Toolbar Card --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</span></div></div><!-- Filter & Control Toolbar Card --><div class=\"filter-bar\"><form method=\"GET\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

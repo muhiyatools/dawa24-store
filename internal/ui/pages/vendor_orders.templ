@@ -50,34 +50,34 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 					</div>
 
 					<!-- Navigation Filter Tabs -->
-					<div class="cb-tabs-nav mt-4 pt-3 border-t">
+					<div class="tabs-nav mt-4 pt-3 border-t">
 						<a
 							href="/vendor/orders"
-							class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "") }
+							class={ "tab-btn", templ.KV("active", data.FilterStatus == "") }
 						>
 							الكل ({ fmt.Sprintf("%d", data.TotalCount) })
 						</a>
 						<a
 							href="/vendor/orders?status=pending"
-							class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "pending") }
+							class={ "tab-btn", templ.KV("active", data.FilterStatus == "pending") }
 						>
 							بانتظار التأكيد ({ fmt.Sprintf("%d", data.PendingCount) })
 						</a>
 						<a
 							href="/vendor/orders?status=confirmed"
-							class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "confirmed") }
+							class={ "tab-btn", templ.KV("active", data.FilterStatus == "confirmed") }
 						>
 							قيد التجهيز ({ fmt.Sprintf("%d", data.ConfirmedCount) })
 						</a>
 						<a
 							href="/vendor/orders?status=shipped"
-							class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "shipped") }
+							class={ "tab-btn", templ.KV("active", data.FilterStatus == "shipped") }
 						>
 							قيد التوصيل ({ fmt.Sprintf("%d", data.ShippedCount) })
 						</a>
 						<a
 							href="/vendor/orders?status=delivered"
-							class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "delivered") }
+							class={ "tab-btn", templ.KV("active", data.FilterStatus == "delivered") }
 						>
 							تم التسليم ({ fmt.Sprintf("%d", data.DeliveredCount) })
 						</a>

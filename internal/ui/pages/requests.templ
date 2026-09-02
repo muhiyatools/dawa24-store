@@ -70,11 +70,11 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 		</div>
 
 		<div class="glass-panel p-6 mb-6">
-			<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
-				<a href="/requests" class={ "cb-tab-btn", templ.KV("active", statusFilter == "") }>الكل</a>
-				<a href="/requests?status=pending" class={ "cb-tab-btn", templ.KV("active", statusFilter == "pending") }>المعلقة</a>
-				<a href="/requests?status=accepted" class={ "cb-tab-btn", templ.KV("active", statusFilter == "accepted") }>المقبولة</a>
-				<a href="/requests?status=declined" class={ "cb-tab-btn", templ.KV("active", statusFilter == "declined") }>المرفوضة</a>
+			<div class="tabs-nav m-0 mb-6 pb-4 border-b">
+				<a href="/requests" class={ "tab-btn", templ.KV("active", statusFilter == "") }>الكل</a>
+				<a href="/requests?status=pending" class={ "tab-btn", templ.KV("active", statusFilter == "pending") }>المعلقة</a>
+				<a href="/requests?status=accepted" class={ "tab-btn", templ.KV("active", statusFilter == "accepted") }>المقبولة</a>
+				<a href="/requests?status=declined" class={ "tab-btn", templ.KV("active", statusFilter == "declined") }>المرفوضة</a>
 			</div>
 			if len(data.Requests) == 0 {
 				<div class="p-8 text-center empty-state-glass">
