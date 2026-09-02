@@ -245,7 +245,7 @@ func DefaultSettings() Settings {
 		Duplicates:          productmatch.DuplicateLastWins,
 		MinMatchScore:       productmatch.DefaultMinStrong,
 		UseAI:               true,
-		BlankQuantityIsZero: false,
+		BlankQuantityIsZero: true,
 		InferDosageForm:     false,
 		InferConcentration:  false,
 		RejectExpired:       false,

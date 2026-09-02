@@ -659,7 +659,7 @@ templ VendorAdEditModal(ad *promo.Ad, lang, dir string) {
 							<label class="form-label text-xs font-bold mb-1">تحديث صورة / فيديو الإعلان</label>
 							<div class="d-flex items-center gap-3">
 								if ad.MediaURL != "" {
-									<div class="w-14 h-14 rounded-xl border p-1 bg-white flex-shrink-0 overflow-hidden">
+									<div class="w-24 h-16 rounded-xl border p-1 bg-surface-sunken flex-shrink-0 overflow-hidden relative shadow-inner">
 										if ad.IsVideo() || ad.MediaType == "video" {
 											<video src={ ad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-lg"></video>
 										} else {

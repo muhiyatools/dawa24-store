@@ -786,7 +786,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" hx-trigger=\"intersect once\" class=\"deals-ad-card p-5 rounded-3xl border border-brand-200/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-between items-center gap-5 transition-all text-decoration-none shadow-md hover:border-brand-400\"><div class=\"d-flex items-center gap-4\"><div class=\"w-20 h-20 rounded-2xl bg-white p-2 d-flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-200 overflow-hidden\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" hx-trigger=\"intersect once\" class=\"deals-ad-card p-5 rounded-3xl border border-brand-200/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-between items-center gap-5 transition-all text-decoration-none shadow-md hover:border-brand-400\"><div class=\"d-flex items-center gap-4\"><div class=\"w-32 h-24 md:w-36 md:h-28 rounded-2xl bg-black/40 p-1 d-flex items-center justify-center flex-shrink-0 shadow-md border border-slate-700/60 overflow-hidden relative\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1005,7 +1005,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "\" hx-trigger=\"intersect once\" class=\"bottom-ad-card p-5 rounded-3xl border border-slate-700 bg-surface-sunken flex-between items-center gap-4 transition-all text-decoration-none shadow-sm hover:border-brand-500\"><div class=\"d-flex items-center gap-4\"><div class=\"w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-200 overflow-hidden\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "\" hx-trigger=\"intersect once\" class=\"bottom-ad-card p-5 rounded-3xl border border-slate-700 bg-surface-sunken flex-between items-center gap-4 transition-all text-decoration-none shadow-sm hover:border-brand-500\"><div class=\"d-flex items-center gap-4\"><div class=\"w-28 h-20 md:w-32 md:h-24 rounded-2xl bg-black/40 p-1 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-700/60 overflow-hidden relative\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

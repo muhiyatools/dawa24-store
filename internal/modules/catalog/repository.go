@@ -21,6 +21,7 @@ type SearchParams struct {
 	Offset         int
 	AllowedWorkIDs []int64
 	FilterMode     int // 0 = Simple (dashboard/catalog), 1 = WithConnections (purchase requests)
+	InStock        bool
 }
 
 // VariantSearchParams holds filters for searching product variants.

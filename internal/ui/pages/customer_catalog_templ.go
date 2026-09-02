@@ -202,7 +202,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" hx-trigger=\"intersect once\" class=\"glass-panel p-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none hover:shadow-md hover:border-brand-400\"><div class=\"d-flex items-center gap-4\"><div class=\"w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-2xs border border-slate-200/80 overflow-hidden\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" hx-trigger=\"intersect once\" class=\"glass-panel p-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none hover:shadow-md hover:border-brand-400\"><div class=\"d-flex items-center gap-4\"><div class=\"w-28 h-20 md:w-36 md:h-24 rounded-2xl bg-black/40 p-1 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-700/60 overflow-hidden relative\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

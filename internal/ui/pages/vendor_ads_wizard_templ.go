@@ -535,7 +535,7 @@ func VendorAdEditModal(ad *promo.Ad, lang, dir string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if ad.MediaURL != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"w-14 h-14 rounded-xl border p-1 bg-white flex-shrink-0 overflow-hidden\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"w-24 h-16 rounded-xl border p-1 bg-surface-sunken flex-shrink-0 overflow-hidden relative shadow-inner\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

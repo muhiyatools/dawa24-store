@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -136,11 +137,25 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	var targetBranchID int64
 	if branchID != nil {
 		targetBranchID = *branchID
+	} else if actor, ok := authctx.From(ctx); ok {
+		targetBranchID = h.pharmacyBranchID(ctx, &actor)
+		if targetBranchID > 0 {
+			branchID = &targetBranchID
+		}
 	}
 
 	if actor, ok := authctx.From(ctx); ok && targetBranchID > 0 {
 		for _, it := range cart.Items {
+			// Lines with no variant (e.g. bundled offers) are validated at offer level
+			if it.ProductVariantID <= 0 {
+				continue
+			}
 			vOrgID := it.OrganizationID
+			if vOrgID <= 0 && h.catSvc != nil {
+				if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), it.ProductVariantID); err == nil && v != nil && v.OrganizationID > 0 {
+					vOrgID = v.OrganizationID
+				}
+			}
 			if vOrgID <= 0 {
 				continue
 			}

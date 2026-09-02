@@ -51,6 +51,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			       COALESCE(
 			           po.organization_id,
 			           pv.organization_id,
+			           p.organization_id,
 			           (
 			               SELECT w.organization_id 
 			               FROM inventory.stocks s 
@@ -76,6 +77,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			LEFT JOIN org.organizations o ON o.id = COALESCE(
 			    po.organization_id,
 			    pv.organization_id,
+			    p.organization_id,
 			    (
 			        SELECT w.organization_id 
 			        FROM inventory.stocks s 

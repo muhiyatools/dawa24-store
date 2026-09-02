@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -1085,10 +1086,10 @@ templ AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) {
 				@click.self="isOpen = false"
 			>
 				<div
-					class="modal-content max-w-xl w-full mx-4 glass-panel border border-amber-200/90 rounded-3xl shadow-2xl overflow-hidden text-start"
+					class="modal-content max-w-xl w-full mx-4 glass-panel border border-brand/20 rounded-3xl shadow-2xl overflow-hidden overflow-x-hidden text-start"
 					@click.stop
 				>
-					<div class="modal-header p-4 border-b border-slate-100 flex-between items-center bg-amber-50/80">
+					<div class="modal-header p-4 border-b flex-between items-center">
 						<div class="d-flex items-center gap-2.5">
 							<div class="w-8 h-8 rounded-xl bg-amber-500 text-white d-flex items-center justify-center">
 								@components.IconSparkles("icon-xs")
@@ -1098,13 +1099,13 @@ templ AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) {
 								<span class="text-2xs text-muted">ID: { fmt.Sprintf("%d", ad.ID) } • تاريخ الطلب: { ad.PendingChanges.SubmittedAt.Format("2006-01-02 15:04") }</span>
 							</div>
 						</div>
-						<button type="button" @click="isOpen = false" class="btn btn-ghost btn-icon btn-sm text-slate-400 hover:text-slate-600">
+						<button type="button" @click="isOpen = false" class="btn btn-ghost btn-icon btn-sm text-muted hover:text-primary">
 							@components.IconClose("icon-xs")
 						</button>
 					</div>
 
-					<div class="modal-body p-5 d-flex flex-col gap-4 max-h-[65vh] overflow-y-auto text-start">
-						<div class="p-3 bg-amber-50/50 rounded-2xl border border-amber-200 text-xs text-amber-900 font-medium">
+					<div class="modal-body p-5 d-flex flex-col gap-4 max-h-[72vh] overflow-y-auto overflow-x-hidden text-start">
+						<div class="p-3 bg-amber-subtle rounded-2xl border border-amber-500/30 text-xs text-amber-500 font-medium">
 							يستمر الإعلان الحالي بالظهور على المنصة دون انقطاع. عند اعتماد هذا الطلب، سيتم استبدال بيانات الإعلان بالتعديلات الجديدة أدناه فوراً.
 						</div>
 
@@ -1137,9 +1138,9 @@ templ AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) {
 						if ad.PendingChanges.MediaURL != "" {
 							<div class="stack-xs">
 								<span class="text-2xs text-muted font-bold">الوسائط المقترحة:</span>
-								<div class="w-48 h-28 rounded-2xl border p-1 bg-white overflow-hidden">
-									if ad.PendingChanges.MediaType == "video" {
-										<video src={ ad.PendingChanges.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
+								<div class="w-full max-w-md h-56 rounded-2xl border p-1 bg-surface-sunken overflow-hidden relative shadow-inner">
+									if ad.PendingChanges.MediaType == "video" || strings.HasSuffix(strings.ToLower(ad.PendingChanges.MediaURL), ".mp4") || strings.HasSuffix(strings.ToLower(ad.PendingChanges.MediaURL), ".webm") {
+										<video src={ ad.PendingChanges.MediaURL } controls autoplay muted loop playsinline class="w-full h-full object-contain rounded-xl"></video>
 									} else {
 										<img src={ ad.PendingChanges.MediaURL } alt="Proposed Media" class="w-full h-full object-contain" />
 									}
@@ -1148,7 +1149,7 @@ templ AdminAdPendingEditModal(ad *promo.Ad, lang, dir string) {
 						}
 					</div>
 
-					<div class="modal-footer p-3.5 border-t border-slate-100 bg-slate-50/80 flex-between items-center">
+					<div class="modal-footer p-4 border-t bg-surface-sunken flex-between items-center gap-3">
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject-edit", ad.ID)) } class="m-0">
 							<button type="submit" class="btn btn-secondary btn-sm text-rose-600 font-bold gap-1 shadow-2xs" onclick="return confirm('هل أنت متأكد من رفض طلب التعديل؟ سيبقى الإعلان الحالي كما هو.')">
 								@components.IconClose("icon-xs")

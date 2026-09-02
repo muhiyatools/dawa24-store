@@ -4473,17 +4473,18 @@ svg.flag-icon-svg {
 
 .hero-ad-product-card {
   position: relative;
-  width: clamp(180px, 20vw, 240px);
-  height: clamp(180px, 20vw, 240px);
+  width: clamp(240px, 25vw, 340px);
+  height: clamp(210px, 22vw, 290px);
   border-radius: var(--radius-2xl, 1.25rem);
   background: radial-gradient(circle, #ffffff 0%, #f8fafc 100%);
-  padding: 1.25rem;
+  padding: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.4);
   transition: transform 400ms ease;
+  overflow: hidden;
 }
 
 .hero-ad-slide:hover .hero-ad-product-card {

@@ -247,6 +247,13 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			      OR
 			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
 			  )
+			  AND ($12::boolean = false OR EXISTS (
+			      SELECT 1 FROM catalog.product_variants pv
+			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
+			      WHERE pv.product_id = catalog.products.id
+			        AND pv.deleted_at IS NULL
+			        AND st.quantity > 0
+			  ))
 			ORDER BY 
 			  CASE 
 			    WHEN $1 = '' THEN 0
@@ -269,7 +276,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		rows, err := tx.Query(txCtx, query,
 			params.Query, params.CategoryID, params.BrandID, limit, params.Offset,
 			params.MinPrice, params.MaxPrice, params.FilterMode, params.AllowedWorkIDs,
-			params.Status, params.DosageForm,
+			params.Status, params.DosageForm, params.InStock,
 		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search products: %w", err)
@@ -329,12 +336,19 @@ func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchPar
 			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
 			      OR
 			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
-			  );
+			  )
+			  AND ($10::boolean = false OR EXISTS (
+			      SELECT 1 FROM catalog.product_variants pv
+			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
+			      WHERE pv.product_id = catalog.products.id
+			        AND pv.deleted_at IS NULL
+			        AND st.quantity > 0
+			  ));
 		`
 		return tx.QueryRow(txCtx, query,
 			params.Query, params.CategoryID, params.BrandID,
 			params.MinPrice, params.MaxPrice, params.Status, params.DosageForm,
-			params.FilterMode, params.AllowedWorkIDs,
+			params.FilterMode, params.AllowedWorkIDs, params.InStock,
 		).Scan(&total)
 	})
 	return total, err

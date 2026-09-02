@@ -143,6 +143,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		Sort:       sortBy,
 		MinPrice:   minPrice,
 		MaxPrice:   maxPrice,
+		InStock:    inStock,
 		Limit:      pageSize,
 		Offset:     offset,
 	})

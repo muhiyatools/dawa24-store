@@ -34,17 +34,22 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 							<tr>
 								<!-- Supplier -->
 								<td>
-									<div class="font-bold text-primary text-xs d-flex items-center gap-1">
+									<div class="font-bold text-primary text-xs d-flex items-center gap-1.5">
 										<span>{ off.SupplierName }</span>
 										if off.IsVerified {
-											<span class="badge badge-emerald text-xs font-bold">معتمد</span>
+											<span class="badge badge-emerald text-2xs font-bold">معتمد</span>
 										}
 									</div>
-									if off.BranchName != "" {
-										<div class="text-xs text-muted mt-0.5">
-											{ off.BranchName }
-										</div>
-									}
+									<div class="d-flex items-center gap-2 text-2xs text-muted mt-0.5">
+										if off.BranchName != "" {
+											<span>{ off.BranchName }</span>
+											<span>•</span>
+										}
+										<span class="text-amber-500 font-bold d-flex items-center gap-0.5">
+											<span>★</span>
+											<span class="tabular-nums">4.9</span>
+										</span>
+									</div>
 								</td>
 
 								<!-- Public Price -->
@@ -59,8 +64,8 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 								<!-- Discount Percentage -->
 								<td class="text-center">
 									if off.DiscountBPS > 0 {
-										<span class="badge badge-emerald text-xs font-bold">
-											{ fmt.Sprintf("%.1f%%", float64(off.DiscountBPS)/100.0) }
+										<span class="badge badge-emerald text-xs font-black tabular-nums">
+											{ fmt.Sprintf("%d%%", int(float64(off.DiscountBPS)/100.0 + 0.5)) }
 										</span>
 									} else {
 										<span class="text-xs text-muted font-medium">0%</span>

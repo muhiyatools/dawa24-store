@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -228,11 +229,17 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 			}
 		}
 		if settings.WarehouseID <= 0 {
+			whName := "مستودع التوريد الرئيسي"
+			if settings.BranchID != nil && h.orgSvc != nil {
+				if b, err := h.orgSvc.GetBranch(ctx, *settings.BranchID); err == nil && b != nil {
+					whName = "مستودع " + b.Name.Get(i18n.AR)
+				}
+			}
 			newWh := &inventory.Warehouse{
 				OrganizationID: actor.OrganizationID,
 				BranchID:       settings.BranchID,
-				Name:           i18n.T(langOf(r), "vendor.ingest.main_warehouse"),
-				Code:           "WH-MAIN",
+				Name:           whName,
+				Code:           fmt.Sprintf("WH-%d", actor.OrganizationID),
 				IsActive:       true,
 			}
 			if created, err := h.invSvc.CreateWarehouse(ctx, newWh); err == nil && created != nil {
@@ -249,7 +256,11 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	settings.TrustSupplierCode = checked(r, "trust_supplier_code")
 	settings.CodeIsCatalogCode = checked(r, "code_is_catalog_code")
 	settings.TrustBarcode = checked(r, "trust_barcode")
-	settings.BlankQuantityIsZero = checked(r, "blank_quantity_is_zero")
+	// Physical stock rule: missing quantity is zero by default (no fake stock)
+	settings.BlankQuantityIsZero = true
+	if val := r.PostFormValue("blank_quantity_is_zero"); val == "false" || val == "0" {
+		settings.BlankQuantityIsZero = false
+	}
 	settings.InferDosageForm = checked(r, "infer_dosage_form")
 	settings.InferConcentration = checked(r, "infer_concentration")
 	settings.RejectExpired = checked(r, "reject_expired")
@@ -260,7 +271,9 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	// as "on" would make the results screen claim AI work that never happened.
 	settings.UseAI = checked(r, "use_ai") && h.ingSvc.AIAvailable()
 	settings.RecordRows = checked(r, "record_rows")
-	if v, err := strconv.Atoi(r.PostFormValue("default_quantity")); err == nil && v >= 0 {
+	// No synthetic default quantity; only if explicitly submitted as positive
+	settings.DefaultQuantity = 0
+	if v, err := strconv.Atoi(r.PostFormValue("default_quantity")); err == nil && v > 0 {
 		settings.DefaultQuantity = v
 	}
 	if v, err := strconv.Atoi(r.PostFormValue("default_min_order_qty")); err == nil {

@@ -158,19 +158,19 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم أي مورد بإدراج عروض خاصة حتى الآن.</p>
 					</div>
 				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
+					<div class="table-container m-0 overflow-x-auto lg:overflow-x-visible">
+						<table class="data-table data-table-compact m-0 w-full text-xs">
 							<thead>
 								<tr>
-									<th>العرض / باقة الأدوية</th>
-									<th>الشركة الموردة</th>
-									<th>الأصناف والكميات المشمولة</th>
-									<th>السعر قبل الخصم</th>
-									<th>الخصم</th>
-									<th>الحد الأدنى</th>
-									<th>نطاق التغطية والمدن</th>
-									<th class="text-center">حالة الاعتماد والنشر</th>
-									<th class="col-actions">الإجراءات</th>
+									<th class="w-[22%]">العرض / باقة الأدوية</th>
+									<th class="w-[14%]">الشركة الموردة</th>
+									<th class="w-[16%]">الأصناف المشمولة</th>
+									<th class="w-[9%]">سعر الجمهور</th>
+									<th class="w-[8%] text-center">الخصم</th>
+									<th class="w-[8%] text-center">الحد الأدنى</th>
+									<th class="w-[8%] text-center">التغطية</th>
+									<th class="w-[10%] text-center">الحالة</th>
+									<th class="w-[5%] col-actions text-center">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -178,20 +178,20 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 									<tr>
 										<!-- Offer Title & Info -->
 										<td>
-											<div class="d-flex items-center gap-3">
+											<div class="d-flex items-center gap-2">
 												if o.Image != "" {
-													<img src={ o.Image } alt="Banner" class="w-12 h-12 rounded-xl object-cover border shrink-0 bg-surface-sunken" />
+													<img src={ o.Image } alt="Banner" class="w-10 h-10 rounded-lg object-cover border shrink-0 bg-surface-sunken" />
 												} else {
-													<div class="user-avatar-badge text-base shrink-0">
-														@components.IconPackage("icon-xs")
+													<div class="user-avatar-badge text-sm shrink-0 w-8 h-8">
+														@components.IconPackage("icon-2xs")
 													</div>
 												}
-												<div class="stack-xs text-start">
-													<span class="font-bold text-primary text-xs leading-snug">
+												<div class="stack-2xs text-start min-w-0">
+													<span class="font-bold text-primary text-xs leading-snug truncate max-w-[180px] d-block" title={ o.Title.Get(i18n.Lang(lang)) }>
 														{ o.Title.Get(i18n.Lang(lang)) }
 													</span>
 													if !o.Description.IsEmpty() {
-														<span class="text-2xs text-secondary truncate max-w-xs d-block">
+														<span class="text-2xs text-secondary truncate max-w-[180px] d-block">
 															{ o.Description.Get(i18n.Lang(lang)) }
 														</span>
 													}
@@ -204,7 +204,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 
 										<!-- Supplier Org & Branch -->
 										<td>
-											<div class="font-bold text-primary text-xs">
+											<div class="font-bold text-primary text-xs truncate max-w-[130px]">
 												if o.OrganizationName != "" {
 													{ o.OrganizationName }
 												} else {
@@ -212,7 +212,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 												}
 											</div>
 											if o.BranchName != "" {
-												<div class="text-2xs text-accent font-bold mt-0.5">
+												<div class="text-2xs text-accent font-bold mt-0.5 truncate max-w-[130px]">
 													فرع: { o.BranchName }
 												</div>
 											} else {
@@ -225,16 +225,16 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 										<!-- Bundled Products List -->
 										<td>
 											if len(o.Products) == 0 {
-												<span class="text-2xs text-muted">عرض عام (بدون باقة مخصصة)</span>
+												<span class="text-2xs text-muted">عرض عام</span>
 											} else {
 												<div class="d-flex flex-col gap-1">
 													for idx, p := range o.Products {
 														if idx < 2 {
-															<div class="d-flex items-center gap-1.5 text-2xs">
-																<span class="badge badge-slate text-2xs tabular-nums">
+															<div class="d-flex items-center gap-1 text-2xs">
+																<span class="badge badge-slate text-2xs tabular-nums px-1 py-0">
 																	{ fmt.Sprintf("%dx", p.Quantity) }
 																</span>
-																<span class="text-primary font-bold truncate max-w-36">
+																<span class="text-primary font-bold truncate max-w-28">
 																	if p.VariantName != "" {
 																		{ p.VariantName }
 																	} else {
@@ -242,44 +242,44 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 																	}
 																</span>
 																if !p.CustomPrice.IsZero() {
-																	<span class="tabular-nums text-emerald font-bold">({ p.CustomPrice.String() } ج.م)</span>
+																	<span class="tabular-nums text-emerald font-bold">({ p.CustomPrice.String() })</span>
 																}
 															</div>
 														}
 													}
 													if len(o.Products) > 2 {
 														<span class="text-2xs text-accent font-bold">
-															+ { fmt.Sprintf("%d أصناف أخرى مشمولة", len(o.Products)-2) }
+															+ { fmt.Sprintf("%d أصناف أخرى", len(o.Products)-2) }
 														</span>
 													}
 												</div>
 											}
 										</td>
 
-										<!-- Total Price Before Discount -->
+										<!-- Total Price Before Discount (سعر الجمهور) -->
 										<td>
-											<div class="tabular-nums font-bold text-xs text-primary">
+											<div class="tabular-nums font-bold text-xs text-primary whitespace-nowrap">
 												{ o.TotalPrice.String() } ج.م
 											</div>
 										</td>
 
 										<!-- Discount -->
-										<td>
+										<td class="text-center">
 											if o.DiscountPercentage > 0 {
-												<div class="tabular-nums font-black text-xs text-emerald">
-													{ fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
-												</div>
+												<span class="badge badge-emerald font-black text-2xs tabular-nums">
+													{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
+												</span>
 											} else {
-												<div class="tabular-nums font-bold text-xs text-emerald">
+												<div class="tabular-nums font-bold text-xs text-emerald whitespace-nowrap">
 													{ o.DiscountAmount.String() } ج.م
 												</div>
 											}
 										</td>
 
 										<!-- Min Order Amount -->
-										<td>
+										<td class="text-center">
 											if !o.MinOrderAmount.IsZero() {
-												<div class="tabular-nums text-xs text-muted">
+												<div class="tabular-nums text-xs text-muted whitespace-nowrap">
 													{ o.MinOrderAmount.String() } ج.م
 												</div>
 											} else {
@@ -467,7 +467,7 @@ templ AdminOfferReviewModal(o *promo.SpecialOffer, lang, dir string) {
 				<div class="p-3 rounded-xl bg-surface-raised border text-center">
 					<span class="text-2xs text-muted font-bold d-block mb-1">نسبة الخصم</span>
 					<strong class="text-emerald text-base font-black tabular-nums">
-						{ fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
+						{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
 					</strong>
 				</div>
 
