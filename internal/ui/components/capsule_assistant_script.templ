@@ -43,6 +43,9 @@ templ CapsuleAssistantScript() {
 				isStreaming: false,
 				turnID: null,
 				eventSource: null,
+				watchdog: null,
+				sawEvent: false,
+				lastArm: 0,
 				statusMessage: '',
 				activeTool: '',
 
@@ -509,25 +512,47 @@ templ CapsuleAssistantScript() {
 				// Streaming
 				// ---------------------------------------------------------------
 
-				// attachStream opens the answer stream.
+				// attachStream opens the answer stream, and guarantees an ending.
 				//
-				// EventSource is what makes this resilient: it parses SSE frames
-				// correctly regardless of how the network chunks them, reconnects
-				// on its own, and resends the last event id so the server replays
-				// only what was missed.
+				// Three things go wrong with Server-Sent Events in the field and
+				// all three used to leave an empty bubble on screen forever:
+				//
+				//   1. the turn produces no delta at all (it spent its budget
+				//      reasoning), so "done" arrived with nothing to show;
+				//   2. something between us and the browser buffers or blocks the
+				//      stream, so nothing arrives at all;
+				//   3. EventSource gets a non-200 and closes without retrying.
+				//
+				// So: "done" now carries the finished answer, and a watchdog polls
+				// the turn over plain JSON whenever the stream goes quiet. The
+				// answer always lands, whatever the network does with the stream.
 				attachStream(turnID) {
 					if (!turnID) { this.finishWithError('لم يبدأ الرد.'); return; }
 					this.closeStream();
 					this.turnID = turnID;
 					this.isStreaming = true;
+					this.sawEvent = false;
+					this.lastArm = Date.now();
 
 					const target = this.messages[this.messages.length - 1];
 					const es = new EventSource('/api/v1/assistant/turns/' + turnID + '/stream');
 					this.eventSource = es;
 
+					const mark = () => {
+						this.sawEvent = true;
+						// Throttled: re-arming on every streamed token would be
+						// thousands of timer churns for one answer.
+						const now = Date.now();
+						if (now - this.lastArm > 2000) {
+							this.lastArm = now;
+							this.armWatchdog(turnID, target);
+						}
+					};
+
 					es.addEventListener('delta', (ev) => {
 						const d = this.parse(ev);
 						if (!d || !d.text) return;
+						mark();
 						this.statusMessage = '';
 						this.activeTool = '';
 						target.text += d.text;
@@ -537,17 +562,19 @@ templ CapsuleAssistantScript() {
 					es.addEventListener('reasoning', (ev) => {
 						const d = this.parse(ev);
 						if (!d || !d.text) return;
+						mark();
 						target.reasoning = (target.reasoning || '') + d.text;
 					});
 
 					es.addEventListener('status', (ev) => {
 						const d = this.parse(ev);
 						if (!d) return;
+						mark();
 						if (d.stage === 'tool') {
 							this.activeTool = d.tool || '';
 							this.statusMessage = d.state === 'running'
 								? 'جاري قراءة بياناتك...'
-								: (d.state === 'denied_permission' || d.state === 'denied_scope'
+								: (String(d.state || '').startsWith('denied')
 									? 'بيانات خارج نطاق صلاحياتك'
 									: 'تم استخراج البيانات');
 						}
@@ -557,29 +584,94 @@ templ CapsuleAssistantScript() {
 					es.addEventListener('usage', (ev) => {
 						const d = this.parse(ev);
 						if (!d) return;
+						mark();
 						this.usedTokens = (d.input_tokens || 0) + (d.output_tokens || 0);
 					});
 
-					es.addEventListener('done', () => {
-						target.isStreaming = false;
-						this.finishStream();
-						this.fetchConversations();
+					es.addEventListener('done', (ev) => {
+						const d = this.parse(ev) || {};
+						// The answer is repeated here on purpose: if every delta
+						// was lost, or there never were any, this is what the
+						// reader sees.
+						if (!target.text && d.answer) target.text = d.answer;
+						if (d.conversation_id) this.conversationID = d.conversation_id;
+						this.settle(target);
 					});
 
 					es.addEventListener('error', (ev) => {
 						const d = this.parse(ev);
-						if (d && d.message) {
-							// A named failure from the server. Stop retrying:
-							// EventSource would otherwise reconnect forever.
-							target.isStreaming = false;
-							target.error = d.message;
-							this.finishStream();
+						if (d && (d.message || d.answer)) {
+							if (!target.text && d.answer) target.text = d.answer;
+							if (!target.text) target.error = d.message;
+							this.settle(target);
 							return;
 						}
-						// A transport drop. EventSource reconnects by itself
-						// with Last-Event-ID, so nothing to do but wait.
-						this.statusMessage = 'انقطع الاتصال، جاري إعادة المحاولة...';
+						// A transport failure. EventSource retries on its own for a
+						// dropped connection, but not for a non-200 — and either
+						// way the turn is still running on the server, so the
+						// watchdog collects the answer over JSON.
+						this.statusMessage = 'جاري إنهاء الرد...';
+						this.armWatchdog(turnID, target, true);
 					});
+
+					this.armWatchdog(turnID, target);
+				},
+
+				// armWatchdog restarts the "has the stream gone quiet?" timer.
+				//
+				// Every event pushes it back, so a healthy stream never polls. If
+				// nothing arrives for twelve seconds — or the connection failed —
+				// it falls back to reading the turn directly.
+				armWatchdog(turnID, target, immediate = false) {
+					clearTimeout(this.watchdog);
+					this.watchdog = setTimeout(() => {
+						this.pollTurn(turnID, target);
+					}, immediate ? 400 : 12000);
+				},
+
+				// pollTurn reads the turn over plain JSON until it finishes.
+				async pollTurn(turnID, target, attempt = 0) {
+					if (this.turnID !== turnID) return;      // superseded
+					if (attempt > 90) { this.settle(target); return; }
+
+					try {
+						const resp = await fetch('/api/v1/assistant/turns/' + turnID);
+						if (resp.ok) {
+							const d = await resp.json();
+							if (d.status && d.status !== 'running') {
+								if (d.answer) target.text = d.answer;
+								else if (d.error) target.error = d.error.message;
+								if (d.conversation_id) this.conversationID = d.conversation_id;
+								this.settle(target);
+								return;
+							}
+							// Still running: show progress if the stream is silent.
+							if (d.answer && d.answer.length > target.text.length) {
+								target.text = d.answer;
+								this.scrollToBottom();
+							}
+						} else if (resp.status === 404) {
+							this.finishWithError('انتهت صلاحية هذا الرد.');
+							return;
+						}
+					} catch (e) {
+						/* offline; keep trying while the drawer is open */
+					}
+
+					this.watchdog = setTimeout(
+						() => this.pollTurn(turnID, target, attempt + 1), 1500);
+				},
+
+				// settle ends the turn cleanly, whichever path got us here.
+				settle(target) {
+					if (target) {
+						target.isStreaming = false;
+						if (!target.text && !target.error) {
+							target.error = 'لم يصل رد من المساعد. حاول مرة أخرى.';
+						}
+					}
+					this.finishStream();
+					this.fetchConversations();
 				},
 
 				parse(ev) {
@@ -587,6 +679,8 @@ templ CapsuleAssistantScript() {
 				},
 
 				closeStream() {
+					clearTimeout(this.watchdog);
+					this.watchdog = null;
 					if (this.eventSource) {
 						try { this.eventSource.close(); } catch (e) {}
 						this.eventSource = null;
@@ -606,19 +700,18 @@ templ CapsuleAssistantScript() {
 					const target = this.messages[this.messages.length - 1];
 					if (target && !target.isUser) {
 						target.isStreaming = false;
-						target.error = message;
+						if (message) target.error = message;
 					}
 					this.finishStream();
 				},
 
-				// cancelStream stops generation server-side too, so a turn the
-				// user abandoned stops costing money rather than running to
-				// completion unread.
+				// cancelStream stops generation server-side too, so an abandoned
+				// answer stops costing money.
 				async cancelStream() {
 					const id = this.turnID;
-					this.finishWithError('');
 					const target = this.messages[this.messages.length - 1];
 					if (target && !target.isUser) target.isStreaming = false;
+					this.finishStream();
 					if (!id) return;
 					try { await fetch('/api/v1/assistant/turns/' + id, { method: 'DELETE' }); } catch (e) {}
 				},

@@ -66,19 +66,32 @@ func (e *emitter) Usage(input, output int) {
 	}})
 }
 
-func (e *emitter) Done(answer string) {
-	e.append(stream.Chunk{Kind: "done", Data: map[string]any{"complete": true}})
+// Done ends the turn and repeats the finished answer.
+//
+// Repeating it is deliberate. The client uses it only when it received no
+// deltas, which is exactly the case that used to render an empty bubble: a turn
+// that spent its whole output budget reasoning produced no delta at all, and
+// the reader was told "finished" with nothing to show.
+func (e *emitter) Done(answer string, conversationID int64) {
+	e.append(stream.Chunk{Kind: "done", Data: map[string]any{
+		"answer":          answer,
+		"conversation_id": conversationID,
+	}})
 }
 
 // Failed reports a failure by code. The message the user sees is looked up
 // here, from the one table that holds them, so no handler can invent its own
 // wording or leak an internal one.
-func (e *emitter) Failed(code assistant.Code) {
+// Failed reports a failure by code, and hands back whatever was written before
+// it. Two thirds of an answer is worth more to the reader than an apology.
+func (e *emitter) Failed(code assistant.Code, partial string, conversationID int64) {
 	f := assistant.Fail(code)
 	e.append(stream.Chunk{Kind: "error", Data: map[string]any{
-		"code":      string(f.Code),
-		"message":   f.Message,
-		"retryable": f.Retryable,
+		"code":            string(f.Code),
+		"message":         f.Message,
+		"retryable":       f.Retryable,
+		"answer":          partial,
+		"conversation_id": conversationID,
 	}})
 }
 

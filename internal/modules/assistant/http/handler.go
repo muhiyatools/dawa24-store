@@ -105,6 +105,10 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 		g.Post("/api/v1/assistant/turns", h.CreateTurn)
 		g.Get("/api/v1/assistant/turns/{id}/stream", h.StreamTurn)
+		// The stream's safety net: when SSE is blocked or buffered by something
+		// between us and the browser, the client polls this instead and the
+		// answer still arrives.
+		g.Get("/api/v1/assistant/turns/{id}", h.TurnStatus)
 		g.Delete("/api/v1/assistant/turns/{id}", h.CancelTurn)
 
 		g.Post("/api/v1/assistant/attachments", h.Upload)

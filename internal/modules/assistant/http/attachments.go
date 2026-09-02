@@ -193,6 +193,11 @@ func (h *Handler) resolveAttachments(
 				"attachment", row.PublicID)
 		}
 
+		if text, ok := h.readPlainText(ctx, row); ok {
+			digests = append(digests, text)
+			continue
+		}
+
 		digest := row.Digest
 		if digest == "" {
 			digest = h.readAttachment(ctx, actor, row)
@@ -209,13 +214,22 @@ func (h *Handler) resolveAttachments(
 	return atts, digests, parts
 }
 
-// withinLimit reports whether a file fits the model's declared ceiling. A zero
-// ceiling means the Gateway published none, which we read as "do not risk it".
+// withinLimit reports whether a file fits the ceiling that actually applies.
+//
+// A zero max_attachment_mb means the operator never set one, not that the model
+// refuses attachments — every model in the live catalogue publishes zero,
+// including the one that reports supports_vision=true. Reading zero as "refuse"
+// was why a photographed medicine box came back as "لا أستطيع رؤية الصور": the
+// model could see it and this function would not let it.
+//
+// So when the Gateway publishes no ceiling we apply our own upload ceiling,
+// which is already far below the Gateway's 24 MiB body cap.
 func withinLimit(caps gateway.ModelCapabilities, size int64) bool {
+	limit := int64(caps.MaxAttachmentMB) << 20
 	if caps.MaxAttachmentMB <= 0 {
-		return false
+		limit = maxAttachmentBytes
 	}
-	return size <= int64(caps.MaxAttachmentMB)<<20
+	return size <= limit
 }
 
 // readAttachment asks the attachment model to describe one file, once.
@@ -341,4 +355,39 @@ func (h *Handler) dataURL(ctx context.Context, row *assistant.AttachmentRow) (st
 		return "", errors.New("assistant: stored attachment exceeds limit")
 	}
 	return assistant.DataURL(row.MIMEType, content), nil
+}
+
+// readPlainText handles the files that need no model.
+//
+// Neither the answering model nor the reader reports supports_documents in the
+// live catalogue, so a CSV or a pasted price list was refused as an unsupported
+// type — for content that is already text. Reading it here is both free and
+// better: nothing is summarised away.
+//
+// The content is still fenced as untrusted by the turn assembler; being easy to
+// read does not make a file trustworthy.
+func (h *Handler) readPlainText(ctx context.Context, row *assistant.AttachmentRow) (string, bool) {
+	switch row.MIMEType {
+	case "text/plain", "text/csv":
+	default:
+		return "", false
+	}
+	if h.storage == nil {
+		return "", false
+	}
+	body, _, err := h.storage.Get(ctx, row.StorageKey)
+	if err != nil {
+		return "", false
+	}
+	defer body.Close()
+
+	content, err := io.ReadAll(io.LimitReader(body, assistant.DigestMaxChars))
+	if err != nil || len(content) == 0 {
+		return "", false
+	}
+	text := string(content)
+	if len(content) == assistant.DigestMaxChars {
+		text += "\n…(اقتُطع الملف)"
+	}
+	return text, true
 }

@@ -327,3 +327,41 @@ func writeSSE(w http.ResponseWriter, flusher http.Flusher, seq int64, event stri
 	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, body)
 	flusher.Flush()
 }
+
+// TurnStatus is the answer without the stream.
+//
+// It exists because Server-Sent Events are the one part of this that depends on
+// something outside the application behaving: a reverse proxy that buffers, a
+// corporate middlebox, a mobile network that drops a long-lived connection. When
+// that happens the turn still runs, still costs money, and still lands in the
+// database — and before this endpoint existed the reader had no way to collect
+// it except by reopening the conversation from history, which is exactly what
+// people reported doing.
+//
+// The client polls this whenever the stream goes quiet. It is cheap: one
+// indexed row by public id, scoped to its owner.
+func (h *Handler) TurnStatus(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor := authctx.FromContext(ctx)
+
+	turn, err := h.repo.GetTurn(ctx, chi.URLParam(r, "id"), actor.OrgID, actor.UserID)
+	if err != nil || turn == nil {
+		writeFailure(w, http.StatusNotFound, assistant.Fail(assistant.CodeNotFound))
+		return
+	}
+
+	body := map[string]any{
+		"status":          string(turn.Status),
+		"answer":          turn.Answer,
+		"conversation_id": turn.ConversationID,
+		"input_tokens":    turn.InputTokens,
+		"output_tokens":   turn.OutputTokens,
+	}
+	if turn.Status == assistant.TurnFailed {
+		f := assistant.Fail(assistant.Code(turn.ErrorCode))
+		body["error"] = map[string]any{
+			"code": string(f.Code), "message": f.Message, "retryable": f.Retryable,
+		}
+	}
+	writeJSON(w, http.StatusOK, body)
+}

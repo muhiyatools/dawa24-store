@@ -56,13 +56,20 @@ type ToolRunner interface {
 
 // Emitter receives a turn's events as they happen. The HTTP layer implements it
 // over the durable stream buffer, so a disconnect loses nothing.
+//
+// Done and Failed both carry the FINAL text, not just a marker. That is the
+// difference between a reliable stream and one that mostly works: if every
+// delta is lost — a proxy that buffered them, a model that answered in one
+// piece after its deltas were dropped, a turn that produced no deltas at all
+// because it spent its budget reasoning — the terminal frame still carries the
+// answer, and the reader still shows it.
 type Emitter interface {
 	Delta(text string)
 	Reasoning(text string)
 	Status(stage string, data map[string]any)
 	Usage(input, output int)
-	Done(answer string)
-	Failed(code Code)
+	Done(answer string, conversationID int64)
+	Failed(code Code, partial string, conversationID int64)
 }
 
 // KeyResolver returns the tenant's own Gateway virtual key, so consumption is
@@ -155,10 +162,15 @@ func (s *Service) RunTurn(
 		}
 
 		events, err := s.gateway.Stream(ctx, gateway.ChatRequest{
-			Role:        gateway.RolePrimary,
-			Messages:    messages,
-			Tools:       roundTools,
-			MaxTokens:   2048,
+			Role:     gateway.RolePrimary,
+			Messages: messages,
+			Tools:    roundTools,
+			// Reasoning models bill their chain of thought against this budget
+			// and, when they exhaust it, return an EMPTY answer — a total
+			// failure that looks exactly like a model with nothing to say. One
+			// real turn did precisely that: 2048 tokens spent, no text, no tool
+			// call. Four thousand leaves room to think and still answer.
+			MaxTokens:   4000,
 			Temperature: 0.3,
 			OrgID:       actor.OrgID,
 			UserID:      actor.UserID,
@@ -262,7 +274,17 @@ func (s *Service) succeed(
 ) {
 	answer = strings.TrimSpace(answer)
 	if answer == "" {
-		answer = "لم أتمكن من صياغة إجابة لهذا السؤال. جرّب صياغة أوضح أو فترة أقصر."
+		// Distinguish "produced nothing" from "spent the budget producing
+		// nothing". The second is the reasoning-burn case, and "rephrase" is
+		// useless advice for it; a narrower question is the fix that works.
+		if usage != nil && usage.CompletionTokens > 0 {
+			answer = "استغرق التحليل مساحة أكبر من المتاحة قبل أن يكتمل الرد. " +
+				"اسأل عن فترة أقصر أو نقطة واحدة محددة."
+		} else {
+			answer = "لم أتمكن من صياغة إجابة لهذا السؤال. جرّب صياغة أوضح."
+		}
+		s.log.WarnContext(ctx, "assistant produced an empty answer",
+			"user_id", actor.UserID, "tools", toolsUsed)
 	}
 	turn.Status = TurnDone
 	turn.Answer = answer
@@ -272,7 +294,7 @@ func (s *Service) succeed(
 		turn.OutputTokens = usage.CompletionTokens
 	}
 	s.persist(ctx, actor, turn, in, answer)
-	em.Done(answer)
+	em.Done(answer, turn.ConversationID)
 }
 
 // fail persists whatever was produced and reports a user-facing code.
@@ -288,7 +310,7 @@ func (s *Service) fail(ctx context.Context, turn *Turn, em Emitter, code Code, p
 			s.log.ErrorContext(ctx, "assistant: finish failed turn", "error", err)
 		}
 	}
-	em.Failed(code)
+	em.Failed(code, turn.Answer, turn.ConversationID)
 }
 
 // persist writes the question, the answer and the turn record.
