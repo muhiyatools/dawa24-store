@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -171,16 +172,16 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
-	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
-	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
-	adTextAr := strings.TrimSpace(r.PostFormValue("ad_text_ar"))
-	adTextEn := strings.TrimSpace(r.PostFormValue("ad_text_en"))
-	mediaURL := strings.TrimSpace(r.PostFormValue("media_url"))
-	thumbnailURL := strings.TrimSpace(r.PostFormValue("thumbnail_url"))
-	mediaType := strings.TrimSpace(r.PostFormValue("media_type"))
-	clickTarget := strings.TrimSpace(r.PostFormValue("click_target_type"))
-	targetID := strings.TrimSpace(r.PostFormValue("click_target_id"))
-	position := strings.TrimSpace(r.PostFormValue("position"))
+	titleAr := strings.TrimSpace(r.FormValue("title_ar"))
+	titleEn := strings.TrimSpace(r.FormValue("title_en"))
+	adTextAr := strings.TrimSpace(r.FormValue("ad_text_ar"))
+	adTextEn := strings.TrimSpace(r.FormValue("ad_text_en"))
+	mediaURL := strings.TrimSpace(r.FormValue("media_url"))
+	thumbnailURL := strings.TrimSpace(r.FormValue("thumbnail_url"))
+	mediaType := strings.TrimSpace(r.FormValue("media_type"))
+	clickTarget := strings.TrimSpace(r.FormValue("click_target_type"))
+	targetID := strings.TrimSpace(r.FormValue("click_target_id"))
+	position := strings.TrimSpace(r.FormValue("position"))
 	if position == "" {
 		position = promo.PositionHomeHero
 	}
@@ -199,13 +200,33 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 	}
 
 	durationDays := 30
-	if d, err := strconv.Atoi(r.PostFormValue("duration_days")); err == nil && d > 0 {
+	if d, err := strconv.Atoi(r.FormValue("duration_days")); err == nil && d > 0 {
 		durationDays = d
 	}
 
 	title := titleAr
 	if title == "" {
 		title = titleEn
+	}
+
+	targetURL := strings.TrimSpace(r.FormValue("target_url"))
+	if targetURL == "" {
+		switch clickTarget {
+		case string(promo.ClickTargetVendor):
+			targetURL = fmt.Sprintf("/suppliers/%d", orgID)
+		case string(promo.ClickTargetOffer):
+			if clickTargetID != nil {
+				targetURL = fmt.Sprintf("/offers/%d", *clickTargetID)
+			} else {
+				targetURL = fmt.Sprintf("/suppliers/%d#offers", orgID)
+			}
+		default:
+			if clickTargetID != nil {
+				targetURL = fmt.Sprintf("/products?variant_id=%d", *clickTargetID)
+			} else {
+				targetURL = fmt.Sprintf("/suppliers/%d", orgID)
+			}
+		}
 	}
 
 	return &promo.Ad{
@@ -218,6 +239,7 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 		MediaType:       promo.AdMediaType(mediaType),
 		MediaURL:        mediaURL,
 		ThumbnailURL:    thumbnailURL,
+		TargetURL:       targetURL,
 		Position:        position,
 		ClickTargetType: promo.AdClickTarget(clickTarget),
 		ClickTargetID:   clickTargetID,

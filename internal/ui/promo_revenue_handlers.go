@@ -273,8 +273,14 @@ func (h *UIHandler) VendorAdsPage(w http.ResponseWriter, r *http.Request) {
 
 	itemOptions := h.loadVendorInStockItems(ctx, actor.OrganizationID)
 
-	noticeType := r.URL.Query().Get("notice_type")
-	noticeMsg := r.URL.Query().Get("notice")
+	noticeType := r.URL.Query().Get("notice")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("message")
+	}
 	if noticeMsg == "" {
 		noticeMsg = r.URL.Query().Get("notice_msg")
 	}
