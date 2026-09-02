@@ -862,8 +862,98 @@
 
 
 
-.hero-ad-showcase-container:hover .hero-ad-nav-btn {
+.hero-ad-fallback-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(2, 132, 199, 0.35) 0%, rgba(15, 23, 42, 0.95) 70%), linear-gradient(135deg, #0b1528 0%, #030712 100%);
+  z-index: 0;
+}
+
+.hero-ad-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0.85;
+  transition: all 200ms ease;
+}
+
+.hero-ad-nav-btn:hover {
   opacity: 1;
+  background: var(--color-brand, #0284c7);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hero-ad-nav-prev {
+  inset-inline-start: 1rem;
+}
+
+.hero-ad-nav-next {
+  inset-inline-end: 1rem;
+}
+
+.hero-ad-dots {
+  position: absolute;
+  bottom: 1.25rem;
+  inset-inline-end: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  z-index: 10;
+}
+
+.hero-ad-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 250ms ease;
+}
+
+.hero-ad-dot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.hero-ad-dot-active {
+  width: 1.5rem;
+  background: var(--color-brand, #0284c7);
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.6);
+}
+
+.hero-ad-cta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.15rem;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--color-brand, #0284c7);
+  color: #ffffff;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 800;
+  width: fit-content;
+  margin-top: 0.25rem;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+  transition: all 200ms ease;
+}
+
+.hero-ad-slide:hover .hero-ad-cta-pill {
+  background: var(--color-brand-hover, #0369a1);
+  transform: translateX(-3px);
 }
 
 

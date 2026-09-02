@@ -75,12 +75,49 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			if len(stats.Ads) > 0 {
 				<div
 					class="hero-ad-showcase-container"
-					x-data={ fmt.Sprintf("heroAdSlider(%d)", len(stats.Ads)) }
+					x-data={ fmt.Sprintf(`{
+						currentSlide: 0,
+						totalSlides: %d,
+						timer: null,
+						startAutoplay() {
+							if (this.totalSlides <= 1) return;
+							this.stopAutoplay();
+							this.timer = setInterval(() => {
+								this.currentSlide = (this.currentSlide + 1) %% this.totalSlides;
+							}, 5500);
+						},
+						stopAutoplay() {
+							if (this.timer) {
+								clearInterval(this.timer);
+								this.timer = null;
+							}
+						},
+						next() {
+							this.currentSlide = (this.currentSlide + 1) %% this.totalSlides;
+						},
+						prev() {
+							this.currentSlide = (this.currentSlide - 1 + this.totalSlides) %% this.totalSlides;
+						},
+						goTo(i) {
+							this.currentSlide = i;
+						}
+					}`, len(stats.Ads)) }
 					x-init="startAutoplay()"
-					@mouseenter="pauseAutoplay()"
+					@mouseenter="stopAutoplay()"
 					@mouseleave="startAutoplay()"
 				>
 					<div class="hero-ad-slider-frame">
+						if len(stats.Ads) > 1 {
+							<button
+								type="button"
+								@click.prevent.stop="prev()"
+								class="hero-ad-nav-btn hero-ad-nav-prev"
+								aria-label="Previous ad"
+							>
+								@components.IconArrowRight("icon-sm")
+							</button>
+						}
+
 						for i, ad := range stats.Ads {
 							if ad != nil {
 								<a
@@ -96,6 +133,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									x-transition:leave-end="opacity-0 scale-98"
 									data-ad-id={ fmt.Sprintf("%d", ad.ID) }
 								>
+									<!-- Fallback Gradient Layer -->
+									<div class="hero-ad-fallback-bg"></div>
+
 									if ad.MediaType == "video" && ad.MediaURL != "" {
 										<video
 											src={ ad.MediaURL }
@@ -112,6 +152,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 											alt={ ad.DisplayTitle(lang) }
 											loading="eager"
 											class="hero-ad-bg-media"
+											onerror="this.style.display='none'"
 										/>
 									}
 									<div class="hero-ad-gradient-overlay"></div>
@@ -122,7 +163,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										</span>
 										<span class="hero-ad-badge-verified">
 											@components.IconShield("icon-2xs")
-											<span>مورد مرخص</span>
+											<span>مورد ومصنع معتمد</span>
 										</span>
 									</div>
 									<div class="hero-ad-content">
@@ -130,9 +171,36 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										if ad.DisplayText(lang) != "" {
 											<p class="hero-ad-description">{ ad.DisplayText(lang) }</p>
 										}
+										<div class="hero-ad-cta-pill">
+											<span>استعراض الصنف والطلب الآن</span>
+											@components.IconArrowLeft("icon-2xs")
+										</div>
 									</div>
 								</a>
 							}
+						}
+
+						if len(stats.Ads) > 1 {
+							<button
+								type="button"
+								@click.prevent.stop="next()"
+								class="hero-ad-nav-btn hero-ad-nav-next"
+								aria-label="Next ad"
+							>
+								@components.IconArrowLeft("icon-sm")
+							</button>
+
+							<div class="hero-ad-dots">
+								for i := range stats.Ads {
+									<button
+										type="button"
+										@click.prevent.stop={ fmt.Sprintf("goTo(%d)", i) }
+										class="hero-ad-dot"
+										:class={ fmt.Sprintf("currentSlide === %d ? 'hero-ad-dot-active' : ''", i) }
+										aria-label={ fmt.Sprintf("Go to slide %d", i+1) }
+									></button>
+								}
+							</div>
 						}
 					</div>
 				</div>
