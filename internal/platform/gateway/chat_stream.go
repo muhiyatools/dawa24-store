@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,10 +18,6 @@ import (
 // yields stream events as SSE frames arrive. The caller must drain the channel
 // or cancel ctx to abort upstream.
 func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan StreamEvent, error) {
-	if len(req.Tools) > 0 {
-		return nil, ErrToolsNotSupported
-	}
-
 	settings := c.resolve(ctx)
 	authKey := settings.VirtualKey
 	if req.VirtualKey != "" {
@@ -42,6 +39,12 @@ func (c *HTTPClient) Stream(ctx context.Context, req ChatRequest) (<-chan Stream
 		MaxTokens:   req.MaxTokens,
 		Temperature: req.Temperature,
 		Stream:      true,
+		Tools:       buildWireTools(req.Tools),
+	}
+	if len(payload.Tools) > 0 {
+		// "auto" and not "required": most turns are a plain answer, and forcing
+		// a call on a greeting spends a round trip to be told nothing.
+		payload.ToolChoice = "auto"
 	}
 
 	bodyBytes, err := json.Marshal(payload)
@@ -93,6 +96,21 @@ func (c *HTTPClient) consumeSSE(ctx context.Context, body io.ReadCloser, events 
 	defer body.Close()
 	defer close(events)
 
+	// Tool calls arrive as fragments spread across chunks: the first carries an
+	// id and a name, the rest append characters to the arguments string. They
+	// are keyed by the index the upstream assigns, never by arrival order.
+	acc := newToolCallAccumulator()
+	finishReason := ""
+
+	emit := func(ev StreamEvent) bool {
+		select {
+		case events <- ev:
+			return true
+		case <-ctx.Done():
+			return false
+		}
+	}
+
 	reader := bufio.NewReader(body)
 	for {
 		line, err := reader.ReadString('\n')
@@ -101,10 +119,7 @@ func (c *HTTPClient) consumeSSE(ctx context.Context, body io.ReadCloser, events 
 				return
 			}
 			c.breaker.failure()
-			select {
-			case events <- StreamEvent{Err: fmt.Errorf("%w: %v", ErrUnavailable, err)}:
-			case <-ctx.Done():
-			}
+			emit(StreamEvent{Err: fmt.Errorf("%w: %v", ErrUnavailable, err)})
 			return
 		}
 
@@ -119,54 +134,33 @@ func (c *HTTPClient) consumeSSE(ctx context.Context, body io.ReadCloser, events 
 		}
 		if data == "[DONE]" {
 			c.breaker.success()
-			select {
-			case events <- StreamEvent{Done: true}:
-			case <-ctx.Done():
-			}
+			emit(StreamEvent{Done: true, FinishReason: finishReason, ToolCalls: acc.finish()})
 			return
 		}
 
-		var chunk struct {
-			Choices []struct {
-				Delta struct {
-					Content          string `json:"content"`
-					ReasoningContent string `json:"reasoning_content"`
-					Thinking         string `json:"thinking"`
-				} `json:"delta"`
-			} `json:"choices"`
-			Usage *struct {
-				PromptTokens            int `json:"prompt_tokens"`
-				CompletionTokens        int `json:"completion_tokens"`
-				TotalTokens             int `json:"total_tokens"`
-				CompletionTokensDetails struct {
-					ReasoningTokens int `json:"reasoning_tokens"`
-				} `json:"completion_tokens_details"`
-			} `json:"usage"`
-			Error *struct {
-				Message string `json:"message"`
-			} `json:"error"`
-		}
-
+		var chunk wireStreamChunk
 		if err := json.Unmarshal([]byte(data), &chunk); err != nil {
 			continue
 		}
 
 		if chunk.Error != nil {
 			c.breaker.failure()
-			select {
-			case events <- StreamEvent{Err: fmt.Errorf("gateway: %s", chunk.Error.Message)}:
-			case <-ctx.Done():
-			}
+			emit(StreamEvent{Err: fmt.Errorf("gateway: %s", chunk.Error.Message)})
 			return
 		}
 
 		var delta, reasoning string
 		if len(chunk.Choices) > 0 {
-			delta = chunk.Choices[0].Delta.Content
-			reasoning = chunk.Choices[0].Delta.ReasoningContent
+			ch := chunk.Choices[0]
+			delta = ch.Delta.Content
+			reasoning = ch.Delta.ReasoningContent
 			if reasoning == "" {
-				reasoning = chunk.Choices[0].Delta.Thinking
+				reasoning = ch.Delta.Thinking
 			}
+			if ch.FinishReason != "" {
+				finishReason = ch.FinishReason
+			}
+			acc.add(ch.Delta.ToolCalls)
 		}
 
 		var usage *Usage
@@ -180,11 +174,100 @@ func (c *HTTPClient) consumeSSE(ctx context.Context, body io.ReadCloser, events 
 		}
 
 		if delta != "" || reasoning != "" || usage != nil {
-			select {
-			case events <- StreamEvent{Delta: delta, Reasoning: reasoning, Usage: usage}:
-			case <-ctx.Done():
+			if !emit(StreamEvent{Delta: delta, Reasoning: reasoning, Usage: usage}) {
 				return
 			}
 		}
 	}
+}
+
+// wireStreamChunk is one decoded SSE frame of a streaming completion.
+type wireStreamChunk struct {
+	Choices []struct {
+		Delta struct {
+			Content          string             `json:"content"`
+			ReasoningContent string             `json:"reasoning_content"`
+			Thinking         string             `json:"thinking"`
+			ToolCalls        []wireToolCallItem `json:"tool_calls"`
+		} `json:"delta"`
+		FinishReason string `json:"finish_reason"`
+	} `json:"choices"`
+	Usage *struct {
+		PromptTokens            int `json:"prompt_tokens"`
+		CompletionTokens        int `json:"completion_tokens"`
+		TotalTokens             int `json:"total_tokens"`
+		CompletionTokensDetails struct {
+			ReasoningTokens int `json:"reasoning_tokens"`
+		} `json:"completion_tokens_details"`
+	} `json:"usage"`
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error"`
+}
+
+type wireToolCallItem struct {
+	Index    *int   `json:"index"`
+	ID       string `json:"id"`
+	Function struct {
+		Name      string `json:"name"`
+		Arguments string `json:"arguments"`
+	} `json:"function"`
+}
+
+// toolCallAccumulator reassembles streamed tool-call fragments.
+//
+// Order of arrival is not order of index, and a provider may repeat an index
+// with only an arguments fragment, so the slots are a map and the emitted
+// order is by index.
+type toolCallAccumulator struct {
+	slots map[int]*ToolCall
+	order []int
+}
+
+func newToolCallAccumulator() *toolCallAccumulator {
+	return &toolCallAccumulator{slots: make(map[int]*ToolCall)}
+}
+
+func (a *toolCallAccumulator) add(items []wireToolCallItem) {
+	for _, item := range items {
+		idx := 0
+		if item.Index != nil {
+			idx = *item.Index
+		}
+		slot, ok := a.slots[idx]
+		if !ok {
+			slot = &ToolCall{}
+			a.slots[idx] = slot
+			a.order = append(a.order, idx)
+		}
+		if item.ID != "" {
+			slot.ID = item.ID
+		}
+		if item.Function.Name != "" {
+			slot.Name = item.Function.Name
+		}
+		slot.Arguments += item.Function.Arguments
+	}
+}
+
+// finish returns the completed calls, dropping any slot that never received a
+// name — a fragment with no function is not a call anyone can dispatch.
+func (a *toolCallAccumulator) finish() []ToolCall {
+	if len(a.order) == 0 {
+		return nil
+	}
+	sorted := append([]int(nil), a.order...)
+	sort.Ints(sorted)
+	out := make([]ToolCall, 0, len(sorted))
+	for _, idx := range sorted {
+		slot := a.slots[idx]
+		if slot == nil || slot.Name == "" {
+			continue
+		}
+		out = append(out, *slot)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }

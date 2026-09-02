@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -18,11 +19,21 @@ func (h *UIHandler) VendorJobsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var jobItems []*pages.VendorJobItem
-	var publishedCount, closedCount, totalApps int
+	var totalCount, publishedCount, closedCount, totalApps int
 
 	if h.hrSvc != nil {
-		jobs, _ := h.hrSvc.ListOrgJobs(ctx, actor.OrganizationID, 100, 0)
+		stats, _ := h.hrSvc.GetJobStatsByOrg(ctx, actor.OrganizationID)
+		publishedCount = stats.PublishedCount
+		closedCount = stats.ClosedCount
+		totalApps = stats.TotalApplications
+
+		jobs, total, _ := h.hrSvc.ListOrgJobsWithTotal(ctx, actor.OrganizationID, limit, offset)
+		totalCount = total
 		for _, j := range jobs {
 			if j == nil {
 				continue
@@ -30,12 +41,6 @@ func (h *UIHandler) VendorJobsPage(w http.ResponseWriter, r *http.Request) {
 			cnt := 0
 			if appCount, err := h.hrSvc.CountApplications(ctx, j.ID); err == nil {
 				cnt = appCount
-			}
-			totalApps += cnt
-			if j.Status == "published" {
-				publishedCount++
-			} else {
-				closedCount++
 			}
 			jobItems = append(jobItems, &pages.VendorJobItem{
 				Job:               j,
@@ -58,10 +63,12 @@ func (h *UIHandler) VendorJobsPage(w http.ResponseWriter, r *http.Request) {
 	data := pages.VendorJobsData{
 		Jobs:              jobItems,
 		Branches:          branches,
-		TotalCount:        len(jobItems),
+		TotalCount:        totalCount,
 		PublishedCount:    publishedCount,
 		ClosedCount:       closedCount,
 		TotalApplications: totalApps,
+		Page:              page,
+		PerPage:           limit,
 		NoticeType:        noticeType,
 		NoticeMsg:         noticeMsg,
 	}
@@ -105,11 +112,21 @@ func (h *UIHandler) CustomerJobsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var jobItems []*pages.VendorJobItem
-	var publishedCount, closedCount, totalApps int
+	var totalCount, publishedCount, closedCount, totalApps int
 
 	if h.hrSvc != nil {
-		jobs, _ := h.hrSvc.ListOrgJobs(ctx, actor.OrganizationID, 100, 0)
+		stats, _ := h.hrSvc.GetJobStatsByOrg(ctx, actor.OrganizationID)
+		publishedCount = stats.PublishedCount
+		closedCount = stats.ClosedCount
+		totalApps = stats.TotalApplications
+
+		jobs, total, _ := h.hrSvc.ListOrgJobsWithTotal(ctx, actor.OrganizationID, limit, offset)
+		totalCount = total
 		for _, j := range jobs {
 			if j == nil {
 				continue
@@ -117,12 +134,6 @@ func (h *UIHandler) CustomerJobsPage(w http.ResponseWriter, r *http.Request) {
 			cnt := 0
 			if appCount, err := h.hrSvc.CountApplications(ctx, j.ID); err == nil {
 				cnt = appCount
-			}
-			totalApps += cnt
-			if j.Status == "published" {
-				publishedCount++
-			} else {
-				closedCount++
 			}
 			jobItems = append(jobItems, &pages.VendorJobItem{
 				Job:               j,
@@ -145,10 +156,12 @@ func (h *UIHandler) CustomerJobsPage(w http.ResponseWriter, r *http.Request) {
 	data := pages.CustomerJobsData{
 		Jobs:              jobItems,
 		Branches:          branches,
-		TotalCount:        len(jobItems),
+		TotalCount:        totalCount,
 		PublishedCount:    publishedCount,
 		ClosedCount:       closedCount,
 		TotalApplications: totalApps,
+		Page:              page,
+		PerPage:           limit,
 		NoticeType:        noticeType,
 		NoticeMsg:         noticeMsg,
 		Permissions:       actor.Permissions,

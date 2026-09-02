@@ -68,6 +68,7 @@ type Repository interface {
 	ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error)
 
 	AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*Subscription, error)
+	AdminListSubscriptionsWithTotal(ctx context.Context, limit, offset int) ([]*Subscription, int, error)
 	AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error
 	AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType TransactionType, reason string, actorID int64) error
 	AdminListPayments(ctx context.Context, limit, offset int) ([]*Payment, error)

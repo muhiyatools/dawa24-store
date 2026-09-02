@@ -147,6 +147,12 @@ func (m *institutionalMockRepo) DeleteBranch(_ context.Context, _, _ int64) erro
 func (m *institutionalMockRepo) ListBranchesByOrg(_ context.Context, _ int64) ([]*org.Branch, error) {
 	return nil, nil
 }
+func (m *institutionalMockRepo) ListBranchesWithTotal(_ context.Context, _ org.BranchFilter, _, _ int) ([]*org.Branch, int, error) {
+	return nil, 0, nil
+}
+func (m *institutionalMockRepo) AdminBranchStats(_ context.Context) (org.AdminBranchStatsResult, error) {
+	return org.AdminBranchStatsResult{}, nil
+}
 func (m *institutionalMockRepo) CountBranchesByOrg(_ context.Context) (map[int64]int, error) {
 	return nil, nil
 }
@@ -169,6 +175,9 @@ func (m *institutionalMockRepo) ListMembersByOrg(_ context.Context, _ int64) ([]
 }
 func (m *institutionalMockRepo) ListEmployees(_ context.Context, _ int64) ([]*org.EmployeeView, error) {
 	return nil, nil
+}
+func (m *institutionalMockRepo) ListEmployeesWithTotal(_ context.Context, _ int64, _, _ int) ([]*org.EmployeeView, int, error) {
+	return nil, 0, nil
 }
 func (m *institutionalMockRepo) RemoveMember(_ context.Context, _, _ int64) error { return nil }
 func (m *institutionalMockRepo) CreateRole(_ context.Context, _ *org.Role) error  { return nil }
@@ -207,6 +216,18 @@ func (m *institutionalMockRepo) GetReviewCriteria(_ context.Context, _ string) (
 }
 func (m *institutionalMockRepo) ReplyToReview(_ context.Context, _, _ int64, _ string, _ int64) error {
 	return nil
+}
+func (m *institutionalMockRepo) ListReviewsForVendor(_ context.Context, _ int64, _, _ int) ([]*org.Review, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) GetReviewByOrderAndVendor(_ context.Context, _, _ int64) (*org.Review, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) ListReviewsForOrder(_ context.Context, _ int64) ([]*org.Review, error) {
+	return nil, nil
+}
+func (m *institutionalMockRepo) HasDeliveredOrderFromVendor(_ context.Context, _, _ int64) (bool, error) {
+	return true, nil
 }
 func (m *institutionalMockRepo) ToggleFollower(_ context.Context, _, _ int64) (bool, error) {
 	return false, nil

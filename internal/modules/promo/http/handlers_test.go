@@ -104,8 +104,14 @@ func (stubRepo) GetSponsorshipRequestByID(context.Context, int64) (*promo.Sponso
 func (stubRepo) ListSponsorshipRequestsByOrg(context.Context, int64, int, int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil
 }
+func (stubRepo) ListSponsorshipRequestsByOrgWithTotal(context.Context, int64, int, int) ([]*promo.SponsorshipRequest, int, error) {
+	return nil, 0, nil
+}
 func (stubRepo) ListAllSponsorshipRequests(context.Context, int, int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil
+}
+func (stubRepo) ListAllSponsorshipRequestsWithTotal(context.Context, int, int) ([]*promo.SponsorshipRequest, int, error) {
+	return nil, 0, nil
 }
 func (stubRepo) ListPendingSponsorshipRequests(context.Context, int, int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil
@@ -135,8 +141,14 @@ func (stubRepo) GetAdByID(context.Context, int64) (*promo.Ad, error) {
 func (stubRepo) ListAdsByOrg(context.Context, int64, int, int) ([]*promo.Ad, error) {
 	return nil, nil
 }
+func (stubRepo) ListAdsByOrgWithTotal(context.Context, int64, int, int) ([]*promo.Ad, int, error) {
+	return nil, 0, nil
+}
 func (stubRepo) ListAllAds(context.Context, int, int) ([]*promo.Ad, error) {
 	return nil, nil
+}
+func (stubRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*promo.Ad, int, error) {
+	return nil, 0, nil
 }
 func (stubRepo) UpdateAdAdminStatus(context.Context, int64, promo.AdminStatus, string, int64) error {
 	return nil
@@ -317,8 +329,14 @@ func (happyRepo) GetSponsorshipRequestByID(context.Context, int64) (*promo.Spons
 func (happyRepo) ListSponsorshipRequestsByOrg(context.Context, int64, int, int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil
 }
+func (happyRepo) ListSponsorshipRequestsByOrgWithTotal(context.Context, int64, int, int) ([]*promo.SponsorshipRequest, int, error) {
+	return nil, 0, nil
+}
 func (happyRepo) ListAllSponsorshipRequests(context.Context, int, int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil
+}
+func (happyRepo) ListAllSponsorshipRequestsWithTotal(context.Context, int, int) ([]*promo.SponsorshipRequest, int, error) {
+	return nil, 0, nil
 }
 func (happyRepo) ListPendingSponsorshipRequests(context.Context, int, int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil

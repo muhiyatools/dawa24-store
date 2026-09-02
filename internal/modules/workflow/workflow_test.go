@@ -119,6 +119,11 @@ func (m *mockWorkflowRepo) ListCoverageForOrganization(_ context.Context, orgID 
 	return list, nil
 }
 
+func (m *mockWorkflowRepo) ListCoverageForOrganizationWithTotal(ctx context.Context, orgID int64, _, _ int) ([]*CoverageView, int, error) {
+	list, err := m.ListCoverageForOrganization(ctx, orgID)
+	return list, len(list), err
+}
+
 func (m *mockWorkflowRepo) ListWeeklyCoverage(_ context.Context, branchID int64) ([]*WeeklyCoverage, error) {
 	return m.coverage[branchID], nil
 }

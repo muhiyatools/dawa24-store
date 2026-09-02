@@ -123,6 +123,17 @@ func pharmacyCompanyPerms() []Permission {
 func pharmacyAccountPerms() []Permission {
 	g := gPharmacyAccount
 	return []Permission{
+		// The Capsule assistant reads business data on the caller's behalf. It is
+		// a separate grant from the screens it reads, so an owner can hand an
+		// employee the dashboard without handing them a natural-language way to
+		// summarise the whole company — and can withdraw it in one click.
+		//
+		// It never WIDENS access: every assistant tool also requires the same
+		// permission the corresponding screen requires, so this grant alone
+		// shows an employee nothing they could not already open.
+		pharmacyAct("pharmacy.assistant.use", g,
+			"استخدام المساعد الذكي كبسولة", "Use the Capsule AI assistant"),
+
 		pharmacyPage("pharmacy.ai_log.view", g, "ai_logs", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
 		pharmacyPage("pharmacy.session.view", g, "sessions", "الأجهزة والجلسات النشطة", "Active sessions"),
 		pharmacyAct("pharmacy.session.revoke", g, "إنهاء الجلسات", "Revoke sessions", "pharmacy.session.view"),

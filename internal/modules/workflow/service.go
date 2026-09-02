@@ -118,6 +118,11 @@ func (s *Service) ListCoverageForOrganization(ctx context.Context, orgID int64) 
 	return s.repo.ListCoverageForOrganization(ctx, orgID)
 }
 
+// ListCoverageForOrganizationWithTotal lists paginated weekly coverage records for an organization with total count.
+func (s *Service) ListCoverageForOrganizationWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*CoverageView, int, error) {
+	return s.repo.ListCoverageForOrganizationWithTotal(ctx, orgID, limit, offset)
+}
+
 // ReportIssue logs a support inquiry or product defect.
 func (s *Service) ReportIssue(ctx context.Context, i *ReportIssue) (*ReportIssue, error) {
 	if err := i.Validate(); err != nil {

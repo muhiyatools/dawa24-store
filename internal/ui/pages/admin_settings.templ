@@ -1,11 +1,8 @@
 package pages
 
 import (
-	"fmt"
-
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -16,7 +13,6 @@ type AdminSettingsValues struct {
 	SupportEmail              string
 	CommissionRate            string
 	SessionIdleTimeoutMinutes string
-	FeatureFlags              []features.FeatureFlag
 	GatewaySettings           *platformadmin.GatewaySettings
 	SiteSettings              *platformadmin.SiteSettings
 	Policies                  []*platformadmin.Policy
@@ -133,7 +129,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 							إعدادات المنصة والمنظومة
 						</h1>
 						<p class="text-sm text-secondary m-0 mt-1">
-							إدارة الهوية البصرية، بيانات التواصل، السياسات، قنوات الدفع، ومفاتيح الميزات
+							إدارة الهوية البصرية، بيانات التواصل، السياسات، الإعدادات المالية، وقنوات الدفع المعتمدة
 						</p>
 					</div>
 				</div>
@@ -147,8 +143,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					:class="activeTab === 'features' ? 'active' : ''"
 					@click="setTab('features')"
 				>
-					@components.IconShield("icon-xs")
-					<span>1. ميزات المنصة والعمولة</span>
+					@components.IconSettings("icon-xs")
+					<span>1. الإعدادات المالية والمنظومة</span>
 				</button>
 
 				<button
@@ -183,76 +179,10 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			</div>
 
 			<!-- ========================================== -->
-			<!-- TAB 1: Platform & Features                 -->
+			<!-- TAB 1: Financial & Platform Config         -->
 			<!-- ========================================== -->
 			<div x-show="activeTab === 'features'" x-cloak class="d-flex flex-col gap-6">
 				
-				<!-- Feature Flags -->
-				<div class="glass-panel p-6 mb-0">
-					<div class="pb-3 mb-4 border-b">
-						<h3 class="text-base font-black text-primary m-0">
-							مفاتيح تشغيل الميزات والأنظمة (Feature Flags)
-						</h3>
-						<p class="text-xs text-secondary m-0 mt-1">
-							التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، العروض، والخدمات
-						</p>
-					</div>
-
-					<div class="d-flex flex-col gap-3">
-						for _, flag := range values.FeatureFlags {
-							<div class="feature-flag-row">
-								<div class="feature-flag-info">
-									<div class="feature-flag-header">
-										<strong class="text-sm text-primary">
-											if flag.Name["ar"] != "" {
-												{ flag.Name["ar"] }
-											} else {
-												{ flag.Key }
-											}
-										</strong>
-										if flag.IsEnabled {
-											<span class="badge badge-emerald text-xs font-bold">نشط ومفعل</span>
-										} else {
-											<span class="badge badge-slate text-xs">معطل حالياً</span>
-										}
-										<span class="badge badge-sky text-2xs font-mono">{ flag.Key }</span>
-									</div>
-									<p class="feature-flag-desc">
-										if flag.Description["ar"] != "" {
-											{ flag.Description["ar"] }
-										} else {
-											{ flag.Key }
-										}
-									</p>
-								</div>
-
-								<form method="POST" action="/admin/settings/features/toggle" class="m-0">
-									<input type="hidden" name="key" value={ flag.Key }/>
-									<input type="hidden" name="enabled" value={ fmt.Sprintf("%t", !flag.IsEnabled) }/>
-									if flag.IsEnabled {
-										<button
-											type="submit"
-											class="btn btn-sm btn-primary font-bold text-xs"
-											title="انقر لتعطيل الميزة"
-										>
-											@components.IconCheck("icon-xs")
-											<span>مفعل</span>
-										</button>
-									} else {
-										<button
-											type="submit"
-											class="btn btn-sm btn-secondary font-bold text-xs"
-											title="انقر لتفعيل الميزة"
-										>
-											<span>معطل</span>
-										</button>
-									}
-								</form>
-							</div>
-						}
-					</div>
-				</div>
-
 				<!-- Financial & General Config -->
 				<div class="glass-panel p-6 mb-0">
 					<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">

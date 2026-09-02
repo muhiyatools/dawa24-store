@@ -110,6 +110,34 @@ func (s *Service) SubmitReview(ctx context.Context, rev *Review) error {
 	return nil
 }
 
+// ListReviewsForVendor returns all reviews received by a vendor.
+func (s *Service) ListReviewsForVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*Review, error) {
+	return s.repo.ListReviewsForVendor(ctx, vendorOrgID, limit, offset)
+}
+
+// GetReviewByOrderAndVendor gets a review for a specific vendor on an order.
+func (s *Service) GetReviewByOrderAndVendor(ctx context.Context, orderID, vendorOrgID int64) (*Review, error) {
+	return s.repo.GetReviewByOrderAndVendor(ctx, orderID, vendorOrgID)
+}
+
+// ListReviewsForOrder lists all reviews submitted for an order.
+func (s *Service) ListReviewsForOrder(ctx context.Context, orderID int64) ([]*Review, error) {
+	return s.repo.ListReviewsForOrder(ctx, orderID)
+}
+
+// ReplyToReview posts a vendor reply to a pharmacy review.
+func (s *Service) ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error {
+	if strings.TrimSpace(response) == "" {
+		return apperr.Validation("review.response_empty", "Reply message cannot be empty.", nil)
+	}
+	return s.repo.ReplyToReview(ctx, reviewID, orgID, response, responderID)
+}
+
+// HasDeliveredOrderFromVendor verifies that a customer pharmacy has received at least one delivered order from a vendor.
+func (s *Service) HasDeliveredOrderFromVendor(ctx context.Context, customerOrgID, vendorOrgID int64) (bool, error) {
+	return s.repo.HasDeliveredOrderFromVendor(ctx, customerOrgID, vendorOrgID)
+}
+
 // CreateInstitutionalWork creates a new institutional structure category.
 func (s *Service) CreateInstitutionalWork(ctx context.Context, iw *InstitutionalWork) error {
 	if err := s.repo.CreateInstitutionalWork(ctx, iw); err != nil {

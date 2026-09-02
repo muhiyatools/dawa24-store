@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -25,16 +26,17 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 	actor, isLoggedIn := authctx.From(ctx)
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var rawJobs []*hr.JobOffer
+	var totalCount int
 	if h.hrSvc != nil {
-		rawJobs, _ = h.hrSvc.ListPublishedJobs(ctx, 100, 0)
+		rawJobs, totalCount, _ = h.hrSvc.ListPublishedJobsWithTotal(ctx, limit, offset)
 	}
 
 	// Enrich with organization names.
-	//
-	// One query for the page, not one per job: this loop used to call
-	// GetOrganization inside the range, so a hundred published jobs meant a
-	// hundred round trips before the page could render.
 	orgNames := make(map[int64]string)
 	if h.orgSvc != nil && len(rawJobs) > 0 {
 		ids := make([]int64, 0, len(rawJobs))
@@ -87,7 +89,9 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 
 	data := pages.JobsPageData{
 		Jobs:        jobItems,
-		TotalCount:  len(jobItems),
+		TotalCount:  totalCount,
+		Page:        page,
+		PerPage:     limit,
 		Cities:      h.listCities(ctx),
 		Actor:       actor,
 		IsLoggedIn:  isLoggedIn,

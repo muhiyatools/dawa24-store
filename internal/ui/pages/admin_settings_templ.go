@@ -9,11 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"fmt"
-
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -24,7 +21,6 @@ type AdminSettingsValues struct {
 	SupportEmail              string
 	CommissionRate            string
 	SessionIdleTimeoutMinutes string
-	FeatureFlags              []features.FeatureFlag
 	GatewaySettings           *platformadmin.GatewaySettings
 	SiteSettings              *platformadmin.SiteSettings
 	Policies                  []*platformadmin.Policy
@@ -75,15 +71,15 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">إعدادات المنصة والمنظومة</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة الهوية البصرية، بيانات التواصل، السياسات، قنوات الدفع، ومفاتيح الميزات</p></div></div></div><!-- Main Persistent Tabs Bar --><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'features' ? 'active' : ''\" @click=\"setTab('features')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">إعدادات المنصة والمنظومة</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة الهوية البصرية، بيانات التواصل، السياسات، الإعدادات المالية، وقنوات الدفع المعتمدة</p></div></div></div><!-- Main Persistent Tabs Bar --><div class=\"tabs-nav\"><button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'features' ? 'active' : ''\" @click=\"setTab('features')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconSettings("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>1. ميزات المنصة والعمولة</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'site' ? 'active' : ''\" @click=\"setTab('site')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>1. الإعدادات المالية والمنظومة</span></button> <button type=\"button\" class=\"tab-btn\" :class=\"activeTab === 'site' ? 'active' : ''\" @click=\"setTab('site')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,144 +103,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>4. طرق وقنوات الدفع المعتمدة</span></button></div><!-- ========================================== --><!-- TAB 1: Platform & Features                 --><!-- ========================================== --><div x-show=\"activeTab === 'features'\" x-cloak class=\"d-flex flex-col gap-6\"><!-- Feature Flags --><div class=\"glass-panel p-6 mb-0\"><div class=\"pb-3 mb-4 border-b\"><h3 class=\"text-base font-black text-primary m-0\">مفاتيح تشغيل الميزات والأنظمة (Feature Flags)</h3><p class=\"text-xs text-secondary m-0 mt-1\">التحكم الفوري في إظهار أو إخفاء أقسام المنصة، إعلانات التوظيف، العروض، والخدمات</p></div><div class=\"d-flex flex-col gap-3\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, flag := range values.FeatureFlags {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"feature-flag-row\"><div class=\"feature-flag-info\"><div class=\"feature-flag-header\"><strong class=\"text-sm text-primary\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if flag.Name["ar"] != "" {
-					var templ_7745c5c3_Var3 string
-					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Name["ar"])
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 208, Col: 29}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					var templ_7745c5c3_Var4 string
-					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Key)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 210, Col: 22}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</strong> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if flag.IsEnabled {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"badge badge-emerald text-xs font-bold\">نشط ومفعل</span> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-slate text-xs\">معطل حالياً</span> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-sky text-2xs font-mono\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Key)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 218, Col: 69}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></div><p class=\"feature-flag-desc\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if flag.Description["ar"] != "" {
-					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Description["ar"])
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 222, Col: 35}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(flag.Key)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 224, Col: 21}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</p></div><form method=\"POST\" action=\"/admin/settings/features/toggle\" class=\"m-0\"><input type=\"hidden\" name=\"key\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(flag.Key)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 230, Col: 57}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"> <input type=\"hidden\" name=\"enabled\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", !flag.IsEnabled))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 231, Col: 87}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if flag.IsEnabled {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<button type=\"submit\" class=\"btn btn-sm btn-primary font-bold text-xs\" title=\"انقر لتعطيل الميزة\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>مفعل</span></button>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<button type=\"submit\" class=\"btn btn-sm btn-secondary font-bold text-xs\" title=\"انقر لتفعيل الميزة\"><span>معطل</span></button>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><!-- Financial & General Config --><div class=\"glass-panel p-6 mb-0\"><div class=\"d-flex items-center gap-2 pb-3 mb-4 border-b\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>4. طرق وقنوات الدفع المعتمدة</span></button></div><!-- ========================================== --><!-- TAB 1: Financial & Platform Config         --><!-- ========================================== --><div x-show=\"activeTab === 'features'\" x-cloak class=\"d-flex flex-col gap-6\"><!-- Financial & General Config --><div class=\"glass-panel p-6 mb-0\"><div class=\"d-flex items-center gap-2 pb-3 mb-4 border-b\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -252,46 +111,46 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<h3 class=\"text-base font-black text-primary m-0\">الإعدادات المالية والمنظومة</h3></div><form action=\"/admin/settings\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">العملة الافتراضية للمعاملات</label> <input type=\"text\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اللغات المعتمدة في النظام</label> <input type=\"text\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input text-xs\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">بريد إشعارات الدعم الفني *</label> <input type=\"email\" name=\"support_email\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<h3 class=\"text-base font-black text-primary m-0\">الإعدادات المالية والمنظومة</h3></div><form action=\"/admin/settings\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">العملة الافتراضية للمعاملات</label> <input type=\"text\" value=\"EGP (الجنيه المصري)\" disabled class=\"form-input text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اللغات المعتمدة في النظام</label> <input type=\"text\" value=\"العربية (الرئيسية)، English\" disabled class=\"form-input text-xs\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">بريد إشعارات الدعم الفني *</label> <input type=\"email\" name=\"support_email\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SupportEmail)
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SupportEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 280, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 210, Col: 76}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" required class=\"form-input text-xs font-mono\" dir=\"ltr\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">نسبة عمولة المنصة الافتراضية (%) *</label> <input type=\"number\" name=\"commission_rate\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.CommissionRate)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 284, Col: 81}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" required class=\"form-input text-xs font-mono\" dir=\"ltr\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">نسبة عمولة المنصة الافتراضية (%) *</label> <input type=\"number\" name=\"commission_rate\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" step=\"0.1\" min=\"0\" max=\"100\" required class=\"form-input text-xs tabular-nums\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">مهلة عدم النشاط لتسجيل الخروج التلقائي (بالدقائق) *</label> <input type=\"number\" name=\"session_idle_timeout_minutes\" value=\"")
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.CommissionRate)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 214, Col: 81}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SessionIdleTimeoutMinutes)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 294, Col: 49}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" step=\"0.1\" min=\"0\" max=\"100\" required class=\"form-input text-xs tabular-nums\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">مهلة عدم النشاط لتسجيل الخروج التلقائي (بالدقائق) *</label> <input type=\"number\" name=\"session_idle_timeout_minutes\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" min=\"1\" max=\"1440\" required class=\"form-input text-xs tabular-nums\" placeholder=\"30\"> <span class=\"text-2xs text-secondary mt-1 d-block\">المدة بالدقائق قبل إنهاء الجلسة وتسجيل خروج المستخدم تلقائياً عند عدم وجود نشاط (الافتراضي: 30 دقيقة).</span></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs\">")
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.SessionIdleTimeoutMinutes)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings.templ`, Line: 224, Col: 49}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" min=\"1\" max=\"1440\" required class=\"form-input text-xs tabular-nums\" placeholder=\"30\"> <span class=\"text-2xs text-secondary mt-1 d-block\">المدة بالدقائق قبل إنهاء الجلسة وتسجيل خروج المستخدم تلقائياً عند عدم وجود نشاط (الافتراضي: 30 دقيقة).</span></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -299,7 +158,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>حفظ إعدادات المنصة</span></button></div></form></div></div><!-- ========================================== --><!-- TAB 2: Site Branding & Metadata            --><!-- ========================================== -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>حفظ إعدادات المنصة</span></button></div></form></div></div><!-- ========================================== --><!-- TAB 2: Site Branding & Metadata            --><!-- ========================================== -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -307,7 +166,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<!-- ========================================== --><!-- TAB 3: Legal Policies & Documents          --><!-- ========================================== -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- ========================================== --><!-- TAB 3: Legal Policies & Documents          --><!-- ========================================== -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -315,7 +174,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- ========================================== --><!-- TAB 4: Payment Methods & Gateways          --><!-- ========================================== -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- ========================================== --><!-- TAB 4: Payment Methods & Gateways          --><!-- ========================================== -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -323,7 +182,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Dialog for Adding/Editing Payment Method -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<!-- Dialog for Adding/Editing Payment Method -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -331,7 +190,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -14,12 +14,16 @@ type Repository interface {
 	ListWorkTimes(ctx context.Context) ([]*WorkTime, error)
 
 	ListPublishedJobs(ctx context.Context, limit, offset int) ([]*JobOffer, error)
+	ListPublishedJobsWithTotal(ctx context.Context, limit, offset int) ([]*JobOffer, int, error)
+	ListAllJobsWithTotal(ctx context.Context, limit, offset int) ([]*JobOffer, int, error)
 	GetJobOfferByID(ctx context.Context, id int64) (*JobOffer, error)
 	CreateJobOffer(ctx context.Context, j *JobOffer) error
 	UpdateJobOffer(ctx context.Context, j *JobOffer) error
 	DeleteJobOffer(ctx context.Context, orgID, jobID int64) error
 	ToggleJobOfferStatus(ctx context.Context, orgID, jobID int64) error
 	ListJobsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*JobOffer, error)
+	ListJobsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*JobOffer, int, error)
+	GetJobStatsByOrg(ctx context.Context, orgID int64) (JobStatsResult, error)
 	CreateJobApplication(ctx context.Context, a *JobApplication) error
 	ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*JobApplication, error)
 	CountApplicationsByOffer(ctx context.Context, offerID int64) (int, error)

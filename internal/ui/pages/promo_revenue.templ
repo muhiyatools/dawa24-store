@@ -20,6 +20,9 @@ type SponsorshipRequestsData struct {
 	ItemOptions     []VendorOfferItemOption
 	ActiveOffers    []*promo.Offer
 	TotalCredits    int
+	Page            int
+	PerPage         int
+	TotalCount      int
 }
 
 // AdminOffersPackagesData holds all metrics, packages, requests, and ads for admin management.

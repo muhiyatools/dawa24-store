@@ -3,6 +3,7 @@ package layouts
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -91,13 +92,19 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 		</head>
 		<body>
 			{ children... }
-			// The floating pharmacy assistant is a feature of the approved
-			// dashboard, not of every page. Rendered for a signed-out visitor or
-			// a قيد المراجعة account it is a launcher that opens onto a drawer
-			// whose endpoint refuses them — so it only sits there glowing. It is
-			// gated here, at the one mount point, rather than in each shell.
+			// The floating assistant is a feature of the approved dashboard, and
+			// now also of a role the owner has granted it to. Rendered for a
+			// signed-out visitor, a قيد المراجعة account, or an employee whose
+			// role does not hold the assistant permission, it would be a
+			// launcher that opens onto endpoints refusing them — a button that
+			// only sits there glowing.
+			//
+			// assistant.Allowed is the same function the API gate uses, so the
+			// launcher and the endpoints can never disagree about who has it.
 			if actor := authctx.FromContext(ctx); actor.IsOrgApproved() {
-				@components.CapsuleAssistantTrigger()
+				if _, ok := assistant.Allowed(actor); ok {
+					@components.CapsuleAssistantTrigger()
+				}
 			}
 		</body>
 	</html>

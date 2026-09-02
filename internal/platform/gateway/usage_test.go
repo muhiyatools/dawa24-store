@@ -3,7 +3,6 @@ package gateway
 import (
 	"context"
 	"errors"
-	"io"
 	"sync"
 	"testing"
 	"time"
@@ -61,7 +60,7 @@ func (s *stubClient) Stream(context.Context, ChatRequest) (<-chan StreamEvent, e
 	close(ch)
 	return ch, nil
 }
-func (*stubClient) Transcribe(context.Context, io.Reader, string, string) (string, error) {
+func (*stubClient) Transcribe(context.Context, TranscribeRequest) (string, error) {
 	return "", nil
 }
 func (*stubClient) Capabilities(context.Context, Role) (ModelCapabilities, error) {

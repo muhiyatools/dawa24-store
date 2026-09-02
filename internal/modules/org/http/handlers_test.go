@@ -83,6 +83,14 @@ func (r stubRepo) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org.Br
 	r.fail("ListBranchesByOrg")
 	return nil, nil
 }
+func (r stubRepo) ListBranchesWithTotal(ctx context.Context, filter org.BranchFilter, limit, offset int) ([]*org.Branch, int, error) {
+	r.fail("ListBranchesWithTotal")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminBranchStats(ctx context.Context) (org.AdminBranchStatsResult, error) {
+	r.fail("AdminBranchStats")
+	return org.AdminBranchStatsResult{}, nil
+}
 func (r stubRepo) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.Branch, error) {
 	r.fail("GetBranchesByIDs")
 	return nil, nil
@@ -203,6 +211,10 @@ func (r stubRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.Employ
 	r.fail("ListEmployees")
 	return nil, nil
 }
+func (r stubRepo) ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*org.EmployeeView, int, error) {
+	r.fail("ListEmployeesWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
 	r.fail("CreateInstitutionalWork")
 	return nil
@@ -314,6 +326,9 @@ func (happyRepo) AssignBranchManager(ctx context.Context, orgID, branchID int64,
 }
 func (happyRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.EmployeeView, error) {
 	return nil, nil
+}
+func (happyRepo) ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*org.EmployeeView, int, error) {
+	return nil, 0, nil
 }
 func (happyRepo) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
 	iw.ID = 1

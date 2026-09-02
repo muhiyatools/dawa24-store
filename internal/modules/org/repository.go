@@ -26,6 +26,8 @@ type Repository interface {
 	UpdateBranch(ctx context.Context, b *Branch) error
 	DeleteBranch(ctx context.Context, id, orgID int64) error
 	ListBranchesByOrg(ctx context.Context, orgID int64) ([]*Branch, error)
+	ListBranchesWithTotal(ctx context.Context, filter BranchFilter, limit, offset int) ([]*Branch, int, error)
+	AdminBranchStats(ctx context.Context) (AdminBranchStatsResult, error)
 	CountBranchesByOrg(ctx context.Context) (map[int64]int, error)
 	GetBranchesByIDs(ctx context.Context, ids []int64) ([]*Branch, error)
 	UnsetMainBranches(ctx context.Context, orgID int64) error
@@ -36,6 +38,7 @@ type Repository interface {
 	ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
 	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
+	ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*EmployeeView, int, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
 
 	// Company roles. Every one of these takes the caller's organization id
@@ -58,6 +61,10 @@ type Repository interface {
 	AddReview(ctx context.Context, r *Review) error
 	AddReviewWithRatings(ctx context.Context, r *Review, ratings []ReviewRating) error
 	ListReviewsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Review, error)
+	ListReviewsForVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*Review, error)
+	GetReviewByOrderAndVendor(ctx context.Context, orderID, vendorOrgID int64) (*Review, error)
+	ListReviewsForOrder(ctx context.Context, orderID int64) ([]*Review, error)
+	HasDeliveredOrderFromVendor(ctx context.Context, customerOrgID, vendorOrgID int64) (bool, error)
 	GetReviewCriteria(ctx context.Context, contextType string) ([]*ReviewCriterion, error)
 	ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error
 

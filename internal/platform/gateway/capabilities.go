@@ -10,15 +10,57 @@ import (
 	"time"
 )
 
-// ModelCapabilities captures the live input modalities and attachment limits of a model.
+// ModelCapabilities captures the live input modalities, attachment limits and
+// context size of a model.
+//
+// The field names here are ours. The wire shape is decoded separately by
+// wireModel below, because the Gateway's /v1/models publishes these as FLAT
+// per-model fields (supports_vision, max_attachment_mb, …) and not as a nested
+// object. Decoding a nested "capabilities" key — which only the MuhiyaCode
+// catalog v2 document has — silently produced an all-false capability set that
+// looked like a successful probe, and every attachment was then refused as
+// "no_capable_model" with nothing logged. See TestFlatCapabilityDecode.
 type ModelCapabilities struct {
-	Vision            bool     `json:"vision"`
-	Thinking          bool     `json:"thinking"`
-	Audio             bool     `json:"audio"`
-	Video             bool     `json:"video"`
-	Documents         bool     `json:"documents"`
+	Vision            bool
+	Thinking          bool
+	Audio             bool
+	Video             bool
+	Documents         bool
+	MaxAttachmentMB   int
+	AcceptedMIMETypes []string
+	// ContextWindow and MaxOutputTokens size the turn assembler's token budget
+	// and the usage meter in the assistant UI. Zero means the Gateway did not
+	// say, and callers must fall back to their own conservative figure.
+	ContextWindow   int
+	MaxOutputTokens int
+}
+
+// wireModel is one entry of the Gateway's /v1/models response.
+type wireModel struct {
+	ID                string   `json:"id"`
+	SupportsVision    bool     `json:"supports_vision"`
+	SupportsThinking  bool     `json:"supports_thinking"`
+	SupportsAudio     bool     `json:"supports_audio"`
+	SupportsVideo     bool     `json:"supports_video"`
+	SupportsDocuments bool     `json:"supports_documents"`
 	MaxAttachmentMB   int      `json:"max_attachment_mb"`
 	AcceptedMIMETypes []string `json:"accepted_mime_types"`
+	ContextWindow     int      `json:"context_window"`
+	MaxOutputTokens   int      `json:"max_output_tokens"`
+}
+
+func (m wireModel) toCapabilities() ModelCapabilities {
+	return ModelCapabilities{
+		Vision:            m.SupportsVision,
+		Thinking:          m.SupportsThinking,
+		Audio:             m.SupportsAudio,
+		Video:             m.SupportsVideo,
+		Documents:         m.SupportsDocuments,
+		MaxAttachmentMB:   m.MaxAttachmentMB,
+		AcceptedMIMETypes: m.AcceptedMIMETypes,
+		ContextWindow:     m.ContextWindow,
+		MaxOutputTokens:   m.MaxOutputTokens,
+	}
 }
 
 type cachedCapability struct {
@@ -136,14 +178,7 @@ func (c *HTTPClient) fetchModelCapabilities(ctx context.Context, settings Settin
 	}
 
 	var doc struct {
-		Data []struct {
-			ID           string            `json:"id"`
-			Capabilities ModelCapabilities `json:"capabilities"`
-		} `json:"data"`
-		Models []struct {
-			ModelID      string            `json:"model_id"`
-			Capabilities ModelCapabilities `json:"capabilities"`
-		} `json:"models"`
+		Data []wireModel `json:"data"`
 	}
 
 	if err := json.Unmarshal(raw, &doc); err != nil {
@@ -152,15 +187,12 @@ func (c *HTTPClient) fetchModelCapabilities(ctx context.Context, settings Settin
 
 	for _, m := range doc.Data {
 		if m.ID == modelName {
-			return m.Capabilities, nil
-		}
-	}
-	for _, m := range doc.Models {
-		if m.ModelID == modelName {
-			return m.Capabilities, nil
+			return m.toCapabilities(), nil
 		}
 	}
 
-	// If model not found in catalogue, return conservative default
+	// The model is not in the discoverable catalogue. That is not an error —
+	// inference by exact name is never gated on discoverability — but we know
+	// nothing about it, so refuse attachments rather than guess.
 	return ConservativeDefaultCapabilities(), nil
 }

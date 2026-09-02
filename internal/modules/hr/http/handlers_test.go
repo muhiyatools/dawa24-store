@@ -54,6 +54,14 @@ func (r stubRepo) ListPublishedJobs(context.Context, int, int) ([]*hr.JobOffer, 
 	r.fail("ListPublishedJobs")
 	return nil, nil
 }
+func (r stubRepo) ListPublishedJobsWithTotal(context.Context, int, int) ([]*hr.JobOffer, int, error) {
+	r.fail("ListPublishedJobsWithTotal")
+	return nil, 0, nil
+}
+func (r stubRepo) ListAllJobsWithTotal(context.Context, int, int) ([]*hr.JobOffer, int, error) {
+	r.fail("ListAllJobsWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) GetJobOfferByID(context.Context, int64) (*hr.JobOffer, error) {
 	r.fail("GetJobOfferByID")
 	return nil, nil
@@ -77,6 +85,14 @@ func (r stubRepo) ToggleJobOfferStatus(context.Context, int64, int64) error {
 func (r stubRepo) ListJobsByOrg(context.Context, int64, int, int) ([]*hr.JobOffer, error) {
 	r.fail("ListJobsByOrg")
 	return nil, nil
+}
+func (r stubRepo) ListJobsByOrgWithTotal(context.Context, int64, int, int) ([]*hr.JobOffer, int, error) {
+	r.fail("ListJobsByOrgWithTotal")
+	return nil, 0, nil
+}
+func (r stubRepo) GetJobStatsByOrg(context.Context, int64) (hr.JobStatsResult, error) {
+	r.fail("GetJobStatsByOrg")
+	return hr.JobStatsResult{}, nil
 }
 func (r stubRepo) CreateJobApplication(context.Context, *hr.JobApplication) error {
 	r.fail("CreateJobApplication")
@@ -137,6 +153,12 @@ func (happyRepo) ListWorkTimes(ctx context.Context) ([]*hr.WorkTime, error) {
 func (happyRepo) ListPublishedJobs(ctx context.Context, limit, offset int) ([]*hr.JobOffer, error) {
 	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, nil
 }
+func (happyRepo) ListPublishedJobsWithTotal(ctx context.Context, limit, offset int) ([]*hr.JobOffer, int, error) {
+	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, 1, nil
+}
+func (happyRepo) ListAllJobsWithTotal(ctx context.Context, limit, offset int) ([]*hr.JobOffer, int, error) {
+	return []*hr.JobOffer{{ID: 1, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, 1, nil
+}
 func (happyRepo) GetJobOfferByID(ctx context.Context, id int64) (*hr.JobOffer, error) {
 	return &hr.JobOffer{ID: id, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}, nil
 }
@@ -155,6 +177,12 @@ func (happyRepo) ToggleJobOfferStatus(ctx context.Context, orgID, jobID int64) e
 }
 func (happyRepo) ListJobsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, error) {
 	return []*hr.JobOffer{{ID: 1, OrganizationID: orgID, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, nil
+}
+func (happyRepo) ListJobsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, int, error) {
+	return []*hr.JobOffer{{ID: 1, OrganizationID: orgID, Title: i18n.Text{"ar": "صيدلي"}, Status: "published"}}, 1, nil
+}
+func (happyRepo) GetJobStatsByOrg(ctx context.Context, orgID int64) (hr.JobStatsResult, error) {
+	return hr.JobStatsResult{PublishedCount: 1, ClosedCount: 0, TotalApplications: 1}, nil
 }
 func (happyRepo) CreateJobApplication(ctx context.Context, a *hr.JobApplication) error {
 	a.ID = 1

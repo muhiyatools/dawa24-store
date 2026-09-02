@@ -185,10 +185,10 @@ templ AdminApprovalsOrgTab(data *AdminApprovalsData) {
 		</div>
 	</div>
 
-	@AdminApprovalsTable(data.Organizations, data.OrgDocs)
+	@AdminApprovalsTable(data.Organizations, data.OrgDocs, data.OrgPage, data.OrgPerPage, data.OrgTotalCount, data.StatusFilter)
 }
 
-templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachments.Document) {
+templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachments.Document, page, perPage, totalCount int, statusFilter string) {
 	if len(orgs) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:   "لا توجد منشآت مطابقة للفلتر المحدد",
@@ -453,6 +453,18 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 				</tbody>
 			</table>
 		</div>
+		if totalCount > 0 {
+			@components.B2BPagination(components.PaginationProps{
+				CurrentPage: page,
+				PageSize:    perPage,
+				TotalCount:  totalCount,
+				BaseURL:     "/admin/approvals",
+				QueryValues: map[string][]string{
+					"tab":    {"organizations"},
+					"status": {statusFilter},
+				},
+			})
+		}
 	}
 }
 

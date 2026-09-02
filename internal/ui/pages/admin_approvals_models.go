@@ -15,4 +15,7 @@ type AdminApprovalsData struct {
 	UploadedDocs     []*attachments.Document
 	DocRequests      []*attachments.DocumentRequest
 	OrgNames         map[int64]string
+	OrgPage          int
+	OrgPerPage       int
+	OrgTotalCount    int
 }

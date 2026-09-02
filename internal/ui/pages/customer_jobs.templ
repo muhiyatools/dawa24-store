@@ -16,6 +16,8 @@ type CustomerJobsData struct {
 	PublishedCount    int
 	ClosedCount       int
 	TotalApplications int
+	Page              int
+	PerPage           int
 	NoticeType        string
 	NoticeMsg         string
 	Permissions       []string
@@ -236,6 +238,14 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/customer/jobs",
+						})
+					}
 				}
 			</div>
 		</div>

@@ -14,6 +14,9 @@ type VendorAdsData struct {
 	TotalCredits    int
 	NoticeType      string
 	NoticeMsg       string
+	Page            int
+	PerPage         int
+	TotalCount      int
 }
 
 // VendorPlacementOption defines an available ad placement slot on the platform.

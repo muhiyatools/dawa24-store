@@ -1,610 +1,638 @@
 package components
 
+// The drawer's client.
+//
+// Two things here are load-bearing and were the cause of the "the answer stops
+// when I resize or minimise the window" report.
+//
+// First, streaming is EventSource, not fetch+getReader. The old client parsed
+// SSE by hand and reset the current event name on every network chunk, so
+// whenever a chunk boundary landed between "event: delta" and its "data:" line
+// — which is exactly what changes when the renderer's paint cadence changes on
+// a resize, a minimise, or a background tab — the token was silently dropped.
+// EventSource parses frames properly, reconnects on its own, and replays from
+// Last-Event-ID.
+//
+// Second, asking and reading are separate requests. POST /turns starts the work
+// server-side and returns an id; the stream is a GET that can be opened,
+// closed, and reopened. Closing the drawer no longer discards an answer that
+// has already been paid for.
+
 templ CapsuleAssistantScript() {
-		<script>
-			function capsuleAssistantManager() {
-				return {
-					isOpen: false,
-					inputQuery: '',
-					isStreaming: false,
-					statusStage: '',
-					statusMessage: '',
-					isDragging: false,
-					dragCounter: 0,
-					isRecordingVoice: false,
-					recordingSeconds: 0,
-					recordingTimer: null,
-					mediaStream: null,
-					mediaRecorder: null,
-					audioChunks: [],
-					attachedFiles: [],
-					messages: [],
-					conversationID: 0,
-					abortController: null,
-					autoScrollEnabled: true,
-					showSessionsDrawer: false,
-					pastConversations: [],
-					isLoadingPastSessions: false,
-					searchPastQuery: '',
+	<script>
+		function capsuleAssistantManager() {
+			return {
+				// --- shell state
+				isOpen: false,
+				agentLabel: '',
+				connection: 'unknown',
+				readOnlyNote: true,
 
-					init() {
-						window.addEventListener('open-capsule-assistant', () => {
-							this.openAssistant();
-						});
-					},
+				// --- composer
+				inputQuery: '',
+				attachedFiles: [],
+				isDragging: false,
+				dragCounter: 0,
 
-					openAssistant() {
-						this.isOpen = true;
-						this.autoScrollEnabled = true;
-						this.$nextTick(() => {
-							const c = document.getElementById('capsule-messages-container');
-							if (c && !c._capsuleScrollBound) {
-								c._capsuleScrollBound = true;
-								c.addEventListener('scroll', () => {
-									const dist = c.scrollHeight - c.scrollTop - c.clientHeight;
-									this.autoScrollEnabled = dist < 80;
-								});
-							}
-							this.scrollToBottom(true);
-							if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
-						});
-					},
+				// --- conversation
+				messages: [],
+				conversationID: 0,
+				expiresAt: null,
 
-					toggleAssistant() {
-						this.isOpen ? this.closeAssistant() : this.openAssistant();
-					},
+				// --- turn in flight
+				isStreaming: false,
+				turnID: null,
+				eventSource: null,
+				statusMessage: '',
+				activeTool: '',
 
-					closeAssistant() {
-						this.isOpen = false;
-						this.isDragging = false;
-						this.dragCounter = 0;
-					},
+				// --- usage meter
+				contextWindow: 0,
+				usedTokens: 0,
 
-					filteredPastConversations() {
-						const q = (this.searchPastQuery || '').trim().toLowerCase();
-						if (!q) return this.pastConversations;
-						return this.pastConversations.filter(c => (c.title || '').toLowerCase().includes(q));
-					},
+				// --- voice
+				isRecordingVoice: false,
+				recordingSeconds: 0,
+				recordingTimer: null,
+				mediaStream: null,
+				mediaRecorder: null,
+				audioChunks: [],
 
-					toggleSessionsDrawer() {
-						this.showSessionsDrawer = !this.showSessionsDrawer;
-						if (this.showSessionsDrawer) {
-							this.fetchConversations();
-						}
-					},
+				// --- history drawer
+				showSessionsDrawer: false,
+				pastConversations: [],
+				isLoadingPastSessions: false,
+				searchPastQuery: '',
 
-					async fetchConversations() {
-						this.isLoadingPastSessions = true;
-						try {
-							const resp = await fetch('/api/v1/assistant/conversations');
-							if (resp.ok) {
-								const data = await resp.json();
-								this.pastConversations = data.conversations || [];
-							}
-						} catch (err) {
-							console.error('Failed to fetch conversations:', err);
-						} finally {
-							this.isLoadingPastSessions = false;
-						}
-					},
+				autoScrollEnabled: true,
 
-					startNewConversation() {
-						if (this.isStreaming) this.cancelStream();
-						this.conversationID = 0;
-						this.messages = [];
-						this.attachedFiles = [];
-						this.inputQuery = '';
-						this.showSessionsDrawer = false;
-						if (this.$refs.chatTextarea) {
-							this.$refs.chatTextarea.style.height = '24px';
-							this.$refs.chatTextarea.focus();
-						}
-					},
+				init() {
+					window.addEventListener('open-capsule-assistant', () => this.openAssistant());
+					// A turn keeps running server-side, but the EventSource does
+					// not survive a page unload. Close it cleanly so the browser
+					// does not hold a dead connection open.
+					window.addEventListener('beforeunload', () => this.closeStream());
+					this.loadSession();
+				},
 
-					async loadSession(convID) {
-						if (this.isStreaming) this.cancelStream();
-						this.isLoadingPastSessions = true;
-						try {
-							const resp = await fetch('/api/v1/assistant/conversations/' + convID);
-							if (resp.ok) {
-								const data = await resp.json();
-								this.conversationID = convID;
-								this.messages = [];
-								if (data.messages && data.messages.length > 0) {
-									for (const m of data.messages) {
-										if (m.role === 'user') {
-											this.messages.push({
-												isUser: true,
-												text: m.content,
-												attachments: m.attachments || []
-											});
-										} else if (m.role === 'assistant') {
-											this.messages.push({
-												isUser: false,
-												text: m.content,
-												reasoning: '',
-												isStreaming: false
-											});
-										}
-									}
-								}
-								this.showSessionsDrawer = false;
-								this.scrollToBottom(true);
-							}
-						} catch (err) {
-							console.error('Failed to load session:', err);
-						} finally {
-							this.isLoadingPastSessions = false;
-						}
-					},
+				async loadSession() {
+					try {
+						const resp = await fetch('/api/v1/assistant/session');
+						if (!resp.ok) return;
+						const data = await resp.json();
+						this.connection = data.status || 'unknown';
+						this.agentLabel = (data.agent && data.agent.label) || '';
+						this.contextWindow = data.context_window || 0;
+					} catch (e) {
+						this.connection = 'degraded';
+					}
+				},
 
-					async deleteSession(convID) {
-						if (!confirm('هل أنت متأكد من حذف هذه المحادثة من سجلك؟')) return;
-						try {
-							const resp = await fetch('/api/v1/assistant/conversations/' + convID, {
-								method: 'DELETE'
+				// ---------------------------------------------------------------
+				// Drawer
+				// ---------------------------------------------------------------
+
+				openAssistant() {
+					this.isOpen = true;
+					this.autoScrollEnabled = true;
+					this.$nextTick(() => {
+						const c = document.getElementById('capsule-messages-container');
+						if (c && !c._capsuleScrollBound) {
+							c._capsuleScrollBound = true;
+							c.addEventListener('scroll', () => {
+								const dist = c.scrollHeight - c.scrollTop - c.clientHeight;
+								this.autoScrollEnabled = dist < 80;
 							});
-							if (resp.ok) {
-								this.pastConversations = this.pastConversations.filter(c => c.id !== convID);
-								if (this.conversationID === convID) {
-									this.startNewConversation();
-								}
-							}
-						} catch (err) {
-							console.error('Failed to delete session:', err);
 						}
-					},
+						this.scrollToBottom(true);
+						if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
+					});
+				},
 
-					formatDate(isoStr) {
-						if (!isoStr) return '';
-						try {
-							const d = new Date(isoStr);
-							return d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
-						} catch (e) {
-							return isoStr;
-						}
-					},
+				// Closing the drawer does NOT stop the answer. The turn is owned
+				// by the server; reopening reattaches to it.
+				closeAssistant() {
+					this.isOpen = false;
+					this.isDragging = false;
+					this.dragCounter = 0;
+				},
 
-					clearChat() {
-						this.startNewConversation();
-					},
+				toggleAssistant() {
+					this.isOpen ? this.closeAssistant() : this.openAssistant();
+				},
 
-					askChip(text) {
-						this.inputQuery = text;
-						this.sendMessage();
-					},
+				usagePercent() {
+					if (!this.contextWindow || !this.usedTokens) return 0;
+					return Math.min(100, Math.round((this.usedTokens / this.contextWindow) * 100));
+				},
 
-					copyText(text, btnEl) {
-						if (!text) return;
-						navigator.clipboard.writeText(text).then(() => {
-							if (btnEl) {
-								const defIcon = btnEl.querySelector('.copy-icon-default');
-								const succIcon = btnEl.querySelector('.copy-icon-success');
-								if (defIcon && succIcon) {
-									defIcon.style.display = 'none';
-									succIcon.style.display = 'inline-flex';
-									setTimeout(() => {
-										defIcon.style.display = 'inline-flex';
-										succIcon.style.display = 'none';
-									}, 1800);
-								}
-							}
-						});
-					},
+				retentionNote() {
+					if (!this.expiresAt) return 'تُحذف المحادثات تلقائياً بعد ٦ أشهر من إنشائها.';
+					try {
+						const d = new Date(this.expiresAt);
+						return 'تُحذف هذه المحادثة تلقائياً في ' +
+							d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+					} catch (e) {
+						return 'تُحذف المحادثات تلقائياً بعد ٦ أشهر من إنشائها.';
+					}
+				},
 
-					onDragEnter(e) {
-						if (!this.isOpen) return;
-						if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.includes('Files')) {
-							this.dragCounter++;
-							this.isDragging = true;
-						}
-					},
+				// ---------------------------------------------------------------
+				// History
+				// ---------------------------------------------------------------
 
-					onDragLeave(e) {
-						if (!this.isOpen) return;
-						this.dragCounter--;
-						if (this.dragCounter <= 0) {
-							this.dragCounter = 0;
-							this.isDragging = false;
-						}
-					},
+				filteredPastConversations() {
+					const q = (this.searchPastQuery || '').trim().toLowerCase();
+					if (!q) return this.pastConversations;
+					return this.pastConversations.filter(c => (c.title || '').toLowerCase().includes(q));
+				},
 
-					onDrop(e) {
-						if (!this.isOpen) return;
-						this.dragCounter = 0;
-						this.isDragging = false;
-						const files = Array.from(e.dataTransfer?.files || []);
-						this.addFiles(files);
-					},
+				toggleSessionsDrawer() {
+					this.showSessionsDrawer = !this.showSessionsDrawer;
+					if (this.showSessionsDrawer) this.fetchConversations();
+				},
 
-					handleFileSelect(e) {
-						const files = Array.from(e.target.files || []);
-						this.addFiles(files);
-						e.target.value = '';
-					},
-
-					async addFiles(files) {
-						for (const file of files) {
-							if (this.attachedFiles.length >= 5) break;
-							const isImg = file.type.startsWith('image/');
-							let previewUrl = '';
-							if (isImg) {
-								try {
-									previewUrl = URL.createObjectURL(file);
-								} catch (e) {}
-							}
-							const fileItem = {
-								id: 'att-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8),
-								file: file,
-								name: file.name,
-								size: file.size,
-								type: file.type,
-								isImage: isImg,
-								previewUrl: previewUrl,
-								handle: '',
-								uploading: true,
-								error: ''
-							};
-							this.attachedFiles.push(fileItem);
-							this.uploadAttachment(fileItem.id, file);
-						}
-					},
-
-					async uploadAttachment(itemId, rawFile) {
-						try {
-							const form = new FormData();
-							form.append('file', rawFile);
-							const resp = await fetch('/api/v1/assistant/attachments', {
-								method: 'POST',
-								body: form
-							});
-							const target = this.attachedFiles.find(f => f.id === itemId);
-							if (!target) return;
-
-							if (!resp.ok) {
-								const errData = await resp.json().catch(() => ({}));
-								target.error = errData.message || 'فشل رفع الملف';
-								target.uploading = false;
-								return;
-							}
+				async fetchConversations() {
+					this.isLoadingPastSessions = true;
+					try {
+						const resp = await fetch('/api/v1/assistant/conversations');
+						if (resp.ok) {
 							const data = await resp.json();
-							if (data.attachments && data.attachments.length > 0) {
-								target.handle = data.attachments[0].handle;
-							} else {
-								target.error = 'استجابة غير صحيحة من الخادم';
-							}
-						} catch (e) {
-							const target = this.attachedFiles.find(f => f.id === itemId);
-							if (target) {
-								target.error = 'خطأ في الاتصال بالخادم';
-							}
-						} finally {
-							const target = this.attachedFiles.find(f => f.id === itemId);
-							if (target) {
-								target.uploading = false;
-							}
+							this.pastConversations = data.conversations || [];
 						}
-					},
+					} catch (e) {
+						/* the list is a convenience; a failure is not worth an alert */
+					} finally {
+						this.isLoadingPastSessions = false;
+					}
+				},
 
-					removeAttachment(idx) {
-						if (this.attachedFiles[idx] && this.attachedFiles[idx].previewUrl) {
-							URL.revokeObjectURL(this.attachedFiles[idx].previewUrl);
-						}
-						this.attachedFiles.splice(idx, 1);
-					},
+				startNewConversation() {
+					this.closeStream();
+					this.conversationID = 0;
+					this.expiresAt = null;
+					this.messages = [];
+					this.attachedFiles = [];
+					this.inputQuery = '';
+					this.usedTokens = 0;
+					this.showSessionsDrawer = false;
+					this.isStreaming = false;
+					if (this.$refs.chatTextarea) {
+						this.$refs.chatTextarea.style.height = '24px';
+						this.$refs.chatTextarea.focus();
+					}
+				},
 
-					formatBytes(bytes) {
-						if (!bytes) return '0 B';
-						const k = 1024;
-						const sizes = ['B', 'KB', 'MB'];
-						const i = Math.floor(Math.log(bytes) / Math.log(k));
-						return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-					},
+				async loadSessionThread(convID) {
+					this.closeStream();
+					this.isLoadingPastSessions = true;
+					try {
+						const resp = await fetch('/api/v1/assistant/conversations/' + convID);
+						if (!resp.ok) return;
+						const data = await resp.json();
 
-					async startVoiceRecord() {
-						if (this.isRecordingVoice) return;
-						try {
-							const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-							this.mediaStream = stream;
-							this.audioChunks = [];
-							this.mediaRecorder = new MediaRecorder(stream);
-							this.mediaRecorder.ondataavailable = (e) => {
-								if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
-							};
-							this.mediaRecorder.start();
-							this.isRecordingVoice = true;
-							this.recordingSeconds = 0;
-							this.recordingTimer = setInterval(() => {
-								this.recordingSeconds++;
-							}, 1000);
-						} catch (e) {
-							this.cancelVoiceRecord();
-							alert('تعذر فتح الميكروفون، يرجى السماح بالوصول في إعدادات المتصفح.');
-						}
-					},
-
-					cancelVoiceRecord() {
-						this.isRecordingVoice = false;
-						if (this.recordingTimer) {
-							clearInterval(this.recordingTimer);
-							this.recordingTimer = null;
-						}
-						this.recordingSeconds = 0;
-						if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-							try { this.mediaRecorder.stop(); } catch (e) {}
-						}
-						if (this.mediaStream) {
-							try { this.mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-							this.mediaStream = null;
-						}
-						this.audioChunks = [];
-					},
-
-					async finishVoiceRecord() {
-						if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
-							this.cancelVoiceRecord();
-							return;
-						}
-
-						this.mediaRecorder.onstop = async () => {
-							const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-							this.audioChunks = [];
-							if (this.mediaStream) {
-								try { this.mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-								this.mediaStream = null;
-							}
-
-							this.statusMessage = 'جاري تحويل الصوت إلى نص...';
-							try {
-								const form = new FormData();
-								form.append('file', audioBlob, 'voice.webm');
-								const resp = await fetch('/api/v1/assistant/transcribe', {
-									method: 'POST',
-									body: form
-								});
-								if (resp.ok) {
-									const data = await resp.json();
-									if (data.text) {
-										this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + data.text.trim();
-										this.$nextTick(() => {
-											this.autoResizeTextarea();
-											if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
-										});
-									}
-								} else {
-									const err = await resp.json().catch(() => ({}));
-									alert(err.message || 'تعذر تفريغ التسجيل الصوتي.');
-								}
-							} catch (e) {
-								console.warn('transcription failed', e);
-							} finally {
-								this.statusMessage = '';
-							}
-						};
-
-						this.isRecordingVoice = false;
-						if (this.recordingTimer) {
-							clearInterval(this.recordingTimer);
-							this.recordingTimer = null;
-						}
-						this.recordingSeconds = 0;
-						try {
-							this.mediaRecorder.stop();
-						} catch (e) {
-							this.cancelVoiceRecord();
-						}
-					},
-
-					formatDuration(secs) {
-						const m = Math.floor(secs / 60);
-						const s = secs % 60;
-						return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-					},
-
-					handleKeydown(e) {
-						if (e.key === 'Enter') {
-							if (e.shiftKey) {
-								this.$nextTick(() => this.autoResizeTextarea());
-							} else {
-								e.preventDefault();
-								this.sendMessage();
-							}
-						}
-					},
-
-					autoResizeTextarea() {
-						const el = this.$refs.chatTextarea;
-						if (!el) return;
-						el.style.height = '24px';
-						const newHeight = Math.min(Math.max(el.scrollHeight, 24), 110);
-						el.style.height = newHeight + 'px';
-					},
-
-					async sendMessage() {
-						const q = this.inputQuery.trim();
-						if (this.isStreaming || (!q && this.attachedFiles.length === 0)) return;
-
-						// If any file is still uploading, wait asynchronously up to 8s for completion
-						if (this.attachedFiles.some(f => f.uploading)) {
-							this.statusMessage = 'جاري رفع المرفقات...';
-							let waited = 0;
-							while (this.attachedFiles.some(f => f.uploading) && waited < 32) {
-								await new Promise(r => setTimeout(r, 250));
-								waited++;
-							}
-							this.statusMessage = '';
-						}
-
-						const handles = this.attachedFiles.filter(f => f.handle && !f.error).map(f => f.handle);
-						const sentAttachments = [...this.attachedFiles];
-
-						this.messages.push({
-							text: q || (sentAttachments.length > 0 ? 'مرفق: ' + sentAttachments.map(f => f.name).join(', ') : ''),
-							isUser: true,
-							attachments: sentAttachments
-						});
-
-						this.messages.push({
-							text: '',
-							reasoning: '',
-							isUser: false,
-							isStreaming: true
-						});
-						const assistantMsg = this.messages[this.messages.length - 1];
-
-						this.inputQuery = '';
-						this.attachedFiles = [];
-						if (this.$refs.chatTextarea) {
-							this.$refs.chatTextarea.style.height = '24px';
-						}
-						this.isStreaming = true;
-						this.statusStage = '';
-						this.statusMessage = '';
-						this.autoScrollEnabled = true;
+						this.conversationID = convID;
+						this.expiresAt = data.conversation ? data.conversation.expires_at : null;
+						this.messages = (data.messages || [])
+							.filter(m => m.role === 'user' || m.role === 'assistant')
+							.map(m => ({
+								isUser: m.role === 'user',
+								text: m.content,
+								attachments: m.attachments || [],
+								isStreaming: false
+							}));
+						this.showSessionsDrawer = false;
 						this.scrollToBottom(true);
 
-						this.abortController = new AbortController();
+						// An answer may still be being written from before this
+						// page was loaded. Rejoin it rather than showing a
+						// thread that looks finished and is not.
+						if (data.running_turn) {
+							this.messages.push({ isUser: false, text: '', isStreaming: true });
+							this.attachStream(data.running_turn.turn_id);
+						}
+					} finally {
+						this.isLoadingPastSessions = false;
+					}
+				},
 
+				async deleteSession(convID) {
+					if (!confirm('هل أنت متأكد من حذف هذه المحادثة من سجلك؟')) return;
+					try {
+						const resp = await fetch('/api/v1/assistant/conversations/' + convID, { method: 'DELETE' });
+						if (resp.ok) {
+							this.pastConversations = this.pastConversations.filter(c => c.id !== convID);
+							if (this.conversationID === convID) this.startNewConversation();
+						}
+					} catch (e) { /* nothing useful to say */ }
+				},
+
+				formatDate(isoStr) {
+					if (!isoStr) return '';
+					try {
+						return new Date(isoStr).toLocaleDateString('ar-EG', {
+							month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+						});
+					} catch (e) { return isoStr; }
+				},
+
+				askChip(text) {
+					this.inputQuery = text;
+					this.sendMessage();
+				},
+
+				copyText(text, btnEl) {
+					if (!text) return;
+					navigator.clipboard.writeText(text).then(() => {
+						if (!btnEl) return;
+						const def = btnEl.querySelector('.copy-icon-default');
+						const ok = btnEl.querySelector('.copy-icon-success');
+						if (!def || !ok) return;
+						def.style.display = 'none';
+						ok.style.display = 'inline-flex';
+						setTimeout(() => {
+							def.style.display = 'inline-flex';
+							ok.style.display = 'none';
+						}, 1800);
+					});
+				},
+
+				// ---------------------------------------------------------------
+				// Attachments
+				// ---------------------------------------------------------------
+
+				onDragEnter(e) {
+					if (!this.isOpen) return;
+					if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.includes('Files')) {
+						this.dragCounter++;
+						this.isDragging = true;
+					}
+				},
+
+				onDragLeave() {
+					if (!this.isOpen) return;
+					this.dragCounter--;
+					if (this.dragCounter <= 0) { this.dragCounter = 0; this.isDragging = false; }
+				},
+
+				onDrop(e) {
+					if (!this.isOpen) return;
+					this.dragCounter = 0;
+					this.isDragging = false;
+					this.addFiles(Array.from(e.dataTransfer?.files || []));
+				},
+
+				handleFileSelect(e) {
+					this.addFiles(Array.from(e.target.files || []));
+					e.target.value = '';
+				},
+
+				addFiles(files) {
+					for (const file of files) {
+						if (this.attachedFiles.length >= 5) break;
+						const isImg = file.type.startsWith('image/');
+						let previewUrl = '';
+						if (isImg) { try { previewUrl = URL.createObjectURL(file); } catch (e) {} }
+						const item = {
+							id: 'att-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+							name: file.name, size: file.size, type: file.type,
+							isImage: isImg, previewUrl,
+							reference: '', uploading: true, error: ''
+						};
+						this.attachedFiles.push(item);
+						this.uploadAttachment(item.id, file);
+					}
+				},
+
+				async uploadAttachment(itemId, rawFile) {
+					const find = () => this.attachedFiles.find(f => f.id === itemId);
+					try {
+						const form = new FormData();
+						form.append('file', rawFile);
+						const resp = await fetch('/api/v1/assistant/attachments', { method: 'POST', body: form });
+						const target = find();
+						if (!target) return;
+						if (!resp.ok) {
+							const err = await resp.json().catch(() => ({}));
+							target.error = err.message || 'تعذّر رفع الملف.';
+							return;
+						}
+						const data = await resp.json();
+						if (data.attachments && data.attachments.length > 0) {
+							target.reference = data.attachments[0].reference;
+						} else {
+							target.error = 'استجابة غير متوقعة من الخادم.';
+						}
+					} catch (e) {
+						const target = find();
+						if (target) target.error = 'تعذّر الاتصال بالخادم.';
+					} finally {
+						const target = find();
+						if (target) target.uploading = false;
+					}
+				},
+
+				removeAttachment(idx) {
+					const f = this.attachedFiles[idx];
+					if (f && f.previewUrl) URL.revokeObjectURL(f.previewUrl);
+					this.attachedFiles.splice(idx, 1);
+				},
+
+				formatBytes(bytes) {
+					if (!bytes) return '0 B';
+					const k = 1024, sizes = ['B', 'KB', 'MB'];
+					const i = Math.floor(Math.log(bytes) / Math.log(k));
+					return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+				},
+
+				// ---------------------------------------------------------------
+				// Voice
+				// ---------------------------------------------------------------
+
+				async startVoiceRecord() {
+					if (this.isRecordingVoice) return;
+					try {
+						const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+						this.mediaStream = stream;
+						this.audioChunks = [];
+						this.mediaRecorder = new MediaRecorder(stream);
+						this.mediaRecorder.ondataavailable = (e) => {
+							if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
+						};
+						this.mediaRecorder.start();
+						this.isRecordingVoice = true;
+						this.recordingSeconds = 0;
+						this.recordingTimer = setInterval(() => { this.recordingSeconds++; }, 1000);
+					} catch (e) {
+						this.cancelVoiceRecord();
+						this.statusMessage = 'تعذّر فتح الميكروفون. اسمح بالوصول من إعدادات المتصفح.';
+					}
+				},
+
+				stopRecorderTracks() {
+					if (this.recordingTimer) { clearInterval(this.recordingTimer); this.recordingTimer = null; }
+					this.recordingSeconds = 0;
+					if (this.mediaStream) {
+						try { this.mediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+						this.mediaStream = null;
+					}
+				},
+
+				cancelVoiceRecord() {
+					this.isRecordingVoice = false;
+					if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+						try { this.mediaRecorder.stop(); } catch (e) {}
+					}
+					this.stopRecorderTracks();
+					this.audioChunks = [];
+				},
+
+				async finishVoiceRecord() {
+					if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+						this.cancelVoiceRecord();
+						return;
+					}
+					this.mediaRecorder.onstop = async () => {
+						const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+						this.audioChunks = [];
+						this.stopRecorderTracks();
+						this.statusMessage = 'جاري تحويل الصوت إلى نص...';
 						try {
-							const resp = await fetch('/api/v1/assistant/messages', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									text: q,
-									conversation_id: this.conversationID,
-									attachment_handles: handles
-								}),
-								signal: this.abortController.signal
-							});
-
-							if (!resp.ok) {
-								const errData = await resp.json().catch(() => ({}));
-								assistantMsg.text = errData.message || 'تعذر الاتصال بالمساعد الذكي.';
-								assistantMsg.isStreaming = false;
-								this.isStreaming = false;
+							const form = new FormData();
+							form.append('file', blob, 'voice.webm');
+							const resp = await fetch('/api/v1/assistant/transcribe', { method: 'POST', body: form });
+							const data = await resp.json().catch(() => ({}));
+							if (resp.ok && data.text) {
+								this.inputQuery = (this.inputQuery ? this.inputQuery + ' ' : '') + data.text.trim();
+								this.$nextTick(() => {
+									this.autoResizeTextarea();
+									if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
+								});
+							} else {
+								// The server sends an Arabic sentence naming the
+								// cause. Show that, never a raw failure.
+								this.statusMessage = data.message || 'تعذّر تفريغ التسجيل الصوتي.';
+								setTimeout(() => { this.statusMessage = ''; }, 6000);
 								return;
 							}
-
-							const reader = resp.body.getReader();
-							const decoder = new TextDecoder('utf-8');
-							let buffer = '';
-
-							while (true) {
-								const { done, value } = await reader.read();
-								if (done) break;
-
-								buffer += decoder.decode(value, { stream: true });
-								const lines = buffer.split('\n');
-								buffer = lines.pop() || '';
-
-								let currentEvent = 'message';
-								for (const line of lines) {
-									const trimmed = line.trim();
-									if (trimmed.startsWith('event:')) {
-										currentEvent = trimmed.substring(6).trim();
-									} else if (trimmed.startsWith('data:')) {
-										const dataStr = trimmed.substring(5).trim();
-										if (!dataStr) continue;
-
-										try {
-											const data = JSON.parse(dataStr);
-											if (currentEvent === 'delta' && data.text) {
-												this.statusStage = '';
-												assistantMsg.text += data.text;
-												this.scrollToBottom();
-											} else if (currentEvent === 'reasoning' && data.text) {
-												assistantMsg.reasoning += data.text;
-												this.scrollToBottom();
-											} else if (currentEvent === 'status') {
-												this.statusStage = data.stage || '';
-												this.statusMessage = data.message || (data.stage === 'analyzing_attachment' ? 'جاري تحليل المرفق (' + data.file + ')...' : '');
-												this.scrollToBottom();
-											} else if (currentEvent === 'done') {
-												if (data.conversation_id) {
-													this.conversationID = data.conversation_id;
-													this.fetchConversations();
-												}
-												assistantMsg.isStreaming = false;
-											} else if (currentEvent === 'error') {
-												assistantMsg.text += '\n\n[خطأ: ' + (data.message || 'حدث خطأ غير متوقع') + ']';
-												assistantMsg.isStreaming = false;
-											}
-										} catch (parseErr) {
-											// Non-JSON frame ignore
-										}
-									}
-								}
-							}
 						} catch (e) {
-							if (e.name !== 'AbortError') {
-								assistantMsg.text += '\n\n[انقطع الاتصال بالخادم: ' + e.message + ']';
-							}
-						} finally {
-							assistantMsg.isStreaming = false;
-							this.isStreaming = false;
-							this.statusStage = '';
-							this.statusMessage = '';
-							this.abortController = null;
-							this.scrollToBottom();
+							this.statusMessage = 'تعذّر الاتصال بخدمة التفريغ الصوتي.';
+							setTimeout(() => { this.statusMessage = ''; }, 6000);
+							return;
 						}
-					},
-
-					cancelStream() {
-						if (this.abortController) {
-							this.abortController.abort();
-							this.abortController = null;
-						}
-						this.isStreaming = false;
-						this.statusStage = '';
 						this.statusMessage = '';
-					},
+					};
+					this.isRecordingVoice = false;
+					try { this.mediaRecorder.stop(); } catch (e) { this.cancelVoiceRecord(); }
+				},
 
-					renderMarkdown(raw) {
-						if (!raw) return '';
-						let text = raw
-							.replace(/&/g, '&amp;')
-							.replace(/</g, '&lt;')
-							.replace(/>/g, '&gt;');
+				formatDuration(secs) {
+					const m = Math.floor(secs / 60), s = secs % 60;
+					return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+				},
 
-						// Code blocks
-						text = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
-							return `<pre class="capsule-code-block"><code>${p1.trim()}</code></pre>`;
-						});
+				// ---------------------------------------------------------------
+				// Composer
+				// ---------------------------------------------------------------
 
-						// Inline code
-						text = text.replace(/`([^`]+)`/g, '<code class="capsule-inline-code">$1</code>');
+				handleKeydown(e) {
+					if (e.key !== 'Enter') return;
+					if (e.shiftKey) { this.$nextTick(() => this.autoResizeTextarea()); return; }
+					e.preventDefault();
+					this.sendMessage();
+				},
 
-						// Bold
-						text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+				autoResizeTextarea() {
+					const el = this.$refs.chatTextarea;
+					if (!el) return;
+					el.style.height = '24px';
+					el.style.height = Math.min(Math.max(el.scrollHeight, 24), 110) + 'px';
+				},
 
-						// Italic
-						text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+				async sendMessage() {
+					const q = this.inputQuery.trim();
+					if (this.isStreaming || (!q && this.attachedFiles.length === 0)) return;
 
-						// Headings
-						text = text.replace(/^### (.*$)/gim, '<h4 class="capsule-h4">$1</h4>');
-						text = text.replace(/^## (.*$)/gim, '<h3 class="capsule-h3">$1</h3>');
-						text = text.replace(/^# (.*$)/gim, '<h2 class="capsule-h2">$1</h2>');
-
-						// List items (bullet points)
-						text = text.replace(/^[-*•]\s+(.*$)/gim, '<div class="capsule-list-item"><span class="capsule-bullet">•</span><span>$1</span></div>');
-
-						// Double newlines to spacing
-						text = text.replace(/\n\n/g, '<div class="capsule-paragraph-gap"></div>');
-						// Single newline
-						text = text.replace(/\n/g, '<br/>');
-
-						return text;
-					},
-
-					scrollToBottom(force = false) {
-						this.$nextTick(() => {
-							const container = document.getElementById('capsule-messages-container');
-							if (container && (this.autoScrollEnabled || force)) {
-								container.scrollTop = container.scrollHeight;
-							}
-						});
+					if (this.attachedFiles.some(f => f.uploading)) {
+						this.statusMessage = 'جاري رفع المرفقات...';
+						let waited = 0;
+						while (this.attachedFiles.some(f => f.uploading) && waited < 40) {
+							await new Promise(r => setTimeout(r, 250));
+							waited++;
+						}
+						this.statusMessage = '';
 					}
-				};
-			}
-		</script>
+
+					const references = this.attachedFiles.filter(f => f.reference && !f.error).map(f => f.reference);
+					const sent = [...this.attachedFiles];
+
+					this.messages.push({
+						isUser: true,
+						text: q || ('مرفق: ' + sent.map(f => f.name).join('، ')),
+						attachments: sent
+					});
+					this.messages.push({ isUser: false, text: '', isStreaming: true });
+
+					this.inputQuery = '';
+					this.attachedFiles = [];
+					if (this.$refs.chatTextarea) this.$refs.chatTextarea.style.height = '24px';
+					this.isStreaming = true;
+					this.statusMessage = '';
+					this.activeTool = '';
+					this.autoScrollEnabled = true;
+					this.scrollToBottom(true);
+
+					try {
+						const resp = await fetch('/api/v1/assistant/turns', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								text: q,
+								conversation_id: this.conversationID,
+								attachments: references
+							})
+						});
+						const data = await resp.json().catch(() => ({}));
+						if (!resp.ok) {
+							this.finishWithError(data.message || 'تعذّر بدء المحادثة.');
+							return;
+						}
+						this.conversationID = data.conversation_id || this.conversationID;
+						this.expiresAt = data.expires_at || this.expiresAt;
+						this.attachStream(data.turn_id);
+					} catch (e) {
+						this.finishWithError('تعذّر الاتصال بالخادم.');
+					}
+				},
+
+				// ---------------------------------------------------------------
+				// Streaming
+				// ---------------------------------------------------------------
+
+				// attachStream opens the answer stream.
+				//
+				// EventSource is what makes this resilient: it parses SSE frames
+				// correctly regardless of how the network chunks them, reconnects
+				// on its own, and resends the last event id so the server replays
+				// only what was missed.
+				attachStream(turnID) {
+					if (!turnID) { this.finishWithError('لم يبدأ الرد.'); return; }
+					this.closeStream();
+					this.turnID = turnID;
+					this.isStreaming = true;
+
+					const target = this.messages[this.messages.length - 1];
+					const es = new EventSource('/api/v1/assistant/turns/' + turnID + '/stream');
+					this.eventSource = es;
+
+					es.addEventListener('delta', (ev) => {
+						const d = this.parse(ev);
+						if (!d || !d.text) return;
+						this.statusMessage = '';
+						this.activeTool = '';
+						target.text += d.text;
+						this.scrollToBottom();
+					});
+
+					es.addEventListener('reasoning', (ev) => {
+						const d = this.parse(ev);
+						if (!d || !d.text) return;
+						target.reasoning = (target.reasoning || '') + d.text;
+					});
+
+					es.addEventListener('status', (ev) => {
+						const d = this.parse(ev);
+						if (!d) return;
+						if (d.stage === 'tool') {
+							this.activeTool = d.tool || '';
+							this.statusMessage = d.state === 'running'
+								? 'جاري قراءة بياناتك...'
+								: (d.state === 'denied_permission' || d.state === 'denied_scope'
+									? 'بيانات خارج نطاق صلاحياتك'
+									: 'تم استخراج البيانات');
+						}
+						this.scrollToBottom();
+					});
+
+					es.addEventListener('usage', (ev) => {
+						const d = this.parse(ev);
+						if (!d) return;
+						this.usedTokens = (d.input_tokens || 0) + (d.output_tokens || 0);
+					});
+
+					es.addEventListener('done', () => {
+						target.isStreaming = false;
+						this.finishStream();
+						this.fetchConversations();
+					});
+
+					es.addEventListener('error', (ev) => {
+						const d = this.parse(ev);
+						if (d && d.message) {
+							// A named failure from the server. Stop retrying:
+							// EventSource would otherwise reconnect forever.
+							target.isStreaming = false;
+							target.error = d.message;
+							this.finishStream();
+							return;
+						}
+						// A transport drop. EventSource reconnects by itself
+						// with Last-Event-ID, so nothing to do but wait.
+						this.statusMessage = 'انقطع الاتصال، جاري إعادة المحاولة...';
+					});
+				},
+
+				parse(ev) {
+					try { return JSON.parse(ev.data); } catch (e) { return null; }
+				},
+
+				closeStream() {
+					if (this.eventSource) {
+						try { this.eventSource.close(); } catch (e) {}
+						this.eventSource = null;
+					}
+				},
+
+				finishStream() {
+					this.closeStream();
+					this.isStreaming = false;
+					this.statusMessage = '';
+					this.activeTool = '';
+					this.turnID = null;
+					this.scrollToBottom();
+				},
+
+				finishWithError(message) {
+					const target = this.messages[this.messages.length - 1];
+					if (target && !target.isUser) {
+						target.isStreaming = false;
+						target.error = message;
+					}
+					this.finishStream();
+				},
+
+				// cancelStream stops generation server-side too, so a turn the
+				// user abandoned stops costing money rather than running to
+				// completion unread.
+				async cancelStream() {
+					const id = this.turnID;
+					this.finishWithError('');
+					const target = this.messages[this.messages.length - 1];
+					if (target && !target.isUser) target.isStreaming = false;
+					if (!id) return;
+					try { await fetch('/api/v1/assistant/turns/' + id, { method: 'DELETE' }); } catch (e) {}
+				},
+
+				scrollToBottom(force = false) {
+					this.$nextTick(() => {
+						const c = document.getElementById('capsule-messages-container');
+						if (c && (this.autoScrollEnabled || force)) c.scrollTop = c.scrollHeight;
+					});
+				},
+
+				renderMarkdown(raw) { return capsuleMarkdown(raw); }
+			};
+		}
+	</script>
+	@capsuleMarkdownScript()
 }

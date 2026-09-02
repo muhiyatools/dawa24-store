@@ -8,7 +8,6 @@ import (
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -32,7 +31,6 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 		SupportEmail:              "support@dawa24.eg",
 		CommissionRate:            "1.5",
 		SessionIdleTimeoutMinutes: "30",
-		FeatureFlags:              features.List(),
 	}
 
 	if h.adminSvc != nil {
@@ -87,38 +85,6 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.renderPage(ctx, w, "render admin settings page", pages.AdminSettings(values, lang, dir))
-}
-
-// AdminFeatureToggleSubmit toggles a platform feature flag in real-time.
-func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang := langOf(r)
-	actor, ok := authctx.From(ctx)
-	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
-		http.Redirect(w, r, "/auth/login?redirect=/admin/settings", http.StatusSeeOther)
-		return
-	}
-
-	key := strings.TrimSpace(r.PostFormValue("key"))
-	enabledStr := strings.TrimSpace(r.PostFormValue("enabled"))
-	enabled := enabledStr == "true" || enabledStr == "1"
-
-	if key == "" {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.invalid_feature_key"))
-		return
-	}
-
-	if err := features.GetEngine().Set(ctx, key, enabled, actor.UserID); err != nil {
-		h.log.ErrorContext(ctx, "failed to toggle feature flag", "key", key, "error", err)
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.feature_save_failed"))
-		return
-	}
-
-	msg := i18n.T(lang, "admin.settings.feature_disabled_success")
-	if enabled {
-		msg = i18n.T(lang, "admin.settings.feature_enabled_success")
-	}
-	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", msg)
 }
 
 // AdminSettingsSubmit persists the general platform settings.

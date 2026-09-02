@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -19,13 +20,24 @@ import (
 func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	actor := authctx.FromContext(ctx)
-
-	if h.orgSvc == nil || actor.OrganizationID <= 0 {
-		http.NotFound(w, r)
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/team", http.StatusSeeOther)
 		return
 	}
-	h.ensureCompanyRoles(ctx, actor.OrganizationID, actor.OrgType)
+
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
+	var totalCount int
+	employees, total, err := h.orgSvc.ListEmployeesWithTotal(ctx, actor.OrganizationID, limit, offset)
+	if err != nil {
+		h.log.ErrorContext(ctx, "list pharmacy employees",
+			"error", err, "organization_id", actor.OrganizationID)
+	} else {
+		totalCount = total
+	}
 
 	view := pages.TenantTeamView{
 		Title:      i18n.T(lang, "customer.team.title"),
@@ -37,6 +49,9 @@ func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 		CanAssign:  actor.Can("pharmacy.role.assign"),
 		NoticeKind: r.URL.Query().Get("notice"),
 		Notice:     r.URL.Query().Get("msg"),
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: totalCount,
 	}
 
 	roles, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID)
@@ -55,11 +70,6 @@ func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 		roleNameByID[role.ID] = name
 	}
 
-	employees, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
-	if err != nil {
-		h.log.ErrorContext(ctx, "list pharmacy employees",
-			"error", err, "organization_id", actor.OrganizationID)
-	}
 	for _, emp := range employees {
 		if emp == nil || emp.Member == nil {
 			continue

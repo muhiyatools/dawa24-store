@@ -32,15 +32,75 @@ func TestAssistantMessageListDoesNotClaimFullHeight(t *testing.T) {
 // Alpine wraps objects pushed into a reactive array in a proxy. Holding a
 // reference to the ORIGINAL object and mutating it updates nothing, which is
 // why the answer bubble stayed permanently empty while tokens streamed in.
+//
+// The assertion is on the technique, not on a variable name: the streaming
+// target must be read back OUT of this.messages after the push, never bound to
+// the literal that went in.
 func TestAssistantStreamTargetIsTheReactiveProxy(t *testing.T) {
 	src := readAssistant(t)
 
-	if regexp.MustCompile(`const assistantMsg = \{`).MatchString(src) {
-		t.Error("assistantMsg is bound to a raw object literal; mutations will not render. " +
+	if regexp.MustCompile(`const \w+ = \{[^}]*isStreaming`).MatchString(src) {
+		t.Error("the streaming target is a raw object literal; mutations will not render. " +
 			"Push first, then read the element back out of this.messages.")
 	}
-	if !strings.Contains(src, "const assistantMsg = this.messages[this.messages.length - 1]") {
-		t.Error("assistantMsg must reference the element inside this.messages so Alpine observes it")
+	if !regexp.MustCompile(`const \w+ = this\.messages\[this\.messages\.length - 1\]`).MatchString(src) {
+		t.Error("the streaming target must reference the element inside this.messages " +
+			"so Alpine observes it")
+	}
+}
+
+// The drawer must not parse Server-Sent Events by hand.
+//
+// It used to, and the parser reset the current event name on every network
+// chunk — so whenever a chunk boundary fell between "event: delta" and its
+// "data:" line, the token was silently dropped. That is what produced "the
+// answer stops when I resize or minimise the window": resizing changes the
+// paint cadence, which changes where the chunks land.
+//
+// EventSource parses frames properly, reconnects on its own, and resends
+// Last-Event-ID so the server replays exactly what was missed.
+func TestAssistantStreamsWithEventSource(t *testing.T) {
+	src := readAssistant(t)
+
+	if !strings.Contains(src, "new EventSource(") {
+		t.Error("the drawer must stream with EventSource, not a hand-rolled SSE parser")
+	}
+	for _, handRolled := range []string{
+		"resp.body.getReader()",
+		"new TextDecoder(",
+		"currentEvent = 'message'",
+	} {
+		if strings.Contains(src, handRolled) {
+			t.Errorf("hand-rolled SSE parsing is back: %q", handRolled)
+		}
+	}
+}
+
+// Asking and reading are separate requests, so an answer survives the browser
+// going away: the turn is owned by the server and can be reattached to.
+func TestAssistantUsesServerOwnedTurns(t *testing.T) {
+	src := readAssistant(t)
+
+	if !strings.Contains(src, "/api/v1/assistant/turns") {
+		t.Error("the drawer must create a turn before streaming it")
+	}
+	if !strings.Contains(src, "running_turn") {
+		t.Error("reopening a conversation must reattach to an answer still being written")
+	}
+}
+
+// The retention promise is stated where the user is, not only in a policy page.
+func TestAssistantStatesItsRetentionAndReadOnlyNature(t *testing.T) {
+	src := readAssistant(t)
+
+	if !strings.Contains(src, "retentionNote()") {
+		t.Error("the drawer must tell the user when the conversation will be deleted")
+	}
+	if !strings.Contains(src, "ستة أشهر") && !strings.Contains(src, "٦ أشهر") {
+		t.Error("the retention note must name the six-month period")
+	}
+	if !strings.Contains(src, "قراءة فقط") {
+		t.Error("the drawer must say the assistant only reads data")
 	}
 }
 

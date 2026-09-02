@@ -5,16 +5,12 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"sort"
 	"sync"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-
 	cachepkg "github.com/muhiya/dawa24-store/internal/platform/cache"
-
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )

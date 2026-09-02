@@ -130,6 +130,19 @@ func (m *mockOrgRepoTeamTest) ListEmployees(ctx context.Context, orgID int64) ([
 	return views, nil
 }
 
+func (m *mockOrgRepoTeamTest) ListEmployeesWithTotal(ctx context.Context, orgID int64, _, _ int) ([]*org.EmployeeView, int, error) {
+	views, err := m.ListEmployees(ctx, orgID)
+	return views, len(views), err
+}
+
+func (m *mockOrgRepoTeamTest) ListBranchesWithTotal(_ context.Context, _ org.BranchFilter, _, _ int) ([]*org.Branch, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockOrgRepoTeamTest) AdminBranchStats(_ context.Context) (org.AdminBranchStatsResult, error) {
+	return org.AdminBranchStatsResult{}, nil
+}
+
 func (m *mockOrgRepoTeamTest) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
 	if mem, ok := m.members[memberID]; ok && mem.OrganizationID == orgID {
 		mem.IsActive = !mem.IsActive

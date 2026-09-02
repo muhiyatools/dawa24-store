@@ -24,6 +24,8 @@ type JobItemView struct {
 type JobsPageData struct {
 	Jobs        []*JobItemView
 	TotalCount  int
+	Page        int
+	PerPage     int
 	Cities      []*platformadmin.City
 	Actor       authctx.Actor
 	IsLoggedIn  bool
@@ -260,6 +262,14 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 					}
 				}
 			</div>
+			if data.TotalCount > 0 {
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL:     "/jobs",
+				})
+			}
 		}
 	</div>
 

@@ -161,15 +161,19 @@ func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var jobViews []*pages.AdminJobView
+	var totalCount int
 	if h.hrSvc != nil {
-		offers, err := h.hrSvc.ListPublishedJobs(ctx, 100, 0)
+		offers, total, err := h.hrSvc.ListAllJobsWithTotal(ctx, limit, offset)
 		if err != nil {
-			h.log.WarnContext(ctx, "admin jobs: list published jobs", "error", err)
+			h.log.WarnContext(ctx, "admin jobs: list all jobs", "error", err)
 		} else {
-			// Resolve every owning organization in one query. This used to be
-			// a GetOrganization call inside the loop, so the page cost one
-			// round trip per vacancy.
+			totalCount = total
+			// Resolve every owning organization in one query.
 			orgs := map[int64]*org.Organization{}
 			if h.orgSvc != nil && len(offers) > 0 {
 				ids := make([]int64, 0, len(offers))
@@ -206,7 +210,14 @@ func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.renderPage(ctx, w, "render admin jobs", pages.AdminJobs(lang, dir, jobViews))
+	data := pages.AdminJobsData{
+		Jobs:       jobViews,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: totalCount,
+	}
+
+	h.renderPage(ctx, w, "render admin jobs", pages.AdminJobs(lang, dir, data))
 }
 
 // AdminPolicyCreateSubmit creates a new draft version of a legal policy document.

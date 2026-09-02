@@ -94,6 +94,12 @@ func (happyRepo) DeleteBranch(ctx context.Context, id, orgID int64) error {
 func (happyRepo) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org.Branch, error) {
 	return []*org.Branch{{ID: 1, OrganizationID: orgID, Code: "BR-01", Name: i18n.Text{"en": "Main"}}}, nil
 }
+func (happyRepo) ListBranchesWithTotal(ctx context.Context, filter org.BranchFilter, limit, offset int) ([]*org.Branch, int, error) {
+	return []*org.Branch{{ID: 1, OrganizationID: 1, Code: "BR-01", Name: i18n.Text{"en": "Main"}}}, 1, nil
+}
+func (happyRepo) AdminBranchStats(ctx context.Context) (org.AdminBranchStatsResult, error) {
+	return org.AdminBranchStatsResult{TotalBranches: 1, ActiveBranches: 1, PharmacyBranches: 1, VendorWarehouses: 0}, nil
+}
 func (happyRepo) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.Branch, error) {
 	return nil, nil
 }

@@ -78,6 +78,13 @@ type JobCategory struct {
 	Slug string    `json:"slug"`
 }
 
+// JobStatsResult aggregates job offer counts and application totals.
+type JobStatsResult struct {
+	PublishedCount    int
+	ClosedCount       int
+	TotalApplications int
+}
+
 // JobApplication is an application to a vacancy (hr.job_applications).
 type JobApplication struct {
 	ID              int64     `json:"id"`

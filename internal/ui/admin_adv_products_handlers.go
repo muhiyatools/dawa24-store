@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -198,6 +199,23 @@ func (h *UIHandler) AdminAdvProductsPage(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+
+	filteredTotal := len(items)
+	start := (page - 1) * limit
+	if start < 0 {
+		start = 0
+	}
+	end := start + limit
+	var paginatedItems []pages.AdminAdvProductItem
+	if start < filteredTotal {
+		if end > filteredTotal {
+			end = filteredTotal
+		}
+		paginatedItems = items[start:end]
+	}
+
 	noticeType := r.URL.Query().Get("notice")
 	if noticeType == "" {
 		noticeType = r.URL.Query().Get("notice_type")
@@ -208,7 +226,7 @@ func (h *UIHandler) AdminAdvProductsPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	data := pages.AdminAdvProductsData{
-		Items:             items,
+		Items:             paginatedItems,
 		TotalCount:        totalCount,
 		ActiveCount:       activeCount,
 		PendingCount:      pendingCount,
@@ -222,6 +240,9 @@ func (h *UIHandler) AdminAdvProductsPage(w http.ResponseWriter, r *http.Request)
 		SelectedPackageID: packageFilterID,
 		NoticeType:        noticeType,
 		NoticeMsg:         noticeMsg,
+		Page:              page,
+		PerPage:           limit,
+		FilteredTotal:     filteredTotal,
 	}
 
 	h.renderPage(ctx, w, "render admin adv-products page", pages.AdminAdvProductsPage(lang, dir, data))

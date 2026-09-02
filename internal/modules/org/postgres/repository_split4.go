@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -64,6 +66,103 @@ func (r *Repository) GetDeliveryBands(ctx context.Context, orgID int64) ([]*org.
 		return rows.Err()
 	})
 	return list, err
+}
+
+// ListBranchesWithTotal returns paginated branches matching filter and total count.
+func (r *Repository) ListBranchesWithTotal(ctx context.Context, filter org.BranchFilter, limit, offset int) ([]*org.Branch, int, error) {
+	var list []*org.Branch
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var conditions []string
+		var args []any
+		argIdx := 1
+
+		conditions = append(conditions, "b.deleted_at IS NULL")
+
+		if filter.OrganizationID > 0 {
+			conditions = append(conditions, fmt.Sprintf("b.organization_id = $%d", argIdx))
+			args = append(args, filter.OrganizationID)
+			argIdx++
+		}
+
+		if filter.Status != "" {
+			conditions = append(conditions, fmt.Sprintf("b.status = $%d", argIdx))
+			args = append(args, filter.Status)
+			argIdx++
+		}
+
+		if filter.SearchQuery != "" {
+			conditions = append(conditions, fmt.Sprintf("(b.name->>'ar' ILIKE $%d OR b.name->>'en' ILIKE $%d OR b.code ILIKE $%d OR b.address ILIKE $%d OR o.legal_name ILIKE $%d)", argIdx, argIdx, argIdx, argIdx, argIdx))
+			args = append(args, "%"+filter.SearchQuery+"%")
+			argIdx++
+		}
+
+		whereClause := strings.Join(conditions, " AND ")
+
+		countQuery := `SELECT count(*) FROM org.branches b LEFT JOIN org.organizations o ON o.id = b.organization_id WHERE ` + whereClause
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		dataQuery := fmt.Sprintf(`
+			SELECT b.id, b.public_id, b.organization_id, b.name, b.code, b.address, b.city_id, b.latitude, b.longitude,
+			       b.google_maps_url, b.manager_id, b.warehouse_type, b.has_cold_storage, b.capacity_sqm,
+			       b.operating_hours, b.status, b.is_main, b.phone, b.created_at, b.updated_at
+			FROM org.branches b
+			LEFT JOIN org.organizations o ON o.id = b.organization_id
+			WHERE %s
+			ORDER BY b.created_at DESC, b.id DESC
+			LIMIT $%d OFFSET $%d;
+		`, whereClause, argIdx, argIdx+1)
+
+		queryArgs := append(args, limit, offset)
+		rows, err := tx.Query(txCtx, dataQuery, queryArgs...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var b org.Branch
+			if err := rows.Scan(
+				&b.ID, &b.PublicID, &b.OrganizationID, &b.Name, &b.Code, &b.Address, &b.CityID, &b.Latitude, &b.Longitude,
+				&b.GoogleMapsURL, &b.ManagerID, &b.WarehouseType, &b.HasColdStorage, &b.CapacitySQM,
+				&b.OperatingHours, &b.Status, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			list = append(list, &b)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
+// AdminBranchStats aggregates branch metrics for platform admin in a single query.
+func (r *Repository) AdminBranchStats(ctx context.Context) (org.AdminBranchStatsResult, error) {
+	var stats org.AdminBranchStatsResult
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT 
+				COUNT(*),
+				COUNT(*) FILTER (WHERE b.status = 'active' OR b.status IS NULL OR b.status = ''),
+				COUNT(*) FILTER (WHERE o.type = 'customer'),
+				COUNT(*) FILTER (WHERE o.type = 'vendor')
+			FROM org.branches b
+			LEFT JOIN org.organizations o ON o.id = b.organization_id
+			WHERE b.deleted_at IS NULL;
+		`
+		return tx.QueryRow(txCtx, query).Scan(&stats.TotalBranches, &stats.ActiveBranches, &stats.PharmacyBranches, &stats.VendorWarehouses)
+	})
+	return stats, err
 }
 
 // SaveDeliveryBands replaces the delivery bands for an organization.

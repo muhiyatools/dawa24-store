@@ -100,7 +100,14 @@ templ AdminPlansInfoPage(plans []*billing.Plan, lang, dir string) {
 	@AdminPlans(lang, dir, plans)
 }
 
-templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string) {
+type AdminPlansSubscriptionsPageData struct {
+	Subscriptions []*billing.Subscription
+	Page          int
+	PerPage       int
+	TotalCount    int
+}
+
+templ AdminPlansSubscriptionsPage(lang, dir string, data AdminPlansSubscriptionsPageData) {
 	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
@@ -117,7 +124,7 @@ templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string
 						</tr>
 					</thead>
 					<tbody>
-						for _, s := range subs {
+						for _, s := range data.Subscriptions {
 							<tr>
 								<td>{ fmt.Sprintf("%d", s.ID) }</td>
 								<td>مستخدم #{ fmt.Sprintf("%d", s.UserID) }</td>
@@ -129,6 +136,14 @@ templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string
 					</tbody>
 				</table>
 			</div>
+			if data.TotalCount > 0 {
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: data.Page,
+					PageSize:    data.PerPage,
+					TotalCount:  data.TotalCount,
+					BaseURL:     "/admin/plans-subscriptions",
+				})
+			}
 		</div>
 		</div>
 	}

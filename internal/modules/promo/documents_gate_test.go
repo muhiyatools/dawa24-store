@@ -81,8 +81,14 @@ func (s *stubPromoRepo) GetSponsorshipRequestByID(context.Context, int64) (*Spon
 func (s *stubPromoRepo) ListSponsorshipRequestsByOrg(context.Context, int64, int, int) ([]*SponsorshipRequest, error) {
 	return nil, nil
 }
+func (s *stubPromoRepo) ListSponsorshipRequestsByOrgWithTotal(context.Context, int64, int, int) ([]*SponsorshipRequest, int, error) {
+	return nil, 0, nil
+}
 func (s *stubPromoRepo) ListAllSponsorshipRequests(context.Context, int, int) ([]*SponsorshipRequest, error) {
 	return nil, nil
+}
+func (s *stubPromoRepo) ListAllSponsorshipRequestsWithTotal(context.Context, int, int) ([]*SponsorshipRequest, int, error) {
+	return nil, 0, nil
 }
 func (s *stubPromoRepo) ListPendingSponsorshipRequests(context.Context, int, int) ([]*SponsorshipRequest, error) {
 	return nil, nil
@@ -112,8 +118,14 @@ func (s *stubPromoRepo) GetAdByID(context.Context, int64) (*Ad, error) {
 func (s *stubPromoRepo) ListAdsByOrg(context.Context, int64, int, int) ([]*Ad, error) {
 	return nil, nil
 }
+func (s *stubPromoRepo) ListAdsByOrgWithTotal(context.Context, int64, int, int) ([]*Ad, int, error) {
+	return nil, 0, nil
+}
 func (s *stubPromoRepo) ListAllAds(context.Context, int, int) ([]*Ad, error) {
 	return nil, nil
+}
+func (s *stubPromoRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*Ad, int, error) {
+	return nil, 0, nil
 }
 func (s *stubPromoRepo) UpdateAdAdminStatus(context.Context, int64, AdminStatus, string, int64) error {
 	return nil

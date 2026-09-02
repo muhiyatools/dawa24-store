@@ -39,6 +39,9 @@ type AdminAdvProductsData struct {
 	SelectedPackageID int64
 	NoticeType        string
 	NoticeMsg         string
+	Page              int
+	PerPage           int
+	FilteredTotal     int
 }
 
 func advTierBadgeClass(tier int) string {
@@ -503,6 +506,19 @@ templ AdminAdvProductsPage(lang, dir string, data AdminAdvProductsData) {
 							</tbody>
 						</table>
 					</div>
+					if data.FilteredTotal > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.FilteredTotal,
+							BaseURL:     "/admin/adv-products",
+							QueryValues: map[string][]string{
+								"tab":        {data.ActiveTab},
+								"q":          {data.SearchQuery},
+								"package_id": {fmt.Sprintf("%d", data.SelectedPackageID)},
+							},
+						})
+					}
 				}
 			</div>
 

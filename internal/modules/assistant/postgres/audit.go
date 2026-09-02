@@ -33,7 +33,7 @@ func (r *Repository) ListAllConversations(ctx context.Context, search string, li
 	var total int
 	var convs []*assistant.ConversationSummary
 
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(systemCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		countQuery := fmt.Sprintf(`
 			SELECT COUNT(DISTINCT c.id)
 			FROM assistant.conversations c
@@ -103,7 +103,7 @@ func (r *Repository) ListAllConversations(ctx context.Context, search string, li
 // GetAssistantStats aggregates platform-wide assistant usage metrics.
 func (r *Repository) GetAssistantStats(ctx context.Context) (*assistant.AssistantStats, error) {
 	var stats assistant.AssistantStats
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(systemCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT 
 				(SELECT COUNT(*) FROM assistant.conversations WHERE deleted_at IS NULL),

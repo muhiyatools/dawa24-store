@@ -56,6 +56,19 @@ func (m *mockUIAssistantRepo) SaveMessage(_ context.Context, _ *assistant.Messag
 func (m *mockUIAssistantRepo) ListMessages(_ context.Context, _ int64, _ int) ([]*assistant.Message, error) {
 	return m.msgs, nil
 }
+func (m *mockUIAssistantRepo) GetOwnedConversation(_ context.Context, _, _, _ int64, _ string) (*assistant.Conversation, error) { return nil, nil }
+func (m *mockUIAssistantRepo) ListRecentMessages(_ context.Context, _ int64, _ int) ([]*assistant.Message, error) { return nil, nil }
+func (m *mockUIAssistantRepo) CreateTurn(_ context.Context, _ *assistant.Turn) error { return nil }
+func (m *mockUIAssistantRepo) FinishTurn(_ context.Context, _ *assistant.Turn) error { return nil }
+func (m *mockUIAssistantRepo) GetTurn(_ context.Context, _ string, _, _ int64) (*assistant.Turn, error) { return nil, nil }
+func (m *mockUIAssistantRepo) LatestRunningTurn(_ context.Context, _, _ int64) (*assistant.Turn, error) { return nil, nil }
+func (m *mockUIAssistantRepo) CreateAttachment(_ context.Context, _ *assistant.AttachmentRow) error { return nil }
+func (m *mockUIAssistantRepo) GetAttachment(_ context.Context, _ string, _, _ int64) (*assistant.AttachmentRow, error) { return nil, nil }
+func (m *mockUIAssistantRepo) SetAttachmentDigest(_ context.Context, _ int64, _ string) error { return nil }
+func (m *mockUIAssistantRepo) MarkAttachmentsReferenced(_ context.Context, _ []int64, _ int64) error { return nil }
+func (m *mockUIAssistantRepo) RecordToolCall(_ context.Context, _ assistant.ToolAudit) {}
+func (m *mockUIAssistantRepo) PurgeExpiredConversations(_ context.Context, _ time.Time) (int, error) { return 0, nil }
+func (m *mockUIAssistantRepo) PurgeOrphanAttachments(_ context.Context, _ time.Time) ([]string, error) { return nil, nil }
 
 func TestAdminChatTreeAndHistoryRoutes(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

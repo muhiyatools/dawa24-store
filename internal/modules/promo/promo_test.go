@@ -212,8 +212,14 @@ func (m *mockPromoRepo) GetSponsorshipRequestByID(_ context.Context, _ int64) (*
 func (m *mockPromoRepo) ListSponsorshipRequestsByOrg(_ context.Context, _ int64, _, _ int) ([]*SponsorshipRequest, error) {
 	return nil, nil
 }
+func (m *mockPromoRepo) ListSponsorshipRequestsByOrgWithTotal(_ context.Context, _ int64, _, _ int) ([]*SponsorshipRequest, int, error) {
+	return nil, 0, nil
+}
 func (m *mockPromoRepo) ListAllSponsorshipRequests(_ context.Context, _, _ int) ([]*SponsorshipRequest, error) {
 	return nil, nil
+}
+func (m *mockPromoRepo) ListAllSponsorshipRequestsWithTotal(_ context.Context, _, _ int) ([]*SponsorshipRequest, int, error) {
+	return nil, 0, nil
 }
 func (m *mockPromoRepo) ListPendingSponsorshipRequests(_ context.Context, _, _ int) ([]*SponsorshipRequest, error) {
 	return nil, nil
@@ -245,8 +251,14 @@ func (m *mockPromoRepo) GetAdByID(_ context.Context, _ int64) (*Ad, error) {
 func (m *mockPromoRepo) ListAdsByOrg(_ context.Context, _ int64, _, _ int) ([]*Ad, error) {
 	return nil, nil
 }
+func (m *mockPromoRepo) ListAdsByOrgWithTotal(_ context.Context, _ int64, _, _ int) ([]*Ad, int, error) {
+	return nil, 0, nil
+}
 func (m *mockPromoRepo) ListAllAds(_ context.Context, _, _ int) ([]*Ad, error) {
 	return nil, nil
+}
+func (m *mockPromoRepo) ListAllAdsWithTotal(_ context.Context, _, _ int) ([]*Ad, int, error) {
+	return nil, 0, nil
 }
 func (m *mockPromoRepo) UpdateAdAdminStatus(_ context.Context, _ int64, _ AdminStatus, _ string, _ int64) error {
 	return nil

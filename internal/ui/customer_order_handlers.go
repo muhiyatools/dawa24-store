@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -78,6 +79,17 @@ func (h *UIHandler) CustomerOrderDetailPage(w http.ResponseWriter, r *http.Reque
 
 	history, _ := h.commSvc.GetOrderHistory(ctx, id)
 
+	var reviews []*org.Review
+	if h.orgSvc != nil {
+		reviews, _ = h.orgSvc.ListReviewsForOrder(ctx, id)
+	}
+	reviewedMap := make(map[int64]*org.Review)
+	for _, rv := range reviews {
+		if rv != nil {
+			reviewedMap[rv.OrganizationID] = rv
+		}
+	}
+
 	noticeType := r.URL.Query().Get("notice")
 	noticeMsg := r.URL.Query().Get("msg")
 	if noticeType == "" {
@@ -87,7 +99,7 @@ func (h *UIHandler) CustomerOrderDetailPage(w http.ResponseWriter, r *http.Reque
 		noticeMsg = r.URL.Query().Get("notice_msg")
 	}
 
-	h.renderPage(ctx, w, "render customer order detail page", pages.CustomerOrderDetail(order, history, noticeType, noticeMsg, lang, dir))
+	h.renderPage(ctx, w, "render customer order detail page", pages.CustomerOrderDetail(order, history, noticeType, noticeMsg, lang, dir, reviewedMap))
 }
 
 // CustomerOrderEditSubmit handles customer edits to quantities and items of a pending order.
@@ -238,22 +250,63 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok {
+	if !ok || !actor.IsCustomer() {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
 	_ = r.ParseForm()
 	targetOrgID, _ := strconv.ParseInt(r.PostFormValue("organization_id"), 10, 64)
+	redirectURL := r.PostFormValue("redirect_url")
+	if redirectURL == "" {
+		redirectURL = fmt.Sprintf("/suppliers/%d", targetOrgID)
+	}
 	if targetOrgID <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(langOf(r), "customer.order.invalid_target_org"))
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(langOf(r), "customer.order.invalid_target_org"))
 		return
 	}
 
 	var orderID *int64
+	var shipmentID *int64
 	if oIDStr := r.PostFormValue("order_id"); oIDStr != "" {
 		if oID, err := strconv.ParseInt(oIDStr, 10, 64); err == nil && oID > 0 {
 			orderID = &oID
+		}
+	}
+	if sIDStr := r.PostFormValue("shipment_id"); sIDStr != "" {
+		if sID, err := strconv.ParseInt(sIDStr, 10, 64); err == nil && sID > 0 {
+			shipmentID = &sID
+		}
+	}
+
+	// Verification of purchase:
+	// Pharmacy can review a vendor only if they bought an order from that vendor.
+	if orderID != nil && h.commSvc != nil {
+		ord, err := h.commSvc.GetOrder(ctx, *orderID)
+		isOwner := ord != nil && (ord.CustomerID == actor.UserID || (ord.OrganizationID != nil && *ord.OrganizationID == actor.OrganizationID))
+		if err != nil || !isOwner {
+			h.redirectWithNotice(w, r, redirectURL, "error", "الطلبية المحددة غير صالحة أو لا تتبع صيدليتك.")
+			return
+		}
+		var vendorShipment *commerce.OrderShipment
+		for _, s := range ord.Shipments {
+			if s != nil && s.OrganizationID == targetOrgID {
+				vendorShipment = s
+				break
+			}
+		}
+		if vendorShipment == nil || (vendorShipment.Status != commerce.StatusDelivered && vendorShipment.Status != commerce.StatusCompleted) {
+			h.redirectWithNotice(w, r, redirectURL, "error", "لا يمكنك تقييم المورد إلا بعد استلام طرد الطلبية بالكامل.")
+			return
+		}
+		if shipmentID == nil && vendorShipment != nil {
+			shipmentID = &vendorShipment.ID
+		}
+	} else if h.orgSvc != nil {
+		hasPurchased, _ := h.orgSvc.HasDeliveredOrderFromVendor(ctx, actor.OrganizationID, targetOrgID)
+		if !hasPurchased {
+			h.redirectWithNotice(w, r, redirectURL, "error", "لا يمكنك تقييم المورد إلا بعد إتمام واستلام طلبية شراء منه.")
+			return
 		}
 	}
 
@@ -261,23 +314,34 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	speedScore, _ := strconv.Atoi(r.PostFormValue("rating_speed"))
 	qualityScore, _ := strconv.Atoi(r.PostFormValue("rating_quality"))
 
-	if repScore < 1 {
+	if repScore < 1 || repScore > 5 {
 		repScore = 5
 	}
-	if speedScore < 1 {
+	if speedScore < 1 || speedScore > 5 {
 		speedScore = 5
 	}
-	if qualityScore < 1 {
+	if qualityScore < 1 || qualityScore > 5 {
 		qualityScore = 5
 	}
+	overallScore := int(math.Round(float64(repScore+speedScore+qualityScore) / 3.0))
+	if overallScore < 1 {
+		overallScore = 1
+	}
+	if overallScore > 5 {
+		overallScore = 5
+	}
+
+	reviewerOrgID := actor.OrganizationID
 
 	rev := &org.Review{
 		OrganizationID: targetOrgID,
 		UserID:         actor.UserID,
 		OrderID:        orderID,
-		Title:          r.PostFormValue("title"),
-		ReviewText:     r.PostFormValue("review_text"),
-		Context:        r.PostFormValue("context"),
+		ShipmentID:     shipmentID,
+		ReviewerOrgID:  &reviewerOrgID,
+		Rating:         overallScore,
+		ReviewText:     strings.TrimSpace(r.PostFormValue("review_text")),
+		Context:        "supplier",
 		IsApproved:     true,
 		Ratings: []org.ReviewRating{
 			{Criterion: "rep", Score: repScore},
@@ -289,10 +353,10 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	if h.orgSvc != nil {
 		if err := h.orgSvc.SubmitReview(ctx, rev); err != nil {
 			h.log.ErrorContext(ctx, "failed to submit review", "error", err, "target_org_id", targetOrgID)
-			h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "success", i18n.T(langOf(r), "customer.order.review_success"))
+	h.redirectWithNotice(w, r, redirectURL, "success", "تم تسجيل تقييمك للمورد بنجاح. شكراً لمشاركتنا تجربتك!")
 }

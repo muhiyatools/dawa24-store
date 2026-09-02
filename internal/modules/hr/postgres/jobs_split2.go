@@ -73,3 +73,136 @@ func (r *Repository) CountApplicationsByOffer(ctx context.Context, offerID int64
 	})
 	return count, err
 }
+
+// ListPublishedJobsWithTotal returns published vacancies and total count.
+func (r *Repository) ListPublishedJobsWithTotal(ctx context.Context, limit, offset int) ([]*hr.JobOffer, int, error) {
+	var list []*hr.JobOffer
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const countQuery = `SELECT count(*) FROM hr.job_offers WHERE status = 'published' AND deleted_at IS NULL;`
+		if err := tx.QueryRow(txCtx, countQuery).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		const query = `SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE status = 'published' AND deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2;`
+		rows, err := tx.Query(txCtx, query, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var j hr.JobOffer
+			if err := rows.Scan(&j.ID, &j.PublicID, &j.OrganizationID, &j.CategoryID, &j.Title, &j.Description, &j.Requirements, &j.SalaryMin, &j.SalaryMax, &j.Location, &j.Status, &j.CreatedAt, &j.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &j)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
+// ListAllJobsWithTotal returns all vacancies across all tenants for admin.
+func (r *Repository) ListAllJobsWithTotal(ctx context.Context, limit, offset int) ([]*hr.JobOffer, int, error) {
+	var list []*hr.JobOffer
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const countQuery = `SELECT count(*) FROM hr.job_offers WHERE deleted_at IS NULL;`
+		if err := tx.QueryRow(txCtx, countQuery).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		const query = `SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2;`
+		rows, err := tx.Query(txCtx, query, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var j hr.JobOffer
+			if err := rows.Scan(&j.ID, &j.PublicID, &j.OrganizationID, &j.CategoryID, &j.Title, &j.Description, &j.Requirements, &j.SalaryMin, &j.SalaryMax, &j.Location, &j.Status, &j.CreatedAt, &j.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &j)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
+// ListJobsByOrgWithTotal returns a tenant's postings and total count.
+func (r *Repository) ListJobsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, int, error) {
+	var list []*hr.JobOffer
+	var total int
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		const countQuery = `SELECT count(*) FROM hr.job_offers WHERE organization_id = $1 AND deleted_at IS NULL;`
+		if err := tx.QueryRow(txCtx, countQuery, orgID).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+		if offset < 0 {
+			offset = 0
+		}
+
+		const query = `SELECT id, public_id, organization_id, category_id, title, description, requirements, salary_min, salary_max, location, status, created_at, updated_at FROM hr.job_offers WHERE organization_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT $2 OFFSET $3;`
+		rows, err := tx.Query(txCtx, query, orgID, limit, offset)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var j hr.JobOffer
+			if err := rows.Scan(&j.ID, &j.PublicID, &j.OrganizationID, &j.CategoryID, &j.Title, &j.Description, &j.Requirements, &j.SalaryMin, &j.SalaryMax, &j.Location, &j.Status, &j.CreatedAt, &j.UpdatedAt); err != nil {
+				return err
+			}
+			list = append(list, &j)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
+// GetJobStatsByOrg aggregates statistics for a tenant's job postings.
+func (r *Repository) GetJobStatsByOrg(ctx context.Context, orgID int64) (hr.JobStatsResult, error) {
+	var stats hr.JobStatsResult
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT 
+				COUNT(*) FILTER (WHERE status = 'published' AND deleted_at IS NULL),
+				COUNT(*) FILTER (WHERE status != 'published' AND deleted_at IS NULL),
+				COALESCE((
+					SELECT COUNT(*) 
+					FROM hr.job_applications a 
+					JOIN hr.job_offers o ON o.id = a.job_offer_id 
+					WHERE o.organization_id = $1 AND o.deleted_at IS NULL
+				), 0)
+			FROM hr.job_offers
+			WHERE organization_id = $1 AND deleted_at IS NULL;
+		`
+		return tx.QueryRow(txCtx, query, orgID).Scan(&stats.PublishedCount, &stats.ClosedCount, &stats.TotalApplications)
+	})
+	return stats, err
+}

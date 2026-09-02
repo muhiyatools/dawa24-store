@@ -12,6 +12,11 @@ func (s *Service) AdminListSubscriptions(ctx context.Context, limit, offset int)
 	return s.repo.AdminListSubscriptions(ctx, limit, offset)
 }
 
+// AdminListSubscriptionsWithTotal provides cross-tenant subscription listing with total count.
+func (s *Service) AdminListSubscriptionsWithTotal(ctx context.Context, limit, offset int) ([]*Subscription, int, error) {
+	return s.repo.AdminListSubscriptionsWithTotal(ctx, limit, offset)
+}
+
 // AdminAdjustWallet adjusts a wallet's balance.
 func (s *Service) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
 	return s.repo.AdminAdjustWallet(ctx, walletID, amount, reason, actorID)

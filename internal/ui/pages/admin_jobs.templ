@@ -15,9 +15,16 @@ type AdminJobView struct {
 	CompanyType string
 }
 
+type AdminJobsData struct {
+	Jobs       []*AdminJobView
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
 func intPtr(n int) *int { return &n }
 
-templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
+templ AdminJobs(lang, dir string, data AdminJobsData) {
 	@layouts.AdminShell("إدارة فرص التوظيف وإعلانات العمل", "jobs", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
@@ -28,14 +35,14 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 						</div>
       <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">فرص التوظيف والوظائف المنشورة</h1>
-							<p class="text-sm text-secondary m-0 mt-1">متابعة إعلانات التوظيف والوظائف الشاغرة الصادرة من الصيدليات والشركات الموردة (إجمالي: { fmt.Sprintf("%d", len(jobs)) })</p>
+							<p class="text-sm text-secondary m-0 mt-1">متابعة إعلانات التوظيف والوظائف الشاغرة الصادرة من الصيدليات والشركات الموردة (إجمالي: { fmt.Sprintf("%d", data.TotalCount) })</p>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
-				if len(jobs) == 0 {
+				if len(data.Jobs) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconBriefcase("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد فرص توظيف معلنة</h3>
@@ -56,7 +63,7 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 								</tr>
 							</thead>
 							<tbody>
-								for _, j := range jobs {
+								for _, j := range data.Jobs {
 									<tr>
 										<td>
 											<div class="font-extrabold text-primary text-xs">{ j.Job.Title.Get(i18n.Lang(lang)) }</div>
@@ -99,6 +106,14 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/admin/jobs",
+						})
+					}
 				}
 			</div>
 		</div>

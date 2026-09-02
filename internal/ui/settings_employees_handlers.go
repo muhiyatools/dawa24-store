@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -73,13 +74,19 @@ func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var employees []*org.EmployeeView
 	var branches []*org.Branch
 	var roles []*org.Role
+	var totalCount int
 
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
+		if emps, total, err := h.orgSvc.ListEmployeesWithTotal(ctx, actor.OrganizationID, limit, offset); err == nil {
 			employees = emps
+			totalCount = total
 		} else {
 			h.log.ErrorContext(ctx, "failed to list employees", "error", err, "org_id", actor.OrganizationID)
 		}
@@ -95,7 +102,17 @@ func (h *UIHandler) SettingsEmployeesPage(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	h.renderPage(ctx, w, "render settings employees", pages.SettingsEmployees(employees, branches, roles, lang, dir, actor))
+	data := pages.SettingsEmployeesPageData{
+		Employees:  employees,
+		Branches:   branches,
+		Roles:      roles,
+		Actor:      actor,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: totalCount,
+	}
+
+	h.renderPage(ctx, w, "render settings employees", pages.SettingsEmployees(data, lang, dir))
 }
 
 // SettingsEmployeeCreateSubmit creates a new employee account and assigns them to the organization and branch.

@@ -14,6 +14,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -27,11 +28,16 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 		tab = "plans"
 	}
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	var plans []*billing.Plan
 	var subs []*billing.Subscription
+	var totalSubs int
 	if h.billSvc != nil {
 		plans, _ = h.billSvc.AdminListPlans(ctx)
-		subs, _ = h.billSvc.AdminListSubscriptions(ctx, 100, 0)
+		subs, totalSubs, _ = h.billSvc.AdminListSubscriptionsWithTotal(ctx, limit, offset)
 	}
 
 	// Retrieve gateway plans for dropdown dynamically from endpoint
@@ -57,6 +63,9 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 		GatewayPlans:  gwPlans,
 		GatewayURL:    endpointURL,
 		GatewayOnline: gwOnline,
+		SubPage:       page,
+		SubPerPage:    limit,
+		SubTotalCount: totalSubs,
 	}
 
 	h.renderPage(ctx, w, "render admin plans hub", pages.AdminPlansHub(data, lang, dir))

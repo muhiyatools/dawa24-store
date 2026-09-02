@@ -37,6 +37,18 @@ func (m *mockHRRepoJobs) ListJobsByOrg(ctx context.Context, orgID int64, limit, 
 	return m.jobs, nil
 }
 
+func (m *mockHRRepoJobs) ListJobsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*hr.JobOffer, int, error) {
+	return m.jobs, len(m.jobs), nil
+}
+
+func (m *mockHRRepoJobs) GetJobStatsByOrg(ctx context.Context, orgID int64) (hr.JobStatsResult, error) {
+	return hr.JobStatsResult{
+		PublishedCount:    len(m.jobs),
+		ClosedCount:       0,
+		TotalApplications: 0,
+	}, nil
+}
+
 func (m *mockHRRepoJobs) CountApplicationsByOffer(ctx context.Context, offerID int64) (int, error) {
 	return 0, nil
 }

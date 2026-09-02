@@ -11,8 +11,18 @@ import (
 )
 
 
-templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, roles []*org.Role, lang, dir string, actor authctx.Actor) {
-	@layouts.ShellFor("إدارة الموظفين ومدراء الفروع | Team & Managers", "employees", lang, dir, actor) {
+type SettingsEmployeesPageData struct {
+	Employees  []*org.EmployeeView
+	Branches   []*org.Branch
+	Roles      []*org.Role
+	Actor      authctx.Actor
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
+templ SettingsEmployees(data SettingsEmployeesPageData, lang, dir string) {
+	@layouts.ShellFor("إدارة الموظفين ومدراء الفروع | Team & Managers", "employees", lang, dir, data.Actor) {
 
   <div class="stack-sm">
 
@@ -109,7 +119,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 								<option value="org_pharmacist">صيدلي مسؤول (Pharmacist)</option>
 								<option value="org_warehouse">أمين مخزن وتوزيع (Warehouse)</option>
 								<option value="org_accountant">محاسب مالي (Accountant)</option>
-								for _, r := range roles {
+								for _, r := range data.Roles {
 									if r.Key != "org_owner" && r.Key != "org_manager" && r.Key != "org_pharmacist" && r.Key != "org_warehouse" && r.Key != "org_accountant" {
 										<option value={ r.Key }>{ r.Name.Get(i18n.Lang(lang)) }</option>
 									}
@@ -125,7 +135,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 							</label>
 							<select name="branch_id" class="form-input w-full">
 								<option value="">كافة الفروع (صلاحية عامة)</option>
-								for _, b := range branches {
+								for _, b := range data.Branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
 										if b.Name["ar"] != "" {
 											{ b.Name["ar"] }
@@ -175,13 +185,13 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 					</div>
 				</div>
 
-				if len(branches) == 0 {
+				if len(data.Branches) == 0 {
      <div class="stack-sm">
 						لم يتم تسجيل أي فروع للمنشأة بعد. يمكنك إضافة فروع من <a href="/vendor/branches">صفحة الفروع ونقاط التوزيع</a>.
 					</div>
 				} else {
      <div class="stack-sm">
-						for _, b := range branches {
+						for _, b := range data.Branches {
        <div class="stack-sm">
         <div class="stack-sm">
          <div class="stack-sm">
@@ -228,7 +238,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 									<input type="hidden" name="branch_id" value={ fmt.Sprintf("%d", b.ID) }/>
 									<select name="manager_user_id" class="form-input">
 										<option value="0">-- إلغاء تعيين المدير --</option>
-										for _, emp := range employees {
+										for _, emp := range data.Employees {
 											<option
 												value={ fmt.Sprintf("%d", emp.Member.UserID) }
 												selected?={ b.ManagerID != nil && *b.ManagerID == emp.Member.UserID }
@@ -260,11 +270,15 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 					</div>
 
 					<span class="badge badge-sky tabular-nums">
-						{ fmt.Sprintf("%d", len(employees)) } موظف مسجل
+						if data.TotalCount > 0 {
+							{ fmt.Sprintf("%d", data.TotalCount) } موظف مسجل
+						} else {
+							{ fmt.Sprintf("%d", len(data.Employees)) } موظف مسجل
+						}
 					</span>
 				</div>
 
-				if len(employees) == 0 {
+				if len(data.Employees) == 0 {
 					<div class="stack-xs text-sm">
 						لا يوجد موظفون مضافون حالياً. استخدم نموذج الإضافة أعلاه لإضافة أول موظف.
 					</div>
@@ -284,7 +298,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 								</tr>
 							</thead>
 							<tbody>
-								for _, emp := range employees {
+								for _, emp := range data.Employees {
 									<tr class="rule-bottom">
 										<td>
 											<div class="fw-800 text-primary">{ emp.UserName }</div>
@@ -344,6 +358,14 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/settings/employees",
+						})
+					}
 				}
 			</div>
 		</div>

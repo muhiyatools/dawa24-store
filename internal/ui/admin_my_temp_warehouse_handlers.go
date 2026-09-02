@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -37,7 +38,10 @@ func (h *UIHandler) AdminMyTempWarehousesPage(w http.ResponseWriter, r *http.Req
 		filter.Status = &st
 	}
 
-	data := h.buildTempWarehousesData(ctx, filter, true)
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+
+	data := h.buildTempWarehousesData(ctx, filter, true, page, limit)
 	data.Base = tempWarehouseMineBase
 	data.PageURL = tempWarehouseMineBase
 	data.NoticeMsg = strings.TrimSpace(r.URL.Query().Get("notice"))

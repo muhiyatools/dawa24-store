@@ -3,7 +3,6 @@ package gateway
 import (
 	"context"
 	"errors"
-	"io"
 	"time"
 )
 
@@ -192,8 +191,28 @@ func (c *recordingClient) Stream(ctx context.Context, req ChatRequest) (<-chan S
 	return out, nil
 }
 
-func (c *recordingClient) Transcribe(ctx context.Context, audio io.Reader, filename, mime string) (string, error) {
-	return c.inner.Transcribe(ctx, audio, filename, mime)
+// Transcribe records the call. Speech-to-text is billed per minute of audio by
+// the Gateway, and the tenant's usage screen showed none of it because this
+// decorator used to pass the call straight through.
+func (c *recordingClient) Transcribe(ctx context.Context, req TranscribeRequest) (string, error) {
+	started := time.Now()
+	text, err := c.inner.Transcribe(ctx, req)
+	event := UsageEvent{
+		OrganizationID: req.OrgID,
+		UserID:         req.UserID,
+		Capability:     string(RoleTranscribe),
+		Feature:        req.Feature,
+		Model:          req.Model,
+		Duration:       time.Since(started),
+		At:             started,
+		Status:         "success",
+	}
+	if err != nil {
+		event.Status = statusFor(err)
+		event.ErrorMessage = err.Error()
+	}
+	c.record(ctx, event)
+	return text, err
 }
 
 func (c *recordingClient) Capabilities(ctx context.Context, role Role) (ModelCapabilities, error) {

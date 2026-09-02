@@ -68,6 +68,10 @@ func (r stubRepo) ListCoverageForOrganization(context.Context, int64) ([]*workfl
 	r.fail("ListCoverageForOrganization")
 	return nil, nil
 }
+func (r stubRepo) ListCoverageForOrganizationWithTotal(context.Context, int64, int, int) ([]*workflow.CoverageView, int, error) {
+	r.fail("ListCoverageForOrganizationWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) CreateIssue(context.Context, *workflow.ReportIssue) error {
 	r.fail("CreateIssue")
 	return nil
@@ -151,6 +155,14 @@ func (happyRepo) ListCoverageForOrganization(ctx context.Context, orgID int64) (
 		BranchName:     "Branch 1",
 		CityName:       "Cairo",
 	}}, nil
+}
+func (happyRepo) ListCoverageForOrganizationWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*workflow.CoverageView, int, error) {
+	views := []*workflow.CoverageView{{
+		WeeklyCoverage: workflow.WeeklyCoverage{ID: 1, OrganizationID: orgID, BranchID: 1, DayOfWeek: 1, DistanceMeters: 5000, IsActive: true},
+		BranchName:     "Branch 1",
+		CityName:       "Cairo",
+	}}
+	return views, len(views), nil
 }
 func (happyRepo) CreateIssue(ctx context.Context, i *workflow.ReportIssue) error {
 	i.ID = 1

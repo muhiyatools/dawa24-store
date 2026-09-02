@@ -51,9 +51,7 @@ func (r *Repository) SetFileVisibility(ctx context.Context, id int64, visibility
 	})
 }
 
-// ListAdminTempWarehouses returns temporary warehouses (moderator uploads plus
-// vendor compare-tool files) enriched with the uploader and vendor labels.
-func (r *Repository) ListAdminTempWarehouses(ctx context.Context, filter compare.AdminTempWarehouseFilter) ([]*compare.AdminTempWarehouse, error) {
+func buildAdminTempWarehouseWhere(filter compare.AdminTempWarehouseFilter) ([]string, []any) {
 	where := []string{adminTempWarehouseScope}
 	var args []any
 	i := 1
@@ -83,7 +81,13 @@ func (r *Repository) ListAdminTempWarehouses(ctx context.Context, filter compare
 	case "vendor":
 		where = append(where, "f.organization_id IS NOT NULL")
 	}
+	return where, args
+}
 
+// ListAdminTempWarehouses returns temporary warehouses (moderator uploads plus
+// vendor compare-tool files) enriched with the uploader and vendor labels.
+func (r *Repository) ListAdminTempWarehouses(ctx context.Context, filter compare.AdminTempWarehouseFilter) ([]*compare.AdminTempWarehouse, error) {
+	where, args := buildAdminTempWarehouseWhere(filter)
 	sql := `
 		SELECT ` + fileColumnsF + `,
 		       ` + uploaderLabelExpr + ` AS uploader_name,
@@ -111,6 +115,79 @@ func (r *Repository) ListAdminTempWarehouses(ctx context.Context, filter compare
 		return rows.Err()
 	})
 	return out, err
+}
+
+// ListAdminTempWarehousesWithTotal returns paginated temporary warehouses and total count.
+func (r *Repository) ListAdminTempWarehousesWithTotal(ctx context.Context, filter compare.AdminTempWarehouseFilter, limit, offset int) ([]*compare.AdminTempWarehouse, int, error) {
+	where, args := buildAdminTempWarehouseWhere(filter)
+	whereClause := strings.Join(where, " AND ")
+
+	if limit <= 0 || limit > 100 {
+		limit = 25
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	countSQL := fmt.Sprintf("SELECT count(*) FROM compare.files f WHERE %s;", whereClause)
+	dataSQL := fmt.Sprintf(`
+		SELECT %s,
+		       %s AS uploader_name,
+		       COALESCE(o.name->>'ar', o.name->>'en', '') AS org_name
+		FROM compare.files f
+		LEFT JOIN identity.users u ON u.id = f.user_id
+		LEFT JOIN org.organizations o ON o.id = f.organization_id
+		WHERE %s
+		ORDER BY f.created_at DESC, f.id DESC
+		LIMIT $%d OFFSET $%d;`,
+		fileColumnsF, uploaderLabelExpr, whereClause, len(args)+1, len(args)+2)
+
+	var total int
+	var out []*compare.AdminTempWarehouse
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, countSQL, args...).Scan(&total); err != nil {
+			return err
+		}
+
+		dataArgs := append(append([]any{}, args...), limit, offset)
+		rows, err := tx.Query(txCtx, dataSQL, dataArgs...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			item, err := scanAdminTempWarehouse(rows)
+			if err != nil {
+				return err
+			}
+			out = append(out, item)
+		}
+		return rows.Err()
+	})
+	return out, total, err
+}
+
+// AdminTempWarehouseStats aggregates total rows, active count, and archived count for temp warehouses.
+func (r *Repository) AdminTempWarehouseStats(ctx context.Context, filter compare.AdminTempWarehouseFilter) (int64, int, int, error) {
+	where, args := buildAdminTempWarehouseWhere(filter)
+	whereClause := strings.Join(where, " AND ")
+
+	sql := fmt.Sprintf(`
+		SELECT COALESCE(SUM(f.row_count), 0)::bigint,
+		       COUNT(*) FILTER (WHERE f.status = 'ready'),
+		       COUNT(*) FILTER (WHERE f.status = 'archived')
+		FROM compare.files f
+		WHERE %s;`, whereClause)
+
+	var totalRows int64
+	var activeCount, archivedCount int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, sql, args...).Scan(&totalRows, &activeCount, &archivedCount)
+	})
+	return totalRows, activeCount, archivedCount, err
 }
 
 // ListTempWarehouseUploaders returns the distinct uploaders behind the admin

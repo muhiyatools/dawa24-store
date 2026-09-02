@@ -25,17 +25,36 @@ type ContentPart struct {
 }
 
 // ChatMessage is one turn in a conversation.
+//
+// Role is the OpenAI vocabulary: system, user, assistant, tool. An assistant
+// message that asked for tools carries ToolCalls; the tool results that answer
+// it are separate messages with Role "tool" and the matching ToolCallID.
 type ChatMessage struct {
-	Role  string
-	Text  string
-	Parts []ContentPart
+	Role       string
+	Text       string
+	Parts      []ContentPart
+	ToolCalls  []ToolCall
+	ToolCallID string
 }
 
-// ToolSpec reserves space for future tool definitions.
+// ToolSpec is one function the model may call.
+//
+// The Gateway forwards an OpenAI-shaped body verbatim to the upstream provider
+// and translates tool_calls in both directions, so declaring tools here is the
+// whole of what the Store has to do. What the Store must NOT do is trust the
+// arguments that come back: see modules/assistant/tools, where every call is
+// re-authorized against the live actor before it reaches a query.
 type ToolSpec struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Parameters  map[string]any `json:"parameters"`
+}
+
+// ToolCall is one function invocation the model asked for.
+type ToolCall struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"` // raw JSON text, exactly as the model wrote it
 }
 
 // Usage reports token counts from a completion turn.
@@ -52,10 +71,12 @@ type ChatRequest struct {
 	Messages    []ChatMessage
 	MaxTokens   int
 	Temperature float64
-	Tools       []ToolSpec // ALWAYS EMPTY IN THIS PHASE — asserted in tests
-	OrgID       int64
-	UserID      int64
-	VirtualKey  string // Tenant virtual key
+	// Tools are the functions the model may call this turn. They are read-only
+	// data lookups; nothing the Store exposes to a model mutates state.
+	Tools      []ToolSpec
+	OrgID      int64
+	UserID     int64
+	VirtualKey string // Tenant virtual key
 	// Feature names the screen that asked, for the usage ledger. See
 	// Request.Feature.
 	Feature string
@@ -68,15 +89,32 @@ type StreamEvent struct {
 	Done      bool
 	Err       error
 	Usage     *Usage
+	// ToolCalls is non-empty on exactly one event per turn: the one that
+	// reports the model finished by asking for tools. Fragments arrive spread
+	// across many chunks and are reassembled before this is emitted.
+	ToolCalls []ToolCall
+	// FinishReason is the upstream's own word for why generation stopped.
+	FinishReason string
 }
 
-// ErrToolsNotSupported is returned when a caller provides tools in this phase.
+// ErrToolsNotSupported is retained for callers that still branch on it. Tools
+// are supported now; nothing in this package returns this any more.
 var ErrToolsNotSupported = errors.New("gateway: tools not supported in this phase")
 
 func buildWireMessages(messages []ChatMessage) []wireChatMessage {
 	wireMsgs := make([]wireChatMessage, 0, len(messages))
 	for _, m := range messages {
-		wm := wireChatMessage{Role: m.Role}
+		wm := wireChatMessage{Role: m.Role, ToolCallID: m.ToolCallID}
+		for _, tc := range m.ToolCalls {
+			wm.ToolCalls = append(wm.ToolCalls, wireToolCall{
+				ID:   tc.ID,
+				Type: "function",
+				Function: wireToolCallFunc{
+					Name:      tc.Name,
+					Arguments: tc.Arguments,
+				},
+			})
+		}
 		if len(m.Parts) == 0 {
 			wm.Content = m.Text
 		} else {
@@ -144,11 +182,57 @@ type wireChatRequest struct {
 	MaxTokens   int               `json:"max_tokens,omitempty"`
 	Temperature float64           `json:"temperature,omitempty"`
 	Stream      bool              `json:"stream"`
+	Tools       []wireTool        `json:"tools,omitempty"`
+	ToolChoice  string            `json:"tool_choice,omitempty"`
+}
+
+type wireTool struct {
+	Type     string       `json:"type"`
+	Function wireToolFunc `json:"function"`
+}
+
+type wireToolFunc struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Parameters  map[string]any `json:"parameters"`
+}
+
+type wireToolCall struct {
+	ID       string           `json:"id"`
+	Type     string           `json:"type"`
+	Function wireToolCallFunc `json:"function"`
+}
+
+type wireToolCallFunc struct {
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
 }
 
 type wireChatMessage struct {
-	Role    string `json:"role"`
-	Content any    `json:"content"`
+	Role       string         `json:"role"`
+	Content    any            `json:"content"`
+	ToolCalls  []wireToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string         `json:"tool_call_id,omitempty"`
+}
+
+// buildWireTools converts the Store's tool specs into the OpenAI shape the
+// Gateway forwards unchanged.
+func buildWireTools(tools []ToolSpec) []wireTool {
+	if len(tools) == 0 {
+		return nil
+	}
+	out := make([]wireTool, 0, len(tools))
+	for _, t := range tools {
+		out = append(out, wireTool{
+			Type: "function",
+			Function: wireToolFunc{
+				Name:        t.Name,
+				Description: t.Description,
+				Parameters:  t.Parameters,
+			},
+		})
+	}
+	return out
 }
 
 type wireContentPart struct {

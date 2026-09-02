@@ -83,6 +83,9 @@ func (happyRepo) DeletePlatformPaymentMethod(ctx context.Context, id string) err
 func (happyRepo) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
 	return []*billing.Subscription{{ID: 1, UserID: 1}}, nil
 }
+func (happyRepo) AdminListSubscriptionsWithTotal(ctx context.Context, limit, offset int) ([]*billing.Subscription, int, error) {
+	return []*billing.Subscription{{ID: 1, UserID: 1}}, 1, nil
+}
 func (happyRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
 	return nil
 }

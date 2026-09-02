@@ -349,48 +349,18 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</table>
 					</div>
 
-					<!-- Pagination Strip -->
-					<div class="p-4 border-t flex-between items-center flex-wrap gap-3 bg-surface-sunken">
-						<!-- Rows Per Page -->
-						<div class="d-flex items-center gap-2 text-xs text-secondary">
-							<span>صفوف لكل صفحة:</span>
-							<select
-								class="form-input text-xs py-1 px-2 w-auto"
-								onchange="location.href=this.value"
-							>
-								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=10&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 10 }>10</option>
-								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=25&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 25 }>25</option>
-								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=50&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 50 }>50</option>
-								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=100&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 100 }>100</option>
-								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=1000&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit >= 1000 }>الكل ({ fmt.Sprintf("%d", data.TotalFiltered) })</option>
-							</select>
-							<span class="tabular-nums font-bold">
-								(صفحة { fmt.Sprintf("%d من %d", data.Page, data.TotalPages) })
-							</span>
-						</div>
-
-						<!-- Page Nav -->
-						<div class="d-flex items-center gap-2">
-							if data.Page > 1 {
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=%d&page=%d", data.SelectedGovernorateID, data.Query, data.Limit, data.Page-1)) }
-									class="btn btn-secondary btn-xs font-bold text-xs"
-								>
-									@components.IconArrowRight("icon-xs")
-									<span>السابق</span>
-								</a>
-							}
-							if data.Page < data.TotalPages {
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=%d&page=%d", data.SelectedGovernorateID, data.Query, data.Limit, data.Page+1)) }
-									class="btn btn-secondary btn-xs font-bold text-xs"
-								>
-									<span>التالي</span>
-									@components.IconArrowLeft("icon-xs")
-								</a>
-							}
-						</div>
-					</div>
+					if data.TotalFiltered > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.Limit,
+							TotalCount:  data.TotalFiltered,
+							BaseURL:     "/admin/cities",
+							QueryValues: map[string][]string{
+								"gov_id": {fmt.Sprintf("%d", data.SelectedGovernorateID)},
+								"q":      {data.Query},
+							},
+						})
+					}
 				</div>
 
 				<!-- Left in RTL / End Column: Creation Forms & Quick Navigation -->

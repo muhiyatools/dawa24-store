@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -29,11 +30,17 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 	}
 	statusParam := r.URL.Query().Get("status")
 
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
+	offset := (page - 1) * limit
+
 	data := &pages.AdminApprovalsData{
 		ActiveTab:    tab,
 		StatusFilter: statusParam,
 		OrgDocs:      make(map[int64][]*attachments.Document),
 		OrgNames:     make(map[int64]string),
+		OrgPage:      page,
+		OrgPerPage:   limit,
 	}
 
 	sysCtx := database.AsSystem(ctx)
@@ -55,11 +62,12 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 			st := org.StatusPending
 			filterStatus = &st
 		}
-		list, err := h.orgSvc.ListOrganizations(sysCtx, nil, filterStatus, 150, 0)
+		list, total, err := h.orgSvc.ListOrganizationsWithTotal(sysCtx, "", nil, filterStatus, limit, offset)
 		if err != nil {
 			h.log.WarnContext(ctx, "admin approvals: list organizations", "error", err)
 		} else {
 			data.Organizations = list
+			data.OrgTotalCount = total
 		}
 	}
 
@@ -191,7 +199,7 @@ func (h *UIHandler) adminApprovalAction(
 	}
 
 	pendingStatus := org.StatusPending
-	pending, err := h.orgSvc.ListOrganizations(ctx, nil, &pendingStatus, 50, 0)
+	pending, total, err := h.orgSvc.ListOrganizationsWithTotal(ctx, "", nil, &pendingStatus, 25, 0)
 	if err != nil {
 		h.renderError(w, r, err)
 		return
@@ -210,7 +218,7 @@ func (h *UIHandler) adminApprovalAction(
 		}
 	}
 
-	h.renderPage(ctx, w, "render approvals table after action", pages.AdminApprovalsTable(pending, orgDocs))
+	h.renderPage(ctx, w, "render approvals table after action", pages.AdminApprovalsTable(pending, orgDocs, 1, 25, total, "pending"))
 }
 
 // AdminApproveOrgSubmit approves a pending organization.

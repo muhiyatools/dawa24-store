@@ -191,6 +191,10 @@ func (r stubRepo) AdminListSubscriptions(ctx context.Context, limit, offset int)
 	r.fail("AdminListSubscriptions")
 	return nil, nil
 }
+func (r stubRepo) AdminListSubscriptionsWithTotal(ctx context.Context, limit, offset int) ([]*billing.Subscription, int, error) {
+	r.fail("AdminListSubscriptionsWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) AdminAdjustWallet(ctx context.Context, walletID int64, amount money.Amount, reason string, actorID int64) error {
 	r.fail("AdminAdjustWallet")
 	return nil

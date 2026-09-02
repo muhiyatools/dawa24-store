@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"context"
-	"io"
 )
 
 // Disabled is a Client that always reports the Gateway as switched off.
@@ -27,7 +26,7 @@ func (Disabled) Stream(context.Context, ChatRequest) (<-chan StreamEvent, error)
 	close(ch)
 	return ch, nil
 }
-func (Disabled) Transcribe(context.Context, io.Reader, string, string) (string, error) {
+func (Disabled) Transcribe(context.Context, TranscribeRequest) (string, error) {
 	return "", ErrDisabled
 }
 func (Disabled) Capabilities(context.Context, Role) (ModelCapabilities, error) {

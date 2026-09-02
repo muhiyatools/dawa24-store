@@ -80,6 +80,25 @@ func (m *mockCompareRepo) ListAdminTempWarehouses(ctx context.Context, filter co
 	return list, nil
 }
 
+func (m *mockCompareRepo) ListAdminTempWarehousesWithTotal(ctx context.Context, filter compare.AdminTempWarehouseFilter, _, _ int) ([]*compare.AdminTempWarehouse, int, error) {
+	list, err := m.ListAdminTempWarehouses(ctx, filter)
+	return list, len(list), err
+}
+
+func (m *mockCompareRepo) AdminTempWarehouseStats(ctx context.Context, filter compare.AdminTempWarehouseFilter) (int64, int, int, error) {
+	var totalRows int64
+	var activeCount, archivedCount int
+	for _, f := range m.files {
+		totalRows += int64(f.RowCount)
+		if f.Status == compare.FileReady {
+			activeCount++
+		} else if f.Status == compare.FileArchived {
+			archivedCount++
+		}
+	}
+	return totalRows, activeCount, archivedCount, nil
+}
+
 func (m *mockCompareRepo) ListTempWarehouseUploaders(ctx context.Context) ([]compare.FileUploader, error) {
 	return nil, nil
 }

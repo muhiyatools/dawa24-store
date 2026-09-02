@@ -37,7 +37,9 @@ type Repository interface {
 	CreateSponsorshipRequest(ctx context.Context, r *SponsorshipRequest) error
 	GetSponsorshipRequestByID(ctx context.Context, id int64) (*SponsorshipRequest, error)
 	ListSponsorshipRequestsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*SponsorshipRequest, error)
+	ListSponsorshipRequestsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*SponsorshipRequest, int, error)
 	ListAllSponsorshipRequests(ctx context.Context, limit, offset int) ([]*SponsorshipRequest, error)
+	ListAllSponsorshipRequestsWithTotal(ctx context.Context, limit, offset int) ([]*SponsorshipRequest, int, error)
 	ListPendingSponsorshipRequests(ctx context.Context, limit, offset int) ([]*SponsorshipRequest, error)
 	UpdateSponsorshipRequestAdminStatus(ctx context.Context, id int64, status AdminStatus, notes string, reviewerID int64) error
 	ActivateSponsorshipRequest(ctx context.Context, id int64, reviewerID int64) (*SponsorshipRequest, error)
@@ -57,7 +59,9 @@ type Repository interface {
 	UpdateAd(ctx context.Context, a *Ad) error
 	GetAdByID(ctx context.Context, id int64) (*Ad, error)
 	ListAdsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Ad, error)
+	ListAdsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Ad, int, error)
 	ListAllAds(ctx context.Context, limit, offset int) ([]*Ad, error)
+	ListAllAdsWithTotal(ctx context.Context, limit, offset int) ([]*Ad, int, error)
 	ListActiveAds(ctx context.Context, position string) ([]*Ad, error)
 	UpdateAdAdminStatus(ctx context.Context, id int64, status AdminStatus, notes string, reviewerID int64) error
 	RecordAdClick(ctx context.Context, adID int64, userID *int64, ip, ua string) error

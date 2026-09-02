@@ -25,19 +25,19 @@ var _ assistant.Repository = (*Repository)(nil)
 
 // CreateConversation inserts a new conversation row.
 func (r *Repository) CreateConversation(ctx context.Context, c *assistant.Conversation) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var orgID *int64
 		if c.OrganizationID > 0 {
 			orgID = &c.OrganizationID
 		}
 		query := `
 			INSERT INTO assistant.conversations (
-				organization_id, user_id, title
-			) VALUES ($1, $2, $3)
-			RETURNING id, public_id, created_at, updated_at
+				organization_id, user_id, title, agent_role
+			) VALUES ($1, $2, $3, $4)
+			RETURNING id, public_id, created_at, updated_at, expires_at
 		`
-		return tx.QueryRow(txCtx, query, orgID, c.UserID, c.Title).
-			Scan(&c.ID, &c.PublicID, &c.CreatedAt, &c.UpdatedAt)
+		return tx.QueryRow(txCtx, query, orgID, c.UserID, c.Title, c.AgentRole).
+			Scan(&c.ID, &c.PublicID, &c.CreatedAt, &c.UpdatedAt, &c.ExpiresAt)
 	})
 }
 
@@ -45,15 +45,16 @@ func (r *Repository) CreateConversation(ctx context.Context, c *assistant.Conver
 func (r *Repository) GetConversation(ctx context.Context, id int64) (*assistant.Conversation, error) {
 	var c assistant.Conversation
 	var orgID *int64
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
+			SELECT id, public_id, organization_id, user_id, title,
+			       COALESCE(agent_role,''), created_at, updated_at, expires_at, deleted_at
 			FROM assistant.conversations
 			WHERE id = $1 AND deleted_at IS NULL
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
-			&c.ID, &c.PublicID, &orgID, &c.UserID, &c.Title,
-			&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
+			&c.ID, &c.PublicID, &orgID, &c.UserID, &c.Title, &c.AgentRole,
+			&c.CreatedAt, &c.UpdatedAt, &c.ExpiresAt, &c.DeletedAt,
 		)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -79,7 +80,7 @@ func (r *Repository) GetConversation(ctx context.Context, id int64) (*assistant.
 func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*assistant.ConversationSummary, error) {
 	var s assistant.ConversationSummary
 	var orgID *int64
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT 
 				c.id, c.public_id, c.organization_id, COALESCE(o.name->>'ar', o.name->>'en', 'منشأة #' || COALESCE(c.organization_id, 0)) AS org_name,
@@ -126,7 +127,7 @@ func (r *Repository) GetConversationSummary(ctx context.Context, id int64) (*ass
 
 // DeleteConversation marks a conversation as deleted for a user.
 func (r *Repository) DeleteConversation(ctx context.Context, id int64, orgID, userID int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var query string
 		var args []any
 		if orgID > 0 {
@@ -156,12 +157,13 @@ func (r *Repository) ListConversations(ctx context.Context, orgID, userID int64,
 	}
 
 	var convs []*assistant.Conversation
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var query string
 		var args []any
 		if orgID > 0 {
 			query = `
-				SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
+				SELECT id, public_id, organization_id, user_id, title,
+				       COALESCE(agent_role,''), created_at, updated_at, expires_at, deleted_at
 				FROM assistant.conversations
 				WHERE organization_id = $1 AND user_id = $2 AND deleted_at IS NULL
 				ORDER BY updated_at DESC
@@ -170,7 +172,8 @@ func (r *Repository) ListConversations(ctx context.Context, orgID, userID int64,
 			args = []any{orgID, userID, limit, offset}
 		} else {
 			query = `
-				SELECT id, public_id, organization_id, user_id, title, created_at, updated_at, deleted_at
+				SELECT id, public_id, organization_id, user_id, title,
+				       COALESCE(agent_role,''), created_at, updated_at, expires_at, deleted_at
 				FROM assistant.conversations
 				WHERE user_id = $1 AND deleted_at IS NULL
 				ORDER BY updated_at DESC
@@ -188,8 +191,8 @@ func (r *Repository) ListConversations(ctx context.Context, orgID, userID int64,
 			var c assistant.Conversation
 			var oID *int64
 			if err := rows.Scan(
-				&c.ID, &c.PublicID, &oID, &c.UserID, &c.Title,
-				&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
+				&c.ID, &c.PublicID, &oID, &c.UserID, &c.Title, &c.AgentRole,
+				&c.CreatedAt, &c.UpdatedAt, &c.ExpiresAt, &c.DeletedAt,
 			); err != nil {
 				return fmt.Errorf("assistant: scan conversation: %w", err)
 			}
@@ -213,7 +216,7 @@ func (r *Repository) SaveMessage(ctx context.Context, m *assistant.Message) erro
 		attsJSON = []byte("[]")
 	}
 
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var orgID *int64
 		if m.OrganizationID > 0 {
 			orgID = &m.OrganizationID
@@ -249,7 +252,7 @@ func (r *Repository) ListMessages(ctx context.Context, convID int64, limit int) 
 	}
 
 	var msgs []*assistant.Message
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, conversation_id, organization_id, role, content,
 			       attachments, prompt_version, model_role, input_tokens,

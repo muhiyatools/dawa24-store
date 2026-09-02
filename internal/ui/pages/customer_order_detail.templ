@@ -3,10 +3,18 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+func reviewScoreOf(rev *org.Review) int {
+	if rev == nil {
+		return 5
+	}
+	return rev.Rating
+}
 
 func isStepDone(status commerce.OrderStatus, step int) bool {
 	switch step {
@@ -108,7 +116,7 @@ func orderTaxRate(order *commerce.Order) float64 {
 	return 0.0
 }
 
-templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, noticeType, noticeMsg, lang, dir string) {
+templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, noticeType, noticeMsg, lang, dir string, reviews map[int64]*org.Review) {
 	@layouts.CustomerShell(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, nil) {
 		<div class="page-container">
 			
@@ -605,6 +613,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															</span>
 														}
 														@components.StatusBadge(string(sh.Status))
+														if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
+															@VendorShipmentReviewButton(order.ID, sh, reviews[sh.OrganizationID] != nil, reviewScoreOf(reviews[sh.OrganizationID]), lang)
+														}
 													</div>
 												</div>
 												<div class="table-container m-0">
@@ -898,6 +909,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 			<!-- Edit Order Modal (Only rendered/available when order is pending) -->
 			@CustomerOrderEditModal(order, lang)
+
+			<!-- Review Vendor Shipment Modal -->
+			@CustomerOrderReviewModal(order, lang)
 
 			@CustomerOrderDetailScript()
 		</div>

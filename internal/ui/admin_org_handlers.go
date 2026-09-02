@@ -179,11 +179,15 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 	orgIDFilter, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64)
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var branches []*org.Branch
 	var allOrgs []*org.Organization
 	orgNames := make(map[int64]string)
 	orgTypes := make(map[int64]string)
-	var totalBranches, activeBranches, pharmacyBranches, vendorWarehouses int
+	var totalBranches, activeBranches, pharmacyBranches, vendorWarehouses, filteredCount int
 
 	if h.orgSvc != nil {
 		allOrgsList, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0)
@@ -195,39 +199,22 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		allBranchesList, _ := h.orgSvc.ListBranches(sysCtx, 0)
-		for _, b := range allBranchesList {
-			if b == nil {
-				continue
-			}
-			totalBranches++
-			if b.Status == "active" || b.Status == "" {
-				activeBranches++
-			}
-			if orgTypes[b.OrganizationID] == "vendor" {
-				vendorWarehouses++
-			} else {
-				pharmacyBranches++
-			}
+		stats, _ := h.orgSvc.AdminBranchStats(sysCtx)
+		totalBranches = stats.TotalBranches
+		activeBranches = stats.ActiveBranches
+		pharmacyBranches = stats.PharmacyBranches
+		vendorWarehouses = stats.VendorWarehouses
 
-			if orgIDFilter > 0 && b.OrganizationID != orgIDFilter {
-				continue
-			}
-			if statusFilter != "" && b.Status != statusFilter {
-				continue
-			}
-			if searchQuery != "" {
-				qLower := strings.ToLower(searchQuery)
-				nameAr := strings.ToLower(b.Name.Get("ar"))
-				nameEn := strings.ToLower(b.Name.Get("en"))
-				codeMatch := strings.Contains(strings.ToLower(b.Code), qLower)
-				addrMatch := strings.Contains(strings.ToLower(b.Address), qLower)
-				orgMatch := strings.Contains(strings.ToLower(orgNames[b.OrganizationID]), qLower)
-				if !strings.Contains(nameAr, qLower) && !strings.Contains(nameEn, qLower) && !codeMatch && !addrMatch && !orgMatch {
-					continue
-				}
-			}
-			branches = append(branches, b)
+		filter := org.BranchFilter{
+			SearchQuery:    searchQuery,
+			OrganizationID: orgIDFilter,
+			Status:         statusFilter,
+		}
+
+		bList, total, err := h.orgSvc.ListBranchesWithTotal(sysCtx, filter, limit, offset)
+		if err == nil {
+			branches = bList
+			filteredCount = total
 		}
 	}
 
@@ -237,9 +224,12 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 		OrgNames:         orgNames,
 		OrgTypes:         orgTypes,
 		TotalBranches:    totalBranches,
+		FilteredCount:    filteredCount,
 		ActiveBranches:   activeBranches,
 		PharmacyBranches: pharmacyBranches,
 		VendorWarehouses: vendorWarehouses,
+		Page:             page,
+		PerPage:          limit,
 		SearchQuery:      searchQuery,
 		SelectedOrgID:    orgIDFilter,
 		StatusFilter:     statusFilter,

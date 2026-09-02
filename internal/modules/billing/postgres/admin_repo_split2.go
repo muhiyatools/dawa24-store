@@ -171,13 +171,24 @@ func (r *Repository) AdminPerformWalletAdjustment(
 
 // AdminListSubscriptions returns subscriptions across all tenants.
 func (r *Repository) AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*billing.Subscription, error) {
+	subs, _, err := r.AdminListSubscriptionsWithTotal(ctx, limit, offset)
+	return subs, err
+}
+
+// AdminListSubscriptionsWithTotal returns subscriptions across all tenants along with total count.
+func (r *Repository) AdminListSubscriptionsWithTotal(ctx context.Context, limit, offset int) ([]*billing.Subscription, int, error) {
 	var list []*billing.Subscription
+	var total int
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, `SELECT count(*) FROM billing.subscriptions`).Scan(&total); err != nil {
+			return err
+		}
+
 		const query = `
 			SELECT id, public_id, user_id, organization_id, plan_id, status,
 			       starts_at, expires_at, source_system, source_id, created_at, updated_at
 			FROM billing.subscriptions
-			ORDER BY created_at DESC
+			ORDER BY created_at DESC, id DESC
 			LIMIT $1 OFFSET $2;
 		`
 		rows, err := tx.Query(txCtx, query, pageLimit(limit), pageOffset(offset))
@@ -201,7 +212,7 @@ func (r *Repository) AdminListSubscriptions(ctx context.Context, limit, offset i
 		}
 		return rows.Err()
 	})
-	return list, err
+	return list, total, err
 }
 
 // AdminListPayments returns payments across all tenants.

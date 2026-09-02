@@ -9,8 +9,9 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -23,27 +24,27 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 	var allCities []*platformadmin.City
 	if h.adminSvc != nil {
 		governorates, _ = h.adminSvc.ListAllGovernorates(ctx, 1)
-		allCities, _ = h.adminSvc.ListAllCities(ctx, 1)
-	}
-	if len(allCities) == 0 {
-		allCities = h.listCities(ctx)
+		allCities, _ = h.adminSvc.ListCities(database.AsSystem(ctx), 1)
 	}
 
 	selectedGovID, _ := strconv.ParseInt(r.URL.Query().Get("gov_id"), 10, 64)
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	qLower := strings.ToLower(query)
 
-	// Filter cities by governorate and search query
-	filteredCities := make([]*platformadmin.City, 0, len(allCities))
+	var filteredCities []*platformadmin.City
 	for _, c := range allCities {
+		if c == nil {
+			continue
+		}
 		if selectedGovID > 0 && (c.GovernorateID == nil || *c.GovernorateID != selectedGovID) {
 			continue
 		}
 		if query != "" {
-			qLower := strings.ToLower(query)
-			nameAr := c.Name["ar"]
-			nameEn := strings.ToLower(c.Name["en"])
-			govAr := ""
-			govEn := ""
+			var nameAr, nameEn string
+			nameAr = c.Name["ar"]
+			nameEn = strings.ToLower(c.Name["en"])
+
+			var govAr, govEn string
 			if c.GovernorateName != nil {
 				govAr = (*c.GovernorateName)["ar"]
 				govEn = strings.ToLower((*c.GovernorateName)["en"])
@@ -56,14 +57,8 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 		filteredCities = append(filteredCities, c)
 	}
 
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 {
-		limit = 25
-	}
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page <= 0 {
-		page = 1
-	}
+	limit := pagination.RowsPerPage(r)
+	page := pagination.PageNumber(r)
 
 	totalFiltered := len(filteredCities)
 	var paginatedCities []*platformadmin.City

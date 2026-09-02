@@ -76,3 +76,58 @@ func derefInt(p *int) int {
 	}
 	return *p
 }
+
+// ListAllSponsorshipRequestsWithTotal returns all requests for admin moderation with total count.
+func (r *Repository) ListAllSponsorshipRequestsWithTotal(ctx context.Context, limit, offset int) ([]*promo.SponsorshipRequest, int, error) {
+	return r.listSponsorshipRequestsWithTotal(database.AsSystem(ctx), ``, int64(0), limit, offset)
+}
+
+// ListSponsorshipRequestsByOrgWithTotal returns paginated requests for an organization with total count.
+func (r *Repository) ListSponsorshipRequestsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*promo.SponsorshipRequest, int, error) {
+	return r.listSponsorshipRequestsWithTotal(ctx, `WHERE sr.organization_id = $1`, orgID, limit, offset)
+}
+
+func (r *Repository) listSponsorshipRequestsWithTotal(ctx context.Context, where string, orgID int64, limit, offset int) ([]*promo.SponsorshipRequest, int, error) {
+	if limit <= 0 || limit > 200 {
+		limit = 25
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	var list []*promo.SponsorshipRequest
+	var total int
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `SELECT count(*) FROM promo.sponsorship_requests sr ` + where + `;`
+		var err error
+		if orgID > 0 {
+			err = tx.QueryRow(txCtx, countQuery, orgID).Scan(&total)
+		} else {
+			err = tx.QueryRow(txCtx, countQuery).Scan(&total)
+		}
+		if err != nil {
+			return err
+		}
+
+		query := sponsorshipRequestColumns + ` ` + where + ` ORDER BY sr.created_at DESC, sr.id DESC LIMIT $` + whereParam(orgID) + ` OFFSET $` + whereParam2(orgID) + `;`
+		var rows pgx.Rows
+		if orgID > 0 {
+			rows, err = tx.Query(txCtx, query, orgID, limit, offset)
+		} else {
+			rows, err = tx.Query(txCtx, query, limit, offset)
+		}
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var sr promo.SponsorshipRequest
+			if err := scanSponsorshipRequest(rows, &sr); err != nil {
+				return err
+			}
+			list = append(list, &sr)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}

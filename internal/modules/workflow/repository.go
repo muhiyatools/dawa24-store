@@ -22,6 +22,7 @@ type Repository interface {
 	GetWeeklyCoverageByID(ctx context.Context, id int64) (*WeeklyCoverage, error)
 	ListWeeklyCoverage(ctx context.Context, branchID int64) ([]*WeeklyCoverage, error)
 	ListCoverageForOrganization(ctx context.Context, orgID int64) ([]*CoverageView, error)
+	ListCoverageForOrganizationWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*CoverageView, int, error)
 
 	CreateIssue(ctx context.Context, i *ReportIssue) error
 	GetIssueByID(ctx context.Context, id int64) (*ReportIssue, error)

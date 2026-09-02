@@ -19,7 +19,6 @@ package gateway
 import (
 	"context"
 	"fmt"
-	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -200,7 +199,7 @@ type Response struct {
 type Client interface {
 	Invoke(ctx context.Context, req Request) (*Response, error)
 	Stream(ctx context.Context, req ChatRequest) (<-chan StreamEvent, error)
-	Transcribe(ctx context.Context, audio io.Reader, filename, mime string) (string, error)
+	Transcribe(ctx context.Context, req TranscribeRequest) (string, error)
 	Capabilities(ctx context.Context, role Role) (ModelCapabilities, error)
 	Health(ctx context.Context) error
 	Enabled() bool

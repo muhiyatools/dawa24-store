@@ -159,6 +159,61 @@ func adOffsetParam(orgID int64) string {
 	return "2"
 }
 
+// ListAdsByOrgWithTotal returns paginated ads for an organization with total count.
+func (r *Repository) ListAdsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*promo.Ad, int, error) {
+	return r.listAdsWithTotal(ctx, `WHERE organization_id = $1`, orgID, limit, offset)
+}
+
+// ListAllAdsWithTotal returns all ads for admin moderation with total count.
+func (r *Repository) ListAllAdsWithTotal(ctx context.Context, limit, offset int) ([]*promo.Ad, int, error) {
+	return r.listAdsWithTotal(database.AsSystem(ctx), ``, int64(0), limit, offset)
+}
+
+func (r *Repository) listAdsWithTotal(ctx context.Context, where string, orgID int64, limit, offset int) ([]*promo.Ad, int, error) {
+	if limit <= 0 || limit > 200 {
+		limit = 25
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	var list []*promo.Ad
+	var total int
+
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		countQuery := `SELECT count(*) FROM promo.ads ` + where + `;`
+		var err error
+		if orgID > 0 {
+			err = tx.QueryRow(txCtx, countQuery, orgID).Scan(&total)
+		} else {
+			err = tx.QueryRow(txCtx, countQuery).Scan(&total)
+		}
+		if err != nil {
+			return err
+		}
+
+		query := `SELECT ` + adColumns + ` FROM promo.ads ` + where + ` ORDER BY created_at DESC, id DESC LIMIT $` + adLimitParam(orgID) + ` OFFSET $` + adOffsetParam(orgID) + `;`
+		var rows pgx.Rows
+		if orgID > 0 {
+			rows, err = tx.Query(txCtx, query, orgID, limit, offset)
+		} else {
+			rows, err = tx.Query(txCtx, query, limit, offset)
+		}
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var a promo.Ad
+			if err := scanAd(rows, &a); err != nil {
+				return err
+			}
+			list = append(list, &a)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
 // ListActiveAds returns approved, active display ads by screen position.
 func (r *Repository) ListActiveAds(ctx context.Context, position string) ([]*promo.Ad, error) {
 	var list []*promo.Ad

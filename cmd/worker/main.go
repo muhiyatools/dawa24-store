@@ -197,6 +197,10 @@ func run() error {
 		}
 	}()
 
+	// Capsule retention: conversations are deleted six months after they were
+	// created, and unreferenced uploads after a day. See assistant_retention.go.
+	startAssistantRetention(ctx, db, cfg.Storage, log)
+
 	log.Info("worker started", "queues", cfg.Worker.Queues)
 
 	<-ctx.Done()

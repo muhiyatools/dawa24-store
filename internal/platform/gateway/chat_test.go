@@ -189,30 +189,6 @@ func TestPhase2_UnauthorizedAndForbiddenNotRetried(t *testing.T) {
 	}
 }
 
-func TestPhase2_ToolsForbidden(t *testing.T) {
-	// T2.8: Tools non-empty must be rejected in this phase
-	client := New(config.Gateway{
-		BaseURL:    "https://api.muhiya.com",
-		VirtualKey: "sk-test",
-		Enabled:    true,
-	}, slog.Default())
-
-	req := ChatRequest{
-		Role: RolePrimary,
-		Messages: []ChatMessage{
-			{Role: "user", Text: "hi"},
-		},
-		Tools: []ToolSpec{
-			{Name: "search_products"},
-		},
-	}
-
-	_, err := client.Stream(context.Background(), req)
-	if !errors.Is(err, ErrToolsNotSupported) {
-		t.Errorf("T2.8 failed: expected ErrToolsNotSupported, got %v", err)
-	}
-}
-
 func TestPhase2_MultimodalSerialization(t *testing.T) {
 	// T2.6: Multimodal parts serialise to OpenAI/Gateway dialect
 	var receivedBody []byte
@@ -313,7 +289,11 @@ func TestPhase2_TranscriptionEndpoint(t *testing.T) {
 		Enabled:    true,
 	}, slog.Default())
 
-	text, err := client.Transcribe(context.Background(), strings.NewReader("audio-data"), "voice.webm", "audio/webm")
+	text, err := client.Transcribe(context.Background(), TranscribeRequest{
+		Audio:    strings.NewReader("audio-data"),
+		Filename: "voice.webm",
+		MIMEType: "audio/webm",
+	})
 	if err != nil {
 		t.Fatalf("unexpected transcribe error: %v", err)
 	}

@@ -39,7 +39,6 @@ func (h *UIHandler) registerAdminSettingsRoutes(r chi.Router) {
 		g.Post("/admin/settings/ai", h.AdminAISettingsSubmit)
 		g.Post("/admin/settings/gateway", h.AdminGatewaySettingsSubmit)
 		g.Post("/admin/settings/gateway/test", h.AdminGatewayTestConnection)
-		g.Post("/admin/settings/features/toggle", h.AdminFeatureToggleSubmit)
 		g.Post("/admin/settings/payment-methods", h.AdminPlatformPaymentMethodSubmit)
 		g.Post("/admin/settings/payment-methods/toggle", h.AdminPlatformPaymentMethodToggleSubmit)
 		g.Post("/admin/settings/payment-methods/{id}/delete", h.AdminPlatformPaymentMethodDeleteSubmit)

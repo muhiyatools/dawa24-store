@@ -1,0 +1,171 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// VendorShipmentReviewButton renders the rate vendor button or the reviewed badge on a delivered shipment parcel.
+templ VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isReviewed bool, reviewScore int, lang string) {
+	if isReviewed {
+		<span class="badge badge-amber text-xs font-black shadow-2xs gap-1">
+			@components.IconStar("icon-2xs")
+			<span>تم التقييم { fmt.Sprintf("%d/5", reviewScore) }</span>
+		</span>
+	} else {
+		<button
+			type="button"
+			class="btn btn-warning btn-xs font-extrabold gap-1 shadow-xs"
+			data-order-id={ fmt.Sprintf("%d", orderID) }
+			data-vendor-id={ fmt.Sprintf("%d", sh.OrganizationID) }
+			data-vendor-name={ sh.VendorName.Get(i18n.Lang(lang)) }
+			onclick="window.openVendorReviewModalFromBtn(this)"
+		>
+			@components.IconStar("icon-2xs")
+			<span>تقييم المورد</span>
+		</button>
+	}
+}
+
+// CustomerOrderReviewModal renders the multi-criteria rating modal for a specific vendor parcel.
+templ CustomerOrderReviewModal(order *commerce.Order, lang string) {
+	<dialog id="vendor-review-dialog" class="custom-modal-dialog rounded-2xl border p-0 shadow-xl max-w-lg w-full">
+		<div class="glass-panel p-6 m-0 border-0">
+			<!-- Modal Header -->
+			<div class="flex-between items-center pb-4 border-b mb-4">
+				<div class="d-flex items-center gap-2.5">
+					<div class="w-9 h-9 rounded-full bg-amber-50 text-amber-700 font-bold d-flex items-center justify-center border border-amber-200">
+						@components.IconStar("icon-sm")
+					</div>
+					<div>
+						<h3 class="text-base font-black text-primary m-0" id="review-modal-title">تقييم المورد</h3>
+						<span class="text-2xs text-muted font-bold" id="review-modal-subtitle">عن طلبية رقم #{ order.OrderNumber }</span>
+					</div>
+				</div>
+				<button
+					type="button"
+					class="btn-close-modal text-muted text-lg font-bold border-0 bg-transparent cursor-pointer p-1"
+					onclick="document.getElementById('vendor-review-dialog').close()"
+				>
+					✕
+				</button>
+			</div>
+
+			<!-- Review Form -->
+			<form method="POST" action="/reviews/submit" class="d-flex flex-col gap-4 m-0" id="vendor-review-form">
+				<input type="hidden" name="order_id" value={ fmt.Sprintf("%d", order.ID) } />
+				<input type="hidden" name="organization_id" id="review-vendor-id" value="" />
+				<input type="hidden" name="redirect_url" value={ fmt.Sprintf("/orders/%d", order.ID) } />
+				<input type="hidden" name="context" value="supplier" />
+
+				<!-- Criteria 1: Delivery Rep (المندوب) -->
+				<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+					<div>
+						<strong class="text-xs font-black text-primary d-block">مندوب التوصيل والتعامل</strong>
+						<span class="text-2xs text-secondary">حسن المعاملة والالتزام بالتسليم</span>
+					</div>
+					<div class="rating-stars-input d-flex items-center gap-1.5 direction-ltr">
+						for i := 5; i >= 1; i-- {
+							<input
+								type="radio"
+								id={ fmt.Sprintf("rep-%d", i) }
+								name="rating_rep"
+								value={ fmt.Sprintf("%d", i) }
+								class="star-radio-input"
+								required
+								checked?={ i == 5 }
+							/>
+							<label for={ fmt.Sprintf("rep-%d", i) } class="star-radio-label cursor-pointer text-base">★</label>
+						}
+					</div>
+				</div>
+
+				<!-- Criteria 2: Service & Quality (الخدمة) -->
+				<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+					<div>
+						<strong class="text-xs font-black text-primary d-block">الخدمة وجودة الأصناف</strong>
+						<span class="text-2xs text-secondary">سلامة التغليف وتطابق الأدوية المطلوبة</span>
+					</div>
+					<div class="rating-stars-input d-flex items-center gap-1.5 direction-ltr">
+						for i := 5; i >= 1; i-- {
+							<input
+								type="radio"
+								id={ fmt.Sprintf("quality-%d", i) }
+								name="rating_quality"
+								value={ fmt.Sprintf("%d", i) }
+								class="star-radio-input"
+								required
+								checked?={ i == 5 }
+							/>
+							<label for={ fmt.Sprintf("quality-%d", i) } class="star-radio-label cursor-pointer text-base">★</label>
+						}
+					</div>
+				</div>
+
+				<!-- Criteria 3: Speed (السرعة) -->
+				<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+					<div>
+						<strong class="text-xs font-black text-primary d-block">سرعة التوصيل والتجهيز</strong>
+						<span class="text-2xs text-secondary">الوصول في الموعد المحدد دون تأخير</span>
+					</div>
+					<div class="rating-stars-input d-flex items-center gap-1.5 direction-ltr">
+						for i := 5; i >= 1; i-- {
+							<input
+								type="radio"
+								id={ fmt.Sprintf("speed-%d", i) }
+								name="rating_speed"
+								value={ fmt.Sprintf("%d", i) }
+								class="star-radio-input"
+								required
+								checked?={ i == 5 }
+							/>
+							<label for={ fmt.Sprintf("speed-%d", i) } class="star-radio-label cursor-pointer text-base">★</label>
+						}
+					</div>
+				</div>
+
+				<!-- Review Text Area -->
+				<div class="form-group mb-0">
+					<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات أو تعليق إضافي (اختياري):</label>
+					<textarea
+						name="review_text"
+						rows="3"
+						class="form-input text-xs w-full"
+						placeholder="اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات..."
+					></textarea>
+				</div>
+
+				<!-- Modal Actions -->
+				<div class="flex-between items-center pt-3 border-t mt-2">
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm font-bold"
+						onclick="document.getElementById('vendor-review-dialog').close()"
+					>
+						إلغاء
+					</button>
+					<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-xs">
+						@components.IconCheck("icon-xs")
+						<span>إرسال التقييم المعتمد</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<script>
+		window.openVendorReviewModalFromBtn = function(btn) {
+			const vendorId = btn.getAttribute('data-vendor-id');
+			const vendorName = btn.getAttribute('data-vendor-name');
+			const dialog = document.getElementById('vendor-review-dialog');
+			if (!dialog) return;
+
+			document.getElementById('review-vendor-id').value = vendorId;
+			document.getElementById('review-modal-title').textContent = 'تقييم المورد: ' + vendorName;
+			dialog.showModal();
+		};
+	</script>
+}

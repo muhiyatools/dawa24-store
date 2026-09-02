@@ -155,6 +155,14 @@ func (m *mockAdminPromoRepo) ListAllSponsorshipRequests(ctx context.Context, lim
 	return m.requests, nil
 }
 
+func (m *mockAdminPromoRepo) ListAllSponsorshipRequestsWithTotal(ctx context.Context, limit, offset int) ([]*promo.SponsorshipRequest, int, error) {
+	return m.requests, len(m.requests), nil
+}
+
+func (m *mockAdminPromoRepo) ListSponsorshipRequestsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*promo.SponsorshipRequest, int, error) {
+	return m.requests, len(m.requests), nil
+}
+
 func (m *mockAdminPromoRepo) ActivateSponsorshipRequest(ctx context.Context, requestID int64, reviewerID int64) (*promo.SponsorshipRequest, error) {
 	for _, r := range m.requests {
 		if r.ID == requestID {
@@ -181,6 +189,14 @@ func (m *mockAdminPromoRepo) AdminListAds(ctx context.Context, limit, offset int
 
 func (m *mockAdminPromoRepo) ListAllAds(ctx context.Context, limit, offset int) ([]*promo.Ad, error) {
 	return m.ads, nil
+}
+
+func (m *mockAdminPromoRepo) ListAllAdsWithTotal(ctx context.Context, limit, offset int) ([]*promo.Ad, int, error) {
+	return m.ads, len(m.ads), nil
+}
+
+func (m *mockAdminPromoRepo) ListAdsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*promo.Ad, int, error) {
+	return m.ads, len(m.ads), nil
 }
 
 func (m *mockAdminPromoRepo) UpdateAdAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error {

@@ -17,3 +17,28 @@
 | 7 | Persistence + RLS | done | — | T7.1-T7.4 | Migration 103 with FORCE RLS + PostgreSQL repository |
 | 8 | Frontend rebuild (B1-B6) | done | — | T8.1-T8.5 | Replaced simulated setTimeout with real SSE, uploads, speech recognition, and abort controllers |
 | 9 | Performance + security verification | done | — | T1-T8 | Complete test suite passes with zero provider leaks and zero key exposure |
+
+## 2026-09-02 — read-only business agent
+
+See `03_READ_ONLY_AGENT.md`. The assistant now answers from the caller's own
+authorized data through a permission-gated tool registry, and writes nothing.
+
+| Item | Status | Notes |
+|---|---|---|
+| Cross-user conversation leak closed | done | `GetOwnedConversation` scopes by org, user and agent role in SQL |
+| Owner-controlled permission | done | `pharmacy/vendor/platform.assistant.use` in the RBAC catalogue |
+| Least privilege | done | every tool also requires the permission its dashboard screen requires |
+| Three agents, one model | done | persona and tool set differ; `assistant.primary` throughout |
+| Role routing | done | `assistant.AgentFor` on `DashboardScope()`; no client input |
+| Signed, actor-bound handles | done | forgery, expiry, kind and binding all verified |
+| Read-only data access layer | done | 17 read methods, no write path, RLS on every query |
+| Tool registry + 10-step dispatch | done | audited in `assistant.tool_audit` |
+| Server-owned resumable turns | done | Redis in production, memory in development |
+| EventSource client | done | fixes the resize/minimise token loss |
+| Attachments in object storage | done | rows + digests, no base64 in memory or Postgres |
+| Tenant-keyed transcription, dynamic model | done | admin catalogue discovery, 15-minute cache |
+| Markdown renderer with tables | done | escaped first, http(s) links only |
+| Context/usage meter | done | real `context_window` from `/v1/models` |
+| Six-month retention | done | indexed deadline, daily worker sweep, stated in the drawer |
+| Security suite | done | 17 hostile-model cases plus handle, stream, agent and fence tests |
+| Order creation / write tools | **dropped** | out of scope by decision; the agent is read-only |

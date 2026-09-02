@@ -52,6 +52,9 @@ type TenantTeamView struct {
 	ActionBase  string
 	Notice      string
 	NoticeKind  string
+	Page        int
+	PerPage     int
+	TotalCount  int
 }
 
 templ TenantTeamPage(v TenantTeamView, lang, dir string) {
@@ -211,5 +214,13 @@ templ tenantTeamList(v TenantTeamView) {
 				</tbody>
 			</table>
 		</div>
+		if v.TotalCount > 0 {
+			@components.B2BPagination(components.PaginationProps{
+				CurrentPage: v.Page,
+				PageSize:    v.PerPage,
+				TotalCount:  v.TotalCount,
+				BaseURL:     v.ActionBase,
+			})
+		}
 	}
 }

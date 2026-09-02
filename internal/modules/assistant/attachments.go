@@ -2,6 +2,7 @@ package assistant
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -115,4 +116,14 @@ func SanitiseFilename(name string) string {
 		return "attachment"
 	}
 	return base
+}
+
+// DataURL renders file bytes for the Gateway's multimodal parts.
+//
+// It is built at the moment a turn needs it and thrown away afterwards. It is
+// deliberately NOT a field on anything persisted: base64 in the database was
+// how a single 10 MB upload turned into 13 MB of JSONB replayed on every
+// history load.
+func DataURL(mime string, content []byte) string {
+	return "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(content)
 }

@@ -52,12 +52,19 @@ templ AdminOfferPackageDetailPage(pkgID int64, lang, dir string) {
 	}
 }
 
+type AdminOfferSponsorshipsPageData struct {
+	Requests   []*promo.SponsorshipRequest
+	Page       int
+	PerPage    int
+	TotalCount int
+}
+
 // AdminOfferSponsorshipsPage renders sponsorships and pending requests for admin review.
-templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.SponsorshipRequest) {
+templ AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPageData) {
 	@layouts.AdminShell("الرعايات الرسمية للعروض", "offers_packages", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">مراجعة طلبات الرعاية</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
 						اعتماد أو رفض طلبات الرعاية المُقدّمة من الموردين. عند الاعتماد يظهر العنصر في صدارة الكتالوج مع وسم معتمد.
@@ -69,7 +76,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 				</a>
 			</div>
 
-			if len(requests) == 0 {
+			if len(data.Requests) == 0 {
 				<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
 					<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
 						@components.IconShield("icon-md")
@@ -96,7 +103,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">
-								for _, req := range requests {
+								for _, req := range data.Requests {
 									if req != nil {
 										<tr class="transition-colors">
 											<td class="tabular-nums font-bold text-primary py-3 ps-4">{ fmt.Sprintf("#%d", req.OrganizationID) }</td>
@@ -154,6 +161,14 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/admin/offers-packages/sponsorships",
+						})
+					}
 				</div>
 			}
 		</div>
@@ -165,7 +180,7 @@ templ AdminOfferPromotionsPage(lang, dir string) {
 	@layouts.AdminShell("الحملات الترويجية", "offers_packages", lang, dir) {
 		<div class="page-container py-6">
 			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<h1 class="text-xl font-black text-primary m-0">الحملات الترويجية المخصصة</h1>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">إدارة الحملات الترويجية الموجهة حسب المحافظات والقطاعات الجغرافية</p>
 				</div>
@@ -184,112 +199,6 @@ templ AdminOfferPromotionsPage(lang, dir string) {
 					تسمح المنظومة بإنشاء حملات خصومات موجهة حسب المحافظات والقطاعات الحيوية.
 				</p>
 			</div>
-		</div>
-	}
-}
-
-// AdminAdsListPage renders advertisements table with approval actions.
-templ AdminAdsListPage(lang, dir string, ads []*promo.Ad) {
-	@layouts.AdminShell("إدارة الإعلانات والبنرات", "ads", lang, dir) {
-		<div class="page-container py-6">
-			<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4">
-    <div class="stack-sm">
-					<h1 class="text-xl font-black text-primary m-0">الإعلانات والبنرات الترويجية</h1>
-					<p class="text-xs text-secondary m-0 mt-0.5 font-medium">مراجعة واعتماد بنرات الموردين على الصفحة الرئيسية وصفحات الأقسام</p>
-				</div>
-				<div class="d-flex items-center gap-2">
-					<a href="/admin/ad-plan" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
-						@components.IconSettings("icon-xs")
-						<span>خطط ومواضع الإعلانات</span>
-					</a>
-				</div>
-			</div>
-
-			if len(ads) == 0 {
-				<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
-					<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
-						@components.IconMegaphone("icon-md")
-					</div>
-					<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد إعلانات قيد المراجعة</h3>
-					<p class="text-xs text-secondary max-w-md mx-auto">
-						لم يتم تقديم بنرات أو إعلانات جديدة من الموردين مؤخراً.
-					</p>
-				</div>
-			} else {
-				<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
-					<div class="table-container m-0 overflow-x-auto">
-						<table class="data-table m-0 text-xs w-full">
-							<thead>
-								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
-									<th class="py-3 text-start ps-4">عنوان الإعلان</th>
-									<th class="py-3 text-start">المورد</th>
-									<th class="text-center py-3">نوع الوسائط</th>
-									<th class="text-center tabular-nums py-3">المشاهدات</th>
-									<th class="text-center tabular-nums py-3">النقرات</th>
-									<th class="text-center tabular-nums py-3">CTR %</th>
-									<th class="text-center py-3">الحالة</th>
-									<th class="col-actions py-3 pe-4">الإجراءات</th>
-								</tr>
-							</thead>
-							<tbody class="divide-y divide-slate-100">
-								for _, ad := range ads {
-									if ad != nil {
-										<tr class="transition-colors">
-											<td class="font-extrabold text-primary py-3 ps-4">{ ad.DisplayTitle(lang) }</td>
-											<td class="tabular-nums py-3">
-												if ad.OrganizationID != nil {
-													<span class="badge badge-slate text-xs font-mono">{ fmt.Sprintf("#%d", *ad.OrganizationID) }</span>
-												} else {
-													<span class="text-muted text-xs">—</span>
-												}
-											</td>
-											<td class="text-center py-3">
-												if ad.MediaType == "video" {
-													<span class="badge badge-sky text-xs font-bold">فيديو</span>
-												} else {
-													<span class="badge badge-slate text-xs font-bold">صورة</span>
-												}
-											</td>
-											<td class="text-center tabular-nums font-bold text-primary py-3">{ fmt.Sprintf("%d", ad.Impressions) }</td>
-											<td class="text-center tabular-nums font-bold text-brand py-3">{ fmt.Sprintf("%d", ad.Clicks) }</td>
-											<td class="text-center tabular-nums font-black text-emerald-600 py-3">{ fmt.Sprintf("%.1f%%", ad.CTR) }</td>
-											<td class="text-center py-3">
-												if ad.AdminStatus == "pending" {
-													<span class="badge badge-sky font-extrabold text-xs">قيد المراجعة</span>
-												} else if ad.AdminStatus == "approved" {
-													<span class="badge badge-emerald font-extrabold text-xs">معتمد</span>
-												} else {
-													<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
-												}
-											</td>
-											<td class="col-actions py-3 pe-4">
-												if ad.AdminStatus == "pending" {
-													<div class="table-actions">
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
-															<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
-																@components.IconCheck("icon-2xs")
-																<span>اعتماد</span>
-															</button>
-														</form>
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)) } class="m-0">
-															<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs">
-																@components.IconClose("icon-2xs")
-																<span>رفض</span>
-															</button>
-														</form>
-													</div>
-												} else {
-													<span class="text-muted text-xs font-medium">مكتمل</span>
-												}
-											</td>
-										</tr>
-									}
-								}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			}
 		</div>
 	}
 }

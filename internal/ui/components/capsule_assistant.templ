@@ -92,9 +92,9 @@ templ capsuleDrawerBody() {
 					<div>
 						<div class="font-black text-xs text-primary d-flex items-center gap-1.5">
 							<span>كبسولة</span>
-							<span class="w-1.5 h-1.5 rounded-full bg-emerald shadow-xs"></span>
+							<span class="w-1.5 h-1.5 rounded-full shadow-xs" :class="connection === 'connected' ? 'bg-emerald' : (connection === 'degraded' ? 'bg-amber' : 'bg-muted')" :title="connection === 'connected' ? 'متصل' : (connection === 'degraded' ? 'الخدمة غير مستقرة' : 'الخدمة غير مفعّلة')"></span>
 						</div>
-						<div class="text-2xs text-muted leading-tight">المستشار الصيدلي المعتمد</div>
+						<div class="text-2xs text-muted leading-tight" x-text="agentLabel || 'المساعد التحليلي'"></div>
 					</div>
 				</div>
 
@@ -211,7 +211,7 @@ templ capsuleDrawerBody() {
 						<div
 							class="capsule-session-card"
 							:class="{ 'active': conversationID === conv.id }"
-							@click="loadSession(conv.id)"
+							@click="loadSessionThread(conv.id)"
 						>
 							<div class="flex-1 text-truncate">
 								<div class="d-flex items-center gap-1.5 mb-0.5">
@@ -246,9 +246,10 @@ templ capsuleDrawerBody() {
 						@IconSparkles("icon-md")
 					</div>
 					<div class="d-flex flex-col items-center text-center w-full">
-						<h4 class="m-0 mb-1 text-sm font-extrabold text-primary text-center">المستشار الصيدلي الذكي</h4>
+						<h4 class="m-0 mb-1 text-sm font-extrabold text-primary text-center" x-text="agentLabel || 'كبسولة'"></h4>
 						<p class="m-0 text-xs text-secondary leading-relaxed max-w-xs text-center">
-							اطرح استفسارك، قارن عروض الموردين، أو أرفق صورة روشتة أو دواء لفحصها ومطابقتها فورياً.
+							اسأل عن بيانات منشأتك: الطلبات، الإنفاق، الأسعار، المخزون، الاشتراك.
+							أقرأ البيانات المصرّح لك بها وألخّصها — ولا أنفّذ أي إجراء نيابة عنك.
 						</p>
 					</div>
 
@@ -257,26 +258,26 @@ templ capsuleDrawerBody() {
 						<button
 							type="button"
 							class="capsule-chip-btn"
-							@click="askChip('ما هي أفضل بدائل التوفير المتاحة لأشهر أدوية الضغط والسكر؟')"
+							@click="askChip('كم أنفقت على المشتريات آخر ٣٠ يوم، وما توزيعها حسب المورّد؟')"
 						>
 							@IconPill("icon-xs text-primary")
-							<span class="text-truncate">اقتراح بدائل التوفير للأدوية المزمنة</span>
+							<span class="text-truncate">إنفاقي آخر ٣٠ يوم حسب المورّد</span>
 						</button>
 						<button
 							type="button"
 							class="capsule-chip-btn"
-							@click="askChip('كيف أقوم بمقارنة خصومات الموردين على طلبيات النواقص؟')"
+							@click="askChip('ما آخر خمس طلبات لدي وما حالتها الآن؟')"
 						>
 							@IconBarChart("icon-xs text-primary")
-							<span class="text-truncate">مقارنة خصومات الموردين وسرعة الشحن</span>
+							<span class="text-truncate">آخر طلباتي وحالتها</span>
 						</button>
 						<button
 							type="button"
 							class="capsule-chip-btn"
-							@click="askChip('فحص التداخلات الدوائية والجرعات المصرح بها')"
+							@click="askChip('ما أكثر ٥ أصناف استهلاكاً لميزانيتي هذا الشهر؟')"
 						>
 							@IconSearch("icon-xs text-primary")
-							<span class="text-truncate">فحص التداخلات الدوائية والجرعات</span>
+							<span class="text-truncate">أكثر الأصناف استهلاكاً للميزانية</span>
 						</button>
 					</div>
 				</div>
@@ -376,7 +377,7 @@ templ capsuleDrawerBody() {
 						<div class="capsule-breathing-icon">
 							@IconSparkles("icon-xs")
 						</div>
-						<span class="capsule-thinking-label" x-text="statusMessage || 'جاري البحث والتحليل الصيدلي...' "></span>
+						<span class="capsule-thinking-label" x-text="statusMessage || 'جاري التحليل...' "></span>
 					</div>
 				</div>
 
@@ -496,6 +497,24 @@ templ capsuleDrawerBody() {
 
 					</div>
 				</form>
+
+				<!-- Footnote: what this assistant does, and how long the conversation
+				     is kept. The retention line is a promise the worker keeps (six
+				     months, on an indexed deadline), so it is stated where the user
+				     is rather than buried in a policy page. -->
+				<div class="capsule-footnote">
+					<span class="capsule-footnote-item">قراءة فقط — لا ينفّذ أي إجراء</span>
+					<span class="capsule-footnote-dot">·</span>
+					<span class="capsule-footnote-item" x-text="retentionNote()"></span>
+					<template x-if="contextWindow > 0 && usedTokens > 0">
+						<span class="capsule-footnote-item capsule-usage">
+							<span class="capsule-usage-bar">
+								<span class="capsule-usage-fill" :style="'width:' + usagePercent() + '%'"></span>
+							</span>
+							<span x-text="usagePercent() + '% من سعة المحادثة'"></span>
+						</span>
+					</template>
+				</div>
 
 			</div>
 

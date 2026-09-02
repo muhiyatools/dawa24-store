@@ -4,8 +4,16 @@
 **Scope:** `internal/modules/assistant/**`, `internal/platform/gateway/**`,
 `internal/ui/components/capsule_assistant*.templ`, `cmd/server/routes*.go`,
 and the MuhiyaLLM Gateway at `F:\MuhiyaWorkspace\MuhiyaWorkspace`.
-**Status:** architecture — no code changed. Supersedes the design half of
+**Status:** architecture. Supersedes the design half of
 `00_AUDIT_AND_ARCHITECTURE.md`; `PROGRESS.md` describes the system this audits.
+
+> **Scope changed after this was written, and two sections are now void.**
+> The assistant is **read-only**. §3.6 (confirmation architecture) and §3.7
+> (agentic order flow) describe a write path that was deliberately dropped: there
+> is no tool that creates, edits or cancels anything, and no proposal table.
+> Everything else here — the trust boundary, handles, the tool registry, the data
+> access layer, streaming, context, attachments, errors — is what shipped.
+> See `03_READ_ONLY_AGENT.md` for the delivered system.
 
 The governing principle for everything below:
 

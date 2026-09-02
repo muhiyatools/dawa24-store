@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -18,6 +19,10 @@ import (
 func (h *UIHandler) AdminWeeklyCoveragesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
 
 	var orgs []*org.Organization
 	if h.orgSvc != nil {
@@ -30,9 +35,14 @@ func (h *UIHandler) AdminWeeklyCoveragesPage(w http.ResponseWriter, r *http.Requ
 	}
 
 	var coverages []*workflow.CoverageView
+	var totalCount int
 	if h.wfSvc != nil {
 		// AsSystem justified: platform admin viewing weekly coverages across tenants
-		coverages, _ = h.wfSvc.ListCoverageForOrganization(database.AsSystem(ctx), selectedOrgID)
+		cList, total, err := h.wfSvc.ListCoverageForOrganizationWithTotal(database.AsSystem(ctx), selectedOrgID, limit, offset)
+		if err == nil {
+			coverages = cList
+			totalCount = total
+		}
 	}
 
 	var branches []*org.Branch
@@ -55,6 +65,9 @@ func (h *UIHandler) AdminWeeklyCoveragesPage(w http.ResponseWriter, r *http.Requ
 		Branches:      branches,
 		Cities:        cities,
 		SelectedOrgID: selectedOrgID,
+		Page:          page,
+		PerPage:       limit,
+		TotalCount:    totalCount,
 	}
 
 	h.renderPage(ctx, w, "render admin weekly coverages", pages.AdminWeeklyCoveragesPage(data, lang, dir))

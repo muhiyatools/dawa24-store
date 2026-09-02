@@ -252,7 +252,7 @@ templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 						@components.IconChart("icon-xs text-brand")
 						<h3 class="text-sm font-black text-primary m-0">سجل وحالة الإعلانات المنشورة</h3>
 					</div>
-					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", len(data.Ads)) }</span>
+					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", data.TotalCount) }</span>
 				</div>
 
 				if len(data.Ads) > 0 {
@@ -329,6 +329,14 @@ templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/vendor/ads",
+						})
+					}
 				} else {
 					<div class="p-12 text-center">
 						<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
@@ -705,7 +713,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 						@components.IconShield("icon-xs text-brand")
 						<h3 class="text-sm font-black text-primary m-0">سجل طلبات الرعاية المُقدّمة</h3>
 					</div>
-					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", len(data.Requests)) }</span>
+					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", data.TotalCount) }</span>
 				</div>
 
 				if len(data.Requests) == 0 {
@@ -774,6 +782,14 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/vendor/sponsorship-requests",
+						})
+					}
 				}
 			</div>
 		</div>

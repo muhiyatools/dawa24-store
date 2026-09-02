@@ -57,6 +57,16 @@ func (s *Service) ListAdminTempWarehouses(ctx context.Context, filter AdminTempW
 	return s.repo.ListAdminTempWarehouses(ctx, filter)
 }
 
+// ListAdminTempWarehousesWithTotal returns paginated temporary warehouses and total count.
+func (s *Service) ListAdminTempWarehousesWithTotal(ctx context.Context, filter AdminTempWarehouseFilter, limit, offset int) ([]*AdminTempWarehouse, int, error) {
+	return s.repo.ListAdminTempWarehousesWithTotal(ctx, filter, limit, offset)
+}
+
+// AdminTempWarehouseStats aggregates total rows, active count, and archived count for temp warehouses.
+func (s *Service) AdminTempWarehouseStats(ctx context.Context, filter AdminTempWarehouseFilter) (totalRows int64, activeCount, archivedCount int, err error) {
+	return s.repo.AdminTempWarehouseStats(ctx, filter)
+}
+
 // ListTempWarehouseUploaders returns the distinct uploaders for the admin
 // listing's filter dropdown.
 func (s *Service) ListTempWarehouseUploaders(ctx context.Context) ([]FileUploader, error) {

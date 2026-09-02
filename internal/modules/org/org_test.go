@@ -180,6 +180,14 @@ func (m *mockOrgRepo) ListBranchesByOrg(_ context.Context, orgID int64) ([]*Bran
 	return m.branches[orgID], nil
 }
 
+func (m *mockOrgRepo) ListBranchesWithTotal(_ context.Context, _ BranchFilter, _, _ int) ([]*Branch, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockOrgRepo) AdminBranchStats(_ context.Context) (AdminBranchStatsResult, error) {
+	return AdminBranchStatsResult{}, nil
+}
+
 func (m *mockOrgRepo) UnsetMainBranches(_ context.Context, orgID int64) error {
 	for _, b := range m.branches[orgID] {
 		b.IsMain = false
@@ -206,6 +214,18 @@ func (m *mockOrgRepo) ListEmployees(_ context.Context, orgID int64) ([]*Employee
 		})
 	}
 	return list, nil
+}
+
+func (m *mockOrgRepo) ListEmployeesWithTotal(_ context.Context, orgID int64, _, _ int) ([]*EmployeeView, int, error) {
+	var list []*EmployeeView
+	for _, mem := range m.members[orgID] {
+		list = append(list, &EmployeeView{
+			Member:    mem,
+			UserName:  "Test User",
+			UserEmail: "user@example.com",
+		})
+	}
+	return list, len(list), nil
 }
 
 func (m *mockOrgRepo) AddMember(_ context.Context, mem *Member) error {

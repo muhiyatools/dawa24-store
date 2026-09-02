@@ -105,34 +105,46 @@ func (s *Service) GetAd(ctx context.Context, id int64) (*Ad, error) {
 
 // ListAdsByOrg returns ads for the active tenant.
 func (s *Service) ListAdsByOrg(ctx context.Context, limit, offset int) ([]*Ad, error) {
+	ads, _, err := s.ListAdsByOrgWithTotal(ctx, limit, offset)
+	return ads, err
+}
+
+// ListAdsByOrgWithTotal returns paginated ads for the active tenant with total count.
+func (s *Service) ListAdsByOrgWithTotal(ctx context.Context, limit, offset int) ([]*Ad, int, error) {
 	orgID, ok := database.TenantFrom(ctx)
 	if !ok {
-		return nil, database.ErrNoTenant
+		return nil, 0, database.ErrNoTenant
 	}
-	ads, err := s.repo.ListAdsByOrg(ctx, orgID, limit, offset)
+	ads, total, err := s.repo.ListAdsByOrgWithTotal(ctx, orgID, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	for _, a := range ads {
 		if a != nil {
 			a.CTR = ComputeCTR(a.Impressions, a.Clicks)
 		}
 	}
-	return ads, nil
+	return ads, total, nil
 }
 
 // AdminListAds returns all ads for admin moderation.
 func (s *Service) AdminListAds(ctx context.Context, limit, offset int) ([]*Ad, error) {
-	ads, err := s.repo.ListAllAds(database.AsSystem(ctx), limit, offset)
+	ads, _, err := s.AdminListAdsWithTotal(ctx, limit, offset)
+	return ads, err
+}
+
+// AdminListAdsWithTotal returns all ads for admin moderation with total count.
+func (s *Service) AdminListAdsWithTotal(ctx context.Context, limit, offset int) ([]*Ad, int, error) {
+	ads, total, err := s.repo.ListAllAdsWithTotal(database.AsSystem(ctx), limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	for _, a := range ads {
 		if a != nil {
 			a.CTR = ComputeCTR(a.Impressions, a.Clicks)
 		}
 	}
-	return ads, nil
+	return ads, total, nil
 }
 
 // AdminApproveAd approves an ad for display.

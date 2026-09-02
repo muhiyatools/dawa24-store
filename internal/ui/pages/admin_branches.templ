@@ -14,9 +14,12 @@ type AdminBranchesPageData struct {
 	OrgNames         map[int64]string
 	OrgTypes         map[int64]string
 	TotalBranches    int
+	FilteredCount    int
 	ActiveBranches   int
 	PharmacyBranches int
 	VendorWarehouses int
+	Page             int
+	PerPage          int
 	SearchQuery      string
 	SelectedOrgID    int64
 	StatusFilter     string
@@ -33,7 +36,7 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 						<div class="admin-banner-icon primary">
 							@components.IconMapPin("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<h1 class="admin-banner-title">
 								<span>دليل الفروع ومواقع التخزين والمستودعات</span>
 								<span class="badge badge-sky text-xs font-black tabular-nums">{ fmt.Sprintf("%d فرع ومخزن", data.TotalBranches) }</span>
@@ -99,78 +102,78 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
 							<option value="inactive" selected?={ data.StatusFilter == "inactive" }>معطل</option>
 						</select>
-						<button type="submit" class="btn btn-secondary btn-sm font-bold">
-							تصفية
-						</button>
+						<button type="submit" class="btn btn-primary btn-sm font-bold">تطبيق الفلتر</button>
 						if data.SearchQuery != "" || data.SelectedOrgID > 0 || data.StatusFilter != "" {
-							<a href="/admin/branches" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
+							<a href="/admin/branches" class="btn btn-secondary btn-sm font-bold">إلغاء الفلتر</a>
 						}
 					</div>
 				</form>
 			</div>
 
-			<!-- Branches Table -->
+			<!-- Table Section -->
 			if len(data.Branches) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد فروع مسجلة",
-					Message: "لم يتم العثور على فروع أو مواقع تخزين تطابق معايير الفلترة المحددة.",
-				})
+				<div class="p-8 text-center bg-surface rounded-2xl border border-dashed my-4">
+					<div class="text-3xl mb-2">@components.IconMapPin("icon-sm")</div>
+					<div class="font-black text-primary">لا توجد فروع أو مخازن مطابقة</div>
+					<div class="text-sm text-secondary mt-1">جرب تغيير معايير البحث أو اختيار منشأة أخرى</div>
+				</div>
 			} else {
-				<div class="table-container admin-table-wrapper">
-					<table class="data-table data-table-responsive">
+				<div class="table-container my-4">
+					<table class="data-table">
 						<thead>
 							<tr>
-								<th>اسم الفرع والكود</th>
+								<th>كود الفرع</th>
+								<th>اسم الفرع</th>
 								<th>المنشأة التابع لها</th>
-								<th class="nowrap">نوع الفرع اللوجستي</th>
-								<th>العنوان وبيانات الاتصال</th>
-								<th class="nowrap">الحالة</th>
-								<th class="col-actions nowrap min-w-36">الإجراءات</th>
+								<th>العنوان والموقع</th>
+								<th>نوع المستودع</th>
+								<th>التخزين المبرد</th>
+								<th>الحالة</th>
+								<th class="col-actions">الإجراءات</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, b := range data.Branches {
-								<tr class="align-middle">
-									<td>
-										<div class="font-bold text-sm text-primary">
-											if b.Name["ar"] != "" {
-												{ b.Name["ar"] }
-											} else {
-												{ b.Name["en"] }
-											}
-										</div>
-										if b.Code != "" {
-											<div class="text-xs text-muted tabular-nums mt-0.5" dir="ltr">
-												<code>{ b.Code }</code>
-											</div>
+								<tr>
+									<td class="font-mono text-xs font-bold text-secondary tabular-nums">
+										{ b.Code }
+										if b.IsMain {
+											<span class="badge badge-sky text-xs font-bold mr-1">رئيسي</span>
 										}
 									</td>
 									<td>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", b.OrganizationID)) } class="font-bold text-primary no-underline">
-											{ getOrgLegalName(b.OrganizationID, data.OrgNames) }
-										</a>
-										<div class="mt-0.5">
-											<span class="badge badge-slate text-xs">{ getOrgTypeBadge(b.OrganizationID, data.OrgTypes) }</span>
-										</div>
+										<div class="font-bold text-primary">{ b.Name.Get("ar") }</div>
+										if b.Name.Get("en") != "" {
+											<div class="text-xs text-muted font-mono">{ b.Name.Get("en") }</div>
+										}
 									</td>
 									<td>
-										<span class="badge badge-sky text-xs font-bold">
-											if b.WarehouseType != "" {
-												{ b.WarehouseType }
-											} else {
-												<span>فرع تشغيلي</span>
-											}
-										</span>
+										<span class="font-bold text-brand">{ getOrgLegalName(b.OrganizationID, data.OrgNames) }</span>
+										<span class="badge badge-slate text-xs font-normal mr-1">{ getOrgTypeBadge(b.OrganizationID, data.OrgTypes) }</span>
 									</td>
 									<td>
-										<div class="text-xs text-primary">{ b.Address }</div>
+										<div class="text-xs text-secondary">{ b.Address }</div>
 										if b.Phone != "" {
 											<div class="text-xs text-muted tabular-nums mt-0.5">{ b.Phone }</div>
 										}
 									</td>
 									<td>
+										if b.WarehouseType != "" {
+											<span class="badge badge-purple text-xs font-bold">{ b.WarehouseType }</span>
+										} else {
+											<span class="text-xs text-muted">—</span>
+										}
+									</td>
+									<td>
+										if b.HasColdStorage {
+											<span class="badge badge-sky text-xs font-bold">مبرد ❄️</span>
+										} else {
+											<span class="text-xs text-muted">عادي</span>
+										}
+									</td>
+									<td>
 										if b.Status == "active" || b.Status == "" {
-											<span class="badge badge-emerald text-xs font-bold">نشط ومفعل</span>
+											<span class="badge badge-success text-xs font-bold">نشط</span>
 										} else {
 											<span class="badge badge-danger text-xs font-bold">معطل</span>
 										}

@@ -126,6 +126,21 @@ type Branch struct {
 	UpdatedAt          time.Time `json:"updated_at"`
 }
 
+// BranchFilter holds filtering parameters for branch listing.
+type BranchFilter struct {
+	SearchQuery    string
+	OrganizationID int64
+	Status         string
+}
+
+// AdminBranchStatsResult provides platform-wide branch and warehouse counts.
+type AdminBranchStatsResult struct {
+	TotalBranches    int
+	ActiveBranches   int
+	PharmacyBranches int
+	VendorWarehouses int
+}
+
 // Role represents a per-organization role with configurable permissions.
 type Role struct {
 	ID             int64     `json:"id"`
@@ -182,9 +197,14 @@ type Review struct {
 	OrganizationID  int64          `json:"organization_id"`
 	UserID          int64          `json:"user_id"`
 	OrderID         *int64         `json:"order_id,omitempty"`
+	ShipmentID      *int64         `json:"shipment_id,omitempty"`
+	ReviewerOrgID   *int64         `json:"reviewer_org_id,omitempty"`
 	ProductID       *int64         `json:"product_id,omitempty"`
 	Title           string         `json:"title,omitempty"`
 	Rating          int            `json:"rating"` // 1-5 overall score
+	ScoreRep        int            `json:"score_rep,omitempty"`
+	ScoreQuality    int            `json:"score_quality,omitempty"`
+	ScoreSpeed      int            `json:"score_speed,omitempty"`
 	ReviewText      string         `json:"review_text,omitempty"`
 	Response        string         `json:"response,omitempty"`
 	ResponseAt      *time.Time     `json:"response_at,omitempty"`
@@ -197,6 +217,7 @@ type Review struct {
 	Context         string         `json:"context"` // supplier, pharmacy, product, delivery
 	Ratings         []ReviewRating `json:"ratings,omitempty"`
 	ReviewerOrgName string         `json:"reviewer_org_name,omitempty"`
+	OrderNumber     string         `json:"order_number,omitempty"`
 	CreatedAt       time.Time      `json:"created_at"`
 
 	UpdatedAt time.Time `json:"updated_at"`

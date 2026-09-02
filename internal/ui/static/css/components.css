@@ -2839,45 +2839,6 @@ input:focus {
 .warehouse-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--space-sm); }
 .warehouse-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-md); }
 
-/* Feature Flags & Settings Styles */
-.feature-flag-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--bg-surface-sunken, #f8fafc);
-  border: 1px solid var(--border-subtle, #e2e8f0);
-  border-radius: var(--radius-xl, 0.875rem);
-  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
-}
-
-.feature-flag-row:hover {
-  border-color: var(--border-card, #cbd5e1);
-  box-shadow: var(--shadow-xs);
-}
-
-.feature-flag-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  flex: 1;
-}
-
-.feature-flag-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.feature-flag-desc {
-  font-size: var(--text-xs, 0.8125rem);
-  color: var(--text-secondary, #64748b);
-  line-height: 1.45;
-  margin: 0;
-}
-
 /* Payment Method Card */
 .payment-method-card {
   background: var(--bg-surface-raised, #ffffff);
@@ -4773,4 +4734,173 @@ form.filter-bar { margin: 0; }
     transform: scale(0.9);
     box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
   }
+}
+
+/* Interactive Star Rating Controls */
+.rating-stars-input {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 0.25rem;
+}
+.star-radio-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.star-radio-label {
+  color: var(--text-muted, #cbd5e1);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.15s ease;
+  user-select: none;
+}
+.star-radio-label:hover,
+.star-radio-label:hover ~ .star-radio-label,
+.star-radio-input:checked ~ .star-radio-label {
+  color: var(--warning, #f59e0b);
+}
+.star-radio-label:hover {
+  transform: scale(1.15);
+}
+.custom-modal-dialog {
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  background: var(--surface, #ffffff);
+  box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0,0,0,0.1));
+}
+.custom-modal-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* ---------------------------------------------------------------------------
+   Capsule assistant: answer body, footnote and usage meter.
+
+   The renderer now produces real block structure -- tables, ordered lists,
+   blockquotes -- because the answers are business summaries and a spend
+   breakdown by supplier IS a table. Wide content scrolls inside its own
+   container so the drawer itself never scrolls sideways.
+   --------------------------------------------------------------------------- */
+
+.capsule-prose .capsule-p { margin: 0 0 0.5rem; line-height: 1.75; }
+.capsule-prose .capsule-p:last-child { margin-bottom: 0; }
+
+.capsule-prose .capsule-h2,
+.capsule-prose .capsule-h3,
+.capsule-prose .capsule-h4,
+.capsule-prose .capsule-h5 {
+  margin: 0.85rem 0 0.4rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text-primary, inherit);
+}
+.capsule-prose .capsule-h2 { font-size: 0.95rem; }
+.capsule-prose .capsule-h3 { font-size: 0.9rem; }
+.capsule-prose .capsule-h4,
+.capsule-prose .capsule-h5 { font-size: 0.85rem; }
+
+.capsule-prose .capsule-ul,
+.capsule-prose .capsule-ol {
+  margin: 0 0 0.55rem;
+  padding-inline-start: 1.25rem;
+}
+.capsule-prose .capsule-ul li,
+.capsule-prose .capsule-ol li { margin-bottom: 0.2rem; line-height: 1.7; }
+.capsule-prose .capsule-ul { list-style: disc; }
+.capsule-prose .capsule-ol { list-style: decimal; }
+
+.capsule-prose .capsule-quote {
+  margin: 0 0 0.55rem;
+  padding: 0.35rem 0.75rem;
+  border-inline-start: 3px solid var(--brand, #0284c7);
+  background: var(--bg-surface-sunken, var(--surface-sunken));
+  border-radius: var(--radius-sm, 0.375rem);
+  color: var(--text-secondary, inherit);
+}
+
+.capsule-prose .capsule-hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle, var(--border));
+  margin: 0.75rem 0;
+}
+
+/* Tables scroll in their own box: a supplier breakdown is often wider than a
+   440px drawer, and the alternative is a horizontally scrolling page. */
+.capsule-table-wrap {
+  overflow-x: auto;
+  margin: 0 0 0.6rem;
+  border: 1px solid var(--border-subtle, var(--border));
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--bg-surface-raised, var(--surface-raised));
+}
+.capsule-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.75rem;
+  /* Digits in a money column must line up, or a total is unreadable. */
+  font-variant-numeric: tabular-nums;
+}
+.capsule-table th,
+.capsule-table td {
+  padding: 0.4rem 0.6rem;
+  text-align: start;
+  border-bottom: 1px solid var(--border-subtle, var(--border));
+  white-space: nowrap;
+}
+.capsule-table thead th {
+  background: var(--bg-surface-sunken, var(--surface-sunken));
+  font-weight: 800;
+  font-size: 0.7rem;
+  color: var(--text-secondary, inherit);
+}
+.capsule-table tbody tr:last-child td { border-bottom: 0; }
+
+.capsule-prose a {
+  color: var(--brand, #0284c7);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* A failed answer, in the server's own words. */
+.capsule-error-note {
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--bg-danger-subtle, rgba(220, 38, 38, 0.08));
+  border: 1px solid var(--border-danger, rgba(220, 38, 38, 0.25));
+  color: var(--text-danger, #b91c1c);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+/* Footnote strip under the composer. */
+.capsule-footnote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0 0.15rem;
+  font-size: 0.625rem;
+  line-height: 1.5;
+  color: var(--text-muted, #6b7280);
+}
+.capsule-footnote-item { display: inline-flex; align-items: center; gap: 0.25rem; }
+.capsule-footnote-dot { opacity: 0.5; }
+
+.capsule-usage { gap: 0.35rem; }
+.capsule-usage-bar {
+  display: inline-block;
+  width: 44px;
+  height: 4px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--bg-surface-sunken, var(--surface-sunken));
+  overflow: hidden;
+}
+.capsule-usage-fill {
+  display: block;
+  height: 100%;
+  background: var(--brand, #0284c7);
+  transition: width var(--duration-fast, 150ms) ease;
 }

@@ -183,6 +183,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.purchase_request.view", "vendor.purchase_request.respond",
 			"vendor.invoice.view", "vendor.activity.view",
 			"vendor.document.view", "vendor.policy.view",
+			"vendor.review.view", "vendor.review.reply",
 			"vendor.job.view", "vendor.job.manage", "vendor.session.view",
 		},
 		"org_accountant": {
@@ -205,7 +206,8 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.purchase_request.view", "vendor.purchase_request.respond",
 			"vendor.offer.view", "vendor.offer.manage",
 			"vendor.product.view", "vendor.pharmacy_coverage.view",
-			"vendor.market_discounts.view", "vendor.compare.use", "vendor.session.view",
+			"vendor.market_discounts.view", "vendor.compare.use",
+			"vendor.review.view", "vendor.review.reply", "vendor.session.view",
 		},
 		"org_pharmacist": {
 			"vendor.dashboard.view", "vendor.product.view",

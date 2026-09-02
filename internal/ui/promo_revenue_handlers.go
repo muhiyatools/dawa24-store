@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -113,12 +114,22 @@ func (h *UIHandler) AdminOfferSponsorshipsPage(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var requests []*promo.SponsorshipRequest
+	var total int
 	if h.promoSvc != nil {
-		requests, _ = h.promoSvc.AdminListSponsorshipRequests(database.AsSystem(ctx), 100, 0)
+		requests, total, _ = h.promoSvc.AdminListSponsorshipRequestsWithTotal(database.AsSystem(ctx), limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render admin offer sponsorships", pages.AdminOfferSponsorshipsPage(lang, dir, requests))
+	h.renderPage(ctx, w, "render admin offer sponsorships", pages.AdminOfferSponsorshipsPage(lang, dir, pages.AdminOfferSponsorshipsPageData{
+		Requests:   requests,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
+	}))
 }
 
 // AdminOfferPromotionsPage renders promotional campaigns list.
@@ -134,12 +145,22 @@ func (h *UIHandler) AdminAdsListPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var ads []*promo.Ad
+	var total int
 	if h.promoSvc != nil {
-		ads, _ = h.promoSvc.AdminListAds(database.AsSystem(ctx), 100, 0)
+		ads, total, _ = h.promoSvc.AdminListAdsWithTotal(database.AsSystem(ctx), limit, offset)
 	}
 
-	h.renderPage(ctx, w, "render admin ads list", pages.AdminAdsListPage(lang, dir, ads))
+	h.renderPage(ctx, w, "render admin ads list", pages.AdminAdsListPage(lang, dir, pages.AdminAdsListPageData{
+		Ads:        ads,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
+	}))
 }
 
 // AdminAdPlansPage renders advertising placement plans (unifies into /admin/offers-packages).
@@ -223,10 +244,15 @@ func (h *UIHandler) VendorAdsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var ads []*promo.Ad
+	var totalAds int
 	var activePurchases []*promo.SponsorshipPurchase
 	if h.promoSvc != nil {
-		ads, _ = h.promoSvc.ListAdsByOrg(ctx, 100, 0)
+		ads, totalAds, _ = h.promoSvc.ListAdsByOrgWithTotal(ctx, limit, offset)
 		activePurchases, _ = h.promoSvc.ListActiveSponsorshipPurchases(ctx)
 	}
 
@@ -252,6 +278,9 @@ func (h *UIHandler) VendorAdsPage(w http.ResponseWriter, r *http.Request) {
 		TotalCredits:    totalCredits,
 		NoticeType:      noticeType,
 		NoticeMsg:       noticeMsg,
+		Page:            page,
+		PerPage:         limit,
+		TotalCount:      totalAds,
 	}
 
 	h.renderPage(ctx, w, "render vendor ads", pages.VendorAdsPage(lang, dir, data))

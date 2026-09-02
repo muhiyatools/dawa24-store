@@ -42,6 +42,9 @@ type VendorTeamData struct {
 	// CanAssignRole gates the selector. Whoever may assign a role can hand
 	// themselves everything that role holds, so it is its own permission.
 	CanAssignRole bool
+	Page          int
+	PerPage       int
+	TotalCount    int
 }
 
 templ VendorTeamPage(data VendorTeamData, lang, dir string) {
@@ -377,6 +380,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/vendor/team",
+						})
+					}
 				}
 			</div>
 

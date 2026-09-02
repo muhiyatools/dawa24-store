@@ -163,7 +163,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><div class=\"font-black text-xs text-primary d-flex items-center gap-1.5\"><span>كبسولة</span> <span class=\"w-1.5 h-1.5 rounded-full bg-emerald shadow-xs\"></span></div><div class=\"text-2xs text-muted leading-tight\">المستشار الصيدلي المعتمد</div></div></div><!-- Header Action Buttons (Icon-Only, Clean & Minimalist) --><div class=\"d-flex items-center gap-1\"><!-- New Chat Button --><button type=\"button\" @click=\"startNewConversation()\" class=\"capsule-hdr-icon-btn\" title=\"محادثة جديدة\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><div class=\"font-black text-xs text-primary d-flex items-center gap-1.5\"><span>كبسولة</span> <span class=\"w-1.5 h-1.5 rounded-full shadow-xs\" :class=\"connection === 'connected' ? 'bg-emerald' : (connection === 'degraded' ? 'bg-amber' : 'bg-muted')\" :title=\"connection === 'connected' ? 'متصل' : (connection === 'degraded' ? 'الخدمة غير مستقرة' : 'الخدمة غير مفعّلة')\"></span></div><div class=\"text-2xs text-muted leading-tight\" x-text=\"agentLabel || 'المساعد التحليلي'\"></div></div></div><!-- Header Action Buttons (Icon-Only, Clean & Minimalist) --><div class=\"d-flex items-center gap-1\"><!-- New Chat Button --><button type=\"button\" @click=\"startNewConversation()\" class=\"capsule-hdr-icon-btn\" title=\"محادثة جديدة\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -227,7 +227,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-xs font-bold text-primary\">لا توجد محادثات سابقة</div><div class=\"text-2xs max-w-xs\">أي استفسار تطرحه يتم حفظه هنا تلقائياً لترجع له في أي وقت.</div></div></template><!-- Conversations Items --><template x-for=\"conv in filteredPastConversations()\" :key=\"conv.id\"><div class=\"capsule-session-card\" :class=\"{ 'active': conversationID === conv.id }\" @click=\"loadSession(conv.id)\"><div class=\"flex-1 text-truncate\"><div class=\"d-flex items-center gap-1.5 mb-0.5\"><span class=\"text-xs font-bold text-primary text-truncate\" x-text=\"conv.title || 'محادثة سابقة'\"></span><template x-if=\"conversationID === conv.id\"><span class=\"badge badge-primary text-2xs font-bold\">نشطة</span></template></div><div class=\"text-2xs text-muted font-mono\" x-text=\"formatDate(conv.updated_at)\"></div></div><button type=\"button\" @click.stop=\"deleteSession(conv.id)\" class=\"capsule-hdr-icon-btn text-danger hover:text-danger\" title=\"حذف المحادثة\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"text-xs font-bold text-primary\">لا توجد محادثات سابقة</div><div class=\"text-2xs max-w-xs\">أي استفسار تطرحه يتم حفظه هنا تلقائياً لترجع له في أي وقت.</div></div></template><!-- Conversations Items --><template x-for=\"conv in filteredPastConversations()\" :key=\"conv.id\"><div class=\"capsule-session-card\" :class=\"{ 'active': conversationID === conv.id }\" @click=\"loadSessionThread(conv.id)\"><div class=\"flex-1 text-truncate\"><div class=\"d-flex items-center gap-1.5 mb-0.5\"><span class=\"text-xs font-bold text-primary text-truncate\" x-text=\"conv.title || 'محادثة سابقة'\"></span><template x-if=\"conversationID === conv.id\"><span class=\"badge badge-primary text-2xs font-bold\">نشطة</span></template></div><div class=\"text-2xs text-muted font-mono\" x-text=\"formatDate(conv.updated_at)\"></div></div><button type=\"button\" @click.stop=\"deleteSession(conv.id)\" class=\"capsule-hdr-icon-btn text-danger hover:text-danger\" title=\"حذف المحادثة\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -243,7 +243,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"d-flex flex-col items-center text-center w-full\"><h4 class=\"m-0 mb-1 text-sm font-extrabold text-primary text-center\">المستشار الصيدلي الذكي</h4><p class=\"m-0 text-xs text-secondary leading-relaxed max-w-xs text-center\">اطرح استفسارك، قارن عروض الموردين، أو أرفق صورة روشتة أو دواء لفحصها ومطابقتها فورياً.</p></div><!-- Interactive Quick Prompts --><div class=\"d-flex flex-col gap-1.5 w-full max-w-xs mt-2\"><button type=\"button\" class=\"capsule-chip-btn\" @click=\"askChip('ما هي أفضل بدائل التوفير المتاحة لأشهر أدوية الضغط والسكر؟')\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"d-flex flex-col items-center text-center w-full\"><h4 class=\"m-0 mb-1 text-sm font-extrabold text-primary text-center\" x-text=\"agentLabel || 'كبسولة'\"></h4><p class=\"m-0 text-xs text-secondary leading-relaxed max-w-xs text-center\">اسأل عن بيانات منشأتك: الطلبات، الإنفاق، الأسعار، المخزون، الاشتراك. أقرأ البيانات المصرّح لك بها وألخّصها — ولا أنفّذ أي إجراء نيابة عنك.</p></div><!-- Interactive Quick Prompts --><div class=\"d-flex flex-col gap-1.5 w-full max-w-xs mt-2\"><button type=\"button\" class=\"capsule-chip-btn\" @click=\"askChip('كم أنفقت على المشتريات آخر ٣٠ يوم، وما توزيعها حسب المورّد؟')\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -251,7 +251,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"text-truncate\">اقتراح بدائل التوفير للأدوية المزمنة</span></button> <button type=\"button\" class=\"capsule-chip-btn\" @click=\"askChip('كيف أقوم بمقارنة خصومات الموردين على طلبيات النواقص؟')\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"text-truncate\">إنفاقي آخر ٣٠ يوم حسب المورّد</span></button> <button type=\"button\" class=\"capsule-chip-btn\" @click=\"askChip('ما آخر خمس طلبات لدي وما حالتها الآن؟')\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -259,7 +259,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-truncate\">مقارنة خصومات الموردين وسرعة الشحن</span></button> <button type=\"button\" class=\"capsule-chip-btn\" @click=\"askChip('فحص التداخلات الدوائية والجرعات المصرح بها')\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-truncate\">آخر طلباتي وحالتها</span></button> <button type=\"button\" class=\"capsule-chip-btn\" @click=\"askChip('ما أكثر ٥ أصناف استهلاكاً لميزانيتي هذا الشهر؟')\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -267,7 +267,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"text-truncate\">فحص التداخلات الدوائية والجرعات</span></button></div></div><!-- Message Stream --><template x-for=\"(msg, idx) in messages\" :key=\"idx\"><div><!-- User Message (Subtle Right-Aligned Pill) --><template x-if=\"msg.isUser\"><div class=\"d-flex justify-content-start mb-1\"><div class=\"max-w-[85%] d-flex flex-col items-start gap-1\"><!-- Attached Files Badges / Image Previews --><template x-if=\"msg.attachments && msg.attachments.length > 0\"><div class=\"d-flex flex-wrap gap-1.5 mb-1\"><template x-for=\"file in msg.attachments\" :key=\"file.name || file.filename\"><div><template x-if=\"file.isImage && file.previewUrl\"><img :src=\"file.previewUrl\" class=\"w-16 h-16 rounded-lg object-cover border cursor-pointer\" @click=\"window.open(file.previewUrl, '_blank')\" alt=\"صورة مرفقة\"></template><template x-if=\"!file.isImage || !file.previewUrl\"><div class=\"d-inline-flex items-center gap-1.5 bg-surface-sunken border px-2 py-1 rounded-md text-2xs text-secondary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"text-truncate\">أكثر الأصناف استهلاكاً للميزانية</span></button></div></div><!-- Message Stream --><template x-for=\"(msg, idx) in messages\" :key=\"idx\"><div><!-- User Message (Subtle Right-Aligned Pill) --><template x-if=\"msg.isUser\"><div class=\"d-flex justify-content-start mb-1\"><div class=\"max-w-[85%] d-flex flex-col items-start gap-1\"><!-- Attached Files Badges / Image Previews --><template x-if=\"msg.attachments && msg.attachments.length > 0\"><div class=\"d-flex flex-wrap gap-1.5 mb-1\"><template x-for=\"file in msg.attachments\" :key=\"file.name || file.filename\"><div><template x-if=\"file.isImage && file.previewUrl\"><img :src=\"file.previewUrl\" class=\"w-16 h-16 rounded-lg object-cover border cursor-pointer\" @click=\"window.open(file.previewUrl, '_blank')\" alt=\"صورة مرفقة\"></template><template x-if=\"!file.isImage || !file.previewUrl\"><div class=\"d-inline-flex items-center gap-1.5 bg-surface-sunken border px-2 py-1 rounded-md text-2xs text-secondary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -307,7 +307,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><span class=\"capsule-thinking-label\" x-text=\"statusMessage || 'جاري البحث والتحليل الصيدلي...' \"></span></div></div></div><!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) --><div class=\"capsule-footer\"><!-- Attached Files Preview Strip (Clean Square Thumbnails) --><div x-show=\"attachedFiles.length > 0\" class=\"mb-2 d-flex gap-2 overflow-x-auto py-1 items-center\"><template x-for=\"(f, i) in attachedFiles\" :key=\"i\"><div class=\"capsule-attachment-thumb\"><!-- Image Preview Thumbnail --><template x-if=\"f.isImage && f.previewUrl\"><img :src=\"f.previewUrl\" class=\"capsule-thumb-img\" alt=\"مرفق\"></template><!-- Non-Image Document Thumbnail --><template x-if=\"!f.isImage || !f.previewUrl\"><div class=\"capsule-thumb-doc\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><span class=\"capsule-thinking-label\" x-text=\"statusMessage || 'جاري التحليل...' \"></span></div></div></div><!-- Pinned Bottom Controls (ChatGPT-Style Docked Prompt Capsule) --><div class=\"capsule-footer\"><!-- Attached Files Preview Strip (Clean Square Thumbnails) --><div x-show=\"attachedFiles.length > 0\" class=\"mb-2 d-flex gap-2 overflow-x-auto py-1 items-center\"><template x-for=\"(f, i) in attachedFiles\" :key=\"i\"><div class=\"capsule-attachment-thumb\"><!-- Image Preview Thumbnail --><template x-if=\"f.isImage && f.previewUrl\"><img :src=\"f.previewUrl\" class=\"capsule-thumb-img\" alt=\"مرفق\"></template><!-- Non-Image Document Thumbnail --><template x-if=\"!f.isImage || !f.previewUrl\"><div class=\"capsule-thumb-doc\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -355,7 +355,7 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></template></div></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></template></div></form><!-- Footnote: what this assistant does, and how long the conversation\n\t\t\t\t     is kept. The retention line is a promise the worker keeps (six\n\t\t\t\t     months, on an indexed deadline), so it is stated where the user\n\t\t\t\t     is rather than buried in a policy page. --><div class=\"capsule-footnote\"><span class=\"capsule-footnote-item\">قراءة فقط — لا ينفّذ أي إجراء</span> <span class=\"capsule-footnote-dot\">·</span> <span class=\"capsule-footnote-item\" x-text=\"retentionNote()\"></span><template x-if=\"contextWindow > 0 && usedTokens > 0\"><span class=\"capsule-footnote-item capsule-usage\"><span class=\"capsule-usage-bar\"><span class=\"capsule-usage-fill\" :style=\"'width:' + usagePercent() + '%'\"></span></span> <span x-text=\"usagePercent() + '% من سعة المحادثة'\"></span></span></template></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -74,13 +74,23 @@ func (r *Repository) AddReview(ctx context.Context, rev *org.Review) error {
 		if rev.Rating < 1 {
 			rev.Rating = 5
 		}
+		if rev.Context == "" {
+			rev.Context = "supplier"
+		}
 		query := `
-			INSERT INTO org.organization_reviews (organization_id, user_id, rating, review_text, is_approved)
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO org.organization_reviews (
+				organization_id, user_id, order_id, shipment_id, reviewer_org_id,
+				rating, review_text, is_approved, is_public, status, context
+			) VALUES (
+				$1, $2, $3, $4, $5,
+				$6, $7, $8, true, 'approved', $9
+			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		err := tx.QueryRow(txCtx, query, rev.OrganizationID, rev.UserID, rev.Rating, rev.ReviewText, rev.IsApproved).
-			Scan(&rev.ID, &rev.PublicID, &rev.CreatedAt, &rev.UpdatedAt)
+		err := tx.QueryRow(txCtx, query,
+			rev.OrganizationID, rev.UserID, rev.OrderID, rev.ShipmentID, rev.ReviewerOrgID,
+			rev.Rating, rev.ReviewText, rev.IsApproved, rev.Context,
+		).Scan(&rev.ID, &rev.PublicID, &rev.CreatedAt, &rev.UpdatedAt)
 		if err != nil {
 			return err
 		}
@@ -103,17 +113,20 @@ func (r *Repository) AddReview(ctx context.Context, rev *org.Review) error {
 	})
 }
 
-// ListReviewsByOrg returns approved reviews for an organization, joining reviewer organization name.
+// ListReviewsByOrg returns approved reviews for an organization, joining reviewer organization name and ratings.
 func (r *Repository) ListReviewsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*org.Review, error) {
 	var list []*org.Review
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT r.id, r.public_id, r.organization_id, r.user_id, r.rating, r.review_text, r.is_approved, r.created_at, r.updated_at,
-			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.trade_name->>'en', ''), NULLIF(o.name->>'ar', ''), NULLIF(o.name->>'en', ''), 'صيدلية معتمدة') AS reviewer_org_name
+			SELECT r.id, r.public_id, r.organization_id, r.user_id, r.order_id, r.shipment_id, r.reviewer_org_id,
+			       r.rating, r.review_text, r.response, r.response_at, r.responded_by,
+			       r.is_approved, r.created_at, r.updated_at,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.trade_name->>'en', ''), NULLIF(o.name->>'ar', ''), NULLIF(o.name->>'en', ''), 'صيدلية معتمدة') AS reviewer_org_name,
+			       COALESCE(ord.order_number, '') AS order_number
 			FROM org.organization_reviews r
-			LEFT JOIN org.members m ON m.user_id = r.user_id
-			LEFT JOIN org.organizations o ON o.id = m.organization_id
-			WHERE r.organization_id = $1 AND r.is_approved = true
+			LEFT JOIN org.organizations o ON o.id = COALESCE(r.reviewer_org_id, (SELECT organization_id FROM org.members WHERE user_id = r.user_id LIMIT 1))
+			LEFT JOIN commerce.orders ord ON ord.id = r.order_id
+			WHERE r.organization_id = $1 AND r.is_approved = true AND r.deleted_at IS NULL
 			ORDER BY r.created_at DESC
 			LIMIT $2 OFFSET $3;
 		`
@@ -125,20 +138,67 @@ func (r *Repository) ListReviewsByOrg(ctx context.Context, orgID int64, limit, o
 			return err
 		}
 		defer rows.Close()
+
+		var reviewIDs []int64
 		for rows.Next() {
 			var rev org.Review
-			var revText *string
+			var revText, response, orderNum *string
 			var orgName string
-			if err := rows.Scan(&rev.ID, &rev.PublicID, &rev.OrganizationID, &rev.UserID, &rev.Rating, &revText, &rev.IsApproved, &rev.CreatedAt, &rev.UpdatedAt, &orgName); err != nil {
+			if err := rows.Scan(
+				&rev.ID, &rev.PublicID, &rev.OrganizationID, &rev.UserID, &rev.OrderID, &rev.ShipmentID, &rev.ReviewerOrgID,
+				&rev.Rating, &revText, &response, &rev.ResponseAt, &rev.RespondedBy,
+				&rev.IsApproved, &rev.CreatedAt, &rev.UpdatedAt, &orgName, &orderNum,
+			); err != nil {
 				return err
 			}
 			if revText != nil {
 				rev.ReviewText = *revText
 			}
+			if response != nil {
+				rev.Response = *response
+			}
+			if orderNum != nil {
+				rev.OrderNumber = *orderNum
+			}
 			rev.ReviewerOrgName = orgName
 			list = append(list, &rev)
+			reviewIDs = append(reviewIDs, rev.ID)
 		}
-		return rows.Err()
+		if rows.Err() != nil {
+			return rows.Err()
+		}
+
+		if len(reviewIDs) > 0 {
+			ratQuery := `SELECT review_id, criterion, score FROM org.review_ratings WHERE review_id = ANY($1);`
+			ratRows, ratErr := tx.Query(txCtx, ratQuery, reviewIDs)
+			if ratErr == nil {
+				defer ratRows.Close()
+				ratMap := make(map[int64][]org.ReviewRating)
+				for ratRows.Next() {
+					var rr org.ReviewRating
+					if err := ratRows.Scan(&rr.ReviewID, &rr.Criterion, &rr.Score); err == nil {
+						ratMap[rr.ReviewID] = append(ratMap[rr.ReviewID], rr)
+					}
+				}
+				for _, rev := range list {
+					if ratings, ok := ratMap[rev.ID]; ok {
+						rev.Ratings = ratings
+						for _, r := range ratings {
+							switch r.Criterion {
+							case "rep":
+								rev.ScoreRep = r.Score
+							case "quality":
+								rev.ScoreQuality = r.Score
+							case "speed":
+								rev.ScoreSpeed = r.Score
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return nil
 	})
 	return list, err
 }

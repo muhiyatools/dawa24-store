@@ -18,6 +18,9 @@ type AdminPlansData struct {
 	GatewayPlans  []gateway.GatewayPlan
 	GatewayURL    string
 	GatewayOnline bool
+	SubPage       int
+	SubPerPage    int
+	SubTotalCount int
 }
 
 func countActivePlans(plans []*billing.Plan) int {
@@ -136,7 +139,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						<span class="text-emerald">@components.IconUsers("icon-xs")</span>
 					</div>
 					<div class="tabular-nums text-2xl font-black text-emerald mt-2">
-						{ fmt.Sprintf("%d", len(data.Subscriptions)) } <span class="text-xs text-muted font-normal">منشأة</span>
+						{ fmt.Sprintf("%d", data.SubTotalCount) } <span class="text-xs text-muted font-normal">منشأة</span>
 					</div>
 					<div class="text-xs text-muted mt-2 pt-2 border-t">
 						اشتراكات سارية ومفعلة بالكامل
@@ -174,7 +177,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						class={ "tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") }
 					>
 						@components.IconWallet("icon-xs")
-						<span>سجلات المشتركين والمنشآت ({ fmt.Sprintf("%d", len(data.Subscriptions)) })</span>
+						<span>سجلات المشتركين والمنشآت ({ fmt.Sprintf("%d", data.SubTotalCount) })</span>
 					</a>
 				</div>
 
@@ -243,6 +246,17 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 									</tbody>
 								</table>
 							</div>
+							if data.SubTotalCount > 0 {
+								@components.B2BPagination(components.PaginationProps{
+									CurrentPage: data.SubPage,
+									PageSize:    data.SubPerPage,
+									TotalCount:  data.SubTotalCount,
+									BaseURL:     "/admin/plans",
+									QueryValues: map[string][]string{
+										"tab": {"subscriptions"},
+									},
+								})
+							}
 						}
 					} else {
 						<!-- TAB 1: Unified Plans Cards Grid -->

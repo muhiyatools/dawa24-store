@@ -250,6 +250,17 @@ func adminPromoPerms() []Permission {
 func adminToolsPerms() []Permission {
 	g := gAdminTools
 	return []Permission{
+		// The Capsule assistant reads business data on the caller's behalf. It is
+		// a separate grant from the screens it reads, so an owner can hand an
+		// employee the dashboard without handing them a natural-language way to
+		// summarise the whole company — and can withdraw it in one click.
+		//
+		// It never WIDENS access: every assistant tool also requires the same
+		// permission the corresponding screen requires, so this grant alone
+		// shows an employee nothing they could not already open.
+		adminAct("platform.assistant.use", g,
+			"استخدام المساعد الذكي كبسولة", "Use the Capsule AI assistant"),
+
 		adminPage("platform.message.view", g, "messages", "رسائل واستفسارات التواصل", "Contact messages"),
 		adminAct("platform.message.update", g, "الرد على الرسائل وإغلاقها", "Reply to and close messages", "platform.message.view"),
 

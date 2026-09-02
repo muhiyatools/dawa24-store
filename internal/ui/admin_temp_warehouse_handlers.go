@@ -17,6 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -48,7 +49,10 @@ func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	data := h.buildTempWarehousesData(ctx, filter, false)
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+
+	data := h.buildTempWarehousesData(ctx, filter, false, page, limit)
 	data.Base = tempWarehouseSuperBase
 	data.PageURL = tempWarehouseSuperPage
 	data.NoticeMsg = strings.TrimSpace(r.URL.Query().Get("notice"))
@@ -71,31 +75,31 @@ func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Reque
 
 // buildTempWarehousesData runs the admin temp-warehouse listing and maps it into
 // the page view model. Shared by the Super Admin and "my uploads" screens.
-func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.AdminTempWarehouseFilter, mineOnly bool) *pages.AdminTempWarehousesData {
+func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.AdminTempWarehouseFilter, mineOnly bool, page, limit int) *pages.AdminTempWarehousesData {
+	offset := (page - 1) * limit
 	var rows []*compare.AdminTempWarehouse
+	var totalCount int
+	var totalRows int64
+	var activeCount, archivedCount int
+
 	if h.compareSvc != nil {
 		var err error
-		rows, err = h.compareSvc.ListAdminTempWarehouses(database.AsSystem(ctx), filter)
+		rows, totalCount, err = h.compareSvc.ListAdminTempWarehousesWithTotal(database.AsSystem(ctx), filter, limit, offset)
 		if err != nil {
 			h.log.ErrorContext(ctx, "list admin temp warehouses", "error", err)
 		}
+		totalRows, activeCount, archivedCount, err = h.compareSvc.AdminTempWarehouseStats(database.AsSystem(ctx), filter)
+		if err != nil {
+			h.log.ErrorContext(ctx, "stats admin temp warehouses", "error", err)
+		}
 	}
 
-	var totalRows int64
-	var activeCount, archivedCount int
 	items := make([]*pages.AdminTempWarehouseItem, 0, len(rows))
 	for _, row := range rows {
 		if row == nil || row.CompareFile == nil {
 			continue
 		}
 		f := row.CompareFile
-		totalRows += int64(f.RowCount)
-		switch f.Status {
-		case compare.FileReady:
-			activeCount++
-		case compare.FileArchived:
-			archivedCount++
-		}
 		source := "moderator"
 		if f.OrganizationID != nil {
 			source = "vendor"
@@ -125,7 +129,7 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 
 	return &pages.AdminTempWarehousesData{
 		Items:          items,
-		TotalCount:     len(items),
+		TotalCount:     totalCount,
 		TotalRows:      totalRows,
 		ActiveCount:    activeCount,
 		ArchivedCount:  archivedCount,
@@ -134,6 +138,8 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 		SourceFilter:   filter.Source,
 		UploaderFilter: uploaderFilter,
 		MineOnly:       mineOnly,
+		Page:           page,
+		PerPage:        limit,
 	}
 }
 
@@ -345,62 +351,4 @@ func (h *UIHandler) AdminTempWarehouseExportXLSX(w http.ResponseWriter, r *http.
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
 	_ = f.Write(w)
-}
-
-// AdminTempWarehouseBulkSubmit processes bulk actions (archive, unarchive, delete) on selected warehouses.
-func (h *UIHandler) AdminTempWarehouseBulkSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang := langOf(r)
-	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", i18n.T(lang, "admin.temp_wh.invalid_data"))
-		return
-	}
-
-	action := strings.TrimSpace(r.PostFormValue("bulk_action"))
-	idsRaw := r.PostForm["selected_ids"]
-	if len(idsRaw) == 0 {
-		if raw := strings.TrimSpace(r.PostFormValue("selected_ids")); raw != "" {
-			idsRaw = strings.Split(raw, ",")
-		}
-	}
-
-	var ids []int64
-	for _, s := range idsRaw {
-		if id, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64); err == nil && id > 0 {
-			ids = append(ids, id)
-		}
-	}
-
-	if len(ids) == 0 {
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", "لم يتم تحديد أي مستودعات لتنفيذ الإجراء")
-		return
-	}
-
-	successCount := 0
-	switch action {
-	case "archive":
-		reason := i18n.T(lang, "admin.temp_wh.manual_archive_reason")
-		for _, id := range ids {
-			if err := h.compareSvc.ArchiveFile(database.AsSystem(ctx), id, reason); err == nil {
-				successCount++
-			}
-		}
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم أرشفة %d مستودع بنجاح", successCount))
-	case "unarchive":
-		for _, id := range ids {
-			if err := h.compareSvc.UnarchiveFile(database.AsSystem(ctx), id); err == nil {
-				successCount++
-			}
-		}
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم تفعيل واسترجاع %d مستودع بنجاح", successCount))
-	case "delete":
-		for _, id := range ids {
-			if err := h.compareSvc.DeleteFile(database.AsSystem(ctx), id); err == nil {
-				successCount++
-			}
-		}
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "success", fmt.Sprintf("تم حذف %d مستودع وكافة أصنافها نهائياً", successCount))
-	default:
-		h.redirectWithNotice(w, r, tempWarehouseSuperPage, "error", "إجراء غير معروف")
-	}
 }

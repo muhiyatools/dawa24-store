@@ -221,9 +221,24 @@ func (s *Service) ListBranches(ctx context.Context, orgID int64) ([]*Branch, err
 	return s.repo.ListBranchesByOrg(ctx, orgID)
 }
 
+// ListBranchesWithTotal returns paginated branches matching filter and total count.
+func (s *Service) ListBranchesWithTotal(ctx context.Context, filter BranchFilter, limit, offset int) ([]*Branch, int, error) {
+	return s.repo.ListBranchesWithTotal(ctx, filter, limit, offset)
+}
+
+// AdminBranchStats provides platform-wide branch and warehouse counts.
+func (s *Service) AdminBranchStats(ctx context.Context) (AdminBranchStatsResult, error) {
+	return s.repo.AdminBranchStats(ctx)
+}
+
 // ListEmployees returns all employees with user profile, role and branch manager status.
 func (s *Service) ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error) {
 	return s.repo.ListEmployees(ctx, orgID)
+}
+
+// ListEmployeesWithTotal returns paginated employees with user profile, role, branch manager status, and total count.
+func (s *Service) ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*EmployeeView, int, error) {
+	return s.repo.ListEmployeesWithTotal(ctx, orgID, limit, offset)
 }
 
 // AddMemberDirect adds or updates a member directly with full attributes.

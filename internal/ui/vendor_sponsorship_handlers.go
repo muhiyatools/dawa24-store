@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -25,16 +26,21 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 		return
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var packages []*promo.OfferPackage
 	var purchases []*promo.SponsorshipPurchase
 	var requests []*promo.SponsorshipRequest
+	var totalRequests int
 	var activePurchases []*promo.SponsorshipPurchase
 	var activeOffers []*promo.Offer
 
 	if h.promoSvc != nil {
 		packages, _ = h.promoSvc.ListPackages(ctx)
 		purchases, _ = h.promoSvc.ListSponsorshipPurchases(ctx)
-		requests, _ = h.promoSvc.ListSponsorshipRequestsByOrg(ctx, 100, 0)
+		requests, totalRequests, _ = h.promoSvc.ListSponsorshipRequestsByOrgWithTotal(ctx, limit, offset)
 		activePurchases, _ = h.promoSvc.ListActiveSponsorshipPurchases(ctx)
 		activeOffers, _ = h.promoSvc.ListActiveOffers(ctx, 100, 0)
 	}
@@ -57,6 +63,9 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 		ItemOptions:     itemOptions,
 		ActiveOffers:    activeOffers,
 		TotalCredits:    totalCredits,
+		Page:            page,
+		PerPage:         limit,
+		TotalCount:      totalRequests,
 	}
 
 	h.renderPage(ctx, w, "render vendor sponsorship requests", pages.VendorSponsorshipRequestsPage(lang, dir, data))

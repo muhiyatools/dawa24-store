@@ -1,0 +1,247 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type VendorReviewsViewData struct {
+	Reviews       []*org.Review
+	AverageRating float64
+	AvgRep        float64
+	AvgQuality    float64
+	AvgSpeed      float64
+	TotalCount    int
+}
+
+// VendorReviewsPage renders all pharmacy ratings and reviews received by the vendor.
+templ VendorReviewsPage(data VendorReviewsViewData, lang, dir string) {
+	@layouts.VendorShell("التقييمات وآراء الصيدليات", "reviews", lang, dir) {
+		<div class="page-container py-2">
+			
+			<!-- Header Banner -->
+			<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
+				<div class="stack-2xs">
+					<nav class="text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold">
+						<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+						<span class="text-muted">/</span>
+						<span class="text-primary font-black">التقييمات</span>
+					</nav>
+					<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
+						تقييمات الصيدليات والعملاء ({ fmt.Sprintf("%d", data.TotalCount) })
+					</h1>
+					<p class="text-xs text-secondary mt-1 mb-0 font-medium">
+						متابعة تقييمات المناديب وجودة التوريد وسرعة التوصيل مع إمكانية الرد المباشر على ملاحظات الصيدليات
+					</p>
+				</div>
+
+				<div class="d-flex items-center gap-3">
+					<div class="d-flex items-center gap-2 px-3.5 py-2 bg-surface-sunken border rounded-xl shadow-2xs">
+						@components.IconStar("icon-sm text-amber")
+						<div class="d-flex flex-col">
+							<span class="text-2xs text-muted font-bold">متوسط التقييم العام</span>
+							<strong class="text-base font-black text-primary tabular-nums">
+								if data.TotalCount > 0 {
+									{ fmt.Sprintf("%.1f / 5.0", data.AverageRating) }
+								} else {
+									<span>—</span>
+								}
+							</strong>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- KPI Scorecards Breakdown -->
+			if data.TotalCount > 0 {
+				<div class="grid-auto-fit-sm gap-4 mb-6">
+					
+					<div class="stat-card-3d">
+						<div class="flex-between items-center mb-1">
+							<span class="stat-card-label">تقييم المندوب والتواصل</span>
+							@components.IconUsers("icon-xs text-brand")
+						</div>
+						<div class="stat-card-value text-brand tabular-nums">
+							{ fmt.Sprintf("%.1f", data.AvgRep) } <span class="text-xs font-bold text-muted">/ 5</span>
+						</div>
+						<span class="text-xs text-secondary mt-1 d-block font-medium">أداء مندوبي التوصيل والتعامل</span>
+					</div>
+
+					<div class="stat-card-3d">
+						<div class="flex-between items-center mb-1">
+							<span class="stat-card-label">جودة الخدمة والأصناف</span>
+							@components.IconShield("icon-xs text-emerald")
+						</div>
+						<div class="stat-card-value text-emerald tabular-nums">
+							{ fmt.Sprintf("%.1f", data.AvgQuality) } <span class="text-xs font-bold text-muted">/ 5</span>
+						</div>
+						<span class="text-xs text-secondary mt-1 d-block font-medium">سلامة التغليف ودقة الطلبات</span>
+					</div>
+
+					<div class="stat-card-3d">
+						<div class="flex-between items-center mb-1">
+							<span class="stat-card-label">سرعة التوصيل والتجهيز</span>
+							@components.IconClock("icon-xs text-sky")
+						</div>
+						<div class="stat-card-value text-sky tabular-nums">
+							{ fmt.Sprintf("%.1f", data.AvgSpeed) } <span class="text-xs font-bold text-muted">/ 5</span>
+						</div>
+						<span class="text-xs text-secondary mt-1 d-block font-medium">الالتزام بمواعيد التسليم المحددة</span>
+					</div>
+
+				</div>
+			}
+
+			<!-- Reviews List -->
+			if len(data.Reviews) == 0 {
+				<div class="glass-panel p-10 text-center border rounded-2xl shadow-xs">
+					<div class="w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3">
+						@components.IconStar("icon-md")
+					</div>
+					<h3 class="text-base font-extrabold text-primary mb-1.5">لا توجد تقييمات مسجلة بعد</h3>
+					<p class="text-xs text-secondary mb-0 max-w-md mx-auto font-medium">
+						عندما تؤكد الصيدليات استلام طلبيات التوريد الخاصة بمنشأتك، ستظهر تقييمات المندوب والخدمة والسرعة هنا مع إمكانية الرد عليها.
+					</p>
+				</div>
+			} else {
+				<div class="d-flex flex-col gap-4 mb-6">
+					for _, rv := range data.Reviews {
+						<div class="glass-panel p-5 border rounded-2xl shadow-xs">
+							<!-- Card Top Bar: Pharmacy Name, Rating, Date -->
+							<div class="flex-between items-start flex-wrap gap-3 pb-3 border-b mb-3">
+								<div class="d-flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 font-black d-flex items-center justify-center flex-shrink-0 text-sm border border-emerald-200">
+										@components.IconBuilding("icon-xs")
+									</div>
+									<div class="stack-2xs">
+										<div class="d-flex items-center gap-2">
+											<strong class="text-sm font-black text-primary">{ rv.ReviewerOrgName }</strong>
+											if rv.OrderNumber != "" {
+												<span class="badge badge-slate text-2xs font-mono font-bold">
+													طلب #{ rv.OrderNumber }
+												</span>
+											}
+										</div>
+										<span class="text-2xs text-muted font-medium">
+											{ format.Date(rv.CreatedAt, lang) }
+										</span>
+									</div>
+								</div>
+
+								<div class="d-flex items-center gap-2">
+									@components.RatingStars(float64(rv.Rating), 0)
+									<span class="badge badge-amber text-xs font-black tabular-nums">
+										{ fmt.Sprintf("%d / 5", rv.Rating) }
+									</span>
+								</div>
+							</div>
+
+							<!-- 3 Metrics Criteria Badges -->
+							<div class="d-flex items-center gap-2.5 flex-wrap mb-3">
+								<div class="d-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border text-xs font-bold text-secondary">
+									<span>المندوب:</span>
+									<strong class="text-primary tabular-nums">
+										if rv.ScoreRep > 0 {
+											{ fmt.Sprintf("%d ★", rv.ScoreRep) }
+										} else {
+											<span>{ fmt.Sprintf("%d ★", rv.Rating) }</span>
+										}
+									</strong>
+								</div>
+
+								<div class="d-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border text-xs font-bold text-secondary">
+									<span>الخدمة والجودة:</span>
+									<strong class="text-primary tabular-nums">
+										if rv.ScoreQuality > 0 {
+											{ fmt.Sprintf("%d ★", rv.ScoreQuality) }
+										} else {
+											<span>{ fmt.Sprintf("%d ★", rv.Rating) }</span>
+										}
+									</strong>
+								</div>
+
+								<div class="d-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border text-xs font-bold text-secondary">
+									<span>سرعة التوصيل:</span>
+									<strong class="text-primary tabular-nums">
+										if rv.ScoreSpeed > 0 {
+											{ fmt.Sprintf("%d ★", rv.ScoreSpeed) }
+										} else {
+											<span>{ fmt.Sprintf("%d ★", rv.Rating) }</span>
+										}
+									</strong>
+								</div>
+							</div>
+
+							<!-- Pharmacy Review Text -->
+							if rv.ReviewText != "" {
+								<div class="p-3.5 bg-surface-sunken rounded-xl border text-xs text-primary font-medium leading-relaxed mb-3">
+									"{ rv.ReviewText }"
+								</div>
+							}
+
+							<!-- Vendor Reply Section -->
+							if rv.Response != "" {
+								<div class="p-4 bg-brand-subtle border border-brand/20 rounded-xl mb-2">
+									<div class="flex-between items-center mb-1.5">
+										<div class="d-flex items-center gap-1.5 text-xs font-extrabold text-brand">
+											@components.IconMessageSquare("icon-xs")
+											<span>رد منشأتك على الصيدلية:</span>
+										</div>
+										if rv.ResponseAt != nil {
+											<span class="text-2xs text-muted font-medium">
+												{ format.Date(*rv.ResponseAt, lang) }
+											</span>
+										}
+									</div>
+									<p class="text-xs text-primary m-0 font-medium leading-relaxed">
+										{ rv.Response }
+									</p>
+								</div>
+							}
+
+							<!-- Reply Action / Form (Toggleable) -->
+							<div class="mt-2 pt-2 border-t">
+								<details class="group">
+									<summary class="btn btn-secondary btn-xs font-bold cursor-pointer inline-flex items-center gap-1.5 select-none">
+										@components.IconMessageSquare("icon-2xs")
+										if rv.Response != "" {
+											<span>تعديل الرد على الصيدلية ▾</span>
+										} else {
+											<span>الرد على تقييم الصيدلية ▾</span>
+										}
+									</summary>
+									<form
+										method="POST"
+										action={ templ.SafeURL(fmt.Sprintf("/vendor/reviews/%d/reply", rv.ID)) }
+										class="mt-3 p-3.5 bg-surface-sunken border rounded-xl d-flex flex-col gap-2.5"
+									>
+										<label class="text-xs font-bold text-primary">نص رد المورد المعتمد:</label>
+										<textarea
+											name="response"
+											rows="3"
+											required
+											class="form-input text-xs w-full"
+											placeholder="اكتب ردك المهني والواضح لتوضيح موقفك أو شكر الصيدلية..."
+										>{ rv.Response }</textarea>
+										<div class="d-flex justify-end gap-2">
+											<button type="submit" class="btn btn-primary btn-sm font-black px-4 shadow-xs">
+												@components.IconCheck("icon-xs")
+												<span>نشر الرد الرسمي</span>
+											</button>
+										</div>
+									</form>
+								</details>
+							</div>
+
+						</div>
+					}
+				</div>
+			}
+
+		</div>
+	}
+}

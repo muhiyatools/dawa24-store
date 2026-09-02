@@ -110,6 +110,10 @@ func (m *mockCoverageRepo) ListCoverageForOrganization(_ context.Context, orgID 
 	}
 	return list, nil
 }
+func (m *mockCoverageRepo) ListCoverageForOrganizationWithTotal(ctx context.Context, orgID int64, _, _ int) ([]*workflow.CoverageView, int, error) {
+	list, err := m.ListCoverageForOrganization(ctx, orgID)
+	return list, len(list), err
+}
 func (m *mockCoverageRepo) CreateIssue(_ context.Context, _ *workflow.ReportIssue) error {
 	return nil
 }

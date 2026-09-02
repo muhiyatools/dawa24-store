@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -36,12 +37,18 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 		noticeMsg = r.URL.Query().Get("msg")
 	}
 
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	offset := (page - 1) * limit
+
 	var memberViews []*pages.TeamMemberView
 	var branchOptions []*pages.BranchOption
+	var totalCount int
 
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		// 1. Fetch employees with full profiles
-		if employees, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil && len(employees) > 0 {
+		if employees, total, err := h.orgSvc.ListEmployeesWithTotal(ctx, actor.OrganizationID, limit, offset); err == nil && len(employees) > 0 {
+			totalCount = total
 			for _, emp := range employees {
 				roleName := emp.RoleName
 				switch emp.Member.RoleKey {
@@ -156,6 +163,9 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 		Members:       memberViews,
 		Branches:      branchOptions,
 		CanAssignRole: actor.Can("vendor.role.assign"),
+		Page:          page,
+		PerPage:       limit,
+		TotalCount:    totalCount,
 	}
 	// The assignable roles are this company's own. Resolving each member's
 	// current role through the same list is what makes the selector show

@@ -768,29 +768,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 8. Tab 5: Reviews -->
-			<div id="tab-content-reviews" class={ "tab-panel", templ.KV("d-none", data.ActiveTab != "reviews") }>
-				if len(data.Reviews) == 0 {
-					<div class="glass-panel p-6 text-center">
-						<div class="mb-2 text-amber">@components.IconStar("icon-sm")</div>
-						<h3 class="font-bold text-sm m-0">مورد معتمد موثق</h3>
-						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
-					</div>
-				} else {
-					<div class="d-flex flex-col gap-3">
-						for _, rv := range data.Reviews {
-							<div class="glass-panel p-4">
-								<div class="d-flex items-center justify-between gap-2 mb-2">
-									<strong>صيدلية معتمدة</strong>
-									@components.RatingStars(float64(rv.Rating), 0)
-								</div>
-								<p class="text-sm text-secondary m-0">
-									{ rv.ReviewText }
-								</p>
-							</div>
-						}
-					</div>
-				}
-			</div>
+			@SupplierProfileReviewsTab(data.Reviews, data.Rating, data.ReviewCount, lang, data.ActiveTab)
 
 			<!-- Universal Quote Request Modal -->
 			@components.Modal(components.ModalProps{

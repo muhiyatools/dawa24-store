@@ -169,12 +169,25 @@ func vendorContentPerms() []Permission {
 		vendorPage("vendor.activity.view", g, "activities", "سجل العمليات والنشاط", "Activity log"),
 		vendorPage("vendor.ai_log.view", g, "ai_logs", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
 		vendorPage("vendor.institutional.view", g, "institutional_work", "الأعمال المؤسسية", "Institutional work"),
+		vendorPage("vendor.review.view", g, "reviews", "التقييمات", "Reviews & ratings"),
+		vendorAct("vendor.review.reply", g, "الرد على تقييمات الصيدليات", "Reply to pharmacy reviews", "vendor.review.view"),
 	}
 }
 
 func vendorAccountPerms() []Permission {
 	g := gVendorAccount
 	return []Permission{
+		// The Capsule assistant reads business data on the caller's behalf. It is
+		// a separate grant from the screens it reads, so an owner can hand an
+		// employee the dashboard without handing them a natural-language way to
+		// summarise the whole company — and can withdraw it in one click.
+		//
+		// It never WIDENS access: every assistant tool also requires the same
+		// permission the corresponding screen requires, so this grant alone
+		// shows an employee nothing they could not already open.
+		vendorAct("vendor.assistant.use", g,
+			"استخدام المساعد الذكي كبسولة", "Use the Capsule AI assistant"),
+
 		vendorPage("vendor.session.view", g, "sessions", "الأجهزة والجلسات النشطة", "Active sessions"),
 		vendorAct("vendor.session.revoke", g, "إنهاء الجلسات", "Revoke sessions", "vendor.session.view"),
 	}

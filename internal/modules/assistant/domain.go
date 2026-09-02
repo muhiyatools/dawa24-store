@@ -17,8 +17,10 @@ type Conversation struct {
 	OrganizationID int64      `json:"organization_id"`
 	UserID         int64      `json:"user_id"`
 	Title          string     `json:"title"`
+	AgentRole      string     `json:"agent_role"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
+	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	DeletedAt      *time.Time `json:"deleted_at,omitempty"`
 }
 
@@ -67,17 +69,96 @@ type Message struct {
 	CreatedAt        time.Time    `json:"created_at"`
 }
 
-// Attachment holds uploaded file metadata and content references.
+// Attachment is one uploaded file as a message records it.
+//
+// DataURL is json:"-" and that matters. It used to be a persisted field, so
+// every uploaded file was base64-encoded into assistant.messages.attachments
+// and handed back to the browser on every history load — a 10 MB PDF costing
+// ~13 MB of JSONB per conversation. The bytes now live in object storage; this
+// struct carries only what a message needs to name the file, and the DataURL is
+// filled in transiently while a turn is being assembled.
 type Attachment struct {
 	Handle      string  `json:"handle"`
 	Filename    string  `json:"filename"`
 	MIMEType    string  `json:"mime_type"`
 	SizeMB      float64 `json:"size_mb"`
-	DataURL     string  `json:"data_url,omitempty"`
+	DataURL     string  `json:"-"`
 	ContentHash string  `json:"content_hash"`
 	UserID      int64   `json:"user_id"`
 	OrgID       int64   `json:"org_id"`
+	// RowID is the assistant.attachments primary key. Zero for a legacy row
+	// saved before attachments became first-class.
+	RowID int64 `json:"row_id,omitempty"`
 }
+
+// AttachmentRow is a stored attachment: metadata here, bytes in object storage.
+type AttachmentRow struct {
+	ID             int64
+	PublicID       uuid.UUID
+	OrganizationID int64
+	UserID         int64
+	ConversationID *int64
+	Filename       string
+	MIMEType       string
+	SizeBytes      int64
+	ContentHash    string
+	StorageKey     string
+	Digest         string
+	Referenced     bool
+	CreatedAt      time.Time
+}
+
+// TurnStatus is the lifecycle of one question.
+type TurnStatus string
+
+const (
+	TurnRunning   TurnStatus = "running"
+	TurnDone      TurnStatus = "done"
+	TurnFailed    TurnStatus = "failed"
+	TurnCancelled TurnStatus = "cancelled"
+)
+
+// Turn is one question and its answer, owned by the server rather than by the
+// HTTP request that asked.
+//
+// This is what makes an answer survive a dropped connection. Persisting only on
+// the streaming request's own context meant a navigation, a Wi-Fi drop or a
+// proxy timeout discarded an answer the tenant had already been billed for.
+type Turn struct {
+	ID             int64
+	PublicID       uuid.UUID
+	ConversationID int64
+	OrganizationID int64
+	UserID         int64
+	AgentRole      string
+	Status         TurnStatus
+	Question       string
+	Answer         string
+	ErrorCode      string
+	InputTokens    int
+	OutputTokens   int
+	ToolCalls      int
+	CreatedAt      time.Time
+	FinishedAt     *time.Time
+}
+
+// ToolAudit records one tool invocation and the decision made about it.
+type ToolAudit struct {
+	TurnID         int64
+	OrganizationID int64
+	UserID         int64
+	AgentRole      string
+	ToolName       string
+	Decision       string
+	Permission     string
+	LatencyMS      int
+	RowCount       int
+}
+
+// ConversationRetention is how long a conversation is kept before the worker
+// deletes it. Stated here rather than only in SQL because the drawer tells the
+// user the rule, and the two must not be able to disagree.
+const ConversationRetention = 6 * 30 * 24 * time.Hour // ~6 months
 
 // Digest is the attachment model's structured understanding of one file.
 type Digest struct {

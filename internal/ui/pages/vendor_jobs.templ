@@ -22,6 +22,8 @@ type VendorJobsData struct {
 	PublishedCount    int
 	ClosedCount       int
 	TotalApplications int
+	Page              int
+	PerPage           int
 	NoticeType        string
 	NoticeMsg         string
 }
@@ -267,6 +269,14 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							</tbody>
 						</table>
 					</div>
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/vendor/jobs",
+						})
+					}
 				}
 			</div>
 

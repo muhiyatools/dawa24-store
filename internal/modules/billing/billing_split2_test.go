@@ -65,6 +65,10 @@ func (m *mockBillingRepo) AdminListSubscriptions(_ context.Context, limit, offse
 	return nil, nil
 }
 
+func (m *mockBillingRepo) AdminListSubscriptionsWithTotal(_ context.Context, limit, offset int) ([]*Subscription, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockBillingRepo) ListPaymentsByOrg(_ context.Context, orgID int64, limit, offset int) ([]*Payment, error) {
 	return nil, nil
 }

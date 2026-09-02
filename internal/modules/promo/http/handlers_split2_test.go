@@ -32,8 +32,14 @@ func (happyRepo) GetAdByID(context.Context, int64) (*promo.Ad, error) {
 func (happyRepo) ListAdsByOrg(context.Context, int64, int, int) ([]*promo.Ad, error) {
 	return nil, nil
 }
+func (happyRepo) ListAdsByOrgWithTotal(context.Context, int64, int, int) ([]*promo.Ad, int, error) {
+	return nil, 0, nil
+}
 func (happyRepo) ListAllAds(context.Context, int, int) ([]*promo.Ad, error) {
 	return nil, nil
+}
+func (happyRepo) ListAllAdsWithTotal(context.Context, int, int) ([]*promo.Ad, int, error) {
+	return nil, 0, nil
 }
 func (happyRepo) UpdateAdAdminStatus(context.Context, int64, promo.AdminStatus, string, int64) error {
 	return nil

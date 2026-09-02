@@ -16,6 +16,8 @@ type Repository struct {
 	db *database.DB
 }
 
+var _ promo.Repository = (*Repository)(nil)
+
 // NewRepository creates a new promo PostgreSQL repository.
 func NewRepository(db *database.DB) *Repository {
 	return &Repository{db: db}

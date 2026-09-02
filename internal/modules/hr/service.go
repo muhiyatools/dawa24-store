@@ -77,6 +77,16 @@ func (s *Service) ListPublishedJobs(ctx context.Context, limit, offset int) ([]*
 	return s.repo.ListPublishedJobs(ctx, limit, offset)
 }
 
+// ListPublishedJobsWithTotal returns published vacancies and total count.
+func (s *Service) ListPublishedJobsWithTotal(ctx context.Context, limit, offset int) ([]*JobOffer, int, error) {
+	return s.repo.ListPublishedJobsWithTotal(ctx, limit, offset)
+}
+
+// ListAllJobsWithTotal returns all vacancies for platform admin.
+func (s *Service) ListAllJobsWithTotal(ctx context.Context, limit, offset int) ([]*JobOffer, int, error) {
+	return s.repo.ListAllJobsWithTotal(ctx, limit, offset)
+}
+
 // GetJobOffer returns one vacancy.
 func (s *Service) GetJobOffer(ctx context.Context, id int64) (*JobOffer, error) {
 	return s.repo.GetJobOfferByID(ctx, id)
@@ -97,6 +107,16 @@ func (s *Service) CreateJobOffer(ctx context.Context, orgID int64, j *JobOffer) 
 // ListOrgJobs returns a tenant's own postings.
 func (s *Service) ListOrgJobs(ctx context.Context, orgID int64, limit, offset int) ([]*JobOffer, error) {
 	return s.repo.ListJobsByOrg(ctx, orgID, limit, offset)
+}
+
+// ListOrgJobsWithTotal returns a tenant's own postings with total count.
+func (s *Service) ListOrgJobsWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*JobOffer, int, error) {
+	return s.repo.ListJobsByOrgWithTotal(ctx, orgID, limit, offset)
+}
+
+// GetJobStatsByOrg aggregates statistics for a tenant's job postings.
+func (s *Service) GetJobStatsByOrg(ctx context.Context, orgID int64) (JobStatsResult, error) {
+	return s.repo.GetJobStatsByOrg(ctx, orgID)
 }
 
 // DeleteJobOffer removes a job vacancy.

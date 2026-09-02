@@ -2,229 +2,373 @@ package assistant
 
 import (
 	"context"
-	"fmt"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"errors"
 	"log/slog"
 	"strings"
-	"sync"
+	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
-// Service orchestrates the conversational assistant, attachment preprocessing, and Gateway turns.
-type Service struct {
-	repo        Repository
-	gateway     gateway.Client
-	log         *slog.Logger
-	digestMu    sync.RWMutex
-	digestCache map[string]Digest // keyed by ContentHash
+// The agent loop.
+//
+// It is deliberately small. The model asks for data, the registry decides
+// whether it may have it, the answer comes back, and the loop repeats until the
+// model stops asking or the round budget runs out. There is no planner, no
+// scratchpad, no self-critique step: every one of those costs a full round trip
+// and none of them makes an answer about last month's spend more correct than
+// reading last month's spend.
+//
+// What the loop does own is the two bounds that keep it from becoming
+// expensive: a hard cap on rounds, and a hard cap on wall time. Both exist
+// because an agent that cannot answer usually cannot answer with more tries
+// either — it is asking the wrong question, and the useful response is to say
+// so rather than to keep spending.
+
+// maxToolRounds is how many times the model may call tools before it must
+// answer. Four covers "list, then detail, then summarise, then answer", which
+// is the deepest real question anybody has asked this assistant.
+const maxToolRounds = 4
+
+// turnDeadline bounds one whole question, tool calls included.
+const turnDeadline = 90 * time.Second
+
+// ToolOutcome is one dispatched tool call, ready to hand back to the model.
+type ToolOutcome struct {
+	CallID   string
+	Name     string
+	Content  string
+	Decision string
+	Rows     int
 }
 
-// NewService constructs a new assistant service.
-func NewService(repo Repository, gw gateway.Client, log *slog.Logger) *Service {
+// ToolRunner is the assistant's view of the tool registry.
+//
+// Declared here and implemented in assistant/tools so that this package never
+// imports that one: the loop knows there are tools, and knows nothing about
+// what any of them do.
+type ToolRunner interface {
+	Schemas(actor authctx.Actor) []gateway.ToolSpec
+	Dispatch(ctx context.Context, actor authctx.Actor, turnID int64, call gateway.ToolCall) ToolOutcome
+}
+
+// Emitter receives a turn's events as they happen. The HTTP layer implements it
+// over the durable stream buffer, so a disconnect loses nothing.
+type Emitter interface {
+	Delta(text string)
+	Reasoning(text string)
+	Status(stage string, data map[string]any)
+	Usage(input, output int)
+	Done(answer string)
+	Failed(code Code)
+}
+
+// KeyResolver returns the tenant's own Gateway virtual key, so consumption is
+// billed to the منشأة that spent it rather than to the platform.
+type KeyResolver func(ctx context.Context, orgID int64) (string, error)
+
+// Service runs turns.
+type Service struct {
+	repo    Repository
+	gateway gateway.Client
+	tools   ToolRunner
+	keys    KeyResolver
+	log     *slog.Logger
+}
+
+// NewService constructs the assistant service.
+func NewService(repo Repository, gw gateway.Client, runner ToolRunner, log *slog.Logger) *Service {
 	if log == nil {
 		log = slog.Default()
 	}
 	return &Service{
-		repo:        repo,
-		gateway:     gw,
-		log:         log.With("module", "assistant"),
-		digestCache: make(map[string]Digest),
+		repo:    repo,
+		gateway: gw,
+		tools:   runner,
+		log:     log.With("module", "assistant"),
 	}
 }
 
-// GetCachedDigest returns a pre-computed digest for a content hash if available.
-func (s *Service) GetCachedDigest(hash string) (Digest, bool) {
-	s.digestMu.RLock()
-	defer s.digestMu.RUnlock()
-	d, ok := s.digestCache[hash]
-	return d, ok
-}
+// SetKeyResolver installs the tenant key lookup.
+func (s *Service) SetKeyResolver(k KeyResolver) { s.keys = k }
 
-// SetCachedDigest caches an attachment digest.
-func (s *Service) SetCachedDigest(hash string, d Digest) {
-	s.digestMu.Lock()
-	defer s.digestMu.Unlock()
-	s.digestCache[hash] = d
-}
+// Repo exposes the repository to the HTTP layer, which owns conversation
+// lifecycle. The service owns turns.
+func (s *Service) Repo() Repository { return s.repo }
 
-// ExecutePrePass runs the attachment understanding pass via RoleAttachment model (Voxtral).
-func (s *Service) ExecutePrePass(ctx context.Context, atts []Attachment, onStatus func(filename string)) ([]Digest, error) {
-	if len(atts) == 0 {
-		return nil, nil
+// ContextWindow reports the primary model's context size, for the usage meter.
+func (s *Service) ContextWindow(ctx context.Context) int {
+	if s.gateway == nil {
+		return defaultContextWindow
 	}
-
-	digests := make([]Digest, 0, len(atts))
-	for _, a := range atts {
-		if cached, ok := s.GetCachedDigest(a.ContentHash); ok && a.ContentHash != "" {
-			digests = append(digests, cached)
-			continue
-		}
-
-		if onStatus != nil {
-			onStatus(a.Filename)
-		}
-
-		var partKind gateway.PartKind
-		switch ClassifyMIME(a.MIMEType) {
-		case KindAudio:
-			partKind = gateway.PartAudio
-		case KindImage:
-			partKind = gateway.PartImage
-		case KindVideo:
-			partKind = gateway.PartVideo
-		default:
-			partKind = gateway.PartFile
-		}
-
-		contentParts := []gateway.ContentPart{
-			{
-				Kind:     partKind,
-				DataURL:  a.DataURL,
-				Filename: a.Filename,
-				MIMEType: a.MIMEType,
-			},
-			{
-				Kind: gateway.PartText,
-				Text: fmt.Sprintf(i18n.TDefault("w4_mod.s_57"), a.Filename),
-			},
-		}
-
-		preReq := gateway.ChatRequest{
-			Role: gateway.RoleAttachment,
-			Messages: []gateway.ChatMessage{
-				{
-					Role: "system",
-					Text: i18n.TDefault("w4_mod.24_58"),
-				},
-				{
-					Role:  "user",
-					Parts: contentParts,
-				},
-			},
-			MaxTokens:   1500,
-			Temperature: 0.2,
-			OrgID:       a.OrgID,
-			UserID:      a.UserID,
-		}
-
-		events, err := s.gateway.Stream(ctx, preReq)
-		if err != nil {
-			s.log.WarnContext(ctx, "attachment prepass failed", "filename", a.Filename, "error", err)
-			// Return fallback digest without crashing turn
-			d := Digest{
-				Filename:  a.Filename,
-				Kind:      ClassifyMIME(a.MIMEType),
-				Summary:   fmt.Sprintf(i18n.TDefault("w4_mod.s_59"), a.Filename),
-				Truncated: false,
-			}
-			digests = append(digests, d)
-			continue
-		}
-
-		var sb strings.Builder
-		for ev := range events {
-			if ev.Err != nil {
-				s.log.WarnContext(ctx, "attachment stream error", "filename", a.Filename, "error", ev.Err)
-				break
-			}
-			sb.WriteString(ev.Delta)
-		}
-
-		rawText := strings.TrimSpace(sb.String())
-		truncated := false
-		if len(rawText) > DigestMaxChars {
-			rawText = rawText[:DigestMaxChars]
-			truncated = true
-		}
-
-		digest := Digest{
-			Filename:  a.Filename,
-			Kind:      ClassifyMIME(a.MIMEType),
-			Summary:   rawText,
-			Truncated: truncated,
-		}
-
-		if a.ContentHash != "" {
-			s.SetCachedDigest(a.ContentHash, digest)
-		}
-		digests = append(digests, digest)
+	caps, err := s.gateway.Capabilities(ctx, gateway.RolePrimary)
+	if err != nil || caps.ContextWindow <= 0 {
+		return defaultContextWindow
 	}
-
-	return digests, nil
+	return caps.ContextWindow
 }
 
-// BuildTurn compiles the conversation context, attachment digests, and direct multimodal parts.
-func (s *Service) BuildTurn(
+// RunTurn answers one question, streaming as it goes.
+//
+// ctx here is NOT the HTTP request's context. The caller detaches it, so the
+// turn keeps running when the browser goes away: the answer is finished, the
+// tokens that were already bought are used, and the result is persisted where
+// a reconnecting client can find it.
+func (s *Service) RunTurn(
 	ctx context.Context,
-	convID int64,
-	userText string,
-	atts []Attachment,
-	onStatus func(stage, file string),
-) ([]gateway.ChatMessage, *Plan, error) {
-	plan, err := s.PlanTurn(ctx, atts)
-	if err != nil {
-		return nil, nil, err
+	actor authctx.Actor,
+	cfg AgentConfig,
+	turn *Turn,
+	in TurnInput,
+	em Emitter,
+) {
+	ctx, cancel := context.WithTimeout(ctx, turnDeadline)
+	defer cancel()
+
+	window := s.ContextWindow(ctx)
+	messages := s.BuildMessages(ctx, actor, cfg, turn.ConversationID, in, window)
+
+	var (
+		answer     strings.Builder
+		lastUsage  *gateway.Usage
+		toolsUsed  int
+		virtualKey string
+	)
+	if s.keys != nil && actor.OrgID > 0 {
+		if vk, err := s.keys(ctx, actor.OrgID); err == nil {
+			virtualKey = vk
+		}
 	}
 
-	var prePassDigests []Digest
-	if len(plan.PrePass) > 0 {
-		if onStatus != nil {
-			onStatus("analyzing_attachment", plan.PrePass[0].Filename)
+	schemas := s.tools.Schemas(actor)
+
+	for round := 0; round <= maxToolRounds; round++ {
+		// The last permitted round drops the tools entirely. Left in, a model
+		// that has decided to call something keeps calling it, hits the cap and
+		// returns nothing; taken away, it answers from what it has already
+		// read, which is what the user wanted three rounds ago.
+		roundTools := schemas
+		if round == maxToolRounds {
+			roundTools = nil
 		}
-		digests, err := s.ExecutePrePass(ctx, plan.PrePass, func(f string) {
-			if onStatus != nil {
-				onStatus("analyzing_attachment", f)
-			}
+
+		events, err := s.gateway.Stream(ctx, gateway.ChatRequest{
+			Role:        gateway.RolePrimary,
+			Messages:    messages,
+			Tools:       roundTools,
+			MaxTokens:   2048,
+			Temperature: 0.3,
+			OrgID:       actor.OrgID,
+			UserID:      actor.UserID,
+			VirtualKey:  virtualKey,
+			Feature:     matchflow.FeatureAssistant,
 		})
 		if err != nil {
-			s.log.WarnContext(ctx, "failed prepass", "error", err)
+			s.log.WarnContext(ctx, "assistant stream failed",
+				"user_id", actor.UserID, "org_id", actor.OrgID, "error", err)
+			s.fail(ctx, turn, em, ClassifyGateway(err), answer.String())
+			return
 		}
-		prePassDigests = digests
-	}
 
-	// Compile user text with pre-pass summaries
-	var userContent strings.Builder
-	for _, d := range prePassDigests {
-		userContent.WriteString(d.RenderBlock())
-		userContent.WriteString("\n\n")
-	}
-	prompt := strings.TrimSpace(userText)
-	if prompt == "" && (len(plan.DirectParts) > 0 || len(prePassDigests) > 0) {
-		prompt = i18n.TDefault("w4_mod.w4str_60_60")
-	}
-	userContent.WriteString(prompt)
+		text, calls, usage, streamErr := s.consume(events, em, &answer)
+		if usage != nil {
+			lastUsage = usage
+		}
+		if streamErr != nil {
+			// Partial text is kept. An answer that was two thirds written is
+			// worth more to the reader than an error message, and it has
+			// already been paid for.
+			s.fail(ctx, turn, em, ClassifyGateway(streamErr), answer.String())
+			return
+		}
 
-	var messages []gateway.ChatMessage
-	messages = append(messages, gateway.ChatMessage{
-		Role: "system",
-		Text: DefaultSystemPrompt,
-	})
+		if len(calls) == 0 {
+			s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed)
+			return
+		}
 
-	// Load prior turns if conversation exists
-	if s.repo != nil && convID > 0 {
-		if history, err := s.repo.ListMessages(ctx, convID, 20); err == nil {
-			for _, m := range history {
-				messages = append(messages, gateway.ChatMessage{
-					Role: m.Role,
-					Text: m.Content,
-				})
-			}
+		messages = append(messages, gateway.ChatMessage{
+			Role:      "assistant",
+			Text:      text,
+			ToolCalls: calls,
+		})
+		for _, call := range calls {
+			toolsUsed++
+			em.Status("tool", map[string]any{"tool": call.Name, "state": "running"})
+
+			outcome := s.tools.Dispatch(ctx, actor, turn.ID, call)
+			em.Status("tool", map[string]any{
+				"tool":  outcome.Name,
+				"state": outcome.Decision,
+				"rows":  outcome.Rows,
+			})
+			messages = append(messages, gateway.ChatMessage{
+				Role:       "tool",
+				ToolCallID: call.ID,
+				Text:       outcome.Content,
+			})
 		}
 	}
 
-	// Final user message for this turn
-	userMsg := gateway.ChatMessage{
-		Role: "user",
-		Text: userContent.String(),
-	}
-	if len(plan.DirectParts) > 0 {
-		userMsg.Parts = append([]gateway.ContentPart{
-			{Kind: gateway.PartText, Text: userContent.String()},
-		}, plan.DirectParts...)
-		userMsg.Text = ""
-	}
-	messages = append(messages, userMsg)
+	// Round budget exhausted with the model still asking. Answer with what was
+	// collected rather than with nothing.
+	s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed)
+}
 
-	return messages, &plan, nil
+// consume drains one gateway stream, forwarding deltas as they arrive.
+func (s *Service) consume(
+	events <-chan gateway.StreamEvent, em Emitter, answer *strings.Builder,
+) (string, []gateway.ToolCall, *gateway.Usage, error) {
+	var (
+		round strings.Builder
+		calls []gateway.ToolCall
+		usage *gateway.Usage
+	)
+	for ev := range events {
+		switch {
+		case ev.Err != nil:
+			return round.String(), nil, usage, ev.Err
+		case ev.Reasoning != "":
+			em.Reasoning(ev.Reasoning)
+		}
+		if ev.Delta != "" {
+			round.WriteString(ev.Delta)
+			answer.WriteString(ev.Delta)
+			em.Delta(ev.Delta)
+		}
+		if ev.Usage != nil {
+			usage = ev.Usage
+			em.Usage(ev.Usage.PromptTokens, ev.Usage.CompletionTokens)
+		}
+		if ev.Done {
+			calls = ev.ToolCalls
+		}
+	}
+	return round.String(), calls, usage, nil
+}
+
+// succeed persists the turn and tells the reader it is finished.
+func (s *Service) succeed(
+	ctx context.Context,
+	actor authctx.Actor,
+	turn *Turn,
+	in TurnInput,
+	em Emitter,
+	answer string,
+	usage *gateway.Usage,
+	toolsUsed int,
+) {
+	answer = strings.TrimSpace(answer)
+	if answer == "" {
+		answer = "لم أتمكن من صياغة إجابة لهذا السؤال. جرّب صياغة أوضح أو فترة أقصر."
+	}
+	turn.Status = TurnDone
+	turn.Answer = answer
+	turn.ToolCalls = toolsUsed
+	if usage != nil {
+		turn.InputTokens = usage.PromptTokens
+		turn.OutputTokens = usage.CompletionTokens
+	}
+	s.persist(ctx, actor, turn, in, answer)
+	em.Done(answer)
+}
+
+// fail persists whatever was produced and reports a user-facing code.
+func (s *Service) fail(ctx context.Context, turn *Turn, em Emitter, code Code, partial string) {
+	turn.Status = TurnFailed
+	turn.ErrorCode = string(code)
+	turn.Answer = strings.TrimSpace(partial)
+	if s.repo != nil {
+		// context.WithoutCancel: the turn may be failing precisely because the
+		// deadline fired, and a cancelled context cannot write the record of
+		// why.
+		if err := s.repo.FinishTurn(context.WithoutCancel(ctx), turn); err != nil {
+			s.log.ErrorContext(ctx, "assistant: finish failed turn", "error", err)
+		}
+	}
+	em.Failed(code)
+}
+
+// persist writes the question, the answer and the turn record.
+//
+// Every write here uses a context detached from cancellation for the same
+// reason: this runs at the end of a turn, which is exactly when the client is
+// most likely to have gone.
+func (s *Service) persist(
+	ctx context.Context, actor authctx.Actor, turn *Turn, in TurnInput, answer string,
+) {
+	if s.repo == nil {
+		return
+	}
+	saveCtx := context.WithoutCancel(ctx)
+
+	question := strings.TrimSpace(in.Text)
+	if question == "" && len(in.Attachments) > 0 {
+		question = "مرفق: " + in.Attachments[0].Filename
+	}
+
+	if err := s.repo.SaveMessage(saveCtx, &Message{
+		ConversationID: turn.ConversationID,
+		OrganizationID: turn.OrganizationID,
+		Role:           "user",
+		Content:        question,
+		Attachments:    in.Attachments,
+		PromptVersion:  SystemPromptVersion,
+		ModelRole:      string(gateway.RolePrimary),
+	}); err != nil {
+		s.log.ErrorContext(ctx, "assistant: save question", "error", err)
+	}
+
+	if err := s.repo.SaveMessage(saveCtx, &Message{
+		ConversationID: turn.ConversationID,
+		OrganizationID: turn.OrganizationID,
+		Role:           "assistant",
+		Content:        answer,
+		PromptVersion:  SystemPromptVersion,
+		ModelRole:      string(gateway.RolePrimary),
+		InputTokens:    turn.InputTokens,
+		OutputTokens:   turn.OutputTokens,
+	}); err != nil {
+		s.log.ErrorContext(ctx, "assistant: save answer", "error", err)
+	}
+
+	if ids := attachmentIDs(in.Attachments); len(ids) > 0 {
+		if err := s.repo.MarkAttachmentsReferenced(saveCtx, ids, turn.ConversationID); err != nil {
+			s.log.WarnContext(ctx, "assistant: mark attachments referenced", "error", err)
+		}
+	}
+
+	if err := s.repo.FinishTurn(saveCtx, turn); err != nil {
+		s.log.ErrorContext(ctx, "assistant: finish turn", "error", err)
+	}
+	_ = actor
+}
+
+func attachmentIDs(atts []Attachment) []int64 {
+	var ids []int64
+	for _, a := range atts {
+		if a.RowID > 0 {
+			ids = append(ids, a.RowID)
+		}
+	}
+	return ids
+}
+
+// PurgeExpiredConversations deletes conversations six months after they were
+// created. Called by the worker daily; see cmd/worker.
+func (s *Service) PurgeExpiredConversations(ctx context.Context) (int, error) {
+	if s.repo == nil {
+		return 0, errors.New("assistant: no repository")
+	}
+	return s.repo.PurgeExpiredConversations(ctx, time.Now())
+}
+
+// PurgeOrphanAttachments removes uploads that were never sent with a question.
+func (s *Service) PurgeOrphanAttachments(ctx context.Context) ([]string, error) {
+	if s.repo == nil {
+		return nil, errors.New("assistant: no repository")
+	}
+	return s.repo.PurgeOrphanAttachments(ctx, time.Now().Add(-24*time.Hour))
 }

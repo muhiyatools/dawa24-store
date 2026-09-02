@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	assistantPostgres "github.com/muhiya/dawa24-store/internal/modules/assistant/postgres"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	commercePostgres "github.com/muhiya/dawa24-store/internal/modules/commerce/postgres"
@@ -21,7 +20,6 @@ import (
 	workflowPostgres "github.com/muhiya/dawa24-store/internal/modules/workflow/postgres"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
-	assistantHttp "github.com/muhiya/dawa24-store/internal/modules/assistant/http"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingHttp "github.com/muhiya/dawa24-store/internal/modules/billing/http"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -267,12 +265,17 @@ func mountAuthenticatedModules(
 		return tenantKeys.Key(ctx, orgID), nil
 	}
 
-	// 13. Assistant (ÙƒØ¨Ø³ÙˆÙ„Ø©)
-	assistantRepo := assistantPostgres.NewRepository(db)
-	assistantSvc := assistant.NewService(assistantRepo, ai, log)
-	assistantHandler := assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log)
-	assistantHandler.SetKeyResolver(keyResolverAPI)
-	assistantHandler.RegisterRoutes(r)
+	// 13. Assistant (كبسولة)
+	mountAssistant(r, assistantDeps{
+		db:      db,
+		cfg:     cfg,
+		log:     log,
+		ai:      ai,
+		cacheH:  deps.CacheHandle(),
+		storage: storageClient,
+		admin:   platformadmin.NewService(platformadminPostgres.NewRepository(db), log),
+		keys:    assistant.KeyResolver(keyResolverAPI),
+	})
 
 	// 14. Smart Order API
 	smartorderRepo := smartorderPG.New(db)
