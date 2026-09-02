@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"strings"
 	"time"
 
@@ -296,22 +297,55 @@ func (r *Repository) RecordAdImpression(ctx context.Context, adID int64, userID 
 
 func scanAd(row pgx.Row, a *promo.Ad) error {
 	var (
-		mediaType   string
-		clickTarget string
-		adminStatus string
+		titleAr     sql.NullString
+		titleEn     sql.NullString
+		adTextAr    sql.NullString
+		adTextEn    sql.NullString
+		imageURL    sql.NullString
+		mediaType   sql.NullString
+		mediaURL    sql.NullString
+		thumbURL    sql.NullString
+		targetURL   sql.NullString
+		clickTarget sql.NullString
+		position    sql.NullString
+		adminStatus sql.NullString
+		adminNotes  sql.NullString
 	)
 	err := row.Scan(
-		&a.ID, &a.PublicID, &a.OrganizationID, &a.Title, &a.TitleAr, &a.TitleEn, &a.AdTextAr, &a.AdTextEn,
-		&a.ImageURL, &mediaType, &a.MediaURL, &a.ThumbnailURL, &a.TargetURL,
-		&clickTarget, &a.ClickTargetID, &a.Position, &a.IsActive, &adminStatus, &a.AdminNotes,
+		&a.ID, &a.PublicID, &a.OrganizationID, &a.Title, &titleAr, &titleEn, &adTextAr, &adTextEn,
+		&imageURL, &mediaType, &mediaURL, &thumbURL, &targetURL,
+		&clickTarget, &a.ClickTargetID, &position, &a.IsActive, &adminStatus, &adminNotes,
 		&a.ReviewedBy, &a.ReviewedAt, &a.AdPlanID, &a.DurationDays, &a.StartsAt, &a.ExpiresAt,
 		&a.Impressions, &a.Clicks, &a.CreatedAt, &a.UpdatedAt,
 	)
 	if err != nil {
 		return err
 	}
-	a.MediaType = promo.AdMediaType(mediaType)
-	a.ClickTargetType = promo.AdClickTarget(clickTarget)
-	a.AdminStatus = promo.AdminStatus(adminStatus)
+	a.TitleAr = titleAr.String
+	a.TitleEn = titleEn.String
+	a.AdTextAr = adTextAr.String
+	a.AdTextEn = adTextEn.String
+	a.ImageURL = imageURL.String
+	a.MediaURL = mediaURL.String
+	a.ThumbnailURL = thumbURL.String
+	a.TargetURL = targetURL.String
+	a.Position = position.String
+	a.AdminNotes = adminNotes.String
+
+	if mediaType.Valid && mediaType.String != "" {
+		a.MediaType = promo.AdMediaType(mediaType.String)
+	} else {
+		a.MediaType = promo.MediaImage
+	}
+	if clickTarget.Valid && clickTarget.String != "" {
+		a.ClickTargetType = promo.AdClickTarget(clickTarget.String)
+	} else {
+		a.ClickTargetType = promo.ClickTargetVendor
+	}
+	if adminStatus.Valid && adminStatus.String != "" {
+		a.AdminStatus = promo.AdminStatus(adminStatus.String)
+	} else {
+		a.AdminStatus = promo.AdminPending
+	}
 	return nil
 }
