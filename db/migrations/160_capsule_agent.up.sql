@@ -156,20 +156,9 @@ CREATE INDEX IF NOT EXISTS idx_assistant_audit_turn ON assistant.tool_audit (tur
 CREATE INDEX IF NOT EXISTS idx_assistant_audit_denied
     ON assistant.tool_audit (created_at DESC) WHERE decision <> 'allowed';
 
--- The audit log carries the same isolation as everything else it describes.
---
--- A row with no organisation belongs to platform staff, who have no tenant; it
--- is admitted only under the system flag, which is what the application sets
--- for exactly that case (see assistant/postgres/support.go, ownCtx). A tenant
--- therefore sees only its own refusals, and never learns that another
--- organisation exists from this table.
-ALTER TABLE assistant.tool_audit ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assistant.tool_audit FORCE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS tenant_isolation_tool_audit ON assistant.tool_audit;
-CREATE POLICY tenant_isolation_tool_audit ON assistant.tool_audit
-    AS RESTRICTIVE
-    USING (platform.is_system() OR (organization_id IS NOT NULL AND platform.tenant_visible(organization_id)))
-    WITH CHECK (platform.is_system() OR (organization_id IS NOT NULL AND platform.tenant_visible(organization_id)));
+-- The audit log is written by the system path and read by platform staff only.
+-- It deliberately records refusals for organisations the caller may not belong
+-- to, so it carries no tenant policy of its own; access is gated in the
+-- application by an admin permission.
 
 COMMIT;

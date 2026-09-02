@@ -1,4 +1,7 @@
 -- 160_capsule_agent (down)
+--
+-- Dropping assistant.tool_audit takes its row-level security policy with it,
+-- so 162 needs no coordination here.
 
 BEGIN;
 
