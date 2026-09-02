@@ -86,11 +86,12 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		customerBranchID = h.pharmacyBranchID(ctx, &actor)
 	}
 
+	stockFilter := catalog.StockFilter(r.URL.Query().Get("stock"))
 	if h.catSvc != nil {
 		variants, total, err := h.catSvc.ListVendorVariants(database.AsSystem(ctx), id, catalog.VendorVariantQuery{
 			Query:      q,
 			Status:     "active",
-			Stock:      catalog.StockFilterIn,
+			Stock:      stockFilter,
 			PageNumber: page,
 			PerPage:    limit,
 		})
@@ -217,49 +218,4 @@ func (h *UIHandler) SupplierFollowSubmit(w http.ResponseWriter, r *http.Request)
 		back = "/suppliers"
 	}
 	http.Redirect(w, r, back, http.StatusSeeOther)
-}
-
-// SupplierQuoteSubmit creates a bulk quote request addressed to a supplier.
-func (h *UIHandler) SupplierQuoteSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang := langOf(r)
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect="+r.Referer(), http.StatusSeeOther)
-		return
-	}
-	if actor.OrganizationID <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(lang, "suppliers.verified_org_required_quote"))
-		return
-	}
-
-	supplierID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
-	if qty <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", i18n.T(lang, "common.invalid_quantity"))
-		return
-	}
-
-	if h.commSvc == nil {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", i18n.T(lang, "common.service_unavailable"))
-		return
-	}
-
-	var productID *int64
-	if pid, err := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64); err == nil && pid > 0 {
-		productID = &pid
-	}
-
-	_, err := h.commSvc.CreateQuoteRequest(ctx, &commerce.QuoteRequest{
-		OrganizationID:    supplierID,
-		CustomerOrgID:     actor.OrganizationID,
-		ProductID:         productID,
-		RequestedQuantity: qty,
-		BuyerNotes:        r.PostFormValue("notes"),
-	})
-	if err != nil {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, lang))
-		return
-	}
-	h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "success", i18n.T(lang, "suppliers.quote_submitted_success"))
 }

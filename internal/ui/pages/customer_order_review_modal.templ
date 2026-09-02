@@ -30,129 +30,115 @@ templ VendorShipmentReviewButton(orderID int64, sh *commerce.OrderShipment, isRe
 	}
 }
 
+// StarRatingPicker renders an interactive 5-star rating control with accessible inputs and crisp SVG icons.
+templ StarRatingPicker(fieldName string, defaultVal int) {
+	<div class="star-rating-picker" dir="ltr">
+		for i := 5; i >= 1; i-- {
+			<input
+				type="radio"
+				id={ fmt.Sprintf("%s-%d", fieldName, i) }
+				name={ fieldName }
+				value={ fmt.Sprintf("%d", i) }
+				class="star-picker-input"
+				required
+				checked?={ i == defaultVal }
+			/>
+			<label for={ fmt.Sprintf("%s-%d", fieldName, i) } class="star-picker-label" title={ fmt.Sprintf("%d من 5", i) }>
+				<svg class="star-picker-icon" viewBox="0 0 24 24" fill="currentColor">
+					<path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd"></path>
+				</svg>
+			</label>
+		}
+	</div>
+}
+
 // CustomerOrderReviewModal renders the multi-criteria rating modal for a specific vendor parcel.
 templ CustomerOrderReviewModal(order *commerce.Order, lang string) {
-	<dialog id="vendor-review-dialog" class="custom-modal-dialog rounded-2xl border p-0 shadow-xl max-w-lg w-full">
-		<div class="glass-panel p-6 m-0 border-0">
+	<dialog id="vendor-review-dialog" class="modal" onclick="if(event.target===this)this.close()">
+		<div class="modal-box modal-md">
 			<!-- Modal Header -->
-			<div class="flex-between items-center pb-4 border-b mb-4">
+			<div class="modal-header">
 				<div class="d-flex items-center gap-2.5">
-					<div class="w-9 h-9 rounded-full bg-amber-50 text-amber-700 font-bold d-flex items-center justify-center border border-amber-200">
+					<div class="sp-ops-icon">
 						@components.IconStar("icon-sm")
 					</div>
-					<div>
-						<h3 class="text-base font-black text-primary m-0" id="review-modal-title">تقييم المورد</h3>
+					<div class="stack-2xs">
+						<h3 class="modal-title" id="review-modal-title">تقييم المورد</h3>
 						<span class="text-2xs text-muted font-bold" id="review-modal-subtitle">عن طلبية رقم #{ order.OrderNumber }</span>
 					</div>
 				</div>
 				<button
 					type="button"
-					class="btn-close-modal text-muted text-lg font-bold border-0 bg-transparent cursor-pointer p-1"
+					class="modal-close"
+					aria-label="إغلاق"
 					onclick="document.getElementById('vendor-review-dialog').close()"
 				>
-					✕
+					@components.IconClose("icon-sm")
 				</button>
 			</div>
 
 			<!-- Review Form -->
-			<form method="POST" action="/reviews/submit" class="d-flex flex-col gap-4 m-0" id="vendor-review-form">
-				<input type="hidden" name="order_id" value={ fmt.Sprintf("%d", order.ID) } />
-				<input type="hidden" name="organization_id" id="review-vendor-id" value="" />
-				<input type="hidden" name="redirect_url" value={ fmt.Sprintf("/orders/%d", order.ID) } />
-				<input type="hidden" name="context" value="supplier" />
+			<div class="modal-body">
+				<form method="POST" action="/reviews/submit" class="d-flex flex-col gap-4 m-0" id="vendor-review-form">
+					<input type="hidden" name="order_id" value={ fmt.Sprintf("%d", order.ID) } />
+					<input type="hidden" name="organization_id" id="review-vendor-id" value="" />
+					<input type="hidden" name="redirect_url" value={ fmt.Sprintf("/orders/%d", order.ID) } />
+					<input type="hidden" name="context" value="supplier" />
 
-				<!-- Criteria 1: Delivery Rep (المندوب) -->
-				<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
-					<div>
-						<strong class="text-xs font-black text-primary d-block">مندوب التوصيل والتعامل</strong>
-						<span class="text-2xs text-secondary">حسن المعاملة والالتزام بالتسليم</span>
+					<!-- Criteria 1: Delivery Rep (المندوب) -->
+					<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+						<div>
+							<strong class="text-xs font-black text-primary d-block">مندوب التوصيل والتعامل</strong>
+							<span class="text-2xs text-secondary">حسن المعاملة والالتزام بالتسليم</span>
+						</div>
+						@StarRatingPicker("rating_rep", 5)
 					</div>
-					<div class="rating-stars-input d-flex items-center gap-1.5 direction-ltr">
-						for i := 5; i >= 1; i-- {
-							<input
-								type="radio"
-								id={ fmt.Sprintf("rep-%d", i) }
-								name="rating_rep"
-								value={ fmt.Sprintf("%d", i) }
-								class="star-radio-input"
-								required
-								checked?={ i == 5 }
-							/>
-							<label for={ fmt.Sprintf("rep-%d", i) } class="star-radio-label cursor-pointer text-base">★</label>
-						}
-					</div>
-				</div>
 
-				<!-- Criteria 2: Service & Quality (الخدمة) -->
-				<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
-					<div>
-						<strong class="text-xs font-black text-primary d-block">الخدمة وجودة الأصناف</strong>
-						<span class="text-2xs text-secondary">سلامة التغليف وتطابق الأدوية المطلوبة</span>
+					<!-- Criteria 2: Service & Quality (الخدمة) -->
+					<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+						<div>
+							<strong class="text-xs font-black text-primary d-block">الخدمة وجودة الأصناف</strong>
+							<span class="text-2xs text-secondary">سلامة التغليف وتطابق الأدوية المطلوبة</span>
+						</div>
+						@StarRatingPicker("rating_quality", 5)
 					</div>
-					<div class="rating-stars-input d-flex items-center gap-1.5 direction-ltr">
-						for i := 5; i >= 1; i-- {
-							<input
-								type="radio"
-								id={ fmt.Sprintf("quality-%d", i) }
-								name="rating_quality"
-								value={ fmt.Sprintf("%d", i) }
-								class="star-radio-input"
-								required
-								checked?={ i == 5 }
-							/>
-							<label for={ fmt.Sprintf("quality-%d", i) } class="star-radio-label cursor-pointer text-base">★</label>
-						}
-					</div>
-				</div>
 
-				<!-- Criteria 3: Speed (السرعة) -->
-				<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
-					<div>
-						<strong class="text-xs font-black text-primary d-block">سرعة التوصيل والتجهيز</strong>
-						<span class="text-2xs text-secondary">الوصول في الموعد المحدد دون تأخير</span>
+					<!-- Criteria 3: Speed (السرعة) -->
+					<div class="p-3.5 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-2">
+						<div>
+							<strong class="text-xs font-black text-primary d-block">سرعة التوصيل والتجهيز</strong>
+							<span class="text-2xs text-secondary">الوصول في الموعد المحدد دون تأخير</span>
+						</div>
+						@StarRatingPicker("rating_speed", 5)
 					</div>
-					<div class="rating-stars-input d-flex items-center gap-1.5 direction-ltr">
-						for i := 5; i >= 1; i-- {
-							<input
-								type="radio"
-								id={ fmt.Sprintf("speed-%d", i) }
-								name="rating_speed"
-								value={ fmt.Sprintf("%d", i) }
-								class="star-radio-input"
-								required
-								checked?={ i == 5 }
-							/>
-							<label for={ fmt.Sprintf("speed-%d", i) } class="star-radio-label cursor-pointer text-base">★</label>
-						}
+
+					<!-- Review Text Area -->
+					<div class="form-group mb-0">
+						<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات أو تعليق إضافي (اختياري):</label>
+						<textarea
+							name="review_text"
+							rows="3"
+							class="form-input text-xs w-full"
+							placeholder="اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات..."
+						></textarea>
 					</div>
-				</div>
 
-				<!-- Review Text Area -->
-				<div class="form-group mb-0">
-					<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات أو تعليق إضافي (اختياري):</label>
-					<textarea
-						name="review_text"
-						rows="3"
-						class="form-input text-xs w-full"
-						placeholder="اكتب انطباع صيدليتك عن هذا التوريد لمساعدة المورد وباقي الصيدليات..."
-					></textarea>
-				</div>
-
-				<!-- Modal Actions -->
-				<div class="flex-between items-center pt-3 border-t mt-2">
-					<button
-						type="button"
-						class="btn btn-secondary btn-sm font-bold"
-						onclick="document.getElementById('vendor-review-dialog').close()"
-					>
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-xs">
-						@components.IconCheck("icon-xs")
-						<span>إرسال التقييم المعتمد</span>
-					</button>
-				</div>
-			</form>
+					<!-- Modal Actions -->
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm font-bold"
+							onclick="document.getElementById('vendor-review-dialog').close()"
+						>
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm font-black px-5 shadow-xs">
+							@components.IconCheck("icon-xs")
+							<span>إرسال التقييم المعتمد</span>
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</dialog>
 

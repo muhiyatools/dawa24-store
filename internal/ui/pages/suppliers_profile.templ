@@ -79,16 +79,6 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 				<!-- Right Action Buttons -->
 				<div class="sp-hero-actions">
-					<button
-						type="button"
-						class="btn btn-primary"
-						data-modal-open={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }
-					
-					>
-						@components.IconPlus("icon-xs")
-						<span>طلب عرض أسعار خاص</span>
-					</button>
-
 					<div class="row-center-sm">
 						<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
 							@components.IconWhatsApp("icon-xs")
@@ -102,7 +92,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									<span>إلغاء المتابعة</span>
 								</button>
 							} else {
-								<button type="submit" class="btn btn-secondary btn-sm">
+								<button type="submit" class="btn btn-primary btn-sm">
 									@components.IconHeart("icon-xs")
 									<span>متابعة</span>
 								</button>
@@ -655,7 +645,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 							if s.IsActive {
 								<div class="glass-panel hover-lift p-4 d-flex flex-col justify-between gap-3">
 									<div class="d-flex items-center gap-3">
-										<div style={ fmt.Sprintf("width:44px; height:44px; border-radius:var(--radius-lg); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.35rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
+										<div class="sp-sec-icon-badge">
 											{ sectionTypeIcon(s.SectionType) }
 										</div>
 										<h3 class="font-bold text-sm m-0">
@@ -770,53 +760,6 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- 8. Tab 5: Reviews -->
 			@SupplierProfileReviewsTab(data.Reviews, data.Rating, data.ReviewCount, lang, data.ActiveTab)
 
-			<!-- Universal Quote Request Modal -->
-			@components.Modal(components.ModalProps{
-				ID:    fmt.Sprintf("quote-modal-%d", data.Org.ID),
-				Title: "طلب عرض سعر خاص من المورد",
-				Size:  "md",
-			}) {
-				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="d-flex flex-col gap-4 m-0">
-						<div class="modal-body d-flex flex-col gap-3">
-							<div class="form-group mb-0">
-								<label class="form-label font-bold text-xs" for="q-product">اختر الصنف الدوائي (اختياري)</label>
-								<select id="q-product" name="product_id" class="form-select w-full">
-									<option value="">طلب عرض سعر عام لكافة الاحتياجات</option>
-									for _, p := range data.Products {
-										<option value={ fmt.Sprintf("%d", p.ID) }>
-											if p.Name["ar"] != "" {
-												{ p.Name["ar"] }
-											} else {
-												{ p.Name["en"] }
-											}
-										</option>
-									}
-								</select>
-							</div>
-
-							<div class="form-group mb-0">
-								<label class="form-label font-bold text-xs" for="q-qty">الكمية التقديرية المطلوبة (عبوة) *</label>
-								<input type="number" id="q-qty" name="quantity" required min="1" value="50" class="form-input tabular-nums w-full" />
-							</div>
-
-							<div class="form-group mb-0">
-								<label class="form-label font-bold text-xs" for="q-notes">ملاحظات وشروط التوريد المطلوبة</label>
-								<textarea id="q-notes" name="notes" rows="3" placeholder="حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة..." class="form-textarea w-full"></textarea>
-							</div>
-						</div>
-
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary font-bold" data-modal-close={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }>
-								إلغاء
-							</button>
-							<button type="submit" class="btn btn-primary font-bold">
-								@components.IconCheck("icon-xs")
-								<span>إرسال طلب عرض السعر</span>
-							</button>
-						</div>
-					</form>
-			}
-
 			<!-- Featured Section Modals -->
 			for _, s := range data.Sections {
 				@components.Modal(components.ModalProps{
@@ -845,7 +788,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				if (!tabs.includes(tabName)) tabName = 'catalog';
 
 				tabs.forEach(t => {
-					const btn = document.getElementById('tab-' + t);
+					const btn = document.getElementById('tab-btn-' + t);
 					const panel = document.getElementById('tab-content-' + t);
 					if (btn) {
 						if (t === tabName) {
@@ -856,9 +799,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					}
 					if (panel) {
 						if (t === tabName) {
-							panel.style.display = 'block';
+							panel.classList.remove('d-none');
 						} else {
-							panel.style.display = 'none';
+							panel.classList.add('d-none');
 						}
 					}
 				});
@@ -916,13 +859,13 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				const grdBtn = document.getElementById('cat-view-grid-btn');
 
 				if (view === 'grid') {
-					if (tbl) tbl.style.display = 'none';
-					if (grd) grd.style.display = 'grid';
+					if (tbl) tbl.classList.add('d-none');
+					if (grd) grd.classList.remove('d-none');
 					if (tblBtn) { tblBtn.classList.remove('btn-primary'); tblBtn.classList.add('btn-secondary'); }
 					if (grdBtn) { grdBtn.classList.remove('btn-secondary'); grdBtn.classList.add('btn-primary'); }
 				} else {
-					if (tbl) tbl.style.display = 'block';
-					if (grd) grd.style.display = 'none';
+					if (tbl) tbl.classList.remove('d-none');
+					if (grd) grd.classList.add('d-none');
 					if (tblBtn) { tblBtn.classList.remove('btn-secondary'); tblBtn.classList.add('btn-primary'); }
 					if (grdBtn) { grdBtn.classList.remove('btn-primary'); grdBtn.classList.add('btn-secondary'); }
 				}

@@ -157,7 +157,6 @@ func (h *UIHandler) registerCustomerMarketRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.supplier.follow"))
 		g.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
 		g.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
-		g.Post("/suppliers/{id}/quote", h.SupplierQuoteSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

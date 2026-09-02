@@ -370,7 +370,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						@components.B2BPagination(components.PaginationProps{
 							CurrentPage:     result.Page,
 							PageSize:        marketDiscountsLimit(filter),
-							TotalCount:      result.TotalCount,
+							TotalCount:      int(result.TotalCount),
 							BaseURL:         "/market-discounts",
 							QueryValues:     marketDiscountsQueryValues(filter, currentView),
 							PageSizeOptions: []int{24, 48, 96},
