@@ -61,6 +61,7 @@ func LoadMigrations(fsys fs.FS, dir string) ([]Migration, error) {
 		if err != nil {
 			return nil, fmt.Errorf("migrate: read %s: %w", name, err)
 		}
+		body = bytes.TrimPrefix(body, []byte("\xef\xbb\xbf"))
 
 		// Hash the content with line endings normalised.
 		//
