@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -271,6 +273,72 @@ func (h *UIHandler) AdminStaffCreateSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, lang))
 		return
 	}
+
+	// A new moderator is either top-level or works under an existing main
+	// moderator, and the super admin says which in the same form. It is applied
+	// after creation rather than inside CreateStaffUser because the hierarchy
+	// belongs to the moderator feature, not to staff account creation, and a
+	// failure here must not undo an account that already exists.
+	if err := h.applyModeratorParent(ctx, r, user.ID, actor.UserID); err != nil {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/users/%d", user.ID), "error",
+			h.safeMessage(err, lang))
+		return
+	}
+
 	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/users/%d", user.ID),
 		"success", i18n.T(lang, "admin.roles.staff_created_success"))
+}
+
+// AdminModeratorParentSubmit reassigns one moderator's main moderator.
+//
+// Gated on identity.moderator.assign. It is deliberately not folded into the
+// role-assignment route: changing who a moderator reports to changes who can
+// read their uploaded warehouses, which is an access-control decision of its
+// own and is audited as one.
+func (h *UIHandler) AdminModeratorParentSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor := authctx.FromContext(ctx)
+	lang := langOf(r)
+	userID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	target := "/admin/users/" + chi.URLParam(r, "id")
+
+	if h.idSvc == nil || userID <= 0 {
+		h.redirectWithNotice(w, r, target, "error", i18n.T(lang, "admin.roles.invalid_request"))
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, target, "error", i18n.T(lang, "admin.roles.invalid_form"))
+		return
+	}
+	if err := h.applyModeratorParent(ctx, r, userID, actor.UserID); err != nil {
+		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, lang))
+		return
+	}
+	h.invalidatePermissions(userID, 0)
+	h.redirectWithNotice(w, r, target, "success", "تم تحديث تبعية المشرف.")
+}
+
+// applyModeratorParent reads the hierarchy choice off a form and stores it.
+//
+// The form carries two fields so that "top-level" is an explicit choice rather
+// than the absence of one: moderator_level is "main" or "sub", and
+// moderator_parent_id is only consulted for "sub". A blank parent on a "sub"
+// submission is refused by the service rather than silently promoting the
+// moderator to the top of the tree.
+func (h *UIHandler) applyModeratorParent(
+	ctx context.Context, r *http.Request, userID, actorID int64,
+) error {
+	level := strings.TrimSpace(r.PostFormValue("moderator_level"))
+	if level == "" {
+		return nil // the form did not ask; leave the hierarchy alone
+	}
+	if level == "main" {
+		return h.idSvc.SetModeratorParent(ctx, userID, nil, actorID)
+	}
+	parentID, err := strconv.ParseInt(strings.TrimSpace(r.PostFormValue("moderator_parent_id")), 10, 64)
+	if err != nil || parentID <= 0 {
+		return apperr.Validation("identity.moderator.parent_required",
+			"اختر المشرف الرئيسي الذي يتبعه هذا المشرف، أو اجعله مشرفاً رئيسياً مستقلاً.", nil)
+	}
+	return h.idSvc.SetModeratorParent(ctx, userID, &parentID, actorID)
 }

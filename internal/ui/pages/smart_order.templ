@@ -103,6 +103,13 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 						</p>
 					</div>
 					<div class="so-form-field">
+						<label class="so-subfield-label">أقل نسبة مطابقة (%)</label>
+						<input type="number" name="min_match_score" value="50" min="25" max="100" class="form-control"/>
+						<p class="so-help-text so-help-text-small">
+							المطابقة بالاسم أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة لا يُعرض ولا يُراجَع.
+						</p>
+					</div>
+					<div class="so-form-field">
 						<label class="so-subfield-label">الحد الأقصى للميزانية (اختياري)</label>
 						<input type="text" name="max_budget" inputmode="decimal" placeholder="مثال: 150000.00" class="form-control"/>
 						<p class="so-help-text so-help-text-small">
@@ -118,11 +125,8 @@ templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 					</label>
 					<label class="so-option-row">
 						<input type="checkbox" name="use_ai_matching" disabled?={ !data.AIAvailable } checked?={ data.AIAvailable && (data.Profile == nil || data.Profile.UseAIMatching) }/>
-						<span>تحسين المطابقة بالذكاء الاصطناعي للأصناف غير المؤكدة</span>
+						<span>تفعيل مطابقة الذكاء الاصطناعي</span>
 					</label>
-					<p class="so-option-help">
-						تعمل المطابقة العادية أولاً، ثم يراجع الذكاء الاصطناعي فقط الأصناف غير المطابقة أو التي تحتاج مراجعة. لن تظهر النتائج قبل انتهاء المرحلتين.
-					</p>
 					if !data.AIAvailable {
 						<p class="so-option-warning">
 							{ data.AIUnavailableReason }

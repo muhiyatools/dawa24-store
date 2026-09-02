@@ -126,6 +126,38 @@ func (h *UIHandler) AdminUserDetailPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	// The hierarchy panel, for a مشرف and a viewer who may reassign one.
+	view.IsModerator = user.Role == identity.RoleModerator
+	view.CanAssignModerator = actor.Can("identity.moderator.assign")
+	if view.IsModerator && view.CanAssignModerator && h.idSvc != nil {
+		sysCtx := database.AsSystem(ctx)
+		if mods, err := h.idSvc.ListModerators(sysCtx); err == nil {
+			for _, m := range mods {
+				if m == nil {
+					continue
+				}
+				if m.UserID == user.ID {
+					view.ModeratorParentID = m.ParentID
+					view.SubordinateCount = m.SubordinateCount
+					continue
+				}
+				// Only top-level moderators can be parents, and nobody can be
+				// their own. Offering either would produce a form whose only
+				// outcome is the service refusing it.
+				if !m.IsMain() {
+					continue
+				}
+				view.MainModerators = append(view.MainModerators, pages.AdminModeratorOption{
+					UserID: m.UserID,
+					Name:   m.Name.Get(i18n.ParseLang(lang)),
+					Team:   m.SubordinateCount,
+				})
+			}
+		} else {
+			h.log.ErrorContext(ctx, "list moderators for user detail", "error", err)
+		}
+	}
+
 	h.renderPage(ctx, w, "render admin user detail page", pages.AdminUserDetailPage(view, lang, dir))
 }
 

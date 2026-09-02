@@ -15,17 +15,36 @@ import (
 // bug in the AI, and both are invisible without a test that says out loud when
 // the tier is and is not reached.
 
-// The switch is off unless someone turns it on.
+// The switch is on, and the two that create rows are off.
 //
-// It was on by default for a while, on the argument that the tier cannot invent
-// a product and only picks among candidates already retrieved. The argument is
-// sound and the default was still wrong: an import an administrator has not
-// audited must be judged on the deterministic engine's own result, and a run
-// that silently reaches a model is one whose match rate nobody can reproduce.
-// The switch sits on the mapping screen with everything else it changes.
-func TestAIIsOffByDefault(t *testing.T) {
-	if catalog.DefaultImportOptions().UseAI {
-		t.Error("UseAI defaults to on; an unaudited import must run deterministically")
+// It was off for a while, on the argument that an unaudited import must be
+// judged on the deterministic engine's own result. Sound in principle; what it
+// produced in practice was a catalogue of nineteen thousand products with a
+// null category, because a switch whose absence is invisible is a switch nobody
+// turns on. The tier cannot invent a product — it only ever picks among
+// candidates already retrieved, and every answer is re-checked against the
+// catalogue before it is written — so the risk it carries is not the risk that
+// justified the default.
+//
+// What must stay off is anything that mints a row rather than filling a column.
+// Linking to a category that exists is reversible; creating one from a
+// supplier's spelling is how a category tree becomes a drug index.
+func TestAIDefaultsOnAndCreationDefaultsOff(t *testing.T) {
+	opts := catalog.DefaultImportOptions()
+	if !opts.UseAI {
+		t.Error("UseAI defaults to off; the category column is left empty by every import that does not opt in")
+	}
+	if !opts.AssignCategory {
+		t.Error("AssignCategory defaults to off; the catalogue's organising column would stay null")
+	}
+	if opts.AutoCreateCategories {
+		t.Error("AutoCreateCategories defaults to on; an import must not mint categories unasked")
+	}
+	if opts.AutoCreateBrands {
+		t.Error("AutoCreateBrands defaults to on; an import must not mint brands unasked")
+	}
+	if opts.MinMatchScore != 0.50 {
+		t.Errorf("MinMatchScore = %v, want the platform-wide 0.50", opts.MinMatchScore)
 	}
 }
 

@@ -73,14 +73,6 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		dayOfWeek = existingCov.DayOfWeek
 	}
 
-	distanceMeters, _ := strconv.Atoi(r.PostFormValue("distance_meters"))
-	if distanceMeters <= 0 {
-		distanceMeters = existingCov.DistanceMeters
-	}
-	if distanceMeters <= 0 {
-		distanceMeters = 5000
-	}
-
 	var govID *int64
 	if gID, err := strconv.ParseInt(r.PostFormValue("governorate_id"), 10, 64); err == nil && gID > 0 {
 		govID = &gID
@@ -100,6 +92,17 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		}
 	} else {
 		cityID = existingCov.CityID
+	}
+
+	// The radius follows the city, not the form. A vendor editing a coverage
+	// row is changing which city, which day and what hours; the extent of the
+	// place they picked is not theirs to type. See migration 167.
+	distanceMeters := existingCov.DistanceMeters
+	if selectedCity != nil {
+		distanceMeters = selectedCity.NormalizedRadius()
+	}
+	if distanceMeters <= 0 {
+		distanceMeters = platformadmin.DefaultCoverageRadiusMeters
 	}
 
 	var latVal, lngVal *float64

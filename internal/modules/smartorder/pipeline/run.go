@@ -65,7 +65,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 		i18n.TDefault("w4_mod.s_428_428"), "Matching codes and names")
 
 	// Stage 3 — score what is left against an in-memory catalogue.
-	matcher := NewMatcher(r.repo)
+	matcher := NewMatcher(r.repo, cfg.MinMatchScore)
 	if err := matcher.Load(ctx); err != nil {
 		return err
 	}

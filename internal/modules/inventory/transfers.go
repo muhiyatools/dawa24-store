@@ -49,7 +49,7 @@ func (s *Service) ReceiveTransfer(ctx context.Context, transferID int64) (*Wareh
 	// The destination row may not exist yet — this can be the first time that
 	// variant has ever been held here.
 	toStock, err := s.repo.GetStock(ctx, transfer.ToWarehouseID, transfer.ProductVariantID)
-	if err != nil && apperr.KindOf(err) == apperr.KindNotFound {
+	if (err != nil && apperr.KindOf(err) == apperr.KindNotFound) || (err == nil && toStock == nil) {
 		toStock = &Stock{
 			OrganizationID:   orgID,
 			WarehouseID:      transfer.ToWarehouseID,

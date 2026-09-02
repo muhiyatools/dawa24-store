@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -31,7 +32,7 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.commSvc == nil {
-		h.renderPage(ctx, w, "render cart page", pages.CustomerCart(nil, lang, dir, h.isHTMX(r)))
+		h.renderPage(ctx, w, "render cart page", pages.CustomerCart(nil, nil, lang, dir, h.isHTMX(r)))
 		return
 	}
 
@@ -68,7 +69,8 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.renderPage(ctx, w, "render cart page", pages.CustomerCart(cart, lang, dir, h.isHTMX(r)))
+	h.renderPage(ctx, w, "render cart page",
+		pages.CustomerCart(cart, h.cartGroups(ctx, &actor, cart), lang, dir, h.isHTMX(r)))
 }
 
 func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
@@ -246,7 +248,8 @@ func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request)
 	if h.isHTMX(r) {
 		cart, _ := h.commSvc.GetCart(ctx, userID)
 		lang, _ := h.localeAndDir(r)
-		h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, lang))
+		h.renderPage(ctx, w, "render customer cart content",
+			pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
 		return
 	}
 
@@ -286,7 +289,7 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 		if h.isHTMX(r) {
 			cart, _ := h.commSvc.GetCart(ctx, userID)
 			lang, _ := h.localeAndDir(r)
-			h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, lang))
+			h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
 			return
 		}
 		http.Redirect(w, r, "/cart", http.StatusSeeOther)
@@ -324,9 +327,44 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 	if h.isHTMX(r) {
 		cart, _ := h.commSvc.GetCart(ctx, userID)
 		lang, _ := h.localeAndDir(r)
-		h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, lang))
+		h.renderPage(ctx, w, "render customer cart content",
+			pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
 		return
 	}
 
 	http.Redirect(w, r, "/cart", http.StatusSeeOther)
+}
+
+// cartGroups partitions the cart by supplier and prices each supplier's
+// delivery to the pharmacy's active branch.
+//
+// The quote is computed here rather than in the template because it is a
+// database read per supplier — the vendor's own warehouse coordinates and their
+// شرائح ورسوم التوصيل — and a template is the wrong place to do I/O. Two or
+// three suppliers is the usual basket, so this is a handful of cached reads.
+func (h *UIHandler) cartGroups(
+	ctx context.Context, actor *authctx.Actor, cart *commerce.Cart,
+) []pages.CartGroup {
+	groups := pages.GroupCartBySupplier(cart)
+	if h.orgSvc == nil || len(groups) == 0 {
+		return groups
+	}
+	var branchID *int64
+	if id := h.pharmacyBranchID(ctx, actor); id > 0 {
+		branchID = &id
+	}
+	for i := range groups {
+		groups[i].Delivery = h.QuoteVendorDelivery(ctx, groups[i].OrganizationID, branchID)
+	}
+	return groups
+}
+
+// cartGroupsFor is the same thing for the HTMX partials, which have the request
+// context but not an already-resolved actor.
+func (h *UIHandler) cartGroupsFor(ctx context.Context, cart *commerce.Cart) []pages.CartGroup {
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		return pages.GroupCartBySupplier(cart)
+	}
+	return h.cartGroups(ctx, &actor, cart)
 }

@@ -121,6 +121,20 @@ type AdminUserDetailView struct {
 	// own role is refused by the handler, so the form says why rather than
 	// offering a control that always fails.
 	SelfEdit bool
+	// IsModerator says the account holds the مشرف role, which is the only role
+	// the hierarchy applies to.
+	IsModerator bool
+	// ModeratorParentID is whose team they are on, or nil for a top-level
+	// (main) moderator.
+	ModeratorParentID *int64
+	// SubordinateCount is how many moderators report to this one. A moderator
+	// who leads a team cannot be moved under somebody else without their team
+	// being moved first, and the form says so rather than failing on submit.
+	SubordinateCount int
+	// MainModerators are the top-level moderators this one may be placed under.
+	MainModerators []AdminModeratorOption
+	// CanAssignModerator gates the form on identity.moderator.assign.
+	CanAssignModerator bool
 }
 
 templ AdminUserDetailPage(v AdminUserDetailView, lang, dir string) {
@@ -158,6 +172,7 @@ templ AdminUserDetailPage(v AdminUserDetailView, lang, dir string) {
 				</div>
 			</div>
 			@adminUserRoleForm(v)
+			@adminModeratorHierarchyForm(v)
 		</div>
 	}
 }
@@ -198,6 +213,78 @@ templ adminUserRoleForm(v AdminUserDetailView) {
 			}
 		</div>
 	}
+}
+
+// adminModeratorHierarchyForm places a moderator in the hierarchy.
+//
+// It is a separate form from the role form on purpose: changing who a moderator
+// reports to changes who can read the temporary warehouses they upload, which
+// is an access-control decision with its own permission and its own audit
+// entry. Bundling it into "save role" would hide that.
+templ adminModeratorHierarchyForm(v AdminUserDetailView) {
+	if v.IsModerator && v.CanAssignModerator {
+		<div class="glass-panel p-6">
+			<h3 class="text-base font-extrabold text-primary mt-0 mb-1">موقع المشرف في التسلسل</h3>
+			<p class="text-xs text-secondary mb-4">
+				المشرف الرئيسي المستقل يتبع مدير النظام مباشرة ويرى مستودعات المشرفين المعيّنين تحته.
+				المشرف التابع يرى مستودعاته وحده.
+			</p>
+			if v.SubordinateCount > 0 {
+				<p class="text-sm text-secondary m-0 mb-3">
+					{ fmt.Sprintf("يدير هذا المشرف %d مشرفاً. لنقله تحت إدارة مشرف آخر، انقل من يتبعونه أولاً.", v.SubordinateCount) }
+				</p>
+			}
+			<form
+				method="POST"
+				action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/moderator-parent", v.User.ID)) }
+				class="stack-sm"
+				x-data={ "{ level: '" + moderatorLevelOf(v) + "' }" }
+			>
+				<label class="form-label d-flex items-center gap-2">
+					<input type="radio" name="moderator_level" value="main" x-model="level"/>
+					<span class="text-body">مشرف رئيسي مستقل</span>
+				</label>
+				<label class="form-label d-flex items-center gap-2">
+					<input
+						type="radio"
+						name="moderator_level"
+						value="sub"
+						x-model="level"
+						disabled?={ v.SubordinateCount > 0 || len(v.MainModerators) == 0 }
+					/>
+					<span class="text-body">يعمل تحت إدارة مشرف رئيسي</span>
+				</label>
+				<div x-show="level === 'sub'" x-cloak>
+					if len(v.MainModerators) > 0 {
+						<select name="moderator_parent_id" class="form-input">
+							<option value="">— اختر المشرف الرئيسي —</option>
+							for _, m := range v.MainModerators {
+								<option
+									value={ fmt.Sprintf("%d", m.UserID) }
+									selected?={ v.ModeratorParentID != nil && *v.ModeratorParentID == m.UserID }
+								>
+									{ m.Name } ({ fmt.Sprintf("%d مشرف تحته", m.Team) })
+								</option>
+							}
+						</select>
+					} else {
+						<p class="text-xs text-warning m-0">لا يوجد مشرف رئيسي مستقل آخر لتعيينه.</p>
+					}
+				</div>
+				<div class="d-flex items-center gap-3 mt-2">
+					<button type="submit" class="btn btn-primary font-bold">حفظ التبعية</button>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+// moderatorLevelOf is the radio group's initial selection.
+func moderatorLevelOf(v AdminUserDetailView) string {
+	if v.ModeratorParentID != nil {
+		return "sub"
+	}
+	return "main"
 }
 
 // AdminDeletionRequestsPage renders deletion requests.

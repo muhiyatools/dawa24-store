@@ -232,6 +232,16 @@ type AdminTempWarehouseFilter struct {
 	UploaderID *int64 // filter by compare.files.user_id
 	Source     string // "", "moderator", "vendor"
 	OwnerOnly  *int64 // when set, force user_id = *OwnerOnly (the "my uploads" page)
+	// OwnerIn restricts the listing to a set of uploaders — the moderators
+	// reporting to a main moderator, on the "مستودعات المشرفين تحت إدارتي"
+	// screen.
+	//
+	// An EMPTY non-nil slice means "nobody", not "everybody". A main moderator
+	// with no team must see an empty list, and a scope that degrades to "no
+	// filter" when it holds no ids is the exact shape of an access-control
+	// leak. buildAdminTempWarehouseWhere writes FALSE for it rather than
+	// omitting the clause.
+	OwnerIn []int64
 }
 
 // AdminTempWarehouse is a compare file enriched with the uploader and vendor

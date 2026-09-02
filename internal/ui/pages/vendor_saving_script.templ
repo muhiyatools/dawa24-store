@@ -251,6 +251,7 @@ templ VendorSavingScript() {
 			let vendorStagedData = null;
 			let vendorCurrentTab = 'all';
 			let vendorPollInterval = null;
+			let vendorProgressBar = null;
 
 			function startVendorAsyncImport() {
 				const input = document.getElementById('import-file-input');
@@ -267,13 +268,17 @@ templ VendorSavingScript() {
 				const colSKU = document.getElementById('vendor-col-sku')?.value || '';
 				const colQty = document.getElementById('vendor-col-qty')?.value || '';
 				const colPrice = document.getElementById('vendor-col-price')?.value || '';
-				const strat = document.querySelector('input[name="vendor_match_strategy"]:checked')?.value || 'smart_auto';
 
 				formData.append('col_name', colName);
 				formData.append('col_sku', colSKU);
 				formData.append('col_qty', colQty);
 				formData.append('col_price', colPrice);
-				formData.append('match_strategy', strat);
+				const flag = (n) => { const el = document.querySelector('input[name="' + n + '"]'); return el && el.checked ? '1' : '0'; };
+				formData.append('use_ai', flag('use_ai'));
+				formData.append('min_match_score', document.querySelector('input[name="min_match_score"]')?.value || '50');
+				formData.append('match_by_barcode', flag('match_by_barcode'));
+				formData.append('match_by_code', flag('match_by_code'));
+				formData.append('code_is_catalog_code', flag('code_is_catalog_code'));
 
 				// Switch UI to Step 2: Progress
 				showVendorImportStep('progress');
@@ -304,45 +309,61 @@ templ VendorSavingScript() {
 			}
 
 			function pollVendorImportProgress(sessionId) {
-				if (vendorPollInterval) clearInterval(vendorPollInterval);
+				// One bar, shared with the other three import tools. It shows the
+				// number, keeps moving while the server is silent, and cannot reach
+				// 100 until the session actually reports 'ready'. The bespoke version
+				// here did none of the three: it clamped to a 10% floor, jumped to
+				// 100 the moment the background call returned, and froze for the whole
+				// of the AI stage. See static/js/import-progress.js.
+				if (vendorPollInterval) { clearInterval(vendorPollInterval); vendorPollInterval = null; }
+				if (vendorProgressBar) { vendorProgressBar.stop(); }
 
-				vendorPollInterval = setInterval(() => {
+				vendorProgressBar = new window.ImportProgress({
+					fill:    document.getElementById('vendor-progress-bar'),
+					label:   document.getElementById('vendor-progress-phase'),
+					percent: document.getElementById('vendor-progress-percent'),
+					count:   document.getElementById('vendor-progress-counter'),
+				});
+				vendorProgressBar.start();
+
+				const step = () => {
 					fetch('/vendor/saving-products/import/session/' + sessionId + '/progress')
 					.then(r => r.json())
 					.then(sess => {
 						if (!sess || !sess.success) {
-							clearInterval(vendorPollInterval);
-							alert(sess.error || 'فشلت معالجة الجلسة.');
+							vendorProgressBar.fail(sess && sess.error ? sess.error : 'فشلت معالجة الجلسة.');
+							alert((sess && sess.error) || 'فشلت معالجة الجلسة.');
 							showVendorImportStep('config');
 							return;
 						}
-
 						if (sess.status === 'failed') {
-							clearInterval(vendorPollInterval);
+							vendorProgressBar.fail(sess.error_message || 'خطأ غير معروف');
 							alert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));
 							showVendorImportStep('config');
 							return;
 						}
 
-						// Update progress UI
-						const pct = Math.max(10, Math.min(100, sess.progress || 10));
-						document.getElementById('vendor-progress-bar').style.width = pct + '%';
-						document.getElementById('vendor-progress-percent').textContent = pct + '%';
-						document.getElementById('vendor-progress-counter').textContent = (sess.processed_rows || 0) + ' / ' + (sess.total_rows || 0) + ' صنف';
-						if (sess.progress_phase) {
-							document.getElementById('vendor-progress-phase').textContent = sess.progress_phase;
-						}
+						vendorProgressBar.update({
+							percent: sess.progress,
+							message: sess.progress_phase,
+							current: sess.processed_rows,
+							total:   sess.total_rows,
+							done:    sess.status === 'ready',
+						});
 
 						if (sess.status === 'ready') {
-							clearInterval(vendorPollInterval);
 							vendorStagedData = sess;
 							renderVendorStagedReview(sess);
+							return;
 						}
+						setTimeout(step, 600);
 					})
 					.catch(err => {
 						console.error('poll progress error', err);
+						setTimeout(step, 2000);
 					});
-				}, 450);
+				};
+				step();
 			}
 
 			function showVendorImportStep(step) {

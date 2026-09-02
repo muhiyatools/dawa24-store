@@ -186,9 +186,13 @@ func parseOptionsFrom(s Settings) productmatch.ParseOptions {
 		DefaultMinOrderQty:  s.DefaultMinOrderQty,
 		DefaultMinThreshold: s.DefaultMinThreshold,
 		BlankQuantityIsZero: s.BlankQuantityIsZero,
-		InferDosageForm:     s.InferDosageForm,
-		InferConcentration:  s.InferConcentration,
-		RejectExpired:       s.RejectExpired,
+		// Always inferred, never a vendor setting. Neither value is written by
+		// a vendor import — product_variants has no column for either — but
+		// both feed the matcher's strength and dosage-form vetoes, which are
+		// what stop a 500 mg row being applied to the 1 g product.
+		InferDosageForm:    true,
+		InferConcentration: true,
+		RejectExpired:      s.RejectExpired,
 	}
 }
 

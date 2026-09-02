@@ -224,15 +224,21 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Calculate dynamic delivery fees based on vendor distance delivery bands
+	// One quote per vendor, each measured from that vendor's own warehouse to
+	// the pharmacy's branch. This used to pass input.VendorBranchID — a single
+	// branch resolved from the FIRST vendor in the cart — into every call, so a
+	// pharmacy buying from three suppliers paid three deliveries all priced as
+	// if they shipped from the same place. See org/delivery_service.go.
 	vendorShippingFees := make(map[int64]money.Amount)
 	for _, it := range items {
-		if it.VendorOrgID > 0 {
-			if _, exists := vendorShippingFees[it.VendorOrgID]; !exists {
-				fee := h.ResolveVendorShippingFee(ctx, it.VendorOrgID, input.VendorBranchID, input.BranchID)
-				vendorShippingFees[it.VendorOrgID] = fee
-			}
+		if it.VendorOrgID <= 0 {
+			continue
 		}
+		if _, exists := vendorShippingFees[it.VendorOrgID]; exists {
+			continue
+		}
+		vendorShippingFees[it.VendorOrgID] =
+			h.QuoteVendorDelivery(ctx, it.VendorOrgID, input.BranchID).Fee
 	}
 	input.VendorShippingFees = vendorShippingFees
 

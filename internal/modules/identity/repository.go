@@ -45,6 +45,14 @@ type Repository interface {
 	AdminResetMFA(ctx context.Context, id int64, actorID int64) error
 	AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error
 
+	// The moderator hierarchy. ModeratorSubordinateIDs is an access-control
+	// query, not a listing convenience: it is what scopes the "مستودعات
+	// المشرفين تحت إدارتي" screen and every action on it. See domain.go.
+	ListModerators(ctx context.Context) ([]*Moderator, error)
+	ModeratorSubordinateIDs(ctx context.Context, parentID int64) ([]int64, error)
+	ModeratorParentID(ctx context.Context, userID int64) (*int64, error)
+	SetModeratorParent(ctx context.Context, userID int64, parentID *int64, actorID int64) error
+
 	// Platform roles. A super admin builds moderator roles here; the grants
 	// they carry are restricted to the admin dashboard before they are stored.
 	ListPlatformRoles(ctx context.Context) ([]*PlatformRole, error)

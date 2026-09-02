@@ -1,7 +1,10 @@
 package pages
 
 import (
+	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -46,6 +49,50 @@ type CartGroup struct {
 	BelowMin       bool
 	Items          []*commerce.CartItem
 	Subtotal       money.Amount
+	// Delivery is what this supplier charges to bring this shipment to the
+	// pharmacy's branch, measured from their warehouse against their own
+	// شرائح ورسوم التوصيل.
+	//
+	// The cart used to print "رسوم الشحن: مجاني للطلبيات المعتمدة" as a fixed
+	// line while the checkout charged the bands, so a pharmacy was told the
+	// delivery was free and then billed for it on the next screen.
+	Delivery org.DeliveryQuote
+}
+
+// DeliveryTotal sums what every supplier in the cart charges for delivery.
+func DeliveryTotal(groups []CartGroup) money.Amount {
+	total := money.Zero
+	for _, g := range groups {
+		if sum, err := total.Add(g.Delivery.Fee); err == nil {
+			total = sum
+		}
+	}
+	return total
+}
+
+// CartGrandTotal is the goods plus every supplier's delivery.
+func CartGrandTotal(cart *commerce.Cart, groups []CartGroup) money.Amount {
+	total := CartTotal(cart)
+	if sum, err := total.Add(DeliveryTotal(groups)); err == nil {
+		return sum
+	}
+	return total
+}
+
+// DeliveryNote explains a quote in one phrase, so a pharmacy can see why a fee
+// is what it is rather than only that it exists.
+func DeliveryNote(q org.DeliveryQuote) string {
+	switch q.Basis {
+	case org.BasisNoBands:
+		return "لم يحدد المورد رسوم توصيل"
+	case org.BasisUnknownDistance:
+		return "تقديري — لم تُحدَّد إحداثيات الفرع أو مقر المورد"
+	case org.BasisAboveRange:
+		return fmt.Sprintf("%.1f كم — خارج آخر شريحة، تُطبَّق أعلى شريحة", q.DistanceKM())
+	case org.BasisBelowRange, org.BasisGap, org.BasisExact:
+		return fmt.Sprintf("%.1f كم من مقر المورد", q.DistanceKM())
+	}
+	return ""
 }
 
 // GroupCartBySupplier partitions the cart by supplier, in order of appearance,

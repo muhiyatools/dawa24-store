@@ -112,58 +112,22 @@ func (h *UIHandler) VendorDeliveryBandDeleteSubmit(w http.ResponseWriter, r *htt
 	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "delivery.band.deleted_success"))
 }
 
-// ResolveVendorShippingFee calculates the dynamic distance-based delivery fee between a vendor
-// (or vendor warehouse/coverage city) and the customer pharmacy branch.
-func (h *UIHandler) ResolveVendorShippingFee(ctx context.Context, vendorOrgID int64, vendorBranchID *int64, customerBranchID *int64) money.Amount {
+// QuoteVendorDelivery is the same calculation with its reasoning attached, for
+// the cart, which shows the pharmacy what it is being charged and why.
+func (h *UIHandler) QuoteVendorDelivery(
+	ctx context.Context, vendorOrgID int64, customerBranchID *int64,
+) org.DeliveryQuote {
 	if h.orgSvc == nil || vendorOrgID <= 0 {
-		return money.Zero
-	}
-
-	// 1. Resolve Customer Branch Coordinates
-	var custLat, custLon *float64
-	if customerBranchID != nil && *customerBranchID > 0 {
-		if cb, err := h.orgSvc.GetBranch(ctx, *customerBranchID); err == nil && cb != nil {
-			if cb.Latitude != nil && cb.Longitude != nil && *cb.Latitude != 0 && *cb.Longitude != 0 {
-				custLat = cb.Latitude
-				custLon = cb.Longitude
-			}
+		return org.DeliveryQuote{
+			Fee: money.Zero, DistanceMeters: org.UnknownDistance, Basis: org.BasisNoBands,
 		}
 	}
-
-	// 2. Resolve Vendor Coordinates (Branch or Coverage Center)
-	var vendLat, vendLon *float64
-	if vendorBranchID != nil && *vendorBranchID > 0 {
-		if vb, err := h.orgSvc.GetBranch(ctx, *vendorBranchID); err == nil && vb != nil {
-			if vb.Latitude != nil && vb.Longitude != nil && *vb.Latitude != 0 && *vb.Longitude != 0 {
-				vendLat = vb.Latitude
-				vendLon = vb.Longitude
-			}
+	q, err := h.orgSvc.QuoteDeliveryFor(ctx, vendorOrgID, customerBranchID)
+	if err != nil {
+		h.log.WarnContext(ctx, "delivery quote failed", "error", err, "vendor", vendorOrgID)
+		return org.DeliveryQuote{
+			Fee: money.Zero, DistanceMeters: org.UnknownDistance, Basis: org.BasisNoBands,
 		}
 	}
-
-	if (vendLat == nil || vendLon == nil) && h.wfSvc != nil {
-		if coverages, err := h.wfSvc.ListCoverageForOrganization(ctx, vendorOrgID); err == nil && len(coverages) > 0 {
-			for _, cov := range coverages {
-				if cov.Latitude != nil && cov.Longitude != nil && *cov.Latitude != 0 && *cov.Longitude != 0 {
-					vendLat = cov.Latitude
-					vendLon = cov.Longitude
-					break
-				}
-			}
-		}
-	}
-
-	// 3. Compute Distance in Meters (default 5,000 meters / 5 km if in same delivery zone without GPS)
-	distMeters := 5000
-	if custLat != nil && custLon != nil && vendLat != nil && vendLon != nil {
-		distMeters = haversineCoverageDistance(*vendLat, *vendLon, *custLat, *custLon)
-	}
-
-	// 4. Match against vendor's DeliveryBands
-	fee, matched, err := h.orgSvc.CalculateDeliveryFee(ctx, vendorOrgID, distMeters)
-	if err == nil && matched {
-		return fee
-	}
-
-	return money.Zero
+	return q
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // The staged import.
@@ -134,14 +135,49 @@ type ImportOptions struct {
 	// DefaultCategoryID is applied to every product that ends without one,
 	// including when AI is off. Zero leaves the column null.
 	DefaultCategoryID int64 `json:"default_category_id,omitempty"`
+	// MinMatchScore is the platform-wide "أقل نسبة مطابقة" control, 0–1.
+	//
+	// Same name, same default and same meaning as the vendor import, the
+	// saving-products import and the smart order. Zero means the shared
+	// default. What it governs here is the corroborated floor only — see
+	// matchFloors in import_match.go, and the reason the bare-name floor is not
+	// the administrator's to lower.
+	MinMatchScore float64 `json:"min_match_score,omitempty"`
 }
 
-// DefaultImportOptions are what the upload screen starts on: infer the
-// pharmaceutical form from the product name, which is deterministic and reads
-// only what the supplier already wrote. Every switch that writes something the
-// file did not say — including the AI assist — starts off.
+// Normalize fills in anything a submitted form left blank or out of range.
+func (o ImportOptions) Normalize() ImportOptions {
+	if o.MinMatchScore <= 0 {
+		o.MinMatchScore = productmatch.DefaultMinStrong
+	}
+	o.MinMatchScore = min(max(o.MinMatchScore, productmatch.DefaultMinReview), 1)
+	if !o.AssignCategory {
+		o.AutoCreateCategories = false
+	}
+	return o
+}
+
+// DefaultImportOptions are what the upload screen starts on.
+//
+// Category assignment and the AI assist are both on, which is a deliberate
+// reversal. They were off, on the reasoning that an importer should be judged
+// on its deterministic engine first — sound in principle, and in practice what
+// it produced was a catalogue of nineteen thousand products with a null
+// category, because nobody turns on a switch whose absence is invisible. The
+// category IS the catalogue's organising column; leaving it empty is not the
+// conservative choice, it is the broken one.
+//
+// What stays off is everything that invents a row rather than filling a column:
+// AutoCreateCategories and AutoCreateBrands. Linking to a category that exists
+// is safe and reversible; minting one from a supplier's spelling is neither.
 func DefaultImportOptions() ImportOptions {
-	return ImportOptions{AssignDosageForm: true}
+	return ImportOptions{
+		AssignDosageForm:     true,
+		AssignCategory:       true,
+		AssignScientificName: true,
+		UseAI:                true,
+		MinMatchScore:        productmatch.DefaultMinStrong,
+	}
 }
 
 // WantsEnrichment reports whether any field-filling switch is on.

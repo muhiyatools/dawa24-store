@@ -78,6 +78,7 @@ type StartRequest struct {
 	MaxBudget         string   `json:"max_budget"`
 	UseSavingProducts bool     `json:"use_saving_products"`
 	UseAIMatching     bool     `json:"use_ai_matching"`
+	MinMatchScore     float64  `json:"min_match_score"`
 }
 
 // Start creates a run. POST /api/v1/smart-order
@@ -121,6 +122,7 @@ func (h *Handler) Start(w http.ResponseWriter, r *http.Request) {
 		MaxBudget:         budget,
 		UseSavingProducts: req.UseSavingProducts,
 		UseAIMatching:     req.UseAIMatching,
+		MinMatchScore:     req.MinMatchScore,
 	})
 	if err != nil {
 		h.fail(w, r, err)

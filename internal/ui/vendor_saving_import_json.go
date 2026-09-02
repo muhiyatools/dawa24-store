@@ -77,10 +77,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		colProductIDOverride,
 	)
 
-	matchStrategy := MatchStrategy(strings.TrimSpace(r.FormValue("match_strategy")))
-	if matchStrategy == "" {
-		matchStrategy = StrategySmartAuto
-	}
+	matchChoice := ParseMatchChoice(r)
 
 	var matchEngine *SavingProductMatchEngine
 	if h.catSvc != nil {
@@ -141,7 +138,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		}
 
 		if matchEngine != nil {
-			matchRes := matchEngine.Match(matchStrategy, productID, sku, name)
+			matchRes := matchEngine.MatchUnified(matchChoice, productID, sku, name)
 			if matchRes.ProductID != nil {
 				productID = matchRes.ProductID
 			}

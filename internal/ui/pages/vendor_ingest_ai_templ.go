@@ -178,7 +178,7 @@ func aiPanel(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span><div class=\"text-xs text-muted\">المطابقة الذكية كانت متوقفة في هذه العملية، فالنتائج أدناه من المطابقة الحتمية وحدها. يمكنك العودة إلى الإعدادات وتفعيلها لإعادة فحص الأصناف غير المطابقة.</div></div></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span><div class=\"text-xs text-muted\">مطابقة الذكاء الاصطناعي كانت متوقفة في هذه العملية، فالنتائج أدناه من المطابقة الحتمية وحدها. يمكنك العودة إلى الإعدادات وتفعيلها لإعادة فحص الأصناف غير المطابقة.</div></div></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -281,11 +281,11 @@ func aiStat(label, value, tone, hint string) templ.Component {
 func aiHeadline(s ingest.AIStats) string {
 	switch {
 	case s.Improved == 1:
-		return "المطابقة الذكية حسمت صنفاً واحداً إضافياً"
+		return "مطابقة الذكاء الاصطناعي حسمت صنفاً واحداً إضافياً"
 	case s.Improved > 1:
-		return fmt.Sprintf("المطابقة الذكية حسمت %d صنفاً إضافياً", s.Improved)
+		return fmt.Sprintf("مطابقة الذكاء الاصطناعي حسمت %d صنفاً إضافياً", s.Improved)
 	default:
-		return "المطابقة الذكية راجعت الأصناف الصعبة ولم تجد ما تضيفه"
+		return "مطابقة الذكاء الاصطناعي راجعت الأصناف الصعبة ولم تجد ما تضيفه"
 	}
 }
 

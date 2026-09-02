@@ -10,8 +10,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// مقارنة قائمتي مع عروض السوق العامة.
+//
+// The screen is a table of the caller's own rows, each carrying how many market
+// offers beat it, match it and lose to it. The counts are the point: an average
+// market discount tells a supplier nothing about whether one outlier or forty
+// houses are undercutting them, and the previous version of this page showed
+// only an average — over a market of a hundred rows.
+
 type MarketBenchmarkPageData struct {
-	Result      *compare.MarketBenchmarkResult
+	Result *compare.BenchmarkResult
+	// Failed separates a broken query from an empty market. Both used to render
+	// as "لا توجد أصناف مطابقة", which is the single most misleading thing this
+	// screen could say.
+	Failed      bool
 	Files       []*compare.CompareFile
 	FileID      int64
 	Query       string
@@ -19,429 +31,375 @@ type MarketBenchmarkPageData struct {
 	MaxPrice    string
 	MinDiscount string
 	MaxDiscount string
-	ActiveTab   string // "all", "higher", "equal", "lower", "exclusives"
-	IsCustomer  bool
+	// ActiveTab is one of "all", "higher", "equal", "better", "exclusive".
+	ActiveTab string
+	// Sort is "", "discount" or "price".
+	Sort       string
+	IsCustomer bool
 }
 
-func buildMarketBenchmarkURL(fileID int64, q, minP, maxP, minD, maxD, tab string) string {
+func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
 	vals := url.Values{}
-	if fileID > 0 {
-		vals.Set("file", fmt.Sprintf("%d", fileID))
+	if d.FileID > 0 {
+		vals.Set("file", fmt.Sprintf("%d", d.FileID))
 	}
-	if q != "" {
-		vals.Set("q", q)
+	if d.Query != "" {
+		vals.Set("q", d.Query)
 	}
-	if minP != "" {
-		vals.Set("min_price", minP)
+	if d.MinPrice != "" {
+		vals.Set("min_price", d.MinPrice)
 	}
-	if maxP != "" {
-		vals.Set("max_price", maxP)
+	if d.MaxPrice != "" {
+		vals.Set("max_price", d.MaxPrice)
 	}
-	if minD != "" {
-		vals.Set("min_discount", minD)
+	if d.MinDiscount != "" {
+		vals.Set("min_discount", d.MinDiscount)
 	}
-	if maxD != "" {
-		vals.Set("max_discount", maxD)
+	if d.MaxDiscount != "" {
+		vals.Set("max_discount", d.MaxDiscount)
 	}
 	if tab != "" && tab != "all" {
 		vals.Set("tab", tab)
 	}
-	base := "/compare/market-benchmark"
-	if len(vals) > 0 {
-		return base + "?" + vals.Encode()
+	if sort != "" {
+		vals.Set("sort", sort)
 	}
-	return base
+	if len(vals) == 0 {
+		return "/compare/market-benchmark"
+	}
+	return "/compare/market-benchmark?" + vals.Encode()
+}
+
+func benchmarkTabClass(active, tab string) string {
+	if active == tab || (active == "" && tab == "all") {
+		return "tab-btn active"
+	}
+	return "tab-btn"
+}
+
+func benchmarkRowTone(class string) string {
+	switch class {
+	case compare.BenchHigher:
+		return "badge-rose"
+	case compare.BenchBetter:
+		return "badge-emerald"
+	case compare.BenchEqual:
+		return "badge-slate"
+	}
+	return "badge-amber"
+}
+
+func benchmarkRowLabel(class string) string {
+	switch class {
+	case compare.BenchHigher:
+		return "سعرك أعلى"
+	case compare.BenchBetter:
+		return "أنت الأفضل"
+	case compare.BenchEqual:
+		return "مماثل للسوق"
+	}
+	return "حصري"
 }
 
 templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 	<div class="page-container">
-		
-		<!-- Header Banner -->
-		<div class="glass-panel p-6 mb-6">
-			<div class="flex-between flex-wrap gap-4">
-    <div class="stack-sm">
-					<div class="d-flex items-center gap-3 mb-1">
-						<div class="user-avatar-badge text-xl">
-							@components.IconSparkles("icon-sm")
-						</div>
-						<h1 class="text-2xl font-black text-primary m-0">
-							مقارنة مع موردين السوق (Market Benchmark)
-						</h1>
-					</div>
-					<p class="text-sm text-secondary m-0">
-						معايرة وقياس أسعار وخصومات كشف المورد مقابل متوسط وأفضل عروض كافة موردي المنصة والسوق.
-					</p>
-				</div>
+		@benchmarkHeader()
+		@benchmarkControls(data)
+		if data.Failed {
+			<div class="alert alert-danger mb-6">
+				<span class="fw-800">تعذّر تشغيل المقارنة</span>
+				<span class="text-sm">حدث خطأ أثناء قراءة عروض السوق. أعد المحاولة، وإذا تكرر الخطأ راجع سجلات النظام.</span>
+			</div>
+		} else if len(data.Files) == 0 {
+			<div class="glass-panel p-6 mb-6 text-sm text-muted">
+				لا توجد لديك قوائم مرفوعة بعد. ارفع قائمة من <a href="/compare/tool" class="text-accent fw-800">مركز الملفات</a> ثم عد إلى هنا.
+			</div>
+		} else if data.Result == nil {
+			<div class="glass-panel p-6 mb-6 text-sm text-muted">
+				اختر إحدى قوائمك من القائمة أعلاه لبدء المقارنة مع السوق.
+			</div>
+		} else {
+			@benchmarkSummary(data.Result)
+			@benchmarkTabs(data)
+			@benchmarkTable(data)
+			@benchmarkCoverage(data.Result)
+		}
+	</div>
+}
 
-				<div class="d-flex items-center gap-3 flex-wrap">
-					<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
-						@components.IconArrowLeft("icon-xs")
-						<span>مركز الملفات</span>
-					</a>
-					if data.Result != nil && len(data.Result.Rows) > 0 {
-						<button
-							type="button"
-							class="btn btn-primary font-bold gap-2"
-							onclick="exportBenchmarkToCSV()"
-						>
-							@components.IconDownload("icon-xs")
-							<span>تصدير التقرير</span>
-						</button>
+templ benchmarkHeader() {
+	<div class="glass-panel p-6 mb-6">
+		<div class="flex-between flex-wrap gap-4">
+			<div class="stack-sm">
+				<div class="d-flex items-center gap-3 mb-1">
+					<div class="user-avatar-badge text-xl">
+						@components.IconChart("icon-sm")
+					</div>
+					<h1 class="text-2xl font-black text-primary m-0">مقارنة قائمتي مع عروض السوق العامة</h1>
+				</div>
+				<p class="text-sm text-secondary m-0">
+					كل صنف في قائمتك مقابل عروض بقية الموردين على المنصة: كم عرضاً أفضل منك، وكم مماثل، وكم أقل.
+				</p>
+			</div>
+			<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
+				@components.IconArrowLeft("icon-xs")
+				<span>مركز الملفات</span>
+			</a>
+		</div>
+		<div class="tabs-nav mt-4">
+			<a href="/compare/results" class="tab-btn">المقارنة المجمعة بين الموردين</a>
+			<a href="/compare/head-to-head" class="tab-btn">مقارنة مورد بمورد</a>
+			<a href="/compare/market-benchmark" class="tab-btn active">مقارنة مع موردي السوق</a>
+			<a href="/compare/market-intelligence" class="tab-btn">تقرير ذكاء السوق</a>
+		</div>
+	</div>
+}
+
+templ benchmarkControls(data MarketBenchmarkPageData) {
+	<div class="glass-panel p-6 mb-6">
+		<form method="GET" action="/compare/market-benchmark" class="d-grid gap-4 grid-auto-fit-md">
+			<div class="stack-sm">
+				<label class="form-label">قائمتي</label>
+				<select name="file" class="form-input" onchange="this.form.submit()">
+					for _, f := range data.Files {
+						<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.FileID }>
+							{ f.SupplierName } ({ fmt.Sprintf("%d صنف", f.RowCount) })
+						</option>
 					}
+				</select>
+			</div>
+			<div class="stack-sm">
+				<label class="form-label">بحث عن صنف</label>
+				<input type="text" name="q" value={ data.Query } placeholder="اسم الصنف أو الكود…" class="form-input"/>
+			</div>
+			<div class="stack-sm">
+				<label class="form-label">الترتيب</label>
+				<select name="sort" class="form-input">
+					<option value="" selected?={ data.Sort == "" }>الأكبر فارقاً</option>
+					<option value="price" selected?={ data.Sort == "price" }>السعر النهائي</option>
+					<option value="discount" selected?={ data.Sort == "discount" }>الخصم</option>
+				</select>
+			</div>
+			<div class="stack-sm">
+				<label class="form-label">نطاق السعر النهائي</label>
+				<div class="d-flex gap-2">
+					<input type="number" step="0.01" min="0" name="min_price" value={ data.MinPrice } placeholder="من" class="form-input"/>
+					<input type="number" step="0.01" min="0" name="max_price" value={ data.MaxPrice } placeholder="إلى" class="form-input"/>
 				</div>
 			</div>
-
-			<!-- Navigation Subtabs for all 4 Analysis Modes -->
-			<div class="tabs-nav mt-4">
-				<a href="/compare/results" class="tab-btn">
-					المقارنة المجمعة بين الموردين
-				</a>
-				<a href="/compare/head-to-head" class="tab-btn">
-					مقارنة مورد بمورد
-				</a>
-				<a href="/compare/market-benchmark" class="tab-btn active">
-					مقارنة مع موردين السوق
-				</a>
-				<a href="/compare/market-intelligence" class="tab-btn">
-					تقرير ذكاء السوق
-				</a>
+			<div class="stack-sm">
+				<label class="form-label">نطاق الخصم %</label>
+				<div class="d-flex gap-2">
+					<input type="number" step="0.1" min="0" name="min_discount" value={ data.MinDiscount } placeholder="من" class="form-input"/>
+					<input type="number" step="0.1" min="0" name="max_discount" value={ data.MaxDiscount } placeholder="إلى" class="form-input"/>
+				</div>
 			</div>
+			<div class="stack-sm">
+				<label class="form-label">&nbsp;</label>
+				<div class="d-flex gap-2">
+					<input type="hidden" name="tab" value={ data.ActiveTab }/>
+					<button type="submit" class="btn btn-primary font-bold">تطبيق</button>
+					<a href={ templ.SafeURL(fmt.Sprintf("/compare/market-benchmark?file=%d", data.FileID)) } class="btn btn-ghost">مسح</a>
+				</div>
+			</div>
+		</form>
+	</div>
+}
+
+templ benchmarkSummary(res *compare.BenchmarkResult) {
+	<div class="dashboard-stat-grid mb-6">
+		<div class="stat-card-3d">
+			<div class="stat-card-label">أصناف قائمتك</div>
+			<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", res.Total) }</div>
+			<span class="text-xs text-secondary mt-1 d-block">{ res.SupplierName }</span>
 		</div>
-
-		<!-- Supplier Selector Form -->
-		<div class="filter-bar">
-			<form method="GET" action="/compare/market-benchmark" class="d-grid gap-4 items-end m-0">
-    <div class="stack-sm">
-					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
-						اختر ملف المورد المراد مقارنته مع السوق
-					</label>
-					<select name="file" class="form-select text-xs w-full" required>
-						<option value="">-- اختر ملف المورد --</option>
-						for _, f := range data.Files {
-							<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.FileID }>
-								{ f.SupplierName } ({ fmt.Sprintf("%d صنف", f.RowCount) })
-							</option>
-						}
-					</select>
-				</div>
-
-				<button type="submit" class="btn btn-primary font-bold px-6">
-					تحليل ومقارنة السوق
-				</button>
-			</form>
+		<div class="stat-card-3d">
+			<div class="stat-card-label text-danger">أسعارك أعلى من السوق</div>
+			<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprintf("%d", res.HigherCount) }</div>
+			<span class="text-xs text-secondary mt-1 d-block">فرص توفير لعملائك</span>
 		</div>
+		<div class="stat-card-3d">
+			<div class="stat-card-label text-success">أنت الأفضل بالسوق</div>
+			<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", res.BetterCount) }</div>
+			<span class="text-xs text-secondary mt-1 d-block">
+				{ fmt.Sprintf("و%d صنفاً مماثل للسوق", res.EqualCount) }
+			</span>
+		</div>
+		<div class="stat-card-3d">
+			<div class="stat-card-label text-brand">فارقك التنافسي</div>
+			<div class="stat-card-value text-brand tabular-nums">{ res.PotentialBuyerSaving.String() }</div>
+			<span class="text-xs text-secondary mt-1 d-block">
+				{ fmt.Sprintf("متوسط خصمك %.1f%% مقابل %.1f%% للسوق", res.AvgYourDiscount, res.AvgMarketDiscount) }
+			</span>
+		</div>
+	</div>
+}
 
-		if data.Result != nil {
-			<!-- KPI Summary Metric Cards -->
-			<div class="dashboard-stat-grid mb-6">
-				<!-- Average Supplier Discount -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label">متوسط خصم المورد</div>
-					<div class="stat-card-value text-primary tabular-nums">
-						{ fmt.Sprintf("%.1f%%", data.Result.AvgSupplierDisc) }
-					</div>
-					<span class="text-xs text-secondary mt-1 d-block">عبر { fmt.Sprintf("%d", data.Result.TotalItems) } صنف</span>
-				</div>
+templ benchmarkTabs(data MarketBenchmarkPageData) {
+	<div class="tabs-nav mb-4">
+		<a href={ templ.SafeURL(benchmarkURL(data, "all", data.Sort)) } class={ benchmarkTabClass(data.ActiveTab, "all") }>
+			الكل ({ fmt.Sprintf("%d", data.Result.Total) })
+		</a>
+		<a href={ templ.SafeURL(benchmarkURL(data, compare.BenchHigher, data.Sort)) } class={ benchmarkTabClass(data.ActiveTab, compare.BenchHigher) }>
+			أسعارك أعلى من السوق ({ fmt.Sprintf("%d", data.Result.HigherCount) })
+		</a>
+		<a href={ templ.SafeURL(benchmarkURL(data, compare.BenchEqual, data.Sort)) } class={ benchmarkTabClass(data.ActiveTab, compare.BenchEqual) }>
+			مماثل للسوق ({ fmt.Sprintf("%d", data.Result.EqualCount) })
+		</a>
+		<a href={ templ.SafeURL(benchmarkURL(data, compare.BenchBetter, data.Sort)) } class={ benchmarkTabClass(data.ActiveTab, compare.BenchBetter) }>
+			خصمك أفضل من السوق ({ fmt.Sprintf("%d", data.Result.BetterCount) })
+		</a>
+		<a href={ templ.SafeURL(benchmarkURL(data, compare.BenchExclusive, data.Sort)) } class={ benchmarkTabClass(data.ActiveTab, compare.BenchExclusive) }>
+			حصري ({ fmt.Sprintf("%d", data.Result.ExclusiveCount) })
+		</a>
+	</div>
+}
 
-				<!-- Higher than Market (أعلى من السوق) -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">أعلى من السوق</div>
-					<div class="stat-card-value text-success tabular-nums">
-						{ fmt.Sprintf("%d", data.Result.HigherThanMarket) }
-					</div>
-					<span class="text-xs text-secondary mt-1 d-block">خصمك أفضل من متوسط السوق</span>
-				</div>
-
-				<!-- Equal to Market (مساوي للسوق) -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label text-brand">مساوي للسوق</div>
-					<div class="stat-card-value text-brand tabular-nums">
-						{ fmt.Sprintf("%d", data.Result.EqualToMarket) }
-					</div>
-					<span class="text-xs text-secondary mt-1 d-block">خصم مطابق لمتوسط السوق</span>
-				</div>
-
-				<!-- Lower than Market (أقل من السوق) -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label text-danger">أقل من السوق</div>
-					<div class="stat-card-value text-danger tabular-nums">
-						{ fmt.Sprintf("%d", data.Result.LowerThanMarket) }
-					</div>
-					<span class="text-xs text-secondary mt-1 d-block">تحتاج لمراجعة لزيادة التنافسية</span>
-				</div>
-
-				<!-- Exclusives / Gaps -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label text-warning">حصريات المورد</div>
-					<div class="stat-card-value text-warning tabular-nums">
-						{ fmt.Sprintf("%d", data.Result.ExclusivesCount) }
-					</div>
-					<span class="text-xs text-secondary mt-1 d-block">أصناف لا يقدمها غيرك بالسوق</span>
-				</div>
-			</div>
-
-			<!-- Filter Bar: Price and Discount Range Inputs -->
-			<div class="filter-bar">
-				<form method="GET" action="/compare/market-benchmark" class="m-0">
-					<input type="hidden" name="file" value={ fmt.Sprintf("%d", data.FileID) } />
-					<input type="hidden" name="tab" value={ data.ActiveTab } />
-
-					<div class="d-grid gap-3 items-end">
-      <div class="stack-sm">
-							<label class="text-xs font-bold text-muted mb-1 d-block">
-								الحد الأدنى للسعر
-							</label>
-							<input
-								type="number"
-								step="0.01"
-								name="min_price"
-								value={ data.MinPrice }
-								placeholder="0.00"
-								class="form-input text-xs"
-							/>
-						</div>
-
-      <div class="stack-sm">
-							<label class="text-xs font-bold text-muted mb-1 d-block">
-								الحد الأقصى للسعر
-							</label>
-							<input
-								type="number"
-								step="0.01"
-								name="max_price"
-								value={ data.MaxPrice }
-								placeholder="1000.00"
-								class="form-input text-xs"
-							/>
-						</div>
-
-      <div class="stack-sm">
-							<label class="text-xs font-bold text-muted mb-1 d-block">
-								الحد الأدنى للخصم
-							</label>
-							<input
-								type="number"
-								step="0.1"
-								name="min_discount"
-								value={ data.MinDiscount }
-								placeholder="0%"
-								class="form-input text-xs"
-							/>
-						</div>
-
-      <div class="stack-sm">
-							<label class="text-xs font-bold text-muted mb-1 d-block">
-								الحد الأقصى للخصم
-							</label>
-							<input
-								type="number"
-								step="0.1"
-								name="max_discount"
-								value={ data.MaxDiscount }
-								placeholder="50%"
-								class="form-input text-xs"
-							/>
-						</div>
-
-      <div class="stack-sm">
-							<label class="text-xs font-bold text-muted mb-1 d-block">
-								بحث بالاسم أو الكود
-							</label>
-							<input
-								type="text"
-								name="q"
-								value={ data.Query }
-								placeholder="اسم الصنف..."
-								class="form-input text-xs"
-							/>
-						</div>
-
-						<button type="submit" class="btn btn-primary font-bold px-4">
-							تطبيق الفلتر
-						</button>
-					</div>
-				</form>
-
-				<!-- Quick Filter Tabs -->
-				<div class="d-flex items-center gap-2 pt-3 border-t flex-wrap">
-					<a
-						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "all")) }
-						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "all" || data.ActiveTab == ""), templ.KV("btn-secondary", data.ActiveTab != "all" && data.ActiveTab != "") }
-					>
-						الكل ({ fmt.Sprintf("%d", data.Result.TotalItems) })
-					</a>
-
-					<a
-						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "higher")) }
-						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "higher"), templ.KV("btn-secondary", data.ActiveTab != "higher") }
-					>
-						أعلى من السوق ({ fmt.Sprintf("%d", data.Result.HigherThanMarket) })
-					</a>
-
-					<a
-						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "equal")) }
-						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "equal"), templ.KV("btn-secondary", data.ActiveTab != "equal") }
-					>
-						مساوي للسوق ({ fmt.Sprintf("%d", data.Result.EqualToMarket) })
-					</a>
-
-					<a
-						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "lower")) }
-						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "lower"), templ.KV("btn-secondary", data.ActiveTab != "lower") }
-					>
-						أقل من السوق ({ fmt.Sprintf("%d", data.Result.LowerThanMarket) })
-					</a>
-
-					<a
-						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "exclusives")) }
-						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "exclusives"), templ.KV("btn-secondary", data.ActiveTab != "exclusives") }
-					>
-						الحصريات ({ fmt.Sprintf("%d", data.Result.ExclusivesCount) })
-					</a>
-				</div>
-			</div>
-
-			<!-- Main Table -->
-			<div class="glass-panel p-0 mb-0 overflow-hidden">
-				<div class="table-container m-0">
-					<table class="data-table m-0" id="market-benchmark-table">
-						<thead>
+templ benchmarkTable(data MarketBenchmarkPageData) {
+	<div class="glass-panel p-0 mb-6 overflow-hidden">
+		if len(data.Result.Rows) == 0 {
+			@benchmarkEmpty(data)
+		} else {
+			<div class="table-container">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>اسم الصنف</th>
+							<th>الكود</th>
+							<th class="text-end">سعري / الخصم</th>
+							<th class="text-center">عروض أفضل بالسوق</th>
+							<th class="text-center">عروض مماثلة بالسوق</th>
+							<th class="text-center">عروض أقل بالسوق</th>
+							<th>أفضل عرض بالسوق</th>
+							<th class="text-center">الحالة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, row := range data.Result.Rows {
 							<tr>
-								<th>المنتج</th>
-								<th class="text-center tabular-nums">سعر الجمهور</th>
-								<th class="text-center tabular-nums">نسبة خصمك</th>
-								<th class="text-center tabular-nums">متوسط خصم السوق</th>
-								<th class="text-center tabular-nums">أعلى خصم بالسوق</th>
-								<th class="text-center">الفارق التنافسي</th>
-							</tr>
-						</thead>
-						<tbody>
-							if len(data.Result.Rows) == 0 {
-								<tr>
-									<td colspan="6" class="text-center p-8 text-muted">
-										<div class="text-3xl mb-2">@components.IconSearch("icon-sm")</div>
-										<div class="font-extrabold text-base text-primary">لا توجد نتائج تطابق خيارات الفلترة</div>
-									</td>
-								</tr>
-							}
-							for _, r := range data.Result.Rows {
-								<tr>
-									<!-- المنتج -->
-									<td>
-										<div class="font-extrabold text-primary text-sm">
-											{ r.ProductName }
+								<td>
+									<div class="fw-800">{ row.ProductName }</div>
+									if row.InCatalog {
+										<span class="badge badge-emerald text-xs">مرتبط بالكتالوج</span>
+									} else {
+										<span class="badge badge-slate text-xs">مطابقة بالاسم</span>
+									}
+								</td>
+								<td class="text-xs text-muted tabular-nums">
+									if row.SKU != "" {
+										{ row.SKU }
+									} else {
+										—
+									}
+								</td>
+								<td class="text-end tabular-nums">
+									<div class="fw-800">{ row.YourNet.String() }</div>
+									<div class="text-xs text-muted">
+										{ fmt.Sprintf("قبل الخصم %s · خصم %.1f%%", row.YourPrice.String(), row.YourDiscount) }
+									</div>
+								</td>
+								<td class="text-center tabular-nums">
+									if row.BetterOffers > 0 {
+										<span class="badge badge-rose">{ fmt.Sprintf("%d", row.BetterOffers) }</span>
+									} else {
+										<span class="text-muted">—</span>
+									}
+								</td>
+								<td class="text-center tabular-nums">
+									if row.EqualOffers > 0 {
+										<span class="badge badge-slate">{ fmt.Sprintf("%d", row.EqualOffers) }</span>
+									} else {
+										<span class="text-muted">—</span>
+									}
+								</td>
+								<td class="text-center tabular-nums">
+									if row.WorseOffers > 0 {
+										<span class="badge badge-emerald">{ fmt.Sprintf("%d", row.WorseOffers) }</span>
+									} else {
+										<span class="text-muted">—</span>
+									}
+								</td>
+								<td>
+									if row.BestSupplier != "" {
+										<div class="fw-800 tabular-nums">{ row.BestNet.String() }</div>
+										<div class="text-xs text-muted">
+											{ row.BestSupplier } · { fmt.Sprintf("خصم %.1f%%", row.BestDiscount) }
 										</div>
-										if r.SKU != "" {
-											<span class="text-xs text-muted tabular-nums">
-												كود: { r.SKU }
-											</span>
-										}
-									</td>
-
-									<!-- سعرك -->
-									<td class="text-center font-bold text-secondary tabular-nums">
-										{ r.YourPrice.String() } ج.م
-									</td>
-
-									<!-- خصمك -->
-									<td class="text-center font-extrabold tabular-nums">
-										<span class="badge badge-slate text-xs">
-											{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
-										</span>
-									</td>
-
-									<!-- متوسط خصم السوق -->
-									<td class="text-center tabular-nums">
-										if r.MarketAvgDiscount > 0 {
-											<div class="font-bold text-primary text-sm">
-												{ fmt.Sprintf("%.1f%%", r.MarketAvgDiscount) }
+										if row.PriceGap.IsPositive() {
+											<div class="text-xs text-danger">
+												{ fmt.Sprintf("تفرق عنه %s (%.1f%%)", row.PriceGap.String(), row.PriceGapPercent) }
 											</div>
-											<span class="text-xs text-muted">
-												({ fmt.Sprintf("%d موردين", r.SupplierCount) })
-											</span>
-										} else {
-											<span class="badge badge-secondary text-xs">غير متوفر</span>
 										}
-									</td>
-
-									<!-- أعلى خصم بالسوق -->
-									<td class="text-center tabular-nums">
-										if r.MarketBestDiscount > 0 {
-											<div class="font-black text-brand text-sm">
-												{ fmt.Sprintf("%.1f%%", r.MarketBestDiscount) }
-											</div>
-											<span class="text-xs text-muted">
-												({ r.MarketBestSupplier })
-											</span>
-										} else {
-											<span class="text-muted">—</span>
-										}
-									</td>
-
-									<!-- الفارق التنافسي -->
-									<td class="text-center tabular-nums">
-										if r.Classification == "higher" {
-											<span class="badge badge-emerald text-xs font-bold">
-												+{ fmt.Sprintf("%.1f%%", r.DiffVsMarketAvg) }
-											</span>
-										} else if r.Classification == "lower" {
-											<span class="badge badge-rose text-xs font-bold">
-												{ fmt.Sprintf("%.1f%%", r.DiffVsMarketAvg) }
-											</span>
-										} else if r.Classification == "equal" {
-											<span class="badge badge-sky text-xs font-bold">
-												مطابق
-											</span>
-										} else {
-											<span class="badge badge-amber text-xs font-bold">
-												حصري
-											</span>
-										}
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
+									} else {
+										<span class="text-muted">لا يوجد</span>
+									}
+								</td>
+								<td class="text-center">
+									<span class={ "badge", benchmarkRowTone(row.Classification), "text-xs" }>
+										{ benchmarkRowLabel(row.Classification) }
+									</span>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			<div class="p-4 px-6 border-t text-xs text-muted">
+				{ fmt.Sprintf("عرض %d من %d صنف", data.Result.Shown, data.Result.Total) }
 			</div>
 		}
 	</div>
+}
 
-	<!-- Export Table to CSV Script -->
-	<script>
-		function exportBenchmarkToCSV() {
-			var table = document.getElementById("market-benchmark-table");
-			if (!table) return;
-			var rows = table.querySelectorAll("tr");
-			var csv = [];
-			for (var i = 0; i < rows.length; i++) {
-				var row = [], cols = rows[i].querySelectorAll("td, th");
-				for (var j = 0; j < cols.length; j++) {
-					var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
-					data = data.replace(/"/g, '""');
-					row.push('"' + data + '"');
-				}
-				csv.push(row.join(","));
-			}
-			var csvFile = new Blob(["\uFEFF" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
-			var downloadLink = document.createElement("a");
-			downloadLink.download = "market_benchmark_report.csv";
-			downloadLink.href = window.URL.createObjectURL(csvFile);
-			downloadLink.style.display = "none";
-			document.body.appendChild(downloadLink);
-			downloadLink.click();
-			document.body.removeChild(downloadLink);
+// benchmarkEmpty says which of the several different empty states this is.
+//
+// "لا توجد أصناف مطابقة" used to cover all of them, including the two that are
+// not about matching at all: a filter that excludes everything, and a market
+// with nothing in it to compare against.
+templ benchmarkEmpty(data MarketBenchmarkPageData) {
+	<div class="p-6 stack-sm">
+		if data.Result.Total == 0 {
+			<div class="fw-800">هذه القائمة لا تحتوي على أصناف بأسعار</div>
+			<div class="text-sm text-muted">
+				راجع ربط الأعمدة للملف من مركز الملفات: صف بلا سعر لا يدخل المقارنة.
+			</div>
+		} else if data.Result.ComparedAgainst == 0 {
+			<div class="fw-800">لا توجد عروض أخرى في السوق للمقارنة</div>
+			<div class="text-sm text-muted">
+				لا يوجد حالياً أي ملف مورد آخر منشور أو مستودع مؤقت نشط. تظهر المقارنة فور توفر قائمة مورد أخرى.
+			</div>
+		} else if data.ActiveTab != "" && data.ActiveTab != "all" {
+			<div class="fw-800">لا توجد أصناف ضمن هذا التصنيف</div>
+			<div class="text-sm text-muted">
+				جرّب تبويب «الكل»، أو وسّع نطاق السعر والخصم.
+			</div>
+			<a href={ templ.SafeURL(benchmarkURL(data, "all", data.Sort)) } class="btn btn-sm btn-secondary">عرض الكل</a>
+		} else {
+			<div class="fw-800">لا توجد أصناف تطابق البحث أو النطاقات المحددة</div>
+			<a href={ templ.SafeURL(fmt.Sprintf("/compare/market-benchmark?file=%d", data.FileID)) } class="btn btn-sm btn-secondary">مسح عوامل التصفية</a>
 		}
-	</script>
+	</div>
+}
+
+templ benchmarkCoverage(res *compare.BenchmarkResult) {
+	<div class="glass-panel p-4 mb-6">
+		<p class="text-xs text-muted m-0">
+			{ fmt.Sprintf("قورنت بـ %d عرضاً من %d مورد آخر، %d منها (%.0f%%) مرتبط بالكتالوج المركزي.",
+				res.ComparedAgainst, res.Coverage.Suppliers, res.Coverage.MatchedOffers, res.Coverage.MatchedPercent()) }
+			if !res.Coverage.AIEnabled {
+				<span class="text-warning"> · مطابقة الذكاء الاصطناعي غير مفعّلة.</span>
+			}
+		</p>
+	</div>
 }
 
 templ CompareMarketBenchmarkPage(lang, dir string, data MarketBenchmarkPageData) {
 	if data.IsCustomer {
-		@layouts.ShellFor("مقارنة مع موردين السوق | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor("مقارنة مع موردي السوق | Dawa24", "compare", lang, dir, authctx.FromContext(ctx)) {
 			@CompareMarketBenchmarkContent(data)
 		}
 	} else {
-		@layouts.VendorShell("مقارنة مع موردين السوق | Dawa24", "compare", lang, dir) {
+		@layouts.VendorShell("مقارنة مع موردي السوق | Dawa24", "compare", lang, dir) {
 			@CompareMarketBenchmarkContent(data)
 		}
 	}

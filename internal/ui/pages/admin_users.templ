@@ -31,6 +31,20 @@ type AdminUsersPageData struct {
 	StaffRoles       []AdminUserRoleOption
 	Notice           string
 	NoticeKind       string
+	// MainModerators are the top-level moderators a new sub-moderator may be
+	// assigned under. Only top-level ones: the hierarchy is one level deep
+	// (migration 168), so a moderator who already reports to somebody cannot
+	// himself be a parent.
+	MainModerators []AdminModeratorOption
+}
+
+// AdminModeratorOption is one selectable main moderator.
+type AdminModeratorOption struct {
+	UserID int64
+	Name   string
+	// Team is how many moderators already report to them, so a super admin
+	// distributing work can see the load before adding to it.
+	Team int
 }
 
 type AdminUsersData struct {
@@ -270,13 +284,44 @@ templ adminStaffCreateForm(data AdminUsersPageData) {
 					<label class="form-label" for="staff-password">كلمة مرور مبدئية</label>
 					<input id="staff-password" class="form-input" type="password" name="password" required minlength="8" autocomplete="new-password"/>
 				</div>
-    <div class="stack-sm">
+    <div class="stack-sm" x-data="{ role: '', level: 'main' }">
 					<label class="form-label" for="staff-role">الدور الإداري</label>
-					<select id="staff-role" class="form-input font-bold" name="role" required>
+					<select id="staff-role" class="form-input font-bold" name="role" required x-model="role">
 						for _, role := range data.StaffRoles {
 							<option value={ role.Key }>{ role.Name }</option>
 						}
 					</select>
+
+					<!-- The hierarchy question, asked only for a موظف whose role is
+					     مشرف: every other staff role reports to the super admin and
+					     has no team of its own. -->
+					<div x-show="role === 'moderator'" x-cloak class="stack-sm mt-3">
+						<label class="form-label">موقع المشرف في التسلسل</label>
+						<label class="form-label d-flex items-center gap-2">
+							<input type="radio" name="moderator_level" value="main" x-model="level" checked/>
+							<span class="text-body">مشرف رئيسي مستقل — يتبع مدير النظام مباشرة، ويمكن تعيين مشرفين تحته</span>
+						</label>
+						<label class="form-label d-flex items-center gap-2">
+							<input type="radio" name="moderator_level" value="sub" x-model="level"/>
+							<span class="text-body">يعمل تحت إدارة مشرف رئيسي</span>
+						</label>
+						<div x-show="level === 'sub'" x-cloak>
+							if len(data.MainModerators) > 0 {
+								<select class="form-input" name="moderator_parent_id">
+									<option value="">— اختر المشرف الرئيسي —</option>
+									for _, m := range data.MainModerators {
+										<option value={ fmt.Sprintf("%d", m.UserID) }>
+											{ m.Name } ({ fmt.Sprintf("%d مشرف تحته", m.Team) })
+										</option>
+									}
+								</select>
+							} else {
+								<p class="text-xs text-warning m-0">
+									لا يوجد مشرف رئيسي مستقل بعد. أنشئ مشرفاً رئيسياً أولاً ثم عيّن المشرفين تحته.
+								</p>
+							}
+						</div>
+					</div>
 				</div>
 				<div class="col-span-full d-flex items-center gap-3">
 					<button type="submit" class="btn btn-primary font-black">إنشاء الحساب</button>

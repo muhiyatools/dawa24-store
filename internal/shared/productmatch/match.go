@@ -139,19 +139,22 @@ type MatchOptions struct {
 
 // The thresholds every tool starts on.
 //
-// DefaultMinStrong is stated once, here, because four screens print it and two
+// DefaultMinStrong is stated once, here, because four screens print it and four
 // importers compare against it, and a figure that lives in six places is a
-// figure that means six things by the end of the year.
+// figure that means six things by the end of the year. The vendor catalogue
+// import, the admin main-catalogue import, the saving-products import and the
+// smart order all begin here; each may raise it, none may lower it past
+// DefaultMinReview.
 //
-// Forty per cent rather than thirty, at the client's direction and for a reason
-// the live data supports: on a real supplier file the band between the two was
+// Fifty per cent, at the client's direction. It was forty, and before that
+// thirty. The band between forty and fifty is, on the live supplier files,
 // almost entirely line extensions and coincidences — the same brand at another
 // dose, or two products agreeing on a category word — and applying those
 // silently is what a vendor discovers three weeks later in their own catalogue.
 // Everything below it is still shown, still scored, and still one click from
 // being accepted; it is simply not accepted FOR them.
 const (
-	DefaultMinStrong = 0.40
+	DefaultMinStrong = 0.50
 	// DefaultMinReview is the floor below which nothing is offered at all.
 	//
 	// It used to be 0.15, which is how a review screen came to be full of

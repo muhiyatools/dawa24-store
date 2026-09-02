@@ -82,7 +82,7 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "customer.saving.import.commit_error", "customer", "فشل الحفظ: %s", "Save failed: %s", "Commit error")
 	addKey(e, "customer.saving.import.commit_success", "customer", "تم استيراد وحفظ %d منتج بنجاح (جديد: %d، تم تحديثه: %d).", "Imported and saved %d products successfully (new: %d, updated: %d).", "Commit success")
 	addKey(e, "customer.saving.import.progress_loading_catalog", "customer", "تحميل وفهرسة كتالوج الأدوية المعتمد", "Loading and indexing approved medicine catalog", "Progress: loading catalog")
-	addKey(e, "customer.saving.import.progress_matching", "customer", "جاري المطابقة الذكية للأصناف وتجهيز المسودة", "Smart matching items and preparing draft", "Progress: matching")
+	addKey(e, "customer.saving.import.progress_matching", "customer", "جاري مطابقة الذكاء الاصطناعي للأصناف وتجهيز المسودة", "Smart matching items and preparing draft", "Progress: matching")
 	addKey(e, "customer.saving.import.progress_processed", "customer", "تمت معالجة %d من أصل %d صنف", "Processed %d of %d items", "Progress: processed count")
 	addKey(e, "customer.saving.sample_col_name", "customer", "اسم الصنف", "Item Name", "Sample template column")
 	addKey(e, "customer.saving.sample_col_sku", "customer", "كود الصنف / SKU", "Item Code / SKU", "Sample template column")
@@ -184,9 +184,9 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "vendor.branch.orgs_service_unavailable", "vendor", "خدمة المؤسسات غير متوفرة.", "Organizations service is unavailable.", "Orgs service unavailable")
 
 	// --- Vendor: Ingest AI State ---
-	addKey(e, "vendor.ingest.ai_not_enabled", "vendor", "المطابقة الذكية غير مفعّلة على هذه المنصة.", "Smart matching is not enabled on this platform.", "AI not enabled")
+	addKey(e, "vendor.ingest.ai_not_enabled", "vendor", "مطابقة الذكاء الاصطناعي غير مفعّلة على هذه المنصة.", "Smart matching is not enabled on this platform.", "AI not enabled")
 	addKey(e, "vendor.ingest.ai_gateway_down", "vendor", "بوابة الذكاء الاصطناعي متوقفة حالياً. ستعمل المطابقة الحتمية وحدها.", "AI gateway is currently down. Deterministic matching will work alone.", "AI gateway down")
-	addKey(e, "vendor.ingest.ai_members_only", "vendor", "المطابقة الذكية متاحة لأعضاء المؤسسات فقط.", "Smart matching is available for organization members only.", "AI members only")
+	addKey(e, "vendor.ingest.ai_members_only", "vendor", "مطابقة الذكاء الاصطناعي متاحة لأعضاء المؤسسات فقط.", "Smart matching is available for organization members only.", "AI members only")
 	addKey(e, "vendor.ingest.ai_check_failed", "vendor", "تعذّر التحقق من اشتراك مؤسستك في خدمات الذكاء الاصطناعي.", "Could not verify your organization's AI subscription.", "AI check failed")
 	addKey(e, "vendor.ingest.ai_not_activated", "vendor", "لم يتم تفعيل الذكاء الاصطناعي لمؤسستك بعد. تواصل مع الإدارة لتفعيله.", "AI has not been enabled for your organization yet. Contact administration to enable it.", "AI not activated")
 

@@ -2,9 +2,11 @@ package catalog
 
 import (
 	"errors"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"sync"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
 )
 
 // Progress for a long-running import.
@@ -77,18 +79,62 @@ type ImportProgress struct {
 	Message   string    `json:"message"`
 	StartedAt time.Time `json:"started_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	// PhaseStartedAt is when the current phase began. A phase with no row count
+	// drifts through its band on this, so a two-minute AI pass keeps the bar
+	// moving instead of freezing it at the phase boundary.
+	PhaseStartedAt time.Time `json:"phase_started_at"`
 }
 
-// Percent is how far the current phase has got, 0-100. It returns -1 when the
-// phase carries no count.
+// phaseBands are each phase's contiguous share of the overall bar.
+//
+// Sized by how long each phase actually takes on a real administrative file,
+// not evenly: reading a workbook is seconds, matching thirty-eight thousand
+// rows against a twenty-thousand-product catalogue is the bulk of the run, and
+// the AI mapping pass is the one that waits on a network. Weighting them
+// equally produces a bar that sprints to 60% and then sits still, which is
+// worse than no bar at all.
+//
+// They must be contiguous and end at 99; Percent supplies the last point only
+// on the terminal phase.
+var phaseBands = map[ImportPhase]importprogress.Band{
+	PhaseQueued:         {Start: 0, End: 2},
+	ImportPhaseReading:  {Start: 2, End: 10},
+	ImportPhaseParsing:  {Start: 10, End: 28},
+	ImportPhaseMapping:  {Start: 28, End: 46},
+	ImportPhaseMatching: {Start: 46, End: 84},
+	ImportPhaseStaging:  {Start: 84, End: 99},
+}
+
+// Percent is how far through the WHOLE run this snapshot sits, 0-100.
+//
+// It used to be how far through the current phase, which meant the bar ran
+// 0→100 five times over and an administrator who looked away could not tell
+// which pass they were watching. It also returned -1 for any phase without a
+// row count — three of the six — so the bar spent most of a long import as an
+// indeterminate barber-pole that discarded the one thing it did know.
 func (p ImportProgress) Percent() int {
-	if p.Phase == ImportPhaseDone {
-		return 100
+	switch p.Phase {
+	case ImportPhaseDone:
+		return importprogress.Complete
+	case ImportPhaseFailed:
+		// A failed run keeps whatever it had reached. Zeroing it implies the
+		// work never started; filling it implies it finished.
+		return importprogress.Percent(phaseBands[ImportPhaseStaging], 0, 0, 0)
 	}
-	if p.Total <= 0 {
-		return -1
+	band, ok := phaseBands[p.Phase]
+	if !ok {
+		return 0
 	}
-	return min(p.Current*100/p.Total, 100)
+	return importprogress.Percent(band, p.Current, p.Total, p.PhaseElapsed())
+}
+
+// PhaseElapsed is how long the run has been in its current phase, which is what
+// drives the drift for a phase that cannot count its own work.
+func (p ImportProgress) PhaseElapsed() time.Duration {
+	if p.PhaseStartedAt.IsZero() {
+		return p.Elapsed()
+	}
+	return p.UpdatedAt.Sub(p.PhaseStartedAt)
 }
 
 // Elapsed is how long the run has been going.
@@ -152,18 +198,24 @@ func (t *ProgressTracker) TryBegin(sessionID string) (ProgressFunc, bool) {
 	}
 	t.runs[sessionID] = ImportProgress{
 		Phase: ImportPhaseReading, Message: ImportPhaseReading.Label(),
-		StartedAt: now, UpdatedAt: now,
+		StartedAt: now, UpdatedAt: now, PhaseStartedAt: now,
 	}
 
 	return func(phase ImportPhase, current, total int) {
 		t.mu.Lock()
 		defer t.mu.Unlock()
 		run := t.runs[sessionID]
+		if run.Phase != phase {
+			run.PhaseStartedAt = time.Now()
+		}
 		run.Phase, run.Current, run.Total = phase, current, total
 		run.Message = phase.Label()
 		run.UpdatedAt = time.Now()
 		if run.StartedAt.IsZero() {
 			run.StartedAt = run.UpdatedAt
+		}
+		if run.PhaseStartedAt.IsZero() {
+			run.PhaseStartedAt = run.UpdatedAt
 		}
 		t.runs[sessionID] = run
 	}, true

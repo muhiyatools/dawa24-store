@@ -308,3 +308,35 @@ func (m *mockCompareRepoE2E) ListMarketDiscounts(ctx context.Context, filter com
 		TotalPages:         1,
 	}, nil
 }
+
+func (m *mockCompareRepoE2E) LoadMarketOffers(
+	_ context.Context, opts compare.MarketScanOptions,
+) ([]compare.MarketOffer, error) {
+	var out []compare.MarketOffer
+	for fileID, rows := range m.fileRows {
+		if opts.ExcludeFileID > 0 && fileID == opts.ExcludeFileID {
+			continue
+		}
+		supplier := ""
+		for _, f := range m.files {
+			if f != nil && f.ID == fileID {
+				supplier = f.SupplierName
+			}
+		}
+		for _, r := range rows {
+			if r == nil || !r.Price.IsPositive() {
+				continue
+			}
+			net := r.PriceAfterDiscount
+			if net.IsZero() {
+				net = compare.CalculatePriceAfterDiscount(r.Price, r.Discount)
+			}
+			out = append(out, compare.MarketOffer{
+				RowID: r.ID, FileID: fileID, SupplierName: supplier,
+				ProductName: r.RawName, SKU: r.SKU, ProductID: r.MatchedProductID,
+				Price: r.Price, Discount: r.Discount, NetPrice: net,
+			})
+		}
+	}
+	return out, nil
+}

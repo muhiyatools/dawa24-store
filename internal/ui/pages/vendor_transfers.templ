@@ -9,29 +9,60 @@ import (
 )
 
 type VendorTransfersData struct {
-	Transfers  []*inventory.WarehouseTransfer
-	Page       int
-	PerPage    int
-	TotalCount int
+	Transfers      []*inventory.WarehouseTransfer
+	WarehouseNames map[int64]string
+	ProductNames   map[int64]string
+	NoticeType     string
+	NoticeMsg      string
+	Page           int
+	PerPage        int
+	TotalCount     int
 }
 
 templ VendorTransfers(data VendorTransfersData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@VendorTransfersTable(data)
 	} else {
-		@layouts.VendorShell("التحويلات المخزنية | Stock Transfers", "transfers", lang, dir) {
+		@layouts.VendorShell("سجلات حركة المخازن | Warehouse Movement Logs", "transfers", lang, dir) {
 			<div class="page-container">
+				<!-- Notices -->
+				if data.NoticeMsg != "" {
+					if data.NoticeType == "error" {
+						<div class="alert alert-danger mb-4 d-flex items-center gap-3 p-4">
+							<span class="text-xl">@components.IconAlert("icon-sm")</span>
+							<span class="font-bold text-sm">{ data.NoticeMsg }</span>
+						</div>
+					} else {
+						<div class="alert alert-success mb-4 d-flex items-center gap-3 p-4">
+							<span class="text-xl">@components.IconCheckCircle("icon-sm")</span>
+							<span class="font-bold text-sm">{ data.NoticeMsg }</span>
+						</div>
+					}
+				}
+
 				<!-- Header -->
 				<div class="glass-panel p-6 mb-6">
-					<div class="flex-between flex-wrap gap-4">
-      <div class="stack-sm">
+					<div class="flex-between items-center flex-wrap gap-4">
+						<div class="stack-sm">
 							<div class="d-flex items-center gap-3 mb-1">
-								<div class="user-avatar-badge text-xl">
+								<div class="user-avatar-badge text-xl text-brand">
 									@components.IconRefresh("icon-sm")
 								</div>
-								<h1 class="text-2xl font-black text-primary m-0">سجل التحويلات بين المخازن</h1>
+								<h1 class="text-2xl font-black text-primary m-0">سجلات حركة المخازن والتحويلات</h1>
 							</div>
-							<p class="text-sm text-secondary m-0">متابعة حركة نقل البضائع والأدوية بين الفروع والمخازن التوزيعية</p>
+							<p class="text-sm text-secondary m-0">
+								متابعة وتدقيق حركة نقل البضائع والأدوية بين المخازن ومواقع التخزين، وحالات الاستلام الفعلي
+							</p>
+						</div>
+						<div class="d-flex items-center gap-3 flex-wrap">
+							<a href="/vendor/warehouses" class="btn btn-secondary btn-sm font-bold gap-1.5">
+								@components.IconBuilding("icon-xs")
+								<span>مخازن المنشأة</span>
+							</a>
+							<a href="/vendor/inventory" class="btn btn-primary btn-sm font-bold gap-1.5">
+								@components.IconPackage("icon-xs")
+								<span>أرصدة المخزون</span>
+							</a>
 						</div>
 					</div>
 				</div>
@@ -46,10 +77,12 @@ templ VendorTransfers(data VendorTransfersData, lang, dir string, isPartial bool
 
 templ VendorTransfersTable(data VendorTransfersData) {
 	if len(data.Transfers) == 0 {
-		<div class="glass-panel p-8 text-center empty-state-glass">
+		<div class="glass-panel p-10 text-center empty-state-glass">
 			<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
-			<h3 class="text-lg font-black text-primary mb-2">لا توجد تحويلات مخزنية سابقة</h3>
-			<p class="text-sm text-secondary m-0">لم يتم إنشاء أي عمليات نقل بضائع بين المخازن حتى الآن.</p>
+			<h3 class="text-lg font-black text-primary mb-2">لا توجد حركات مخزنية مسجلة</h3>
+			<p class="text-sm text-secondary m-0">
+				لم يتم إجراء أي عمليات نقل أو تحويل مخزني حتى الآن. يمكنك نقل المخزون مباشرة من جدول الأصناف في المخزن أو صفحة الأرصدة.
+			</p>
 		</div>
 	} else {
 		<div class="glass-panel p-0 mb-6 overflow-hidden">
@@ -57,12 +90,15 @@ templ VendorTransfersTable(data VendorTransfersData) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th>رقم التحويل</th>
+							<th>رقم الحركة</th>
+							<th>الصنف المنقول</th>
 							<th>من مخزن</th>
 							<th>إلى مخزن</th>
 							<th>الكمية</th>
+							<th>الملاحظات / السبب</th>
 							<th class="text-center">الحالة</th>
-							<th class="text-end">التاريخ</th>
+							<th>التاريخ</th>
+							<th class="col-actions">الإجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -71,24 +107,71 @@ templ VendorTransfersTable(data VendorTransfersData) {
 								<td class="font-extrabold text-primary tabular-nums">
 									#{ fmt.Sprintf("%d", t.ID) }
 								</td>
-								<td class="text-secondary text-sm">
-									Warehouse #{ fmt.Sprintf("%d", t.FromWarehouseID) }
+								<td>
+									<div class="d-flex items-center gap-2">
+										<div class="user-avatar-badge text-xs">
+											@components.IconPill("icon-2xs")
+										</div>
+										<strong class="text-primary text-xs font-bold">
+											{ resolveTransferProductName(t.ProductID, t.ProductVariantID, data.ProductNames) }
+										</strong>
+									</div>
 								</td>
-								<td class="text-secondary text-sm">
-									Warehouse #{ fmt.Sprintf("%d", t.ToWarehouseID) }
+								<td class="text-primary text-xs font-bold">
+									{ resolveTransferWarehouseName(t.FromWarehouseID, data.WarehouseNames) }
+								</td>
+								<td class="text-primary text-xs font-bold">
+									{ resolveTransferWarehouseName(t.ToWarehouseID, data.WarehouseNames) }
 								</td>
 								<td>
-									<span class="badge badge-slate tabular-nums text-xs font-bold">
+									<span class="badge badge-emerald tabular-nums text-xs font-black">
 										{ fmt.Sprintf("%d", t.Quantity) } عبوة
 									</span>
 								</td>
-								<td class="text-center">
-									<span class="badge badge-sky text-xs font-bold">
-										{ string(t.Status) }
-									</span>
+								<td class="text-xs text-secondary max-w-xs truncate">
+									if t.Notes != "" {
+										{ t.Notes }
+									} else {
+										<span class="text-muted font-normal">-</span>
+									}
 								</td>
-								<td class="text-end tabular-nums text-xs text-muted">
+								<td class="text-center">
+									switch t.Status {
+										case inventory.TransferCompleted:
+											<span class="badge badge-emerald text-xs font-bold">مكتمل ومستلم</span>
+										case inventory.TransferInTransit:
+											<span class="badge badge-amber text-xs font-bold">قيد الشحن / النقل</span>
+										case inventory.TransferCancelled:
+											<span class="badge badge-rose text-xs font-bold">ملغي</span>
+										default:
+											<span class="badge badge-sky text-xs font-bold">{ string(t.Status) }</span>
+									}
+								</td>
+								<td class="tabular-nums text-xs text-muted">
 									{ t.CreatedAt.Format("2006-01-02 03:04 PM") }
+								</td>
+								<td class="col-actions">
+									if t.Status == inventory.TransferInTransit {
+										<div class="table-actions">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/transfers/%d/receive", t.ID)) } class="m-0">
+												<button type="submit" class="btn btn-primary btn-sm text-2xs font-bold py-1 px-2.5">
+													تأكيد الاستلام
+												</button>
+											</form>
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/transfers/%d/cancel", t.ID)) } class="m-0">
+												<button type="submit" class="btn btn-secondary btn-sm text-2xs text-danger font-bold py-1 px-2">
+													إلغاء
+												</button>
+											</form>
+										</div>
+									} else if t.Status == inventory.TransferCompleted {
+										<span class="text-2xs text-emerald font-bold d-flex items-center gap-1 justify-end">
+											@components.IconCheck("icon-2xs")
+											<span>تم الإيداع</span>
+										</span>
+									} else {
+										<span class="text-2xs text-muted">-</span>
+									}
 								</td>
 							</tr>
 						}
@@ -105,4 +188,25 @@ templ VendorTransfersTable(data VendorTransfersData) {
 			}
 		</div>
 	}
+}
+
+func resolveTransferWarehouseName(whID int64, names map[int64]string) string {
+	if names != nil {
+		if name, ok := names[whID]; ok && name != "" {
+			return name
+		}
+	}
+	return fmt.Sprintf("مخزن #%d", whID)
+}
+
+func resolveTransferProductName(prodID, variantID int64, names map[int64]string) string {
+	if names != nil {
+		if name, ok := names[prodID]; ok && name != "" {
+			return name
+		}
+		if name, ok := names[variantID]; ok && name != "" {
+			return name
+		}
+	}
+	return fmt.Sprintf("صنف #%d", prodID)
 }

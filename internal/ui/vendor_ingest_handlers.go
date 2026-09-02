@@ -142,25 +142,10 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	overrides := map[int]productmatch.Field{}
-	for key, values := range r.PostForm {
-		if !strings.HasPrefix(key, "column_") || len(values) == 0 {
-			continue
-		}
-		index, convErr := strconv.Atoi(strings.TrimPrefix(key, "column_"))
-		if convErr != nil {
-			continue
-		}
-		switch values[0] {
-		case "":
-			// "Decide for me" — left out so the completion pass may bind it.
-		case "__ignore":
-			overrides[index] = productmatch.IgnoreField
-		case "__none":
-			overrides[index] = ""
-		default:
-			overrides[index] = productmatch.Field(values[0])
-		}
+	overrides, err := vendorMappingOverrides(r)
+	if err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", err.Error())
+		return
 	}
 
 	if _, _, err := h.ingSvc.SaveMapping(ctx, publicID, overrides); err != nil {
@@ -168,17 +153,93 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if qStr := strings.TrimSpace(r.PostFormValue("default_quantity")); qStr != "" {
-		if defQty, err := strconv.Atoi(qStr); err == nil && defQty >= 0 {
-			if s, err := h.ingSvc.LoadImport(ctx, publicID); err == nil && s != nil {
-				s.Settings.DefaultQuantity = defQty
-				_, _ = h.ingSvc.SaveSettings(ctx, publicID, s.Settings)
-			}
-		}
-	}
-
 	http.Redirect(w, r, "/vendor/ingest/"+publicID, http.StatusSeeOther)
 }
+
+// vendorMappingOverrides reads the field-first mapping table.
+//
+// The table posts one entry per system field — `field_price=3` meaning "column
+// four of my file is the price" — which is the inverse of what the engine
+// stores, so it is turned back column-first here. Two fields pointing at the
+// same column is the one error a vendor can make on this screen that the
+// resolver cannot silently repair, so it is refused with both field names
+// rather than resolved by whichever came last in a map iteration.
+//
+// Every column no field claimed is pinned to "" rather than left out. Left out
+// means "decide for me", and the completion pass would then re-bind a column
+// the vendor had just cleared — which is exactly how a cleared mapping came
+// back on the next screen.
+func vendorMappingOverrides(r *http.Request) (map[int]productmatch.Field, error) {
+	overrides := map[int]productmatch.Field{}
+	claimedBy := map[int]productmatch.Field{}
+	sawFieldForm := false
+
+	for key, values := range r.PostForm {
+		if !strings.HasPrefix(key, "field_") || len(values) == 0 {
+			continue
+		}
+		sawFieldForm = true
+		field := productmatch.Field(strings.TrimPrefix(key, "field_"))
+		if _, known := productmatch.SpecOf(field); !known {
+			continue
+		}
+		if !productmatch.VendorFields.Allows(field) {
+			continue
+		}
+		raw := strings.TrimSpace(values[0])
+		if raw == "" {
+			continue
+		}
+		index, convErr := strconv.Atoi(raw)
+		if convErr != nil || index < 0 {
+			continue
+		}
+		if other, taken := claimedBy[index]; taken {
+			return nil, fmt.Errorf("العمود رقم %d مربوط بحقلين: «%s» و«%s». اختر حقلاً واحداً لكل عمود.",
+				index+1, other.Label(), field.Label())
+		}
+		claimedBy[index] = field
+		overrides[index] = field
+	}
+
+	if !sawFieldForm {
+		// A client posting the legacy column-first form. Kept so a stale open
+		// tab does not lose a vendor's work.
+		for key, values := range r.PostForm {
+			if !strings.HasPrefix(key, "column_") || len(values) == 0 {
+				continue
+			}
+			index, convErr := strconv.Atoi(strings.TrimPrefix(key, "column_"))
+			if convErr != nil {
+				continue
+			}
+			switch values[0] {
+			case "":
+			case "__ignore":
+				overrides[index] = productmatch.IgnoreField
+			case "__none":
+				overrides[index] = ""
+			default:
+				overrides[index] = productmatch.Field(values[0])
+			}
+		}
+		return overrides, nil
+	}
+
+	// Pin every unclaimed column shut.
+	for i := 0; i < vendorMaxMappedColumns; i++ {
+		if _, claimed := claimedBy[i]; !claimed {
+			overrides[i] = ""
+		}
+	}
+	return overrides, nil
+}
+
+// vendorMaxMappedColumns is the widest sheet the mapping screen will pin shut.
+// Wider files are still imported; their trailing columns simply keep the
+// resolver's own reading, which for a column past this point is "unmapped"
+// anyway.
+const vendorMaxMappedColumns = 256
 
 // VendorIngestSettingsSubmit records the import rules.
 func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Request) {
@@ -261,8 +322,6 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	if val := r.PostFormValue("blank_quantity_is_zero"); val == "false" || val == "0" {
 		settings.BlankQuantityIsZero = false
 	}
-	settings.InferDosageForm = checked(r, "infer_dosage_form")
-	settings.InferConcentration = checked(r, "infer_concentration")
 	settings.RejectExpired = checked(r, "reject_expired")
 	settings.MarkNegotiable = checked(r, "mark_negotiable")
 	settings.PublishImmediately = checked(r, "publish_immediately")
@@ -271,11 +330,6 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	// as "on" would make the results screen claim AI work that never happened.
 	settings.UseAI = checked(r, "use_ai") && h.ingSvc.AIAvailable()
 	settings.RecordRows = checked(r, "record_rows")
-	// No synthetic default quantity; only if explicitly submitted as positive
-	settings.DefaultQuantity = 0
-	if v, err := strconv.Atoi(r.PostFormValue("default_quantity")); err == nil && v > 0 {
-		settings.DefaultQuantity = v
-	}
 	if v, err := strconv.Atoi(r.PostFormValue("default_min_order_qty")); err == nil {
 		settings.DefaultMinOrderQty = v
 	}

@@ -88,6 +88,11 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			// this shim on every page is what makes the picker work everywhere it
 			// appears -- registration, branches, admin cities, offer locations.
 			<script defer src={ Asset("/static/js/maps.js") }></script>
+			// One progress-bar implementation for all four import tools. Small,
+			// self-contained, and loaded everywhere because the importers live on
+			// four different shells and each used to ship its own copy of the
+			// same three bugs. See import-progress.js.
+			<script defer src={ Asset("/static/js/import-progress.js") }></script>
 		</head>
 		<body>
 			{ children... }

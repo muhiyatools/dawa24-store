@@ -28,12 +28,23 @@ type Matcher struct {
 }
 
 // NewMatcher constructs the fuzzy stage.
-func NewMatcher(repo smartorder.Repository) *Matcher {
+//
+// minScore is the buyer's أقل نسبة مطابقة, the same control and the same 50%
+// default as the three import tools. It decides what the scorer will offer at
+// all — below it a candidate is not shown, not reviewed and not sent to the AI
+// tier. It is emphatically NOT Cutoff, which decides what is bought without
+// asking, stays at 0.850 and is not the buyer's to lower: the cost of a wrong
+// confident match here is the wrong medicine on a pharmacy's shelf.
+func NewMatcher(repo smartorder.Repository, minScore float64) *Matcher {
 	opts := productmatch.DefaultMatchOptions()
 	// TrustSupplierCode stays off. A pharmacy's internal code coinciding with a
 	// catalogue code is more often accident than design, and the SKU tier has
 	// already had its chance at genuine codes.
 	opts.MaxCandidates = 5 // the shortlist the review screen shows the buyer
+	if minScore > 0 {
+		opts.MinStrong = min(max(minScore, productmatch.DefaultMinReview), 1)
+		opts.MinReview = min(productmatch.DefaultMinReview, opts.MinStrong)
+	}
 	return &Matcher{repo: repo, opts: opts}
 }
 

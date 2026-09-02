@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -242,7 +243,8 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 	h.renderPage(ctx, w, "render head to head page", pages.CompareHeadToHeadPage(lang, dir, pageData))
 }
 
-// CompareMarketBenchmarkPage handles benchmarking a supplier file against platform market suppliers.
+// CompareMarketBenchmarkPage compares one of the caller's lists against the
+// whole public market.
 func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -253,14 +255,18 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+
+	// The list selector offers the caller's own files. Falling back to every
+	// file on the platform, as this used to, meant a supplier with no uploads
+	// was silently shown somebody else's list as "قائمتي".
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
-		var orgPtr *int64
-		if actor.OrganizationID > 0 {
-			orgPtr = &actor.OrganizationID
-		}
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
-		if len(files) == 0 {
+		if len(files) == 0 && actor.IsStaff {
 			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
 		}
 	}
@@ -270,43 +276,30 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		fileID = files[0].ID
 	}
 
-	q := strings.TrimSpace(r.URL.Query().Get("q"))
-	minPStr := strings.TrimSpace(r.URL.Query().Get("min_price"))
-	maxPStr := strings.TrimSpace(r.URL.Query().Get("max_price"))
-	minDStr := strings.TrimSpace(r.URL.Query().Get("min_discount"))
-	maxDStr := strings.TrimSpace(r.URL.Query().Get("max_discount"))
-	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
-	if tab == "" {
-		tab = "all"
+	filter := compare.BenchmarkFilter{
+		FileID:         fileID,
+		Query:          strings.TrimSpace(r.URL.Query().Get("q")),
+		Tab:            strings.TrimSpace(r.URL.Query().Get("tab")),
+		Sort:           strings.TrimSpace(r.URL.Query().Get("sort")),
+		OrganizationID: orgPtr,
+		MinPrice:       optionalFloat(r.URL.Query().Get("min_price")),
+		MaxPrice:       optionalFloat(r.URL.Query().Get("max_price")),
+		MinDiscount:    optionalFloat(r.URL.Query().Get("min_discount")),
+		MaxDiscount:    optionalFloat(r.URL.Query().Get("max_discount")),
+	}
+	if filter.Tab == "" {
+		filter.Tab = "all"
 	}
 
-	var minP, maxP, minD, maxD *float64
-	if v, err := strconv.ParseFloat(minPStr, 64); err == nil && v >= 0 {
-		minP = &v
-	}
-	if v, err := strconv.ParseFloat(maxPStr, 64); err == nil && v >= 0 {
-		maxP = &v
-	}
-	if v, err := strconv.ParseFloat(minDStr, 64); err == nil && v >= 0 {
-		minD = &v
-	}
-	if v, err := strconv.ParseFloat(maxDStr, 64); err == nil && v >= 0 {
-		maxD = &v
-	}
-
-	var result *compare.MarketBenchmarkResult
+	var (
+		result *compare.BenchmarkResult
+		failed bool
+	)
 	if h.compareSvc != nil && fileID > 0 {
-		res, err := h.compareSvc.RunMarketBenchmarkDetailed(ctx, compare.MarketBenchmarkFilter{
-			FileID:      fileID,
-			Query:       q,
-			MinPrice:    minP,
-			MaxPrice:    maxP,
-			MinDiscount: minD,
-			MaxDiscount: maxD,
-			Tab:         tab,
-		})
+		res, err := h.compareSvc.RunMarketBenchmark(database.AsSystem(ctx), filter)
 		if err != nil {
-			h.log.ErrorContext(ctx, "failed to run market benchmark", "error", err)
+			h.log.ErrorContext(ctx, "failed to run market benchmark", "error", err, "file", fileID)
+			failed = true
 		} else {
 			result = res
 		}
@@ -314,16 +307,27 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 
 	pageData := pages.MarketBenchmarkPageData{
 		Result:      result,
+		Failed:      failed,
 		Files:       files,
 		FileID:      fileID,
-		Query:       q,
-		MinPrice:    minPStr,
-		MaxPrice:    maxPStr,
-		MinDiscount: minDStr,
-		MaxDiscount: maxDStr,
-		ActiveTab:   tab,
+		Query:       filter.Query,
+		MinPrice:    strings.TrimSpace(r.URL.Query().Get("min_price")),
+		MaxPrice:    strings.TrimSpace(r.URL.Query().Get("max_price")),
+		MinDiscount: strings.TrimSpace(r.URL.Query().Get("min_discount")),
+		MaxDiscount: strings.TrimSpace(r.URL.Query().Get("max_discount")),
+		ActiveTab:   filter.Tab,
+		Sort:        filter.Sort,
 		IsCustomer:  actor.IsCustomer(),
 	}
 
 	h.renderPage(ctx, w, "render market benchmark page", pages.CompareMarketBenchmarkPage(lang, dir, pageData))
+}
+
+// optionalFloat reads a query parameter that may legitimately be absent.
+func optionalFloat(raw string) *float64 {
+	v, err := strconv.ParseFloat(strings.TrimSpace(raw), 64)
+	if err != nil || v < 0 {
+		return nil
+	}
+	return &v
 }

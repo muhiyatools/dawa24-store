@@ -313,3 +313,35 @@ func newTestRouter(t *testing.T) http.Handler {
 	handler.RegisterRoutes(r)
 	return r
 }
+
+func (happyRepo) ListModerators(ctx context.Context) ([]*identity.Moderator, error) {
+	return nil, nil
+}
+
+func (happyRepo) ModeratorSubordinateIDs(ctx context.Context, parentID int64) ([]int64, error) {
+	return nil, nil
+}
+
+func (happyRepo) ModeratorParentID(ctx context.Context, userID int64) (*int64, error) {
+	return nil, nil
+}
+
+func (happyRepo) SetModeratorParent(ctx context.Context, userID int64, parentID *int64, actorID int64) error {
+	return nil
+}
+
+func (stubRepo) ListModerators(ctx context.Context) ([]*identity.Moderator, error) {
+	return nil, nil
+}
+
+func (stubRepo) ModeratorSubordinateIDs(ctx context.Context, parentID int64) ([]int64, error) {
+	return nil, nil
+}
+
+func (stubRepo) ModeratorParentID(ctx context.Context, userID int64) (*int64, error) {
+	return nil, nil
+}
+
+func (stubRepo) SetModeratorParent(ctx context.Context, userID int64, parentID *int64, actorID int64) error {
+	return nil
+}

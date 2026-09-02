@@ -38,48 +38,33 @@ func (s *Service) GetDeliveryBands(ctx context.Context, orgID int64) ([]*Deliver
 }
 
 // SaveDeliveryBands updates the delivery bands for an organization.
+//
+// It validates first. A table with two tiers both covering seven kilometres has
+// no correct answer for a seven-kilometre delivery, and storing it means the
+// cart, the checkout and the invoice can each pick a different one. See
+// ValidateDeliveryBands.
 func (s *Service) SaveDeliveryBands(ctx context.Context, orgID int64, bands []*DeliveryBand) error {
+	if err := ValidateDeliveryBands(bands); err != nil {
+		return err
+	}
 	return s.repo.SaveDeliveryBands(ctx, orgID, bands)
 }
 
-// CalculateDeliveryFee calculates the delivery fee for a vendor given the distance in meters.
-// It matches the distance against the vendor's active DeliveryBands (sorted by from_meters).
-// If distance falls within a band [FromMeters, ToMeters], that band's Fee is applied.
-// If distance exceeds the maximum band's ToMeters, the highest band's Fee applies.
-// If no bands exist, it returns money.Zero and false.
-func (s *Service) CalculateDeliveryFee(ctx context.Context, vendorOrgID int64, distanceMeters int) (money.Amount, bool, error) {
+// CalculateDeliveryFee prices one distance against a vendor's declared bands.
+//
+// Kept as the narrow "just the money" form for callers that have a distance
+// already; everything about how the answer is reached lives in QuoteDelivery,
+// so this can no longer drift from what the cart shows. The bool reports
+// whether a band actually decided the fee.
+func (s *Service) CalculateDeliveryFee(
+	ctx context.Context, vendorOrgID int64, distanceMeters int,
+) (money.Amount, bool, error) {
 	bands, err := s.repo.GetDeliveryBands(ctx, vendorOrgID)
 	if err != nil {
 		return money.Zero, false, err
 	}
-	if len(bands) == 0 {
-		return money.Zero, false, nil
-	}
-
-	var maxBand *DeliveryBand
-	for _, b := range bands {
-		if !b.IsActive {
-			continue
-		}
-		if maxBand == nil || b.ToMeters > maxBand.ToMeters {
-			maxBand = b
-		}
-		if distanceMeters >= b.FromMeters && (distanceMeters <= b.ToMeters || b.ToMeters == 0) {
-			return b.Fee, true, nil
-		}
-	}
-
-	// If distance is higher than the max band, apply the max band's fee
-	if maxBand != nil && distanceMeters > maxBand.ToMeters {
-		return maxBand.Fee, true, nil
-	}
-
-	// If distance is lower than the first band, apply the first band's fee
-	if len(bands) > 0 && bands[0].IsActive {
-		return bands[0].Fee, true, nil
-	}
-
-	return money.Zero, false, nil
+	q := QuoteDelivery(bands, distanceMeters)
+	return q.Fee, q.Band != nil, nil
 }
 
 // GetReviewCriteria returns review criteria for a given context.

@@ -26,11 +26,11 @@ func (r *Repository) CreateCity(ctx context.Context, c *platformadmin.City) erro
 			c.CountryID = 1
 		}
 		query := `
-			INSERT INTO platform_admin.cities (country_id, governorate_id, name, latitude, longitude, is_active, is_capital, time_zone)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, 'Africa/Cairo')
+			INSERT INTO platform_admin.cities (country_id, governorate_id, name, latitude, longitude, is_active, is_capital, coverage_radius_meters, time_zone)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Africa/Cairo')
 			RETURNING id;
 		`
-		return tx.QueryRow(txCtx, query, c.CountryID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital).Scan(&c.ID)
+		return tx.QueryRow(txCtx, query, c.CountryID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital, c.NormalizedRadius()).Scan(&c.ID)
 	})
 }
 
@@ -39,10 +39,11 @@ func (r *Repository) UpdateCity(ctx context.Context, c *platformadmin.City) erro
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			UPDATE platform_admin.cities
-			SET governorate_id = $2, name = $3, latitude = $4, longitude = $5, is_active = $6, is_capital = $7
+			SET governorate_id = $2, name = $3, latitude = $4, longitude = $5, is_active = $6, is_capital = $7,
+			    coverage_radius_meters = $8
 			WHERE id = $1;
 		`
-		_, err := tx.Exec(txCtx, query, c.ID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital)
+		_, err := tx.Exec(txCtx, query, c.ID, c.GovernorateID, c.Name, c.Latitude, c.Longitude, c.IsActive, c.IsCapital, c.NormalizedRadius())
 		return err
 	})
 }

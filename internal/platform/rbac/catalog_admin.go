@@ -182,6 +182,23 @@ func adminCatalogPerms() []Permission {
 		adminPage("inventory.temp_warehouse.view", g, "temp_warehouses", "المستودعات المؤقتة", "Temporary warehouses"),
 		adminPage("inventory.my_temp_warehouse.view", g, "my_temp_warehouses", "مستودعاتي المرفوعة", "My uploaded warehouses"),
 		adminAct("inventory.my_temp_warehouse.manage", g, "إدارة مستودعاتي المرفوعة", "Manage my uploaded warehouses", "inventory.my_temp_warehouse.view"),
+
+		// A main moderator's view of the moderators reporting to them. It is a
+		// permission of its own rather than a widening of
+		// inventory.temp_warehouse.view, because the two answer different
+		// questions: that one is "every warehouse on the platform", this one is
+		// "the warehouses of the people who report to me". A holder of this
+		// sees their subordinates' uploads and nothing else, and the scoping is
+		// enforced in the query, not by the sidebar. See
+		// internal/ui/admin_team_temp_warehouse_handlers.go.
+		adminPage("inventory.team_temp_warehouse.view", g, "team_temp_warehouses",
+			"مستودعات المشرفين تحت إدارتي", "Warehouses of my moderators"),
+		adminAct("inventory.team_temp_warehouse.manage", g,
+			"إدارة مستودعات المشرفين تحت إدارتي", "Manage my moderators' warehouses",
+			"inventory.team_temp_warehouse.view"),
+		adminAct("identity.moderator.assign", g,
+			"تعيين المشرفين وتحديد المشرف الرئيسي", "Assign moderators and their parent",
+			"identity.user.view"),
 		adminPage("inventory.stock.view", g, "warehouses", "أرصدة المخزون", "Stock levels"),
 		adminAct("inventory.stock.adjust", g, "تسوية المخزون", "Adjust stock", "inventory.stock.view"),
 		adminPage("inventory.transfer.view", g, "warehouses", "تحويلات المخزون", "Stock transfers"),

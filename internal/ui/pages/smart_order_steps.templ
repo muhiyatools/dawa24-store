@@ -200,7 +200,33 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 						يمكنك إغلاق الصفحة والعودة لاحقًا — تستمر المعالجة في الخلفية.
 					</p>
 				</div>
-				<meta http-equiv="refresh" content="3"/>
+				<script>
+					(function () {
+						const card = document.querySelector('.so-progress-card');
+						if (!card || typeof window.ImportProgress !== 'function') return;
+						const ring = card.querySelector('.so-ring-value');
+						const label = card.querySelector('.so-ring-percent');
+						const caption = card.querySelector('.so-progress-caption');
+						// The ring is an SVG stroke, not a width, so the shared bar
+						// drives it through a shim: same easing, same drift, same
+						// refusal to show 100 before the run says it is done.
+						const circumference = 2 * Math.PI * 52;
+						const shim = {
+							style: {},
+							classList: { add(){}, remove(){} },
+							setAttribute(name, value) {
+								if (name !== 'aria-valuenow' || !ring) return;
+								const pct = Math.max(0, Math.min(100, Number(value)));
+								ring.style.strokeDashoffset = String(circumference * (1 - pct / 100));
+							},
+						};
+						const bar = new window.ImportProgress({
+							fill: shim, percent: label, label: caption,
+							onDone: function () { window.location.reload(); },
+						});
+						bar.poll(window.location.pathname + '.json', 1500);
+					})();
+				</script>
 			}
 		</div>
 	}

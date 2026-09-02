@@ -81,6 +81,30 @@ func PlatformRoles() []SystemRole {
 			},
 		},
 		{
+			// A main moderator: uploads temporary warehouses of their own AND
+			// oversees the moderators assigned under them.
+			//
+			// "Main" is not a separate role. Any moderator with no parent is a
+			// main moderator, and one with a parent is a sub-moderator; the
+			// distinction is a column on the user, not a second role to keep in
+			// step. Both hold the same permissions, and what each of them
+			// actually sees is decided by the hierarchy query — which is the
+			// only place it can be decided correctly, because a moderator with
+			// no subordinates today may have four tomorrow.
+			Key: "moderator", NameAr: "مشرف", NameEn: "Moderator",
+			DescAr: "رفع وإدارة المستودعات المؤقتة، ومتابعة المشرفين المعيّنين تحت إدارته.",
+			Scope:  ScopeAdmin, IsStaff: true,
+			Permissions: []string{
+				"platform.dashboard.view",
+				"notifications.center.view",
+				"inventory.my_temp_warehouse.view",
+				"inventory.my_temp_warehouse.manage",
+				"inventory.team_temp_warehouse.view",
+				"inventory.team_temp_warehouse.manage",
+				"catalog.product.view",
+			},
+		},
+		{
 			// The ordinary account role. It grants nothing on the platform:
 			// a member's capability inside their company comes from their
 			// membership, never from this column (Rebuild V2 rule 1).

@@ -203,7 +203,7 @@ func loadWave3Keys(e *engine) {
 	addKey(e, "wizard.opt.assign_dosage_desc", "wizard", "استنتاج الشكل الصيدلي (أقراص، شراب، كريم…) من اسم الصنف.", "Infer dosage form (tablets, syrup, cream...) from product name.", "Assign dosage form desc")
 	addKey(e, "wizard.opt.assign_scientific_title", "wizard", "تحديد الاسم العلمي", "Assign Scientific Name", "Assign scientific name title")
 	addKey(e, "wizard.opt.assign_scientific_desc", "wizard", "تحديد الاسم العلمي للمادة الفعالة لكل صنف دوائي.", "Assign active ingredient scientific name for each drug.", "Assign scientific name desc")
-	addKey(e, "wizard.opt.use_ai_title", "wizard", "مساعدة الذكاء الاصطناعي", "AI Assistant Matching", "AI matching option title")
+	addKey(e, "wizard.opt.use_ai_title", "wizard", "مطابقة الذكاء الاصطناعي", "AI Matching", "AI matching option title")
 	addKey(e, "wizard.opt.use_ai_note_optional", "wizard", "اختياري — الاستيراد يعمل بالكامل بدون تفعيله.", "Optional - import works fully without enabling it.", "AI matching optional note")
 	addKey(e, "wizard.opt.use_ai_note_unavailable", "wizard", "خدمة الذكاء الاصطناعي غير متاحة حالياً.", "AI assistant service is currently unavailable.", "AI unavailable note")
 

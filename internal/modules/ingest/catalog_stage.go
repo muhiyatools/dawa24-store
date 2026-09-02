@@ -219,11 +219,6 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 			r.remember(row, m)
 		}
 
-		if !row.HasQuantity && r.session.Settings.DefaultQuantity > 0 {
-			row.Quantity = r.session.Settings.DefaultQuantity
-			row.HasQuantity = true
-		}
-
 		var productID *int64
 		if m.ProductID > 0 {
 			id := m.ProductID

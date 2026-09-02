@@ -48,7 +48,12 @@ func (s *Service) resolveTaxonomies(
 
 	var notes []string
 	if session.Options.AssignCategory {
+		// Two passes, in this order. The file's own category column is the
+		// administrator's stated intent and outranks anything inferred; only
+		// the products it left without a category are guessed at from the
+		// molecule. See import_categorize.go.
 		notes = append(notes, s.resolveCategories(ctx, session, parsed, vocab)...)
+		notes = append(notes, s.inferCategories(ctx, session, parsed, vocab)...)
 	}
 	if session.Options.AssignDosageForm {
 		notes = append(notes, s.resolveDosageForms(ctx, session, parsed, vocab)...)

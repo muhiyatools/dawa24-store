@@ -117,4 +117,12 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 		g.Post("/admin/users/{id}/role", h.AdminUserRoleAssignSubmit)
 		g.Post("/admin/users/staff", h.AdminStaffCreateSubmit)
 	})
+
+	// The moderator hierarchy. Its own permission: deciding who a moderator
+	// reports to decides who may read their uploaded warehouses, which is an
+	// access-control change and not a profile edit.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("identity.moderator.assign"))
+		g.Post("/admin/users/{id}/moderator-parent", h.AdminModeratorParentSubmit)
+	})
 }

@@ -99,8 +99,20 @@ templ importProcessingStage(view VendorImportView) {
 	<div class="glass-panel p-6" id="import-progress-card" data-import={ view.Session.PublicID }>
 		<h2 class="wiz-head">جارٍ تنفيذ الاستيراد</h2>
 		<p class="wiz-sub" id="import-progress-note">{ view.Session.ProgressNote }</p>
-		<div class="progress">
-			<div class="progress-bar" id="import-progress-bar"></div>
+		<div class="wiz-progress">
+			<div class="wiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+				<div
+					class="wiz-progress-fill"
+					id="import-progress-bar"
+					style={ templ.SafeCSS(fmt.Sprintf("width:%d%%", view.Session.ProgressPercent)) }
+				></div>
+			</div>
+			<div class="wiz-progress-meta">
+				<span id="import-progress-count" class="tabular-nums"></span>
+				<span id="import-progress-percent" class="wiz-progress-percent">
+					{ fmt.Sprintf("%d%%", view.Session.ProgressPercent) }
+				</span>
+			</div>
 		</div>
 		<p class="text-xs text-muted mt-2">
 			يمكنك إغلاق هذه الصفحة؛ ستستمر العملية وستجد نتيجتها في سجل عمليات الاستيراد.
@@ -109,22 +121,15 @@ templ importProcessingStage(view VendorImportView) {
 	<script>
 		(function () {
 			const card = document.getElementById('import-progress-card');
-			if (!card) return;
-			const id = card.dataset.import;
-			const bar = document.getElementById('import-progress-bar');
-			const note = document.getElementById('import-progress-note');
-			function poll() {
-				fetch('/vendor/ingest/' + id + '/progress', { headers: { 'Accept': 'application/json' } })
-					.then(function (r) { return r.json(); })
-					.then(function (p) {
-						if (bar) { bar.style.width = (p.percent || 0) + '%'; }
-						if (note && p.note) { note.textContent = p.note; }
-						if (p.done) { window.location.reload(); return; }
-						setTimeout(poll, 1500);
-					})
-					.catch(function () { setTimeout(poll, 4000); });
-			}
-			poll();
+			if (!card || typeof window.ImportProgress !== 'function') return;
+			const bar = new window.ImportProgress({
+				fill:    document.getElementById('import-progress-bar'),
+				label:   document.getElementById('import-progress-note'),
+				percent: document.getElementById('import-progress-percent'),
+				count:   document.getElementById('import-progress-count'),
+				onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
+			});
+			bar.poll('/vendor/ingest/' + card.dataset.import + '/progress', 1500);
 		})();
 	</script>
 }

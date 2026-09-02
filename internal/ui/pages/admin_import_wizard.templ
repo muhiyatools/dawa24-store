@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -204,6 +205,21 @@ templ importOptionsCard(toggles []ImportToggle, categories []catalog.TaxonomyOpt
 				<a href="/admin/developers?tab=ai" class="text-accent font-bold">إعدادات النظام</a>؛ سيعمل الاستيراد بالقواعد التلقائية حتى ذلك الحين.
 			</p>
 		}
+		<div class="wiz-map-item mt-md">
+			<label class="wiz-map-label" for="min-match-score">أقل نسبة مطابقة تُعتمد تلقائياً (%)</label>
+			<input
+				id="min-match-score"
+				class="wiz-map-input"
+				type="number"
+				name="min_match_score"
+				min={ fmt.Sprint(int(productmatch.DefaultMinReview * 100)) }
+				max="100"
+				value={ fmt.Sprint(int(productmatch.DefaultMinStrong * 100)) }
+			/>
+			<span class="wiz-map-hint">
+				الافتراضي { fmt.Sprint(int(productmatch.DefaultMinStrong*100)) }%. المطابقة بالاسم أولاً ثم الذكاء الاصطناعي، ولا يُعتمد أي تطابق دون تأكيد التركيز والشكل الصيدلي.
+			</span>
+		</div>
 		if len(categories) > 0 {
 			<div class="wiz-map-item mt-md">
 				<label class="wiz-map-label" for="default-category">الفئة الافتراضية عند تعذّر التحديد</label>

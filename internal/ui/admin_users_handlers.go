@@ -118,6 +118,25 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 				IsStaff: true,
 			})
 		}
+
+		// The main moderators a new sub-moderator can be placed under. Only
+		// top-level ones are offered: the hierarchy is one level deep, so a
+		// moderator who already reports to somebody cannot be a parent, and
+		// SetModeratorParent refuses it anyway.
+		if mods, err := h.idSvc.ListModerators(sysCtx); err == nil {
+			for _, m := range mods {
+				if m == nil || !m.IsMain() {
+					continue
+				}
+				data.MainModerators = append(data.MainModerators, pages.AdminModeratorOption{
+					UserID: m.UserID,
+					Name:   m.Name.Get(i18n.ParseLang(lang)),
+					Team:   m.SubordinateCount,
+				})
+			}
+		} else {
+			h.log.ErrorContext(ctx, "list moderators for the users page", "error", err)
+		}
 	}
 
 	h.renderPage(ctx, w, "render admin users page", pages.AdminUsersPage(data, lang, dir))

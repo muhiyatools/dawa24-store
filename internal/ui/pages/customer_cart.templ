@@ -10,9 +10,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
+templ CustomerCart(cart *commerce.Cart, groups []CartGroup, lang, dir string, isPartial bool) {
 	if isPartial {
-		@CustomerCartContent(cart, lang)
+		@CustomerCartContent(cart, groups, lang)
 	} else {
 		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", "cart", lang, dir, nil) {
 			<div class="page-container max-w-6xl">
@@ -27,14 +27,14 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 				}
 
 				<div class="stack-sm" id="cart-content">
-					@CustomerCartContent(cart, lang)
+					@CustomerCartContent(cart, groups, lang)
 				</div>
 			</div>
 		}
 	}
 }
 
-templ CustomerCartContent(cart *commerce.Cart, lang string) {
+templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) {
 	if cart == nil || len(cart.Items) == 0 {
 		<div class="empty-state-glass p-8 text-center">
 			<div class="empty-state-icon-wrapper mx-auto mb-4">
@@ -97,7 +97,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 		<div class="cart-grid-layout">
 			<!-- Left: Items Grouped by Supplier -->
 			<div class="d-flex flex-col gap-4">
-				for _, group := range GroupCartBySupplier(cart) {
+				for _, group := range groups {
 					<div class="cart-supplier-card">
 						<!-- Supplier Group Header -->
 						<div class="cart-supplier-header">
@@ -121,6 +121,17 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 								<span class="text-sm text-muted">المجموع الفرعي للمورد:</span>
 								<div class="tabular-nums font-black text-xl text-brand">
 									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Subtotal })
+								</div>
+								<div class="text-xs text-muted mt-1">
+									if group.Delivery.Fee.IsPositive() {
+										<span>رسوم التوصيل: </span>
+										<strong class="tabular-nums">{ group.Delivery.Fee.String() } ج.م</strong>
+									} else {
+										<span>توصيل مجاني</span>
+									}
+									if DeliveryNote(group.Delivery) != "" {
+										<span> · { DeliveryNote(group.Delivery) }</span>
+									}
 								</div>
 							</div>
 						</div>
@@ -240,14 +251,20 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 					</div>
 
 					<div class="flex-between text-secondary">
-						<span>رسوم الشحن الدوائي المبرد:</span>
-						<span class="badge badge-emerald text-xs">مجاني للطلبيات المعتمدة</span>
+						<span>رسوم التوصيل:</span>
+						if DeliveryTotal(groups).IsPositive() {
+							<span class="tabular-nums font-bold text-primary">
+								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: DeliveryTotal(groups) })
+							</span>
+						} else {
+							<span class="badge badge-emerald text-xs">مجاني</span>
+						}
 					</div>
 
 					<div class="border-t pt-4 flex-between items-center">
 						<span class="font-black text-base text-primary">الإجمالي النهائي:</span>
 						<div class="font-black text-2xl text-brand tabular-nums">
-							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart), Large: true })
+							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartGrandTotal(cart, groups), Large: true })
 						</div>
 					</div>
 				</div>

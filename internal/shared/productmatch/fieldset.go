@@ -68,10 +68,34 @@ func (fs *FieldSet) Specs() []Spec {
 // deliberately no wider than that. A field a system cannot write is a field its
 // users should never be asked about.
 var (
-	// VendorFields is every field. A supplier's price list is the widest input
-	// the platform accepts: identity, pricing, stock, batch and expiry all in
-	// one sheet.
-	VendorFields *FieldSet
+	// VendorFields is a supplier's own product variants and their stock.
+	//
+	// It used to be nil, meaning "every field the platform knows", and that was
+	// the bug behind a whole class of vendor-import complaints: a supplier was
+	// offered التصنيف, المادة الفعالة and الوصف as mapping targets, mapped a
+	// column to one of them, and then found the import had written nothing —
+	// because those four columns belong to catalog.products, which a vendor
+	// import has not been allowed to touch since master-product creation was
+	// removed from it. A field an importer cannot write is a field its users
+	// must not be asked about.
+	//
+	// What remains is exactly catalog.product_variants plus the stock ledger,
+	// plus the identity columns the match needs in order to find which master
+	// product the row is about. The identity columns are read, never written.
+	VendorFields = NewFieldSet("vendor",
+		// Identity — read to match against the shared catalogue.
+		FieldName, FieldNameEN, FieldSKU, FieldBarcode, FieldProductID,
+		FieldScientific, FieldManufacturer, FieldDosageForm,
+		FieldConcentration, FieldUnit, FieldPackSize,
+		// Pricing — the vendor's own commercial terms.
+		FieldPublicPrice, FieldPrice, FieldNetPrice, FieldCostPrice,
+		FieldDiscountPct, FieldDiscountAmt, FieldBonus,
+		// Stock — the vendor's own holding.
+		FieldQuantity, FieldExpiryDate, FieldBatchNumber,
+		FieldMinOrderQty, FieldMinThreshold, FieldWarehouse, FieldBranch,
+		// Variant attributes, all of them columns on product_variants.
+		FieldStatus, FieldNegotiable, FieldImage, FieldNotes,
+	)
 
 	// CatalogFields is the master catalogue an administrator maintains.
 	//

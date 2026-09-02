@@ -92,38 +92,35 @@ templ CustomerSavingImportModal(lang string) {
 							<div class="stack-sm" id="pharmacy-import-preview-table-container"></div>
 						</div>
 
-						<!-- Match Strategy Selection -->
-       <div class="stack-sm">
-        <label class="form-label">
-								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
-							</label>
-        <div class="stack-sm">
-         <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="name_only" checked />
-          <div class="stack-sm">
-										<strong class="text-body">الاسم فقط</strong>
-									</div>
-								</label>
-         <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="barcode_only" />
-          <div class="stack-sm">
-										<strong class="text-body">الباركود فقط</strong>
-									</div>
-								</label>
-         <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="id_only" />
-          <div class="stack-sm">
-										<strong class="text-body">دواء 24 كود الصنف فقط</strong>
-									</div>
-								</label>
-         <label class="form-label">
-									<input type="radio" name="pharmacy_match_strategy" value="sku_barcode" />
-          <div class="stack-sm">
-										<strong class="text-body">الكود والباركود</strong>
-									</div>
-								</label>
-							</div>
-						</div>
+      <!-- Unified matching settings -->
+      <div class="stack-sm">
+      	<label class="form-label">مطابقة الذكاء الاصطناعي</label>
+      	<label class="form-label">
+      		<input type="checkbox" name="use_ai" value="1" checked/>
+      		<span class="text-body">تفعيل مطابقة الذكاء الاصطناعي للأصناف الصعبة</span>
+      	</label>
+      </div>
+
+      <div class="stack-sm">
+      	<label class="form-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</label>
+      	<input type="number" name="min_match_score" min="25" max="100" value="50" class="form-input"/>
+      </div>
+
+      <div class="stack-sm">
+      	<label class="form-label">المطابقة بالمعرّفات (اختياري)</label>
+      	<label class="form-label">
+      		<input type="checkbox" name="match_by_barcode" value="1"/>
+      		<span class="text-body">عمود الكود يحمل باركود GTIN</span>
+      	</label>
+      	<label class="form-label">
+      		<input type="checkbox" name="match_by_code" value="1"/>
+      		<span class="text-body">المطابقة بعمود كود الصنف</span>
+      	</label>
+      	<label class="form-label">
+      		<input type="checkbox" name="code_is_catalog_code" value="1"/>
+      		<span class="text-body">عمود الكود يحمل أكواد دواء 24 نفسها</span>
+      	</label>
+      </div>
 
       <div class="stack-sm">
 							ℹ️ <strong>معالجة آمنة في الخلفية:</strong> لن يتم حفظ أو تعديل أي صنف في قاعدة البيانات مباشرة؛ ستظهر لك نتائج المطابقة كاملة في الخطوة التالية لمراجعتها والموافقة عليها.
@@ -140,12 +137,14 @@ templ CustomerSavingImportModal(lang string) {
 							تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح
 						</p>
 
-      <div class="stack-sm">
-							<div class="stack-sm" id="pharmacy-progress-bar"></div>
-						</div>
-      <div class="stack-sm">
-							<span id="pharmacy-progress-percent">10%</span>
-							<span id="pharmacy-progress-counter">0 / 0 صنف</span>
+      <div class="wiz-progress">
+							<div class="wiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+								<div class="wiz-progress-fill" id="pharmacy-progress-bar"></div>
+							</div>
+							<div class="wiz-progress-meta">
+								<span id="pharmacy-progress-counter" class="tabular-nums"></span>
+								<span id="pharmacy-progress-percent" class="wiz-progress-percent">0%</span>
+							</div>
 						</div>
 					</div>
 
@@ -219,7 +218,7 @@ templ CustomerSavingImportModal(lang string) {
 							← الرجوع لضبط الأعمدة
 						</button>
 						<button type="button" id="pharmacy-start-btn" class="btn btn-primary" onclick="startPharmacyAsyncImport()">
-							بدء المعالجة والمطابقة الذكية 
+							بدء المعالجة ومطابقة الذكاء الاصطناعي 
 						</button>
 						<button type="button" id="pharmacy-commit-btn" class="btn btn-primary" onclick="commitPharmacyStagedImport()">
 							تأكيد الاستيراد والحفظ النهائي في قائمة التوفير

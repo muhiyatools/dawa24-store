@@ -53,9 +53,12 @@
 	stroke-width: 8;
 	stroke-linecap: round;
 	stroke-dasharray: 326.7;
-	/* The bar only ever advances, and it advances in steps as each stage
-	   finishes. Easing the change stops those steps reading as glitches. */
-	transition: stroke-dashoffset 3200ms linear;
+	/* The ring is driven by the shared import bar, which updates four times a
+	   second and does its own easing. The transition here only smooths the gap
+	   between those frames; it was 3200ms, tuned for a page that reloaded
+	   itself every three seconds, and at that length the ring lagged a second
+	   or more behind the number printed inside it. */
+	transition: stroke-dashoffset 300ms linear;
 }
 .so-ring-label {
 	position: absolute;
@@ -831,7 +834,7 @@
 	stroke-width: 8;
 	stroke-linecap: round;
 	stroke-dasharray: 326.7;
-	transition: stroke-dashoffset 3200ms linear;
+	transition: stroke-dashoffset 300ms linear;
 }
 .so-ring-label {
 	position: absolute;

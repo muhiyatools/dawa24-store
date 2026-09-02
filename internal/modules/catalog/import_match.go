@@ -62,6 +62,30 @@ const similarityFloor = 0.86
 // only where the extra evidence exists.
 const corroboratedFloor = 0.78
 
+// matchFloors turns the administrator's one setting — أقل نسبة مطابقة — into the
+// two floors this importer actually uses.
+//
+// Every import tool on the platform now offers the same control, defaulting to
+// the same 50%, because a setting that means one thing in the vendor import and
+// nothing at all in the admin import is worse than no setting. What differs is
+// what the number buys: here it is the floor for a match the catalogue's own
+// record corroborates — same dose, same pharmaceutical form, no identity
+// conflict — and a match with nothing but the name agreeing still has to clear
+// the far higher bare-name floor. Lowering the setting widens what a
+// corroborated match may be; it never lets an uncorroborated one through.
+//
+// The bare-name floor is never allowed below its constant, whatever the
+// administrator types. That is the one number protecting the row every pharmacy
+// on the platform reads.
+func matchFloors(minScore float64) (bare, corroborated float64) {
+	corroborated = minScore
+	if corroborated <= 0 {
+		corroborated = productmatch.DefaultMinStrong
+	}
+	corroborated = min(max(corroborated, productmatch.DefaultMinReview), 1)
+	return max(similarityFloor, corroborated), corroborated
+}
+
 // aiFloor is the confidence a model must express before its choice is applied.
 //
 // From the shared table rather than a local number, and the shared table sets
@@ -227,8 +251,11 @@ func (s *Service) resolveSimilarMatches(
 		return stats
 	}
 
+	bare, corroborated := matchFloors(session.Options.MinMatchScore)
+
 	opts := productmatch.DefaultMatchOptions()
-	opts.MinStrong = corroboratedFloor
+	opts.MinStrong = corroborated
+	opts.MinReview = min(productmatch.DefaultMinReview, corroborated)
 	opts.MaxCandidates = 5
 
 	var forAI []pendingMatch
@@ -236,7 +263,7 @@ func (s *Service) resolveSimilarMatches(
 		row := matchRowFor(prods[i])
 		res := index.Match(row, opts)
 		switch {
-		case res.Matched() && acceptsUpdate(index, row, res):
+		case res.Matched() && acceptsUpdate(index, row, res, bare, corroborated):
 			matches[i] = ExistingMatch{ProductID: res.ProductID, Reason: MatchSimilar}
 			stats.Similar++
 		case len(res.Candidates) > 0:
@@ -283,7 +310,10 @@ func (s *Service) resolveSimilarMatches(
 //
 // Ambiguity is refused in every case. Two products that fit equally well is not
 // a weaker match; it is a question, and the review screen exists to ask it.
-func acceptsUpdate(index *productmatch.Index, row *productmatch.Row, res productmatch.MatchResult) bool {
+func acceptsUpdate(
+	index *productmatch.Index, row *productmatch.Row, res productmatch.MatchResult,
+	bare, corroborated float64,
+) bool {
 	if res.Level == productmatch.MatchAmbiguous {
 		return false
 	}
@@ -291,10 +321,10 @@ func acceptsUpdate(index *productmatch.Index, row *productmatch.Row, res product
 		res.Level == productmatch.MatchExact {
 		return true
 	}
-	if res.Score >= similarityFloor {
+	if res.Score >= bare {
 		return true
 	}
-	if res.Score < corroboratedFloor {
+	if res.Score < corroborated {
 		return false
 	}
 	return index.IdentityConflict(row, res.ProductID).None()

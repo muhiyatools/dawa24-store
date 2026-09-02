@@ -2,12 +2,19 @@ package ingest
 
 import (
 	"testing"
+
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 func TestCatalogImportSettingsMinScore(t *testing.T) {
 	s := DefaultSettings()
-	if s.MinMatchScore != 0.40 {
-		t.Fatalf("DefaultSettings().MinMatchScore = %v, want 0.40", s.MinMatchScore)
+	if s.MinMatchScore != productmatch.DefaultMinStrong {
+		t.Fatalf("DefaultSettings().MinMatchScore = %v, want the shared default %v",
+			s.MinMatchScore, productmatch.DefaultMinStrong)
+	}
+	// The shared default is the unified control every import tool starts on.
+	if productmatch.DefaultMinStrong != 0.50 {
+		t.Fatalf("shared default is %v, want 0.50", productmatch.DefaultMinStrong)
 	}
 
 	// A vendor's own threshold is preserved as long as it is at or above the
@@ -24,10 +31,11 @@ func TestCatalogImportSettingsMinScore(t *testing.T) {
 		t.Fatalf("Normalize() on 0.05 gave %v, want the 0.25 review floor", tooLow.MinMatchScore)
 	}
 
-	// Test zero defaults to 0.40
+	// Test zero defaults to the shared default
 	zeroSetting := Settings{}.Normalize()
-	if zeroSetting.MinMatchScore != 0.40 {
-		t.Fatalf("Normalize() on zero score gave %v, want 0.40", zeroSetting.MinMatchScore)
+	if zeroSetting.MinMatchScore != productmatch.DefaultMinStrong {
+		t.Fatalf("Normalize() on zero score gave %v, want %v",
+			zeroSetting.MinMatchScore, productmatch.DefaultMinStrong)
 	}
 }
 

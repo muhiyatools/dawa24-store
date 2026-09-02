@@ -417,6 +417,20 @@
 	width: 35%;
 	animation: wiz-progress-slide 1.4s ease-in-out infinite;
 }
+/* A run that stopped. The bar keeps whatever width it had reached: zeroing it
+   implies the work never started, filling it implies it finished, and the
+   reader needs to know how far it got before it failed. */
+.wiz-progress-fill.is-failed {
+	background: var(--danger);
+	animation: none;
+}
+/* The numeric percentage. Every import bar carries one; a bar without a number
+   answers "is it working?" and never "how much longer?". */
+.wiz-progress-percent {
+	font-variant-numeric: tabular-nums;
+	font-weight: 800;
+	color: var(--text-primary);
+}
 @keyframes wiz-progress-slide {
 	0% { margin-inline-start: -35%; }
 	100% { margin-inline-start: 100%; }

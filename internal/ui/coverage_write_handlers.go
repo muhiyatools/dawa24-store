@@ -158,10 +158,14 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	distanceMeters, _ := strconv.Atoi(r.PostFormValue("distance_meters"))
-	if distanceMeters <= 0 {
-		distanceMeters = 5000 // default 5km from city center
-	}
+	// The vendor no longer states a radius. Coverage is the city's own extent,
+	// configured per city and applied automatically when the city is selected —
+	// see platform_admin migration 167. What the vendor decides is WHICH cities
+	// they cover and on which days, which is the question they can answer.
+	//
+	// The fallback below is only reached by the single-record path, where no
+	// city was selected at all and the coverage is a bare point on the map.
+	const pointCoverageMeters = platformadmin.DefaultCoverageRadiusMeters
 
 	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on" || r.PostFormValue("is_active") == "1" || r.PostFormValue("is_active") == ""
 	fromTime := workflow.TimeOfDay(r.PostFormValue("coverage_from"))
@@ -176,10 +180,11 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 			lat := city.Latitude
 			lon := city.Longitude
 
-			// Read city-specific timing and radius override if provided:
+			// Per-city delivery hours stay the vendor's to set: a distributor
+			// really does reach المنصورة in the morning and طنطا after noon.
+			// The radius does not — it is a property of the place.
 			cityFromStr := strings.TrimSpace(r.PostFormValue(fmt.Sprintf("coverage_from_%d", city.ID)))
 			cityToStr := strings.TrimSpace(r.PostFormValue(fmt.Sprintf("coverage_to_%d", city.ID)))
-			cityDistStr := strings.TrimSpace(r.PostFormValue(fmt.Sprintf("distance_meters_%d", city.ID)))
 
 			cFromTime := fromTime
 			if cityFromStr != "" {
@@ -189,10 +194,7 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 			if cityToStr != "" {
 				cToTime = workflow.TimeOfDay(cityToStr)
 			}
-			cDistance := distanceMeters
-			if d, err := strconv.Atoi(cityDistStr); err == nil && d > 0 {
-				cDistance = d
-			}
+			cDistance := city.NormalizedRadius()
 
 			for _, day := range daysToCreate {
 				newCoverages = append(newCoverages, &workflow.WeeklyCoverage{
@@ -247,7 +249,7 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 				Address:        address,
 				Latitude:       latVal,
 				Longitude:      lngVal,
-				DistanceMeters: distanceMeters,
+				DistanceMeters: pointCoverageMeters,
 				IsActive:       isActive,
 			})
 		}

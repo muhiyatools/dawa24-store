@@ -51,6 +51,45 @@ type City struct {
 	Longitude       float64    `json:"longitude"`
 	IsActive        bool       `json:"is_active"`
 	IsCapital       bool       `json:"is_capital"`
+	// CoverageRadiusMeters is how far from this city's centre a delivery is
+	// still considered to be inside it.
+	//
+	// It belongs to the city rather than to any vendor. Coverage used to be a
+	// single figure a distributor typed once and had applied to every city they
+	// selected — five kilometres by default, which reaches four unrelated
+	// districts from the centre of حدائق الزيتون and nothing but desert from the
+	// centre of أبو سمبل. Nobody can hand-size three hundred and fifty places,
+	// so in practice every coverage row carried the default and coverage meant
+	// nothing. See migration 167 for how the values are derived.
+	CoverageRadiusMeters int `json:"coverage_radius_meters"`
+}
+
+// Coverage bounds, stated once. They are the same numbers migration 167 clamps
+// to, restated here because a value arriving from an admin form has not been
+// through that migration.
+const (
+	// MinCoverageRadiusMeters is the smallest useful delivery radius: below it a
+	// vendor covering a district would miss the far side of it.
+	MinCoverageRadiusMeters = 1500
+	// MaxCoverageRadiusMeters is where a single circle stops being a city. A
+	// vendor who needs more than this should be selecting more cities.
+	MaxCoverageRadiusMeters = 50000
+	// DefaultCoverageRadiusMeters applies to a city with no coordinates, which
+	// is the one country-level row the table carries.
+	DefaultCoverageRadiusMeters = 3000
+)
+
+// NormalizedRadius clamps a submitted radius into the range the column accepts.
+func (c City) NormalizedRadius() int {
+	if c.CoverageRadiusMeters <= 0 {
+		return DefaultCoverageRadiusMeters
+	}
+	return min(max(c.CoverageRadiusMeters, MinCoverageRadiusMeters), MaxCoverageRadiusMeters)
+}
+
+// CoverageRadiusKM renders the radius the way a coverage screen states it.
+func (c City) CoverageRadiusKM() float64 {
+	return float64(c.NormalizedRadius()) / 1000
 }
 
 // Validate ensures setting keys are non-empty.

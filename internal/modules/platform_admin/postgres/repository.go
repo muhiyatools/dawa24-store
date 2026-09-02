@@ -236,7 +236,7 @@ func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platfo
 	var list []*platformadmin.City
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false)
+			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false), COALESCE(c.coverage_radius_meters, 3000)
 			FROM platform_admin.cities c
 			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
 			WHERE (c.country_id = $1 OR $1 = 0) AND c.is_active = true
@@ -251,7 +251,7 @@ func (r *Repository) ListCities(ctx context.Context, countryID int64) ([]*platfo
 		for rows.Next() {
 			var c platformadmin.City
 			var govName *i18n.Text
-			if err := rows.Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital); err != nil {
+			if err := rows.Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital, &c.CoverageRadiusMeters); err != nil {
 				return err
 			}
 			c.GovernorateName = govName
@@ -267,7 +267,7 @@ func (r *Repository) ListAllCities(ctx context.Context, countryID int64) ([]*pla
 	var list []*platformadmin.City
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false)
+			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false), COALESCE(c.coverage_radius_meters, 3000)
 			FROM platform_admin.cities c
 			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
 			WHERE (c.country_id = $1 OR $1 = 0)
@@ -282,7 +282,7 @@ func (r *Repository) ListAllCities(ctx context.Context, countryID int64) ([]*pla
 		for rows.Next() {
 			var c platformadmin.City
 			var govName *i18n.Text
-			if err := rows.Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital); err != nil {
+			if err := rows.Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital, &c.CoverageRadiusMeters); err != nil {
 				return err
 			}
 			c.GovernorateName = govName
@@ -298,7 +298,7 @@ func (r *Repository) ListCitiesByGovernorate(ctx context.Context, governorateID 
 	var list []*platformadmin.City
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false)
+			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false), COALESCE(c.coverage_radius_meters, 3000)
 			FROM platform_admin.cities c
 			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
 			WHERE c.governorate_id = $1
@@ -313,7 +313,7 @@ func (r *Repository) ListCitiesByGovernorate(ctx context.Context, governorateID 
 		for rows.Next() {
 			var c platformadmin.City
 			var govName *i18n.Text
-			if err := rows.Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital); err != nil {
+			if err := rows.Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital, &c.CoverageRadiusMeters); err != nil {
 				return err
 			}
 			c.GovernorateName = govName
@@ -330,12 +330,12 @@ func (r *Repository) GetCity(ctx context.Context, id int64) (*platformadmin.City
 	var govName *i18n.Text
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false)
+			SELECT c.id, c.country_id, c.governorate_id, g.name, c.name, COALESCE(c.latitude, 0.0), COALESCE(c.longitude, 0.0), c.is_active, COALESCE(c.is_capital, false), COALESCE(c.coverage_radius_meters, 3000)
 			FROM platform_admin.cities c
 			LEFT JOIN platform_admin.governorates g ON g.id = c.governorate_id
 			WHERE c.id = $1;
 		`
-		return tx.QueryRow(txCtx, query, id).Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital)
+		return tx.QueryRow(txCtx, query, id).Scan(&c.ID, &c.CountryID, &c.GovernorateID, &govName, &c.Name, &c.Latitude, &c.Longitude, &c.IsActive, &c.IsCapital, &c.CoverageRadiusMeters)
 	})
 	if err != nil {
 		return nil, err

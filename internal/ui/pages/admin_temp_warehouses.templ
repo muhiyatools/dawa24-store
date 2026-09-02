@@ -62,9 +62,29 @@ type AdminTempWarehousesData struct {
 	Page           int
 	PerPage        int
 	Uploaders      []AdminTempWarehouseUploader
+	// TeamView renders the "مستودعات المشرفين تحت إدارتي" variant: the uploads
+	// of the moderators reporting to the signed-in main moderator, and only
+	// those. It reuses MineOnly's chrome — no cross-account scope tabs — but
+	// swaps the uploader filter for the team roster.
+	TeamView bool
+	// TeamSize is how many moderators report to the caller, so the empty state
+	// can distinguish "you lead nobody yet" from "your team has uploaded
+	// nothing", which are different things to do something about.
+	TeamSize    int
+	TeamMembers []TeamModerator
+}
+
+// TeamModerator is one moderator on a main moderator's roster.
+type TeamModerator struct {
+	UserID int64
+	Name   string
+	Email  string
 }
 
 func tempWarehousesShellTitle(data *AdminTempWarehousesData) string {
+	if data.TeamView {
+		return "مستودعات المشرفين تحت إدارتي"
+	}
 	if data.MineOnly {
 		return "مستودعاتي المرفوعة"
 	}
@@ -72,6 +92,9 @@ func tempWarehousesShellTitle(data *AdminTempWarehousesData) string {
 }
 
 func tempWarehousesNavKey(data *AdminTempWarehousesData) string {
+	if data.TeamView {
+		return "team_temp_warehouses"
+	}
 	if data.MineOnly {
 		return "my_temp_warehouses"
 	}
@@ -531,7 +554,9 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							</div>
 							<div>
 								<h1 class="text-2xl font-black text-primary m-0">
-									if data.MineOnly {
+									if data.TeamView {
+										مستودعات المشرفين تحت إدارتي
+									} else if data.MineOnly {
 										مستودعاتي المرفوعة
 									} else {
 										قوائم المستودعات المؤقتة
@@ -543,7 +568,11 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							</div>
 						</div>
 						<p class="text-sm text-secondary m-0 mt-1.5 leading-relaxed max-w-3xl">
-							تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.
+							if data.TeamView {
+								{ fmt.Sprintf("مستودعات %d مشرف يعملون تحت إدارتك. لا تظهر هنا مستودعاتك أنت — لها صفحة «مستودعاتي المرفوعة» — ولا مستودعات أي مشرف خارج فريقك.", data.TeamSize) }
+							} else {
+								تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.
+							}
 						</p>
 					</div>
 
@@ -569,6 +598,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								<span>مستودعات البائعين (أداة المقارنة)</span>
 							</a>
 						}
+						if !data.TeamView {
 						<button
 							type="button"
 							@click="uploadModal = true"
@@ -576,6 +606,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						>
 							<span>رفع الملفات وسجل الأخطاء</span>
 						</button>
+						}
 					</div>
 				</div>
 			</div>
@@ -657,7 +688,16 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						</div>
 					</div>
 
-					if !data.MineOnly && len(data.Uploaders) > 0 {
+					if data.TeamView && len(data.TeamMembers) > 0 {
+						<select name="uploader" class="form-input text-sm h-10 rounded-lg min-w-56">
+							<option value="">كل المشرفين تحت إدارتي</option>
+							for _, m := range data.TeamMembers {
+								<option value={ fmt.Sprintf("%d", m.UserID) } selected?={ data.UploaderFilter == fmt.Sprintf("%d", m.UserID) }>
+									{ m.Name }
+								</option>
+							}
+						</select>
+					} else if !data.MineOnly && len(data.Uploaders) > 0 {
 						<select name="uploader" class="form-input text-sm h-10 rounded-lg min-w-56">
 							<option value="">كل المشرفين والبائعين</option>
 							for _, u := range data.Uploaders {

@@ -85,18 +85,18 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 		},
 	}
 
+	// One line, not four paragraphs. The description used to explain the
+	// request batching, the candidate shortlisting and the per-request row
+	// count — accurate, and nothing an administrator deciding whether to tick a
+	// box needs to read. It is a feature, not a whitepaper.
 	ai := ImportToggle{
 		Name: "use_ai", Icon: "🤖",
-		Title: i18n.T("ar", "wizard.opt.use_ai_title"),
-		Description: i18n.TDefault("w4_ui.w4str_39_39") +
-			i18n.TDefault("w4_ui.w4str_40_40") +
-			i18n.TDefault("w4_ui.w4str_41_41") +
-			i18n.TDefault("w4_ui.w4str_42_42"),
+		Title:   i18n.T("ar", "wizard.opt.use_ai_title"),
 		Checked: opts.UseAI && aiAvailable,
-		Note:    i18n.T("ar", "wizard.opt.use_ai_note_optional"),
 	}
 	if !aiAvailable {
 		ai.Disabled = true
+		ai.Checked = false
 		ai.Note = i18n.T("ar", "wizard.opt.use_ai_note_unavailable")
 	}
 	return append(toggles, ai)

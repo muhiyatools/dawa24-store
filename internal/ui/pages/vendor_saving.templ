@@ -573,37 +573,34 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							<div class="stack-sm" id="vendor-import-preview-table-container"></div>
 						</div>
 
-						<!-- Match Strategy Selection -->
-						<div class="stack-sm" >
-							<label class="form-label" >
-								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
+						<!-- Unified matching settings -->
+						<div class="stack-sm">
+							<label class="form-label">مطابقة الذكاء الاصطناعي</label>
+							<label class="form-label">
+								<input type="checkbox" name="use_ai" value="1" checked/>
+								<span class="text-body">تفعيل مطابقة الذكاء الاصطناعي للأصناف الصعبة</span>
 							</label>
-							<div class="stack-sm" >
-								<label class="form-label" >
-									<input type="radio" name="vendor_match_strategy" value="name_only" checked  />
-									<div class="stack-sm">
-										<strong class="text-body">الاسم فقط</strong>
-									</div>
-								</label>
-								<label class="form-label" >
-									<input type="radio" name="vendor_match_strategy" value="barcode_only"  />
-									<div class="stack-sm">
-										<strong class="text-body">الباركود فقط</strong>
-									</div>
-								</label>
-								<label class="form-label" >
-									<input type="radio" name="vendor_match_strategy" value="id_only"  />
-									<div class="stack-sm">
-										<strong class="text-body">دواء 24 كود الصنف فقط</strong>
-									</div>
-								</label>
-								<label class="form-label" >
-									<input type="radio" name="vendor_match_strategy" value="sku_barcode"  />
-									<div class="stack-sm">
-										<strong class="text-body">الكود والباركود</strong>
-									</div>
-								</label>
-							</div>
+						</div>
+
+						<div class="stack-sm">
+							<label class="form-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</label>
+							<input type="number" name="min_match_score" min="25" max="100" value="50" class="form-input"/>
+						</div>
+
+						<div class="stack-sm">
+							<label class="form-label">المطابقة بالمعرّفات (اختياري)</label>
+							<label class="form-label">
+								<input type="checkbox" name="match_by_barcode" value="1"/>
+								<span class="text-body">عمود الكود يحمل باركود GTIN</span>
+							</label>
+							<label class="form-label">
+								<input type="checkbox" name="match_by_code" value="1"/>
+								<span class="text-body">المطابقة بعمود كود الصنف</span>
+							</label>
+							<label class="form-label">
+								<input type="checkbox" name="code_is_catalog_code" value="1"/>
+								<span class="text-body">عمود الكود يحمل أكواد دواء 24 نفسها</span>
+							</label>
 						</div>
 
 						<div class="stack-sm" >
@@ -622,12 +619,14 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح
 						</p>
 
-						<div class="stack-sm" >
-							<div class="stack-sm" id="vendor-progress-bar" ></div>
-						</div>
-						<div class="stack-sm" >
-							<span id="vendor-progress-percent">10%</span>
-							<span id="vendor-progress-counter">0 / 0 صنف</span>
+						<div class="wiz-progress">
+							<div class="wiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+								<div class="wiz-progress-fill" id="vendor-progress-bar"></div>
+							</div>
+							<div class="wiz-progress-meta">
+								<span id="vendor-progress-counter" class="tabular-nums"></span>
+								<span id="vendor-progress-percent" class="wiz-progress-percent">0%</span>
+							</div>
 						</div>
 					</div>
 
@@ -701,7 +700,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							← الرجوع لضبط الأعمدة
 						</button>
 						<button type="button" id="vendor-start-btn" class="btn btn-primary"  onclick="startVendorAsyncImport()">
-							بدء المعالجة والمطابقة الذكية 
+							بدء المعالجة ومطابقة الذكاء الاصطناعي 
 						</button>
 						<button type="button" id="vendor-commit-btn" class="btn btn-primary"  onclick="commitVendorStagedImport()">
 							تأكيد الاستيراد والحفظ النهائي في قائمة المنتجات

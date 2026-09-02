@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // DefaultCriteria is applied when the buyer enables nothing.
@@ -40,7 +41,12 @@ type Config struct {
 	MaxBudget         *money.Amount `json:"max_budget,omitempty"`
 	UseSavingProducts bool          `json:"use_saving_products"`
 	UseAIMatching     bool          `json:"use_ai_matching"`
-	MatchLanguage     string        `json:"match_language,omitempty"`
+	// MinMatchScore is the shared أقل نسبة مطابقة control, 0–1. It decides what
+	// the scorer offers for review; pipeline.Cutoff decides what is bought
+	// unasked and is deliberately not configurable. Zero means the platform
+	// default.
+	MinMatchScore float64 `json:"min_match_score,omitempty"`
+	MatchLanguage string  `json:"match_language,omitempty"`
 
 	// CriteriaDefaulted records that the buyer enabled nothing and DefaultCriteria
 	// was applied, so the results screen can say so rather than implying the
@@ -56,6 +62,7 @@ type Profile struct {
 	DefaultQuantity   int         `json:"default_quantity"`
 	UseSavingProducts bool        `json:"use_saving_products"`
 	UseAIMatching     bool        `json:"use_ai_matching"`
+	MinMatchScore     float64     `json:"min_match_score,omitempty"`
 	MatchLanguage     string      `json:"match_language,omitempty"`
 	LastBranchID      *int64      `json:"last_branch_id,omitempty"`
 }
@@ -72,6 +79,7 @@ func NewConfig(runID, orgID int64, p Profile, maxBudget *money.Amount) (*Config,
 		MaxBudget:         maxBudget,
 		UseSavingProducts: p.UseSavingProducts,
 		UseAIMatching:     p.UseAIMatching,
+		MinMatchScore:     p.MinMatchScore,
 		MatchLanguage:     p.MatchLanguage,
 	}
 	if len(c.Criteria) == 0 {
@@ -81,6 +89,10 @@ func NewConfig(runID, orgID int64, p Profile, maxBudget *money.Amount) (*Config,
 	if c.TolerancePct == 0 {
 		c.TolerancePct = DefaultTolerancePct
 	}
+	if c.MinMatchScore <= 0 {
+		c.MinMatchScore = productmatch.DefaultMinStrong
+	}
+	c.MinMatchScore = min(max(c.MinMatchScore, productmatch.DefaultMinReview), 1)
 	if err := c.Validate(); err != nil {
 		return nil, err
 	}

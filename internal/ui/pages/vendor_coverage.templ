@@ -21,6 +21,12 @@ type VendorCoverageData struct {
 	NoticeMessage       string
 }
 
+// cityClientItem is what the selector needs about one city.
+//
+// RadiusM is the city's own configured coverage. It used to be absent, because
+// the radius was a single number the vendor typed for every city at once; it is
+// now a property of the place and the selector shows it so a vendor can see
+// what selecting a city actually commits them to. See migration 167.
 type cityClientItem struct {
 	ID        int64   `json:"id"`
 	GovID     int64   `json:"gov_id"`
@@ -29,6 +35,7 @@ type cityClientItem struct {
 	Lat       float64 `json:"lat"`
 	Lon       float64 `json:"lon"`
 	IsCapital bool    `json:"is_capital"`
+	RadiusM   int     `json:"radius_m"`
 }
 
 func citiesToJSON(cities []*platformadmin.City) string {
@@ -46,6 +53,7 @@ func citiesToJSON(cities []*platformadmin.City) string {
 			Lat:       c.Latitude,
 			Lon:       c.Longitude,
 			IsCapital: c.IsCapital,
+			RadiusM:   c.NormalizedRadius(),
 		})
 	}
 	b, err := json.Marshal(list)
@@ -153,7 +161,6 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 			selectedCities: [],
 			allCitiesInGov: false,
 			citySearch: '',
-			distanceMeters: 5000,
 			coverageFrom: '09:00',
 			coverageTo: '17:00',
 			allCitiesList: [],
@@ -165,7 +172,6 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				governorate_id: '',
 				city_id: '',
 				day_of_week: 0,
-				distance_meters: 5000,
 				coverage_from: '',
 				coverage_to: '',
 				address: '',
@@ -237,8 +243,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				if (!this.cityConfigs[idStr]) {
 					this.cityConfigs[idStr] = {
 						from: this.coverageFrom || '09:00',
-						to: this.coverageTo || '17:00',
-						distance: this.distanceMeters || 5000
+						to: this.coverageTo || '17:00'
 					};
 				}
 				return this.cityConfigs[idStr];
@@ -247,8 +252,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				this.selectedCities.forEach(idStr => {
 					this.cityConfigs[idStr] = {
 						from: this.coverageFrom || '09:00',
-						to: this.coverageTo || '17:00',
-						distance: this.distanceMeters || 5000
+						to: this.coverageTo || '17:00'
 					};
 				});
 			},
@@ -278,9 +282,10 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 					this.selectedCities.forEach(idStr => this.initCityConfig(idStr));
 				}
 			},
-			setDistance(d) {
-				this.distanceMeters = d;
-				this.applyDefaultsToAllCities();
+			totalCoverageKm() {
+				return this.getSelectedCityDetails()
+					.reduce((sum, c) => sum + ((c.radius_m || 0) / 1000), 0)
+					.toFixed(1);
 			},
 			setTimePreset(from, to) {
 				this.coverageFrom = from;
@@ -335,7 +340,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 						</h1>
 					</div>
 					<p class="text-sm text-secondary m-0 max-w-2xl">
-						حدد المحافظات والمدن والمراكز التي يتنقل إليها أسطول التوزيع الخاص بك على مدار أيام الأسبوع، مع تخصيص المواعيد ونصف قطر التغطية لكل مدينة على حدة بالسير من إحداثيات مركزها الجغرافي.
+						حدد المحافظات والمدن التي يتنقل إليها أسطول التوزيع الخاص بك على مدار أيام الأسبوع. نطاق التغطية لكل مدينة معتمد مسبقاً حسب حدودها الجغرافية الفعلية ويُطبَّق تلقائياً عند اختيارها.
 					</p>
 				</div>
 				<a href="#builder-section" class="btn btn-primary font-bold gap-2">
@@ -376,7 +381,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 							<span>منشئ التغطية الأسبوعية الهرمية (المحافظات والمدن)</span>
 						</h2>
 						<p class="text-xs text-muted mt-1 m-0">
-							اختر أيام الأسبوع، ثم حدد المحافظة والمدن المستهدفة لتخصيص المواعيد ونصف القطر بالمتر لكل مدينة على حدة.
+							اختر أيام الأسبوع، ثم حدد المحافظة والمدن المستهدفة. يُطبَّق نطاق التغطية المعتمد لكل مدينة تلقائياً.
 						</p>
 					</div>
 				</div>
@@ -530,6 +535,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 										<div class="font-bold text-sm text-primary" x-text="c.name_ar"></div>
 										<div class="text-xs text-muted" x-text="c.name_en"></div>
 									</div>
+									<span class="badge badge-slate badge-compact" x-text="((c.radius_m || 0) / 1000).toFixed(1) + ' كم'"></span>
 									<span x-show="c.is_capital" class="badge badge-amber badge-compact">عاصمة</span>
 								</label>
 							</template>
@@ -539,30 +545,12 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 						</div>
 					</div>
 
-					<!-- Step 4: General Radius & Timing Configurations -->
+					<!-- Step 4: Delivery hours. The radius is the city's own and is not
+					     a vendor setting; it used to be a single number typed here and
+					     applied to every selected city at once, which is how a five
+					     kilometre default came to cover four unrelated districts from
+					     the centre of one. -->
 					<div class="d-grid gap-4" class="grid-auto-fit-md">
-						<!-- Radius in Meters -->
-						<div class="bg-surface-sunken p-5 rounded-xl border">
-							<label class="d-block text-xs font-bold mb-2 text-primary">
-								نصف قطر التغطية الافتراضي (بالمتر)
-							</label>
-							<div class="d-flex items-center gap-2 mb-3">
-								<input type="number" name="distance_meters" x-model="distanceMeters" min="1" max="1000000" step="1" class="form-control font-bold text-md w-36" required/>
-								<span class="font-bold text-xs text-muted">متر</span>
-								<span class="badge badge-primary text-xs" x-text="(distanceMeters / 1000).toFixed(1) + ' كم'"></span>
-							</div>
-
-							<!-- Quick Presets -->
-							<div class="d-flex flex-wrap gap-1">
-								<button type="button" @click="setDistance(1000)" class="btn btn-2xs btn-secondary">1 كم</button>
-								<button type="button" @click="setDistance(3000)" class="btn btn-2xs btn-secondary">3 كم</button>
-								<button type="button" @click="setDistance(5000)" class="btn btn-2xs btn-secondary">5 كم (قياسي)</button>
-								<button type="button" @click="setDistance(10000)" class="btn btn-2xs btn-secondary">10 كم</button>
-								<button type="button" @click="setDistance(25000)" class="btn btn-2xs btn-secondary">25 كم</button>
-								<button type="button" @click="setDistance(50000)" class="btn btn-2xs btn-secondary">50 كم</button>
-							</div>
-						</div>
-
 						<!-- Time Window -->
 						<div class="bg-surface-sunken p-5 rounded-xl border">
 							<label class="d-block text-xs font-bold mb-2 text-primary">
@@ -588,16 +576,16 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 						</div>
 					</div>
 
-					<!-- Step 5: Per-City Timing & Radius Customization Grid -->
+					<!-- Step 5: Per-city delivery hours -->
 					<div class="stack-sm" x-show="selectedCities.length > 0" class="bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4">
 						<div class="flex-between items-center flex-wrap gap-3">
        <div class="stack-sm">
 								<h3 class="text-sm font-extrabold text-primary m-0 d-flex items-center gap-2">
 									<span>⏱️</span>
-									<span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span>
+									<span>مواعيد التوصيل لكل مدينة محددة</span>
 								</h3>
 								<p class="text-xs text-muted m-0 mt-1">
-									يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.
+									نطاق التغطية لكل مدينة معتمد مسبقاً حسب حدودها الجغرافية ويُطبَّق تلقائياً. ما تحدده هنا هو مواعيد التوصيل فقط.
 								</p>
 							</div>
 							<button type="button" @click="applyDefaultsToAllCities()" class="btn btn-xs btn-secondary font-bold">
@@ -628,10 +616,10 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 									</div>
 
          <div class="stack-sm">
-										<label class="d-block text-xs font-semibold text-muted mb-1">نصف قطر التغطية (بالمتر من مركز المدينة):</label>
+										<label class="d-block text-xs font-semibold text-muted mb-1">نطاق التغطية المعتمد لهذه المدينة:</label>
 										<div class="d-flex items-center gap-2">
-											<input type="number" :name="'distance_meters_' + c.id" x-model="initCityConfig(String(c.id)).distance" min="1" max="1000000" step="1" class="form-control text-xs font-bold flex-1"/>
-											<span class="badge badge-primary text-xs" x-text="((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + ' كم'"></span>
+											<span class="badge badge-primary text-xs" x-text="((c.radius_m || 0) / 1000).toFixed(1) + ' كم من مركز المدينة'"></span>
+											<span class="text-xs text-muted">يُطبَّق تلقائياً حسب حدود المدينة</span>
 										</div>
 									</div>
 								</div>

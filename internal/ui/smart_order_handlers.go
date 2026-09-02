@@ -138,6 +138,7 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 		MaxBudget:         budget,
 		UseSavingProducts: r.FormValue("use_saving_products") != "",
 		UseAIMatching:     r.FormValue("use_ai_matching") != "",
+		MinMatchScore:     formMatchScore(r, "min_match_score"),
 	})
 	if err != nil {
 		h.smartOrderFail(w, r, translateSmartOrderError(err, lang))

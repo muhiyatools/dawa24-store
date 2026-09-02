@@ -38,12 +38,8 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 	colSKU := strings.TrimSpace(r.FormValue("col_sku"))
 	colQty := strings.TrimSpace(r.FormValue("col_qty"))
 	colPrice := strings.TrimSpace(r.FormValue("col_price"))
-	stratStr := strings.TrimSpace(r.FormValue("match_strategy"))
-	useAI := r.FormValue("use_ai") == "1" || r.FormValue("use_ai") == "on"
-	if stratStr == "" {
-		stratStr = string(StrategySmartAuto)
-	}
-	strat := MatchStrategy(stratStr)
+	matchChoice := ParseMatchChoice(r)
+	useAI := ParseUseAI(r)
 
 	nCol, sCol, qCol, pCol := -1, -1, -1, -1
 	for idx, hName := range session.Headers {
@@ -62,7 +58,7 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 	}
 
 	var matchEngine *SavingProductMatchEngine
-	if strat != "none" && h.catSvc != nil {
+	if h.catSvc != nil {
 		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
 			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
@@ -116,8 +112,8 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 		masterName := ""
 		masterSKU := ""
 
-		if matchEngine != nil && strat != "none" {
-			res := matchEngine.Match(strat, nil, sku, name)
+		if matchEngine != nil {
+			res := matchEngine.MatchUnified(matchChoice, nil, sku, name)
 			if res.ProductID != nil {
 				productID = res.ProductID
 				matchType = res.MatchType

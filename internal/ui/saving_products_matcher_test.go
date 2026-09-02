@@ -108,24 +108,49 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		}
 	})
 
-	t.Run("Fuzzy Similarity Match for Pharmacy Description", func(t *testing.T) {
-		// Input: "فيم فريش غسول انتميت سكير 250 مل"
+	t.Run("Borderline description is held for review, not applied", func(t *testing.T) {
+		// Input:   "فيم فريش غسول انتميت سكير 250 مل"
 		// Catalog: "فيم فريش غسول يومي للمناطق الحساسة 250 مل"
-		res := engine.Match(StrategySmartAuto, nil, "INTERNAL-1234", "فيم فريش غسول انتميت سكير 250 مل")
+		//
+		// Three of six identifying words shared, no concentration and no dosage
+		// form to corroborate either way. The shared scorer puts it at 0.41,
+		// which is exactly the band the platform's 50% default exists to keep
+		// out of a pharmacy's list without a human looking at it: plausible,
+		// and not the same product often enough to apply silently.
+		//
+		// It used to be applied, because the default was 40%. The row is still
+		// scored, still shown and still one click from being accepted.
+		res := engine.MatchUnified(DefaultMatchChoice(), nil, "INTERNAL-1234", "فيم فريش غسول انتميت سكير 250 مل")
+		if res.ProductID != nil {
+			t.Fatalf("borderline row was applied at the default threshold: %v (%.4f)",
+				*res.ProductID, res.Confidence)
+		}
+
+		// A pharmacy that wants the wider net can have it: the threshold is the
+		// one control, and lowering it changes this row and nothing else.
+		wide := DefaultMatchChoice()
+		wide.MinScore = 0.40
+		res = engine.MatchUnified(wide, nil, "INTERNAL-1234", "فيم فريش غسول انتميت سكير 250 مل")
 		if res.ProductID == nil || *res.ProductID != 104 {
-			t.Fatalf("expected product 104, got %v", res.ProductID)
+			t.Fatalf("expected product 104 at a 40%% threshold, got %v", res.ProductID)
 		}
-		// The old engine reported 0.75+ from a Levenshtein-and-token blend; this
-		// one reports the shared scorer's rarity-weighted score, and the two are
-		// not on the same scale. What is asserted is that the engine settled it
-		// — two of four distinctive words shared, with the concentration and the
-		// dosage form both corroborating — rather than a figure carried across
-		// from a different measurement.
-		if res.MatchType == "unlinked" {
-			t.Errorf("expected a settled match, got %s", res.MatchType)
+	})
+
+	t.Run("Identifier tiers are off unless switched on", func(t *testing.T) {
+		// The default choice consults the name and nothing else. A pharmacy's
+		// internal item number in the code column must not settle a match.
+		if res := engine.MatchUnified(DefaultMatchChoice(), nil, "PAN-24", "اسم عشوائي مختلف"); res.ProductID != nil {
+			t.Fatalf("code tier ran without being switched on: %v", *res.ProductID)
 		}
-		if res.Confidence <= 0 {
-			t.Errorf("expected a positive confidence, got %f", res.Confidence)
+		byCode := DefaultMatchChoice()
+		byCode.ByCode, byCode.CodeIsCatalogCode = true, true
+		if res := engine.MatchUnified(byCode, nil, "PAN-24", "اسم عشوائي مختلف"); res.ProductID == nil || *res.ProductID != 101 {
+			t.Fatalf("code tier did not run once switched on: %v", res.ProductID)
+		}
+		byBarcode := DefaultMatchChoice()
+		byBarcode.ByBarcode = true
+		if res := engine.MatchUnified(byBarcode, nil, "6221234567890", ""); res.ProductID == nil || *res.ProductID != 101 {
+			t.Fatalf("barcode tier did not run once switched on: %v", res.ProductID)
 		}
 	})
 

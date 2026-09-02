@@ -132,6 +132,10 @@ func TestVendorCoverageRoutes(t *testing.T) {
 			IsActive:       true,
 		}
 
+		// No distance_meters. The vendor does not set a radius any more: it
+		// belongs to the city and is applied from platform_admin.cities. A form
+		// that still posts one must be ignored rather than honoured, or the
+		// setting is only nominally removed.
 		form := url.Values{
 			"branch_id":       {"100"},
 			"day_of_week":     {"4"},
@@ -152,8 +156,12 @@ func TestVendorCoverageRoutes(t *testing.T) {
 		if wfRepo.coverages[1].DayOfWeek != 4 {
 			t.Errorf("want DayOfWeek 4, got %d", wfRepo.coverages[1].DayOfWeek)
 		}
-		if wfRepo.coverages[1].DistanceMeters != 50000 {
-			t.Errorf("want DistanceMeters 50000, got %d", wfRepo.coverages[1].DistanceMeters)
+		// The existing radius is preserved: no city was selected in this form,
+		// so there is nothing to re-derive it from, and the posted 50,000 is
+		// not the vendor's to set.
+		if wfRepo.coverages[1].DistanceMeters != 25000 {
+			t.Errorf("want the city's own DistanceMeters 25000 preserved, got %d",
+				wfRepo.coverages[1].DistanceMeters)
 		}
 	})
 

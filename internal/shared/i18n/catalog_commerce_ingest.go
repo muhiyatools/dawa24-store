@@ -173,7 +173,7 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "smartorder.select_supplier_from_list", "smartorder", "اختر موردًا من القائمة.", "Select a supplier from the list.", "Validation error")
 	addKey(e, "smartorder.finalizer_unavailable", "smartorder", "اعتماد الطلبات غير مُفعّل حاليًا.", "Order finalization is currently disabled.", "Service error")
 	addKey(e, "smartorder.notice_run_already_in_progress", "smartorder", "المطابقة قيد التشغيل بالفعل لهذا الملف.", "Matching is already in progress for this file.", "Info notice")
-	addKey(e, "smartorder.notice_matching_started", "smartorder", "بدأت عملية المطابقة الذكية في الخلفية.", "Smart matching started in background.", "Success notice")
+	addKey(e, "smartorder.notice_matching_started", "smartorder", "بدأت عملية مطابقة الذكاء الاصطناعي في الخلفية.", "Smart matching started in background.", "Success notice")
 	addKey(e, "smartorder.notice_draft_cancelled", "smartorder", "تم إلغاء المسودة.", "Draft cancelled.", "Success notice")
 
 	// --- Smart Order Status Labels ---
@@ -184,9 +184,9 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "smartorder.status_stale", "smartorder", "بحاجة لإعادة تشغيل", "Needs Rerun", "Stale smart order status")
 	addKey(e, "smartorder.status_failed", "smartorder", "تعذّر الاكتمال", "Failed", "Failed smart order status")
 
-	addKey(e, "smartorder.ai_not_enabled", "smartorder", "المطابقة الذكية غير مفعّلة على هذه المنصة.", "Smart matching is not enabled on this platform.", "AI status")
+	addKey(e, "smartorder.ai_not_enabled", "smartorder", "مطابقة الذكاء الاصطناعي غير مفعّلة على هذه المنصة.", "Smart matching is not enabled on this platform.", "AI status")
 	addKey(e, "smartorder.ai_gateway_down", "smartorder", "بوابة الذكاء الاصطناعي متوقفة حاليًا. ستعمل المطابقة الحتمية وحدها.", "AI Gateway is currently down. Deterministic matching runs alone.", "AI status")
-	addKey(e, "smartorder.ai_org_members_only", "smartorder", "المطابقة الذكية متاحة لأعضاء المؤسسات فقط.", "Smart matching is available for organization members only.", "AI permission")
+	addKey(e, "smartorder.ai_org_members_only", "smartorder", "مطابقة الذكاء الاصطناعي متاحة لأعضاء المؤسسات فقط.", "Smart matching is available for organization members only.", "AI permission")
 	addKey(e, "smartorder.ai_subscription_check_failed", "smartorder", "تعذّر التحقق من اشتراك مؤسستك في خدمات الذكاء الاصطناعي.", "Could not verify organization's AI subscription.", "AI error")
 	addKey(e, "smartorder.ai_key_missing", "smartorder", "لم يتم تفعيل الذكاء الاصطناعي لمؤسستك بعد. تواصل مع الإدارة لتفعيله.", "AI is not enabled for your organization yet. Contact support to enable it.", "AI error")
 	addKey(e, "smartorder.upload_size_limit", "smartorder", "تعذّر رفع الملف. تأكد من أن حجمه لا يتجاوز 64 ميجابايت وأن الرفع اكتمل.", "Could not upload file. Make sure size does not exceed 64 MB and upload completed.", "Upload error")

@@ -96,4 +96,20 @@ type Repository interface {
 	// Market Discounts (Public & Platform Wide)
 	ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error)
 	ListDistinctSuppliers(ctx context.Context) ([]string, error)
+
+	// LoadMarketOffers reads the whole comparable market for aggregation.
+	// ListMarketDiscounts is the paginated feed and clamps to 100 rows; this is
+	// the analytical read the two market screens need. See market_dataset.go.
+	LoadMarketOffers(ctx context.Context, opts MarketScanOptions) ([]MarketOffer, error)
+}
+
+// MarketScanOptions narrows an analytical market read.
+type MarketScanOptions struct {
+	// OrganizationID admits the caller's own private files alongside the public
+	// market, so a supplier comparing their list against the market sees their
+	// own uploads treated as theirs rather than as absent.
+	OrganizationID *int64
+	// ExcludeFileID drops one file from the market — the file being compared
+	// against it, which would otherwise be its own best and worst offer.
+	ExcludeFileID int64
 }

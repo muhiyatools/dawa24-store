@@ -35,18 +35,24 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		}
 	}
 
-	var report *compare.MarketIntelligenceReport
+	var (
+		report    *compare.StrategicSavingReport
+		reportErr error
+	)
 	if h.compareSvc != nil {
-		rep, err := h.compareSvc.GetMarketIntelligenceReport(ctx)
-		if err != nil {
-			h.log.ErrorContext(ctx, "failed to get market intelligence report", "error", err)
-		} else {
-			report = rep
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
+		}
+		report, reportErr = h.compareSvc.BuildStrategicReport(database.AsSystem(ctx), orgPtr)
+		if reportErr != nil {
+			h.log.ErrorContext(ctx, "failed to build strategic saving report", "error", reportErr)
 		}
 	}
 
 	pageData := pages.MarketIntelligencePageData{
 		Report:     report,
+		Failed:     reportErr != nil,
 		IsCustomer: actor.IsCustomer(),
 	}
 

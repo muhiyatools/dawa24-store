@@ -172,6 +172,28 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Post("/admin/my/temparte-warehouses/items/{id}/delete", h.AdminMyTempWarehouseItemDeleteSubmit)
 		g.Post("/admin/my/temparte-warehouses/bulk", h.AdminMyTempWarehouseBulkSubmit)
 	})
+
+	// "مستودعات المشرفين تحت إدارتي" — a main moderator's view of the
+	// moderators assigned under them.
+	//
+	// The permission gate answers "may this person manage a team's
+	// warehouses?". It does NOT answer "whose team?" — that is decided per
+	// request against identity.users.moderator_parent_id, inside every handler
+	// below, because a route gate cannot know which files belong to which
+	// hierarchy. See admin_team_temp_warehouse_handlers.go.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("inventory.team_temp_warehouse.view"))
+		g.Get("/admin/team/temparte-warehouses", h.AdminTeamTempWarehousesPage)
+		g.Get("/admin/team/temparte-warehouses/{id}/items-json", h.AdminTeamTempWarehouseItemsJSON)
+		g.Get("/admin/team/temparte-warehouses/{id}/mapping-json", h.AdminTeamTempWarehouseMappingJSON)
+		g.Get("/admin/team/temparte-warehouses/{id}/export", h.AdminTeamTempWarehouseExportXLSX)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("inventory.team_temp_warehouse.manage"))
+		g.Post("/admin/team/temparte-warehouses/{id}/mapping", h.AdminTeamTempWarehouseMappingSubmit)
+		g.Post("/admin/team/temparte-warehouses/{id}/toggle-archive", h.AdminTeamTempWarehouseToggleArchiveSubmit)
+		g.Post("/admin/team/temparte-warehouses/items/{id}/delete", h.AdminTeamTempWarehouseItemDeleteSubmit)
+	})
 }
 
 func (h *UIHandler) registerAdminCatalogMutations(r chi.Router) {

@@ -3,9 +3,7 @@ package pages
 import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
-	"strings"
 
-	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
@@ -19,119 +17,52 @@ templ importMappingStage(view VendorImportView) {
 		@importFindings(view.Analysis)
 		<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
 			
-			<!-- Core Required Fields Status Overview -->
-			<div class="glass-panel p-6">
-				<h2 class="wiz-head">1. حالة الحقول الأساسية والمخزون</h2>
+			<!-- System fields, each mapped to a column of the uploaded file -->
+			<div class="glass-panel p-6" x-data={ "{cols: " + view.FileColumnsJSON() + ", sample(i){const c=this.cols.find(c=>String(c.index)===String(i)); return c && c.preview ? c.preview.join(' · ') : '';}}" }>
+				<h2 class="wiz-head">ربط أعمدة ملفك بحقول النظام</h2>
 				<p class="wiz-sub">
-					تحقق من ربط الحقول الإلزامية وحقل الكمية (المخزون). إذا لم يُكتشف أحد الحقول تلقائياً، يمكنك تحديده مباشرة من جدول الأعمدة أدناه.
+					هذه هي الحقول التي يقرأها استيراد أصناف الموردين. اختر لكل حقل العمود المقابل له في ملفك.
+					ما تعرّف عليه النظام تلقائياً مُختار مسبقاً، وما تركته «بدون عمود» لن يُقرأ من الملف.
 				</p>
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								<th>الحقل المطلوب</th>
-								<th>أهمية الحقل</th>
-								<th>حالة الربط بالملف</th>
-								<th>ملاحظة المخزون والتخزين</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, st := range view.CoreFieldsStatus() {
-								<tr>
-									<td>
-										<div class="fw-800">{ st.Label }</div>
-										<div class="text-xs text-muted">{ st.Description }</div>
-									</td>
-									<td>
-										if st.Required {
-											<span class="badge badge-rose text-xs">إلزامي / أساسي</span>
-										} else {
-											<span class="badge badge-slate text-xs">اختياري</span>
-										}
-									</td>
-									<td>
-										if st.ColumnIndex >= 0 {
-											<span class="badge badge-emerald text-xs">
-												مربوط بـ: { st.ColumnName }
-											</span>
-										} else if st.Field == productmatch.FieldQuantity {
-											<span class="badge badge-sky text-xs">
-												غير موجود بالملف — حدد كمية افتراضية في (3) أدناه
-											</span>
-										} else {
-											<span class="badge badge-amber text-xs">
-												لم يُربط تلقائياً — حدده من الجدول أدناه
-											</span>
-										}
-									</td>
-									<td class="text-xs text-muted">
-										if st.Field == productmatch.FieldQuantity {
-											if st.ColumnIndex >= 0 {
-												<strong class="text-primary">يتم قيد هذه الكمية في المخزن المحدد في الخطوة التالية</strong>
-											} else {
-												<strong class="text-primary">يمكنك تعيين كمية موحدة في (3) أدناه أو إدخال الكميات يدوياً في المراجعة</strong>
-											}
-										} else {
-											<span>—</span>
-										}
-									</td>
-								</tr>
+				if len(view.UnmappedRequired()) > 0 {
+					<div class="alert alert-warning mb-4">
+						<span class="fw-800">حقول إلزامية لم تُربط بعد:</span>
+						for i, r := range view.UnmappedRequired() {
+							if i > 0 {
+								<span>،</span>
 							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<!-- All Columns Mapping Table -->
-			<div class="glass-panel p-6">
-				<h2 class="wiz-head">2. راجع ربط الأعمدة في الملف</h2>
-				<p class="wiz-sub">
-					تم فحص جميع أعمدة ملفك. غيّر ما تريد لربط الحقول بدقة (مثل اختيار عمود الكمية، السعر، والاسم).
-				</p>
+							<span>{ r.Spec.Label }</span>
+						}
+					</div>
+				}
 				<div class="table-container">
 					<table class="data-table">
 						<thead>
 							<tr>
+								<th>حقل النظام</th>
+								<th>الأهمية</th>
 								<th>العمود في ملفك</th>
 								<th>عينة من القيم</th>
-								<th>الحقل المربوط</th>
-								<th>الثقة والسبب</th>
 							</tr>
 						</thead>
 						<tbody>
-							for _, col := range view.Analysis.Mapping.Columns {
-								@importColumnRow(col)
+							for _, row := range view.FieldMappingRows() {
+								@importFieldRow(row, view.FileColumns())
 							}
 						</tbody>
 					</table>
 				</div>
-			</div>
-
-			<!-- Section 3: Manual / Default Stock Quantity Setting -->
-			<div class="glass-panel p-6">
-				<div class="row-center-sm gap-sm mb-2">
-					<div class="stack-xs text-sm">
-						@components.IconPackage("icon-sm")
-					</div>
-     <div class="stack-sm">
-						<h2 class="wiz-head mb-0">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2>
-						<p class="wiz-sub mb-0">
-							إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.
-						</p>
-					</div>
-				</div>
-
-				<div class="row-center-sm gap-md flex-wrap mt-3">
-					<label class="form-label mb-0 fw-800 text-sm">
-						الكمية الافتراضية لكل صنف:
-					</label>
-					<input type="number" name="default_quantity" min="0" placeholder="مثال: 50 أو 100"
-						value={ defaultQuantityDisplay(view.Session) }
-						class="form-input tabular-nums font-bold text-center"/>
-					<span class="text-xs text-muted">
-						(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.
-					</span>
-				</div>
+				if len(view.UnusedColumns()) > 0 {
+					<p class="text-xs text-muted mt-3">
+						أعمدة في ملفك لن تُقرأ:
+						for i, c := range view.UnusedColumns() {
+							if i > 0 {
+								<span>،</span>
+							}
+							<span>{ c.Title() }</span>
+						}
+					</p>
+				}
 			</div>
 
 			<div class="glass-panel p-6 mb-0">
@@ -149,43 +80,35 @@ templ importMappingStage(view VendorImportView) {
 	}
 }
 
-templ importColumnRow(col *productmatch.Column) {
-	<tr>
+templ importFieldRow(row FieldMappingRow, cols []FileColumn) {
+	<tr x-data={ "{ sel: '" + row.SelectedValue() + "' }" }>
 		<td>
-			<div class="fw-800">
-				if col.Header != "" {
-					{ col.Header }
-				} else {
-					{ fmt.Sprintf("العمود %d", col.Index+1) }
-				}
-			</div>
-			<div class="text-xs text-muted">{ fmt.Sprintf("العمود رقم %d", col.Index+1) }</div>
-		</td>
-		<td class="text-xs text-muted">{ strings.Join(col.Preview, " · ") }</td>
-		<td>
-			<select name={ fmt.Sprintf("column_%d", col.Index) } class="form-input">
-				<option value="" selected?={ col.Field == "" && !col.Ignored }>— حدد تلقائياً —</option>
-				<option value="__none" selected?={ false }>لا تستورد هذا العمود</option>
-				<option value="__ignore" selected?={ col.Ignored }>تجاهل نهائياً</option>
-				for _, spec := range FieldChoices() {
-					<option value={ string(spec.Field) } selected?={ col.Field == spec.Field }>
-						{ spec.Label }
-					</option>
-				}
-			</select>
-		</td>
-		<td>
-			if col.Field != "" {
-				<span class={ "badge", ConfidenceTone(col.Confidence), "text-xs" }>
-					{ col.Confidence.Label() } · { PercentText(col.Score) }
-				</span>
-				for _, why := range col.Why {
-					<div class="text-xs text-muted mt-1">· { why }</div>
-				}
-			} else {
-				<span class="badge badge-slate text-xs">بدون ربط</span>
+			<div class="fw-800">{ row.Spec.Label }</div>
+			<div class="text-xs text-muted">{ row.Spec.Hint }</div>
+			if row.Spec.Example != "" {
+				<div class="text-xs text-muted">مثال: { row.Spec.Example }</div>
 			}
 		</td>
+		<td>
+			<span class={ "badge", row.NeedTone(), "text-xs" }>{ row.NeedLabel() }</span>
+		</td>
+		<td>
+			<select name={ row.FormName() } class="form-input" x-model="sel">
+				<option value="">— بدون عمود —</option>
+				for _, c := range cols {
+					<option value={ fmt.Sprint(c.Index) }>{ c.Title() }</option>
+				}
+			</select>
+			if row.Bound() && len(row.Why) > 0 {
+				<span class={ "badge", ConfidenceTone(row.Confidence), "text-xs" }>
+					{ row.Confidence.Label() } · { PercentText(row.Score) }
+				</span>
+				for _, why := range row.Why {
+					<div class="text-xs text-muted mt-1">· { why }</div>
+				}
+			}
+		</td>
+		<td class="text-xs text-muted" x-text="sample(sel)">{ fieldSampleText(row, cols) }</td>
 	</tr>
 }
 
@@ -296,33 +219,48 @@ templ importSettingsStage(view VendorImportView) {
 			</div>
 		</div>
 		<div class="glass-panel p-6">
-			<h3 class="wiz-head">مراجعة الأصناف قبل الإضافة</h3>
-			<p class="wiz-sub">
-				لن يُضاف أي صنف تلقائياً إلى قاعدة البيانات. بعد معالجة الملف، ستنتقل إلى شاشة مراجعة تفاعلية منظمة
-				تتيح لك معاينة كل صنف ودرجة تطابقه، وتعديل اسم الصنف أو سعره أو كميته، أو ربطه يدوياً بالكتالوج المركزي، وتحديد ما تريد استيراده أو استبعاده.
-			</p>
-		</div>
-		<div class="glass-panel p-6">
-			<h3 class="wiz-head">المطابقة الذكية</h3>
-			<p class="wiz-sub">
-				نفس محرك المطابقة الذي يعمل في الطلب الذكي للصيدليات. تعمل المطابقة الحتمية أولاً دائماً،
-				ولا يصل إلى الذكاء الاصطناعي إلا ما تعذّر حسمه — وهو عادةً عشرات الأسطر من آلاف.
-			</p>
+			<h3 class="wiz-head">مطابقة الذكاء الاصطناعي</h3>
 			<div class="wiz-switches">
 				if view.AIAvailable {
-					@vendorImportSwitch("use_ai", "", "تفعيل المطابقة الذكية للأصناف الصعبة",
-						"لا يمسّ أي مطابقة حتمية مؤكدة، ولا يختار إلا من أصناف الكتالوج المعروضة عليه.",
+					@vendorImportSwitch("use_ai", "", "تفعيل مطابقة الذكاء الاصطناعي", "",
 						view.Session.Settings.UseAI)
 				} else {
-					@vendorImportSwitchDisabled("", "المطابقة الذكية غير متاحة حالياً",
+					@vendorImportSwitchDisabled("", "مطابقة الذكاء الاصطناعي غير متاحة حالياً",
 						view.AIUnavailableReason)
 				}
 			</div>
-			<ul class="wiz-notes text-xs text-muted">
-				<li>تُراجَع ذاكرة القرارات المشتركة أولاً؛ ما سبق حسمه — في ملفك أو في ملف غيرك — لا يُرسل ولا يُحتسب.</li>
-				<li>الأسطر المكررة والمرشحون المشتركون يُدمجون في طلب واحد، فالملف كاملاً بضعة طلبات مهما طال.</li>
-				<li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li>
-			</ul>
+		</div>
+		<div class="glass-panel p-6">
+			<h3 class="wiz-head">المطابقة بالمعرّفات (اختياري)</h3>
+			<p class="wiz-sub">
+				المطابقة تعتمد على الاسم أولاً ثم الذكاء الاصطناعي. فعّل ما يلي فقط إذا كانت أكواد ملفك هي نفسها أكواد المنصة.
+			</p>
+			<div class="wiz-switches">
+				if view.MappedIdentifiers().Code {
+					@vendorImportSwitch("trust_supplier_code", "", "المطابقة بعمود كود الصنف", "",
+						view.Session.Settings.TrustSupplierCode)
+					@vendorImportSwitch("code_is_catalog_code", "", "عمود الكود يحمل أكواد دواء 24 نفسها", "",
+						view.Session.Settings.CodeIsCatalogCode)
+				}
+				if view.MappedIdentifiers().Barcode {
+					@vendorImportSwitch("trust_barcode", "", "المطابقة بعمود الباركود", "",
+						view.Session.Settings.TrustBarcode)
+				}
+				if !view.MappedIdentifiers().Code && !view.MappedIdentifiers().Barcode {
+					<p class="text-xs text-muted m-0">لم تربط عمود كود أو باركود في خطوة الأعمدة، فلا توجد معرّفات يمكن تفعيلها.</p>
+				}
+			</div>
+			<div class="wiz-map">
+				<div class="wiz-map-item">
+					<span class="wiz-map-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</span>
+					<input class="wiz-map-input" type="number" name="min_match_score"
+						min={ fmt.Sprint(int(productmatch.DefaultMinReview*100)) } max="100"
+						value={ fmt.Sprint(int(view.Session.Settings.MinMatchScore*100)) }/>
+					<span class="wiz-map-hint">
+						الافتراضي { fmt.Sprint(int(productmatch.DefaultMinStrong*100)) }%. ما فوقها يُعتمد تلقائياً، وما دونها يُعرض للمراجعة.
+					</span>
+				</div>
+			</div>
 		</div>
 		<div class="glass-panel p-6">
 			<h3 class="wiz-head">خيارات دقيقة</h3>
@@ -332,37 +270,14 @@ templ importSettingsStage(view VendorImportView) {
 					view.Session.Settings.PublishImmediately)
 				@vendorImportSwitch("reject_expired", "", "رفض الأصناف منتهية الصلاحية",
 					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
-				@vendorImportSwitch("blank_quantity_is_zero", "0️⃣", "اعتبار الخلية الفارغة رصيداً صفرياً",
+				@vendorImportSwitch("blank_quantity_is_zero", "", "اعتبار الخلية الفارغة رصيداً صفرياً",
 					"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً.", view.Session.Settings.BlankQuantityIsZero)
-				@vendorImportSwitch("infer_dosage_form", "", "استنتاج الشكل الصيدلي من اسم الصنف",
-					"يُستخدم فقط إذا لم يوجد عمود للشكل الصيدلي.", view.Session.Settings.InferDosageForm)
-				@vendorImportSwitch("infer_concentration", "", "استخراج التركيز من اسم الصنف",
-					"يُقتبس التركيز حرفياً من الاسم ولا يُخمَّن.", view.Session.Settings.InferConcentration)
-				if view.MappedIdentifiers().Code {
-					@vendorImportSwitch("trust_supplier_code", "", "مطابقة الكتالوج المركزي بعمود كود الصنف",
-						"مغلق افتراضياً. الكود يحسم المطابقة قبل مقارنة الاسم، فلا تفعّله إلا إذا كان العمود يحمل كوداً يوجد فعلاً في الكتالوج المركزي.",
-						view.Session.Settings.TrustSupplierCode)
-					@vendorImportSwitch("code_is_catalog_code", "", "عمود الكود يحمل أكواد دواء 24 نفسها",
-						"عند التفعيل يُقبل تطابق الكود دون اشتراط تشابه الاسم. اتركه مغلقاً إذا كان الكود ترقيماً داخلياً خاصاً بك.",
-						view.Session.Settings.CodeIsCatalogCode)
-				}
-				if view.MappedIdentifiers().Barcode {
-					@vendorImportSwitch("trust_barcode", "", "مطابقة الكتالوج المركزي بعمود الباركود",
-						"مغلق افتراضياً. الباركود يحسم المطابقة نهائياً دون النظر إلى الاسم أو التركيز، فلا تفعّله إلا إذا كان العمود يحمل باركود GTIN المطبوع على العبوة وليس ترقيم المخزن لديك.",
-						view.Session.Settings.TrustBarcode)
-				}
 				@vendorImportSwitch("mark_negotiable", "", "تعليم الأصناف كقابلة للتفاوض", "",
 					view.Session.Settings.MarkNegotiable)
 				@vendorImportSwitch("record_rows", "", "حفظ سجل تفصيلي لكل صف",
 					"يتيح لك تصفية النتائج وتنزيل الأصناف التي تحتاج معالجة.", view.Session.Settings.RecordRows)
 			</div>
 			<div class="wiz-map">
-				<div class="wiz-map-item">
-					<span class="wiz-map-label">الكمية الافتراضية لكل صنف (إذا لم تكن محددة بالملف)</span>
-					<input class="wiz-map-input" type="number" name="default_quantity" min="0" placeholder="مثال: 50 أو 100"
-						value={ defaultQuantityDisplay(view.Session) }/>
-					<span class="wiz-map-hint">تُطبَّق تلقائياً على كافة الأصناف التي لم يُحدد لها رصيد في الملف.</span>
-				</div>
 				<div class="wiz-map-item">
 					<span class="wiz-map-label">أقل كمية للطلب (افتراضياً)</span>
 					<input class="wiz-map-input" type="number" name="default_min_order_qty" min="1"
@@ -372,17 +287,6 @@ templ importSettingsStage(view VendorImportView) {
 					<span class="wiz-map-label">حد التنبيه للمخزون (افتراضياً)</span>
 					<input class="wiz-map-input" type="number" name="default_min_threshold" min="0"
 						value={ fmt.Sprint(view.Session.Settings.DefaultMinThreshold) }/>
-				</div>
-				<div class="wiz-map-item">
-					<span class="wiz-map-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</span>
-					<input class="wiz-map-input" type="number" name="min_match_score"
-						min={ fmt.Sprint(int(productmatch.DefaultMinReview*100)) } max="100"
-						value={ fmt.Sprint(int(view.Session.Settings.MinMatchScore*100)) }/>
-					<span class="wiz-map-hint">
-						الافتراضي { fmt.Sprint(int(productmatch.DefaultMinStrong*100)) }%. ما فوقها يُعتمد تلقائياً كـ«مطابق»
-						ويُستورد؛ ما دونها يُعرض في «يحتاج مراجعة» ولا يُستورد إلا بعد اعتمادك له.
-						لا يمكن النزول تحت { fmt.Sprint(int(productmatch.DefaultMinReview*100)) }% لأن ما دون ذلك ليس رأياً ضعيفاً بل غياب رأي.
-					</span>
 				</div>
 			</div>
 			<input type="hidden" name="duplicates" value={ string(view.Session.Settings.Duplicates) }/>
@@ -433,11 +337,4 @@ templ vendorImportSwitch(name, icon, title, text string, on bool) {
 		</span>
 		<span class="wiz-track" aria-hidden="true"></span>
 	</label>
-}
-
-func defaultQuantityDisplay(s *ingest.Session) string {
-	if s != nil && s.Settings.DefaultQuantity > 0 {
-		return fmt.Sprint(s.Settings.DefaultQuantity)
-	}
-	return ""
 }

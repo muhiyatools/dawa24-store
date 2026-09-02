@@ -203,7 +203,7 @@ func (h *UIHandler) assertCartLineAvailable(
 				lang, _ := h.localeAndDir(r)
 				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
 				w.Header().Set("Content-Type", "text/html; charset=utf-8")
-				_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+				_ = pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang).Render(ctx, w)
 				return false
 			}
 			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))

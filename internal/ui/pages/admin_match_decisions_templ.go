@@ -59,7 +59,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"match-decisions-page stack-lg\"><!-- Header Banner --><div class=\"page-header d-flex justify-between items-center flex-wrap gap-4 mb-6\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3\"><h1 class=\"page-title text-xl font-bold m-0\">ذاكرة قرارات المطابقة الذكية (Decision Memories)</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"match-decisions-page stack-lg\"><!-- Header Banner --><div class=\"page-header d-flex justify-between items-center flex-wrap gap-4 mb-6\"><div class=\"stack-sm\"><div class=\"d-flex items-center gap-3\"><h1 class=\"page-title text-xl font-bold m-0\">ذاكرة قرارات مطابقة الذكاء الاصطناعي (Decision Memories)</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -530,7 +530,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Clear All Modal / Confirmation Script --> <script>\r\n\t\t\tfunction confirmClearAllDecisions() {\r\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من رغبتك في مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف الجديدة من البداية.\")) {\r\n\t\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\t\tform.method = 'POST';\r\n\t\t\t\t\tform.action = '/admin/match-decisions/clear';\r\n\t\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\t\tform.submit();\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- Clear All Modal / Confirmation Script --> <script>\n\t\t\tfunction confirmClearAllDecisions() {\n\t\t\t\tif (confirm(\"تحذير: هل أنت متأكد من رغبتك في مسح كافة قرارات المطابقة المخزنة بالكامل؟ هذا الإجراء سيجعل النظام يعيد تقييم الأصناف الجديدة من البداية.\")) {\n\t\t\t\t\tvar form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = '/admin/match-decisions/clear';\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

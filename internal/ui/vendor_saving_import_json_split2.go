@@ -71,20 +71,17 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 		r.FormValue("col_product_id"),
 	)
 
-	matchStrategy := MatchStrategy(strings.TrimSpace(r.FormValue("match_strategy")))
-	if matchStrategy == "" {
-		matchStrategy = StrategySmartAuto
-	}
-
-	// Read before the goroutine and passed in, not captured: the background
-	// worker must run under the choice the user made on the request that
-	// started it, not whatever the session happens to hold later.
-	useAI := r.FormValue("use_ai") == "1" || r.FormValue("use_ai") == "on"
+	// The unified matching choice: name first, AI second, identifier tiers only
+	// where the user switched them on. Read before the goroutine and passed in,
+	// not captured, so the background worker runs under the choice made on the
+	// request that started it rather than whatever the session holds later.
+	matchChoice := ParseMatchChoice(r)
+	useAI := ParseUseAI(r)
 
 	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
 
 	// Launch async background processing
-	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy, aiOn bool, lang string) {
+	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, choice MatchChoice, aiOn bool, lang string) {
 		bgCtx := context.Background()
 
 		globalSavingImportSessionStore.UpdateProgress(sessID, 15, i18n.T(lang, "customer.saving.import.progress_loading_catalog"), 0)
@@ -150,7 +147,7 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 			matchType := "unlinked"
 			confidence := 0.0
 			if matchEngine != nil {
-				res := matchEngine.Match(strat, productID, sku, name)
+				res := matchEngine.MatchUnified(choice, productID, sku, name)
 				if res.ProductID != nil {
 					productID = res.ProductID
 					matchType = res.MatchType
@@ -215,7 +212,7 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 			totalQty,
 			money.FromMinor(totalValMinor),
 		)
-	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy, useAI, langOf(r))
+	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchChoice, useAI, langOf(r))
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"success":    true,

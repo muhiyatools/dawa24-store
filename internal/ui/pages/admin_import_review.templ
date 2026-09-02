@@ -449,21 +449,24 @@ templ importProgressCard(view ImportReviewView) {
 		<h2 class="wiz-head">⏳ جارٍ معالجة وتحليل الملف</h2>
 		<p class="wiz-sub">{ view.SourceSummary() }</p>
 		<div class="wiz-progress">
-			<div class="wiz-progress-track">
+			<div class="wiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
 				<div
-					class={ "wiz-progress-fill", templ.KV("is-indeterminate", view.ProgressPercent() < 0) }
+					class="wiz-progress-fill"
 					id="import-progress-fill"
-					if view.ProgressPercent() >= 0 {
-						style={ templ.SafeCSS(fmt.Sprintf("width:%d%%", view.ProgressPercent())) }
-					}
+					style={ templ.SafeCSS(fmt.Sprintf("width:%d%%", view.ProgressPercent())) }
 				></div>
 			</div>
 			<div class="wiz-progress-meta">
 				<span id="import-progress-message">{ view.Progress.Message }</span>
-				<span id="import-progress-count" class="tabular-nums">
-					if view.Progress.Total > 0 {
-						{ fmt.Sprintf("%s / %s", FormatCount(view.Progress.Current), FormatCount(view.Progress.Total)) }
-					}
+				<span class="row-center-sm">
+					<span id="import-progress-count" class="tabular-nums">
+						if view.Progress.Total > 0 {
+							{ fmt.Sprintf("%s / %s", FormatCount(view.Progress.Current), FormatCount(view.Progress.Total)) }
+						}
+					</span>
+					<span id="import-progress-percent" class="wiz-progress-percent">
+						{ fmt.Sprintf("%d%%", view.ProgressPercent()) }
+					</span>
 				</span>
 			</div>
 		</div>
@@ -484,39 +487,16 @@ templ importProgressCard(view ImportReviewView) {
 			(function() {
 				const sessionEl = document.getElementById('import-progress');
 				const sessionID = sessionEl ? sessionEl.dataset.session : null;
-				if (!sessionID) return;
+				if (!sessionID || typeof window.ImportProgress !== 'function') return;
 
-				const fill = document.getElementById('import-progress-fill');
-				const msg = document.getElementById('import-progress-message');
-				const count = document.getElementById('import-progress-count');
-
-				const poll = setInterval(async () => {
-					try {
-						const res = await fetch('/admin/products/import/' + sessionID + '/progress');
-						if (!res.ok) return;
-						const data = await res.json();
-						if (msg && data.message) msg.textContent = data.message;
-						if (count && data.total > 0) {
-							count.textContent = Number(data.current).toLocaleString() + ' / ' + Number(data.total).toLocaleString();
-						}
-						if (fill) {
-							if (data.percent >= 0) {
-								fill.classList.remove('is-indeterminate');
-								fill.style.width = data.percent + '%';
-							} else {
-								fill.classList.add('is-indeterminate');
-							}
-						}
-						if (data.done) {
-							clearInterval(poll);
-							setTimeout(() => {
-								window.location.reload();
-							}, 400);
-						}
-					} catch (e) {
-						console.error('progress poll failed', e);
-					}
-				}, 1500);
+				const bar = new window.ImportProgress({
+					fill:    document.getElementById('import-progress-fill'),
+					label:   document.getElementById('import-progress-message'),
+					percent: document.getElementById('import-progress-percent'),
+					count:   document.getElementById('import-progress-count'),
+					onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
+				});
+				bar.poll('/admin/products/import/' + sessionID + '/progress', 1500);
 			})();
 		</script>
 	</div>

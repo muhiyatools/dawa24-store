@@ -31,7 +31,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 		@VendorInventoryTable(data)
 	} else {
 		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
-			<div class="page-container" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }">
+			<div class="page-container" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 }, transferModal: false, transferStock: { id: 0, variant_id: 0, product_id: 0, name: '', from_wh_id: 0, from_wh_name: '', qty: 0 } }">
 				
 				<!-- Notices -->
 				if data.NoticeMsg != "" {
@@ -69,7 +69,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 							</a>
 							<a href="/vendor/transfers" class="btn btn-secondary font-bold gap-2">
 								@components.IconRefresh("icon-xs")
-								<span>تحويل بين المخازن</span>
+								<span>سجلات حركة المخازن</span>
 							</a>
 							<a href="/vendor/saving-products" class="btn btn-primary font-bold gap-2">
 								@components.IconPlus("icon-xs")
@@ -217,6 +217,122 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 					</div>
 				</div>
 
+				<!-- Transfer Stock to Another Warehouse Modal -->
+				<div
+					class="modal-backdrop"
+					x-show="transferModal"
+					x-cloak
+					x-transition.opacity
+					@keydown.escape.window="transferModal = false"
+				>
+					<div
+						@click.outside="transferModal = false"
+						class="glass-panel p-6 max-w-lg w-full"
+					>
+						<div class="flex-between items-center mb-4 pb-3 border-b">
+							<div class="d-flex items-center gap-2">
+								<div class="user-avatar-badge text-brand">
+									@components.IconRefresh("icon-xs")
+								</div>
+								<div>
+									<h3 class="text-base font-black text-primary m-0">نقل مخزون الصنف إلى مخزن آخر</h3>
+									<p class="text-2xs text-secondary m-0 mt-0.5">تحويل رصيد الدواء بين مراكز التخزين التابعة للمنشأة</p>
+								</div>
+							</div>
+							<button type="button" @click="transferModal = false" class="btn btn-secondary btn-icon btn-sm">@components.IconX("icon-sm")</button>
+						</div>
+
+						<form action="/vendor/inventory/transfer" method="POST" class="d-flex flex-col gap-4 m-0">
+							<input type="hidden" name="stock_id" :value="transferStock.id" />
+							<input type="hidden" name="variant_id" :value="transferStock.variant_id" />
+							<input type="hidden" name="product_id" :value="transferStock.product_id" />
+							<input type="hidden" name="from_warehouse_id" :value="transferStock.from_wh_id" />
+							<input type="hidden" name="redirect_url" value="/vendor/inventory" />
+
+							<!-- Item & Source Warehouse Info Card -->
+							<div class="bg-surface-sunken border rounded-xl p-3.5 text-xs stack-xs">
+								<div class="text-2xs text-muted font-bold">الصنف المختار:</div>
+								<div class="font-black text-primary text-sm" x-text="transferStock.name"></div>
+								<div class="flex-between items-center text-xs mt-2 pt-2 border-t text-secondary">
+									<span>المخزن المصدر: <strong class="text-primary font-bold" x-text="transferStock.from_wh_name"></strong></span>
+									<span>الرصيد المتاح: <strong class="tabular-nums text-brand font-black" x-text="transferStock.qty + ' عبوة'"></strong></span>
+								</div>
+							</div>
+
+							<!-- Target Warehouse -->
+							<div class="stack-xs">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المخزن الوجهة (المراد التحويل إليه) <span class="text-danger">*</span></label>
+								if len(data.Warehouses) > 1 {
+									<select name="to_warehouse_id" class="form-select text-xs w-full font-bold" required>
+										<option value="">-- اختر المخزن المراد التحويل إليه --</option>
+										for _, wh := range data.Warehouses {
+											<option value={ fmt.Sprintf("%d", wh.ID) } x-show={ fmt.Sprintf("transferStock.from_wh_id != %d", wh.ID) }>
+												{ wh.Name } { fmt.Sprintf("(كود: %s)", wh.Code) }
+											</option>
+										}
+									</select>
+								} else {
+									<div class="p-3 rounded-lg bg-amber-subtle text-amber text-xs font-bold d-flex items-center gap-2">
+										@components.IconAlert("icon-xs")
+										<span>لا يوجد سوى مخزن واحد مسجل. يجب إضافة مخزن آخر لإتمام عملية النقل المخزني.</span>
+									</div>
+								}
+							</div>
+
+							<!-- Quantity to Transfer -->
+							<div class="stack-xs">
+								<label class="form-label text-xs font-bold text-brand mb-1 d-block">الكمية المراد نقلها (عبوة) <span class="text-danger">*</span></label>
+								<input
+									type="number"
+									name="quantity"
+									min="1"
+									:max="transferStock.qty"
+									required
+									class="form-input text-center font-black tabular-nums text-base w-full"
+									placeholder="0"
+								/>
+								<div class="text-2xs text-muted mt-0.5">
+									الحد الأقصى للتحويل: <strong class="tabular-nums" x-text="transferStock.qty"></strong> عبوة
+								</div>
+							</div>
+
+							<!-- Notes / Reason -->
+							<div class="stack-xs">
+								<label class="form-label text-xs font-bold text-secondary mb-1 d-block">سبب / ملاحظات التحويل</label>
+								<textarea
+									name="notes"
+									rows="2"
+									class="form-input text-xs w-full"
+									placeholder="أدخل سبب النقل أو ملاحظات الشحنة (اختياري)..."
+								></textarea>
+							</div>
+
+							<!-- Immediate Receive Option -->
+							<div class="p-2.5 bg-surface-raised rounded-lg border d-flex items-center gap-2.5">
+								<input type="checkbox" name="immediate" id="inv_transfer_imm" value="true" checked class="form-checkbox" />
+								<label for="inv_transfer_imm" class="text-xs font-bold text-secondary cursor-pointer m-0 select-none">
+									تأكيد الاستلام الفوري وإضافة الرصيد مباشرة إلى المخزن الوجهة
+								</label>
+							</div>
+
+							<!-- Actions -->
+							<div class="flex-between items-center gap-3 pt-3 border-t mt-2">
+								<button type="button" class="btn btn-secondary font-bold text-xs" @click="transferModal = false">إلغاء</button>
+								if len(data.Warehouses) > 1 {
+									<button type="submit" class="btn btn-primary font-black text-xs px-6 gap-1.5" :disabled="transferStock.qty <= 0">
+										@components.IconRefresh("icon-xs")
+										<span>تأكيد نقل المخزون</span>
+									</button>
+								} else {
+									<button type="button" disabled class="btn btn-secondary font-bold text-xs opacity-50 cursor-not-allowed">
+										غير متاح (مخزن واحد فقط)
+									</button>
+								}
+							</div>
+						</form>
+					</div>
+				</div>
+
 			</div>
 		}
 	}
@@ -295,14 +411,24 @@ templ VendorInventoryTable(data VendorInventoryData) {
 								}
 							</td>
 							<td class="col-actions">
-								<button
-									type="button"
-									class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
-									@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, data.Variants), s.Quantity) }
-								>
-									@components.IconRefresh("icon-xs")
-									<span>تعديل الرصيد</span>
-								</button>
+								<div class="table-actions">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
+										@click={ fmt.Sprintf("transferStock = { id: %d, variant_id: %d, product_id: %d, name: %q, from_wh_id: %d, from_wh_name: %q, qty: %d }; transferModal = true;", s.ID, s.ProductVariantID, s.ProductID, resolveVariantName(s.ProductVariantID, data.Variants), s.WarehouseID, resolveWarehouseName(s.WarehouseID, data.Warehouses), s.Quantity) }
+										title="نقل رصيد هذا الصنف إلى مخزن آخر"
+									>
+										@components.IconRefresh("icon-xs")
+										<span>نقل المخزون</span>
+									</button>
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
+										@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, data.Variants), s.Quantity) }
+									>
+										<span>تعديل الرصيد</span>
+									</button>
+								</div>
 							</td>
 						</tr>
 					}

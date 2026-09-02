@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -27,10 +28,25 @@ func (h *UIHandler) VendorIngestProgress(w http.ResponseWriter, r *http.Request)
 		http.Error(w, `{"error":"not_found"}`, http.StatusNotFound)
 		return
 	}
+	// The bar must not read 100 while the run is still going. A staging pass
+	// that reports 99 and then writes for another twenty seconds is a bar the
+	// vendor watches sitting at "finished" while nothing has finished.
+	percent := session.ProgressPercent
+	running := session.Phase == ingest.PhaseProcessing
+	if running && percent >= importprogress.Complete {
+		percent = importprogress.Complete - 1
+	}
+	if !running {
+		percent = importprogress.Complete
+	}
+
 	payload := map[string]any{
 		"phase":   session.Phase,
-		"percent": session.ProgressPercent,
+		"percent": percent,
 		"note":    session.ProgressNote,
+		// "message" as well as "note": the shared progress bar reads one field
+		// name across all four import tools, and this endpoint had its own.
+		"message": session.ProgressNote,
 		// "done" means the run has stopped, not that the import is finished.
 		//
 		// It used to be Phase.Terminal(), which is completed/failed/cancelled —
@@ -42,7 +58,7 @@ func (h *UIHandler) VendorIngestProgress(w http.ResponseWriter, r *http.Request)
 		"updated":  session.UpdatedRows,
 		"skipped":  session.SkippedRows,
 		"errors":   session.ErrorRows,
-		"message":  session.ErrorMessage,
+		"error":    session.ErrorMessage,
 	}
 	if err := json.NewEncoder(w).Encode(payload); err != nil {
 		h.log.WarnContext(r.Context(), "import progress encode failed", "error", err)

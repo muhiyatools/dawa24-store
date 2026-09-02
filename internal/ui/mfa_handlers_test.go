@@ -172,6 +172,22 @@ func (m *testMockIdentityRepo) AdminAssignRole(ctx context.Context, id int64, ro
 	return nil
 }
 
+func (m *testMockIdentityRepo) ListModerators(ctx context.Context) ([]*identity.Moderator, error) {
+	return nil, nil
+}
+
+func (m *testMockIdentityRepo) ModeratorSubordinateIDs(ctx context.Context, parentID int64) ([]int64, error) {
+	return nil, nil
+}
+
+func (m *testMockIdentityRepo) ModeratorParentID(ctx context.Context, userID int64) (*int64, error) {
+	return nil, nil
+}
+
+func (m *testMockIdentityRepo) SetModeratorParent(ctx context.Context, userID int64, parentID *int64, actorID int64) error {
+	return nil
+}
+
 func (m *testMockIdentityRepo) ListPlatformRoles(ctx context.Context) ([]*identity.PlatformRole, error) {
 	return nil, nil
 }

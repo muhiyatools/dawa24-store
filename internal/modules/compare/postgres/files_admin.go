@@ -66,6 +66,18 @@ func buildAdminTempWarehouseWhere(filter compare.AdminTempWarehouseFilter) ([]st
 		args = append(args, "%"+s+"%")
 		i++
 	}
+	if filter.OwnerIn != nil {
+		// An empty team scopes to nothing. See AdminTempWarehouseFilter.OwnerIn:
+		// letting an empty set fall through to "no clause" would show a main
+		// moderator with no subordinates every warehouse on the platform.
+		if len(filter.OwnerIn) == 0 {
+			where = append(where, "FALSE")
+		} else {
+			where = append(where, fmt.Sprintf("f.user_id = ANY($%d)", i))
+			args = append(args, filter.OwnerIn)
+			i++
+		}
+	}
 	if filter.OwnerOnly != nil {
 		where = append(where, fmt.Sprintf("f.user_id = $%d", i))
 		args = append(args, *filter.OwnerOnly)

@@ -228,7 +228,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"so-tolerance-field\"><label class=\"so-subfield-label\">نطاق التسامح (%)</label> <input type=\"number\" name=\"tolerance_pct\" value=\"5\" min=\"0\" max=\"100\" step=\"0.5\" class=\"so-tolerance-input\"><p class=\"so-help-text so-help-text-small\">مورد متابَع أغلى من أرخص عرض بأكثر من هذه النسبة يُستبعَد، ويُذكر ذلك في نتيجة الصنف.</p></div></fieldset><div class=\"so-form-grid\"><div class=\"so-form-field\"><label class=\"so-subfield-label\">الكمية الافتراضية</label> <input type=\"number\" name=\"default_quantity\" value=\"0\" min=\"0\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">تُطبَّق فقط على الصفوف التي لا تحمل كمية في الملف.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">الحد الأقصى للميزانية (اختياري)</label> <input type=\"text\" name=\"max_budget\" inputmode=\"decimal\" placeholder=\"مثال: 150000.00\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">للعرض فقط: لا يمنع الطلب ولا يحذف أي صنف.</p></div></div><div class=\"so-options\"><label class=\"so-option-row\"><input type=\"checkbox\" name=\"use_saving_products\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"so-tolerance-field\"><label class=\"so-subfield-label\">نطاق التسامح (%)</label> <input type=\"number\" name=\"tolerance_pct\" value=\"5\" min=\"0\" max=\"100\" step=\"0.5\" class=\"so-tolerance-input\"><p class=\"so-help-text so-help-text-small\">مورد متابَع أغلى من أرخص عرض بأكثر من هذه النسبة يُستبعَد، ويُذكر ذلك في نتيجة الصنف.</p></div></fieldset><div class=\"so-form-grid\"><div class=\"so-form-field\"><label class=\"so-subfield-label\">الكمية الافتراضية</label> <input type=\"number\" name=\"default_quantity\" value=\"0\" min=\"0\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">تُطبَّق فقط على الصفوف التي لا تحمل كمية في الملف.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">أقل نسبة مطابقة (%)</label> <input type=\"number\" name=\"min_match_score\" value=\"50\" min=\"25\" max=\"100\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">المطابقة بالاسم أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة لا يُعرض ولا يُراجَع.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">الحد الأقصى للميزانية (اختياري)</label> <input type=\"text\" name=\"max_budget\" inputmode=\"decimal\" placeholder=\"مثال: 150000.00\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">للعرض فقط: لا يمنع الطلب ولا يحذف أي صنف.</p></div></div><div class=\"so-options\"><label class=\"so-option-row\"><input type=\"checkbox\" name=\"use_saving_products\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -254,7 +254,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "> <span>تحسين المطابقة بالذكاء الاصطناعي للأصناف غير المؤكدة</span></label><p class=\"so-option-help\">تعمل المطابقة العادية أولاً، ثم يراجع الذكاء الاصطناعي فقط الأصناف غير المطابقة أو التي تحتاج مراجعة. لن تظهر النتائج قبل انتهاء المرحلتين.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "> <span>تفعيل مطابقة الذكاء الاصطناعي</span></label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -266,7 +266,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIUnavailableReason)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 128, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 132, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {

@@ -217,11 +217,22 @@ type Settings struct {
 	CodeIsCatalogCode bool `json:"trust_supplier_code"`
 
 	BlankQuantityIsZero bool `json:"blank_quantity_is_zero"`
-	InferDosageForm     bool `json:"infer_dosage_form"`
-	InferConcentration  bool `json:"infer_concentration"`
 	RejectExpired       bool `json:"reject_expired"`
 
-	DefaultQuantity     int  `json:"default_quantity,omitempty"`
+	// The pharmaceutical-form and concentration inference switches used to live
+	// here. They were main-catalogue vocabulary offered on a vendor screen: a
+	// vendor import writes catalog.product_variants, which has no column for
+	// either, so whichever way the vendor set them nothing was written. They
+	// still happen — inside the matcher, which reads the strength and the form
+	// straight out of the product name in order to veto a 500 mg row matched to
+	// a 1 g product — but that is the engine's business, not a setting.
+	//
+	// The default-quantity box went the same way. A vendor whose file states no
+	// quantity is telling us the balance is unknown; inventing a uniform 50 for
+	// nine thousand rows is how a supplier's catalogue comes to advertise stock
+	// nobody holds. BlankQuantityIsZero is the honest version of that question
+	// and it is still here.
+
 	DefaultMinOrderQty  int  `json:"default_min_order_qty"`
 	DefaultMinThreshold int  `json:"default_min_threshold"`
 	MarkNegotiable      bool `json:"mark_negotiable"`
@@ -246,8 +257,6 @@ func DefaultSettings() Settings {
 		MinMatchScore:       productmatch.DefaultMinStrong,
 		UseAI:               true,
 		BlankQuantityIsZero: true,
-		InferDosageForm:     false,
-		InferConcentration:  false,
 		RejectExpired:       false,
 		DefaultMinOrderQty:  1,
 		DefaultMinThreshold: 0,
@@ -275,9 +284,6 @@ func (s Settings) Normalize() Settings {
 		// the point at which the engine stops believing its own answer — that
 		// is not a preference, it is a way of importing the review queue.
 		s.MinMatchScore = min(max(s.MinMatchScore, productmatch.DefaultMinReview), 1)
-	}
-	if s.DefaultQuantity < 0 {
-		s.DefaultQuantity = 0
 	}
 	if s.DefaultMinOrderQty <= 0 {
 		s.DefaultMinOrderQty = 1

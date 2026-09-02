@@ -67,13 +67,17 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 	}
 
 	var wh *inventory.Warehouse
+	var otherWhs []*inventory.Warehouse
 	var allDetailed []*inventory.DetailedWarehouseStockView
 	if h.invSvc != nil {
 		whs, _ := h.invSvc.ListWarehouses(ctx)
 		for _, item := range whs {
-			if item.ID == whID && item.OrganizationID == actor.OrganizationID {
-				wh = item
-				break
+			if item.OrganizationID == actor.OrganizationID {
+				if item.ID == whID {
+					wh = item
+				} else if item.IsActive {
+					otherWhs = append(otherWhs, item)
+				}
 			}
 		}
 		if wh != nil {
@@ -236,8 +240,9 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 	}
 
 	data := pages.VendorWarehouseDetailData{
-		Warehouse: wh,
-		Stocks:    paged,
+		Warehouse:       wh,
+		OtherWarehouses: otherWhs,
+		Stocks:          paged,
 		Stats:     stats,
 		Filter: pages.VendorWarehouseStockFilter{
 			Query:        q,

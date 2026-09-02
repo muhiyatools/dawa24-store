@@ -132,7 +132,10 @@ func (s *Service) StartImport(
 	}
 	defer func() { _ = book.Close() }()
 
-	analysis, err := productmatch.Analyze(book, s.vocabulary(ctx, orgID))
+	analysis, err := productmatch.AnalyzeWith(book, productmatch.AnalyzeOptions{
+		Vocabulary: s.vocabulary(ctx, orgID),
+		Fields:     productmatch.VendorFields,
+	})
 	if err != nil {
 		return nil, nil, apperr.Validation("import.unreadable", err.Error(), nil)
 	}
@@ -193,7 +196,10 @@ func (s *Service) analyse(ctx context.Context, session *Session) (*productmatch.
 		}
 	}
 
-	analysis, err := productmatch.Analyze(book, s.vocabulary(ctx, session.OrganizationID))
+	analysis, err := productmatch.AnalyzeWith(book, productmatch.AnalyzeOptions{
+		Vocabulary: s.vocabulary(ctx, session.OrganizationID),
+		Fields:     productmatch.VendorFields,
+	})
 	if err != nil {
 		return nil, apperr.Validation("import.unreadable", err.Error(), nil)
 	}

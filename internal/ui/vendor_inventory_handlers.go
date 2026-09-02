@@ -83,7 +83,7 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	h.renderPage(ctx, w, "render vendor inventory page", pages.VendorInventory(data, lang, dir, h.isHTMX(r)))
 }
 
-// VendorTransfersPage renders warehouse inventory transfers.
+// VendorTransfersPage renders warehouse inventory transfers (سجلات حركة المخازن).
 func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -109,14 +109,164 @@ func (h *UIHandler) VendorTransfersPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	whNames := make(map[int64]string)
+	if whs, err := h.invSvc.ListWarehouses(ctx); err == nil {
+		for _, wh := range whs {
+			whNames[wh.ID] = wh.Name
+		}
+	}
+
+	prodNames := make(map[int64]string)
+	if h.catSvc != nil {
+		for _, t := range transfers {
+			if t.ProductID > 0 {
+				if _, ok := prodNames[t.ProductID]; !ok {
+					if p, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), t.ProductID); err == nil && p != nil {
+						prodNames[t.ProductID] = p.Name.Get(i18n.AR)
+					}
+				}
+			}
+			if t.ProductVariantID > 0 {
+				if _, ok := prodNames[t.ProductVariantID]; !ok {
+					if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), t.ProductVariantID); err == nil && v != nil {
+						prodNames[t.ProductVariantID] = v.Name.Get(i18n.AR)
+					}
+				}
+			}
+		}
+	}
+
 	data := pages.VendorTransfersData{
-		Transfers:  transfers,
-		Page:       page,
-		PerPage:    limit,
-		TotalCount: totalCount,
+		Transfers:      transfers,
+		WarehouseNames: whNames,
+		ProductNames:   prodNames,
+		NoticeType:     r.URL.Query().Get("notice_type"),
+		NoticeMsg:      r.URL.Query().Get("notice"),
+		Page:           page,
+		PerPage:        limit,
+		TotalCount:     totalCount,
 	}
 
 	h.renderPage(ctx, w, "render vendor transfers page", pages.VendorTransfers(data, lang, dir, h.isHTMX(r)))
+}
+
+// VendorStockTransferSubmit processes transferring stock from one warehouse to another.
+func (h *UIHandler) VendorStockTransferSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/inventory", http.StatusSeeOther)
+		return
+	}
+
+	redirectURL := r.PostFormValue("redirect_url")
+	if redirectURL == "" {
+		redirectURL = "/vendor/inventory"
+	}
+
+	if h.invSvc == nil {
+		h.redirectWithNotice(w, r, redirectURL, "error", "خدمة المخزون غير متاحة حالياً.")
+		return
+	}
+
+	fromWhID, _ := strconv.ParseInt(r.PostFormValue("from_warehouse_id"), 10, 64)
+	toWhID, _ := strconv.ParseInt(r.PostFormValue("to_warehouse_id"), 10, 64)
+	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+	productID, _ := strconv.ParseInt(r.PostFormValue("product_id"), 10, 64)
+	quantity, _ := strconv.Atoi(r.PostFormValue("quantity"))
+	notes := strings.TrimSpace(r.PostFormValue("notes"))
+	immediate := r.PostFormValue("immediate") == "true" || r.PostFormValue("immediate") == "1"
+
+	if fromWhID <= 0 || toWhID <= 0 {
+		h.redirectWithNotice(w, r, redirectURL, "error", "يجب تحديد المخزن المصدر والمخزن الوجهة للتحويل.")
+		return
+	}
+	if fromWhID == toWhID {
+		h.redirectWithNotice(w, r, redirectURL, "error", "لا يمكن التحويل إلى نفس المخزن، يجب اختيار مخزن مختلف.")
+		return
+	}
+	if quantity <= 0 {
+		h.redirectWithNotice(w, r, redirectURL, "error", "يجب أن تكون الكمية المراد تحويلها أكبر من الصفر.")
+		return
+	}
+
+	// Resolve product ID if variant is provided but product is missing
+	if productID <= 0 && variantID > 0 && h.catSvc != nil {
+		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil {
+			productID = v.ProductID
+		}
+	}
+
+	if productID <= 0 || variantID <= 0 {
+		h.redirectWithNotice(w, r, redirectURL, "error", "تعذر تحديد بيانات الصنف المراد تحويله.")
+		return
+	}
+
+	transferInput := &inventory.WarehouseTransfer{
+		OrganizationID:   actor.OrganizationID,
+		FromWarehouseID:  fromWhID,
+		ToWarehouseID:    toWhID,
+		ProductID:        productID,
+		ProductVariantID: variantID,
+		Quantity:         quantity,
+		Notes:            notes,
+		InitiatedBy:      &actor.UserID,
+	}
+
+	createdTransfer, err := h.invSvc.TransferStock(ctx, transferInput)
+	if err != nil {
+		h.redirectWithNotice(w, r, redirectURL, "error", "فشل تحويل المخزون: "+h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	if immediate && createdTransfer != nil {
+		if _, err := h.invSvc.ReceiveTransfer(ctx, createdTransfer.ID); err != nil {
+			h.redirectWithNotice(w, r, redirectURL, "success", "تم إرسال شحنة التحويل وهي قيد النقل بالمخزن.")
+			return
+		}
+		h.redirectWithNotice(w, r, redirectURL, "success", fmt.Sprintf("تم نقل %d عبوة بنجاح وإيداعها في المخزن الوجهة.", quantity))
+		return
+	}
+
+	h.redirectWithNotice(w, r, redirectURL, "success", fmt.Sprintf("تم إرسال شحنة التحويل (%d عبوة) وقيد النقل.", quantity))
+}
+
+// VendorTransferReceiveSubmit confirms receipt of an in-transit warehouse transfer.
+func (h *UIHandler) VendorTransferReceiveSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/transfers", http.StatusSeeOther)
+		return
+	}
+
+	transferID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if h.invSvc != nil && transferID > 0 {
+		if _, err := h.invSvc.ReceiveTransfer(ctx, transferID); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/transfers", "error", "فشل تأكيد استلام الشحنة: "+h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+	h.redirectWithNotice(w, r, "/vendor/transfers", "success", "تم تأكيد استلام الشحنة بنجاح وإيداع الرصيد في المخزن.")
+}
+
+// VendorTransferCancelSubmit cancels an in-transit warehouse transfer and restores stock to source.
+func (h *UIHandler) VendorTransferCancelSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/transfers", http.StatusSeeOther)
+		return
+	}
+
+	transferID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if h.invSvc != nil && transferID > 0 {
+		if _, err := h.invSvc.CancelTransfer(ctx, transferID, "إلغاء يدوي من سجل الحركات"); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/transfers", "error", "فشل إلغاء التحويل: "+h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+	h.redirectWithNotice(w, r, "/vendor/transfers", "success", "تم إلغاء التحويل واستعادة الرصيد للمخزن المصدر بنجاح.")
 }
 
 // VendorStockAdjustSubmit adjusts a stock level with a reason.

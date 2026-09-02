@@ -41,7 +41,8 @@ func readImportSettings(r *http.Request) catalog.ImportSettings {
 			AssignScientificName: formChecked(r, "assign_scientific_name"),
 			UseAI:                formChecked(r, "use_ai"),
 			DefaultCategoryID:    formInt64(r, "default_category_id"),
-		},
+			MinMatchScore:        formMatchScore(r, "min_match_score"),
+		}.Normalize(),
 		Overrides: readLayoutOverrides(r),
 	}
 }
@@ -219,4 +220,22 @@ func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
 		filename = header.Filename
 	}
 	return content, filename, nil
+}
+
+// formMatchScore reads the shared "أقل نسبة مطابقة" control, which every import
+// screen renders as a whole-number percentage. Zero means "use the platform
+// default" and Normalize supplies it.
+func formMatchScore(r *http.Request, name string) float64 {
+	raw := strings.TrimSpace(r.PostFormValue(name))
+	if raw == "" {
+		return 0
+	}
+	pct, err := strconv.ParseFloat(raw, 64)
+	if err != nil || pct <= 0 {
+		return 0
+	}
+	if pct > 1 {
+		pct /= 100
+	}
+	return pct
 }
