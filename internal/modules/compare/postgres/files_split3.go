@@ -125,13 +125,11 @@ func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error
 	var suppliers []string
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
-			SELECT DISTINCT f.supplier_name
+			SELECT DISTINCT TRIM(f.supplier_name)
 			FROM compare.files f
-			JOIN compare.file_rows r ON r.file_id = f.id
-			WHERE (f.is_temp_warehouse = TRUE OR f.visibility = 'public')
-			  AND f.status != 'failed'
-			  AND (f.deleted_at IS NULL OR f.status = 'ready') 
-			ORDER BY f.supplier_name ASC;
+			WHERE f.deleted_at IS NULL AND f.status = 'ready'
+			  AND TRIM(COALESCE(f.supplier_name, '')) != ''
+			ORDER BY 1 ASC;
 		`)
 		if err != nil {
 			return err
@@ -165,33 +163,35 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 	var args []any
 	argIdx := 1
 
+	effectivePriceSQL := "CASE WHEN COALESCE(r.price_after_discount, 0) > 0 THEN r.price_after_discount ELSE (r.price * (100.0 - COALESCE(r.discount, 0)) / 100.0) END"
+
 	whereClauses := []string{
-		"(f.is_temp_warehouse = TRUE OR f.visibility = 'public')",
-		"f.status != 'failed'",
-		"(f.deleted_at IS NULL OR f.status = 'ready')",
+		"f.deleted_at IS NULL",
+		"f.status = 'ready'",
+		"r.price > 0",
 	}
 
 	if filter.Query != "" {
 		q := strings.TrimSpace(filter.Query)
-		whereClauses = append(whereClauses, fmt.Sprintf("(r.raw_name ILIKE $%d OR r.normalized_name ILIKE $%d OR r.sku ILIKE $%d OR f.supplier_name ILIKE $%d)", argIdx, argIdx, argIdx, argIdx))
+		whereClauses = append(whereClauses, fmt.Sprintf("(r.raw_name ILIKE $%d OR r.normalized_name ILIKE $%d OR COALESCE(r.sku, '') ILIKE $%d OR f.supplier_name ILIKE $%d)", argIdx, argIdx, argIdx, argIdx))
 		args = append(args, "%"+q+"%")
 		argIdx++
 	}
 
 	if filter.Supplier != "" {
-		whereClauses = append(whereClauses, fmt.Sprintf("f.supplier_name = $%d", argIdx))
+		whereClauses = append(whereClauses, fmt.Sprintf("TRIM(f.supplier_name) = $%d", argIdx))
 		args = append(args, strings.TrimSpace(filter.Supplier))
 		argIdx++
 	}
 
 	if filter.MinPrice != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("r.price_after_discount >= $%d", argIdx))
-		args = append(args, int64(*filter.MinPrice*100))
+		whereClauses = append(whereClauses, fmt.Sprintf("(%s) >= $%d", effectivePriceSQL, argIdx))
+		args = append(args, *filter.MinPrice)
 		argIdx++
 	}
 	if filter.MaxPrice != nil {
-		whereClauses = append(whereClauses, fmt.Sprintf("r.price_after_discount <= $%d", argIdx))
-		args = append(args, int64(*filter.MaxPrice*100))
+		whereClauses = append(whereClauses, fmt.Sprintf("(%s) <= $%d", effectivePriceSQL, argIdx))
+		args = append(args, *filter.MaxPrice)
 		argIdx++
 	}
 
@@ -206,20 +206,20 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 		argIdx++
 	}
 
-	orderBy := "r.created_at DESC"
+	orderBy := "r.id DESC"
 	switch filter.SortBy {
 	case "oldest":
-		orderBy = "r.created_at ASC"
+		orderBy = "r.id ASC"
 	case "discount_desc":
-		orderBy = "r.discount DESC, r.price_after_discount ASC"
+		orderBy = fmt.Sprintf("r.discount DESC, (%s) ASC", effectivePriceSQL)
 	case "price_asc":
-		orderBy = "r.price_after_discount ASC, r.discount DESC"
+		orderBy = fmt.Sprintf("(%s) ASC, r.discount DESC", effectivePriceSQL)
 	case "price_desc":
-		orderBy = "r.price_after_discount DESC, r.discount DESC"
+		orderBy = fmt.Sprintf("(%s) DESC, r.discount DESC", effectivePriceSQL)
 	case "newest":
 		fallthrough
 	default:
-		orderBy = "r.created_at DESC"
+		orderBy = "r.id DESC"
 	}
 
 	sql := fmt.Sprintf(`

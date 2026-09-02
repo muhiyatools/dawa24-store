@@ -144,55 +144,57 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 					<!-- Collapsible Advanced Range Filters -->
 					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="pt-3 border-t">
-						<!-- Price Range -->
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
-								نطاق السعر الصافي بعد الخصم (ج.م)
-							</label>
-							<div class="d-flex gap-2 items-center">
-								<input
-									type="number"
-									step="0.5"
-									name="min_price"
-									value={ formatOptionalFloat(filter.MinPrice) }
-									class="form-input text-xs flex-1"
-									placeholder="من سعر"
-								/>
-								<span class="text-muted">-</span>
-								<input
-									type="number"
-									step="0.5"
-									name="max_price"
-									value={ formatOptionalFloat(filter.MaxPrice) }
-									class="form-input text-xs flex-1"
-									placeholder="إلى سعر"
-								/>
+						<div class="grid-2 gap-4">
+							<!-- Price Range -->
+							<div class="stack-2xs">
+								<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
+									نطاق السعر الصافي بعد الخصم (ج.م)
+								</label>
+								<div class="d-flex gap-2 items-center">
+									<input
+										type="number"
+										step="0.5"
+										name="min_price"
+										value={ formatOptionalFloat(filter.MinPrice) }
+										class="form-input text-xs flex-1"
+										placeholder="من سعر"
+									/>
+									<span class="text-muted">-</span>
+									<input
+										type="number"
+										step="0.5"
+										name="max_price"
+										value={ formatOptionalFloat(filter.MaxPrice) }
+										class="form-input text-xs flex-1"
+										placeholder="إلى سعر"
+									/>
+								</div>
 							</div>
-						</div>
 
-						<!-- Discount Range -->
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
-								نطاق نسبة الخصم (%)
-							</label>
-							<div class="d-flex gap-2 items-center">
-								<input
-									type="number"
-									step="1"
-									name="min_discount"
-									value={ formatOptionalFloat(filter.MinDiscount) }
-									class="form-input text-xs flex-1"
-									placeholder="من خصم %"
-								/>
-								<span class="text-muted">-</span>
-								<input
-									type="number"
-									step="1"
-									name="max_discount"
-									value={ formatOptionalFloat(filter.MaxDiscount) }
-									class="form-input text-xs flex-1"
-									placeholder="إلى خصم %"
-								/>
+							<!-- Discount Range -->
+							<div class="stack-2xs">
+								<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
+									نطاق نسبة الخصم (%)
+								</label>
+								<div class="d-flex gap-2 items-center">
+									<input
+										type="number"
+										step="1"
+										name="min_discount"
+										value={ formatOptionalFloat(filter.MinDiscount) }
+										class="form-input text-xs flex-1"
+										placeholder="من خصم %"
+									/>
+									<span class="text-muted">-</span>
+									<input
+										type="number"
+										step="1"
+										name="max_discount"
+										value={ formatOptionalFloat(filter.MaxDiscount) }
+										class="form-input text-xs flex-1"
+										placeholder="إلى خصم %"
+									/>
+								</div>
 							</div>
 						</div>
 					</div>

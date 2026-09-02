@@ -44,49 +44,32 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 				}
 			}
 
-			<!-- Top Nav Tabs matching System -->
-			<div class="tabs-nav">
-				<a href="/vendor/organization" class="tab-btn">
-					المؤسسة
-				</a>
-				<a href="/vendor/team" class="tab-btn">
-					الموظفون
-				</a>
-				<a href="/vendor/user-organization" class="tab-btn active">
-					المستخدم-المنظمة
-				</a>
-				<a href="/vendor/branches" class="tab-btn">
-					الفروع
-				</a>
-				<a href="/vendor/roles" class="tab-btn">
-					الأدوار
-				</a>
-			</div>
-
-			<!-- Header Banner matching system -->
-			<div class="glass-panel p-5 mb-4 d-flex items-center justify-between flex-wrap gap-4">
-				<div>
-					<div class="d-flex items-center gap-2 mb-1">
-						<div class="user-avatar-badge">
-							@components.IconUsers("icon-sm")
-						</div>
-						<h1 class="page-title font-bold text-xl m-0">
-							مستخدمو المنظمات (MANAGE ORGANIZATION MEMBERS)
-						</h1>
-					</div>
-					<p class="text-xs text-secondary m-0">
-						إدارة وتدقيق طلبات ربط الصيدليات وتعيين أكواد المنظمات (Organization Numbers) وتفعيل أو رفض الحسابات.
+			<!-- Header Banner matching platform system -->
+			<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
+				<div class="stack-2xs">
+					<nav class="text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold">
+						<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+						<span class="text-muted">/</span>
+						<a href="/vendor/organization" class="text-secondary transition-colors">إدارة المنشأة</a>
+						<span class="text-muted">/</span>
+						<span class="text-primary font-black">ربط المستخدمين والصيدليات</span>
+					</nav>
+					<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
+						مستخدمو المنظمات والصيدليات المعتمدة ({ fmt.Sprintf("%d", data.TotalCount) })
+					</h1>
+					<p class="text-xs text-secondary mt-1 mb-0 font-medium">
+						إدارة وتدقيق طلبات ربط الصيدليات وتعيين أكواد المنظمات وتفعيل أو رفض الحسابات.
 					</p>
 				</div>
 
-				<div>
+				<div class="d-flex items-center gap-3">
 					<button
 						type="button"
-						class="btn btn-primary btn-sm fw-800"
+						class="btn btn-primary font-bold text-xs px-4 py-2.5 gap-1.5 shadow-xs"
 						data-modal-open="add-vendor-user-org-modal"
 					>
 						@components.IconPlus("icon-xs")
-						<span>ADD USER + (إضافة مستخدم)</span>
+						<span>إضافة مستخدم جديد</span>
 					</button>
 				</div>
 			</div>

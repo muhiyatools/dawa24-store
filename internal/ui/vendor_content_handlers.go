@@ -53,11 +53,13 @@ func (h *UIHandler) VendorPoliciesSubmit(w http.ResponseWriter, r *http.Request)
 	shipping := r.PostFormValue("shipping_policy")
 	returns := r.PostFormValue("returns_policy")
 	terms := r.PostFormValue("terms_policy")
+	warranty := r.PostFormValue("warranty_policy")
 
 	policies := []*org.Policy{
-		{Title: i18n.T("ar", "vendor.policy.shipping_title"), Content: shipping, PolicyType: "shipping", IsActive: true},
-		{Title: i18n.T("ar", "vendor.policy.returns_title"), Content: returns, PolicyType: "returns", IsActive: true},
-		{Title: i18n.T("ar", "vendor.policy.terms_title"), Content: terms, PolicyType: "terms", IsActive: true},
+		{Title: "سياسة الشحن والتسليم", Content: shipping, PolicyType: "shipping", IsActive: true},
+		{Title: "سياسة المرتجعات والاستبدال", Content: returns, PolicyType: "returns", IsActive: true},
+		{Title: "شروط السداد والدفع الآجل", Content: terms, PolicyType: "terms", IsActive: true},
+		{Title: "سياسة الضمان والجودة", Content: warranty, PolicyType: "warranty", IsActive: true},
 	}
 
 	if err := h.orgSvc.SavePolicies(ctx, actor.OrganizationID, policies); err != nil {

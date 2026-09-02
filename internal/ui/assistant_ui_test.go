@@ -99,8 +99,8 @@ func TestAssistantStatesItsRetentionAndReadOnlyNature(t *testing.T) {
 	if !strings.Contains(src, "ستة أشهر") && !strings.Contains(src, "٦ أشهر") {
 		t.Error("the retention note must name the six-month period")
 	}
-	if !strings.Contains(src, "قراءة فقط") {
-		t.Error("the drawer must say the assistant only reads data")
+	if !strings.Contains(src, "capsule-usage-circle-wrap") {
+		t.Error("the drawer must show the circular context usage indicator")
 	}
 }
 

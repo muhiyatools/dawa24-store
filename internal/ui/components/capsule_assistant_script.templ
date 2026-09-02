@@ -129,6 +129,13 @@ templ CapsuleAssistantScript() {
 					return Math.min(100, Math.round((this.usedTokens / this.contextWindow) * 100));
 				},
 
+				usageTooltip() {
+					const pct = this.usagePercent();
+					const used = this.usedTokens ? Number(this.usedTokens).toLocaleString('ar-EG') : '0';
+					const max = this.contextWindow ? Number(this.contextWindow).toLocaleString('ar-EG') : '١٢٨,٠٠٠';
+					return `سياق المحادثة: استهلاك ${used} من أصل ${max} توكن (${pct}%) - المستشار الصيدلي الذكي`;
+				},
+
 				retentionNote() {
 					if (!this.expiresAt) return 'تُحذف المحادثات تلقائياً بعد ٦ أشهر من إنشائها.';
 					try {

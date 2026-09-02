@@ -33,7 +33,7 @@ func CapsuleAssistantTrigger() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"capsule-assistant-host\" x-data=\"capsuleAssistantManager()\" class=\"capsule-assistant-host\"><!-- Floating Trigger: Polished Circular Button (Positioned on the Left) --><button type=\"button\" x-show=\"!isOpen\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"opacity-0 scale-90\" x-transition:enter-end=\"opacity-100 scale-100\" @click=\"openAssistant()\" class=\"capsule-circle-btn\" title=\"المستشار الصيدلي كبسولة\"><div class=\"flex-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"capsule-assistant-host\" x-data=\"capsuleAssistantManager()\" class=\"capsule-assistant-host\"><!-- Floating Trigger: Polished Circular Button (Positioned on the Left) --><button type=\"button\" x-show=\"!isOpen\" x-transition:enter=\"transition ease-out duration-200\" x-transition:enter-start=\"opacity-0 scale-90\" x-transition:enter-end=\"opacity-100 scale-100\" @click=\"openAssistant()\" class=\"capsule-circle-btn\" :title=\"usageTooltip()\"><div class=\"flex-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -41,7 +41,7 @@ func CapsuleAssistantTrigger() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Online Pulse Indicator --><span class=\"capsule-online-badge\"></span></button>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><!-- Online Pulse Indicator --><span class=\"capsule-online-badge\"></span><template x-if=\"usagePercent() > 0\"><span class=\"capsule-usage-floating-pill\" x-text=\"usagePercent() + '%'\"></span></template></button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -355,7 +355,15 @@ func capsuleDrawerBody() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></template></div></form><!-- One quiet line. The first version stacked three sentences —\n\t\t\t\t     read-only, a full Arabic deletion date, and a labelled usage\n\t\t\t\t     meter — under a composer that is itself only 40px tall, so the\n\t\t\t\t     footer competed with the conversation. The deletion date moved to\n\t\t\t\t     the tooltip: it is worth stating, not worth a line. --><div class=\"capsule-footnote\"><span class=\"capsule-footnote-item\" :title=\"retentionNote()\">قراءة فقط</span><template x-if=\"usagePercent() > 0\"><span class=\"capsule-usage\" :title=\"'السياق المستخدم من سعة المحادثة'\"><span class=\"capsule-usage-bar\"><span class=\"capsule-usage-fill\" :style=\"'width:' + usagePercent() + '%'\"></span></span> <span x-text=\"usagePercent() + '%'\"></span></span></template></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></template></div></form><!-- Polished Footer with Circular Usage Meter and Retention Indicator --><div class=\"capsule-footnote flex-between items-center px-1\"><div class=\"d-flex items-center gap-2\"><!-- Circular Usage Meter --><div class=\"capsule-usage-circle-wrap\" :title=\"usageTooltip()\"><svg class=\"capsule-usage-svg\" viewBox=\"0 0 36 36\"><path class=\"capsule-usage-circle-bg\" d=\"M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831\"></path> <path class=\"capsule-usage-circle-fg\" :stroke-dasharray=\"usagePercent() + ', 100'\" d=\"M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831\"></path></svg> <span class=\"capsule-usage-text tabular-nums\" x-text=\"usagePercent() + '%'\"></span></div><span class=\"text-2xs text-muted font-medium\" x-text=\"usedTokens ? (usedTokens.toLocaleString() + ' / ' + (contextWindow || 128000).toLocaleString() + ' توكن') : 'السياق جاهز'\"></span></div><div class=\"d-flex items-center gap-1 text-2xs text-muted\" :title=\"retentionNote()\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconClock("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span>الحفظ التلقائي</span></div></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

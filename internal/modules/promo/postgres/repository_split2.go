@@ -215,8 +215,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 	return &o, nil
 }
 
-// ListSpecialOffersByOrg returns all special offers for an organization from
-// the merged offers family (065 records carry source = 'special').
+// ListSpecialOffersByOrg returns all special offers for an organization with their products.
 func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([]*promo.SpecialOffer, error) {
 	var list []*promo.SpecialOffer
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -235,7 +234,6 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 			FROM promo.offers o
 			LEFT JOIN org.branches b ON b.id = o.branch_id
 			WHERE o.organization_id = $1
-			  AND o.source = 'special'
 			  AND o.deleted_at IS NULL
 			ORDER BY o.created_at DESC;
 		`
@@ -258,7 +256,43 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 			}
 			list = append(list, &o)
 		}
-		return rows.Err()
+		if err := rows.Err(); err != nil {
+			return err
+		}
+
+		// Load products for all retrieved offers
+		for _, o := range list {
+			pRows, err := tx.Query(txCtx, `
+				SELECT p.id, p.offer_id,
+				       COALESCE(p.product_id, pv.product_id, 0),
+				       COALESCE(p.variant_id, pv.id, 0),
+				       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
+				       COALESCE(pv.price, prod.base_price, 0),
+				       COALESCE(p.custom_price, 0),
+				       COALESCE(p.custom_discount_percentage, 0),
+				       COALESCE(p.custom_discount_amount, 0),
+				       COALESCE(NULLIF(p.custom_qty, 0), 1),
+				       p.created_at
+				FROM promo.offer_products p
+				LEFT JOIN catalog.product_variants pv ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
+				LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
+				WHERE p.offer_id = $1;
+			`, o.ID)
+			if err == nil {
+				for pRows.Next() {
+					var p promo.SpecialOfferProduct
+					if err := pRows.Scan(
+						&p.ID, &p.OfferID, &p.ProductID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
+						&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
+					); err == nil {
+						o.Products = append(o.Products, &p)
+					}
+				}
+				pRows.Close()
+			}
+		}
+
+		return nil
 	})
 	return list, err
 }

@@ -58,7 +58,7 @@ templ VendorReviewsPage(data VendorReviewsViewData, lang, dir string) {
 
 			<!-- KPI Scorecards Breakdown -->
 			if data.TotalCount > 0 {
-				<div class="grid-auto-fit-sm gap-4 mb-6">
+				<div class="dashboard-stat-grid cols-3 mb-6">
 					
 					<div class="stat-card-3d">
 						<div class="flex-between items-center mb-1">
@@ -110,23 +110,37 @@ templ VendorReviewsPage(data VendorReviewsViewData, lang, dir string) {
 			} else {
 				<div class="d-flex flex-col gap-4 mb-6">
 					for _, rv := range data.Reviews {
-						<div class="glass-panel p-5 border rounded-2xl shadow-xs">
+						{{
+							scRep := rv.ScoreRep
+							if scRep <= 0 {
+								scRep = rv.Rating
+							}
+							scQuality := rv.ScoreQuality
+							if scQuality <= 0 {
+								scQuality = rv.Rating
+							}
+							scSpeed := rv.ScoreSpeed
+							if scSpeed <= 0 {
+								scSpeed = rv.Rating
+							}
+						}}
+						<div class="review-card-item">
 							<!-- Card Top Bar: Pharmacy Name, Rating, Date -->
-							<div class="flex-between items-start flex-wrap gap-3 pb-3 border-b mb-3">
+							<div class="review-card-header">
 								<div class="d-flex items-center gap-3">
-									<div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 font-black d-flex items-center justify-center flex-shrink-0 text-sm border border-emerald-200">
-										@components.IconBuilding("icon-xs")
+									<div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-700 font-black d-flex items-center justify-center flex-shrink-0 text-xs border border-emerald-200">
+										@components.IconBuilding("icon-2xs")
 									</div>
 									<div class="stack-2xs">
 										<div class="d-flex items-center gap-2">
-											<strong class="text-sm font-black text-primary">{ rv.ReviewerOrgName }</strong>
+											<strong class="text-xs font-black text-primary">{ rv.ReviewerOrgName }</strong>
 											if rv.OrderNumber != "" {
 												<span class="badge badge-slate text-2xs font-mono font-bold">
 													طلب #{ rv.OrderNumber }
 												</span>
 											}
 										</div>
-										<span class="text-2xs text-muted font-medium">
+										<span class="text-2xs text-muted font-medium d-block mt-0.5">
 											{ format.Date(rv.CreatedAt, lang) }
 										</span>
 									</div>
@@ -134,62 +148,42 @@ templ VendorReviewsPage(data VendorReviewsViewData, lang, dir string) {
 
 								<div class="d-flex items-center gap-2">
 									@components.RatingStars(float64(rv.Rating), 0)
-									<span class="badge badge-amber text-xs font-black tabular-nums">
+									<span class="badge badge-amber text-2xs font-black tabular-nums">
 										{ fmt.Sprintf("%d / 5", rv.Rating) }
 									</span>
 								</div>
 							</div>
 
 							<!-- 3 Metrics Criteria Badges -->
-							<div class="d-flex items-center gap-2.5 flex-wrap mb-3">
-								<div class="d-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border text-xs font-bold text-secondary">
-									<span>المندوب:</span>
-									<strong class="text-primary tabular-nums">
-										if rv.ScoreRep > 0 {
-											{ fmt.Sprintf("%d ★", rv.ScoreRep) }
-										} else {
-											<span>{ fmt.Sprintf("%d ★", rv.Rating) }</span>
-										}
-									</strong>
-								</div>
-
-								<div class="d-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border text-xs font-bold text-secondary">
-									<span>الخدمة والجودة:</span>
-									<strong class="text-primary tabular-nums">
-										if rv.ScoreQuality > 0 {
-											{ fmt.Sprintf("%d ★", rv.ScoreQuality) }
-										} else {
-											<span>{ fmt.Sprintf("%d ★", rv.Rating) }</span>
-										}
-									</strong>
-								</div>
-
-								<div class="d-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-sunken border text-xs font-bold text-secondary">
-									<span>سرعة التوصيل:</span>
-									<strong class="text-primary tabular-nums">
-										if rv.ScoreSpeed > 0 {
-											{ fmt.Sprintf("%d ★", rv.ScoreSpeed) }
-										} else {
-											<span>{ fmt.Sprintf("%d ★", rv.Rating) }</span>
-										}
-									</strong>
-								</div>
+							<div class="review-criteria-strip">
+								<span class="review-criteria-chip">
+									<span>مندوب التوصيل:</span>
+									<strong class="tabular-nums">{ fmt.Sprintf("%d ★", scRep) }</strong>
+								</span>
+								<span class="review-criteria-chip">
+									<span>جودة الخدمة:</span>
+									<strong class="tabular-nums">{ fmt.Sprintf("%d ★", scQuality) }</strong>
+								</span>
+								<span class="review-criteria-chip">
+									<span>سرعة التجهيز:</span>
+									<strong class="tabular-nums">{ fmt.Sprintf("%d ★", scSpeed) }</strong>
+								</span>
 							</div>
 
 							<!-- Pharmacy Review Text -->
 							if rv.ReviewText != "" {
-								<div class="p-3.5 bg-surface-sunken rounded-xl border text-xs text-primary font-medium leading-relaxed mb-3">
-									"{ rv.ReviewText }"
-								</div>
+								<blockquote class="review-quote-body">
+									{ rv.ReviewText }
+								</blockquote>
 							}
 
 							<!-- Vendor Reply Section -->
 							if rv.Response != "" {
-								<div class="p-4 bg-brand-subtle border border-brand/20 rounded-xl mb-2">
-									<div class="flex-between items-center mb-1.5">
-										<div class="d-flex items-center gap-1.5 text-xs font-extrabold text-brand">
-											@components.IconMessageSquare("icon-xs")
-											<span>رد منشأتك على الصيدلية:</span>
+								<div class="p-3.5 bg-brand-subtle border border-brand/20 rounded-xl">
+									<div class="flex-between items-center mb-1">
+										<div class="d-flex items-center gap-1.5 text-xs font-black text-brand">
+											@components.IconCheck("icon-2xs")
+											<span>رد منشأتك الرسمي:</span>
 										</div>
 										if rv.ResponseAt != nil {
 											<span class="text-2xs text-muted font-medium">
@@ -204,7 +198,7 @@ templ VendorReviewsPage(data VendorReviewsViewData, lang, dir string) {
 							}
 
 							<!-- Reply Action / Form (Toggleable) -->
-							<div class="mt-2 pt-2 border-t">
+							<div class="pt-2 border-t mt-1">
 								<details class="group">
 									<summary class="btn btn-secondary btn-xs font-bold cursor-pointer inline-flex items-center gap-1.5 select-none">
 										@components.IconMessageSquare("icon-2xs")

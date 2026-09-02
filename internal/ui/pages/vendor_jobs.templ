@@ -764,11 +764,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					if (!apps || apps.length === 0) {
 						document.getElementById('applicants-modal-content').innerHTML = `
-							<div class="text-center p-12">
-								<div class="text-4xl mb-2">@components.IconMail("icon-sm")</div>
-								<h4 class="text-primary font-extrabold m-0">لا يوجد متقدمين حتى الآن</h4>
+							<div class="text-center p-10">
+								<div class="text-3xl mb-2">📬</div>
+								<h4 class="text-primary font-extrabold text-sm m-0">لا يوجد متقدمين حتى الآن</h4>
 								<p class="text-muted text-xs mt-1">
-									لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.
+									لم يقم أي باحث عن عمل بالتقديم على هذه الوظيفة الشاغرة بعد.
 								</p>
 							</div>
 						`;
@@ -779,30 +779,34 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					apps.forEach(app => {
 						const dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';
-						const cvBtn = app.cv_storage_key 
-							? `<a href="${app.cv_storage_key}" target="_blank" class="btn btn-secondary btn-sm" class="text-xs font-bold gap-1 text-accent">
-									<span>@components.IconFile("icon-sm")</span>
+						let cvUrl = app.cv_storage_key || '';
+						if (cvUrl && !cvUrl.startsWith('http') && !cvUrl.startsWith('/')) {
+							cvUrl = '/' + cvUrl;
+						}
+						const cvBtn = cvUrl 
+							? `<a href="${cvUrl}" target="_blank" download class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+									<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
 									<span>تحميل السيرة الذاتية (CV)</span>
 							   </a>`
-							: `<span class="text-xs text-muted">لم يرفق CV</span>`;
+							: `<span class="badge badge-slate text-2xs font-medium">لم يُرفق CV</span>`;
 
 						let statusBadge = '';
 						let actionButtons = '';
 
 						if (app.status === 'accepted' || app.status === 'hired') {
 							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'المقر الرئيسي';
-							statusBadge = `<span class="badge badge-emerald text-xs font-bold">تم القبول والتعيين (${branchText})</span>`;
+							statusBadge = `<span class="badge badge-emerald text-2xs font-bold gap-1"><svg class="icon-2xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span>تم القبول والتعيين (${branchText})</span></span>`;
 						} else if (app.status === 'rejected') {
-							statusBadge = `<span class="badge badge-slate text-xs font-bold">تم رفض الطلب</span>`;
+							statusBadge = `<span class="badge badge-slate text-2xs font-bold">تم رفض الطلب</span>`;
 						} else {
-							statusBadge = `<span class="badge badge-sky text-xs font-bold">⏳ قيد المراجعة</span>`;
+							statusBadge = `<span class="badge badge-sky text-2xs font-bold">⏳ قيد المراجعة</span>`;
 							actionButtons = `
 								<div class="d-flex gap-1.5 items-center">
-									<button type="button" class="btn btn-primary btn-sm fw-800" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')" class="text-xs px-3 py-1.5 gap-1">
-										<span>@components.IconCheckCircle("icon-sm")</span>
+									<button type="button" class="btn btn-primary btn-sm font-bold text-xs px-3 py-1.5 gap-1 shadow-2xs" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
+										<svg class="icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
 										<span>قبول وتعيين</span>
 									</button>
-									<button type="button" class="btn btn-secondary btn-sm text-danger" onclick="rejectApplicant(${jobId}, ${app.id})" class="text-xs px-2.5 py-1.5">
+									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger text-xs px-2.5 py-1.5" onclick="rejectApplicant(${jobId}, ${app.id})">
 										<span>رفض</span>
 									</button>
 								</div>
@@ -810,19 +814,21 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						}
 
 						html += `
-							<div class="p-4 bg-surface-sunken border rounded-2xl flex-between items-center flex-wrap gap-4">
-        <div class="stack-sm">
-									<div class="inline-row-06">
-										<span class="font-black text-base text-primary">${app.applicant_name || 'متقدم'}</span>
+							<div class="p-4 bg-surface-sunken border rounded-2xl flex-between items-center flex-wrap gap-4 shadow-2xs">
+								<div class="stack-2xs">
+									<div class="d-flex items-center gap-2 flex-wrap">
+										<strong class="font-black text-sm text-primary">${app.applicant_name || 'متقدم'}</strong>
 										${statusBadge}
 									</div>
-									<div class="d-flex gap-4 text-xs text-muted mt-1 flex-wrap">
+									<div class="d-flex gap-3 text-xs text-muted mt-1 flex-wrap font-medium">
 										<span>${app.applicant_email || '-'}</span>
+										<span>•</span>
 										<span>${app.applicant_phone || '-'}</span>
+										<span>•</span>
 										<span>${dateStr}</span>
 									</div>
 								</div>
-								<div class="d-flex items-center gap-3 flex-wrap">
+								<div class="d-flex items-center gap-2.5 flex-wrap">
 									${cvBtn}
 									${actionButtons}
 								</div>

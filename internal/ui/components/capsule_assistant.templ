@@ -19,13 +19,16 @@ templ CapsuleAssistantTrigger() {
 			x-transition:enter-end="opacity-100 scale-100"
 			@click="openAssistant()"
 			class="capsule-circle-btn"
-			title="المستشار الصيدلي كبسولة"
+			:title="usageTooltip()"
 		>
 			<div class="flex-center">
 				@IconSparkles("icon-md")
 			</div>
 			<!-- Online Pulse Indicator -->
 			<span class="capsule-online-badge"></span>
+			<template x-if="usagePercent() > 0">
+				<span class="capsule-usage-floating-pill" x-text="usagePercent() + '%'"></span>
+			</template>
 		</button>
 
 		@capsuleDrawerBody()
@@ -498,21 +501,23 @@ templ capsuleDrawerBody() {
 					</div>
 				</form>
 
-				<!-- One quiet line. The first version stacked three sentences —
-				     read-only, a full Arabic deletion date, and a labelled usage
-				     meter — under a composer that is itself only 40px tall, so the
-				     footer competed with the conversation. The deletion date moved to
-				     the tooltip: it is worth stating, not worth a line. -->
-				<div class="capsule-footnote">
-					<span class="capsule-footnote-item" :title="retentionNote()">قراءة فقط</span>
-					<template x-if="usagePercent() > 0">
-						<span class="capsule-usage" :title="'السياق المستخدم من سعة المحادثة'">
-							<span class="capsule-usage-bar">
-								<span class="capsule-usage-fill" :style="'width:' + usagePercent() + '%'"></span>
-							</span>
-							<span x-text="usagePercent() + '%'"></span>
-						</span>
-					</template>
+				<!-- Polished Footer with Circular Usage Meter and Retention Indicator -->
+				<div class="capsule-footnote flex-between items-center px-1">
+					<div class="d-flex items-center gap-2">
+						<!-- Circular Usage Meter -->
+						<div class="capsule-usage-circle-wrap" :title="usageTooltip()">
+							<svg class="capsule-usage-svg" viewBox="0 0 36 36">
+								<path class="capsule-usage-circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+								<path class="capsule-usage-circle-fg" :stroke-dasharray="usagePercent() + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+							</svg>
+							<span class="capsule-usage-text tabular-nums" x-text="usagePercent() + '%'"></span>
+						</div>
+						<span class="text-2xs text-muted font-medium" x-text="usedTokens ? (usedTokens.toLocaleString() + ' / ' + (contextWindow || 128000).toLocaleString() + ' توكن') : 'السياق جاهز'"></span>
+					</div>
+					<div class="d-flex items-center gap-1 text-2xs text-muted" :title="retentionNote()">
+						@IconClock("icon-2xs")
+						<span>الحفظ التلقائي</span>
+					</div>
 				</div>
 
 			</div>
