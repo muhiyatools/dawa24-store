@@ -111,6 +111,21 @@ func (h *UIHandler) registerAdminImportRoutes(r chi.Router) {
 		g.Post("/admin/products/images/import/{id}/mapping", h.AdminProductImagesMappingSubmit)
 		g.Post("/admin/products/images/import/{id}/cancel", h.AdminProductImagesCancelSubmit)
 	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("catalog.org_import.view"))
+		g.Get("/admin/organizations/import", h.AdminOrgImportPage)
+		g.Get("/admin/organizations/import/saving/{id}", h.AdminOrgImportSavingSessionPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("catalog.org_import.run"))
+		g.Post("/admin/organizations/import/saving/upload", h.AdminOrgImportSavingsUploadSubmit)
+		g.Post("/admin/organizations/import/saving/{id}/map", h.AdminOrgImportSavingSessionMapSubmit)
+		g.Post("/admin/organizations/import/saving/{id}/commit", h.AdminOrgImportSavingSessionCommitSubmit)
+		g.Post("/admin/organizations/import/saving/{id}/cancel", h.AdminOrgImportSavingSessionCancelSubmit)
+		g.Post("/admin/organizations/import/temp-warehouse/upload", h.AdminOrgImportTempWarehouseUploadSubmit)
+	})
 }
 
 func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {

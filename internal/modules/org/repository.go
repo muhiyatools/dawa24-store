@@ -67,6 +67,10 @@ type Repository interface {
 	HasDeliveredOrderFromVendor(ctx context.Context, customerOrgID, vendorOrgID int64) (bool, error)
 	GetReviewCriteria(ctx context.Context, contextType string) ([]*ReviewCriterion, error)
 	ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error
+	ListAdminReviewsWithTotal(ctx context.Context, filter AdminReviewFilter) ([]*Review, int, error)
+	GetAdminReviewStats(ctx context.Context) (*AdminReviewStats, error)
+	UpdateReviewStatus(ctx context.Context, reviewID int64, isApproved bool) error
+	SoftDeleteReview(ctx context.Context, reviewID int64) error
 
 	ToggleFollower(ctx context.Context, orgID, userID int64) (bool, error)
 	IsFollowing(ctx context.Context, orgID, userID int64) (bool, error)

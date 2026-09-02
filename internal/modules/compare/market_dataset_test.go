@@ -125,7 +125,7 @@ func TestBestOfferIsCheapestNotMostDiscounted(t *testing.T) {
 
 // An empty market is explained, not filled with plausible advice.
 func TestEmptyMarketProducesNoFabricatedAdvice(t *testing.T) {
-	report := compare.ReportFromDataset(compare.BuildMarketDataset(nil), 0, false)
+	report := compare.ReportFromDataset(compare.BuildMarketDataset(nil), 0, false, "ar")
 	if report.HasData() {
 		t.Fatal("HasData() on an empty market")
 	}
@@ -147,7 +147,7 @@ func TestStrategicReportArithmetic(t *testing.T) {
 		offer(2, "ب", "دواء واحد", ptr(1), 100, 0),  // net 100.00 ← worst
 		offer(3, "أ", "دواء اثنان", ptr(2), 50, 10), // net 45.00 ← best
 		offer(4, "ب", "دواء اثنان", ptr(2), 50, 0),  // net 50.00 ← worst
-	}), 2, true)
+	}), 2, true, "ar")
 
 	if got := report.OptimalCost.String(); got != "125.00" {
 		t.Errorf("OptimalCost = %s, want 125.00", got)

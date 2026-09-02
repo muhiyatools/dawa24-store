@@ -105,9 +105,11 @@ type SavingRowFilter struct {
 
 // SavingImportView is the view model passed into the SavingImportPage template.
 type SavingImportView struct {
-	Audience   string
-	BaseURL    string
-	ImportURL  string
+	Audience        string
+	TargetOrgName   string
+	TargetOrgType   string
+	BaseURL         string
+	ImportURL       string
 	Session    *SavingImportSession
 	Sessions   []*SavingImportSession
 	Filter     SavingRowFilter

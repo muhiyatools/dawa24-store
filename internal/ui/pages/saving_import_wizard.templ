@@ -12,6 +12,10 @@ templ SavingImportPage(view SavingImportView, lang, dir string) {
 		@layouts.VendorShell("استيراد قائمة أصناف التوفير | Dawa24", "saving_products", lang, dir) {
 			@savingImportContent(view)
 		}
+	} else if view.Audience == "admin" {
+		@layouts.AdminShell("استيراد منتجات التوفير لمنظمة | Dawa24", "org_imports", lang, dir) {
+			@savingImportContent(view)
+		}
 	} else {
 		@layouts.CustomerShell("استيراد قائمة أصناف التوفير | Dawa24", "saving_products", lang, dir, nil) {
 			@savingImportContent(view)
@@ -21,6 +25,18 @@ templ SavingImportPage(view SavingImportView, lang, dir string) {
 
 templ savingImportContent(view SavingImportView) {
 	<div class="page-container">
+		if view.TargetOrgName != "" {
+			<div class="alert alert-info mb-4 d-flex items-center gap-3 p-3.5 rounded-xl border border-blue-200 bg-blue-50/70 shadow-xs">
+				@components.IconBuilding("icon-sm text-blue-600 flex-shrink-0")
+				<div>
+					<span class="font-bold text-xs text-blue-900">الاستيراد جارٍ لحساب المنشأة: </span>
+					<strong class="text-sm font-black text-blue-950">{ view.TargetOrgName }</strong>
+					if view.TargetOrgType != "" {
+						<span class="badge badge-purple text-2xs ms-2">{ view.TargetOrgType }</span>
+					}
+				</div>
+			</div>
+		}
 		<div class="glass-panel p-6 mb-6">
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div class="d-flex items-center gap-3">

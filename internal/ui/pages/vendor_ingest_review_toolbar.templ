@@ -1,0 +1,188 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// reviewBulkBar is the review screen's actual unit of work.
+templ reviewBulkBar(view VendorImportView) {
+	{{ scope := view.Filter.MatchLevel }}
+	<form id="review-bulk" method="POST"
+		action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/bulk?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+		class="glass-panel p-3 px-4 mb-4 review-bulk-bar">
+		<input type="hidden" name="f_match" value={ view.Filter.MatchLevel }/>
+		<input type="hidden" name="f_outcome" value={ view.Filter.Outcome }/>
+		<input type="hidden" name="f_q" value={ view.Filter.Search }/>
+
+		<div class="review-bulk-row">
+			<label class="review-bulk-pickall">
+				<input type="checkbox" onchange="reviewToggleAll(this)"/>
+				<span class="font-extrabold text-xs">Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã™Æ’Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€ Ã˜Â§Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â±Ã™Ë†Ã˜Â¶Ã˜Â©</span>
+			</label>
+			<span class="text-xs text-muted review-bulk-count" id="review-bulk-count">Ã™â€žÃ™â€¦ Ã™Å Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã˜Â£Ã™Å  Ã˜ÂµÃ™â€ Ã™Â</span>
+
+			<label class="review-bulk-scope">
+				<input type="checkbox" name="select_scope" value="filter"/>
+				<span class="text-xs">
+					Ã˜Â·Ã˜Â¨Ã™â€˜Ã™â€š Ã˜Â¹Ã™â€žÃ™â€° Ã™Æ’Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€ Ã˜Â§Ã™Â Ã™ÂÃ™Å  Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã™Ë†Ã™Å Ã˜Â¨ Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â§Ã™â€žÃ™Å  ({ fmt.Sprint(view.RowTotal) }) Ã™Ë†Ã™â€žÃ™Å Ã˜Â³ Ã™â€¡Ã˜Â°Ã™â€¡ Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ˜Â­Ã˜Â© Ã™ÂÃ™â€šÃ˜Â·
+				</span>
+			</label>
+
+			<div class="review-bulk-actions">
+				if scope != "matched" {
+					<button type="submit" name="bulk_action" value="confirm"
+						class="btn btn-primary btn-sm font-extrabold text-xs"
+						title="Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™â€ Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã™â€šÃ˜ÂªÃ˜Â±Ã˜Â­ Ã™â€žÃ™Æ’Ã™â€ž Ã˜ÂµÃ™Â Ã™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯ Ã™Ë†Ã™â€ Ã™â€šÃ™â€žÃ™â€¡ Ã˜Â¥Ã™â€žÃ™â€° Ã‚Â«Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ‚Â» Ã™â€žÃ™Å Ã™ÂÃ˜Â³Ã˜ÂªÃ™Ë†Ã˜Â±Ã˜Â¯">
+						Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯ Ã™Æ’Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€š
+					</button>
+				}
+				<button type="submit" name="bulk_action" value="unlink"
+					class="btn btn-secondary btn-sm font-bold text-xs"
+					title="Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¨Ã˜Â· Ã˜Â¨Ã˜Â§Ã™â€žÃ™Æ’Ã˜ÂªÃ˜Â§Ã™â€žÃ™Ë†Ã˜Â¬ Ã˜Â¹Ã™â€  Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯Ã˜Â©">
+					Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¨Ã˜Â·
+				</button>
+				<button type="submit" name="bulk_action" value="exclude"
+					class="btn btn-ghost btn-sm font-bold text-xs text-danger"
+					title="Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â¨Ã˜Â¹Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯Ã˜Â© Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™Å Ã˜Â±Ã˜Â§Ã˜Â¯">
+					Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â¨Ã˜Â¹Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯
+				</button>
+				<button type="submit" name="bulk_action" value="include"
+					class="btn btn-ghost btn-sm font-bold text-xs"
+					title="Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯Ã˜Â© Ã˜Â¥Ã™â€žÃ™â€° Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™Å Ã˜Â±Ã˜Â§Ã˜Â¯">
+					Ã¢â€ Âº Ã˜Â¥Ã˜Â¹Ã˜Â§Ã˜Â¯Ã˜Â© Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯
+				</button>
+			</div>
+		</div>
+
+		if scope == "review" || scope == "unmatched" {
+			<div class="review-bulk-hint text-xs">
+				Ã˜Â§Ã™â€žÃ˜Â£Ã˜ÂµÃ™â€ Ã˜Â§Ã™Â Ã™ÂÃ™Å  Ã™â€¡Ã˜Â°Ã˜Â§ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã™Ë†Ã™Å Ã˜Â¨ <strong>Ã™â€žÃ™â€  Ã˜ÂªÃ™ÂÃ˜Â³Ã˜ÂªÃ™Ë†Ã˜Â±Ã˜Â¯</strong> Ã˜Â­Ã˜ÂªÃ™â€° Ã˜ÂªÃ˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â¯Ã™â€¡Ã˜Â§. Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹ Ã˜Â§Ã™â€žÃ˜ÂµÃ™â€ Ã™Â Ã˜Â§Ã™â€žÃ™â€¦Ã™â€šÃ˜ÂªÃ˜Â±Ã˜Â­ Ã™â€žÃ™Æ’Ã™â€ž Ã˜ÂµÃ™ÂÃ˜Å’
+				Ã˜Â£Ã™â€žÃ˜ÂºÃ™Â Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜ÂµÃ™ÂÃ™Ë†Ã™Â Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â§Ã˜Â·Ã˜Â¦Ã˜Â©Ã˜Å’ Ã˜Â«Ã™â€¦ Ã˜Â§Ã˜Â¶Ã˜ÂºÃ˜Â· Ã‚Â«Ã˜Â§Ã˜Â¹Ã˜ÂªÃ™â€¦Ã˜Â§Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã˜Â¯Ã˜Â¯ Ã™Æ’Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€šÃ‚Â» Ã¢â‚¬â€ Ã˜Â£Ã™Ë† Ã˜Â§Ã˜Â±Ã˜Â¨Ã˜Â· Ã˜Â§Ã™â€žÃ˜ÂµÃ™Â Ã™Å Ã˜Â¯Ã™Ë†Ã™Å Ã˜Â§Ã™â€¹ Ã˜Â¨Ã˜Â²Ã˜Â± Ã‚Â«Ã˜Â±Ã˜Â¨Ã˜Â·Ã‚Â».
+			</div>
+		}
+	</form>
+}
+
+templ reviewFilterTab(view VendorImportView, matchKey, label string) {
+	{{
+		active := (matchKey == "" && view.Filter.MatchLevel == "") || view.Filter.MatchLevel == matchKey
+		href := buildReviewURL(view.Session.PublicID, matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, view.Filter.Search)
+	}}
+	<a href={ templ.SafeURL(href) }
+		class={ "wiz-chip", templ.KV("is-on", active) }>
+		{ label }
+	</a>
+}
+
+templ reviewSortHeader(view VendorImportView, colKey, label string) {
+	{{
+		isCurrent := view.Filter.SortBy == colKey || (view.Filter.SortBy == "" && colKey == "row")
+		nextOrder := "asc"
+		icon := "Ã¢â€¡â€¦"
+		if isCurrent {
+			if view.Filter.SortOrder == "desc" {
+				nextOrder = "asc"
+				icon = "Ã¢â€“Â¼"
+			} else {
+				nextOrder = "desc"
+				icon = "Ã¢â€“Â²"
+			}
+		} else if colKey == "score" || colKey == "price" || colKey == "quantity" {
+			nextOrder = "desc"
+		}
+		href := buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, colKey, nextOrder, 1, view.PerPage, view.Filter.Search)
+	}}
+	<a href={ templ.SafeURL(href) }
+		class="row-center-xs gap-xs text-secondary hover-text-primary"
+		title={ fmt.Sprintf("Ã˜ÂªÃ˜Â±Ã˜ÂªÃ™Å Ã˜Â¨ Ã˜Â­Ã˜Â³Ã˜Â¨ %s", label) }>
+		<span>{ label }</span>
+		<span class="text-xs">{ icon }</span>
+	</a>
+}
+
+templ reviewPagination(view VendorImportView) {
+	{{
+		currPage := view.Page
+		if currPage <= 0 {
+			currPage = 1
+		}
+	}}
+	if view.RowTotal > 0 {
+		@components.B2BPagination(components.PaginationProps{
+			CurrentPage: currPage,
+			PageSize:    view.PerPage,
+			TotalCount:  view.RowTotal,
+			BaseURL:     "/vendor/ingest/" + view.Session.PublicID,
+			QueryValues: reviewPaginationQuery(view),
+		})
+	}
+}
+
+// reviewPaginationQuery carries the match-level tab, sort and search through a page change.
+func reviewPaginationQuery(view VendorImportView) url.Values {
+	q := url.Values{}
+	if view.Filter.MatchLevel != "" {
+		q.Set("match", view.Filter.MatchLevel)
+	}
+	if view.Filter.SortBy != "" {
+		q.Set("sort", view.Filter.SortBy)
+	}
+	if view.Filter.SortOrder != "" {
+		q.Set("order", view.Filter.SortOrder)
+	}
+	if view.Filter.Search != "" {
+		q.Set("q", view.Filter.Search)
+	}
+	return q
+}
+
+func buildReviewURL(publicID, match, sortBy, sortOrder string, page, limit int, search string) string {
+	u := fmt.Sprintf("/vendor/ingest/%s?page=%d&limit=%d", publicID, page, limit)
+	if match != "" {
+		u += "&match=" + match
+	}
+	if sortBy != "" {
+		u += "&sort=" + sortBy
+	}
+	if sortOrder != "" {
+		u += "&order=" + sortOrder
+	}
+	if search != "" {
+		u += "&q=" + search
+	}
+	return u
+}
+
+func matchLevelText(level string) string {
+	switch productmatch.MatchLevel(level) {
+	case productmatch.MatchBarcode:
+		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜Â¨Ã˜Â§Ã™â€žÃ˜Â¨Ã˜Â§Ã˜Â±Ã™Æ’Ã™Ë†Ã˜Â¯"
+	case productmatch.MatchCode:
+		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜Â¨Ã˜Â§Ã™â€žÃ™Æ’Ã™Ë†Ã˜Â¯"
+	case productmatch.MatchExact:
+		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜ÂªÃ˜Â§Ã™â€¦"
+	case productmatch.MatchStrong:
+		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã™â€šÃ™Ë†Ã™Å "
+	case productmatch.MatchReview:
+		return "Ã™Å Ã˜Â­Ã˜ÂªÃ˜Â§Ã˜Â¬ Ã™â€¦Ã˜Â±Ã˜Â§Ã˜Â¬Ã˜Â¹Ã˜Â©"
+	case productmatch.MatchAmbiguous:
+		return "Ã˜ÂªÃ˜Â·Ã˜Â§Ã˜Â¨Ã™â€š Ã˜ÂºÃ˜Â§Ã™â€¦Ã˜Â¶"
+	default:
+		return "Ã˜ÂºÃ™Å Ã˜Â± Ã™â€¦Ã˜Â·Ã˜Â§Ã˜Â¨Ã™â€š"
+	}
+}
+
+func matchScoreBadgeTone(score float64) string {
+	switch {
+	case score >= productmatch.DefaultMinStrong:
+		return "badge-emerald"
+	case score >= productmatch.DefaultMinReview:
+		return "badge-amber"
+	default:
+		return "badge-rose"
+	}
+}

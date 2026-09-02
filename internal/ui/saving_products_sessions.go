@@ -109,6 +109,18 @@ func (s *SavingImportSessionStore) GetSession(id string, orgID int64) (*SavingIm
 	return sess, true
 }
 
+// GetSessionForAdmin retrieves an active session by ID without tenant ownership restriction for platform staff.
+func (s *SavingImportSessionStore) GetSessionForAdmin(id string) (*SavingImportSession, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	sess, ok := s.sessions[id]
+	if !ok || time.Now().After(sess.ExpiresAt) {
+		return nil, false
+	}
+	return sess, true
+}
+
 func (s *SavingImportSessionStore) cleanupExpired() {
 	s.mu.Lock()
 	defer s.mu.Unlock()

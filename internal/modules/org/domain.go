@@ -216,6 +216,7 @@ type Review struct {
 	HelpfulCount    int            `json:"helpful_count"`
 	Context         string         `json:"context"` // supplier, pharmacy, product, delivery
 	Ratings         []ReviewRating `json:"ratings,omitempty"`
+	VendorOrgName   string         `json:"vendor_org_name,omitempty"`
 	ReviewerOrgName string         `json:"reviewer_org_name,omitempty"`
 	OrderNumber     string         `json:"order_number,omitempty"`
 	CreatedAt       time.Time      `json:"created_at"`

@@ -10,6 +10,7 @@ func loadCatalogDefaults(e *engine) {
 	loadFrontendUIKeys(e)
 	loadBillingAndHRKeys(e)
 	loadCompareAndPromoKeys(e)
+	loadMarketIntelKeys(e)
 	loadDevelopersAndSystemKeys(e)
 	loadOrgBranchesGeoKeys(e)
 	loadChatAndAttachmentsKeys(e)

@@ -21,3 +21,19 @@ func (m *mockOrgRepo) ListReviewsForOrder(_ context.Context, _ int64) ([]*Review
 func (m *mockOrgRepo) HasDeliveredOrderFromVendor(_ context.Context, _, _ int64) (bool, error) {
 	return true, nil
 }
+
+func (m *mockOrgRepo) ListAdminReviewsWithTotal(_ context.Context, _ AdminReviewFilter) ([]*Review, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockOrgRepo) GetAdminReviewStats(_ context.Context) (*AdminReviewStats, error) {
+	return &AdminReviewStats{}, nil
+}
+
+func (m *mockOrgRepo) UpdateReviewStatus(_ context.Context, _ int64, _ bool) error {
+	return nil
+}
+
+func (m *mockOrgRepo) SoftDeleteReview(_ context.Context, _ int64) error {
+	return nil
+}

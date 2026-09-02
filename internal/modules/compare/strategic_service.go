@@ -26,7 +26,7 @@ const minSpreadPercent = 1.0
 
 // BuildStrategicReport is تقرير ذكاء السوق, computed over the whole market.
 func (s *Service) BuildStrategicReport(
-	ctx context.Context, orgID *int64,
+	ctx context.Context, orgID *int64, lang string,
 ) (*StrategicSavingReport, error) {
 	offers, err := s.repo.LoadMarketOffers(ctx, MarketScanOptions{OrganizationID: orgID})
 	if err != nil {
@@ -39,7 +39,7 @@ func (s *Service) BuildStrategicReport(
 		files[o.FileID] = true
 	}
 
-	return ReportFromDataset(ds, len(files), s.AIMatchingAvailable()), nil
+	return ReportFromDataset(ds, len(files), s.AIMatchingAvailable(), lang), nil
 }
 
 // topSavingOpportunities ranks products by what buying them wrong costs.
@@ -217,7 +217,7 @@ func supplierStandings(products []*MarketProduct) []*SupplierStanding {
 // is the same computation over a dataset a caller already has, which is what
 // makes the aggregation testable against a fixture — and lets an operator run
 // it over a hypothetical market without touching a row.
-func ReportFromDataset(ds *MarketDataset, files int, aiEnabled bool) *StrategicSavingReport {
+func ReportFromDataset(ds *MarketDataset, files int, aiEnabled bool, lang string) *StrategicSavingReport {
 	report := &StrategicSavingReport{
 		Coverage: MarketCoverage{
 			Offers:        ds.Offers,
@@ -235,7 +235,7 @@ func ReportFromDataset(ds *MarketDataset, files int, aiEnabled bool) *StrategicS
 	report.Coverage.ComparableProduct = len(comparable)
 	report.Coverage.ExclusiveProduct = len(ds.Products) - len(comparable)
 	if len(comparable) == 0 {
-		report.Analysis = emptyMarketAnalysis(report.Coverage)
+		report.Analysis = emptyMarketAnalysis(lang, report.Coverage)
 		return report
 	}
 
@@ -258,8 +258,8 @@ func ReportFromDataset(ds *MarketDataset, files int, aiEnabled bool) *StrategicS
 	}
 	report.Exclusives = exclusiveOpportunities(ds)
 
-	report.Analysis = strategicAnalysis(report)
-	report.Advice = strategicAdvice(report)
-	report.Guidance = purchasingGuidance(report)
+	report.Analysis = strategicAnalysis(lang, report)
+	report.Advice = strategicAdvice(lang, report)
+	report.Guidance = purchasingGuidance(lang, report)
 	return report
 }

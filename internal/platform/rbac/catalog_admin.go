@@ -156,6 +156,8 @@ func adminCatalogPerms() []Permission {
 
 		adminPage("catalog.import.view", g, "import", "استيراد الكتالوج العام", "Catalog import"),
 		adminAct("catalog.import.run", g, "تشغيل عملية الاستيراد", "Run an import", "catalog.import.view"),
+		adminPage("catalog.org_import.view", g, "org_imports", "استيراد المنتجات لمنظمات", "Organization product import"),
+		adminAct("catalog.org_import.run", g, "تشغيل استيراد المنتجات للمنظمات", "Run organization import", "catalog.org_import.view"),
 		adminPage("catalog.image_import.view", g, "product_images_import", "استيراد صور المنتجات", "Product image import"),
 		adminAct("catalog.image_import.run", g, "تشغيل استيراد الصور", "Run image import", "catalog.image_import.view"),
 
@@ -249,6 +251,7 @@ func adminPromoPerms() []Permission {
 		adminAct("promo.admin", g, "واجهة العروض البرمجية", "Promo API", "promo.offer.view"),
 		adminPage("promo.offer_package.view", g, "offers_packages", "باقات العروض والرعايات", "Offer packages"),
 		adminAct("promo.offer_package.update", g, "تعديل باقات العروض", "Edit offer packages", "promo.offer_package.view"),
+		adminAct("promo.offer_package.manage", g, "إدارة باقات العروض", "Manage offer packages", "promo.offer_package.view"),
 		adminPage("promo.offer_location.view", g, "offer_locations", "مواقع تغطية العروض", "Offer coverage locations"),
 		adminAct("promo.offer_location.update", g, "تعديل مواقع العروض", "Edit offer locations", "promo.offer_location.view"),
 

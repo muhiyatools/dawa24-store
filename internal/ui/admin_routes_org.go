@@ -100,4 +100,19 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("org.institutional_work.delete"))
 		g.Post("/admin/institutional/{id}/delete", h.AdminInstitutionalDeleteSubmit)
 	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("org.review.view"))
+		g.Get("/admin/reviews", h.AdminReviewsPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("org.review.update"))
+		g.Post("/admin/reviews/{id}/status", h.AdminReviewStatusSubmit)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("org.review.delete"))
+		g.Post("/admin/reviews/{id}/delete", h.AdminReviewDeleteSubmit)
+	})
 }

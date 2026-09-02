@@ -229,6 +229,18 @@ func (m *institutionalMockRepo) ListReviewsForOrder(_ context.Context, _ int64) 
 func (m *institutionalMockRepo) HasDeliveredOrderFromVendor(_ context.Context, _, _ int64) (bool, error) {
 	return true, nil
 }
+func (m *institutionalMockRepo) ListAdminReviewsWithTotal(_ context.Context, _ org.AdminReviewFilter) ([]*org.Review, int, error) {
+	return nil, 0, nil
+}
+func (m *institutionalMockRepo) GetAdminReviewStats(_ context.Context) (*org.AdminReviewStats, error) {
+	return &org.AdminReviewStats{}, nil
+}
+func (m *institutionalMockRepo) UpdateReviewStatus(_ context.Context, _ int64, _ bool) error {
+	return nil
+}
+func (m *institutionalMockRepo) SoftDeleteReview(_ context.Context, _ int64) error {
+	return nil
+}
 func (m *institutionalMockRepo) ToggleFollower(_ context.Context, _, _ int64) (bool, error) {
 	return false, nil
 }

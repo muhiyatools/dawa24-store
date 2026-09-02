@@ -1,0 +1,202 @@
+package pages
+
+templ reviewStageScript() {
+	<!-- Review interaction script -->
+	<script>
+		// Bulk selection. Every checkbox belongs to the toolbar's form through
+		// the form attribute, so "select all" is a query over the document
+		// rather than over a container.
+		function reviewPickBoxes() {
+			return Array.prototype.slice.call(
+				document.querySelectorAll('input.review-pick[form="review-bulk"]'));
+		}
+
+		function reviewToggleAll(source) {
+			var on = !!source.checked;
+			reviewPickBoxes().forEach(function (box) { box.checked = on; });
+			document.querySelectorAll('.review-pick-all, .review-bulk-pickall input')
+				.forEach(function (box) { if (box !== source) box.checked = on; });
+			reviewUpdateCount();
+		}
+
+		function reviewUpdateCount() {
+			var label = document.getElementById('review-bulk-count');
+			if (!label) return;
+			var n = reviewPickBoxes().filter(function (b) { return b.checked; }).length;
+			label.textContent = n === 0
+				? 'لم يتم تحديد أي صنف'
+				: ('تم تحديد ' + n + ' صنف');
+		}
+
+		document.addEventListener('change', function (e) {
+			if (e.target && e.target.classList && e.target.classList.contains('review-pick')) {
+				reviewUpdateCount();
+			}
+		});
+
+		// A commit that would silently drop rows says so first. The count comes
+		// from the server-rendered figures, not from the page's checkboxes.
+		function confirmReviewCommit(form) {
+			var matched = parseInt(form.getAttribute('data-matched'), 10) || 0;
+			var held = parseInt(form.getAttribute('data-held'), 10) || 0;
+			if (matched <= 0) {
+				alert('لا يوجد أي صنف مطابق لحفظه. اعتمد الأصناف من تبويب «يحتاج مراجعة» أولاً.');
+				return false;
+			}
+			var msg = 'سيتم حفظ ' + matched + ' صنف مطابق في قاعدة البيانات.';
+			if (held > 0) {
+				msg += '\n\n' + held + ' صنف لن يُستورد لأنه ما زال يحتاج مراجعة أو غير مطابق.';
+			}
+			return confirm(msg + '\n\nهل تريد المتابعة؟');
+		}
+
+		var activeDropdownRowId = null;
+		var catalogSearchTimer = null;
+
+		function handleDropdownToggle(btn) {
+			var rowId = btn.getAttribute('data-row-id');
+			var rowName = btn.getAttribute('data-row-name') || '';
+			toggleCatalogDropdown(btn, rowId, rowName);
+		}
+
+		function handleDropdownSearchInput(input) {
+			var rowId = input.getAttribute('data-row-id');
+			onDropdownSearchInput(input, rowId);
+		}
+
+		function toggleCatalogDropdown(btn, rowId, defaultQuery) {
+			var dropdown = document.getElementById('catalog-dropdown-' + rowId);
+			if (!dropdown) return;
+
+			// Close any previously opened dropdown
+			if (activeDropdownRowId && activeDropdownRowId !== rowId) {
+				var prev = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
+				if (prev) {
+					prev.style.display = 'none';
+					prev.classList.remove('is-open');
+				}
+			}
+
+			var isOpen = dropdown.classList.contains('is-open') || dropdown.style.display === 'block';
+			if (isOpen) {
+				dropdown.style.display = 'none';
+				dropdown.classList.remove('is-open');
+				activeDropdownRowId = null;
+			} else {
+				dropdown.style.display = 'block';
+				dropdown.classList.add('is-open');
+				activeDropdownRowId = rowId;
+				var input = dropdown.querySelector('input[type="text"]');
+				if (input) {
+					if (!input.value.trim()) {
+						input.value = defaultQuery;
+					}
+					input.focus();
+					searchCatalogForDropdown(rowId, input.value.trim());
+				}
+			}
+		}
+
+		function closeAllCatalogDropdowns() {
+			if (activeDropdownRowId) {
+				var el = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
+				if (el) {
+					el.style.display = 'none';
+					el.classList.remove('is-open');
+				}
+				activeDropdownRowId = null;
+			}
+		}
+
+		document.addEventListener('click', function(e) {
+			if (!e.target.closest('.catalog-cell-container')) {
+				closeAllCatalogDropdowns();
+			}
+		});
+
+		function onDropdownSearchInput(input, rowId) {
+			clearTimeout(catalogSearchTimer);
+			catalogSearchTimer = setTimeout(function() {
+				searchCatalogForDropdown(rowId, input.value.trim());
+			}, 300);
+		}
+
+		function searchCatalogForDropdown(rowId, query) {
+			var resultsBox = document.getElementById('dropdown-results-' + rowId);
+			var dropdown = document.getElementById('catalog-dropdown-' + rowId);
+			if (!resultsBox || !dropdown) return;
+
+			var sessionId = dropdown.getAttribute('data-session-id');
+			var matchLevel = dropdown.getAttribute('data-filter-match') || '';
+			var sortBy = dropdown.getAttribute('data-sort') || '';
+			var sortOrder = dropdown.getAttribute('data-order') || '';
+			var page = dropdown.getAttribute('data-page') || '1';
+			var limit = dropdown.getAttribute('data-limit') || '25';
+			var search = dropdown.getAttribute('data-search') || '';
+
+			if (!query) {
+				resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">يرجى كتابة كلمة للبحث</div>';
+				return;
+			}
+
+			resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">جارٍ البحث في الكتالوج المركزي...</div>';
+
+			fetch('/vendor/ingest/' + encodeURIComponent(sessionId) + '/catalog-search?q=' + encodeURIComponent(query))
+				.then(function(res) { return res.json(); })
+				.then(function(data) {
+					if (!data || data.length === 0) {
+						resultsBox.innerHTML = '<div class="text-center text-muted p-sm text-xs">لم يتم العثور على نتائج في الكتالوج</div>';
+						return;
+					}
+					resultsBox.innerHTML = '';
+					data.forEach(function(p) {
+						var item = document.createElement('div');
+						item.className = 'catalog-search-card';
+
+						var form = document.createElement('form');
+						form.method = 'POST';
+						form.action = '/vendor/ingest/' + encodeURIComponent(sessionId) + '/rows/' + encodeURIComponent(rowId) + '/match?match=' + encodeURIComponent(matchLevel) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
+
+						var inputHidden = document.createElement('input');
+						inputHidden.type = 'hidden';
+						inputHidden.name = 'product_id';
+						inputHidden.value = p.id;
+						form.appendChild(inputHidden);
+
+						var btn = document.createElement('button');
+						btn.type = 'submit';
+						btn.className = 'catalog-search-card-btn';
+
+						var infoDiv = document.createElement('div');
+						var nameDiv = document.createElement('div');
+						nameDiv.className = 'font-bold text-xs';
+						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
+						infoDiv.appendChild(nameDiv);
+
+						var metaDiv = document.createElement('div');
+						metaDiv.className = 'text-xs text-muted mt-1';
+						var metaText = '';
+						if (p.sku) metaText += 'SKU: ' + p.sku + ' ';
+						if (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';
+						if (p.concentration) metaText += '· ' + p.concentration;
+						metaDiv.textContent = metaText;
+						infoDiv.appendChild(metaDiv);
+
+						btn.appendChild(infoDiv);
+
+						var chooseSpan = document.createElement('span');
+						chooseSpan.className = 'badge badge-primary text-xs shrink-0';
+						chooseSpan.textContent = 'اختيار';
+						btn.appendChild(chooseSpan);
+
+						form.appendChild(btn);
+						item.appendChild(form);
+						resultsBox.appendChild(item);
+					});
+				})
+				.catch(function() {
+					resultsBox.innerHTML = '<div class="text-center text-danger p-sm text-xs">تعذر تحميل النتائج</div>';
+				});
+		}
+	</script>
+}
