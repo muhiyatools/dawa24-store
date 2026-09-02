@@ -150,7 +150,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 								>
 									<div class="d-flex items-center gap-4">
 										<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-2xs border border-slate-200/80 overflow-hidden">
-											if ad.MediaType == "video" && ad.MediaURL != "" {
+											if (ad.MediaType == "video" || ad.IsVideo()) && ad.MediaURL != "" {
 												<video src={ ad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
 											} else if ad.MediaURL != "" {
 												<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-full h-full object-contain" />

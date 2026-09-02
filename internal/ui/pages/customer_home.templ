@@ -195,7 +195,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									<!-- Right Product Showcase Stage (Full View) -->
 									<div class="hero-ad-stage">
 										<div class="hero-ad-product-card">
-											if ad.MediaType == "video" && ad.MediaURL != "" {
+											if (ad.MediaType == "video" || ad.IsVideo()) && ad.MediaURL != "" {
 												<video
 													src={ ad.MediaURL }
 													poster={ ad.ThumbnailURL }
@@ -367,8 +367,10 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								class="deals-ad-card p-5 rounded-3xl border border-brand-200/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-between items-center gap-5 transition-all text-decoration-none shadow-md hover:border-brand-400"
 							>
 								<div class="d-flex items-center gap-4">
-									<div class="w-20 h-20 rounded-2xl bg-white p-2 d-flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-200">
-										if dad.MediaURL != "" {
+									<div class="w-20 h-20 rounded-2xl bg-white p-2 d-flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-200 overflow-hidden">
+										if (dad.MediaType == "video" || dad.IsVideo()) && dad.MediaURL != "" {
+											<video src={ dad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
+										} else if dad.MediaURL != "" {
 											<img src={ dad.MediaURL } alt={ dad.DisplayTitle(lang) } class="w-full h-full object-contain" />
 										} else {
 											@components.IconPill("icon-md text-brand")
@@ -414,8 +416,10 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								class="bottom-ad-card p-5 rounded-3xl border border-slate-700 bg-surface-sunken flex-between items-center gap-4 transition-all text-decoration-none shadow-sm hover:border-brand-500"
 							>
 								<div class="d-flex items-center gap-4">
-									<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-200">
-										if bad.MediaURL != "" {
+									<div class="w-16 h-16 rounded-2xl bg-white p-1.5 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-200 overflow-hidden">
+										if (bad.MediaType == "video" || bad.IsVideo()) && bad.MediaURL != "" {
+											<video src={ bad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
+										} else if bad.MediaURL != "" {
 											<img src={ bad.MediaURL } alt={ bad.DisplayTitle(lang) } class="w-full h-full object-contain" />
 										} else {
 											@components.IconPill("icon-md text-brand")

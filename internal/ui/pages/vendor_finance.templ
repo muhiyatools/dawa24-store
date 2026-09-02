@@ -45,12 +45,14 @@ func vendorPaymentMethodLabel(m string) string {
 
 func vendorPaymentStatusBadge(s string) (string, string) {
 	switch s {
-	case "completed":
-		return "مكتملة", "badge-emerald"
+	case "paid", "completed":
+		return "مدفوعة", "badge-emerald"
 	case "pending":
 		return "قيد المعالجة", "badge-amber"
 	case "failed":
 		return "ملغاة", "badge-rose"
+	case "refunded":
+		return "مستردة", "badge-slate"
 	default:
 		return s, "badge-slate"
 	}
@@ -58,9 +60,9 @@ func vendorPaymentStatusBadge(s string) (string, string) {
 
 // VendorPaymentsPage renders payments history for the vendor.
 templ VendorPaymentsPage(data VendorPaymentsPageData) {
-	@layouts.VendorShell("المدفوعات والمستحقات المالية", "payments", data.Lang, data.Dir) {
+	@layouts.VendorShell("المدفوعات والمستحقات المالية", "vendor_payments", data.Lang, data.Dir) {
 		<div class="page-container">
-			<!-- Header -->
+			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4 items-center">
 					<div class="stack-sm">
@@ -70,12 +72,12 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحصيلات المالية</h1>
 						</div>
-						<p class="text-sm text-secondary m-0">إدارة ومتابعة كافة المقبوضات والتحويلات المسجلة وربطها المباشر بفواتير العملاء</p>
+						<p class="text-sm text-secondary m-0">إدارة ومتابعة كافة المقبوضات والتحصيلات المسجلة وربطها المباشر بفواتير العملاء</p>
 					</div>
 					<button
 						type="button"
 						onclick="openRecordPaymentModal()"
-						class="btn btn-primary btn-md font-bold d-flex items-center gap-2"
+						class="btn btn-primary btn-sm font-bold flex-center gap-2"
 					>
 						@components.IconPlus("icon-xs")
 						<span>تسجيل دفعة جديدة</span>
@@ -84,9 +86,9 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 			</div>
 
 			<!-- KPI Cards -->
-			<div class="stats-grid mb-6">
+			<div class="dashboard-stat-grid cols-4 mb-6">
 				<!-- Total Count -->
-				<div class="glass-panel stat-card p-5">
+				<div class="stat-card-3d">
 					<div class="flex-between items-center mb-2">
 						<span class="stat-card-label font-bold text-xs">إجمالي العمليات</span>
 						<div class="w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center">
@@ -100,7 +102,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 				</div>
 
 				<!-- Total Amount -->
-				<div class="glass-panel stat-card p-5">
+				<div class="stat-card-3d">
 					<div class="flex-between items-center mb-2">
 						<span class="stat-card-label font-bold text-xs">إجمالي المبالغ المحصلة</span>
 						<div class="w-8 h-8 rounded-lg bg-emerald-subtle text-emerald flex-center">
@@ -114,7 +116,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 				</div>
 
 				<!-- Today Amount -->
-				<div class="glass-panel stat-card p-5">
+				<div class="stat-card-3d">
 					<div class="flex-between items-center mb-2">
 						<span class="stat-card-label font-bold text-xs">تحصيلات اليوم</span>
 						<div class="w-8 h-8 rounded-lg bg-blue-subtle text-blue flex-center">
@@ -128,7 +130,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 				</div>
 
 				<!-- Month Amount -->
-				<div class="glass-panel stat-card p-5">
+				<div class="stat-card-3d">
 					<div class="flex-between items-center mb-2">
 						<span class="stat-card-label font-bold text-xs">تحصيلات الشهر</span>
 						<div class="w-8 h-8 rounded-lg bg-purple-subtle text-purple flex-center">
@@ -168,7 +170,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 					<div class="w-40">
 						<select name="status" class="form-select w-full text-xs font-bold">
 							<option value="">كافة الحالات</option>
-							<option value="completed" selected?={ data.Status == "completed" }>مكتملة</option>
+							<option value="paid" selected?={ data.Status == "paid" || data.Status == "completed" }>مدفوعة / معتمدة</option>
 							<option value="pending" selected?={ data.Status == "pending" }>قيد المعالجة</option>
 							<option value="failed" selected?={ data.Status == "failed" }>ملغاة</option>
 						</select>
@@ -541,7 +543,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 			</div>
 
 			<!-- 6 Key Financial KPI Cards -->
-			<div class="dashboard-stat-grid mb-6">
+			<div class="dashboard-stat-grid cols-6 mb-6">
 				
 				<!-- 1. Gross Sales -->
 				<div class="stat-card-3d">

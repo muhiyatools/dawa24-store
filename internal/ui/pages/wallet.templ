@@ -99,7 +99,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			<!-- Card 1: Available Balance -->
 			<div class="stat-card-3d">
 				<div class="stat-card-label">الرصيد الفعلي المتاح</div>
-				<div class="stat-card-value text-primary tabular-nums">
+				<div class={ "stat-card-value tabular-nums", walletBalanceClass(data.Wallet) }>
 					{ walletBalance(data.Wallet) }
 				</div>
 				<div class="stat-card-sub">
@@ -291,6 +291,16 @@ func walletBalance(w *billing.Wallet) string {
 		return "0.00 ج.م"
 	}
 	return w.Balance.String() + " ج.م"
+}
+
+func walletBalanceClass(w *billing.Wallet) string {
+	if w == nil || w.Balance.Minor() == 0 {
+		return "text-primary"
+	}
+	if w.Balance.Minor() < 0 {
+		return "text-rose text-danger"
+	}
+	return "text-emerald text-success"
 }
 
 func computePendingDepositsCount(deps []*billing.WalletDeposit) int {

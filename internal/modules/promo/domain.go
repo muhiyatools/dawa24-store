@@ -193,6 +193,18 @@ type AdPendingChanges struct {
 // HasPendingEdit reports whether this ad has an unmoderated edit request.
 func (a *Ad) HasPendingEdit() bool { return a.PendingChanges != nil }
 
+// IsVideo reports whether this ad displays video media (either by MediaType or by file extension).
+func (a *Ad) IsVideo() bool {
+	if a == nil {
+		return false
+	}
+	if a.MediaType == MediaVideo || a.MediaType == "video" {
+		return true
+	}
+	lower := strings.ToLower(a.MediaURL)
+	return strings.HasSuffix(lower, ".mp4") || strings.HasSuffix(lower, ".webm") || strings.HasSuffix(lower, ".mov")
+}
+
 // IsApproved reports whether the admin cleared this ad for display.
 func (a *Ad) IsApproved() bool { return a.AdminStatus == AdminApproved }
 

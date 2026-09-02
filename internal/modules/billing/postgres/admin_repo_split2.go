@@ -289,7 +289,7 @@ func (r *Repository) GetVendorPaymentStats(ctx context.Context, orgID int64) (*b
 				COALESCE(SUM(CASE WHEN (paid_at >= CURRENT_DATE OR created_at >= CURRENT_DATE) THEN amount ELSE 0 END), 0),
 				COALESCE(SUM(CASE WHEN (paid_at >= date_trunc('month', CURRENT_DATE) OR created_at >= date_trunc('month', CURRENT_DATE)) THEN amount ELSE 0 END), 0)
 			FROM billing.payments
-			WHERE organization_id = $1 AND status = 'completed';
+			WHERE organization_id = $1 AND status IN ('paid', 'completed');
 		`, orgID)
 		return row.Scan(&stats.TotalCount, &stats.TotalAmount, &stats.TodayAmount, &stats.MonthAmount)
 	})
@@ -347,14 +347,14 @@ func (r *Repository) RecordInvoicePayment(ctx context.Context, req billing.Recor
 			paidAt = &now
 		}
 
-		// 3. Insert payment
+		// 3. Insert payment (using 'paid' to comply with payments_status_check constraint)
 		const insertPayment = `
 			INSERT INTO billing.payments (
 				invoice_id, order_id, user_id, organization_id, amount,
 				method, status, transaction_id, reference_number, notes, paid_at
 			) VALUES (
 				$1, $2, $3, $4, $5,
-				$6, 'completed', $7, $8, $9, $10
+				$6, 'paid', $7, $8, $9, $10
 			) RETURNING id, public_id::text, created_at, updated_at;
 		`
 		if err := tx.QueryRow(txCtx, insertPayment,
@@ -370,7 +370,7 @@ func (r *Repository) RecordInvoicePayment(ctx context.Context, req billing.Recor
 		p.OrganizationID = &orgID
 		p.Amount = req.Amount
 		p.Method = method
-		p.Status = "completed"
+		p.Status = "paid"
 		p.TransactionID = txID
 		p.ReferenceNumber = refNum
 		p.PaidAt = paidAt
@@ -381,7 +381,7 @@ func (r *Repository) RecordInvoicePayment(ctx context.Context, req billing.Recor
 			SELECT COALESCE(SUM(amount), 0)
 			FROM billing.payments
 			WHERE (invoice_id = $1 OR (invoice_id IS NULL AND order_id IS NOT NULL AND order_id = $2))
-			  AND status = 'completed';
+			  AND status IN ('paid', 'completed');
 		`, invID, orderID).Scan(&totalPaid)
 		if err != nil {
 			return fmt.Errorf("calculate total paid: %w", err)

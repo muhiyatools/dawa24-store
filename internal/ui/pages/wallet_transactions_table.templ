@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -72,9 +73,13 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			continue
 		}
 		isPos := (tx.Type == billing.TxDeposit || tx.Type == billing.TxBonus || tx.Type == billing.TxRefund || tx.Type == billing.TxTransferIn)
-		amtPrefix := ""
-		if isPos {
-			amtPrefix = "+"
+		amtStr := tx.Amount.String()
+		if strings.HasPrefix(amtStr, "-") {
+			isPos = false
+		} else if isPos {
+			amtStr = "+" + amtStr
+		} else {
+			amtStr = "-" + amtStr
 		}
 
 		desc := tx.Description
@@ -93,7 +98,7 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 			TypeLabel:        txTypeLabel(tx.Type),
 			StatusBadgeClass: "badge-emerald",
 			StatusLabel:      "مكتمل",
-			AmountFormatted:  amtPrefix + tx.Amount.String() + " ج.م",
+			AmountFormatted:  amtStr + " ج.م",
 			IsPositive:       isPos,
 			BalanceAfter:     tx.BalanceAfter.String() + " ج.م",
 			Description:      desc,
@@ -148,15 +153,19 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 								<!-- Col 3: Amount -->
 								<td class="font-black tabular-nums text-sm">
 									if item.IsPositive {
-										<span class="text-emerald">{ item.AmountFormatted }</span>
+										<span class="text-emerald text-success">{ item.AmountFormatted }</span>
 									} else {
-										<span class="text-primary">{ item.AmountFormatted }</span>
+										<span class="text-rose text-danger">{ item.AmountFormatted }</span>
 									}
 								</td>
 
-								<!-- Col 3: Balance After -->
-								<td class="text-secondary font-bold tabular-nums text-xs">
-									{ item.BalanceAfter }
+								<!-- Col 4: Balance After -->
+								<td class="tabular-nums text-xs font-bold">
+									if strings.HasPrefix(item.BalanceAfter, "-") {
+										<span class="text-rose text-danger">{ item.BalanceAfter }</span>
+									} else {
+										<span class="text-secondary">{ item.BalanceAfter }</span>
+									}
 								</td>
 
 								<!-- Col 4: Description & Reference & Receipt -->

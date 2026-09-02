@@ -93,7 +93,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						if ad.MediaType == "video" && ad.MediaURL != "" {
+						if (ad.MediaType == "video" || ad.IsVideo()) && ad.MediaURL != "" {
 							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"w-16 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shrink-0 d-flex items-center justify-center\"><video src=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err

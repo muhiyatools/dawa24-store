@@ -65,7 +65,7 @@ templ AdminAdsListPage(lang, dir string, data AdminAdsListPageData) {
 											<!-- Ad Preview & Title -->
 											<td class="py-3.5 ps-4">
 												<div class="d-flex items-center gap-3">
-													if ad.MediaType == "video" && ad.MediaURL != "" {
+													if (ad.MediaType == "video" || ad.IsVideo()) && ad.MediaURL != "" {
 														<div class="w-16 h-10 rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shrink-0 d-flex items-center justify-center">
 															<video src={ ad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover"></video>
 														</div>

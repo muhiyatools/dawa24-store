@@ -275,9 +275,9 @@ templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 										<tr class="transition-colors">
 											<td class="py-3 ps-4">
 												<div class="d-flex items-center gap-3">
-													if ad.MediaURL != "" && ad.MediaType != "video" {
+													if ad.MediaURL != "" && !ad.IsVideo() && ad.MediaType != "video" {
 														<img src={ ad.MediaURL } alt="Ad Thumb" class="w-10 h-10 rounded-lg object-cover border border-slate-200" />
-													} else if ad.MediaType == "video" {
+													} else if ad.IsVideo() || ad.MediaType == "video" {
 														<div class="w-10 h-10 rounded-lg bg-slate-900 text-white d-flex items-center justify-center text-2xs font-bold">فيديو</div>
 													} else {
 														<div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 d-flex items-center justify-center">
@@ -298,7 +298,7 @@ templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 												</span>
 											</td>
 											<td class="text-center py-3">
-												if ad.MediaType == "video" {
+												if ad.IsVideo() || ad.MediaType == "video" {
 													<span class="badge badge-indigo text-2xs font-bold">فيديو MP4</span>
 												} else {
 													<span class="badge badge-slate text-2xs font-bold">صورة</span>

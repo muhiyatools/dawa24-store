@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
@@ -35,6 +36,13 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
+	branchIDStr := strings.TrimSpace(r.URL.Query().Get("branch_id"))
+	var branchID *int64
+	var selectedBranchID int64
+	if bID, err := strconv.ParseInt(branchIDStr, 10, 64); err == nil && bID > 0 {
+		branchID = &bID
+		selectedBranchID = bID
+	}
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
@@ -45,6 +53,13 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 		orgID = &actor.OrganizationID
 	}
 
+	var vendorBranches []*org.Branch
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+			vendorBranches = bList
+		}
+	}
+
 	var detailedInvoices []*billing.AdminInvoiceView
 	var totalCount int
 	if h.billSvc != nil {
@@ -52,6 +67,7 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 			Search:         q,
 			Status:         status,
 			OrganizationID: orgID,
+			BranchID:       branchID,
 			Limit:          limit,
 			Offset:         offset,
 		})
@@ -64,13 +80,15 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.InvoicesData{
-		Invoices:     detailedInvoices,
-		Search:       q,
-		StatusFilter: status,
-		IsVendor:     true,
-		Page:         page,
-		PerPage:      limit,
-		TotalCount:   totalCount,
+		Invoices:         detailedInvoices,
+		Search:           q,
+		StatusFilter:     status,
+		Branches:         vendorBranches,
+		SelectedBranchID: selectedBranchID,
+		IsVendor:         true,
+		Page:             page,
+		PerPage:          limit,
+		TotalCount:       totalCount,
 	}
 
 	h.renderPage(ctx, w, "render invoices page", pages.InvoicesPage(lang, dir, data))

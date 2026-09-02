@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -16,14 +17,16 @@ type WalletData struct {
 
 // InvoicesData is the /invoices view model.
 type InvoicesData struct {
-	Invoices     []*billing.AdminInvoiceView
-	RawInvoices  []*billing.Invoice
-	Search       string
-	StatusFilter string
-	IsVendor     bool
-	Page         int
-	PerPage      int
-	TotalCount   int
+	Invoices         []*billing.AdminInvoiceView
+	RawInvoices      []*billing.Invoice
+	Search           string
+	StatusFilter     string
+	Branches         []*org.Branch
+	SelectedBranchID int64
+	IsVendor         bool
+	Page             int
+	PerPage          int
+	TotalCount       int
 }
 
 // TxLabel maps a wallet transaction type onto an Arabic label.

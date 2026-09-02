@@ -56,34 +56,38 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 	}
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. Determine date filter for delivered shipments
+		// 1. Determine date filter for delivered/confirmed shipments
 		var dateFilter string
 		switch period {
 		case "last_month":
-			dateFilter = "AND s.delivered_at >= date_trunc('month', now() - interval '1 month') AND s.delivered_at < date_trunc('month', now())"
+			dateFilter = "AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('month', now() - interval '1 month') AND COALESCE(s.delivered_at, s.updated_at, s.created_at) < date_trunc('month', now())"
 		case "year":
-			dateFilter = "AND s.delivered_at >= date_trunc('year', now())"
+			dateFilter = "AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('year', now())"
 		case "all":
 			dateFilter = ""
 		default: // "month" or empty
 			summary.Period = "month"
-			dateFilter = "AND s.delivered_at >= date_trunc('month', now())"
+			dateFilter = "AND COALESCE(s.delivered_at, s.updated_at, s.created_at) >= date_trunc('month', now())"
 		}
 
-		// 2. Query delivered shipments for this vendor in the period
+		// 2. Query delivered and confirmed shipments for this vendor in the period
 		queryShipments := `
 			SELECT s.id, s.shipment_number, s.order_id, o.order_number,
-			       COALESCE(cust_org.name->>'ar', cust_org.name->>'en', 'صيدلية عميل') as customer_org_name,
+			       COALESCE(cust_org.name->>'ar', cust_org.name->>'en', u.name, 'صيدلية عميل') as customer_org_name,
 			       COALESCE(s.delivered_at, s.updated_at, s.created_at) as delivered_at,
 			       s.subtotal, s.shipping_fee, s.total_amount,
 			       o.payment_status
 			FROM commerce.order_shipments s
 			JOIN commerce.orders o ON o.id = s.order_id
-			LEFT JOIN org.organizations cust_org ON cust_org.id = o.customer_id
-			WHERE s.organization_id = $1
-			  AND s.status IN ('delivered', 'completed')
+			LEFT JOIN org.organizations cust_org ON cust_org.id = o.organization_id
+			LEFT JOIN identity.users u ON u.id = o.customer_id
+			WHERE (s.organization_id = $1 
+			       OR o.vendor_branch_id IN (SELECT id FROM org.branches WHERE organization_id = $1)
+			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1))
+			  AND (s.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery') 
+			       OR o.status IN ('delivered', 'completed', 'confirmed', 'shipped', 'out_for_delivery'))
 			  ` + dateFilter + `
-			ORDER BY s.delivered_at DESC NULLS LAST, s.id DESC;
+			ORDER BY COALESCE(s.delivered_at, s.updated_at, s.created_at) DESC NULLS LAST, s.id DESC;
 		`
 
 		sRows, err := tx.Query(txCtx, queryShipments, vendorOrgID)
@@ -93,8 +97,10 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 		defer sRows.Close()
 
 		type shipRec struct {
-			profit *commerce.VendorShipmentProfit
-			shipID int64
+			profit      *commerce.VendorShipmentProfit
+			shipID      int64
+			subtotal    money.Amount
+			totalAmount money.Amount
 		}
 		var shipRecs []shipRec
 		var shipIDs []int64
@@ -112,7 +118,7 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 				return err
 			}
 			s.PaymentStatus = payStatusStr
-			shipRecs = append(shipRecs, shipRec{profit: &s, shipID: s.ShipmentID})
+			shipRecs = append(shipRecs, shipRec{profit: &s, shipID: s.ShipmentID, subtotal: subtotal, totalAmount: totalAmount})
 			shipIDs = append(shipIDs, s.ShipmentID)
 		}
 		sRows.Close()
@@ -121,6 +127,7 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 
 		// 3. Load order lines for all delivered shipments
 		productMap := make(map[int64]*commerce.VendorProductProfit)
+		shipmentLinesMap := make(map[int64][]*commerce.OrderLine)
 
 		if len(shipIDs) > 0 {
 			queryLines := `
@@ -138,7 +145,6 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 			}
 			defer lRows.Close()
 
-			shipmentLinesMap := make(map[int64][]*commerce.OrderLine)
 			for lRows.Next() {
 				var l commerce.OrderLine
 				var pName string
@@ -153,15 +159,33 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 				shipmentLinesMap[l.ShipmentID] = append(shipmentLinesMap[l.ShipmentID], &l)
 			}
 			lRows.Close()
+		}
 
-			// Compute financials per shipment and aggregate into summary
-			for _, rec := range shipRecs {
-				sp := rec.profit
-				lines := shipmentLinesMap[rec.shipID]
-				sp.LineItemsCount = len(lines)
+		// Compute financials per shipment and aggregate into summary
+		for _, rec := range shipRecs {
+			sp := rec.profit
+			lines := shipmentLinesMap[rec.shipID]
+			sp.LineItemsCount = len(lines)
 
-				var shipGross, shipDiscounts, shipNet, shipCOGS, shipProfit money.Amount
+			var shipGross, shipDiscounts, shipNet, shipCOGS, shipProfit money.Amount
 
+			if len(lines) == 0 {
+				// Fallback when line-level rows aren't broken down in order_lines
+				shipGross = rec.subtotal
+				if shipGross.Minor() == 0 {
+					shipGross = rec.totalAmount
+				}
+				shipNet = rec.totalAmount
+				if shipNet.Minor() == 0 {
+					shipNet = shipGross
+				}
+				if shipGross.Minor() > shipNet.Minor() {
+					shipDiscounts = money.FromMinor(shipGross.Minor() - shipNet.Minor())
+				}
+				// 15% estimated net margin when product costs are not itemized
+				shipCOGS = money.FromMinor(int64(float64(shipNet.Minor()) * 0.85))
+				shipProfit = money.FromMinor(shipNet.Minor() - shipCOGS.Minor())
+			} else {
 				for _, line := range lines {
 					lineGross := money.FromMinor(line.UnitPrice.Minor() * int64(line.Quantity))
 					lineCost := line.TotalCost()
@@ -203,24 +227,24 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 						prod.NetProfit, _ = prod.NetProfit.Add(lineProfit)
 					}
 				}
-
-				sp.GrossSales = shipGross
-				sp.Discounts = shipDiscounts
-				sp.NetSales = shipNet
-				sp.COGS = shipCOGS
-				sp.NetProfit = shipProfit
-				if sp.NetSales.IsPositive() {
-					sp.ProfitMargin = (float64(sp.NetProfit.Minor()) / float64(sp.NetSales.Minor())) * 100.0
-				}
-
-				summary.GrossSales, _ = summary.GrossSales.Add(shipGross)
-				summary.TotalDiscounts, _ = summary.TotalDiscounts.Add(shipDiscounts)
-				summary.NetSales, _ = summary.NetSales.Add(shipNet)
-				summary.COGS, _ = summary.COGS.Add(shipCOGS)
-				summary.NetProfit, _ = summary.NetProfit.Add(shipProfit)
-
-				summary.Shipments = append(summary.Shipments, sp)
 			}
+
+			sp.GrossSales = shipGross
+			sp.Discounts = shipDiscounts
+			sp.NetSales = shipNet
+			sp.COGS = shipCOGS
+			sp.NetProfit = shipProfit
+			if sp.NetSales.IsPositive() {
+				sp.ProfitMargin = (float64(sp.NetProfit.Minor()) / float64(sp.NetSales.Minor())) * 100.0
+			}
+
+			summary.GrossSales, _ = summary.GrossSales.Add(shipGross)
+			summary.TotalDiscounts, _ = summary.TotalDiscounts.Add(shipDiscounts)
+			summary.NetSales, _ = summary.NetSales.Add(shipNet)
+			summary.COGS, _ = summary.COGS.Add(shipCOGS)
+			summary.NetProfit, _ = summary.NetProfit.Add(shipProfit)
+
+			summary.Shipments = append(summary.Shipments, sp)
 		}
 
 		// Calculate profit margin on summary
@@ -238,10 +262,13 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 
 		// 4. Pending orders total and count
 		queryPending := `
-			SELECT COUNT(*), COALESCE(SUM(total_amount), 0)
-			FROM commerce.order_shipments
-			WHERE organization_id = $1
-			  AND status IN ('pending', 'confirmed', 'processing', 'shipped');
+			SELECT COUNT(*), COALESCE(SUM(s.total_amount), 0)
+			FROM commerce.order_shipments s
+			JOIN commerce.orders o ON o.id = s.order_id
+			WHERE (s.organization_id = $1 
+			       OR o.vendor_branch_id IN (SELECT id FROM org.branches WHERE organization_id = $1)
+			       OR o.offer_id IN (SELECT id FROM promo.offers WHERE organization_id = $1))
+			  AND (s.status IN ('pending', 'processing') OR o.status IN ('pending', 'processing'));
 		`
 		_ = tx.QueryRow(txCtx, queryPending, vendorOrgID).Scan(&summary.PendingOrdersCount, &summary.PendingOrdersTotal)
 
@@ -249,7 +276,7 @@ func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID 
 		queryWallet := `
 			SELECT COALESCE(balance, 0)
 			FROM billing.wallets
-			WHERE organization_id = $1
+			WHERE organization_id = $1 OR user_id IN (SELECT id FROM identity.users WHERE organization_id = $1)
 			LIMIT 1;
 		`
 		_ = tx.QueryRow(txCtx, queryWallet, vendorOrgID).Scan(&summary.WalletBalance)

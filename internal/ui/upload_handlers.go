@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,6 +14,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
+
+func init() {
+	_ = mime.AddExtensionType(".mp4", "video/mp4")
+	_ = mime.AddExtensionType(".webm", "video/webm")
+	_ = mime.AddExtensionType(".mov", "video/quicktime")
+	_ = mime.AddExtensionType(".webp", "image/webp")
+}
 
 const (
 	UploadBaseDir  = "data/uploads"
@@ -49,6 +57,7 @@ func RegisterUploadRoutes(r chi.Router) {
 
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set("Accept-Ranges", "bytes")
 		rctx := chi.RouteContext(r.Context())
 		path := rctx.URLParam("*")
 		cleanPath := filepath.Clean(filepath.FromSlash(path))
@@ -56,6 +65,17 @@ func RegisterUploadRoutes(r chi.Router) {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
+
+		ext := strings.ToLower(filepath.Ext(cleanPath))
+		switch ext {
+		case ".mp4":
+			w.Header().Set("Content-Type", "video/mp4")
+		case ".webm":
+			w.Header().Set("Content-Type", "video/webm")
+		case ".mov":
+			w.Header().Set("Content-Type", "video/quicktime")
+		}
+
 		fullPath := filepath.Join(baseDir, cleanPath)
 		if _, err := os.Stat(fullPath); err == nil {
 			http.ServeFile(w, r, fullPath)

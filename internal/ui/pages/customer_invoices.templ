@@ -52,10 +52,30 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						/>
 					</div>
 
+					if len(data.Branches) > 0 {
+						<div>
+							<select name="branch_id" class="form-select form-select-sm w-full font-semibold">
+								<option value="">-- كافة الفروع والمستودعات --</option>
+								for _, b := range data.Branches {
+									if b != nil {
+										<option value={ fmt.Sprintf("%d", b.ID) } selected?={ data.SelectedBranchID == b.ID }>
+											if b.Name.Get("ar") != "" {
+												{ b.Name.Get("ar") }
+											} else {
+												{ b.Name.Get("en") }
+											}
+										</option>
+									}
+								}
+							</select>
+						</div>
+					}
+
 					<div>
 						<select name="status" class="form-select form-select-sm w-full font-semibold">
 							<option value="">-- جميع الحالات --</option>
-							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة (Paid)</option>
+							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة بالكامل (Paid)</option>
+							<option value="partially_paid" selected?={ data.StatusFilter == "partially_paid" }>مسددة جزئياً (Partially Paid)</option>
 							<option value="issued" selected?={ data.StatusFilter == "issued" }>صادرة (Issued)</option>
 							<option value="overdue" selected?={ data.StatusFilter == "overdue" }>متأخرة (Overdue)</option>
 							<option value="cancelled" selected?={ data.StatusFilter == "cancelled" }>ملغاة (Cancelled)</option>
@@ -146,15 +166,31 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 											{ inv.IssueDate.Format("2006-01-02") }
 										</td>
 
-										<!-- المبلغ الإجمالي -->
-										<td class="tabular-nums font-bold text-xs text-primary">
-											{ inv.TotalAmount.String() } <span class="text-2xs text-muted font-normal">ج.م</span>
+										<!-- المبلغ الإجمالي والمدفوع -->
+										<td class="tabular-nums font-bold text-xs">
+											<div class="text-primary font-black">
+												{ inv.TotalAmount.String() } <span class="text-2xs text-muted font-normal">ج.م</span>
+											</div>
+											if inv.PaidAmount.Minor() > 0 {
+												<div class="text-3xs text-emerald font-black mt-0.5 d-flex items-center gap-1">
+													<span>المدفوع:</span>
+													<span>{ inv.PaidAmount.String() } ج.م</span>
+												</div>
+											}
+											if inv.RemainingAmount.Minor() > 0 && inv.PaidAmount.Minor() > 0 {
+												<div class="text-3xs text-rose font-bold mt-0.5 d-flex items-center gap-1">
+													<span>المتبقي:</span>
+													<span>{ inv.RemainingAmount.String() } ج.م</span>
+												</div>
+											}
 										</td>
 
 										<!-- الحالة -->
 										<td>
 											if inv.Status == "paid" {
-												<span class="badge badge-emerald text-2xs font-bold">مدفوعة</span>
+												<span class="badge badge-emerald text-2xs font-bold">مدفوعة بالكامل</span>
+											} else if inv.Status == "partially_paid" {
+												<span class="badge badge-amber text-2xs font-bold">مسددة جزئياً</span>
 											} else if inv.Status == "issued" {
 												<span class="badge badge-sky text-2xs font-bold">صادرة</span>
 											} else if inv.Status == "overdue" {

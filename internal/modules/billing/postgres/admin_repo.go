@@ -238,6 +238,12 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.BranchID != nil && *filter.BranchID > 0 {
+			baseQuery += fmt.Sprintf(` AND (o.vendor_branch_id = $%d OR o.branch_id = $%d)`, argIdx, argIdx)
+			args = append(args, *filter.BranchID)
+			argIdx++
+		}
+
 		if filter.Search != "" {
 			searchPattern := "%" + strings.ToLower(filter.Search) + "%"
 			baseQuery += fmt.Sprintf(` AND (
@@ -274,7 +280,7 @@ func (r *Repository) AdminListDetailedInvoices(ctx context.Context, filter billi
 				inv.payment_method,
 				COALESCE(inv.notes, ''),
 				inv.created_at,
-				COALESCE((SELECT SUM(p.amount) FROM billing.payments p WHERE (p.invoice_id = inv.id OR (p.invoice_id IS NULL AND p.order_id IS NOT NULL AND p.order_id = inv.order_id)) AND p.status = 'completed'), 0) AS paid_amount
+				COALESCE((SELECT SUM(p.amount) FROM billing.payments p WHERE (p.invoice_id = inv.id OR (p.invoice_id IS NULL AND p.order_id IS NOT NULL AND p.order_id = inv.order_id)) AND p.status IN ('paid', 'completed')), 0) AS paid_amount
 		` + baseQuery + fmt.Sprintf(` ORDER BY inv.created_at DESC, inv.id DESC LIMIT $%d OFFSET $%d;`, argIdx, argIdx+1)
 
 		args = append(args, pageLimit(filter.Limit), pageOffset(filter.Offset))

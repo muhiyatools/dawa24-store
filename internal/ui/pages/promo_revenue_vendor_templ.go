@@ -638,7 +638,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						if ad.MediaURL != "" && ad.MediaType != "video" {
+						if ad.MediaURL != "" && !ad.IsVideo() && ad.MediaType != "video" {
 							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<img src=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
@@ -656,7 +656,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-						} else if ad.MediaType == "video" {
+						} else if ad.IsVideo() || ad.MediaType == "video" {
 							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<div class=\"w-10 h-10 rounded-lg bg-slate-900 text-white d-flex items-center justify-center text-2xs font-bold\">فيديو</div>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
@@ -728,7 +728,7 @@ func VendorAdsPage(lang, dir string, data VendorAdsData) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						if ad.MediaType == "video" {
+						if ad.IsVideo() || ad.MediaType == "video" {
 							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span class=\"badge badge-indigo text-2xs font-bold\">فيديو MP4</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err

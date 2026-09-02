@@ -273,7 +273,10 @@ func (r *Repository) UpdateAdAdminStatus(ctx context.Context, id int64, status p
 		tag, err := tx.Exec(txCtx, `
 			UPDATE promo.ads
 			SET admin_status = $1, admin_notes = $2, reviewed_by = $3, reviewed_at = now(),
-			    is_active = $4, updated_at = now()
+			    is_active = $4,
+			    starts_at = CASE WHEN $4 AND (expires_at <= now() OR starts_at < '2000-01-01'::timestamptz) THEN now() ELSE starts_at END,
+			    expires_at = CASE WHEN $4 AND (expires_at <= now() OR expires_at < '2000-01-01'::timestamptz) THEN now() + (GREATEST(COALESCE(duration_days, 30), 1) || ' days')::interval ELSE expires_at END,
+			    updated_at = now()
 			WHERE id = $5;
 		`, string(status), notes, reviewerID, isActive, id)
 		if err != nil {

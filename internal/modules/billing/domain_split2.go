@@ -117,6 +117,7 @@ type InvoiceFilter struct {
 	Status         string
 	OrganizationID *int64
 	CustomerOrgID  *int64
+	BranchID       *int64
 	Limit          int
 	Offset         int
 }

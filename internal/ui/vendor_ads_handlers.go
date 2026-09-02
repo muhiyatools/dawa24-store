@@ -186,6 +186,10 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 		ad.MediaType = existingAd.MediaType
 	}
 
+	ad.StartsAt = existingAd.StartsAt
+	ad.ExpiresAt = existingAd.ExpiresAt
+	ad.IsActive = existingAd.IsActive
+
 	// If ad is already live and approved, submit an edit request without stopping the live ad
 	if existingAd.AdminStatus == promo.AdminApproved {
 		changes := &promo.AdPendingChanges{
@@ -233,6 +237,10 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 	}
 	if mediaType == "" {
 		mediaType = "image"
+	}
+	lowerURL := strings.ToLower(mediaURL)
+	if strings.HasSuffix(lowerURL, ".mp4") || strings.HasSuffix(lowerURL, ".webm") || strings.HasSuffix(lowerURL, ".mov") {
+		mediaType = "video"
 	}
 	if clickTarget == "" {
 		clickTarget = "product"
