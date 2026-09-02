@@ -25,10 +25,8 @@ const permVendorOrder = "vendor.order.view"
 func vendorTools(r *Registry) []Tool {
 	return []Tool{
 		{
-			Name: "supply_orders_list",
-			Description: "أوامر التوريد الواردة إلى هذا المورّد: رقم الشحنة والصيدلية الطالبة " +
-				"والحالة والقيمة والتاريخ. للفلترة بالحالة أو الفترة. لا تستخدمها لحساب " +
-				"الإجماليات — استخدم sales_summary.",
+			Name:        "supply_orders_list",
+			Description: "أوامر التوريد الواردة: رقم الشحنة والصيدلية والحالة والقيمة. للإجماليات استخدم sales_summary.",
 			Params: objectSchema(pageProps(dateProps(map[string]any{
 				"status": enumProp("حالة الشحنة.",
 					"pending", "confirmed", "processing", "ready_for_pickup",
@@ -40,9 +38,8 @@ func vendorTools(r *Registry) []Tool {
 			Handler:     r.supplyOrdersList,
 		},
 		{
-			Name: "supply_order_details",
-			Description: "تفاصيل شحنة واحدة: أصنافها وكمياتها وأسعارها، والفرع المسؤول عنها. " +
-				"يتطلب مرجع الشحنة من نتيجة supply_orders_list.",
+			Name:        "supply_order_details",
+			Description: "تفاصيل شحنة واحدة وأصنافها. يحتاج مرجع الشحنة من supply_orders_list.",
 			Params: objectSchema(map[string]any{
 				"shipment": strProp("مرجع الشحنة كما ورد في حقل shipment من نتيجة supply_orders_list."),
 			}, "shipment"),
@@ -51,10 +48,8 @@ func vendorTools(r *Registry) []Tool {
 			Handler:     r.supplyOrderDetails,
 		},
 		{
-			Name: "sales_summary",
-			Description: "إجمالي مبيعات المورّد خلال فترة: عدد الأوامر، الإيراد، متوسط قيمة " +
-				"الأمر، مع تقسيم اختياري حسب الحالة أو الشهر أو العميل. هذه هي الأداة الصحيحة " +
-				"لكل سؤال عن حجم المبيعات أو المقارنة بين فترتين.",
+			Name:        "sales_summary",
+			Description: "إجمالي المبيعات خلال فترة مع تقسيم اختياري. لكل سؤال عن حجم المبيعات.",
 			Params: objectSchema(dateProps(map[string]any{
 				"group_by": enumProp("طريقة تقسيم الإجمالي.", "status", "month", "counterparty"),
 				"status":   strProp("قصر الحساب على حالة شحنة واحدة."),
@@ -65,7 +60,7 @@ func vendorTools(r *Registry) []Tool {
 		},
 		{
 			Name:        "top_sold_products",
-			Description: "أكثر أصناف هذا المورّد مبيعاً خلال فترة، مرتبة حسب الإيراد أو الكمية.",
+			Description: "أكثر الأصناف مبيعاً خلال فترة.",
 			Params: objectSchema(dateProps(map[string]any{
 				"rank_by": enumProp("معيار الترتيب. الافتراضي الإيراد.", "revenue", "quantity"),
 				"limit":   intProp("عدد الأصناف المطلوبة، بحد أقصى 25.", 1, assistant.PageLimit),
@@ -75,9 +70,8 @@ func vendorTools(r *Registry) []Tool {
 			Handler:     r.topSold,
 		},
 		{
-			Name: "my_products",
-			Description: "كتالوج أصناف هذا المورّد: الاسم والكود والسعر والخصم والسعر النهائي " +
-				"وحالة النشر وعدد مرات البيع. للبحث عن صنف بعينه أو مراجعة التسعير.",
+			Name:        "my_products",
+			Description: "كتالوج الأصناف: الاسم والكود والسعر والخصم وحالة النشر.",
 			Params: objectSchema(pageProps(map[string]any{
 				"search": strProp("اسم الصنف أو الكود."),
 				"status": enumProp("حالة الصنف.", "active", "inactive", "pending", "rejected"),
@@ -87,9 +81,8 @@ func vendorTools(r *Registry) []Tool {
 			Handler:     r.vendorProducts,
 		},
 		{
-			Name: "low_stock",
-			Description: "الأصناف التي وصل رصيدها في المخازن إلى الحد الأدنى أو أقل. " +
-				"استخدمها لأسئلة «إيه اللي قرب يخلص» و«محتاج أورد إيه».",
+			Name:        "low_stock",
+			Description: "الأصناف التي بلغ رصيدها الحد الأدنى أو أقل.",
 			Params: objectSchema(map[string]any{
 				"limit": intProp("عدد الأصناف المطلوبة، بحد أقصى 25.", 1, assistant.PageLimit),
 			}),
@@ -98,9 +91,8 @@ func vendorTools(r *Registry) []Tool {
 			Handler:     r.lowStock,
 		},
 		{
-			Name: "my_offers",
-			Description: "عروض هذا المورّد: العنوان ونوع الخصم وقيمته وفترة السريان وعدد " +
-				"المشاهدات والنقرات وعدد الأصناف المشمولة. لقياس أداء العروض.",
+			Name:        "my_offers",
+			Description: "العروض: العنوان والخصم وفترة السريان والمشاهدات والنقرات.",
 			Params: objectSchema(map[string]any{
 				"active_only": boolProp("اقتصر على العروض السارية الآن."),
 				"limit":       intProp("عدد العروض المطلوبة، بحد أقصى 25.", 1, assistant.PageLimit),

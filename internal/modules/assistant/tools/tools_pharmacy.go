@@ -25,10 +25,8 @@ const permOrderView = "pharmacy.order.view"
 func pharmacyTools(r *Registry) []Tool {
 	return []Tool{
 		{
-			Name: "orders_list",
-			Description: "قائمة طلبات الشراء التي أرسلتها هذه الصيدلية، بأرقامها وحالاتها " +
-				"ومبالغها وتواريخها ومورديها. للفلترة بالحالة أو الفترة أو رقم الطلب. " +
-				"لا تستخدمها لحساب إجماليات — استخدم spend_summary لذلك.",
+			Name:        "orders_list",
+			Description: "طلبات الشراء: الرقم والحالة والمبلغ والتاريخ والمورّد. للإجماليات استخدم spend_summary.",
 			Params: objectSchema(pageProps(dateProps(map[string]any{
 				"status": enumProp("حالة الطلب.",
 					"pending", "confirmed", "processing", "ready_for_pickup",
@@ -42,9 +40,8 @@ func pharmacyTools(r *Registry) []Tool {
 			Handler:     r.ordersList,
 		},
 		{
-			Name: "order_details",
-			Description: "تفاصيل طلب شراء واحد: أصنافه وكمياتها وأسعارها وخصوماتها، " +
-				"وشحناته وحالة كل شحنة ورقم تتبعها. يتطلب مرجع الطلب من نتيجة orders_list.",
+			Name:        "order_details",
+			Description: "تفاصيل طلب واحد: أصنافه وشحناته. يحتاج مرجع الطلب من orders_list.",
 			Params: objectSchema(map[string]any{
 				"order": strProp("مرجع الطلب كما ورد في حقل order من نتيجة orders_list."),
 			}, "order"),
@@ -53,10 +50,8 @@ func pharmacyTools(r *Registry) []Tool {
 			Handler:     r.orderDetails,
 		},
 		{
-			Name: "spend_summary",
-			Description: "إجمالي مشتريات الصيدلية خلال فترة: عدد الطلبات، الإجمالي، " +
-				"متوسط قيمة الطلب، مع تقسيم اختياري حسب الحالة أو الشهر أو المورّد. " +
-				"هذه هي الأداة الصحيحة لكل سؤال يبدأ بـ«كم أنفقت» أو «قارن بين فترتين».",
+			Name:        "spend_summary",
+			Description: "إجمالي المشتريات خلال فترة مع تقسيم اختياري. لكل سؤال «كم أنفقت» أو مقارنة فترتين.",
 			Params: objectSchema(dateProps(map[string]any{
 				"group_by": enumProp("طريقة تقسيم الإجمالي.", "status", "month", "counterparty"),
 				"status":   strProp("قصر الحساب على حالة طلب واحدة."),
@@ -66,9 +61,8 @@ func pharmacyTools(r *Registry) []Tool {
 			Handler:     r.spendSummary,
 		},
 		{
-			Name: "top_purchased_products",
-			Description: "الأصناف الأكثر استهلاكاً لميزانية الصيدلية خلال فترة، مرتبة حسب " +
-				"إجمالي الإنفاق أو الكمية. استخدمها لأسئلة «ما أكثر ما أشتريه».",
+			Name:        "top_purchased_products",
+			Description: "أكثر الأصناف استهلاكاً للميزانية خلال فترة.",
 			Params: objectSchema(dateProps(map[string]any{
 				"rank_by": enumProp("معيار الترتيب. الافتراضي الإنفاق.", "revenue", "quantity"),
 				"limit":   intProp("عدد الأصناف المطلوبة، بحد أقصى 25.", 1, assistant.PageLimit),
@@ -78,10 +72,8 @@ func pharmacyTools(r *Registry) []Tool {
 			Handler:     r.topPurchased,
 		},
 		{
-			Name: "market_search",
-			Description: "بحث في أصناف الموردين المتاحة لهذه الصيدلية: السعر المعلن والخصم " +
-				"والسعر النهائي واسم المورّد والشركة المصنّعة. استخدمها لأسئلة «بكام» و«مين " +
-				"عنده» و«فيه بديل أرخص». لا تُظهر أسعار موردين خارج نطاق هذه الصيدلية.",
+			Name:        "market_search",
+			Description: "بحث في أصناف الموردين: السعر والخصم والسعر النهائي واسم المورّد.",
 			Params: objectSchema(pageProps(map[string]any{
 				"search": strProp("اسم الصنف أو المادة الفعالة أو الكود."),
 			}), "search"),

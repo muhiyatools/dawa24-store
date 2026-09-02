@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
@@ -75,15 +77,18 @@ func mountAssistant(r chi.Router, d assistantDeps) {
 // development, where there is no Redis and one replica — same interface, same
 // behaviour, no configuration to get wrong.
 func assistantBuffer(d assistantDeps) stream.Buffer {
-	if d.cacheH != nil {
-		if rdb := d.cacheH.Redis(); rdb != nil {
-			d.log.Info("assistant: streaming turns through Redis")
-			return stream.NewRedisBuffer(rdb)
+	// Resolved on first use, not here.
+	//
+	// Routes are mounted while the Redis connection is still being dialled in
+	// the background, so asking now always answered "no Redis" and production
+	// silently spent its whole life on the in-process buffer — the one that
+	// cannot serve a reader reconnecting to another replica.
+	return stream.NewLazyBuffer(func() *redis.Client {
+		if d.cacheH == nil {
+			return nil
 		}
-	}
-	d.log.Warn("assistant: no Redis; streaming turns from process memory " +
-		"(single replica only)")
-	return stream.NewMemoryBuffer()
+		return d.cacheH.Redis()
+	})
 }
 
 // transcriptionResolver discovers which model can turn speech into text.

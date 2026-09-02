@@ -55,7 +55,13 @@ const maxHistoryMessages = 40
 type TurnInput struct {
 	Text        string
 	Attachments []Attachment
-	Digests     []string
+	// Digests are the attachment-model readings of files the primary model
+	// cannot open itself. They are fenced as untrusted content.
+	Digests []string
+	// Parts are files the primary model CAN open — an image for a vision model,
+	// a PDF for one that reads documents. They are sent as they are, because a
+	// description of a photograph is never as good as the photograph.
+	Parts []gateway.ContentPart
 }
 
 // BuildMessages assembles the prompt for a turn.
@@ -81,10 +87,18 @@ func (s *Service) BuildMessages(
 		messages = append(messages, s.history(ctx, convID, budget)...)
 	}
 
-	messages = append(messages, gateway.ChatMessage{
-		Role: "user",
-		Text: userBlock(in),
-	})
+	// An image the primary model can see itself goes straight to it. Routing it
+	// through the attachment model instead produced "لا أستطيع رؤية الصور" on a
+	// real question about a photographed medicine box: the reader model had no
+	// vision, so the turn carried an apology where the picture should have been.
+	user := gateway.ChatMessage{Role: "user", Text: userBlock(in)}
+	if len(in.Parts) > 0 {
+		user.Parts = append([]gateway.ContentPart{
+			{Kind: gateway.PartText, Text: user.Text},
+		}, in.Parts...)
+		user.Text = ""
+	}
+	messages = append(messages, user)
 	return messages
 }
 

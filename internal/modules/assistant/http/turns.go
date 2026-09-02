@@ -72,7 +72,7 @@ func (h *Handler) CreateTurn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	atts, digests := h.resolveAttachments(ctx, actor, req.Attachments)
+	atts, digests, parts := h.resolveAttachments(ctx, actor, req.Attachments)
 
 	turn := &assistant.Turn{
 		ConversationID: conv.ID,
@@ -106,6 +106,7 @@ func (h *Handler) CreateTurn(w http.ResponseWriter, r *http.Request) {
 			Text:        req.Text,
 			Attachments: atts,
 			Digests:     digests,
+			Parts:       parts,
 		}, emitter)
 	}()
 
@@ -187,11 +188,18 @@ func (h *Handler) StreamTurn(w http.ResponseWriter, r *http.Request) {
 
 	after := lastEventID(r)
 
-	// A turn that finished before this reader attached still has its chunks in
-	// the buffer for an hour. Past that, the persisted answer is served as a
-	// single frame so a late reconnect shows the reply rather than nothing.
+	// Two clocks. The buffer read blocks for up to `heartbeat`, so an idle turn
+	// costs one comment frame every fifteen seconds and nothing else — the loop
+	// cannot spin, whichever backend is behind it.
+	//
+	// The turn's status is re-read from the database rather than trusted from
+	// the row fetched above, because that row is a snapshot from before the
+	// answer was written. Trusting it meant a finished turn whose buffer had
+	// already been drained kept the connection open, sending keep-alives to a
+	// client waiting for an ending that had already happened.
+	const statusEvery = 5 * time.Second
 	deadline := time.Now().Add(10 * time.Minute)
-	served := false
+	lastCheck := time.Now()
 
 	for {
 		if time.Now().After(deadline) {
@@ -202,39 +210,61 @@ func (h *Handler) StreamTurn(w http.ResponseWriter, r *http.Request) {
 
 		chunks, err := h.buffer.Read(ctx, turnID, after, heartbeat)
 		if err != nil {
-			return // client gone
+			return // the client went away
 		}
-		if len(chunks) == 0 {
-			if !served && turn.Status != assistant.TurnRunning {
-				h.replayFinished(w, flusher, turn)
-				return
+
+		if len(chunks) > 0 {
+			for _, c := range chunks {
+				after = c.Seq
+				writeSSE(w, flusher, c.Seq, c.Kind, chunkPayload(c))
+				if c.Terminal() {
+					return
+				}
 			}
-			// Comment frame: keeps proxies and the browser from deciding the
-			// connection is dead while the model is thinking.
-			fmt.Fprint(w, ": keep-alive\n\n")
-			flusher.Flush()
 			continue
 		}
 
-		served = true
-		for _, c := range chunks {
-			after = c.Seq
-			writeSSE(w, flusher, c.Seq, c.Kind, chunkPayload(c))
-			if c.Terminal() {
+		// Nothing new. Ask the database whether there is anything still coming
+		// before spending another fifteen seconds waiting for it.
+		if time.Since(lastCheck) >= statusEvery {
+			lastCheck = time.Now()
+			fresh, ferr := h.repo.GetTurn(ctx, turnID, actor.OrgID, actor.UserID)
+			if ferr == nil && fresh != nil && fresh.Status != assistant.TurnRunning {
+				h.replayFinished(w, flusher, fresh, after)
 				return
 			}
 		}
+
+		// Comment frame: keeps proxies and the browser from deciding the
+		// connection is dead while the model is thinking.
+		fmt.Fprint(w, ": keep-alive\n\n")
+		flusher.Flush()
 	}
 }
 
-// replayFinished serves a turn whose live buffer has already expired.
-func (h *Handler) replayFinished(w http.ResponseWriter, flusher http.Flusher, turn *assistant.Turn) {
+// replayFinished ends a stream from the persisted turn.
+//
+// It is reached when the answer is complete but the live chunks are gone —
+// either the buffer expired, or this reader attached after the fact. `seen` is
+// how much the reader already received: if it streamed the answer normally it
+// gets only the terminal frame, and never the answer twice.
+func (h *Handler) replayFinished(
+	w http.ResponseWriter, flusher http.Flusher, turn *assistant.Turn, seen int64,
+) {
 	if turn.Status == assistant.TurnFailed && turn.Answer == "" {
-		writeSSE(w, flusher, 1, "error", map[string]any{"code": turn.ErrorCode})
+		f := assistant.Fail(assistant.Code(turn.ErrorCode))
+		writeSSE(w, flusher, seen+1, "error", map[string]any{
+			"code":      string(f.Code),
+			"message":   f.Message,
+			"retryable": f.Retryable,
+		})
 		return
 	}
-	writeSSE(w, flusher, 1, "delta", map[string]any{"text": turn.Answer})
-	writeSSE(w, flusher, 2, "done", map[string]any{
+	if seen == 0 && turn.Answer != "" {
+		writeSSE(w, flusher, seen+1, "delta", map[string]any{"text": turn.Answer})
+		seen++
+	}
+	writeSSE(w, flusher, seen+1, "done", map[string]any{
 		"conversation_id": turn.ConversationID,
 		"input_tokens":    turn.InputTokens,
 		"output_tokens":   turn.OutputTokens,

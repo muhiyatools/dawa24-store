@@ -28,9 +28,8 @@ var adminScope = []rbac.Scope{rbac.ScopeAdmin}
 func adminTools(r *Registry) []Tool {
 	return []Tool{
 		{
-			Name: "organizations_search",
-			Description: "بحث في المنشآت المسجّلة على المنصة: الاسم والنوع (صيدلية أو مورّد) " +
-				"وحالة الاعتماد وتاريخ التسجيل. لا تُرجع بيانات تجارية للمنشأة.",
+			Name:        "organizations_search",
+			Description: "بحث في المنشآت: الاسم والنوع وحالة الاعتماد وتاريخ التسجيل.",
 			Params: objectSchema(pageProps(map[string]any{
 				"search": strProp("اسم المنشأة أو جزء منه."),
 				"status": enumProp("حالة الاعتماد.", "pending", "approved", "rejected", "suspended"),
@@ -40,18 +39,16 @@ func adminTools(r *Registry) []Tool {
 			Handler:     r.organizationsSearch,
 		},
 		{
-			Name: "platform_overview",
-			Description: "مؤشرات المنصة الإجمالية خلال فترة: عدد المنشآت والصيدليات والموردين " +
-				"وطلبات الاعتماد المعلّقة، وعدد المستخدمين والطلبات وحجم التداول.",
+			Name:        "platform_overview",
+			Description: "مؤشرات المنصة: عدد المنشآت والمستخدمين والطلبات وحجم التداول.",
 			Params:      objectSchema(dateProps(nil)),
 			Scopes:      adminScope,
 			Permissions: []string{"platform.dashboard.view"},
 			Handler:     r.platformOverview,
 		},
 		{
-			Name: "ai_usage_summary",
-			Description: "استهلاك الذكاء الاصطناعي خلال فترة موزعاً على المنشآت والخصائص: " +
-				"عدد الاستدعاءات وعدد الوحدات والتكلفة.",
+			Name:        "ai_usage_summary",
+			Description: "استهلاك الذكاء الاصطناعي حسب المنشأة والخاصية.",
 			Params: objectSchema(dateProps(map[string]any{
 				"limit": intProp("عدد الصفوف المطلوبة، بحد أقصى 25.", 1, assistant.PageLimit),
 			})),

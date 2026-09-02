@@ -215,4 +215,16 @@ EventSource and states its retention.
 - **`GATEWAY_MODEL_ASSISTANT_TRANSCRIBE`** pins a transcription model; empty
   means "choose the cheapest active one that accepts this audio".
 - Migration **160** adds `agent_role`/`expires_at`, `assistant.turns`,
-  `assistant.attachments` and `assistant.tool_audit`, all with FORCE RLS.
+  `assistant.attachments` and `assistant.tool_audit`; **162** adds the
+  `tool_audit` row-level security policy. All four tables carry FORCE RLS.
+
+  162 is a separate file for a reason worth recording. The policy was first
+  written into 160 *after* 160 had already been applied to production, so its
+  checksum no longer matched and the runner refused to migrate at all — with the
+  schema already current, `migrate-status` reporting zero pending, and everything
+  that runs after migrating (the permission-catalogue sync in particular)
+  silently skipped. The only visible symptom was
+  `service "migrate" didn't complete successfully: exit 1`.
+
+  `go run ./cmd/migratecheck` now reports that drift before rehearsing any SQL,
+  so the next occurrence costs a second instead of a release.

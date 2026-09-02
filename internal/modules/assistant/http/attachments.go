@@ -135,32 +135,36 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 // case the right behaviour is to answer the question without it.
 func (h *Handler) resolveAttachments(
 	ctx context.Context, actor authctx.Actor, refs []string,
-) ([]assistant.Attachment, []string) {
+) ([]assistant.Attachment, []string, []gateway.ContentPart) {
 	if len(refs) == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if len(refs) > maxAttachmentsPerTurn {
 		refs = refs[:maxAttachmentsPerTurn]
 	}
 
+	// What the answering model can open itself, it opens itself.
+	//
+	// Everything used to go through the attachment model first, which is the
+	// wrong default: describing a photograph is strictly worse than looking at
+	// it, and when that reader had no vision the turn carried "I cannot see
+	// images" instead of the picture. So: ask the primary model what it can
+	// take, hand it those directly, and fall back to a text digest only for the
+	// rest.
+	primary, err := h.gw.Capabilities(ctx, gateway.RolePrimary)
+	if err != nil {
+		primary = gateway.ConservativeDefaultCapabilities()
+	}
+
 	var (
 		atts    []assistant.Attachment
 		digests []string
+		parts   []gateway.ContentPart
 	)
 	for _, ref := range refs {
 		row, err := h.repo.GetAttachment(ctx, ref, actor.OrgID, actor.UserID)
 		if err != nil || row == nil {
 			continue
-		}
-
-		digest := row.Digest
-		if digest == "" {
-			digest = h.readAttachment(ctx, actor, row)
-			if digest != "" {
-				if err := h.repo.SetAttachmentDigest(ctx, row.ID, digest); err != nil {
-					h.log.WarnContext(ctx, "assistant: cache digest", "error", err)
-				}
-			}
 		}
 
 		atts = append(atts, assistant.Attachment{
@@ -173,9 +177,45 @@ func (h *Handler) resolveAttachments(
 			OrgID:       row.OrganizationID,
 			RowID:       row.ID,
 		})
-		digests = append(digests, digest)
+
+		kind := assistant.ClassifyMIME(row.MIMEType)
+		if capabilityFor(primary, kind) && withinLimit(primary, row.SizeBytes) {
+			if dataURL, derr := h.dataURL(ctx, row); derr == nil {
+				parts = append(parts, gateway.ContentPart{
+					Kind:     partKindFor(kind),
+					DataURL:  dataURL,
+					Filename: row.Filename,
+					MIMEType: row.MIMEType,
+				})
+				continue
+			}
+			h.log.WarnContext(ctx, "assistant: could not read attachment for direct send",
+				"attachment", row.PublicID)
+		}
+
+		digest := row.Digest
+		if digest == "" {
+			digest = h.readAttachment(ctx, actor, row)
+			if digest != "" {
+				if err := h.repo.SetAttachmentDigest(ctx, row.ID, digest); err != nil {
+					h.log.WarnContext(ctx, "assistant: cache digest", "error", err)
+				}
+			}
+		}
+		if digest != "" {
+			digests = append(digests, digest)
+		}
 	}
-	return atts, digests
+	return atts, digests, parts
+}
+
+// withinLimit reports whether a file fits the model's declared ceiling. A zero
+// ceiling means the Gateway published none, which we read as "do not risk it".
+func withinLimit(caps gateway.ModelCapabilities, size int64) bool {
+	if caps.MaxAttachmentMB <= 0 {
+		return false
+	}
+	return size <= int64(caps.MaxAttachmentMB)<<20
 }
 
 // readAttachment asks the attachment model to describe one file, once.

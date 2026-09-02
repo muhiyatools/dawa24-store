@@ -23,28 +23,24 @@ var tradingScopes = []rbac.Scope{rbac.ScopePharmacy, rbac.ScopeVendor}
 func sharedTools(r *Registry) []Tool {
 	return []Tool{
 		{
-			Name: "branches_list",
-			Description: "قائمة فروع منشأة المستخدم المسجلة على المنصة، باسم الفرع والهاتف " +
-				"والمدينة وحالة التفعيل. استخدمها عندما يسأل المستخدم عن فروعه أو عندما تحتاج " +
-				"أن تنسب بيانات إلى فرع.",
+			Name:        "branches_list",
+			Description: "فروع المنشأة: الاسم والهاتف والمدينة وحالة التفعيل.",
 			Params:      objectSchema(nil),
 			Scopes:      tradingScopes,
 			Permissions: []string{"pharmacy.branch.view", "vendor.branch.view"},
 			Handler:     r.branchesList,
 		},
 		{
-			Name: "wallet_summary",
-			Description: "رصيد محفظة المنشأة الحالي وآخر المعاملات المالية عليها (إيداع، سحب، " +
-				"شراء، استرداد). استخدمها لأسئلة الرصيد والمصروفات من المحفظة.",
+			Name:        "wallet_summary",
+			Description: "رصيد المحفظة الحالي وآخر معاملاتها.",
 			Params:      objectSchema(nil),
 			Scopes:      tradingScopes,
 			Permissions: []string{"pharmacy.wallet.view", "vendor.wallet.view"},
 			Handler:     r.walletSummary,
 		},
 		{
-			Name: "subscription_status",
-			Description: "حالة اشتراك المنشأة: اسم الباقة، الحالة، تاريخ البداية والانتهاء، " +
-				"وعدد الأيام المتبقية. استخدمها لأسئلة التجديد والباقة.",
+			Name:        "subscription_status",
+			Description: "الاشتراك: الباقة والحالة وتاريخ الانتهاء والأيام المتبقية.",
 			Params:      objectSchema(nil),
 			Scopes:      tradingScopes,
 			Permissions: []string{"pharmacy.subscription.view", "vendor.subscription.view"},

@@ -237,8 +237,8 @@ func dateProps(into map[string]any) map[string]any {
 	if into == nil {
 		into = map[string]any{}
 	}
-	into["from"] = strProp("بداية الفترة بصيغة YYYY-MM-DD. اتركه فارغاً للفترة الافتراضية.")
-	into["to"] = strProp("نهاية الفترة بصيغة YYYY-MM-DD، شاملة لليوم نفسه.")
+	into["from"] = strProp("بداية الفترة YYYY-MM-DD.")
+	into["to"] = strProp("نهاية الفترة YYYY-MM-DD.")
 	return into
 }
 
@@ -247,7 +247,7 @@ func pageProps(into map[string]any) map[string]any {
 	if into == nil {
 		into = map[string]any{}
 	}
-	into["limit"] = intProp("عدد الصفوف المطلوبة، بحد أقصى 25.", 1, assistant.PageLimit)
-	into["offset"] = intProp("عدد الصفوف التي يتم تخطيها للانتقال للصفحة التالية.", 0, 1000)
+	into["limit"] = intProp("عدد الصفوف، بحد أقصى 25.", 1, assistant.PageLimit)
+	into["offset"] = intProp("تخطي صفوف للصفحة التالية.", 0, 1000)
 	return into
 }

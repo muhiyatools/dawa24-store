@@ -130,8 +130,18 @@ func (b *memoryBuffer) Read(ctx context.Context, turnID string, after int64, tim
 		b.mu.Lock()
 		t, ok := b.turns[turnID]
 		if !ok {
-			b.mu.Unlock()
-			return nil, nil
+			// A reader that attached before the first token was produced. It
+			// must WAIT here, not be told "nothing" — returning immediately
+			// turned the handler's retry loop into a spin that wrote keep-alive
+			// frames as fast as the socket accepted them for the whole second or
+			// two the model took to start. The answer then arrived into a client
+			// already drowning in noise, which is what "no response appears"
+			// actually was.
+			//
+			// Registering the turn here is safe: the producer's first Append
+			// finds it and fills it in.
+			t = &memoryTurn{touched: time.Now()}
+			b.turns[turnID] = t
 		}
 		var out []Chunk
 		for _, c := range t.chunks {
