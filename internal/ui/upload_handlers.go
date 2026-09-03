@@ -163,6 +163,70 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 	return fmt.Sprintf("/uploads/%s/%s", category, uniqueName), nil
 }
 
+// uploadedFileMeta describes a stored upload for document rows.
+type uploadedFileMeta struct {
+	URL          string
+	OriginalName string
+	MimeType     string
+	SizeBytes    int64
+}
+
+// saveUploadedFileFull stores one multipart upload and returns its public URL
+// together with the original filename, detected MIME type and byte size, read
+// from the single FormFile call. Callers that only need the URL keep using
+// saveUploadedFile; callers that persist document rows need the metadata so
+// previews (image-vs-PDF sniff, filenames) keep working.
+func saveUploadedFileFull(r *http.Request, fieldName, category string) (uploadedFileMeta, error) {
+	var meta uploadedFileMeta
+	src, header, err := r.FormFile(fieldName)
+	if err != nil {
+		return meta, fmt.Errorf("no file uploaded or invalid form field: %w", err)
+	}
+	defer src.Close()
+
+	if header.Size > MaxUploadBytes {
+		return meta, fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
+	}
+
+	category = sanitizeCategory(category)
+	baseDir := GetUploadBaseDir()
+
+	destDir := filepath.Join(baseDir, category)
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return meta, fmt.Errorf("failed to create upload directory: %w", err)
+	}
+
+	ext := strings.ToLower(filepath.Ext(header.Filename))
+	if ext == "" {
+		ext = ".bin"
+	}
+	randomBytes := make([]byte, 8)
+	_, _ = rand.Read(randomBytes)
+	uniqueName := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
+	targetPath := filepath.Join(destDir, uniqueName)
+
+	dst, err := os.Create(targetPath)
+	if err != nil {
+		return meta, fmt.Errorf("failed to create target file: %w", err)
+	}
+	defer dst.Close()
+
+	written, err := io.Copy(dst, src)
+	if err != nil {
+		return meta, fmt.Errorf("failed to save uploaded file: %w", err)
+	}
+
+	meta.URL = fmt.Sprintf("/uploads/%s/%s", category, uniqueName)
+	meta.OriginalName = header.Filename
+	meta.SizeBytes = written
+	if ct := header.Header.Get("Content-Type"); ct != "" && ct != "application/octet-stream" {
+		meta.MimeType = ct
+	} else if mt := mime.TypeByExtension(ext); mt != "" {
+		meta.MimeType = mt
+	}
+	return meta, nil
+}
+
 // saveUploadedBytes writes byte data directly to disk.
 func saveUploadedBytes(data []byte, originalFilename, category string) (string, error) {
 	if len(data) > MaxUploadBytes {

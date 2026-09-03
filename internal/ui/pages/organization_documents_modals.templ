@@ -189,7 +189,11 @@ templ OrganizationDocumentsModals() {
 			if (tabBtn) tabBtn.href = viewUrl;
 			if (downloadBtn) downloadBtn.href = downloadUrl;
 
-			const ext = (originalName || '').split('.').pop().toLowerCase();
+			// Sniff image-vs-PDF from the original filename first, then the
+			// stored URL (registration-era rows were saved with an empty
+			// original name, but their URL still carries the extension).
+			const sniffSrc = ((originalName || '') !== '' ? originalName : (rawUrl || '')).split('?')[0];
+			const ext = (sniffSrc.split('.').pop() || '').toLowerCase();
 			const isImage = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext);
 
 			if (isImage) {

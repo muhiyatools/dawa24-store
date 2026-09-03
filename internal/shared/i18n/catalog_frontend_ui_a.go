@@ -254,6 +254,8 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "notif.org_approved_body", "org", "تهانينا! تمت مراجعة واعتماد بيانات المنشأة والتراخيص بنجاح بواسطة إدارة دواء 24. تم تفعيل كامل صلاحيات التوريد والطلب بالمنصة.", "Congratulations! Your organization profile and licenses have been verified and approved by Dawa24 admins.", "Org approved notification body")
 	addKey(e, "notif.org_rejected_title", "org", "تحديث بشأن طلب اعتماد المنشأة", "Update on organization approval request", "Org rejected notification title")
 	addKey(e, "notif.org_rejected_body", "org", "تم فحص طلب اعتماد المنشأة من قِبل إدارة المنصة. يرجى مراجعة المستندات أو التواصل مع الدعم الفني.", "Your organization approval request was reviewed. Please check your documents or contact support.", "Org rejected notification body")
+	addKey(e, "notif.new_registration_title", "identity", "تسجيل جديد بانتظار المراجعة", "New registration pending review", "Admin new registration title")
+	addKey(e, "notif.new_registration_body", "identity", "سجل حساب جديد (%s) — %s. يرجى مراجعة البيانات والمستندات واعتماد المنشأة.", "A new account (%s) registered — %s. Please review the data and documents and approve the organization.", "Admin new registration body")
 
 	// --- Document Verification Notifications ---
 	addKey(e, "notif.doc_verified_title", "docs", "تم توثيق المستند بنجاح ✅", "Document verified successfully", "Document verified title")

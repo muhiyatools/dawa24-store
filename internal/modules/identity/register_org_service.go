@@ -98,6 +98,12 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgani
 	return user, sess, result, nil
 }
 
+// ListStaffUserIDs returns the IDs of active platform staff for operational
+// notifications (e.g. new registrations awaiting review).
+func (s *Service) ListStaffUserIDs(ctx context.Context) ([]int64, error) {
+	return s.repo.ListStaffUserIDs(ctx)
+}
+
 // validateOrgInput enforces the per-account-type required fields described in
 // the registration form.
 func validateOrgInput(in RegisterOrgInput) error {

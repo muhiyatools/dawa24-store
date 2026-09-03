@@ -139,6 +139,9 @@ func (m *testMockIdentityRepo) ListFavorites(ctx context.Context, userID int64) 
 func (m *testMockIdentityRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
 	return nil, nil
 }
+func (m *testMockIdentityRepo) ListStaffUserIDs(ctx context.Context) ([]int64, error) {
+	return nil, nil
+}
 func (m *testMockIdentityRepo) AdminListUsersWithTotal(ctx context.Context, filter identity.AdminUserFilter, limit, offset int) ([]*identity.User, int, error) {
 	return nil, 0, nil
 }

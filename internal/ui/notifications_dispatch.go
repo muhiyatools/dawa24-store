@@ -201,6 +201,45 @@ func (h *UIHandler) notifyAccountRegistered(ctx context.Context, userID int64, o
 	}
 }
 
+// notifyAdminsNewRegistration alerts every active platform staff member that a
+// new account was created and is waiting for review. Staff is resolved live
+// from identity.roles.is_staff (never a hardcoded name list), and a failure
+// to resolve staff only skips the fan-out — registration itself already
+// committed before this runs in a background goroutine.
+func (h *UIHandler) notifyAdminsNewRegistration(ctx context.Context, _ int64, orgID int64, orgName, accountType string) {
+	if h.notifSvc == nil || h.idSvc == nil {
+		return
+	}
+	staffIDs, err := h.idSvc.ListStaffUserIDs(database.AsSystem(ctx))
+	if err != nil || len(staffIDs) == 0 {
+		if err != nil {
+			h.log.WarnContext(ctx, "failed to list staff for new-registration notification", "error", err)
+		}
+		return
+	}
+	if strings.TrimSpace(orgName) == "" {
+		orgName = i18n.T("ar", "notif.a_pharmacy")
+	}
+	kind := "صيدلية"
+	if accountType == "vendor" || accountType == "supplier" {
+		kind = "مورد"
+	} else if accountType == "job_seeker" || accountType == "seeker" {
+		kind = "باحث عن عمل"
+	}
+	title := i18n.T("ar", "notif.new_registration_title")
+	body := fmt.Sprintf(i18n.T("ar", "notif.new_registration_body"), orgName, kind)
+	var orgPtr *int64
+	if orgID > 0 {
+		orgPtr = &orgID
+	}
+	for _, staffID := range staffIDs {
+		if staffID <= 0 {
+			continue
+		}
+		h.dispatchInAppNotification(ctx, staffID, orgPtr, title, body)
+	}
+}
+
 // notifyOrgApproved dispatches celebration notification when admin approves an organization.
 func (h *UIHandler) notifyOrgApproved(ctx context.Context, orgID int64) {
 	if orgID <= 0 {

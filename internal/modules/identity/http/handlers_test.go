@@ -98,6 +98,10 @@ func (r stubRepo) AdminListUsers(context.Context, string, string) ([]*identity.U
 	r.fail("AdminListUsers")
 	return nil, nil
 }
+func (r stubRepo) ListStaffUserIDs(context.Context) ([]int64, error) {
+	r.fail("ListStaffUserIDs")
+	return nil, nil
+}
 func (r stubRepo) AdminListUsersWithTotal(context.Context, identity.AdminUserFilter, int, int) ([]*identity.User, int, error) {
 	r.fail("AdminListUsersWithTotal")
 	return nil, 0, nil
@@ -223,6 +227,9 @@ func (happyRepo) ListFavorites(ctx context.Context, userID int64) ([]int64, erro
 }
 func (happyRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
 	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil
+}
+func (happyRepo) ListStaffUserIDs(ctx context.Context) ([]int64, error) {
+	return []int64{1}, nil
 }
 func (happyRepo) AdminListUsersWithTotal(ctx context.Context, filter identity.AdminUserFilter, limit, offset int) ([]*identity.User, int, error) {
 	return []*identity.User{{ID: 1, Email: "user@example.com"}}, 1, nil

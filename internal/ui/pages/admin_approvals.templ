@@ -2,12 +2,47 @@ package pages
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
+
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+// docPreviewExt resolves a document's file extension for the image-vs-PDF
+// sniff, falling back from the original filename to the stored URL/key.
+// Registration-era rows were written with an empty original name, so the name
+// alone cannot be trusted.
+func docPreviewExt(doc *attachments.Document) string {
+	if doc == nil {
+		return ""
+	}
+	for _, candidate := range []string{doc.OriginalName, doc.FileURL, doc.StorageKey} {
+		if ext := strings.ToLower(strings.TrimSpace(filepath.Ext(strings.TrimSpace(candidate)))); ext != "" {
+			return ext
+		}
+	}
+	if mt := strings.ToLower(doc.MimeType); strings.Contains(mt, "pdf") {
+		return ".pdf"
+	} else if strings.HasPrefix(mt, "image/") {
+		return ".png"
+	}
+	return ""
+}
+
+// docPreviewIsImage reports whether the document previews as an image rather
+// than in the PDF iframe.
+func docPreviewIsImage(doc *attachments.Document) bool {
+	switch docPreviewExt(doc) {
+	case ".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif":
+		return true
+	default:
+		return false
+	}
+}
 
 templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 	@layouts.AdminShell("اعتماد المنشآت والوثائق الرسمية", "approvals", lang, dir) {
@@ -363,15 +398,36 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 													<div class="table-actions"><strong>ترخيص المهنة:</strong> <span class="tabular-nums">{ o.PharmacistLicense }</span></div>
 												</div>
 												
-												<!-- Document Preview Strip -->
+												<!-- Document Preview Strip (inline image/PDF, same page) -->
 												<div class="mt-3 pt-3 border-t">
 													if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
 														<div class="text-xs font-bold text-primary mb-1.5">المستند المرفوع عند التسجيل:</div>
 														for _, doc := range orgDocs[o.ID] {
-															<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent mb-1">
-																@components.IconFile("icon-xs")
-																<span>معاينة المستند المرفوع ({ docTypeLabelAr(string(doc.DocumentType)) }) في نافذة جديدة ↗</span>
-															</a>
+															<div class="mb-2 rounded-xl border overflow-hidden">
+																<div class="d-flex items-center justify-between gap-2 p-2 px-3 bg-surface-sunken flex-wrap">
+																	<span class="text-xs font-bold text-primary">{ docTypeLabelAr(string(doc.DocumentType)) }</span>
+																	<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-ghost btn-xs font-bold text-muted">
+																		فتح في نافذة جديدة ↗
+																	</a>
+																</div>
+																if docPreviewIsImage(doc) {
+																	<img
+																		src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+																		alt="معاينة المستند"
+																		class="w-full object-contain bg-white"
+																		style="max-height: 320px;"
+																		loading="lazy"
+																	/>
+																} else {
+																	<iframe
+																		src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+																		class="w-full bg-white"
+																		style="min-height: 320px; border: 0;"
+																		loading="lazy"
+																		title="معاينة المستند"
+																 ></iframe>
+																}
+															</div>
 														}
 													} else {
 														<span class="text-sm text-muted">لم يتم رفع ملف مستند إلكتروني أثناء التسجيل</span>

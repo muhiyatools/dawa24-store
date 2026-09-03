@@ -317,6 +317,12 @@ type RegisterOrgInput struct {
 	TaxNumber          string   `json:"tax_number,omitempty"`
 	PharmacistLicense  string   `json:"pharmacist_license,omitempty"`
 	LicenseDocumentURL string   `json:"license_document_url,omitempty"`
+	// LicenseOriginalName/MimeType/SizeBytes describe the uploaded license
+	// file so the stored document row is previewable (file_url, name, mime).
+	// Empty when the registrant attached no file.
+	LicenseOriginalName string `json:"license_original_name,omitempty"`
+	LicenseMimeType     string `json:"license_mime_type,omitempty"`
+	LicenseSizeBytes    int64  `json:"license_size_bytes,omitempty"`
 	CityID             *int64   `json:"city_id,omitempty"`
 	BranchCount        *int     `json:"branch_count,omitempty"`
 	Address            string   `json:"address,omitempty"`

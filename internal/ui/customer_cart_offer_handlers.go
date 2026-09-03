@@ -75,6 +75,15 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// Refuse withdrawn/unapproved/expired bundles at add time with a clear
+	// reason instead of letting them fail opaquely at checkout.
+	if sp != nil {
+		if msg := validateSpecialOfferForCheckout(sp); msg != "" {
+			h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", msg)
+			return
+		}
+	}
+
 	// Whichever view resolved, reduce both to the three facts a cart line needs.
 	var (
 		orgID      int64
@@ -116,9 +125,11 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		if !unitPrice.IsPositive() && baseOffer.MinOrderAmount.IsPositive() {
 			unitPrice = baseOffer.MinOrderAmount
 		}
-		if !unitPrice.IsPositive() && baseOffer.DiscountValue.IsPositive() {
-			unitPrice = baseOffer.DiscountValue
-		}
+		// NOTE: baseOffer.DiscountValue is deliberately NOT a price fallback.
+		// It is the discount granted by the offer, and charging it as the
+		// bundle's unit price both undercharges the bundle and trips the
+		// offer's own minimum-order gate at checkout. Unpriced bundles fall
+		// through to the explicit default below.
 	}
 
 	// Fallback price if unpriced (100 EGP default bundle price)

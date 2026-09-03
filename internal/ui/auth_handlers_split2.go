@@ -38,8 +38,14 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	// Process license attachment file if uploaded
-	licenseURL, _ := saveUploadedFile(r, "license_file", "licenses")
+	// Process license attachment file if uploaded. Metadata (original name,
+	// MIME, size) is kept so the persisted document row stays previewable;
+	// a missing file is not an error — the document is optional at this step.
+	var licenseMeta uploadedFileMeta
+	if m, err := saveUploadedFileFull(r, "license_file", "licenses"); err == nil {
+		licenseMeta = m
+	}
+	licenseURL := licenseMeta.URL
 
 	var latPtr, lonPtr *float64
 	if latStr := r.PostFormValue("branch_lat"); latStr != "" {
@@ -189,6 +195,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 		if user != nil {
 			go h.notifyAccountRegistered(context.Background(), user.ID, nil)
+			go h.notifyAdminsNewRegistration(context.Background(), user.ID, 0, form.Name, form.AccountType)
 		}
 
 		if sess != nil {
@@ -221,6 +228,9 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			TaxNumber:          form.TaxNumber,
 			PharmacistLicense:  form.PharmacistLicense,
 			LicenseDocumentURL: form.LicenseDocumentURL,
+			LicenseOriginalName: licenseMeta.OriginalName,
+			LicenseMimeType:     licenseMeta.MimeType,
+			LicenseSizeBytes:    licenseMeta.SizeBytes,
 			CityID:             cityIDPtr,
 			BranchCount:        &branchCount,
 			Address:            form.Address,
@@ -244,6 +254,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		h.ensureCompanyRoles(database.AsSystem(ctx), regResult.OrganizationID, form.AccountType)
 		if sess != nil {
 			go h.notifyAccountRegistered(context.Background(), sess.UserID, &regResult.OrganizationID)
+			go h.notifyAdminsNewRegistration(context.Background(), sess.UserID, regResult.OrganizationID, form.LegalName, form.AccountType)
 		}
 	}
 

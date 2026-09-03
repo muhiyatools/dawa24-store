@@ -79,11 +79,21 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 		// 2b. The license file uploaded at registration survives as a document
 		// (Rebuild V2 §4.1) — it is reviewed but never consumed, so the admin
 		// documents registry sees it after approval.
+		//
+		// file_url carries the same public path as storage_key: the Documents
+		// screens and the file-serving gateway read file_url first, and a row
+		// with an empty file_url renders as a missing file even though the
+		// bytes are on disk. original_name drives the image-vs-PDF sniff in
+		// the preview modal, so it is stored as uploaded.
 		if imgURL := strings.TrimSpace(orgIn.LicenseDocumentURL); imgURL != "" {
+			origName := strings.TrimSpace(orgIn.LicenseOriginalName)
+			if origName == "" {
+				origName = imgURL
+			}
 			if _, err := tx.Exec(txCtx,
-				`INSERT INTO platform_admin.documents (organization_id, title, document_type, storage_key, status, original_name, file_url) `+
-					`VALUES ($1, 'السجل التجاري / الترخيص', 'commercial_register', $2, 'pending', '', '')`,
-				result.OrganizationID, imgURL,
+				`INSERT INTO platform_admin.documents (organization_id, user_id, title, document_type, storage_key, file_url, status, original_name, mime_type, size_bytes) `+
+					`VALUES ($1, $2, 'السجل التجاري / الترخيص', 'commercial_register', $3, $3, 'pending', $4, $5, $6)`,
+				result.OrganizationID, u.ID, imgURL, origName, strings.TrimSpace(orgIn.LicenseMimeType), orgIn.LicenseSizeBytes,
 			); err != nil {
 				return fmt.Errorf("identity postgres: register license document: %w", err)
 			}
