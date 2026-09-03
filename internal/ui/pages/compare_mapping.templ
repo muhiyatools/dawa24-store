@@ -8,341 +8,194 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// CompareFileMappingModal is the column setup step: which column of this
+// supplier's spreadsheet holds the name, the price, the discount and the code.
+//
+// In bulk mode it is a wizard. `remainingQueue` carries the file ids still to
+// be set up, so uploading twelve files walks the user through twelve of these
+// in order — "الملف 3 من 12" — rather than leaving twelve un-mapped files on
+// the page for them to find and open one at a time.
 templ CompareFileMappingModal(file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {
 	@components.Modal(components.ModalProps{
 		ID:    "compare-mapping-modal-backdrop",
-		Title: "ربط ومطابقة الصنف مع كتالوج الموردين",
+		Title: "إعداد أعمدة ملف المورد",
 		Size:  "xl",
 		Open:  true,
 	}) {
+		<form
+			class="cmap"
+			id="compare-mapping-form"
+			method="POST"
+			action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) }
+			onsubmit="return submitMappingFormAsync(event)"
+		>
+			<input type="hidden" name="setup_queue" value={ remainingQueue }/>
+			<input type="hidden" name="step" value={ fmt.Sprintf("%d", step) }/>
+			<input type="hidden" name="total" value={ fmt.Sprintf("%d", total) }/>
+			<input type="hidden" name="next_file_id" value={ fmt.Sprintf("%d", nextFileID) }/>
 
-			<!-- Visual Progress Bar if in Multi-File Setup Mode -->
-			if (isSetup || total > 1) && total > 0 {
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<span>نسبة إنجاز ملفات الموردين</span>
-						<span class="tabular-nums">{ fmt.Sprintf("%d%%", (step*100)/total) }</span>
+			<!-- Where the user is in the batch. Only shown when there is a batch. -->
+			if total > 1 {
+				<div class="cmap-progress">
+					<div class="cmap-progress-head">
+						<span class="cmap-progress-label">
+							{ fmt.Sprintf("الملف %d من %d", step, total) }
+						</span>
+						<span class="cmap-progress-file">{ file.OriginalFilename }</span>
 					</div>
-     <div class="stack-sm">
-						<div
-							style={ fmt.Sprintf("width:%d%%;", (step*100)/total) }
-							class="progress-bar-fill"
-						></div>
+					<div class="cmap-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+						<div class={ "cmap-progress-fill", progressWidthClass(step, total) }></div>
 					</div>
 				</div>
 			}
 
-			<!-- Form Content -->
-			<form class="stack-md"
-				id="compare-mapping-form"
-				method="POST"
-				action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)) }
-				onsubmit="return submitMappingFormAsync(event)"
-			
-			>
-				<input type="hidden" name="setup_queue" value={ remainingQueue } />
-				<input type="hidden" name="step" value={ fmt.Sprintf("%d", step) } />
-				<input type="hidden" name="total" value={ fmt.Sprintf("%d", total) } />
-				<input type="hidden" name="next_file_id" value={ fmt.Sprintf("%d", nextFileID) } />
+			<!-- Supplier name: the label every comparison table will show. -->
+			<div class="cmap-field">
+				<label class="cmap-label" for="cmap-supplier">
+					اسم المورد أو شركة التوزيع <span class="cmap-req">*</span>
+				</label>
+				<input
+					type="text"
+					id="cmap-supplier"
+					name="supplier_name"
+					value={ file.SupplierName }
+					class="form-input"
+					placeholder="مثال: شركة المتحدة للصيادلة"
+					required
+				/>
+				<p class="cmap-hint">يظهر هذا الاسم في جداول المقارنة وأفضل العروض.</p>
+			</div>
 
-				<!-- Supplier Name Editable Field -->
-    <div class="stack-sm">
-					<div class="stack-xs text-sm">@components.IconBuilding("icon-sm")</div>
-     <div class="stack-sm">
-						<label class="form-label">
-							اسم المورد أو شركة التوزيع <span class="text-danger">*</span>
-						</label>
-						<input
-							type="text"
-							name="supplier_name"
-							value={ file.SupplierName }
-							class="form-input"
-						
-							placeholder="مثال: شركة المتحدة للصيادلة / ابن سينا فارما"
-							required
-						/>
-					</div>
-					<div class="stack-xs text-sm">
-						سيظهر هذا الاسم في جداول المقارنة وأفضل العروض. يمكنك تعديله الآن.
-					</div>
+			<!-- The four columns, each with what the detector thought and how sure
+			     it was. A confident guess is pre-selected; the user overrides. -->
+			<div class="cmap-section">
+				<div class="cmap-section-head">
+					<strong class="cmap-section-title">ربط أعمدة الملف</strong>
+					<span class="cmap-section-meta tabular-nums">
+						{ fmt.Sprintf("%d عمود في الملف", len(headers)) }
+					</span>
 				</div>
 
-				<!-- Column Mapping Selectors Grid (2x2) -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<div class="row-center-sm">
-							<span>@components.IconActivity("icon-sm")</span>
-							<strong>تحديد أعمدة البيانات بالكشف:</strong>
-						</div>
-						<span class="badge badge-sky">
-							{ fmt.Sprintf("%d عمود تم رصده في الملف", len(headers)) }
+				<div class="cmap-grid">
+					@cmapColumnField("name_col", "اسم الصنف الدوائي", true, headers, file.MappingConfig.NameCol, detectionCol(detection, "name"), detectionScore(detection, compare.FieldProductName))
+					@cmapColumnField("price_col", "سعر الجمهور", false, headers, file.MappingConfig.PriceCol, detectionCol(detection, "price"), detectionScore(detection, compare.FieldPrice))
+					@cmapColumnField("discount_col", "نسبة الخصم %", false, headers, file.MappingConfig.DiscountCol, detectionCol(detection, "discount"), detectionScore(detection, compare.FieldDiscount))
+					@cmapColumnField("code_col", "كود الصنف / SKU", false, headers, file.MappingConfig.CodeCol, detectionCol(detection, "code"), detectionScore(detection, compare.FieldSKU))
+				</div>
+			</div>
+
+			<!-- The file as it was read, so a wrong header row is visible here
+			     rather than discovered after a few thousand rows are committed. -->
+			if len(headers) > 0 && len(preview) > 0 {
+				<div class="cmap-section">
+					<div class="cmap-section-head">
+						<strong class="cmap-section-title">معاينة الملف</strong>
+						<span class="cmap-section-meta tabular-nums">
+							{ fmt.Sprintf("أول %d صفوف", len(preview)) }
 						</span>
 					</div>
-
-     <div class="stack-sm">
-						
-						<!-- 1. Product Name (Required) -->
-      <div class="stack-sm">
-							<div class="flex-between">
-        <label class="form-label">
-									اسم الصنف الدوائي <span class="text-danger">* (مطلوب للمطابقة)</span>
-								</label>
-								if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldProductName]; ok {
-										<span class="badge badge-emerald text-xs font-bold">
-											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
-										</span>
-									}
-								}
-							</div>
-							<select name="name_col" required class="form-select">
-								<option value="">-- اختر عمود اسم الصنف --</option>
-								for idx, h := range headers {
-									if (file.MappingConfig.NameCol != nil && *file.MappingConfig.NameCol == idx) || (file.MappingConfig.NameCol == nil && detection != nil && detection.NameCol != nil && *detection.NameCol == idx) {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									}
-								}
-							</select>
-						</div>
-
-						<!-- 2. Price -->
-      <div class="stack-sm">
-							<div class="flex-between">
-        <label class="form-label">
-									سعر الجمهور الرسمي (Public Price)
-								</label>
-								if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldPrice]; ok {
-										<span class="badge badge-emerald text-xs font-bold">
-											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
-										</span>
-									}
-								}
-							</div>
-							<select name="price_col" class="form-select">
-								<option value="">-- اختر عمود السعر (اختياري) --</option>
-								for idx, h := range headers {
-									if (file.MappingConfig.PriceCol != nil && *file.MappingConfig.PriceCol == idx) || (file.MappingConfig.PriceCol == nil && detection != nil && detection.PriceCol != nil && *detection.PriceCol == idx) {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									}
-								}
-							</select>
-						</div>
-
-						<!-- 3. Discount -->
-      <div class="stack-sm">
-							<div class="flex-between">
-        <label class="form-label">
-									نسبة الخصم % (Discount)
-								</label>
-								if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldDiscount]; ok {
-										<span class="badge badge-emerald text-xs font-bold">
-											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
-										</span>
-									}
-								}
-							</div>
-							<select name="discount_col" class="form-select">
-								<option value="">-- اختر عمود الخصم (اختياري) --</option>
-								for idx, h := range headers {
-									if (file.MappingConfig.DiscountCol != nil && *file.MappingConfig.DiscountCol == idx) || (file.MappingConfig.DiscountCol == nil && detection != nil && detection.DiscountCol != nil && *detection.DiscountCol == idx) {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									}
-								}
-							</select>
-						</div>
-
-						<!-- 4. Code / SKU -->
-      <div class="stack-sm">
-							<div class="flex-between">
-        <label class="form-label">
-									كود الصنف / SKU (اختياري)
-								</label>
-								if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
-									if score, ok := detection.FieldScores[compare.FieldSKU]; ok {
-										<span class="badge badge-emerald text-xs font-bold">
-											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
-										</span>
-									}
-								}
-							</div>
-							<select name="code_col" class="form-select">
-								<option value="">-- اختر عمود الكود (اختياري) --</option>
-								for idx, h := range headers {
-									if (file.MappingConfig.CodeCol != nil && *file.MappingConfig.CodeCol == idx) || (file.MappingConfig.CodeCol == nil && detection != nil && detection.CodeCol != nil && *detection.CodeCol == idx) {
-										<option value={ fmt.Sprintf("%d", idx) } selected>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									} else {
-										<option value={ fmt.Sprintf("%d", idx) }>{ fmt.Sprintf("العمود %d: %s", idx+1, h) }</option>
-									}
-								}
-							</select>
-						</div>
-
-					</div>
-				</div>
-
-				<!-- Live Preview Table -->
-				if len(headers) > 0 && len(preview) > 0 {
-     <div class="stack-sm">
-      <div class="stack-sm">
-							<div class="stack-xs text-sm">
-								عينة من بيانات الملف (الصفوف الأولى):
-							</div>
-							<span class="meta-muted">
-								{ fmt.Sprintf("%d صفوف للمعاينة", len(preview)) }
-							</span>
-						</div>
-      <div class="stack-sm">
-							<table class="data-table">
-								<thead>
-									<tr>
-										for idx, h := range headers {
-											<th>
-												<div class="tabular-nums">#{ fmt.Sprintf("%d", idx+1) }</div>
+					<div class="cmap-preview">
+						<table class="data-table data-table-compact m-0">
+							<thead>
+								<tr>
+									for idx, h := range headers {
+										<th class="whitespace-nowrap">
+											<span class="cmap-colnum tabular-nums">{ fmt.Sprintf("%d", idx+1) }</span>
+											if h != "" {
 												{ h }
-											</th>
+											} else {
+												<span class="text-muted">(بدون عنوان)</span>
+											}
+										</th>
+									}
+								</tr>
+							</thead>
+							<tbody>
+								for _, row := range preview {
+									<tr>
+										for _, cell := range padPreviewCells(row, len(headers)) {
+											<td class="whitespace-nowrap">
+												if cell != "" {
+													{ cell }
+												} else {
+													<span class="text-muted">—</span>
+												}
+											</td>
 										}
 									</tr>
-								</thead>
-								<tbody>
-									for _, row := range preview {
-										<tr>
-											for _, cell := range row {
-												<td class="tabular-nums">
-													{ cell }
-												</td>
-											}
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				}
-
-				<!-- Actions Bar -->
-    <div class="stack-sm">
-					
-					<div class="d-flex items-center gap-2">
-						if isSetup || total > 1 {
-							<button
-								type="button"
-								data-file-id={ fmt.Sprintf("%d", file.ID) }
-								data-queue={ remainingQueue }
-								data-step={ fmt.Sprintf("%d", step) }
-								data-total={ fmt.Sprintf("%d", total) }
-								onclick="handleSetupSkip(parseInt(this.dataset.fileId,10), this.dataset.queue, parseInt(this.dataset.step,10), parseInt(this.dataset.total,10))"
-								class="btn btn-secondary text-danger"
-							
-								title="حذف وتخطي هذا الملف والانتقال للملف التالي"
-							>
-								<span>⏩ تخطي هذا الملف</span>
-							</button>
-						}
-						
-						<button
-							type="button"
-							onclick="closeMappingModal()"
-							class="btn btn-secondary"
-						
-						>
-							إلغاء
-						</button>
-					</div>
-
-					<div class="d-flex items-center gap-3">
-						<button
-							type="submit"
-							id="mapping-submit-btn"
-							class="btn btn-primary"
-						
-						>
-							@components.IconCheck("icon-xs")
-							if nextFileID > 0 {
-								<span>حفظ والملف التالي </span>
-							} else {
-								<span>حفظ وإنهاء وبدء المقارنة </span>
-							}
-						</button>
+								}
+							</tbody>
+						</table>
 					</div>
 				</div>
+			}
 
-			</form>
+			<div class="cmap-actions">
+				<div class="cmap-actions-start">
+					if total > 1 {
+						<button
+							type="button"
+							data-file-id={ fmt.Sprintf("%d", file.ID) }
+							data-queue={ remainingQueue }
+							data-step={ fmt.Sprintf("%d", step) }
+							data-total={ fmt.Sprintf("%d", total) }
+							onclick="handleSetupSkip(parseInt(this.dataset.fileId,10), this.dataset.queue, parseInt(this.dataset.step,10), parseInt(this.dataset.total,10))"
+							class="btn btn-secondary btn-sm text-danger"
+							title="تخطي هذا الملف والانتقال للتالي"
+						>
+							تخطي هذا الملف
+						</button>
+					}
+					<button type="button" onclick="closeMappingModal()" class="btn btn-ghost btn-sm">إغلاق</button>
+				</div>
 
-		<script>
-			if (typeof window.closeMappingModal !== 'function') {
-				window.closeMappingModal = function() {
-					const modal = document.getElementById('compare-mapping-modal-backdrop');
-					if (modal) {
-						modal.remove();
+				<button type="submit" id="mapping-submit-btn" class="btn btn-primary btn-sm font-bold">
+					@components.IconCheck("icon-xs")
+					if nextFileID > 0 {
+						<span>حفظ والانتقال للملف التالي</span>
 					} else {
-						const root = document.getElementById('mapping-modal-root');
-						if (root) root.innerHTML = '';
-						else window.location.href = '/compare/tool';
+						<span>حفظ وبدء المطابقة</span>
 					}
-				};
-			}
-
-			if (typeof window.handleSetupSkip !== 'function') {
-				window.handleSetupSkip = function(fileId, remainingQueue, step, total) {
-					if (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {
-						return;
-					}
-
-					const modal = document.getElementById('compare-mapping-modal-backdrop');
-					if (modal) {
-						modal.innerHTML = `
-							<div class="glass-panel p-4">
-								<div class="stack-xs text-sm">⏩</div>
-								<div class="stack-xs text-sm">جاري تخطي الملف والانتقال للملف التالي...</div>
-							</div>
-						`;
-					}
-
-					const formData = new FormData();
-					formData.append('setup_queue', remainingQueue);
-					formData.append('step', step);
-					formData.append('total', total);
-
-					fetch('/compare/files/' + fileId + '/skip', {
-						method: 'POST',
-						body: formData,
-						headers: {
-							'Accept': 'application/json'
-						}
-					})
-					.then(res => {
-						if (!res.ok) throw new Error('فشل تخطي الملف.');
-						return res.json();
-					})
-					.then(data => {
-						if (data.next_file_id && data.next_file_id > 0) {
-							if (typeof window.openSetupModal === 'function') {
-								window.openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);
-							} else {
-								window.location.href = '/compare/tool?setup_file=' + data.next_file_id + '&setup_queue=' + encodeURIComponent(data.remaining_queue || '') + '&setup_step=' + data.step + '&setup_total=' + data.total;
-							}
-						} else {
-							window.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');
-						}
-					})
-					.catch(err => {
-						alert(err.message || 'تعذر تخطي الملف.');
-						if (typeof window.closeMappingModal === 'function') {
-							window.closeMappingModal();
-						}
-					});
-				};
-			}
-		</script>
+				</button>
+			</div>
+		</form>
 	}
+}
+
+// cmapColumnField is one column chooser: the field it fills, what the detector
+// guessed, and how sure it was.
+//
+// The confidence badge is the point of the screen. Without it a pre-selected
+// wrong column looks exactly like a pre-selected right one, and the user
+// confirms it.
+templ cmapColumnField(name, label string, required bool, headers []string, saved *int, detected *int, score float64) {
+	<div class="cmap-field">
+		<div class="cmap-label-row">
+			<label class="cmap-label" for={ "cmap-" + name }>
+				{ label }
+				if required {
+					<span class="cmap-req">*</span>
+				}
+			</label>
+			if score > 0 {
+				<span class={ "cmap-score", cmapScoreTone(score) }>
+					{ fmt.Sprintf("ثقة %.0f%%", score*100) }
+				</span>
+			}
+		</div>
+		<select id={ "cmap-" + name } name={ name } class="form-select" required?={ required }>
+			if !required {
+				<option value="">— لا يوجد —</option>
+			} else {
+				<option value="">— اختر العمود —</option>
+			}
+			for idx, h := range headers {
+				<option value={ fmt.Sprintf("%d", idx) } selected?={ cmapSelected(saved, detected, idx) }>
+					{ fmt.Sprintf("%d. %s", idx+1, cmapHeaderLabel(h)) }
+				</option>
+			}
+		</select>
+	</div>
 }
 
 templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {

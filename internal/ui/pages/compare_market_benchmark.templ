@@ -124,6 +124,8 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 			@benchmarkTable(data)
 			@benchmarkCoverage(data.Result)
 		}
+		<!-- Where the offers modal is swapped in. Empty until a count is clicked. -->
+		<div id="benchmark-offers-modal"></div>
 	</div>
 }
 
@@ -327,40 +329,19 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 									</div>
 								</td>
 
-								<!-- The three counts. Each is a number the eye can compare
-								     down the column, coloured by what it means for you:
-								     offers beating you are a problem, offers you beat are
-								     not. The cheapest competing offer is named under the
-								     count it belongs to, instead of in a column of its
-								     own. -->
+								<!-- The three counts, each a button onto the suppliers
+								     behind it. A number alone leaves the reader with the
+								     next question unanswered — which three, at what price
+								     — and the answer is too much data to carry inline for
+								     a few thousand rows, so it is fetched on click. -->
 								<td class="text-center">
-									if row.BetterOffers > 0 {
-										<span class="bench-count is-worse tabular-nums">{ fmt.Sprintf("%d", row.BetterOffers) }</span>
-										if row.BestSupplier != "" {
-											<div class="bench-sub">
-												{ fmt.Sprintf("أرخصهم %s ج.م", row.BestNet.String()) }
-											</div>
-											<div class="bench-sub is-quiet">{ row.BestSupplier }</div>
-										}
-									} else {
-										<span class="bench-count is-none">—</span>
-									}
+									@benchmarkCountCell(data.FileID, row.RowID, "better", row.BetterOffers, "is-worse", "عروض أفضل بالسوق")
 								</td>
-
 								<td class="text-center">
-									if row.EqualOffers > 0 {
-										<span class="bench-count is-equal tabular-nums">{ fmt.Sprintf("%d", row.EqualOffers) }</span>
-									} else {
-										<span class="bench-count is-none">—</span>
-									}
+									@benchmarkCountCell(data.FileID, row.RowID, "equal", row.EqualOffers, "is-equal", "عروض مماثلة بالسوق")
 								</td>
-
 								<td class="text-center">
-									if row.WorseOffers > 0 {
-										<span class="bench-count is-better tabular-nums">{ fmt.Sprintf("%d", row.WorseOffers) }</span>
-									} else {
-										<span class="bench-count is-none">—</span>
-									}
+									@benchmarkCountCell(data.FileID, row.RowID, "worse", row.WorseOffers, "is-better", "عروض أقل بالسوق")
 								</td>
 							</tr>
 						}
@@ -372,6 +353,27 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 			</div>
 		}
 	</div>
+}
+
+// benchmarkCountCell renders one of the three counts. A count of zero is a dash
+// and not a control: there is nothing to open, and a button that opens an empty
+// list is worse than no button.
+templ benchmarkCountCell(fileID, rowID int64, bucket string, count int, tone, label string) {
+	if count > 0 {
+		<button
+			type="button"
+			class={ "bench-count", "is-link", tone, "tabular-nums" }
+			hx-get={ fmt.Sprintf("/compare/market-benchmark/offers?file=%d&row=%d&bucket=%s", fileID, rowID, bucket) }
+			hx-target="#benchmark-offers-modal"
+			hx-swap="innerHTML"
+			title={ fmt.Sprintf("عرض %s (%d)", label, count) }
+			aria-haspopup="dialog"
+		>
+			{ fmt.Sprintf("%d", count) }
+		</button>
+	} else {
+		<span class="bench-count is-none" aria-hidden="true">—</span>
+	}
 }
 
 // formatBenchPercent drops the decimal when there is nothing behind it, so a

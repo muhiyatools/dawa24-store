@@ -588,13 +588,6 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 								offersHtml += '</div>';
 							}
 
-							let missingHtml = '';
-							if (item.missing_from_suppliers && item.missing_from_suppliers.length > 0 && Object.keys(item.offers || {}).length > 0) {
-								missingHtml = '<div class="missing-suppliers text-xs text-muted mt-1">' +
-									'غير مدرج لدى: <strong>' + item.missing_from_suppliers.join('، ') + '</strong>' +
-								'</div>';
-							}
-
 							const skuHtml = item.sku ? ('<span class="tabular-nums text-xs text-secondary">كود: ' + item.sku + '</span>') : '';
 							html += '<div class="comparison-card card p-4 mb-3">' +
 								'<div class="d-flex justify-between items-start flex-wrap gap-3">' +
@@ -608,7 +601,6 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 									bestPriceHtml +
 								'</div>' +
 								offersHtml +
-								missingHtml +
 							'</div>';
 						});
 

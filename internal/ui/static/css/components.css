@@ -6328,3 +6328,284 @@ form.filter-bar { margin: 0; }
   .bench-range { flex-basis: 100%; }
   .bench-table { min-inline-size: 44rem; }
 }
+
+/* ==========================================================================
+   Benchmark offers modal (BenchmarkOffersModal)
+   The suppliers behind one count on /compare/market-benchmark. Three columns
+   only — who, what they charge, how much off — because the reader arrived here
+   with one question and every extra column delays the answer.
+   ========================================================================== */
+
+.bmo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 9999);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.bmo-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-overlay, rgba(15, 23, 42, 0.65));
+  cursor: pointer;
+}
+
+.bmo-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 46rem;
+  max-block-size: min(85dvh, 44rem);
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card, var(--border-subtle));
+  border-radius: var(--radius-2xl, 1rem);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.bmo-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-block-end: 1px solid var(--border-subtle);
+}
+.bmo-head-copy { min-inline-size: 0; }
+.bmo-title {
+  margin: 0 0 0.375rem;
+  font-size: 1.0625rem;
+  font-weight: 900;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+.bmo-head-meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.bmo-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.0625rem 0.375rem;
+}
+.bmo-yours { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+.bmo-yours strong { color: var(--text-primary); font-weight: 800; }
+.bmo-yours small { font-size: 0.6875rem; margin-inline-start: 0.25rem; }
+
+.bmo-head-side { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+.bmo-bucket {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.bmo-bucket.is-worse  { color: var(--danger);  background: var(--danger-subtle);  border-color: var(--danger-border); }
+.bmo-bucket.is-better { color: var(--success); background: var(--success-subtle); border-color: var(--success-border); }
+.bmo-bucket.is-equal  { color: var(--text-secondary); background: var(--bg-surface-sunken); border-color: var(--border-subtle); }
+
+.bmo-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-sunken);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.bmo-close:hover { color: var(--text-primary); border-color: var(--border-strong, var(--border-card)); }
+
+.bmo-body { overflow: auto; flex: 1 1 auto; min-block-size: 0; }
+
+.bmo-table { inline-size: 100%; border-collapse: collapse; }
+.bmo-table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  padding: 0.625rem 1.25rem;
+  background: var(--bg-surface-sunken);
+  border-block-end: 1px solid var(--border-subtle);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-align: start;
+  white-space: nowrap;
+}
+.bmo-table tbody td {
+  padding: 0.75rem 1.25rem;
+  border-block-end: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.bmo-table tbody tr:last-child td { border-block-end: none; }
+.bmo-table tbody tr:hover { background: var(--bg-surface-sunken); }
+
+.bmo-supplier { font-size: 0.875rem; font-weight: 800; color: var(--text-primary); }
+.bmo-supplier-sub { font-size: 0.6875rem; color: var(--text-muted); margin-block-start: 0.125rem; }
+
+/* List price struck above, net price large below, currency under it — the
+   shape the reference uses, so the eye lands on what is actually paid. */
+.bmo-was {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+.bmo-net { font-size: 1.0625rem; font-weight: 900; color: var(--text-primary); line-height: 1.2; }
+.bmo-cur { font-size: 0.5625rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; }
+
+.bmo-disc { font-size: 1.0625rem; font-weight: 900; color: var(--info); line-height: 1.2; }
+.bmo-gap { font-size: 0.625rem; font-weight: 700; margin-block-start: 0.125rem; }
+.bmo-gap.is-cheaper { color: var(--danger); }
+.bmo-gap.is-dearer { color: var(--success); }
+
+.bmo-empty { padding: 2rem 1.25rem; margin: 0; text-align: center; font-size: 0.8125rem; color: var(--text-muted); }
+
+.bmo-foot {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.75rem 1.25rem;
+  border-block-start: 1px solid var(--border-subtle);
+  background: var(--bg-surface-sunken);
+}
+
+@media (max-width: 640px) {
+  .bmo-overlay { padding: 0; align-items: flex-end; }
+  .bmo-dialog { max-inline-size: 100%; max-block-size: 92dvh; border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; }
+  .bmo-table thead th, .bmo-table tbody td { padding-inline: 0.75rem; }
+}
+
+/* The count as a control. */
+.bench-count.is-link {
+  cursor: pointer;
+  transition: transform var(--duration-fast, 120ms) ease, box-shadow var(--duration-fast, 120ms) ease;
+}
+.bench-count.is-link:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.bench-count.is-link:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* ==========================================================================
+   Compare column setup wizard (CompareFileMappingModal)
+   One file's columns, one screen. In bulk mode the same screen repeats once per
+   uploaded file, with the progress strip saying where in the batch the user is.
+   ========================================================================== */
+
+.cmap { display: flex; flex-direction: column; gap: 1.125rem; margin: 0; }
+
+.cmap-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.cmap-progress-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.cmap-progress-label { font-size: 0.8125rem; font-weight: 800; color: var(--text-primary); white-space: nowrap; }
+.cmap-progress-file {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-inline-size: 0;
+}
+.cmap-progress-track {
+  block-size: 0.375rem;
+  border-radius: var(--radius-full, 999px);
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+.cmap-progress-fill {
+  block-size: 100%;
+  background: var(--brand);
+  border-radius: inherit;
+  transition: width var(--duration-normal, 0.25s) var(--ease-smooth, ease);
+}
+
+.cmap-field { display: flex; flex-direction: column; gap: 0.3125rem; min-inline-size: 0; }
+.cmap-label-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.cmap-label { font-size: 0.75rem; font-weight: 800; color: var(--text-primary); margin: 0; }
+.cmap-req { color: var(--danger); margin-inline-start: 0.125rem; }
+.cmap-hint { margin: 0; font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); }
+
+/* How sure the detector was. Graded, because a pre-selected wrong column looks
+   exactly like a pre-selected right one without it. */
+.cmap-score {
+  font-size: 0.625rem;
+  font-weight: 800;
+  padding: 0.0625rem 0.375rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.cmap-score.is-strong { color: var(--success); background: var(--success-subtle); border-color: var(--success-border); }
+.cmap-score.is-likely { color: var(--info);    background: var(--info-subtle);    border-color: var(--info-border); }
+.cmap-score.is-weak   { color: var(--warning); background: var(--warning-subtle); border-color: var(--warning-border); }
+
+.cmap-section { display: flex; flex-direction: column; gap: 0.625rem; }
+.cmap-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.cmap-section-title { font-size: 0.8125rem; font-weight: 800; color: var(--text-primary); }
+.cmap-section-meta { font-size: 0.6875rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+
+.cmap-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+@media (max-width: 640px) { .cmap-grid { grid-template-columns: 1fr; } }
+
+.cmap-preview {
+  overflow: auto;
+  max-block-size: 15rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overscroll-behavior-x: contain;
+}
+.cmap-preview .data-table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background: var(--bg-surface-raised);
+  box-shadow: inset 0 -1px 0 var(--border-subtle);
+}
+.cmap-colnum {
+  display: inline-block;
+  min-inline-size: 1.125rem;
+  margin-inline-end: 0.25rem;
+  padding-inline: 0.1875rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  font-size: 0.5625rem;
+  font-weight: 800;
+}
+
+.cmap-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-block-start: 0.875rem;
+  border-block-start: 1px solid var(--border-subtle);
+}
+.cmap-actions-start { display: flex; align-items: center; gap: 0.5rem; }
+@media (max-width: 640px) {
+  .cmap-actions { flex-direction: column-reverse; align-items: stretch; }
+  .cmap-actions-start { justify-content: space-between; }
+  .cmap-actions > .btn { inline-size: 100%; justify-content: center; }
+}

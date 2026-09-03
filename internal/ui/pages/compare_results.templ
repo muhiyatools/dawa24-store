@@ -265,11 +265,6 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 													}
 												}
 											</div>
-											if len(row.MissingSuppliers) > 0 {
-												<div class="text-xs text-danger font-semibold">
-													غير مدرج لدى: <strong>{ strings.Join(row.MissingSuppliers, "، ") }</strong>
-												</div>
-											}
 										</td>
 									</tr>
 								}
