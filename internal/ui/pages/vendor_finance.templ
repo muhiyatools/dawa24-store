@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -56,6 +57,20 @@ func vendorPaymentStatusBadge(s string) (string, string) {
 	default:
 		return s, "badge-slate"
 	}
+}
+
+func vendorPaymentsQueryValues(data VendorPaymentsPageData) url.Values {
+	q := url.Values{}
+	if data.Search != "" {
+		q.Set("q", data.Search)
+	}
+	if data.Method != "" {
+		q.Set("method", data.Method)
+	}
+	if data.Status != "" {
+		q.Set("status", data.Status)
+	}
+	return q
 }
 
 // VendorPaymentsPage renders payments history for the vendor.
@@ -313,6 +328,7 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 							PageSize:    data.PerPage,
 							TotalCount:  data.TotalCount,
 							BaseURL:     "/vendor/payments",
+							QueryValues: vendorPaymentsQueryValues(data),
 						})
 					}
 				</div>

@@ -168,13 +168,14 @@ func (h *UIHandler) buildCatalogVariantCards(
 		}
 	}
 
-	// 3. Prioritize variant cards: Sponsored first, then In-Stock & Covered, then Proximity
+	// 3. Prioritize variant cards: purchasable + in-stock first, then
+	// sponsored among actionable, then covered/proximity. A sponsored but
+	// unavailable card must never outrank an orderable one.
 	sort.SliceStable(variantCards, func(i, j int) bool {
-		if variantCards[i].IsSponsored != variantCards[j].IsSponsored {
-			return variantCards[i].IsSponsored
-		}
-		if variantCards[i].IsSponsored && variantCards[j].IsSponsored {
-			return variantCards[i].ProductID < variantCards[j].ProductID
+		aActionable := variantCards[i].CanAddToCart && variantCards[i].AvailableStock > 0
+		bActionable := variantCards[j].CanAddToCart && variantCards[j].AvailableStock > 0
+		if aActionable != bActionable {
+			return aActionable
 		}
 		// Tier 1: Actionable (In-stock & Covered)
 		if variantCards[i].CanAddToCart != variantCards[j].CanAddToCart {
@@ -182,6 +183,9 @@ func (h *UIHandler) buildCatalogVariantCards(
 		}
 		if (variantCards[i].AvailableStock > 0) != (variantCards[j].AvailableStock > 0) {
 			return variantCards[i].AvailableStock > 0
+		}
+		if variantCards[i].IsSponsored != variantCards[j].IsSponsored {
+			return variantCards[i].IsSponsored
 		}
 		if variantCards[i].IsCovered != variantCards[j].IsCovered {
 			return variantCards[i].IsCovered

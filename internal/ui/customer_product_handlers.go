@@ -2,16 +2,23 @@ package ui
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	// /catalog/{id} is authenticated-only, matching the listing page.
+	if actor, ok := authctx.From(ctx); !ok || actor.UserID == 0 {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)

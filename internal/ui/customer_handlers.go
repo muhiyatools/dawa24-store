@@ -2,11 +2,13 @@ package ui
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -15,6 +17,12 @@ import (
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	// /catalog is authenticated-only: guests are sent to login instead of
+	// receiving a capped public listing.
+	if actor, ok := authctx.From(ctx); !ok || actor.UserID == 0 {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
 
 	// 1. Security & Anti-Scraping / Bot Defense

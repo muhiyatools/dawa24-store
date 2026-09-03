@@ -284,12 +284,31 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 	</div>
 
 	<!-- Clear All Script -->
-	<script>
+	<script data-decision-memory-base={ basePath }>
 		function confirmClearMyDecisions() {
 			if (confirm("هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\n\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.")) {
+				var holder = document.querySelector('script[data-decision-memory-base]');
+				var root = holder ? holder.getAttribute('data-decision-memory-base') : '';
+				if (!root) {
+					var fallback = document.querySelector('form[action*="/decision-memory/"]');
+					if (fallback) {
+						root = fallback.getAttribute('action').replace(/\/\d+\/delete$/, '');
+					}
+				}
+				if (!root) {
+					return;
+				}
 				var form = document.createElement('form');
 				form.method = 'POST';
-				form.action = basePath + '/clear';
+				form.action = root + '/clear';
+				var csrf = (document.cookie.match(/(?:^|; )dawa_csrf=([^;]*)/) || [])[1];
+				if (csrf) {
+					var tok = document.createElement('input');
+					tok.type = 'hidden';
+					tok.name = '_csrf';
+					tok.value = decodeURIComponent(csrf);
+					form.appendChild(tok);
+				}
 				document.body.appendChild(form);
 				form.submit();
 			}

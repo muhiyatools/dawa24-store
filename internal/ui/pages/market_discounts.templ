@@ -219,13 +219,13 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				<!-- 1. LIST VIEW -->
 				<div class="stack-sm" x-show="currentView === 'list'" x-cloak>
 					for _, item := range result.Items {
-						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
+						<div class="glass-panel p-4 market-list-row">
 							<!-- Right: Product Name & SKU -->
        <div class="stack-sm">
-								<h3 class="text-base font-black text-primary m-0 mb-1 leading-snug">
+								<h3 class="text-lg font-black text-primary m-0 mb-1 leading-snug">
 									{ item.ProductName }
 								</h3>
-								<div class="d-flex items-center gap-2 text-xs text-secondary">
+								<div class="d-flex items-center gap-2 text-sm text-secondary flex-wrap">
 									<span>الكود:</span>
 									if item.SKU != "" {
 										<strong class="tabular-nums font-mono text-primary font-bold">{ item.SKU }</strong>
@@ -241,38 +241,40 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 
 							<!-- Center: Warehouse Pill & Date -->
-							<div class="text-center">
-								<div class="badge badge-primary text-xs font-bold py-1 px-3">
+							<div class="text-center stack-sm items-center">
+								<div class="badge badge-primary text-sm font-bold py-1 px-3">
 									{ item.SupplierName }
 								</div>
-								<div class="text-xs text-muted mt-1 tabular-nums">
+								<div class="text-sm text-muted mt-1 tabular-nums">
 									تاريخ العرض: <strong class="text-secondary">{ item.CreatedAt.Format("2006-01-02") }</strong>
 								</div>
 							</div>
 
-							<!-- Left: Discount Pill + Public Price & Total Price -->
-							<div class="d-flex items-center gap-4 justify-end">
-								<!-- Discount Badge Pill -->
-        <div class="stack-sm">
+							<!-- Left: Prices + Discount Pill (tag next to prices) -->
+							<div class="market-list-prices">
+								<!-- Prices Column -->
+								<div class="text-end">
+									<div class="text-xs text-muted mb-1">سعر الجمهور</div>
+									if item.OriginalPrice.Minor() > 0 {
+										<div class="text-sm text-muted tabular-nums line-through">
+											{ formatDiscountPrice(item.OriginalPrice) } ج.م
+										</div>
+									}
+									<div class="text-xs text-muted mt-1">سعر بعد الخصم</div>
+									<div class="text-lg font-black text-primary tabular-nums">
+										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
+									</div>
+								</div>
+
+								<!-- Discount Badge Pill next to prices -->
+         <div class="stack-sm items-center">
 									if item.DiscountPercent >= 40 {
-										<div class="badge badge-rose text-xs font-black py-2 px-3">
+										<div class="badge badge-rose text-sm font-black py-2 px-3">
 											{ formatDiscount(item.DiscountPercent) }% خصم
 										</div>
 									} else {
-										<div class="badge badge-emerald text-xs font-black py-2 px-3">
+										<div class="badge badge-emerald text-sm font-black py-2 px-3">
 											{ formatDiscount(item.DiscountPercent) }% خصم
-										</div>
-									}
-								</div>
-
-								<!-- Prices Column -->
-								<div class="text-end">
-									<div class="text-base font-black text-primary tabular-nums">
-										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
-									</div>
-									if item.OriginalPrice.Minor() > 0 {
-										<div class="text-xs text-muted tabular-nums line-through">
-											{ formatDiscountPrice(item.OriginalPrice) } ج.م
 										</div>
 									}
 								</div>
@@ -304,27 +306,21 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					}
 				</div>
 
-				<!-- 2. GRID VIEW -->
-				<div class="stack-sm" x-show="currentView === 'grid'" x-cloak>
+				<!-- 2. GRID VIEW : 4 cards per row, compact -->
+				<div class="market-grid" x-show="currentView === 'grid'" x-cloak>
 					for _, item := range result.Items {
-						<div class="glass-panel p-5 d-flex flex-col justify-between gap-4">
+						<div class="glass-panel market-card d-flex flex-col justify-between">
        <div class="stack-sm">
-								<div class="flex-between items-center mb-2">
+								<div class="flex-between items-center mb-1">
 									<span class="badge badge-primary text-xs font-bold">
 										{ item.SupplierName }
 									</span>
-									if item.DiscountPercent >= 40 {
-										<span class="badge badge-rose text-xs font-black">
-											{ formatDiscount(item.DiscountPercent) }% خصم
-										</span>
-									} else {
-										<span class="badge badge-emerald text-xs font-black">
-											{ formatDiscount(item.DiscountPercent) }% خصم
-										</span>
+									if item.InCatalog {
+										<span class="badge badge-sky text-xs font-bold">معتمد</span>
 									}
 								</div>
 
-								<h3 class="text-base font-black text-primary m-0 mb-1 leading-snug">
+								<h3 class="market-card-title text-primary m-0">
 									{ item.ProductName }
 								</h3>
 
@@ -338,30 +334,37 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 								</div>
 							</div>
 
-							<div class="border-t pt-3 flex-between items-center">
-        <div class="stack-sm">
-									<div class="text-lg font-black text-primary tabular-nums">
-										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
-									</div>
+							<div class="market-price-row">
+         <div class="market-price-col">
 									if item.OriginalPrice.Minor() > 0 {
 										<div class="text-xs text-muted tabular-nums line-through">
 											{ formatDiscountPrice(item.OriginalPrice) } ج.م
 										</div>
 									}
+									<div class="text-base font-black text-primary tabular-nums">
+										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
+									</div>
 								</div>
-
-        <div class="stack-sm">
-									if item.InCatalog && item.MatchedProductID != nil {
-										<a
-											href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
-											class="btn btn-primary btn-sm font-bold text-xs gap-1"
-										>
-											@components.IconCart("icon-xs")
-											<span>شراء</span>
-										</a>
-									}
-								</div>
+								if item.DiscountPercent >= 40 {
+									<span class="badge badge-rose text-xs font-black">
+										{ formatDiscount(item.DiscountPercent) }% خصم
+									</span>
+								} else {
+									<span class="badge badge-emerald text-xs font-black">
+										{ formatDiscount(item.DiscountPercent) }% خصم
+									</span>
+								}
 							</div>
+
+							if item.InCatalog && item.MatchedProductID != nil {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
+									class="btn btn-primary btn-sm font-bold text-xs gap-1 w-full justify-center"
+								>
+									@components.IconCart("icon-xs")
+									<span>شراء</span>
+								</a>
+							}
 						</div>
 					}
 				</div>
