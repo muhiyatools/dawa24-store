@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -86,16 +87,29 @@ func (r *Repository) RecordInvoicePayment(ctx context.Context, req billing.Recor
 			paidAt = &now
 		}
 
+		// The payment is attributed to a person in the paying organisation. The
+		// table is org.members — org.memberships has never existed, so this
+		// lookup always failed, silently, and every payment recorded without an
+		// explicit user fell through to "the lowest user id in the system" and
+		// was filed against a stranger.
 		userID := req.UserID
 		if userID <= 0 {
-			_ = tx.QueryRow(txCtx, `
-				SELECT user_id FROM org.memberships WHERE organization_id = $1 LIMIT 1
-			`, orgID).Scan(&userID)
+			if err := tx.QueryRow(txCtx, `
+				SELECT user_id
+				FROM org.members
+				WHERE organization_id = $1 AND status = 'active'
+				ORDER BY joined_at ASC, id ASC
+				LIMIT 1
+			`, orgID).Scan(&userID); err != nil && !errors.Is(err, pgx.ErrNoRows) {
+				return fmt.Errorf("resolve paying member for organization %d: %w", orgID, err)
+			}
 		}
 		if userID <= 0 {
-			_ = tx.QueryRow(txCtx, `
-				SELECT id FROM identity.users ORDER BY id ASC LIMIT 1
-			`).Scan(&userID)
+			// An organisation with no active member cannot own a payment, and
+			// guessing a user here is how the wrong person ends up on the
+			// receipt. Refuse instead.
+			return apperr.Validation("payment.no_member",
+				"the organization has no active member to attribute this payment to", nil)
 		}
 
 		// 3. Insert payment (using 'paid' to comply with payments_status_check constraint)
