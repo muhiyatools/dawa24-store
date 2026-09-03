@@ -81,10 +81,30 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 						timer: null,
 						startAutoplay() {
 							if (this.totalSlides <= 1) return;
+							if (document.hidden) return;
 							this.stopAutoplay();
 							this.timer = setInterval(() => {
 								this.currentSlide = (this.currentSlide + 1) %% this.totalSlides;
 							}, 5500);
+						},
+						// A timer that keeps advancing a carousel nobody is looking at
+						// wakes the tab, re-runs Alpine's reactivity and repaints, on a
+						// page the reader has left. Stop with the tab, and stop when the
+						// hero scrolls out of view.
+						bindVisibility() {
+							this._onVis = () => document.hidden ? this.stopAutoplay() : this.startAutoplay();
+							document.addEventListener('visibilitychange', this._onVis);
+							if ('IntersectionObserver' in window) {
+								this._io = new IntersectionObserver((entries) => {
+									entries.forEach((e) => e.isIntersecting ? this.startAutoplay() : this.stopAutoplay());
+								}, { threshold: 0 });
+								this._io.observe(this.$el);
+							}
+						},
+						teardown() {
+							this.stopAutoplay();
+							if (this._onVis) document.removeEventListener('visibilitychange', this._onVis);
+							if (this._io) this._io.disconnect();
 						},
 						stopAutoplay() {
 							if (this.timer) {
@@ -102,9 +122,10 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 							this.currentSlide = i;
 						}
 					}`, len(stats.Ads)) }
-					x-init="startAutoplay()"
+					x-init="startAutoplay(); bindVisibility()"
 					@mouseenter="stopAutoplay()"
 					@mouseleave="startAutoplay()"
+					x-on:beforeunload.window="teardown()"
 				>
 					<div class="hero-ad-slider-frame">
 						if len(stats.Ads) > 1 {
@@ -143,7 +164,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										<!-- Supplier Identity Badge (Logo + Name) -->
 										<div class="hero-ad-supplier-identity">
 											if ad.SupplierLogo != "" {
-												<img src={ ad.SupplierLogo } alt={ ad.SupplierName } class="hero-ad-supplier-logo" />
+												<img src={ ad.SupplierLogo } alt={ ad.SupplierName } loading={ heroImageLoading(i) } decoding="async" class="hero-ad-supplier-logo"/>
 											} else {
 												<div class="hero-ad-supplier-icon-box">
 													@components.IconBuilding("icon-2xs")
@@ -199,7 +220,8 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 												<video
 													src={ ad.MediaURL }
 													poster={ ad.ThumbnailURL }
-													autoplay
+													autoplay?={ i == 0 }
+													preload={ heroMediaPreload(i) }
 													muted
 													loop
 													playsinline
@@ -209,7 +231,8 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 												<img
 													src={ ad.MediaURL }
 													alt={ ad.DisplayTitle(lang) }
-													loading="eager"
+													loading={ heroImageLoading(i) }
+													decoding="async"
 													class="hero-ad-product-img"
 													onerror="this.style.display='none'"
 												/>
@@ -371,7 +394,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										if (dad.MediaType == "video" || dad.IsVideo()) && dad.MediaURL != "" {
 											<video src={ dad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
 										} else if dad.MediaURL != "" {
-											<img src={ dad.MediaURL } alt={ dad.DisplayTitle(lang) } class="w-full h-full object-contain" />
+											<img src={ dad.MediaURL } alt={ dad.DisplayTitle(lang) } loading="lazy" decoding="async" class="w-full h-full object-contain"/>
 										} else {
 											@components.IconPill("icon-md text-brand")
 										}
@@ -420,7 +443,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 										if (bad.MediaType == "video" || bad.IsVideo()) && bad.MediaURL != "" {
 											<video src={ bad.MediaURL } autoplay muted loop playsinline class="w-full h-full object-cover rounded-xl"></video>
 										} else if bad.MediaURL != "" {
-											<img src={ bad.MediaURL } alt={ bad.DisplayTitle(lang) } class="w-full h-full object-contain" />
+											<img src={ bad.MediaURL } alt={ bad.DisplayTitle(lang) } loading="lazy" decoding="async" class="w-full h-full object-contain"/>
 										} else {
 											@components.IconPill("icon-md text-brand")
 										}

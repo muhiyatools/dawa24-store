@@ -180,3 +180,9 @@ func (s *Service) SetBrandCategories(ctx context.Context, brandID int64, categor
 	}
 	return s.repo.SetBrandCategories(ctx, brandID, categoryIDs)
 }
+
+// GetVariantsByIDs fetches many variants in one query, keyed by id. Use it
+// wherever a page would otherwise loop GetVariant.
+func (s *Service) GetVariantsByIDs(ctx context.Context, ids []int64) (map[int64]*ProductVariant, error) {
+	return s.repo.GetVariantsByIDs(ctx, ids)
+}

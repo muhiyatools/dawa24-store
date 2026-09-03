@@ -53,6 +53,8 @@ type Repository interface {
 	GetVariantByProductAndOrg(ctx context.Context, orgID int64, productID int64) (*ProductVariant, error)
 	ListVariantsByProduct(ctx context.Context, productID int64) ([]*ProductVariant, error)
 	ListVariantsByProducts(ctx context.Context, productIDs []int64) ([]*ProductVariant, error)
+	// GetVariantsByIDs fetches many variants at once, keyed by id.
+	GetVariantsByIDs(ctx context.Context, ids []int64) (map[int64]*ProductVariant, error)
 	ListVariantsByOrganization(ctx context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error)
 	ListAllVariants(ctx context.Context, params VariantSearchParams) ([]*ProductVariant, int, error)
 	UpdateVariant(ctx context.Context, v *ProductVariant) error

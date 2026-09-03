@@ -51,9 +51,14 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 			offers = activeOffers
 			stats.TotalOffers = len(activeOffers)
 		}
-		// Fetch approved ads for the landing page hero showcase and advertising gallery.
+
+		// The hero is a carousel of a handful of slides, and every slide it is
+		// given is rendered into the DOM with its own Alpine transition and
+		// intersection observer. Handing it every active ad on the platform is
+		// what made the landing page lock the browser up; it is capped here, at
+		// the source, so no amount of ad inventory can do that again.
 		if allActiveAds, err := h.promoSvc.ListActiveAds(ctx, ""); err == nil && len(allActiveAds) > 0 {
-			stats.Ads = allActiveAds
+			stats.Ads = capAds(allActiveAds, maxHeroAds)
 		} else {
 			if heroAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeHero); err == nil {
 				stats.Ads = append(stats.Ads, heroAds...)
@@ -61,22 +66,24 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 			if bannerAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBanner); err == nil {
 				stats.Ads = append(stats.Ads, bannerAds...)
 			}
+			stats.Ads = capAds(stats.Ads, maxHeroAds)
 		}
 		if dealsAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeDeals); err == nil {
-			stats.DealsAds = dealsAds
+			stats.DealsAds = capAds(dealsAds, maxSectionAds)
 		}
 		if bottomAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBottom); err == nil {
-			stats.BottomAds = bottomAds
+			stats.BottomAds = capAds(bottomAds, maxSectionAds)
 		}
-		h.enrichAds(ctx, stats.Ads)
-		h.enrichAds(ctx, stats.DealsAds)
-		h.enrichAds(ctx, stats.BottomAds)
+		// One batched enrichment for all three groups rather than three, so the
+		// same supplier appearing in two of them is fetched once.
+		h.enrichAds(ctx, concatAds(stats.Ads, stats.DealsAds, stats.BottomAds))
 	}
 
 	if h.orgSvc != nil {
+		// COUNT(*), not "load a hundred rows and take the length".
 		typ := org.TypeVendor
-		if orgs, err := h.orgSvc.ListOrganizations(database.AsSystem(ctx), &typ, nil, 100, 0); err == nil && len(orgs) > 0 {
-			stats.TotalSuppliers = len(orgs)
+		if n, err := h.orgSvc.CountOrganizations(database.AsSystem(ctx), &typ, nil); err == nil && n > 0 {
+			stats.TotalSuppliers = n
 		}
 	}
 
@@ -119,3 +126,33 @@ func (h *UIHandler) DynamicPolicyPage(w http.ResponseWriter, r *http.Request) {
 	h.renderPolicy(w, r, slug, "السياسات والضوابط القانونية")
 }
 
+// How many sponsored ads the landing page will render. The hero is a carousel
+// the reader steps through; the sections are strips. Both put every item they
+// are given into the DOM at once, so these are the real budgets.
+const (
+	maxHeroAds    = 6
+	maxSectionAds = 8
+)
+
+// capAds trims an ad list to at most n, preserving order.
+func capAds(ads []*promo.Ad, n int) []*promo.Ad {
+	if n <= 0 || len(ads) <= n {
+		return ads
+	}
+	return ads[:n]
+}
+
+// concatAds joins the page's ad groups into one slice for a single enrichment
+// pass. The groups share pointers with the originals, so enriching the joined
+// slice enriches all three.
+func concatAds(groups ...[]*promo.Ad) []*promo.Ad {
+	total := 0
+	for _, g := range groups {
+		total += len(g)
+	}
+	out := make([]*promo.Ad, 0, total)
+	for _, g := range groups {
+		out = append(out, g...)
+	}
+	return out
+}
