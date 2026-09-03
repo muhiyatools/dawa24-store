@@ -192,7 +192,7 @@ func (r *Repository) ListTransactionsWithTotal(ctx context.Context, walletID int
 // ListTransactionsWithTypeTotal retrieves paginated wallet ledger rows,
 // optionally restricted to one billing.wallet_transactions.type value.
 // An empty or unknown txType behaves like the unfiltered listing.
-func (r *Repository) ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*WalletTransaction, int, error) {
+func (r *Repository) ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*billing.WalletTransaction, int, error) {
 	switch billing.TransactionType(txType) {
 	case "", billing.TxDeposit, billing.TxWithdrawal, billing.TxPurchase,
 		billing.TxRefund, billing.TxBonus, billing.TxPenalty,

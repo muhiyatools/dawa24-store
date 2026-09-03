@@ -577,7 +577,20 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Clear All Script --><script>\r\n\t\tfunction confirmClearMyDecisions() {\r\n\t\t\tif (confirm(\"هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\r\n\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\tform.method = 'POST';\r\n\t\t\t\tform.action = basePath + '/clear';\r\n\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\tform.submit();\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- Clear All Script --><script data-decision-memory-base=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 string
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(basePath)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 287, Col: 45}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\">\r\n\t\tfunction confirmClearMyDecisions() {\r\n\t\t\tif (confirm(\"هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\r\n\t\t\t\tvar holder = document.querySelector('script[data-decision-memory-base]');\r\n\t\t\t\tvar root = holder ? holder.getAttribute('data-decision-memory-base') : '';\r\n\t\t\t\tif (!root) {\r\n\t\t\t\t\tvar fallback = document.querySelector('form[action*=\"/decision-memory/\"]');\r\n\t\t\t\t\tif (fallback) {\r\n\t\t\t\t\t\troot = fallback.getAttribute('action').replace(/\\/\\d+\\/delete$/, '');\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\tif (!root) {\r\n\t\t\t\t\treturn;\r\n\t\t\t\t}\r\n\t\t\t\tvar form = document.createElement('form');\r\n\t\t\t\tform.method = 'POST';\r\n\t\t\t\tform.action = root + '/clear';\r\n\t\t\t\tvar csrf = (document.cookie.match(/(?:^|; )dawa_csrf=([^;]*)/) || [])[1];\r\n\t\t\t\tif (csrf) {\r\n\t\t\t\t\tvar tok = document.createElement('input');\r\n\t\t\t\t\ttok.type = 'hidden';\r\n\t\t\t\t\ttok.name = '_csrf';\r\n\t\t\t\t\ttok.value = decodeURIComponent(csrf);\r\n\t\t\t\t\tform.appendChild(tok);\r\n\t\t\t\t}\r\n\t\t\t\tdocument.body.appendChild(form);\r\n\t\t\t\tform.submit();\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

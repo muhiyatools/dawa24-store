@@ -125,6 +125,10 @@ func (m *mockBillingRepo) ListDepositRequestsByUser(_ context.Context, _ int64, 
 	return nil, nil
 }
 
+func (m *mockBillingRepo) ListDepositRequestsByUserWithStatus(_ context.Context, _ int64, _ string, _, _ int) ([]*WalletDeposit, error) {
+	return nil, nil
+}
+
 func (m *mockBillingRepo) AdminListDetailedDeposits(_ context.Context, _ DepositFilter) ([]*AdminWalletDepositView, int, error) {
 	return nil, 0, nil
 }

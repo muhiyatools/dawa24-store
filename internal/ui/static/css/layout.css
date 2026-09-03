@@ -44,6 +44,29 @@
   }
 }
 
+/* ---- Small-phone tightening: content usable at 360px ----
+   Sidebars are off-canvas and stat grids single-column by now; what remains
+   is page padding, side-by-side header rows, and fixed-width filter controls
+   that would otherwise force horizontal scrolling on forms and tables. */
+@media (max-width: 640px) {
+  .page-container {
+    padding: 0.75rem 0.75rem 2rem 0.75rem;
+    gap: 1rem;
+  }
+  .filter-bar .flex-1,
+  .filter-form .flex-1 {
+    flex: 1 1 100%;
+    min-inline-size: 0;
+  }
+  .filter-form .w-44,
+  .filter-form .w-40 {
+    inline-size: 100%;
+  }
+  .market-list-prices {
+    justify-content: flex-start;
+  }
+}
+
 /* ---- Sidebar Navigation Shell (High Performance, 60fps Smooth) ---- */
 .sidebar {
   width: 270px;

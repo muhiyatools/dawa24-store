@@ -37,6 +37,10 @@ func (r stubRepo) ListTransactionsWithTotal(ctx context.Context, walletID int64,
 	r.fail("ListTransactionsWithTotal")
 	return nil, 0, nil
 }
+func (r stubRepo) ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*billing.WalletTransaction, int, error) {
+	r.fail("ListTransactionsWithTypeTotal")
+	return nil, 0, nil
+}
 
 func (r stubRepo) CreatePayment(ctx context.Context, p *billing.Payment) error {
 	r.fail("CreatePayment")
@@ -259,6 +263,10 @@ func (r stubRepo) ListDepositRequestsByUser(ctx context.Context, userID int64, l
 	r.fail("ListDepositRequestsByUser")
 	return nil, nil
 }
+func (r stubRepo) ListDepositRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*billing.WalletDeposit, error) {
+	r.fail("ListDepositRequestsByUserWithStatus")
+	return nil, nil
+}
 func (r stubRepo) AdminListDetailedDeposits(ctx context.Context, filter billing.DepositFilter) ([]*billing.AdminWalletDepositView, int, error) {
 	r.fail("AdminListDetailedDeposits")
 	return nil, 0, nil
@@ -291,6 +299,9 @@ func (happyRepo) ListTransactions(ctx context.Context, walletID int64, limit, of
 	return []*billing.WalletTransaction{{ID: 1, WalletID: walletID}}, nil
 }
 func (happyRepo) ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*billing.WalletTransaction, int, error) {
+	return []*billing.WalletTransaction{{ID: 1, WalletID: walletID}}, 1, nil
+}
+func (happyRepo) ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*billing.WalletTransaction, int, error) {
 	return []*billing.WalletTransaction{{ID: 1, WalletID: walletID}}, 1, nil
 }
 func (happyRepo) CreatePayment(ctx context.Context, p *billing.Payment) error {

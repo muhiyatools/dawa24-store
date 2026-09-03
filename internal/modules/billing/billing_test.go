@@ -101,6 +101,20 @@ func (m *mockBillingRepo) ListTransactionsWithTotal(ctx context.Context, walletI
 	return txs, len(txs), nil
 }
 
+func (m *mockBillingRepo) ListTransactionsWithTypeTotal(_ context.Context, walletID int64, txType string, _, _ int) ([]*WalletTransaction, int, error) {
+	if txType == "" {
+		txs := m.transactions[walletID]
+		return txs, len(txs), nil
+	}
+	var out []*WalletTransaction
+	for _, tx := range m.transactions[walletID] {
+		if tx != nil && string(tx.Type) == txType {
+			out = append(out, tx)
+		}
+	}
+	return out, len(out), nil
+}
+
 func (m *mockBillingRepo) CreatePayment(_ context.Context, p *Payment) error { return nil }
 func (m *mockBillingRepo) GetPaymentByID(_ context.Context, id int64) (*Payment, error) {
 	return nil, apperr.NotFound("payment")

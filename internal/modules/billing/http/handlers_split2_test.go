@@ -135,6 +135,9 @@ func (happyRepo) UpdatePendingDepositRequest(ctx context.Context, dep *billing.W
 func (happyRepo) ListDepositRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*billing.WalletDeposit, error) {
 	return []*billing.WalletDeposit{{ID: 1, UserID: userID, Status: billing.DepositPending}}, nil
 }
+func (happyRepo) ListDepositRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*billing.WalletDeposit, error) {
+	return []*billing.WalletDeposit{{ID: 1, UserID: userID, Status: billing.DepositPending}}, nil
+}
 func (happyRepo) AdminListDetailedDeposits(ctx context.Context, filter billing.DepositFilter) ([]*billing.AdminWalletDepositView, int, error) {
 	return []*billing.AdminWalletDepositView{{ID: 1, UserID: 1, Status: billing.DepositPending}}, 1, nil
 }
