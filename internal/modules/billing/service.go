@@ -41,6 +41,13 @@ func (s *Service) ListWalletTransactionsWithTotal(ctx context.Context, walletID 
 	return s.repo.ListTransactionsWithTotal(ctx, walletID, limit, offset)
 }
 
+// ListWalletTransactionsWithTypeTotal returns the paginated ledger for a
+// wallet, optionally restricted to one transaction type (deposit, withdrawal,
+// purchase...). Empty txType disables the type predicate.
+func (s *Service) ListWalletTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*WalletTransaction, int, error) {
+	return s.repo.ListTransactionsWithTypeTotal(ctx, walletID, txType, limit, offset)
+}
+
 // Deposit credits funds to a wallet.
 func (s *Service) Deposit(
 	ctx context.Context,
@@ -171,6 +178,13 @@ func (s *Service) EditPendingDeposit(
 // ListUserDeposits returns all deposit requests submitted by a user.
 func (s *Service) ListUserDeposits(ctx context.Context, userID int64, limit, offset int) ([]*WalletDeposit, error) {
 	return s.repo.ListDepositRequestsByUser(ctx, userID, limit, offset)
+}
+
+// ListUserDepositsWithStatus returns a user's deposit requests, optionally
+// restricted to one status (pending, approved, rejected). Empty status
+// disables the status predicate.
+func (s *Service) ListUserDepositsWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*WalletDeposit, error) {
+	return s.repo.ListDepositRequestsByUserWithStatus(ctx, userID, status, limit, offset)
 }
 
 // Withdraw debits funds from a wallet, rejecting overdrafts.

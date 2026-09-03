@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -19,9 +20,13 @@ type WalletViewData struct {
 	PlatformPaymentMethods []*billing.PlatformPaymentMethod
 	NoticeType             string
 	NoticeMessage          string
-	Page                   int
-	PerPage                int
-	TotalCount             int
+	// TxStatus filters billing.wallet_deposits.status: pending|completed|rejected.
+	TxStatus string
+	// TxType filters billing.wallet_transactions.type: deposit|withdrawal|purchase.
+	TxType       string
+	Page         int
+	PerPage      int
+	TotalCount   int
 }
 
 templ WalletPage(data WalletViewData, lang, dir string) {
@@ -166,10 +171,35 @@ templ walletContent(data WalletViewData, lang, dir string) {
 
 		<!-- Section 1: Unified Transactions Table -->
 		<div x-show="activeSection === 'transactions'">
+			<div class="glass-panel p-4 mb-4">
+				<form method="GET" action={ templ.SafeURL(walletBaseURL(data.IsVendor)) } class="d-flex items-center gap-3 flex-wrap m-0">
+					<div class="w-44">
+						<select name="status" class="form-select w-full text-xs font-bold" onchange="this.form.submit()">
+							<option value="">كافة الحالات</option>
+							<option value="pending" selected?={ data.TxStatus == "pending" }>قيد المراجعة</option>
+							<option value="completed" selected?={ data.TxStatus == "completed" }>مكتمل</option>
+							<option value="rejected" selected?={ data.TxStatus == "rejected" }>مرفوض</option>
+						</select>
+					</div>
+					<div class="w-44">
+						<select name="type" class="form-select w-full text-xs font-bold" onchange="this.form.submit()">
+							<option value="">كافة الأنواع</option>
+							<option value="deposit" selected?={ data.TxType == "deposit" }>إيداع</option>
+							<option value="withdrawal" selected?={ data.TxType == "withdrawal" }>عملية سحب</option>
+							<option value="purchase" selected?={ data.TxType == "purchase" }>مشتريات</option>
+						</select>
+					</div>
+					if data.TxStatus != "" || data.TxType != "" {
+						<a href={ templ.SafeURL(walletBaseURL(data.IsVendor)) } class="btn btn-ghost btn-sm font-bold text-muted">
+							إعادة تعيين
+						</a>
+					}
+				</form>
+			</div>
 			if data.IsVendor {
-				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet")
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet", walletTxQueryValues(data))
 			} else {
-				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet")
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet", walletTxQueryValues(data))
 			}
 		</div>
 
@@ -284,6 +314,24 @@ templ walletContent(data WalletViewData, lang, dir string) {
 		<!-- Modals Component -->
 		@WalletModals(data.IsVendor)
 	</div>
+}
+
+func walletBaseURL(isVendor bool) string {
+	if isVendor {
+		return "/vendor/wallet"
+	}
+	return "/customer/wallet"
+}
+
+func walletTxQueryValues(data WalletViewData) url.Values {
+	q := url.Values{}
+	if data.TxStatus != "" {
+		q.Set("status", data.TxStatus)
+	}
+	if data.TxType != "" {
+		q.Set("type", data.TxType)
+	}
+	return q
 }
 
 func walletBalance(w *billing.Wallet) string {

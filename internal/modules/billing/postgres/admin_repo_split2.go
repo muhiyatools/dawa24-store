@@ -50,6 +50,18 @@ func (r *Repository) AdminListDetailedPayments(ctx context.Context, filter billi
 			argIdx++
 		}
 
+		if filter.DateFrom != "" {
+			baseQuery += fmt.Sprintf(` AND COALESCE(p.paid_at, p.created_at)::date >= $%d::date`, argIdx)
+			args = append(args, filter.DateFrom)
+			argIdx++
+		}
+
+		if filter.DateTo != "" {
+			baseQuery += fmt.Sprintf(` AND COALESCE(p.paid_at, p.created_at)::date <= $%d::date`, argIdx)
+			args = append(args, filter.DateTo)
+			argIdx++
+		}
+
 		if filter.Search != "" {
 			searchPattern := "%" + strings.ToLower(filter.Search) + "%"
 			baseQuery += fmt.Sprintf(` AND (

@@ -128,8 +128,11 @@ type PaymentFilter struct {
 	Method         string
 	Status         string
 	OrganizationID *int64
-	Limit          int
-	Offset         int
+	// DateFrom/DateTo filter COALESCE(paid_at, created_at) by day (YYYY-MM-DD).
+	DateFrom string
+	DateTo   string
+	Limit    int
+	Offset   int
 }
 
 // VendorPaymentStats contains KPI summaries for vendor payments dashboard.

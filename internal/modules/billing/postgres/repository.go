@@ -189,6 +189,69 @@ func (r *Repository) ListTransactionsWithTotal(ctx context.Context, walletID int
 	return list, total, err
 }
 
+// ListTransactionsWithTypeTotal retrieves paginated wallet ledger rows,
+// optionally restricted to one billing.wallet_transactions.type value.
+// An empty or unknown txType behaves like the unfiltered listing.
+func (r *Repository) ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*WalletTransaction, int, error) {
+	switch billing.TransactionType(txType) {
+	case "", billing.TxDeposit, billing.TxWithdrawal, billing.TxPurchase,
+		billing.TxRefund, billing.TxBonus, billing.TxPenalty,
+		billing.TxTransferIn, billing.TxTransferOut, billing.TxAdjustment:
+	default:
+		txType = ""
+	}
+	var list []*billing.WalletTransaction
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		typePred := ""
+		args := []any{walletID}
+		if txType != "" {
+			typePred = ` AND type = $2`
+			args = append(args, txType)
+		}
+		countQuery := `SELECT count(*) FROM billing.wallet_transactions WHERE wallet_id = $1` + typePred + `;`
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
+			return err
+		}
+
+		if limit <= 0 || limit > 100 {
+			limit = 25
+		}
+		if offset < 0 {
+			offset = 0
+		}
+		query := `
+			SELECT id, wallet_id, type, amount, balance_after, reference_type, reference_id, description, created_at
+			FROM billing.wallet_transactions
+			WHERE wallet_id = $1` + typePred + `
+			ORDER BY created_at DESC, id DESC
+			LIMIT $` + fmt.Sprintf("%d", len(args)+1) + ` OFFSET $` + fmt.Sprintf("%d", len(args)+2) + `;
+		`
+		args = append(args, limit, offset)
+		rows, err := tx.Query(txCtx, query, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var t billing.WalletTransaction
+			var typeStr string
+			if err := rows.Scan(
+				&t.ID, &t.WalletID, &typeStr, &t.Amount, &t.BalanceAfter,
+				&t.ReferenceType, &t.ReferenceID, &t.Description, &t.CreatedAt,
+			); err != nil {
+				return err
+			}
+			t.Type = billing.TransactionType(typeStr)
+			list = append(list, &t)
+		}
+		return rows.Err()
+	})
+	return list, total, err
+}
+
 // CreatePayment inserts a payment record.
 func (r *Repository) CreatePayment(ctx context.Context, p *billing.Payment) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {

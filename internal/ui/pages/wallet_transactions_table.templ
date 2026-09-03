@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -110,7 +111,7 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 	return list
 }
 
-templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, page, perPage, totalCount int, baseURL string) {
+templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, page, perPage, totalCount int, baseURL string, query url.Values) {
 	{{ items := buildUnifiedTransactions(txs, deps) }}
 	<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
 		if len(items) == 0 {
@@ -203,6 +204,7 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 					PageSize:    perPage,
 					TotalCount:  totalCount,
 					BaseURL:     baseURL,
+					QueryValues: query,
 				})
 			}
 		}

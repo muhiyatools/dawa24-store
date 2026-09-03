@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -14,6 +15,19 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
+// parseDateParam keeps only valid YYYY-MM-DD values so a malformed query can
+// neither break the SQL layer nor silently filter everything out.
+func parseDateParam(v string) string {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return ""
+	}
+	if _, err := time.Parse("2006-01-02", v); err != nil {
+		return ""
+	}
+	return v
+}
 
 // VendorPaymentsPage renders the payments received by the vendor.
 func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +43,8 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
 	method := strings.TrimSpace(r.URL.Query().Get("method"))
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
+	dateFrom := parseDateParam(r.URL.Query().Get("from"))
+	dateTo := parseDateParam(r.URL.Query().Get("to"))
 
 	limit := pagination.RowsPerPage(r)
 	page := pagination.PageNumber(r)
@@ -50,6 +66,8 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 			Search:         search,
 			Method:         method,
 			Status:         status,
+			DateFrom:       dateFrom,
+			DateTo:         dateTo,
 			Limit:          limit,
 			Offset:         offset,
 		}
@@ -81,6 +99,8 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 		Search:       search,
 		Method:       method,
 		Status:       status,
+		DateFrom:     dateFrom,
+		DateTo:       dateTo,
 		Page:         page,
 		PerPage:      limit,
 		TotalCount:   total,

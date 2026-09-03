@@ -24,6 +24,33 @@ func walletDestFor(actor authctx.Actor) string {
 	return "/customer/wallet"
 }
 
+// normalizeWalletStatusFilter keeps only the supported wallet status values:
+// pending (قيد المراجعة), completed (مكتمل), rejected (مرفوض).
+// "approved" is accepted as an alias of completed.
+func normalizeWalletStatusFilter(v string) string {
+	switch strings.TrimSpace(v) {
+	case "pending":
+		return "pending"
+	case "completed", "approved":
+		return "completed"
+	case "rejected":
+		return "rejected"
+	default:
+		return ""
+	}
+}
+
+// normalizeWalletTypeFilter keeps only the supported wallet transaction types:
+// deposit (إيداع), withdrawal (عملية سحب), purchase (مشتريات).
+func normalizeWalletTypeFilter(v string) string {
+	switch strings.TrimSpace(v) {
+	case string(billing.TxDeposit), string(billing.TxWithdrawal), string(billing.TxPurchase):
+		return strings.TrimSpace(v)
+	default:
+		return ""
+	}
+}
+
 // TenantWalletPage renders the dedicated unified Wallet, Balance, and Payment Methods page
 // for Pharmacy customers and Vendors.
 func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +68,11 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 	limit := pagination.RowsPerPage(r)
 	offset := (page - 1) * limit
 
+	// Transaction status filter: pending (قيد المراجعة) | completed (مكتمل) | rejected (مرفوض).
+	txStatus := normalizeWalletStatusFilter(r.URL.Query().Get("status"))
+	// Transaction type filter: deposit (إيداع) | withdrawal (عملية سحب) | purchase (مشتريات).
+	txType := normalizeWalletTypeFilter(r.URL.Query().Get("type"))
+
 	var wallet *billing.Wallet
 	var txs []*billing.WalletTransaction
 	var totalTxCount int
@@ -55,14 +87,29 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
 			platformPaymentMethods = ppms
 		}
-		if deps, err := h.billSvc.ListUserDeposits(ctx, actor.UserID, 50, 0); err == nil {
-			depositRequests = deps
+		// Deposit requests back the status filter (billing.wallet_deposits.status).
+		// pending/rejected show only matching requests; completed shows the
+		// ledger only (approved deposits already have ledger rows).
+		// A type filter other than deposit hides deposit requests entirely.
+		wantDeposits := txStatus != "completed" && (txType == "" || txType == string(billing.TxDeposit))
+		if wantDeposits {
+			depStatus := ""
+			if txStatus == "pending" || txStatus == "rejected" {
+				depStatus = txStatus
+			}
+			if deps, err := h.billSvc.ListUserDepositsWithStatus(ctx, actor.UserID, depStatus, 50, 0); err == nil {
+				depositRequests = deps
+			}
 		}
 		if wItem, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wItem != nil {
 			wallet = wItem
-			if list, total, err := h.billSvc.ListWalletTransactionsWithTotal(ctx, wItem.ID, limit, offset); err == nil {
-				txs = list
-				totalTxCount = total
+			// Ledger rows back the type filter (billing.wallet_transactions.type).
+			// A status of pending/rejected shows requests only, no ledger rows.
+			if txStatus == "" || txStatus == "completed" {
+				if list, total, err := h.billSvc.ListWalletTransactionsWithTypeTotal(ctx, wItem.ID, txType, limit, offset); err == nil {
+					txs = list
+					totalTxCount = total
+				}
 			}
 		}
 	}
@@ -76,6 +123,8 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 		PlatformPaymentMethods: platformPaymentMethods,
 		NoticeType:             r.URL.Query().Get("notice"),
 		NoticeMessage:          r.URL.Query().Get("msg"),
+		TxStatus:               txStatus,
+		TxType:                 txType,
 		Page:                   page,
 		PerPage:                limit,
 		TotalCount:             totalTxCount,

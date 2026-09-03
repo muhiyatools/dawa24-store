@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -23,6 +24,10 @@ type MarketIntelligencePageData struct {
 	// empty". They look identical on screen and are entirely different problems.
 	Failed     bool
 	IsCustomer bool
+	// Query filters ⚡ المنتجات ذات فارق الوفر الأكبر بالسوق by name/SKU/supplier.
+	Query string
+	// SingleQuery filters أصناف لدى مورد واحد فقط by name/SKU/supplier.
+	SingleQuery string
 }
 
 func insightTone(t compare.InsightTone) string {
@@ -51,11 +56,11 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 			@marketIntelKPIs(data.Report)
 			@marketIntelInsights("💡 التحليل الاستراتيجي التلقائي", data.Report.Analysis)
 			if data.Report.HasData() {
-				@marketIntelSavingsTable(data.Report)
+				@marketIntelSavingsTable(data.Report, data.Query, data.SingleQuery)
 				@marketIntelBestSupplier(data.Report)
 				@marketIntelInsights("📌 نصيحة استراتيجية", data.Report.Advice)
 				@marketIntelInsights("⚡ توجيهات الشراء المثالي", data.Report.Guidance)
-				@marketIntelExclusives(data.Report)
+				@marketIntelExclusives(data.Report, data.Query, data.SingleQuery)
 			}
 			@marketIntelCoverage(data.Report.Coverage)
 		}
@@ -151,7 +156,7 @@ templ marketIntelInsights(title string, items []compare.Insight) {
 	}
 }
 
-templ marketIntelSavingsTable(r *compare.StrategicSavingReport) {
+templ marketIntelSavingsTable(r *compare.StrategicSavingReport, query string, singleQuery string) {
 	<div class="glass-panel p-0 mb-6 overflow-hidden">
 		<div class="p-4 px-6 border-b">
 			<h3 class="text-base font-extrabold text-primary m-0">
@@ -160,61 +165,71 @@ templ marketIntelSavingsTable(r *compare.StrategicSavingReport) {
 			<p class="text-xs text-muted m-0 mt-1">
 				مرتبة بقيمة الفارق للوحدة الواحدة، لا بالنسبة المئوية: فارق 9% على عبوة غالية يفوق فارق 60% على عبوة رخيصة.
 			</p>
+			<form method="GET" action="/compare/market-intelligence" class="d-flex gap-2 mt-3 flex-wrap items-center">
+				if singleQuery != "" {
+					<input type="hidden" name="q_single" value={ singleQuery }/>
+				}
+				<input
+					type="text"
+					name="q"
+					value={ query }
+					class="form-input text-sm flex-1"
+					placeholder="بحث باسم الصنف، الكود، أو المورد..."
+				/>
+				<button type="submit" class="btn btn-primary btn-sm font-bold">بحث</button>
+				if query != "" {
+					<a href={ templ.SafeURL(intelKeepSingleURL(singleQuery)) } class="btn btn-secondary btn-sm">مسح</a>
+				}
+			</form>
 		</div>
 		if len(r.TopSavings) == 0 {
 			<div class="p-6 text-sm text-muted">
-				لا يوجد صنف يتجاوز فيه فارق السعر بين الموردين 1%. السوق متقارب على الأصناف المقارَنة.
+				if query != "" {
+					لا توجد نتائج مطابقة لبحثك في فارق الوفر. جرب كلمات أخرى أو امسح البحث.
+				} else {
+					لا يوجد صنف يتجاوز فيه فارق السعر بين الموردين 1%. السوق متقارب على الأصناف المقارَنة.
+				}
 			</div>
 		} else {
 			<div class="table-container">
-				<table class="data-table">
+				<table class="data-table intel-spread-table">
 					<thead>
 						<tr>
-							<th>اسم الصنف</th>
-							<th>الكود</th>
-							<th>أفضل عرض بالسوق</th>
-							<th>المورد</th>
-							<th>أغلى عرض بالسوق</th>
-							<th>المورد</th>
-							<th class="text-end">فارق السعر</th>
-							<th class="text-end">فارق الخصم</th>
+							<th>المنتج</th>
+							<th class="text-center">العرض الأفضل (سعر وخصم)</th>
+							<th class="text-center">العرض الأعلى (سعر وخصم)</th>
 						</tr>
 					</thead>
 					<tbody>
 						for _, it := range r.TopSavings {
 							<tr>
 								<td>
-									<div class="fw-800">{ it.ProductName }</div>
-									if it.InCatalog {
-										<span class="badge badge-emerald text-xs">مرتبط بالكتالوج</span>
-									} else {
-										<span class="badge badge-slate text-xs">مطابقة بالاسم</span>
-									}
+									<div class="fw-800 text-sm">{ it.ProductName }</div>
+									<div class="text-xs text-muted tabular-nums mt-1">
+										if it.SKU != "" {
+											<span>SKU: { it.SKU }</span>
+										} else {
+											<span>SKU: —</span>
+										}
+									</div>
+									<div class="d-flex items-center gap-2 mt-1 flex-wrap">
+										if it.InCatalog {
+											<span class="badge badge-emerald text-xs">مرتبط بالكتالوج</span>
+										} else {
+											<span class="badge badge-slate text-xs">مطابقة بالاسم</span>
+										}
+										<span class="text-xs text-muted tabular-nums">الوفر: { it.PriceDifference.String() } ({ fmt.Sprintf("%.1f%%", it.PricePercent) }) · { fmt.Sprintf("%d مورد", it.SupplierCount) }</span>
+									</div>
 								</td>
-								<td class="text-xs text-muted tabular-nums">
-									if it.SKU != "" {
-										{ it.SKU }
-									} else {
-										—
-									}
+								<td class="text-center tabular-nums">
+									<span class="intel-best-price">{ it.BestNet.String() }</span>
+									<span class="intel-best-disc">({ fmt.Sprintf("%.1f%%", it.BestDiscount) })</span>
+									<div class="text-xs text-muted mt-1">{ it.BestSupplier }</div>
 								</td>
-								<td class="tabular-nums">
-									<div class="fw-800 text-success">{ it.BestNet.String() }</div>
-									<div class="text-xs text-muted">{ fmt.Sprintf("خصم %.1f%%", it.BestDiscount) }</div>
-								</td>
-								<td class="text-sm">{ it.BestSupplier }</td>
-								<td class="tabular-nums">
-									<div class="fw-800 text-danger">{ it.WorstNet.String() }</div>
-									<div class="text-xs text-muted">{ fmt.Sprintf("خصم %.1f%%", it.WorstDiscount) }</div>
-								</td>
-								<td class="text-sm">{ it.WorstSupplier }</td>
-								<td class="text-end tabular-nums fw-800 text-brand">
-									{ it.PriceDifference.String() }
-									<div class="text-xs text-muted">{ fmt.Sprintf("%.1f%%", it.PricePercent) }</div>
-								</td>
-								<td class="text-end tabular-nums">
-									{ fmt.Sprintf("%.1f نقطة", it.DiscountDifference) }
-									<div class="text-xs text-muted">{ fmt.Sprintf("%d مورد", it.SupplierCount) }</div>
+								<td class="text-center tabular-nums">
+									<span class="intel-worst-price">{ it.WorstNet.String() }</span>
+									<span class="intel-worst-disc">({ fmt.Sprintf("%.1f%%", it.WorstDiscount) })</span>
+									<div class="text-xs text-muted mt-1">{ it.WorstSupplier }</div>
 								</td>
 							</tr>
 						}
@@ -280,47 +295,83 @@ templ marketIntelBestSupplier(r *compare.StrategicSavingReport) {
 	}
 }
 
-templ marketIntelExclusives(r *compare.StrategicSavingReport) {
-	if len(r.Exclusives) > 0 {
+templ marketIntelExclusives(r *compare.StrategicSavingReport, query string, singleQuery string) {
+	if len(r.Exclusives) > 0 || singleQuery != "" {
 		<div class="glass-panel p-0 mb-6 overflow-hidden">
 			<div class="p-4 px-6 border-b">
 				<h3 class="text-base font-extrabold text-primary m-0">أصناف لدى مورد واحد فقط</h3>
 				<p class="text-xs text-muted m-0 mt-1">
 					لا تقبل المقارنة السعرية. أعلاها قيمة أولاً، فهي أكبر تعرّض تفاوضي.
 				</p>
+				<form method="GET" action="/compare/market-intelligence" class="d-flex gap-2 mt-3 flex-wrap items-center">
+					if query != "" {
+						<input type="hidden" name="q" value={ query }/>
+					}
+					<input
+						type="text"
+						name="q_single"
+						value={ singleQuery }
+						class="form-input text-sm flex-1"
+						placeholder="بحث باسم الصنف، الكود، أو المورد..."
+					/>
+					<button type="submit" class="btn btn-primary btn-sm font-bold">بحث</button>
+					if singleQuery != "" {
+						<a href={ templ.SafeURL(intelKeepQueryURL(query)) } class="btn btn-secondary btn-sm">مسح</a>
+					}
+				</form>
 			</div>
-			<div class="table-container">
-				<table class="data-table">
-					<thead>
-						<tr>
-							<th>اسم الصنف</th>
-							<th>الكود</th>
-							<th>المورد الوحيد</th>
-							<th class="text-end">السعر النهائي</th>
-							<th class="text-end">الخصم</th>
-						</tr>
-					</thead>
-					<tbody>
-						for _, it := range r.Exclusives {
+			if len(r.Exclusives) == 0 {
+				<div class="p-6 text-sm text-muted">
+					لا توجد نتائج مطابقة لبحثك في أصناف المورد الواحد. جرب كلمات أخرى أو امسح البحث.
+				</div>
+			} else {
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
 							<tr>
-								<td class="fw-800">{ it.ProductName }</td>
-								<td class="text-xs text-muted tabular-nums">
-									if it.SKU != "" {
-										{ it.SKU }
-									} else {
-										—
-									}
-								</td>
-								<td class="text-sm">{ it.BestSupplier }</td>
-								<td class="text-end tabular-nums fw-800">{ it.BestNet.String() }</td>
-								<td class="text-end tabular-nums">{ fmt.Sprintf("%.1f%%", it.BestDiscount) }</td>
+								<th>اسم الصنف</th>
+								<th>الكود</th>
+								<th>المورد الوحيد</th>
+								<th class="text-end">السعر النهائي</th>
+								<th class="text-end">الخصم</th>
 							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
+						</thead>
+						<tbody>
+							for _, it := range r.Exclusives {
+								<tr>
+									<td class="fw-800">{ it.ProductName }</td>
+									<td class="text-xs text-muted tabular-nums">
+										if it.SKU != "" {
+											{ it.SKU }
+										} else {
+											—
+										}
+									</td>
+									<td class="text-sm">{ it.BestSupplier }</td>
+									<td class="text-end tabular-nums fw-800">{ it.BestNet.String() }</td>
+									<td class="text-end tabular-nums">{ fmt.Sprintf("%.1f%%", it.BestDiscount) }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
+}
+
+func intelKeepSingleURL(singleQuery string) string {
+	if singleQuery != "" {
+		return "/compare/market-intelligence?q_single=" + url.QueryEscape(singleQuery)
+	}
+	return "/compare/market-intelligence"
+}
+
+func intelKeepQueryURL(query string) string {
+	if query != "" {
+		return "/compare/market-intelligence?q=" + url.QueryEscape(query)
+	}
+	return "/compare/market-intelligence"
 }
 
 templ marketIntelCoverage(c compare.MarketCoverage) {

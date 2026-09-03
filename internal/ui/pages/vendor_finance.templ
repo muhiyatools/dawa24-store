@@ -19,6 +19,8 @@ type VendorPaymentsPageData struct {
 	Search     string
 	Method     string
 	Status     string
+	DateFrom   string
+	DateTo     string
 	Page       int
 	PerPage    int
 	TotalCount int
@@ -69,6 +71,12 @@ func vendorPaymentsQueryValues(data VendorPaymentsPageData) url.Values {
 	}
 	if data.Status != "" {
 		q.Set("status", data.Status)
+	}
+	if data.DateFrom != "" {
+		q.Set("from", data.DateFrom)
+	}
+	if data.DateTo != "" {
+		q.Set("to", data.DateTo)
 	}
 	return q
 }
@@ -192,10 +200,32 @@ templ VendorPaymentsPage(data VendorPaymentsPageData) {
 					</div>
 
 					<div class="d-flex items-center gap-2">
+						<label class="text-xs text-muted font-bold whitespace-nowrap" for="pay-from">من</label>
+						<input
+							type="date"
+							id="pay-from"
+							name="from"
+							value={ data.DateFrom }
+							class="form-input text-xs font-bold"
+						/>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<label class="text-xs text-muted font-bold whitespace-nowrap" for="pay-to">إلى</label>
+						<input
+							type="date"
+							id="pay-to"
+							name="to"
+							value={ data.DateTo }
+							class="form-input text-xs font-bold"
+						/>
+					</div>
+
+					<div class="d-flex items-center gap-2">
 						<button type="submit" class="btn btn-secondary btn-sm font-bold">
 							تطبيق الفلترة
 						</button>
-						if data.Search != "" || data.Method != "" || data.Status != "" {
+						if data.Search != "" || data.Method != "" || data.Status != "" || data.DateFrom != "" || data.DateTo != "" {
 							<a href="/vendor/payments" class="btn btn-ghost btn-sm font-bold text-muted">
 								إعادة تعيين
 							</a>

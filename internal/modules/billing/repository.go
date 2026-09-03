@@ -14,6 +14,7 @@ type Repository interface {
 	RecordTransaction(ctx context.Context, walletID int64, txType TransactionType, delta money.Amount, refType string, refID *int64, desc string) (*WalletTransaction, error)
 	ListTransactions(ctx context.Context, walletID int64, limit, offset int) ([]*WalletTransaction, error)
 	ListTransactionsWithTotal(ctx context.Context, walletID int64, limit, offset int) ([]*WalletTransaction, int, error)
+	ListTransactionsWithTypeTotal(ctx context.Context, walletID int64, txType string, limit, offset int) ([]*WalletTransaction, int, error)
 
 	CreatePayment(ctx context.Context, p *Payment) error
 	GetPaymentByID(ctx context.Context, id int64) (*Payment, error)
@@ -61,6 +62,7 @@ type Repository interface {
 	GetDepositRequestByID(ctx context.Context, id int64) (*WalletDeposit, error)
 	UpdatePendingDepositRequest(ctx context.Context, dep *WalletDeposit) error
 	ListDepositRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*WalletDeposit, error)
+	ListDepositRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*WalletDeposit, error)
 	AdminListDetailedDeposits(ctx context.Context, filter DepositFilter) ([]*AdminWalletDepositView, int, error)
 	AdminApproveDepositRequest(ctx context.Context, depositID int64, reviewerID int64) (*WalletDeposit, *WalletTransaction, error)
 	AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*WalletDeposit, error)

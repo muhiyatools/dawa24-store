@@ -59,11 +59,12 @@ func (r *Repository) ListVariantKeys(ctx context.Context, orgID int64) ([]catalo
 const insertVariantSQL = `
 	INSERT INTO catalog.product_variants (
 		organization_id, product_id, name, sku, barcode, price, cost_price,
+		cost_discount_percentage,
 		discount, unit, image, status, is_featured, is_negotiable, batch_number,
 		expiry_date, min_order_qty, branch_id
 	) VALUES (
-		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-		COALESCE($17, (SELECT b.id FROM org.branches b WHERE b.organization_id = $1 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1))
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+		COALESCE($18, (SELECT b.id FROM org.branches b WHERE b.organization_id = $1 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1))
 	)
 	RETURNING id`
 
@@ -85,14 +86,15 @@ const updateVariantSQL = `
 	    sku = COALESCE(NULLIF($4, ''), sku),
 	    barcode = COALESCE(NULLIF($5, ''), barcode),
 	    price = $6, cost_price = $7,
-	    discount = $8, unit = COALESCE(NULLIF($9, ''), unit),
-	    image = COALESCE(NULLIF($10, ''), image),
-	    is_negotiable = $11,
-	    batch_number = COALESCE(NULLIF($12, ''), batch_number),
-	    expiry_date = COALESCE($13, expiry_date),
-	    min_order_qty = $14,
-	    branch_id = COALESCE($15, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = $2 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
-	    product_id = COALESCE($16, product_id),
+	    cost_discount_percentage = $8,
+	    discount = $9, unit = COALESCE(NULLIF($10, ''), unit),
+	    image = COALESCE(NULLIF($11, ''), image),
+	    is_negotiable = $12,
+	    batch_number = COALESCE(NULLIF($13, ''), batch_number),
+	    expiry_date = COALESCE($14, expiry_date),
+	    min_order_qty = $15,
+	    branch_id = COALESCE($16, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = $2 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
+	    product_id = COALESCE($17, product_id),
 	    updated_at = now()
 	WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL
 	RETURNING id`
@@ -223,13 +225,14 @@ func queueVariant(batch *pgx.Batch, orgID int64, v *catalog.ProductVariant) {
 		// No status on the update path: see updateVariantSQL.
 		batch.Queue(updateVariantSQL,
 			v.ID, orgID, v.Name, v.SKU, v.Barcode, v.Price, v.CostPrice,
+			v.CostDiscountPercentage,
 			v.Discount, v.Unit, v.Image, v.IsNegotiable,
 			v.BatchNumber, v.ExpiryDate, v.MinOrderQty, v.BranchID, nullableID(v.ProductID))
 		return
 	}
 	batch.Queue(insertVariantSQL,
 		orgID, nullableID(v.ProductID), v.Name, v.SKU, v.Barcode, v.Price,
-		v.CostPrice, v.Discount, v.Unit, v.Image, string(v.Status),
+		v.CostPrice, v.CostDiscountPercentage, v.Discount, v.Unit, v.Image, string(v.Status),
 		v.IsFeatured, v.IsNegotiable, v.BatchNumber, v.ExpiryDate,
 		v.MinOrderQty, v.BranchID)
 }

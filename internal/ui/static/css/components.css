@@ -5175,6 +5175,13 @@ form.filter-bar { margin: 0; }
   flex-wrap: wrap;
 }
 
+/* ---- Market-intelligence spread table (reference layout: product | best | highest) ---- */
+.intel-spread-table th:nth-child(2), .intel-spread-table th:nth-child(3) { text-align: center; }
+.intel-best-price { font-weight: 800; color: var(--success); font-size: var(--text-base); }
+.intel-best-disc { font-weight: 800; color: var(--warning); font-size: var(--text-sm); }
+.intel-worst-price { font-weight: 700; color: var(--text-muted); font-size: var(--text-base); }
+.intel-worst-disc { font-weight: 700; color: var(--text-muted); font-size: var(--text-sm); }
+
 /* ---- Vendor variants wide table: every column visible via horizontal scroll ---- */
 .vendor-variants-scroll { overflow-x: auto; }
 .vendor-variants-table { min-width: 1200px; width: max-content; max-width: none; }

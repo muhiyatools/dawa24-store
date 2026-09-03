@@ -96,6 +96,65 @@ func (r *Repository) UpdatePendingDepositRequest(ctx context.Context, dep *billi
 	})
 }
 
+// ListDepositRequestsByUserWithStatus lists a user's deposit requests,
+// optionally restricted to one billing.wallet_deposits.status value.
+// An empty or unknown status behaves like the unfiltered listing.
+func (r *Repository) ListDepositRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*billing.WalletDeposit, error) {
+	switch billing.DepositStatus(status) {
+	case "", billing.DepositPending, billing.DepositApproved, billing.DepositRejected, billing.DepositStatus("cancelled"):
+	default:
+		status = ""
+	}
+	if limit <= 0 {
+		limit = 50
+	}
+	var list []*billing.WalletDeposit
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		statusPred := ""
+		args := []any{userID}
+		if status != "" {
+			statusPred = ` AND status = $2`
+			args = append(args, status)
+		}
+		query := `
+			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
+			       payment_method, reference_number, COALESCE(attachment_url, ''), COALESCE(user_notes, ''),
+			       status, COALESCE(rejection_reason, ''), reviewed_by, reviewed_at, transaction_id,
+			       created_at, updated_at
+			FROM billing.wallet_deposits
+			WHERE user_id = $1` + statusPred + `
+			ORDER BY created_at DESC
+			LIMIT $` + fmt.Sprintf("%d", len(args)+1) + ` OFFSET $` + fmt.Sprintf("%d", len(args)+2) + `;
+		`
+		args = append(args, limit, offset)
+		rows, err := tx.Query(txCtx, query, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var dep billing.WalletDeposit
+			var statusStr string
+			if err := rows.Scan(
+				&dep.ID, &dep.PublicID, &dep.WalletID, &dep.UserID, &dep.OrganizationID, &dep.Amount, &dep.Currency,
+				&dep.PaymentMethod, &dep.ReferenceNumber, &dep.AttachmentURL, &dep.UserNotes,
+				&statusStr, &dep.RejectionReason, &dep.ReviewedBy, &dep.ReviewedAt, &dep.TransactionID,
+				&dep.CreatedAt, &dep.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			dep.Status = billing.DepositStatus(statusStr)
+			list = append(list, &dep)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
 // ListDepositRequestsByUser lists all deposit requests submitted by a user.
 func (r *Repository) ListDepositRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*billing.WalletDeposit, error) {
 	if limit <= 0 {

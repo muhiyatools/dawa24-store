@@ -48,11 +48,6 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							<span class="text-xs text-muted d-block font-bold">أعلى خصم</span>
 							<strong class="text-success text-sm tabular-nums font-black">{ fmt.Sprintf("%.1f%%", calculateMaxDiscount(result.Items)) }</strong>
 						</div>
-
-						<a href="/compare/tool" class="btn btn-primary btn-sm font-bold text-xs px-3 py-2 gap-1">
-							@components.IconTrendingUp("icon-xs")
-							<span>محرك المقارنة</span>
-						</a>
 					</div>
 				</div>
 			</div>

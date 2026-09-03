@@ -35,6 +35,15 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		}
 	}
 
+	savingsQuery := strings.TrimSpace(r.URL.Query().Get("q"))
+	if len(savingsQuery) > 80 {
+		savingsQuery = savingsQuery[:80]
+	}
+	exclusiveQuery := strings.TrimSpace(r.URL.Query().Get("q_single"))
+	if len(exclusiveQuery) > 80 {
+		exclusiveQuery = exclusiveQuery[:80]
+	}
+
 	var (
 		report    *compare.StrategicSavingReport
 		reportErr error
@@ -49,14 +58,41 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 			h.log.ErrorContext(ctx, "failed to build strategic saving report", "error", reportErr)
 		}
 	}
+	if report != nil {
+		report.TopSavings = filterSavingOpportunities(report.TopSavings, savingsQuery)
+		report.Exclusives = filterSavingOpportunities(report.Exclusives, exclusiveQuery)
+	}
 
 	pageData := pages.MarketIntelligencePageData{
-		Report:     report,
-		Failed:     reportErr != nil,
-		IsCustomer: actor.IsCustomer(),
+		Report:         report,
+		Failed:         reportErr != nil,
+		IsCustomer:     actor.IsCustomer(),
+		Query:          savingsQuery,
+		SingleQuery:    exclusiveQuery,
 	}
 
 	h.renderPage(ctx, w, "render market intelligence page", pages.CompareMarketIntelligencePage(lang, dir, pageData))
+}
+
+// filterSavingOpportunities filters intel-report rows by product name, SKU or
+// supplier (both sides). Empty query returns the slice unchanged.
+func filterSavingOpportunities(in []*compare.SavingOpportunity, q string) []*compare.SavingOpportunity {
+	q = strings.TrimSpace(q)
+	if q == "" {
+		return in
+	}
+	needle := strings.ToLower(q)
+	out := make([]*compare.SavingOpportunity, 0, len(in))
+	for _, it := range in {
+		if it == nil {
+			continue
+		}
+		hay := strings.ToLower(it.ProductName + " " + it.SKU + " " + it.BestSupplier + " " + it.WorstSupplier)
+		if strings.Contains(hay, needle) {
+			out = append(out, it)
+		}
+	}
+	return out
 }
 
 // MarketDiscountsPage renders market-wide approved discounts across all suppliers and warehouses.

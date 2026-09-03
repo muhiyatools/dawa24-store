@@ -58,6 +58,7 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 	existing.Barcode = input.Barcode
 	existing.Price = input.Price
 	existing.CostPrice = input.CostPrice
+	existing.CostDiscountPercentage = input.CostDiscountPercentage
 	existing.Discount = input.Discount
 	existing.Unit = input.Unit
 	existing.Image = input.Image
