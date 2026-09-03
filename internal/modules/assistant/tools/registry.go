@@ -297,7 +297,11 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 		}
 	}
 
-	// 9. Shape.
+	// 9. Shape. The rows go to the model as JSON, and separately to the reader
+	// as clickable references: CollectEntities walks whatever this tool
+	// returned and finds every row that names a record with a dashboard page.
+	// A tool does not opt in — it is found by the shape of what it returns —
+	// so a tool added later is clickable without touching this file.
 	content := encodeResult(res)
 	record(DecisionAllowed, strings.Join(tool.Permissions, ","), res.Rows)
 	return assistant.ToolOutcome{
@@ -306,6 +310,7 @@ func (r *Registry) Dispatch(ctx context.Context, actor authctx.Actor, turnID int
 		Decision: string(DecisionAllowed),
 		Rows:     res.Rows,
 		Content:  content,
+		Entities: assistant.CollectEntities(res.Data),
 	}
 }
 

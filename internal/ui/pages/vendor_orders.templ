@@ -156,9 +156,14 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 	} else {
 		<div class="d-flex flex-col gap-4">
 			for _, sh := range data.Shipments {
+				// The id is the landing point for a link from the assistant.
+				// Capsule answers name a shipment by its number, and clicking
+				// that number has to arrive at the shipment rather than at the
+				// top of a list the reader then has to search.
 				<div
+					id={ fmt.Sprintf("shipment-%d", sh.ID) }
 					x-data="{ expanded: false }"
-					class="glass-panel p-5 transition-all"
+					class="glass-panel p-5 transition-all capsule-anchor-target"
 				>
 					<!-- Compact Summary Header (Always Visible, Clickable to Expand) -->
 					<div

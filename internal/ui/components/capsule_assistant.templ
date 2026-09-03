@@ -295,15 +295,17 @@ templ capsuleDrawerBody() {
 									<!-- Attached Files Badges / Image Previews -->
 									<template x-if="msg.attachments && msg.attachments.length > 0">
 										<div class="d-flex flex-wrap gap-1.5 mb-1">
-											<template x-for="file in msg.attachments" :key="file.name || file.filename">
+											<template x-for="file in msg.attachments" :key="file.handle || file.name || file.filename">
 												<div>
-													<template x-if="file.isImage && file.previewUrl">
-														<img :src="file.previewUrl" class="w-16 h-16 rounded-lg object-cover border cursor-pointer" @click="window.open(file.previewUrl, '_blank')" alt="صورة مرفقة" />
+													<template x-if="attachmentPreview(file)">
+														<a :href="attachmentPreview(file)" target="_blank" rel="noopener noreferrer" class="capsule-sent-thumb">
+															<img :src="attachmentPreview(file)" alt="صورة مرفقة" loading="lazy" />
+														</a>
 													</template>
-													<template x-if="!file.isImage || !file.previewUrl">
-														<div class="d-inline-flex items-center gap-1.5 bg-surface-sunken border px-2 py-1 rounded-md text-2xs text-secondary">
+													<template x-if="!attachmentPreview(file)">
+														<div class="capsule-sent-file">
 															@IconPaperclip("icon-2xs")
-															<span x-text="file.name || file.filename" class="max-w-[120px] text-truncate"></span>
+															<span x-text="attachmentName(file)" class="text-truncate"></span>
 														</div>
 													</template>
 												</div>
@@ -347,10 +349,42 @@ templ capsuleDrawerBody() {
 									dir="auto"
 									class="capsule-prose"
 								>
-									<span x-html="renderMarkdown(msg.text)"></span>
+									<span x-html="renderMarkdown(msg.text, msg.entities)"></span>
 									<!-- Glowing Streaming Cursor -->
 									<span x-show="msg.isStreaming" class="capsule-cursor">▊</span>
 								</div>
+
+								<!-- Records this answer refers to.
+
+								     The inline links carry most of the weight,
+								     but they only appear where the model spelled
+								     a name exactly as the database holds it. The
+								     strip is the guarantee: whatever the prose
+								     called them, every record behind the answer
+								     is one click away, with its own follow-on
+								     actions beside it. -->
+								<template x-if="!msg.isStreaming && msg.entities && msg.entities.length">
+									<div class="capsule-refs" data-capsule-no-link>
+										<div class="capsule-refs-label">
+											@IconExternalLink("icon-2xs")
+											<span>السجلات المرتبطة</span>
+										</div>
+										<div class="capsule-refs-list">
+											<template x-for="ref in msg.entities" :key="ref.kind + ':' + ref.id">
+												<div class="capsule-ref-card">
+													<a :href="ref.url" class="capsule-ref-main" :title="ref.title">
+														<span class="capsule-ref-kind" x-text="entityKindLabel(ref.kind)"></span>
+														<span class="capsule-ref-title" x-text="ref.title || ref.label"></span>
+														<span class="capsule-ref-sub" x-show="ref.subtitle" x-text="ref.subtitle"></span>
+													</a>
+													<template x-for="action in (ref.actions || [])" :key="action.url">
+														<a :href="action.url" class="capsule-ref-action" x-text="action.label"></a>
+													</template>
+												</div>
+											</template>
+										</div>
+									</div>
+								</template>
 
 								<!-- Minimalist Icon-Only Copy Button with Feedback State -->
 								<div x-show="!msg.isStreaming && msg.text" class="d-flex items-center gap-2 mt-1">
@@ -421,10 +455,19 @@ templ capsuleDrawerBody() {
 							<div x-show="f.uploading && !f.error" class="capsule-thumb-overlay">
 								<span class="capsule-spinner"></span>
 							</div>
-							<!-- Error Overlay -->
-							<div x-show="f.error" class="capsule-thumb-overlay bg-danger/80" :title="f.error">
-								<span class="text-white font-black text-xs">!</span>
-							</div>
+							<!-- Error Overlay. Clicking it retries the upload:
+							     the file is still in the tab, and re-picking it
+							     from the file dialog to recover from a dropped
+							     connection is a chore nobody should have. -->
+							<button
+								type="button"
+								x-show="f.error"
+								@click="retryAttachment(i)"
+								class="capsule-thumb-overlay capsule-thumb-error"
+								:title="f.error + ' — اضغط لإعادة المحاولة'"
+							>
+								@IconRefresh("icon-2xs")
+							</button>
 							<!-- Delete Button -->
 							<button type="button" @click="removeAttachment(i)" class="capsule-thumb-delete" title="حذف">
 								@IconClose("icon-2xs")
@@ -447,7 +490,7 @@ templ capsuleDrawerBody() {
 
 				<!-- ChatGPT-Style Floating Input Capsule Form -->
 				<form x-show="!isRecordingVoice" @submit.prevent="sendMessage()" class="relative m-0 w-full">
-					<input type="file" multiple x-ref="fileInput" @change="handleFileSelect($event)" class="hidden" />
+					<input type="file" multiple :accept="attachAccept" x-ref="fileInput" @change="handleFileSelect($event)" class="hidden" />
 					
 					<div class="capsule-input-capsule">
 						
@@ -478,6 +521,7 @@ templ capsuleDrawerBody() {
 							x-ref="chatTextarea"
 							x-model="inputQuery"
 							@keydown="handleKeydown($event)"
+							@paste="handlePaste($event)"
 							@input="autoResizeTextarea()"
 							placeholder="اسأل كبسولة عن أي دواء، صنف، أو توريد..."
 							rows="1"

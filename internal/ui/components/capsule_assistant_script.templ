@@ -33,6 +33,14 @@ templ CapsuleAssistantScript() {
 				attachedFiles: [],
 				isDragging: false,
 				dragCounter: 0,
+				maxAttachments: 5,
+				maxAttachmentBytes: 10 * 1024 * 1024,
+				// The picker filters to what the server actually accepts, so
+				// the common rejections never happen at all.
+				attachAccept: 'image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain,text/csv,' +
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,' +
+					'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
+					'audio/*,video/mp4,video/webm',
 
 				// --- conversation
 				messages: [],
@@ -210,6 +218,7 @@ templ CapsuleAssistantScript() {
 								isUser: m.role === 'user',
 								text: m.content,
 								attachments: m.attachments || [],
+								entities: m.entities || [],
 								isStreaming: false
 							}));
 						this.showSessionsDrawer = false;
@@ -219,7 +228,7 @@ templ CapsuleAssistantScript() {
 						// page was loaded. Rejoin it rather than showing a
 						// thread that looks finished and is not.
 						if (data.running_turn) {
-							this.messages.push({ isUser: false, text: '', isStreaming: true });
+							this.messages.push({ isUser: false, text: '', entities: [], isStreaming: true });
 							this.attachStream(data.running_turn.turn_id);
 						}
 					} finally {
@@ -298,17 +307,55 @@ templ CapsuleAssistantScript() {
 					e.target.value = '';
 				},
 
+				// A screenshot pasted straight into the composer is how people
+				// actually share an error message or a price list, and it was
+				// the one route into this feature the drawer did not offer.
+				handlePaste(e) {
+					const items = Array.from((e.clipboardData && e.clipboardData.items) || []);
+					const files = items
+						.filter(it => it.kind === 'file')
+						.map(it => it.getAsFile())
+						.filter(Boolean);
+					if (!files.length) return;
+					e.preventDefault();
+					this.addFiles(files);
+				},
+
+				// Refused before it is uploaded, in the same words the server
+				// would use. Ten megabytes of a wrongly-typed file is a round
+				// trip nobody needs, and "it failed" after a long upload reads
+				// as the assistant being broken.
+				rejectionFor(file) {
+					if (file.size > this.maxAttachmentBytes) {
+						return 'حجم الملف أكبر من الحد المسموح (١٠ ميجابايت): ' + file.name;
+					}
+					const name = (file.name || '').toLowerCase();
+					if (/\.(heic|heif)$/.test(name)) {
+						return 'صيغة HEIC غير مدعومة. من إعدادات الكاميرا اختر «الأكثر توافقاً» أو أرسل الصورة بصيغة JPEG.';
+					}
+					if (/\.(exe|dll|bat|cmd|sh|zip|rar|7z|msi|js|vbs|iso)$/.test(name)) {
+						return 'نوع الملف غير مدعوم: ' + file.name;
+					}
+					return '';
+				},
+
 				addFiles(files) {
 					for (const file of files) {
-						if (this.attachedFiles.length >= 5) break;
-						const isImg = file.type.startsWith('image/');
+						if (this.attachedFiles.length >= this.maxAttachments) {
+							this.showComposerNotice('الحد الأقصى ' + this.maxAttachments + ' مرفقات لكل رسالة.');
+							break;
+						}
+						const rejection = this.rejectionFor(file);
+						if (rejection) { this.showComposerNotice(rejection); continue; }
+
+						const isImg = (file.type || '').startsWith('image/');
 						let previewUrl = '';
 						if (isImg) { try { previewUrl = URL.createObjectURL(file); } catch (e) {} }
 						const item = {
 							id: 'att-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
 							name: file.name, size: file.size, type: file.type,
 							isImage: isImg, previewUrl,
-							reference: '', uploading: true, error: ''
+							reference: '', uploading: true, error: '', raw: file
 						};
 						this.attachedFiles.push(item);
 						this.uploadAttachment(item.id, file);
@@ -317,6 +364,8 @@ templ CapsuleAssistantScript() {
 
 				async uploadAttachment(itemId, rawFile) {
 					const find = () => this.attachedFiles.find(f => f.id === itemId);
+					const started = find();
+					if (started) { started.uploading = true; started.error = ''; }
 					try {
 						const form = new FormData();
 						form.append('file', rawFile);
@@ -325,22 +374,38 @@ templ CapsuleAssistantScript() {
 						if (!target) return;
 						if (!resp.ok) {
 							const err = await resp.json().catch(() => ({}));
+							// The server names the cause — an unsupported type,
+							// a HEIC photograph, storage that is unreachable —
+							// and every one of those needs a different action
+							// from the user. Show its sentence, never a generic
+							// one of our own.
 							target.error = err.message || 'تعذّر رفع الملف.';
+							target.retryable = err.retryable !== false;
 							return;
 						}
 						const data = await resp.json();
-						if (data.attachments && data.attachments.length > 0) {
-							target.reference = data.attachments[0].reference;
+						const first = (data.attachments || [])[0];
+						if (first) {
+							target.reference = first.reference;
+							target.serverMime = first.mime_type;
+							if (first.preview_url) target.serverPreview = first.preview_url;
 						} else {
 							target.error = 'استجابة غير متوقعة من الخادم.';
+							target.retryable = true;
 						}
 					} catch (e) {
 						const target = find();
-						if (target) target.error = 'تعذّر الاتصال بالخادم.';
+						if (target) { target.error = 'تعذّر الاتصال بالخادم.'; target.retryable = true; }
 					} finally {
 						const target = find();
 						if (target) target.uploading = false;
 					}
+				},
+
+				retryAttachment(idx) {
+					const f = this.attachedFiles[idx];
+					if (!f || !f.raw) return;
+					this.uploadAttachment(f.id, f.raw);
 				},
 
 				removeAttachment(idx) {
@@ -584,7 +649,7 @@ templ CapsuleAssistantScript() {
 						text: q || ('مرفق: ' + sent.map(f => f.name).join('، ')),
 						attachments: sent
 					});
-					this.messages.push({ isUser: false, text: '', isStreaming: true });
+					this.messages.push({ isUser: false, text: '', entities: [], isStreaming: true });
 
 					this.inputQuery = '';
 					this.attachedFiles = [];
@@ -691,6 +756,13 @@ templ CapsuleAssistantScript() {
 						this.scrollToBottom();
 					});
 
+					es.addEventListener('entities', (ev) => {
+						const d = this.parse(ev);
+						if (!d || !d.entities) return;
+						mark();
+						target.entities = d.entities;
+					});
+
 					es.addEventListener('usage', (ev) => {
 						const d = this.parse(ev);
 						if (!d) return;
@@ -751,6 +823,7 @@ templ CapsuleAssistantScript() {
 							if (d.status && d.status !== 'running') {
 								if (d.answer) target.text = d.answer;
 								else if (d.error) target.error = d.error.message;
+								if (d.entities && d.entities.length) target.entities = d.entities;
 								if (d.conversation_id) this.conversationID = d.conversation_id;
 								this.settle(target);
 								return;
@@ -833,7 +906,42 @@ templ CapsuleAssistantScript() {
 					});
 				},
 
-				renderMarkdown(raw) { return capsuleMarkdown(raw); }
+				// The answer's records travel with the message, so a
+				// conversation reopened from history keeps its links.
+				renderMarkdown(raw, entities) { return capsuleMarkdown(raw, entities); },
+
+				// Every attachment the server kept can be fetched back by its
+				// handle. Previews used to be blob: URLs minted in this tab,
+				// which is why a reloaded conversation showed a paperclip where
+				// the photograph had been.
+				attachmentPreview(file) {
+					if (!file) return '';
+					if (file.previewUrl) return file.previewUrl;
+					if (file.preview_url) return file.preview_url;
+					const ref = file.handle || file.reference;
+					const mime = file.mime_type || file.type || '';
+					if (!ref || !mime.startsWith('image/')) return '';
+					return '/api/v1/assistant/attachments/' + ref;
+				},
+
+				attachmentName(file) {
+					return (file && (file.name || file.filename)) || 'ملف';
+				},
+
+				// The chip says what kind of record it is before it says which
+				// one: "طلب شراء PO-1042" is readable at a glance in a strip of
+				// eight, where eight bare numbers are not.
+				entityKindLabel(kind) {
+					switch (kind) {
+						case 'order': return 'طلب شراء';
+						case 'shipment': return 'شحنة';
+						case 'product': return 'صنف';
+						case 'offer': return 'عرض';
+						case 'organization': return 'منشأة';
+						case 'branch': return 'فرع';
+						default: return 'سجل';
+					}
+				}
 			};
 		}
 	</script>

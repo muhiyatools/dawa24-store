@@ -264,6 +264,12 @@ func (h *Handler) replayFinished(
 		writeSSE(w, flusher, seen+1, "delta", map[string]any{"text": turn.Answer})
 		seen++
 	}
+	// A reader that attached after the turn finished never saw the entities
+	// frame, so it is replayed from the persisted turn before the ending.
+	if len(turn.Entities) > 0 {
+		writeSSE(w, flusher, seen+1, "entities", map[string]any{"entities": turn.Entities})
+		seen++
+	}
 	writeSSE(w, flusher, seen+1, "done", map[string]any{
 		"conversation_id": turn.ConversationID,
 		"input_tokens":    turn.InputTokens,
@@ -356,6 +362,7 @@ func (h *Handler) TurnStatus(w http.ResponseWriter, r *http.Request) {
 		"conversation_id": turn.ConversationID,
 		"input_tokens":    turn.InputTokens,
 		"output_tokens":   turn.OutputTokens,
+		"entities":        turn.Entities,
 	}
 	if turn.Status == assistant.TurnFailed {
 		f := assistant.Fail(assistant.Code(turn.ErrorCode))

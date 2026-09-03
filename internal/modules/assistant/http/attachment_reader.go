@@ -5,10 +5,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
-	"io"
 )
 
 // readAttachment asks the attachment model to describe one file, once.
@@ -20,7 +21,7 @@ import (
 func (h *Handler) readAttachment(
 	ctx context.Context, actor authctx.Actor, row *assistant.AttachmentRow,
 ) string {
-	if h.gw == nil || h.storage == nil {
+	if h.gw == nil {
 		return ""
 	}
 
@@ -36,10 +37,14 @@ func (h *Handler) readAttachment(
 		return fmt.Sprintf("الملف %q أكبر من الحد الذي يمكن تحليله.", row.Filename)
 	}
 
-	dataURL, err := h.dataURL(ctx, row)
+	content, err := h.attachmentBytes(ctx, row)
 	if err != nil {
 		h.log.WarnContext(ctx, "assistant: read attachment bytes", "error", err)
 		return ""
+	}
+	mime := row.MIMEType
+	if kind == assistant.KindImage {
+		mime, content = assistant.PrepareImageForModel(mime, content)
 	}
 
 	var virtualKey string
@@ -54,8 +59,8 @@ func (h *Handler) readAttachment(
 		Messages: []gateway.ChatMessage{
 			{Role: "system", Text: attachmentReaderPrompt},
 			{Role: "user", Parts: []gateway.ContentPart{
-				{Kind: partKindFor(kind), DataURL: dataURL,
-					Filename: row.Filename, MIMEType: row.MIMEType},
+				{Kind: partKindFor(kind), DataURL: assistant.DataURL(mime, content),
+					Filename: row.Filename, MIMEType: mime},
 				{Kind: gateway.PartText, Text: "استخرج محتوى هذا الملف."},
 			}},
 		},
@@ -104,22 +109,48 @@ func partKindFor(kind string) gateway.PartKind {
 	return gateway.PartFile
 }
 
-// dataURL re-reads a stored file for the one moment it has to be in memory.
-func (h *Handler) dataURL(ctx context.Context, row *assistant.AttachmentRow) (string, error) {
-	body, _, err := h.storage.Get(ctx, row.StorageKey)
+// attachmentBytes re-reads a stored file for the one moment it has to be in
+// memory.
+//
+// Two places hold bytes and it tries both, in the order that is cheapest for a
+// healthy deployment. An object store that has the file answers first; a
+// deployment without one, or one whose bucket has gone away since the upload,
+// falls through to the copy in the database. Falling through rather than
+// failing is what makes an attachment survive object storage being
+// reconfigured underneath it — and what makes the feature work at all on a
+// deployment that never had a bucket.
+func (h *Handler) attachmentBytes(
+	ctx context.Context, row *assistant.AttachmentRow,
+) ([]byte, error) {
+	if row.StorageKey != "" && h.storage != nil {
+		content, err := h.readObject(ctx, row.StorageKey)
+		if err == nil {
+			return content, nil
+		}
+		h.log.WarnContext(ctx, "assistant: object read failed, trying database copy",
+			"attachment", row.PublicID, "error", err)
+	}
+	return h.repo.LoadAttachmentContent(ctx, row.ID)
+}
+
+func (h *Handler) readObject(ctx context.Context, key string) ([]byte, error) {
+	body, _, err := h.storage.Get(ctx, key)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer body.Close()
 
 	content, err := io.ReadAll(io.LimitReader(body, maxAttachmentBytes+1))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if len(content) > maxAttachmentBytes {
-		return "", errors.New("assistant: stored attachment exceeds limit")
+		return nil, errors.New("assistant: stored attachment exceeds limit")
 	}
-	return assistant.DataURL(row.MIMEType, content), nil
+	if len(content) == 0 {
+		return nil, errors.New("assistant: stored attachment is empty")
+	}
+	return content, nil
 }
 
 // readPlainText handles the files that need no model.
@@ -137,22 +168,12 @@ func (h *Handler) readPlainText(ctx context.Context, row *assistant.AttachmentRo
 	default:
 		return "", false
 	}
-	if h.storage == nil {
-		return "", false
-	}
-	body, _, err := h.storage.Get(ctx, row.StorageKey)
-	if err != nil {
-		return "", false
-	}
-	defer body.Close()
-
-	content, err := io.ReadAll(io.LimitReader(body, assistant.DigestMaxChars))
+	content, err := h.attachmentBytes(ctx, row)
 	if err != nil || len(content) == 0 {
 		return "", false
 	}
-	text := string(content)
-	if len(content) == assistant.DigestMaxChars {
-		text += "\n…(اقتُطع الملف)"
+	if len(content) > assistant.DigestMaxChars {
+		return string(content[:assistant.DigestMaxChars]) + "\n…(اقتُطع الملف)", true
 	}
-	return text, true
+	return string(content), true
 }

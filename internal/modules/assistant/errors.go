@@ -27,6 +27,12 @@ const (
 	CodeToolFailed          Code = "tool_failed"
 	CodeAttachmentRejected  Code = "attachment_rejected"
 	CodeAttachmentTooLarge  Code = "attachment_too_large"
+	// Two attachment failures that used to arrive as "unsupported file type",
+	// which is advice nobody can act on. A HEIC photograph looks like an
+	// ordinary picture in the camera roll, and a storage outage is not the
+	// user's file being wrong.
+	CodeAttachmentHEIC  Code = "attachment_heic"
+	CodeAttachmentStore Code = "attachment_store_unavailable"
 	CodeTranscribeUnavail   Code = "transcribe_unavailable"
 	CodeTranscribeFailed    Code = "transcribe_failed"
 	CodeStreamInterrupted   Code = "stream_interrupted"
@@ -71,6 +77,11 @@ var messages = map[Code]Failure{
 		"نوع الملف غير مدعوم. المدعوم: الصور و PDF و Word و Excel والنصوص والملفات الصوتية.", false},
 	CodeAttachmentTooLarge: {CodeAttachmentTooLarge,
 		"حجم الملف أكبر من الحد المسموح (١٠ ميجابايت).", false},
+	CodeAttachmentHEIC: {CodeAttachmentHEIC,
+		"صيغة HEIC غير مدعومة. من إعدادات الكاميرا في الآيفون اختر «الأكثر توافقاً»، " +
+			"أو أرسل الصورة كلقطة شاشة بصيغة JPEG.", false},
+	CodeAttachmentStore: {CodeAttachmentStore,
+		"تعذّر حفظ الملف على الخادم. حاول مرة أخرى، وإن تكرر الأمر أبلغ إدارة المنصة.", true},
 	CodeTranscribeUnavail: {CodeTranscribeUnavail,
 		"خدمة تفريغ الصوت غير مفعّلة حالياً. اكتب سؤالك نصاً.", false},
 	CodeTranscribeFailed: {CodeTranscribeFailed,

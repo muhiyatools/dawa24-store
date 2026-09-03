@@ -196,11 +196,11 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>اسم الصنف للصيدلية</th>
+									<th class="cell-nowrap">اسم الصنف للصيدلية</th>
 									<th>الربط بالكتالوج العام</th>
-									<th class="p-md text-center">الكمية</th>
-									<th class="p-md text-center">سعر الشراء</th>
-									<th class="p-md text-center">عروض الموردين</th>
+									<th class="col-min p-md text-center">الكمية</th>
+									<th class="col-min p-md text-center">سعر الشراء</th>
+									<th class="col-min p-md text-center">عروض الموردين</th>
 									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
@@ -230,10 +230,13 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Linked Product -->
-										<td class="col-actions p-md">
+										<td class="p-md">
 											if it.ProductID != nil && *it.ProductID > 0 {
-												<div class="table-actions">
-													<span class="badge badge-emerald text-xs fw-800">
+												<div class="d-flex items-center gap-2">
+													<span
+														class="badge badge-emerald text-xs fw-800 cell-clamp cell-clamp-1"
+														title={ it.LinkedProductName.Get(i18n.AR) }
+													>
 														{ it.LinkedProductName.Get(i18n.AR) }
 													</span>
 													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID)) } target="_blank" class="btn btn-secondary btn-icon" title="عرض بالكتالوج">
@@ -248,17 +251,17 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Quantity -->
-										<td class="p-md text-center tabular-nums">
+										<td class="col-min p-md text-center tabular-nums">
 											<strong>{ fmt.Sprintf("%v", it.Quantity) }</strong>
 										</td>
 
 										<!-- Price -->
-										<td class="p-md text-center tabular-nums">
+										<td class="col-min p-md text-center tabular-nums">
 											<strong class="text-primary">{ it.Price.String() } ج.م</strong>
 										</td>
 
 										<!-- Providers & Market Offers -->
-										<td class="col-actions p-md">
+										<td class="col-min p-md text-center">
 											if it.ProductID != nil && *it.ProductID > 0 {
 												<button
 													type="button"

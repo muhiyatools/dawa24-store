@@ -217,15 +217,19 @@ func (h *UIHandler) CustomerSavingProductsImportItemMatchSubmit(w http.ResponseW
 	sessionID := chi.URLParam(r, "id")
 	itemIndex, _ := strconv.Atoi(chi.URLParam(r, "itemIndex"))
 
+	noticeMsg := "تم إلغاء ربط الصنف (أصبح غير مرتبط)."
 	if err := r.ParseForm(); err == nil {
 		productID, _ := strconv.ParseInt(r.FormValue("product_id"), 10, 64)
 		masterName := strings.TrimSpace(r.FormValue("master_name"))
 		masterSKU := strings.TrimSpace(r.FormValue("master_sku"))
 		_ = globalSavingImportSessionStore.AssignStagedItemMatch(sessionID, actor.OrganizationID, itemIndex, productID, masterName, masterSKU)
+		if productID > 0 {
+			noticeMsg = fmt.Sprintf("تم ربط الصنف «%s» بالكتالوج المركزي.", masterName)
+		}
 	}
 
 	redirectURI := fmt.Sprintf("/customer/saving-products/import/%s?%s", sessionID, r.URL.RawQuery)
-	http.Redirect(w, r, redirectURI, http.StatusSeeOther)
+	h.redirectWithNotice(w, r, redirectURI, "success", noticeMsg)
 }
 
 // CustomerSavingProductsImportItemToggleSubmit flips included checkbox.

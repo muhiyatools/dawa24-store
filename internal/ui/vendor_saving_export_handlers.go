@@ -169,8 +169,9 @@ func (h *UIHandler) VendorSavingProductSearchJSON(w http.ResponseWriter, r *http
 	var results []searchResult
 	if h.catSvc != nil {
 		products, err := h.catSvc.Search(ctx, catalog.SearchParams{
-			Query: query,
-			Limit: 15,
+			Query:     query,
+			FirstWord: catalog.FirstWordOf(query),
+			Limit:     20,
 		})
 		if err == nil {
 			for _, p := range products {

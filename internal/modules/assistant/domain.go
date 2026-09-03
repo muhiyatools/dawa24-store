@@ -61,6 +61,10 @@ type Message struct {
 	Role             string       `json:"role"` // system | user | assistant | tool
 	Content          string       `json:"content"`
 	Attachments      []Attachment `json:"attachments"`
+	// Entities are the records this message refers to, with the dashboard link
+	// for each. Persisted with the message so reopening a conversation from
+	// history keeps its links instead of degrading to plain text.
+	Entities         []Entity     `json:"entities,omitempty"`
 	PromptVersion    string       `json:"prompt_version"`
 	ModelRole        string       `json:"model_role"`
 	InputTokens      int          `json:"input_tokens"`
@@ -138,8 +142,13 @@ type Turn struct {
 	InputTokens    int
 	OutputTokens   int
 	ToolCalls      int
-	CreatedAt      time.Time
-	FinishedAt     *time.Time
+	// Entities are the records the answer names, resolved to dashboard links.
+	// Held on the turn as well as on the message because the polling fallback
+	// reads the turn, and a reader who never received the stream must still get
+	// a clickable answer.
+	Entities   []Entity
+	CreatedAt  time.Time
+	FinishedAt *time.Time
 }
 
 // ToolAudit records one tool invocation and the decision made about it.

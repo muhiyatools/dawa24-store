@@ -46,10 +46,10 @@ func (r *Repository) FinishTurn(ctx context.Context, t *assistant.Turn) error {
 			UPDATE assistant.turns
 			   SET status = $2, answer = $3, error_code = $4,
 			       input_tokens = $5, output_tokens = $6, tool_calls = $7,
-			       finished_at = now()
+			       entities = $8, finished_at = now()
 			 WHERE id = $1;
 		`, t.ID, string(t.Status), t.Answer, t.ErrorCode,
-			t.InputTokens, t.OutputTokens, t.ToolCalls)
+			t.InputTokens, t.OutputTokens, t.ToolCalls, encodeEntities(t.Entities))
 		return err
 	})
 }
@@ -60,17 +60,18 @@ func (r *Repository) GetTurn(ctx context.Context, publicID string, orgID, userID
 	err := r.db.InReadTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var t assistant.Turn
 		var org *int64
+		var entsRaw []byte
 		err := tx.QueryRow(txCtx, `
 			SELECT id, public_id, conversation_id, organization_id, user_id, agent_role,
 			       status, question, answer, error_code, input_tokens, output_tokens,
-			       tool_calls, created_at, finished_at
+			       tool_calls, COALESCE(entities, '[]'::jsonb), created_at, finished_at
 			  FROM assistant.turns
 			 WHERE public_id = $1 AND user_id = $2
 			   AND (organization_id IS NOT DISTINCT FROM $3);
 		`, publicID, userID, nullableOrg(orgID)).Scan(
 			&t.ID, &t.PublicID, &t.ConversationID, &org, &t.UserID, &t.AgentRole,
 			&t.Status, &t.Question, &t.Answer, &t.ErrorCode, &t.InputTokens,
-			&t.OutputTokens, &t.ToolCalls, &t.CreatedAt, &t.FinishedAt)
+			&t.OutputTokens, &t.ToolCalls, &entsRaw, &t.CreatedAt, &t.FinishedAt)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				return nil
@@ -80,6 +81,7 @@ func (r *Repository) GetTurn(ctx context.Context, publicID string, orgID, userID
 		if org != nil {
 			t.OrganizationID = *org
 		}
+		t.Entities = decodeEntities(entsRaw)
 		out = &t
 		return nil
 	})
@@ -99,10 +101,11 @@ func (r *Repository) LatestRunningTurn(ctx context.Context, convID, userID int64
 	err := r.db.InReadTx(ownCtx(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var t assistant.Turn
 		var org *int64
+		var entsRaw []byte
 		err := tx.QueryRow(txCtx, `
 			SELECT id, public_id, conversation_id, organization_id, user_id, agent_role,
 			       status, question, answer, error_code, input_tokens, output_tokens,
-			       tool_calls, created_at, finished_at
+			       tool_calls, COALESCE(entities, '[]'::jsonb), created_at, finished_at
 			  FROM assistant.turns
 			 WHERE conversation_id = $1 AND user_id = $2 AND status = 'running'
 			 ORDER BY id DESC
@@ -110,7 +113,7 @@ func (r *Repository) LatestRunningTurn(ctx context.Context, convID, userID int64
 		`, convID, userID).Scan(
 			&t.ID, &t.PublicID, &t.ConversationID, &org, &t.UserID, &t.AgentRole,
 			&t.Status, &t.Question, &t.Answer, &t.ErrorCode, &t.InputTokens,
-			&t.OutputTokens, &t.ToolCalls, &t.CreatedAt, &t.FinishedAt)
+			&t.OutputTokens, &t.ToolCalls, &entsRaw, &t.CreatedAt, &t.FinishedAt)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				return nil
@@ -120,6 +123,7 @@ func (r *Repository) LatestRunningTurn(ctx context.Context, convID, userID int64
 		if org != nil {
 			t.OrganizationID = *org
 		}
+		t.Entities = decodeEntities(entsRaw)
 		out = &t
 		return nil
 	})

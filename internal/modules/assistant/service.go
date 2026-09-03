@@ -42,6 +42,10 @@ type ToolOutcome struct {
 	Content  string
 	Decision string
 	Rows     int
+	// Entities are the records this call read that the caller has a screen
+	// for. They are collected from the rows themselves, never from anything
+	// the model wrote, and become the clickable references in the answer.
+	Entities []Entity
 }
 
 // ToolRunner is the assistant's view of the tool registry.
@@ -68,6 +72,10 @@ type Emitter interface {
 	Reasoning(text string)
 	Status(stage string, data map[string]any)
 	Usage(input, output int)
+	// Entities carries the records this turn read, resolved to dashboard
+	// links. Sent once, after the tools have run and before the answer is
+	// finished, so the reader can linkify the text as it settles.
+	Entities(list []Entity)
 	Done(answer string, conversationID int64)
 	Failed(code Code, partial string, conversationID int64)
 }
@@ -142,6 +150,7 @@ func (s *Service) RunTurn(
 		lastUsage  *gateway.Usage
 		toolsUsed  int
 		virtualKey string
+		entities   []Entity
 	)
 	if s.keys != nil && actor.OrgID > 0 {
 		if vk, err := s.keys(ctx, actor.OrgID); err == nil {
@@ -150,6 +159,16 @@ func (s *Service) RunTurn(
 	}
 
 	schemas := s.tools.Schemas(actor)
+
+	// An image costs input tokens before the model has written a word, and a
+	// reasoning model bills its chain of thought against the same ceiling as
+	// its answer. A turn carrying a photograph on the standard budget is the
+	// case that reliably came back empty — the budget went on looking, and
+	// there was nothing left to say what was seen.
+	maxTokens := 4000
+	if len(in.Parts) > 0 {
+		maxTokens = 6000
+	}
 
 	for round := 0; round <= maxToolRounds; round++ {
 		// The last permitted round drops the tools entirely. Left in, a model
@@ -170,7 +189,7 @@ func (s *Service) RunTurn(
 			// failure that looks exactly like a model with nothing to say. One
 			// real turn did precisely that: 2048 tokens spent, no text, no tool
 			// call. Four thousand leaves room to think and still answer.
-			MaxTokens:   4000,
+			MaxTokens:   maxTokens,
 			Temperature: 0.3,
 			OrgID:       actor.OrgID,
 			UserID:      actor.UserID,
@@ -197,7 +216,7 @@ func (s *Service) RunTurn(
 		}
 
 		if len(calls) == 0 {
-			s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed)
+			s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed, entities)
 			return
 		}
 
@@ -211,6 +230,7 @@ func (s *Service) RunTurn(
 			em.Status("tool", map[string]any{"tool": call.Name, "state": "running"})
 
 			outcome := s.tools.Dispatch(ctx, actor, turn.ID, call)
+			entities = MergeEntities(entities, outcome.Entities...)
 			em.Status("tool", map[string]any{
 				"tool":  outcome.Name,
 				"state": outcome.Decision,
@@ -226,7 +246,7 @@ func (s *Service) RunTurn(
 
 	// Round budget exhausted with the model still asking. Answer with what was
 	// collected rather than with nothing.
-	s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed)
+	s.succeed(ctx, actor, turn, in, em, answer.String(), lastUsage, toolsUsed, entities)
 }
 
 // consume drains one gateway stream, forwarding deltas as they arrive.
@@ -271,6 +291,7 @@ func (s *Service) succeed(
 	answer string,
 	usage *gateway.Usage,
 	toolsUsed int,
+	entities []Entity,
 ) {
 	answer = strings.TrimSpace(answer)
 	if answer == "" {
@@ -289,6 +310,10 @@ func (s *Service) succeed(
 	turn.Status = TurnDone
 	turn.Answer = answer
 	turn.ToolCalls = toolsUsed
+	turn.Entities = s.linkEntities(actor, answer, entities)
+	if len(turn.Entities) > 0 {
+		em.Entities(turn.Entities)
+	}
 	if usage != nil {
 		turn.InputTokens = usage.PromptTokens
 		turn.OutputTokens = usage.CompletionTokens
@@ -352,6 +377,7 @@ func (s *Service) persist(
 		ModelRole:      string(gateway.RolePrimary),
 		InputTokens:    turn.InputTokens,
 		OutputTokens:   turn.OutputTokens,
+		Entities:       turn.Entities,
 	}); err != nil {
 		s.log.ErrorContext(ctx, "assistant: save answer", "error", err)
 	}

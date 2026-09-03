@@ -66,6 +66,19 @@ func (e *emitter) Usage(input, output int) {
 	}})
 }
 
+// Entities publishes the records this answer names.
+//
+// It is a frame of its own rather than a field on "done" because the client
+// uses it the moment it arrives: the answer is already on screen, and the links
+// appear in place without a re-render of the whole message. It is repeated in
+// the terminal frame all the same, for a reader that attached late.
+func (e *emitter) Entities(list []assistant.Entity) {
+	if len(list) == 0 {
+		return
+	}
+	e.append(stream.Chunk{Kind: "entities", Data: map[string]any{"entities": list}})
+}
+
 // Done ends the turn and repeats the finished answer.
 //
 // Repeating it is deliberate. The client uses it only when it received no
@@ -78,6 +91,9 @@ func (e *emitter) Done(answer string, conversationID int64) {
 		"conversation_id": conversationID,
 	}})
 }
+
+// Terminal frames carry no entities: they are already their own frame above,
+// and the polling fallback reads them from the turn row.
 
 // Failed reports a failure by code. The message the user sees is looked up
 // here, from the one table that holds them, so no handler can invent its own

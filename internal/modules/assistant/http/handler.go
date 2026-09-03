@@ -112,6 +112,10 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 		g.Delete("/api/v1/assistant/turns/{id}", h.CancelTurn)
 
 		g.Post("/api/v1/assistant/attachments", h.Upload)
+		// Serving an upload back is what lets a reopened conversation still
+		// show the photograph that was sent with the question, instead of a
+		// paperclip where the picture used to be.
+		g.Get("/api/v1/assistant/attachments/{ref}", h.Download)
 		g.Post("/api/v1/assistant/transcribe", h.Transcribe)
 
 		g.Get("/api/v1/assistant/session", h.Session)

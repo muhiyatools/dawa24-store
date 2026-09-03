@@ -233,15 +233,17 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
 			       OR COALESCE(active, '') ILIKE '%' || $1 || '%'
 			       OR COALESCE(manufacturing_companies, '') ILIKE '%' || $1 || '%'
-			       OR word_similarity(platform.normalize_arabic($1), platform.normalize_arabic(name->>'ar')) >= 0.25
-			       OR similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) >= 0.15
-			       OR regexp_replace(platform.normalize_arabic(name->>'ar'), '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%')
-			  AND ($2::bigint IS NULL OR category_id = $2)
-			  AND ($3::bigint IS NULL OR brand_id = $3)
-			  AND ($6::numeric IS NULL OR price >= $6)
-			  AND ($7::numeric IS NULL OR price <= $7)
-			  AND ($10::text = '' OR status = $10)
-			  AND ($11::text = '' OR dosage_form ILIKE '%' || $11 || '%')
+		       OR word_similarity(platform.normalize_arabic($1), platform.normalize_arabic(name->>'ar')) >= 0.25
+		       OR similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) >= 0.15
+		       OR regexp_replace(platform.normalize_arabic(name->>'ar'), '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%'
+		       OR ($13 <> '' AND platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($13) || '%')
+		       OR ($13 <> '' AND name->>'en' ILIKE '%' || $13 || '%'))
+		  AND ($2::bigint IS NULL OR category_id = $2)
+		  AND ($3::bigint IS NULL OR brand_id = $3)
+		  AND ($6::numeric IS NULL OR price >= $6)
+		  AND ($7::numeric IS NULL OR price <= $7)
+		  AND ($10::text = '' OR status = $10)
+		  AND ($11::text = '' OR dosage_form ILIKE '%' || $11 || '%')
 			  AND (
 			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
 			      OR
@@ -254,15 +256,18 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			        AND pv.deleted_at IS NULL
 			        AND st.quantity > 0
 			  ))
-			ORDER BY 
-			  CASE 
-			    WHEN $1 = '' THEN 0
-			    WHEN platform.normalize_arabic(name->>'ar') ILIKE platform.normalize_arabic($1) || '%' THEN 1
-			    WHEN name->>'en' ILIKE $1 || '%' THEN 2
-			    WHEN platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($1) || '%' THEN 3
-			    WHEN name->>'en' ILIKE '%' || $1 || '%' THEN 4
-			    ELSE 5
-			  END,
+		ORDER BY
+		  CASE
+		    WHEN $1 = '' THEN 0
+		    WHEN platform.normalize_arabic(name->>'ar') ILIKE platform.normalize_arabic($1) || '%' THEN 1
+		    WHEN name->>'en' ILIKE $1 || '%' THEN 2
+		    WHEN $13 <> '' AND platform.normalize_arabic(name->>'ar') ILIKE platform.normalize_arabic($13) || '%' THEN 3
+		    WHEN $13 <> '' AND name->>'en' ILIKE $13 || '%' THEN 4
+		    WHEN platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($1) || '%' THEN 5
+		    WHEN name->>'en' ILIKE '%' || $1 || '%' THEN 6
+		    WHEN $13 <> '' AND platform.normalize_arabic(name->>'ar') ILIKE '% ' || platform.normalize_arabic($13) || '%' THEN 7
+		    ELSE 8
+		  END,
 			  ` + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;
 		`
@@ -276,7 +281,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		rows, err := tx.Query(txCtx, query,
 			params.Query, params.CategoryID, params.BrandID, limit, params.Offset,
 			params.MinPrice, params.MaxPrice, params.FilterMode, params.AllowedWorkIDs,
-			params.Status, params.DosageForm, params.InStock,
+			params.Status, params.DosageForm, params.InStock, params.FirstWord,
 		)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search products: %w", err)
@@ -323,15 +328,17 @@ func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchPar
 			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
 			       OR COALESCE(active, '') ILIKE '%' || $1 || '%'
 			       OR COALESCE(manufacturing_companies, '') ILIKE '%' || $1 || '%'
-			       OR word_similarity(platform.normalize_arabic($1), platform.normalize_arabic(name->>'ar')) >= 0.25
-			       OR similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) >= 0.15
-			       OR regexp_replace(platform.normalize_arabic(name->>'ar'), '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%')
-			  AND ($2::bigint IS NULL OR category_id = $2)
-			  AND ($3::bigint IS NULL OR brand_id = $3)
-			  AND ($4::numeric IS NULL OR price >= $4)
-			  AND ($5::numeric IS NULL OR price <= $5)
-			  AND ($6::text = '' OR status = $6)
-			  AND ($7::text = '' OR dosage_form ILIKE '%' || $7 || '%')
+		       OR word_similarity(platform.normalize_arabic($1), platform.normalize_arabic(name->>'ar')) >= 0.25
+		       OR similarity(platform.normalize_arabic(name->>'ar'), platform.normalize_arabic($1)) >= 0.15
+		       OR regexp_replace(platform.normalize_arabic(name->>'ar'), '[اوي]', '', 'g') ILIKE '%' || regexp_replace(platform.normalize_arabic($1), '[اوي]', '', 'g') || '%'
+		       OR ($11 <> '' AND platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($11) || '%')
+		       OR ($11 <> '' AND name->>'en' ILIKE '%' || $11 || '%'))
+		  AND ($2::bigint IS NULL OR category_id = $2)
+		  AND ($3::bigint IS NULL OR brand_id = $3)
+		  AND ($4::numeric IS NULL OR price >= $4)
+		  AND ($5::numeric IS NULL OR price <= $5)
+		  AND ($6::text = '' OR status = $6)
+		  AND ($7::text = '' OR dosage_form ILIKE '%' || $7 || '%')
 			  AND (
 			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
 			      OR
@@ -348,7 +355,7 @@ func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchPar
 		return tx.QueryRow(txCtx, query,
 			params.Query, params.CategoryID, params.BrandID,
 			params.MinPrice, params.MaxPrice, params.Status, params.DosageForm,
-			params.FilterMode, params.AllowedWorkIDs, params.InStock,
+			params.FilterMode, params.AllowedWorkIDs, params.InStock, params.FirstWord,
 		).Scan(&total)
 	})
 	return total, err

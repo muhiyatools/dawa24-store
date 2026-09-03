@@ -8,7 +8,11 @@ import (
 
 // SearchParams holds filters for searching products.
 type SearchParams struct {
-	Query          string
+	Query string
+	// FirstWord, when non-empty, prioritizes names starting with / containing
+	// the query's first word (catalog-linking UX: the brand comes first in
+	// Arabic product names). Empty preserves legacy ranking exactly.
+	FirstWord      string
 	OrganizationID *int64
 	CategoryID     *int64
 	BrandID        *int64

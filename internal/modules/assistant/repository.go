@@ -51,6 +51,12 @@ type Repository interface {
 	CreateAttachment(ctx context.Context, a *AttachmentRow) error
 	GetAttachment(ctx context.Context, publicID string, orgID, userID int64) (*AttachmentRow, error)
 	SetAttachmentDigest(ctx context.Context, id int64, digest string) error
+	// SaveAttachmentContent and LoadAttachmentContent are the fallback for a
+	// deployment with no reachable object storage. See postgres/blobs.go: an
+	// unconfigured bucket used to make every upload fail, which from the user's
+	// side was indistinguishable from the assistant refusing their photograph.
+	SaveAttachmentContent(ctx context.Context, id int64, content []byte) error
+	LoadAttachmentContent(ctx context.Context, id int64) ([]byte, error)
 	MarkAttachmentsReferenced(ctx context.Context, ids []int64, convID int64) error
 
 	// Audit.

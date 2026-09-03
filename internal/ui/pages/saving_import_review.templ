@@ -152,23 +152,24 @@ templ savingReviewStage(view SavingImportView) {
 
 	<!-- Centered Modal for Linking Saving Product to Master Catalog -->
 	<div id="saving-catalog-match-modal" class="modal-backdrop d-none" style="display: none !important;" aria-hidden="true">
-		<div class="glass-panel p-6">
+		<div class="glass-panel p-6 saving-match-dialog">
 			<div class="flex-between items-center pb-3 border-b mb-3">
     <div class="stack-sm">
 					<h3 class="text-lg font-black text-primary m-0">الربط بالكتالوج المركزي</h3>
 					<p class="text-xs text-secondary m-0 mt-0.5 font-mono" id="saving-modal-item-name"></p>
+					<p class="text-xs text-muted m-0 mt-1">الأولوية للأصناف التي تبدأ بأول كلمة من البحث.</p>
 				</div>
 				<button type="button" class="btn btn-secondary btn-xs" onclick="closeSavingCatalogModal()">
 					@components.IconX("icon-sm")
 				</button>
 			</div>
 
-			<div class="mb-3">
+			<div class="mb-3 saving-match-search">
 				<label class="form-label text-xs mb-1">ابحث في الكتالوج المركزي:</label>
 				<input type="text" id="saving-modal-search-input" class="form-input text-sm w-100" placeholder="ابحث باسم الدواء، الكود، أو المادة الفعالة..." autocomplete="off" />
 			</div>
 
-			<div id="saving-modal-results" class="flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2">
+			<div id="saving-modal-results" class="saving-match-results">
 				<div class="p-6 text-center text-muted text-xs">اكتب للبحث في الكتالوج المركزي...</div>
 			</div>
 
@@ -251,45 +252,67 @@ templ savingReviewStage(view SavingImportView) {
 		}
 	}
 
-	function fetchSavingModalResults(query) {
-		var resultsEl = document.getElementById('saving-modal-results');
-		if (!resultsEl) return;
-		resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>';
+		function savingFirstWord(query) {
+			var parts = String(query || '').trim().split(/\s+/).filter(Boolean);
+			return parts.length ? parts[0] : '';
+		}
 
-		fetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))
-			.then(function(res) { return res.json(); })
-			.then(function(data) {
-				var items = data.items || data.products || data || [];
-				if (!items || items.length === 0) {
-					resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';
-					return;
-				}
-				var html = '';
-				items.forEach(function(item) {
-					var name = item.name_ar || item.name_en || item.name || '';
-					var sku = item.sku || '';
-					var id = item.id;
-					var price = item.public_price || item.price || '';
-					var priceStr = price ? '<span class="badge badge-slate text-xs tabular-nums font-bold">' + price + ' ج.م</span>' : '';
-					var skuStr = sku ? '<span class="text-xs text-muted font-mono">' + escapeSavingHtml(sku) + '</span>' : '';
+		function escapeSavingRegExp(text) {
+			return String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		}
 
-					html += '<form method="POST" action="' + currentSavingActionURL + '" class="m-0">' +
-						'<input type="hidden" name="product_id" value="' + id + '" />' +
-						'<input type="hidden" name="master_name" value="' + escapeSavingHtml(name) + '" />' +
-						'<input type="hidden" name="master_sku" value="' + escapeSavingHtml(sku) + '" />' +
-						'<button type="submit" class="p-3 w-100 text-start flex-between items-center gap-3 border rounded-xl hover-lift cursor-pointer">' +
-						'<div class="stack-sm"><div class="text-sm font-extrabold text-primary">' + escapeSavingHtml(name) + '</div>' +
-						'<div class="d-flex items-center gap-2 mt-1">' + skuStr + priceStr + '</div></div>' +
-						'<span class="btn btn-primary btn-xs font-bold shrink-0">ربط </span>' +
-						'</button>' +
-						'</form>';
+		// Highlights every query word inside an already-escaped string in a
+		// single pass (longest word first), so marks never nest.
+		function highlightSavingMatch(escapedText, query) {
+			var words = String(query || '').trim().split(/\s+/).filter(Boolean);
+			if (!words.length) return escapedText;
+			words.sort(function(a, b) { return b.length - a.length; });
+			var pattern = new RegExp('(' + words.map(escapeSavingRegExp).join('|') + ')', 'gi');
+			return escapedText.replace(pattern, '<mark class="match-hl">$1</mark>');
+		}
+
+		function fetchSavingModalResults(query) {
+			var resultsEl = document.getElementById('saving-modal-results');
+			if (!resultsEl) return;
+			resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>';
+
+			fetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))
+				.then(function(res) { return res.json(); })
+				.then(function(data) {
+					var items = data.items || data.products || data || [];
+					if (!items || items.length === 0) {
+						resultsEl.innerHTML = '<div class="match-empty">لم يتم العثور على أي صنف مطابق في الكتالوج.<br/>جرّب أول كلمة من الاسم فقط.</div>';
+						return;
+					}
+					var first = savingFirstWord(query);
+					var html = '<div class="match-count">عدد النتائج: ' + items.length + ' — الأولوية للأصناف التي تبدأ بأول كلمة</div>';
+					items.forEach(function(item) {
+						var name = item.name_ar || item.name_en || item.name || '';
+						var sku = item.sku || '';
+						var id = item.id;
+						var price = item.public_price || item.price || '';
+						var priceStr = price ? '<span class="badge badge-slate text-xs tabular-nums font-bold">' + escapeSavingHtml(String(price)) + ' ج.م</span>' : '';
+						var skuStr = sku ? '<span class="text-xs text-muted font-mono">كود: ' + escapeSavingHtml(sku) + '</span>' : '';
+						var startsFirst = first !== '' && String(name).trim().indexOf(first) === 0;
+						var firstBadge = startsFirst ? '<span class="badge badge-emerald text-xs font-bold">يبدأ بأول كلمة ✓</span>' : '';
+
+						html += '<form method="POST" action="' + currentSavingActionURL + '" class="m-0">' +
+							'<input type="hidden" name="product_id" value="' + id + '" />' +
+							'<input type="hidden" name="master_name" value="' + escapeSavingHtml(name) + '" />' +
+							'<input type="hidden" name="master_sku" value="' + escapeSavingHtml(sku) + '" />' +
+							'<button type="submit" class="match-card">' +
+							'<span class="match-card-body"><span class="match-card-name">' + highlightSavingMatch(escapeSavingHtml(name), query) + '</span>' +
+							'<span class="match-card-meta">' + skuStr + priceStr + firstBadge + '</span></span>' +
+							'<span class="btn btn-primary btn-sm font-bold shrink-0">ربط</span>' +
+							'</button>' +
+							'</form>';
+					});
+					resultsEl.innerHTML = html;
+				})
+				.catch(function(err) {
+					resultsEl.innerHTML = '<div class="match-empty text-danger">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>';
 				});
-				resultsEl.innerHTML = html;
-			})
-			.catch(function(err) {
-				resultsEl.innerHTML = '<div class="p-6 text-center text-danger text-xs">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>';
-			});
-	}
+		}
 
 	function escapeSavingHtml(text) {
 		if (!text) return '';
@@ -354,8 +377,7 @@ templ savingFilterTab(view SavingImportView, matchKey, label string) {
 templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 	{{
 		actionBase := fmt.Sprintf("%s/%s/items/%d", view.ImportURL, view.Session.ID, row.Index)
-		querySuffix := fmt.Sprintf("?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s",
-			view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, view.Filter.Page, view.Filter.Limit, view.Filter.Search)
+		querySuffix := savingRowQuerySuffix(view)
 		searchURL := view.BaseURL + "/search-products"
 	}}
 	<tr id={ fmt.Sprintf("saving-row-%d", row.Index) } class={ templ.KV("opacity-50", !row.Included) }>
@@ -472,4 +494,17 @@ func savingPaginationQuery(view SavingImportView) url.Values {
 		q.Set("q", view.Filter.Search)
 	}
 	return q
+}
+
+// savingRowQuerySuffix preserves the row's list context (tab, sort, search,
+// page, limit) across row actions. Values are URL-encoded: the raw Sprintf
+// version broke Arabic searches and any query containing & or #.
+func savingRowQuerySuffix(view SavingImportView) string {
+	q := savingPaginationQuery(view)
+	q.Set("page", fmt.Sprint(view.Filter.Page))
+	q.Set("limit", fmt.Sprint(view.Filter.Limit))
+	if enc := q.Encode(); enc != "" {
+		return "?" + enc
+	}
+	return ""
 }

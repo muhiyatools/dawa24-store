@@ -1,135 +1,23 @@
 package http
 
 import (
-	"bytes"
 	"context"
-	"fmt"
-	"github.com/google/uuid"
+
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
-	"io"
-	"net/http"
 )
-
-// maxAttachmentBytes is the per-file ceiling.
-const maxAttachmentBytes = 10 << 20
-
-// maxAttachmentsPerTurn bounds how many files one question may carry.
-const maxAttachmentsPerTurn = 5
-
-// Upload validates a file, stores its bytes, and returns an opaque reference.
-//
-// What changed and why it matters: the bytes used to be base64-encoded into a
-// process-local map that was never evicted, and then persisted into the
-// messages table as a data URL. A 10 MB PDF cost roughly 13 MB of resident heap
-// for the life of the process AND 13 MB of JSONB per conversation, replayed to
-// the browser on every history load. They now go to object storage, and what is
-// kept here is a row.
-func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor := authctx.FromContext(ctx)
-
-	if h.storage == nil {
-		writeFailure(w, http.StatusServiceUnavailable, assistant.Fail(assistant.CodeInternal))
-		return
-	}
-
-	if err := r.ParseMultipartForm(maxAttachmentBytes); err != nil {
-		writeFailure(w, http.StatusRequestEntityTooLarge,
-			assistant.Fail(assistant.CodeAttachmentTooLarge))
-		return
-	}
-
-	files := r.MultipartForm.File["file"]
-	if len(files) == 0 {
-		files = r.MultipartForm.File["files"]
-	}
-	if len(files) == 0 {
-		writeFailure(w, http.StatusBadRequest, assistant.Fail(assistant.CodeInvalidRequest))
-		return
-	}
-	if len(files) > maxAttachmentsPerTurn {
-		writeFailure(w, http.StatusBadRequest, assistant.Fail(assistant.CodeInvalidRequest))
-		return
-	}
-
-	type uploaded struct {
-		Reference string  `json:"reference"`
-		Filename  string  `json:"filename"`
-		MIMEType  string  `json:"mime_type"`
-		SizeMB    float64 `json:"size_mb"`
-	}
-
-	results := make([]uploaded, 0, len(files))
-	for _, fh := range files {
-		if fh.Size > maxAttachmentBytes {
-			writeFailure(w, http.StatusRequestEntityTooLarge,
-				assistant.Fail(assistant.CodeAttachmentTooLarge))
-			return
-		}
-
-		f, err := fh.Open()
-		if err != nil {
-			writeFailure(w, http.StatusBadRequest, assistant.Fail(assistant.CodeAttachmentRejected))
-			return
-		}
-		content, err := io.ReadAll(io.LimitReader(f, maxAttachmentBytes+1))
-		_ = f.Close()
-		if err != nil || len(content) > maxAttachmentBytes {
-			writeFailure(w, http.StatusRequestEntityTooLarge,
-				assistant.Fail(assistant.CodeAttachmentTooLarge))
-			return
-		}
-
-		// Sniffed, not trusted: the declared Content-Type is attacker-supplied
-		// and the extension is only used to refuse an executable outright.
-		mime, _, err := assistant.SniffAndValidate(content, fh.Filename)
-		if err != nil {
-			writeFailure(w, http.StatusBadRequest, assistant.Fail(assistant.CodeAttachmentRejected))
-			return
-		}
-
-		row := &assistant.AttachmentRow{
-			OrganizationID: actor.OrgID,
-			UserID:         actor.UserID,
-			Filename:       assistant.SanitiseFilename(fh.Filename),
-			MIMEType:       mime,
-			SizeBytes:      int64(len(content)),
-			ContentHash:    assistant.ComputeContentHash(content),
-			StorageKey: fmt.Sprintf("capsule/%d/%d/%s",
-				actor.OrgID, actor.UserID, uuid.NewString()),
-		}
-
-		if err := h.storage.Put(ctx, row.StorageKey, bytes.NewReader(content),
-			row.SizeBytes, row.MIMEType); err != nil {
-			h.log.ErrorContext(ctx, "assistant: store attachment", "error", err)
-			writeFailure(w, http.StatusBadGateway, assistant.Fail(assistant.CodeInternal))
-			return
-		}
-		if err := h.repo.CreateAttachment(ctx, row); err != nil {
-			h.log.ErrorContext(ctx, "assistant: record attachment", "error", err)
-			writeFailure(w, http.StatusInternalServerError, assistant.Fail(assistant.CodeInternal))
-			return
-		}
-
-		results = append(results, uploaded{
-			Reference: row.PublicID.String(),
-			Filename:  row.Filename,
-			MIMEType:  row.MIMEType,
-			SizeMB:    float64(row.SizeBytes) / (1024 * 1024),
-		})
-	}
-
-	writeJSON(w, http.StatusOK, map[string]any{"attachments": results})
-}
 
 // resolveAttachments turns client-supplied references into files this caller
 // owns, and reads any that have not been read before.
 //
-// A reference that does not resolve is silently dropped rather than failing the
-// turn: it is either expired, already swept, or somebody else's, and in every
-// case the right behaviour is to answer the question without it.
+// What changed and why: a reference that could not be read used to be dropped
+// in silence. The attachment still appeared beside the question in the
+// transcript, so the turn looked to the user as though it had been sent with
+// the file — and the answer came back about the text alone. Every "the
+// assistant ignored my image" report is that shape. Now an unreadable file
+// produces a note the model is given, so the answer says the file could not be
+// read instead of pretending there was none.
 func (h *Handler) resolveAttachments(
 	ctx context.Context, actor authctx.Actor, refs []string,
 ) ([]assistant.Attachment, []assistant.AttachmentDigest, []gateway.ContentPart) {
@@ -167,6 +55,8 @@ func (h *Handler) resolveAttachments(
 	for _, ref := range refs {
 		row, err := h.repo.GetAttachment(ctx, ref, actor.OrgID, actor.UserID)
 		if err != nil || row == nil {
+			h.log.WarnContext(ctx, "assistant: attachment reference did not resolve",
+				"user_id", actor.UserID)
 			continue
 		}
 
@@ -181,21 +71,10 @@ func (h *Handler) resolveAttachments(
 			RowID:       row.ID,
 		})
 
-		kind := assistant.ClassifyMIME(row.MIMEType)
-		if sendableDirectly(primary, kind) && withinLimit(primary, row.SizeBytes) {
-			if dataURL, derr := h.dataURL(ctx, row); derr == nil {
-				parts = append(parts, gateway.ContentPart{
-					Kind:     partKindFor(kind),
-					DataURL:  dataURL,
-					Filename: row.Filename,
-					MIMEType: row.MIMEType,
-				})
-				continue
-			}
-			h.log.WarnContext(ctx, "assistant: could not read attachment for direct send",
-				"attachment", row.PublicID)
+		if part, ok := h.directPart(ctx, primary, row); ok {
+			parts = append(parts, part)
+			continue
 		}
-
 		if text, ok := h.readPlainText(ctx, row); ok {
 			digests = append(digests, assistant.AttachmentDigest{
 				Filename: row.Filename, Text: text,
@@ -212,13 +91,49 @@ func (h *Handler) resolveAttachments(
 				}
 			}
 		}
-		if digest != "" {
-			digests = append(digests, assistant.AttachmentDigest{
-				Filename: row.Filename, Text: digest,
-			})
+		if digest == "" {
+			// Say so rather than answering as though nothing was attached.
+			digest = "تعذّر قراءة محتوى هذا الملف. أبلغ المستخدم بذلك واطلب إعادة إرساله بصيغة أخرى."
 		}
+		digests = append(digests, assistant.AttachmentDigest{
+			Filename: row.Filename, Text: digest,
+		})
 	}
 	return atts, digests, parts
+}
+
+// directPart builds the multimodal part for a file the answering model can open
+// itself, or reports that it cannot.
+func (h *Handler) directPart(
+	ctx context.Context, caps gateway.ModelCapabilities, row *assistant.AttachmentRow,
+) (gateway.ContentPart, bool) {
+	kind := assistant.ClassifyMIME(row.MIMEType)
+	if !sendableDirectly(caps, kind) || !withinLimit(caps, row.SizeBytes) {
+		return gateway.ContentPart{}, false
+	}
+
+	content, err := h.attachmentBytes(ctx, row)
+	if err != nil {
+		h.log.WarnContext(ctx, "assistant: could not read attachment for direct send",
+			"attachment", row.PublicID, "error", err)
+		return gateway.ContentPart{}, false
+	}
+
+	mime := row.MIMEType
+	if kind == assistant.KindImage {
+		// A four-megapixel photograph is downscaled on its way to the model.
+		// See assistant/imageprep.go: above ~1500 pixels the model reads no
+		// more of the label and the request gets slow enough to hit the turn
+		// deadline.
+		mime, content = assistant.PrepareImageForModel(mime, content)
+	}
+
+	return gateway.ContentPart{
+		Kind:     partKindFor(kind),
+		DataURL:  assistant.DataURL(mime, content),
+		Filename: row.Filename,
+		MIMEType: mime,
+	}, true
 }
 
 // sendableDirectly decides whether a file goes to the answering model as-is.

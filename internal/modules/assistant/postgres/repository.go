@@ -225,15 +225,15 @@ func (r *Repository) SaveMessage(ctx context.Context, m *assistant.Message) erro
 			INSERT INTO assistant.messages (
 				conversation_id, organization_id, role, content,
 				attachments, prompt_version, model_role, input_tokens,
-				output_tokens, gateway_request_id
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+				output_tokens, gateway_request_id, entities
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 			RETURNING id, created_at
 		`
 		err = tx.QueryRow(
 			txCtx, query,
 			m.ConversationID, orgID, m.Role, m.Content,
 			attsJSON, m.PromptVersion, m.ModelRole, m.InputTokens,
-			m.OutputTokens, m.GatewayRequestID,
+			m.OutputTokens, m.GatewayRequestID, encodeEntities(m.Entities),
 		).Scan(&m.ID, &m.CreatedAt)
 		if err != nil {
 			return fmt.Errorf("assistant: save message: %w", err)
@@ -256,7 +256,8 @@ func (r *Repository) ListMessages(ctx context.Context, convID int64, limit int) 
 		query := `
 			SELECT id, conversation_id, organization_id, role, content,
 			       attachments, prompt_version, model_role, input_tokens,
-			       output_tokens, gateway_request_id, created_at
+			       output_tokens, gateway_request_id, created_at,
+			       COALESCE(entities, '[]'::jsonb)
 			FROM assistant.messages
 			WHERE conversation_id = $1
 			ORDER BY id ASC
@@ -271,11 +272,11 @@ func (r *Repository) ListMessages(ctx context.Context, convID int64, limit int) 
 		for rows.Next() {
 			var m assistant.Message
 			var orgID *int64
-			var attsRaw []byte
+			var attsRaw, entsRaw []byte
 			if err := rows.Scan(
 				&m.ID, &m.ConversationID, &orgID, &m.Role, &m.Content,
 				&attsRaw, &m.PromptVersion, &m.ModelRole, &m.InputTokens,
-				&m.OutputTokens, &m.GatewayRequestID, &m.CreatedAt,
+				&m.OutputTokens, &m.GatewayRequestID, &m.CreatedAt, &entsRaw,
 			); err != nil {
 				return fmt.Errorf("assistant: scan message: %w", err)
 			}
@@ -285,6 +286,7 @@ func (r *Repository) ListMessages(ctx context.Context, convID int64, limit int) 
 			if len(attsRaw) > 0 {
 				_ = json.Unmarshal(attsRaw, &m.Attachments)
 			}
+			m.Entities = decodeEntities(entsRaw)
 			msgs = append(msgs, &m)
 		}
 		return rows.Err()
