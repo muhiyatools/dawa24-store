@@ -251,7 +251,7 @@ func (r *Repository) Subscription(ctx context.Context, actor authctx.Actor) (*as
 			  FROM billing.subscriptions s
 			  JOIN billing.plans p ON p.id = s.plan_id
 			 WHERE s.organization_id = $1
-			 ORDER BY (s.status = 'active') DESC, s.expires_at DESC
+			 ORDER BY (s.status = 'active') DESC, s.starts_at DESC, s.id DESC
 			 LIMIT 1;
 		`, orgID).Scan(&s.PlanName, &s.Status, &s.StartsAt, &s.ExpiresAt, &priceMonth)
 		if err != nil {

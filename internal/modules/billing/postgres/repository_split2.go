@@ -49,6 +49,35 @@ func (r *Repository) CreateSubscription(ctx context.Context, sub *billing.Subscr
 		if sub.BillingCycle == "" {
 			sub.BillingCycle = "monthly"
 		}
+
+		// A user/organisation has exactly one live platform subscription. Booking a
+		// new one (upgrade, downgrade, plan switch, or renewal onto a different
+		// plan) supersedes any earlier live row so that the "current plan" reads —
+		// which pick the most recent live subscription — resolve to the plan just
+		// paid for, instead of an older row whose expires_at happens to sit
+		// further in the future (e.g. an unexpired annual term replaced by a
+		// monthly one).
+		if sub.OrganizationID != nil && *sub.OrganizationID > 0 {
+			if _, err := tx.Exec(txCtx, `
+				UPDATE billing.subscriptions
+				SET status = 'expired', auto_renew = false, updated_at = now()
+				WHERE organization_id = $1
+				  AND status IN ('active', 'trialing', 'past_due');
+			`, *sub.OrganizationID); err != nil {
+				return err
+			}
+		} else {
+			if _, err := tx.Exec(txCtx, `
+				UPDATE billing.subscriptions
+				SET status = 'expired', auto_renew = false, updated_at = now()
+				WHERE user_id = $1
+				  AND organization_id IS NULL
+				  AND status IN ('active', 'trialing', 'past_due');
+			`, sub.UserID); err != nil {
+				return err
+			}
+		}
+
 		query := `
 			INSERT INTO billing.subscriptions (
 				user_id, organization_id, plan_id, status, billing_cycle, auto_renew,
@@ -75,7 +104,7 @@ func (r *Repository) GetActiveSubscription(ctx context.Context, userID int64) (*
 			       source_system, source_id, created_at, updated_at
 			FROM billing.subscriptions
 			WHERE user_id = $1 AND status = 'active' AND expires_at > now()
-			ORDER BY expires_at DESC
+			ORDER BY starts_at DESC, id DESC
 			LIMIT 1;
 		`
 		var statusStr string
@@ -111,7 +140,7 @@ func (r *Repository) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64
 			       source_system, source_id, created_at, updated_at
 			FROM billing.subscriptions
 			WHERE organization_id = $1 AND status = 'active' AND expires_at > now()
-			ORDER BY expires_at DESC
+			ORDER BY starts_at DESC, id DESC
 			LIMIT 1;
 		`
 		var statusStr string

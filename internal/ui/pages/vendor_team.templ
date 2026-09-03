@@ -398,15 +398,16 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 			</div>
 
 			<!-- Add Employee Modal Dialog (Fixed Centered Overlay) -->
-			<div class="stack-sm"
+			<div
 				x-show="showAddModal"
 				x-cloak
 				x-transition.opacity
 				@keydown.escape.window="showAddModal = false"
+				class="fixed inset-0 bg-black/50 z-50 d-flex items-center justify-center"
 			>
 				<div
 					@click.outside="showAddModal = false"
-					class="glass-panel p-6 w-full"
+					class="glass-panel p-6 w-full max-w-2xl"
 				>
 					<!-- Modal Header -->
 					<div class="flex-between items-center mb-4 pb-3 border-b">

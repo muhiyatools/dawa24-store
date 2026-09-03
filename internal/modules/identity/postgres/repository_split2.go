@@ -98,7 +98,7 @@ func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSess
 				FROM billing.subscriptions s
 				JOIN billing.plans p ON s.plan_id = p.id
 				WHERE s.organization_id = $1 AND s.status = 'active' AND s.expires_at > now()
-				ORDER BY s.expires_at DESC
+				ORDER BY s.starts_at DESC, s.id DESC
 				LIMIT 1;
 			`
 			var sMax, dMax int

@@ -115,7 +115,10 @@ func (r *Repository) ListBranchesWithTotal(ctx context.Context, filter org.Branc
 		dataQuery := fmt.Sprintf(`
 			SELECT b.id, b.public_id, b.organization_id, b.name, b.code, b.address, b.city_id, b.latitude, b.longitude,
 			       b.google_maps_url, b.manager_id, b.warehouse_type, b.has_cold_storage, b.capacity_sqm,
-			       b.operating_hours, b.status, b.is_main, b.phone, b.created_at, b.updated_at
+			       b.operating_hours, b.status, b.is_main, b.phone, b.created_at, b.updated_at,
+			       COALESCE((SELECT array_agg(w.work_category)
+			                 FROM org.branch_institutional_works w
+			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b
 			LEFT JOIN org.organizations o ON o.id = b.organization_id
 			WHERE %s
@@ -136,6 +139,7 @@ func (r *Repository) ListBranchesWithTotal(ctx context.Context, filter org.Branc
 				&b.ID, &b.PublicID, &b.OrganizationID, &b.Name, &b.Code, &b.Address, &b.CityID, &b.Latitude, &b.Longitude,
 				&b.GoogleMapsURL, &b.ManagerID, &b.WarehouseType, &b.HasColdStorage, &b.CapacitySQM,
 				&b.OperatingHours, &b.Status, &b.IsMain, &b.Phone, &b.CreatedAt, &b.UpdatedAt,
+				&b.InstitutionalWorks,
 			); err != nil {
 				return err
 			}
