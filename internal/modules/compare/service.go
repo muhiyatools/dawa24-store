@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
@@ -44,6 +45,10 @@ type Service struct {
 	catalog  CatalogSource
 	enhancer matchflow.Enhancer
 	memory   matchflow.Memory
+
+	// The bounded worker pool that runs catalogue matching. See
+	// catalog_match_queue.go: matching is automatic now, so it needs a limit.
+	matchQ matchQueue
 }
 
 // NewService creates a new compare service.
@@ -283,12 +288,7 @@ func (s *Service) SubscribeDirectly(ctx context.Context, planSlug string, orgID 
 
 // UploadCompareFile validates user entitlement, applies auto-archive retention if at max active capacity, and creates the compare file.
 func (s *Service) UploadCompareFile(ctx context.Context, userID int64, orgID *int64, supplierName, originalFilename, mimeType string, sizeBytes int64, storageKey string) (*CompareFile, []string, error) {
-	ent, err := s.EntitlementFor(ctx, userID, func() int64 {
-		if orgID != nil {
-			return *orgID
-		}
-		return 0
-	}())
+	ent, err := s.EntitlementFor(ctx, userID, orgIDValue(orgID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -307,16 +307,9 @@ func (s *Service) UploadCompareFile(ctx context.Context, userID int64, orgID *in
 		return nil, nil, apperr.Validation("file.too_large", "File size exceeds 50MB limit.", nil)
 	}
 
-	var archivedNames []string
-	activeCount, err := s.repo.CountActiveFiles(ctx, userID, orgID)
-	if err == nil && activeCount >= ent.MaxActiveFiles {
-		// Needs room for 1 new file -> keep count must be MaxActiveFiles - 1
-		keepCount := ent.MaxActiveFiles - 1
-		if keepCount < 0 {
-			keepCount = 0
-		}
-		reason := fmt.Sprintf(i18n.T("ar", "err.compare_quota_exceeded"), strconv.Itoa(ent.MaxActiveFiles))
-		archivedNames, _ = s.repo.ArchiveOldestFiles(ctx, userID, orgID, keepCount, reason)
+	archivedNames, err := s.MakeRoomForFiles(ctx, userID, orgID, 1)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	file := &CompareFile{
@@ -335,4 +328,66 @@ func (s *Service) UploadCompareFile(ctx context.Context, userID int64, orgID *in
 	}
 
 	return file, archivedNames, nil
+}
+
+// evictMu serialises the read-count-then-archive step of an upload.
+//
+// That step is a check-then-act on shared state, and the batch uploader runs
+// six of them at once. Concurrently, every worker read the same active count,
+// every worker decided the quota was full, and every worker then archived
+// "everything beyond keepCount" — which by then included the files its siblings
+// had just created. Upload eight files and two survived: the rest were archived
+// by their own batch. The lock makes count-and-archive atomic; MakeRoomForFiles
+// makes it happen once for a whole batch rather than once per file.
+var evictMu sync.Mutex
+
+// MakeRoomForFiles archives the oldest active compare files, if any need to be
+// archived, so that `incoming` more can be created without exceeding the
+// caller's plan. It returns the names it archived, for the notice the screen
+// shows.
+//
+// Call it once per batch, before uploading any of the batch's files. Calling it
+// per file inside a parallel batch is what the lock below exists to survive,
+// not a supported way to use it.
+func (s *Service) MakeRoomForFiles(ctx context.Context, userID int64, orgID *int64, incoming int) ([]string, error) {
+	if incoming <= 0 {
+		return nil, nil
+	}
+	ent, err := s.EntitlementFor(ctx, userID, orgIDValue(orgID))
+	if err != nil {
+		return nil, err
+	}
+	if ent.MaxActiveFiles <= 0 {
+		return nil, nil
+	}
+
+	evictMu.Lock()
+	defer evictMu.Unlock()
+
+	activeCount, err := s.repo.CountActiveFiles(ctx, userID, orgID)
+	if err != nil {
+		// A failed count must not archive anything: archiving on a guess is how
+		// a user loses files they never replaced.
+		return nil, nil
+	}
+	if activeCount+incoming <= ent.MaxActiveFiles {
+		return nil, nil
+	}
+
+	keepCount := ent.MaxActiveFiles - incoming
+	if keepCount < 0 {
+		keepCount = 0
+	}
+	reason := fmt.Sprintf(i18n.T("ar", "err.compare_quota_exceeded"), strconv.Itoa(ent.MaxActiveFiles))
+	archived, _ := s.repo.ArchiveOldestFiles(ctx, userID, orgID, keepCount, reason)
+	return archived, nil
+}
+
+// orgIDValue flattens an optional organisation to the zero value the
+// entitlement lookup expects.
+func orgIDValue(orgID *int64) int64 {
+	if orgID == nil {
+		return 0
+	}
+	return *orgID
 }

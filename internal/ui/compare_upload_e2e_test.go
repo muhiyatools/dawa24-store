@@ -287,7 +287,7 @@ func (m *mockCompareRepoE2E) ListMarketDiscounts(ctx context.Context, filter com
 		for _, r := range rows {
 			items = append(items, &compare.MarketDiscountRow{
 				ID:                 r.ID,
-				FileID:             r.FileID,
+				VariantID:          r.ID,
 				SupplierName:       file.SupplierName,
 				ProductName:        r.RawName,
 				SKU:                r.SKU,

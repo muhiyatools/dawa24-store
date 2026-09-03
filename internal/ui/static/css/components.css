@@ -4875,10 +4875,13 @@ svg.flag-icon-svg {
    ========================================================================== */
 
 .filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-sm);
+  /* Container chrome only. Deliberately NOT a flex container.
+     Every one of the twenty-one screens that uses this class brings its own
+     form layout — `d-flex items-center flex-wrap`, `d-flex flex-col`,
+     `d-grid`, `stack-md`, `flex-between`. When the bar also imposed
+     `display:flex; align-items:flex-end` on the form it wrapped, it fought
+     each of those, and the ones laying out in a column lost. The bar supplies
+     the surface; the page supplies the arrangement. */
   padding: var(--space-md);
   margin-block-end: var(--space-lg);
   background: var(--bg-surface-raised);
@@ -4886,52 +4889,34 @@ svg.flag-icon-svg {
   border-radius: var(--radius-lg);
 }
 
-/* The form itself, when the bar is a form rather than wrapping one. */
+/* When the bar is itself the form. */
 form.filter-bar { margin: 0; }
 
-/* ...and when it wraps one. Twenty-two list screens each gave their filter
-   form its own flex classes, so the controls sat at different widths and
-   wrapped at different points from page to page. The bar lays out its form
-   itself, which means a page only has to say "this is the filter bar". */
+/* When it wraps one: fill the bar, and nothing else. */
 .filter-bar > form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-sm);
   inline-size: 100%;
   margin: 0;
   min-inline-size: 0;
 }
 
-/* One control width across the platform. A search field earns more room than
-   a status select, which is what the 2fr basis buys it. */
+/* Controls may only be stopped from overflowing their column — never sized on
+   the block axis from here.
+     flex-basis resolves against the *main* axis of whatever flex container the
+   control happens to sit in. The previous rule was `flex: 1 1 11rem`, written
+   for a control sitting directly in the filter row. Most pages wrap each
+   control in a labelled column group (`.stack-sm`, `.form-group`), and in a
+   column container that 11rem basis is an 11rem **height** — which is how
+   every filter select on the platform became a 176px-tall empty box. Widths
+   belong to the page's own utilities (`.flex-1`, `.w-44`), which is where they
+   were before and where they still are. */
 .filter-bar .form-input,
-.filter-bar .form-select {
-  flex: 1 1 11rem;
+.filter-bar .form-select,
+.filter-bar .form-control {
   min-inline-size: 0;
-  inline-size: auto;
+  max-inline-size: 100%;
 }
 
-.filter-bar input[type="search"],
-.filter-bar input[type="text"] { flex-basis: 22rem; }
-
-.filter-bar .btn { flex: 0 0 auto; }
-
-.filter-bar-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: var(--space-sm);
-  flex: 1 1 20rem;
-  min-inline-size: 0;
-}
-
-.filter-bar-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  margin-inline-start: auto;
-  flex-shrink: 0;
-}
+.filter-bar .btn { flex-shrink: 0; }
 
 /* A count or summary sitting with the filters -- "٤٢ نتيجة". */
 .filter-bar-summary {
@@ -4946,14 +4931,6 @@ form.filter-bar { margin: 0; }
     padding: var(--space-sm);
     margin-block-end: var(--space-md);
   }
-  .filter-bar-fields { grid-template-columns: 1fr; flex-basis: 100%; }
-  .filter-bar-actions { margin-inline-start: 0; inline-size: 100%; }
-  .filter-bar-actions > .btn { flex: 1 1 auto; }
-  .filter-bar .form-input,
-  .filter-bar .form-select,
-  .filter-bar input[type="search"],
-  .filter-bar input[type="text"] { flex-basis: 100%; }
-  .filter-bar .btn { flex: 1 1 auto; }
 }
 
 /* The inner wrapper one of the Alpine modals uses. It carries no surface of
@@ -5139,6 +5116,142 @@ form.filter-bar { margin: 0; }
 }
 
 /* ==========================================================================
+   Market Discounts — header and controls
+   One header row (identity + the three numbers), one controls row (search,
+   two selects, actions, view switch). Both wrap predictably; neither depends
+   on the shared .filter-bar imposing a layout, because it no longer does.
+   ========================================================================== */
+
+.md-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1.125rem;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card, var(--border-subtle));
+  border-radius: var(--radius-xl);
+}
+
+.md-header-copy { min-inline-size: 0; }
+
+.md-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+.md-title svg { color: var(--brand); }
+
+.md-subtitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* The three numbers, as one strip of equal cells rather than three loose cards. */
+.md-stats {
+  display: flex;
+  margin: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-sunken);
+  overflow: hidden;
+}
+.md-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.4375rem 0.875rem;
+  min-inline-size: 5.25rem;
+}
+.md-stat + .md-stat { border-inline-start: 1px solid var(--border-subtle); }
+.md-stat dt {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.md-stat dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.md-stat.is-accent dd { color: var(--success); }
+
+/* Controls ---------------------------------------------------------------- */
+
+.md-controls { margin-block-end: 0; }
+.md-controls-form { display: flex; flex-direction: column; gap: 0.75rem; margin: 0; }
+
+.md-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* The search field takes the slack; the selects keep a readable fixed width so
+   they do not jump between page loads as the option text changes. */
+.md-controls-row .md-search {
+  flex: 1 1 18rem;
+  min-inline-size: 12rem;
+}
+.md-controls-row .md-select {
+  flex: 0 1 11rem;
+  min-inline-size: 8rem;
+}
+.md-controls-row .btn { flex: 0 0 auto; }
+
+/* Pushes the view switch to the trailing edge on a wide row, and collapses to
+   nothing once the row wraps. */
+.md-controls-spacer { flex: 1 1 0; min-inline-size: 0; }
+
+.md-viewswitch { flex: 0 0 auto; }
+
+/* Advanced ranges --------------------------------------------------------- */
+
+.md-ranges {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--border-subtle);
+}
+.md-range { display: flex; flex-direction: column; gap: 0.3125rem; flex: 1 1 16rem; min-inline-size: 0; }
+.md-range-label { font-size: 0.6875rem; font-weight: 700; color: var(--text-muted); }
+.md-range-pair { display: flex; align-items: center; gap: 0.5rem; }
+/* Auto basis: these sit in a row, but the basis must never be a length or it
+   would size the block axis if the pair ever became a column. */
+.md-range-pair .form-input { flex: 1 1 auto; min-inline-size: 0; }
+.md-range-dash { color: var(--text-muted); flex: 0 0 auto; }
+.md-range-apply { flex: 0 0 auto; }
+
+@media (max-width: 720px) {
+  .md-header { align-items: stretch; }
+  .md-stats { inline-size: 100%; }
+  .md-stat { flex: 1 1 0; min-inline-size: 0; }
+  .md-controls-row .md-search,
+  .md-controls-row .md-select { flex-basis: 100%; }
+  .md-controls-spacer { display: none; }
+  .md-viewswitch { margin-inline-start: auto; }
+  .md-range { flex-basis: 100%; }
+  .md-range-apply { inline-size: 100%; }
+}
+
+/* ==========================================================================
    Market Discounts — خصومات السوق العامة
    Two views over the same offer. Both are read for the same three numbers
    (سعر الجمهور → الخصم → سعر بعد الخصم), so both put those three adjacent and
@@ -5224,10 +5337,16 @@ form.filter-bar { margin: 0; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.market-no-order {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
+/* The available quantity. Every row on this screen has stock — the query will
+   not return one that does not — so this says how much, never whether. */
+.market-stock {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--success);
+  background: var(--success-subtle);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-sm);
+  padding: 0.0625rem 0.375rem;
   white-space: nowrap;
 }
 
@@ -6081,3 +6200,131 @@ form.filter-bar { margin: 0; }
 /* An inline busy indicator inside a search field. */
 .spinner-container { display: inline-flex; align-items: center; gap: 0.375rem; }
 
+/* ==========================================================================
+   مقارنة مع موردي السوق — /compare/market-benchmark
+   Six columns: what the item is, what you charge, and how many offers in the
+   market beat, match or trail you. The cheapest competing offer is named under
+   the count it belongs to rather than in a column of its own, and the row's
+   standing is a word on the product name rather than a badge at the far end —
+   two columns fewer to carry across the screen.
+   ========================================================================== */
+
+.bench-controls { margin-block-end: 1rem; }
+.bench-controls-form { display: flex; flex-direction: column; gap: 0.75rem; margin: 0; }
+
+.bench-controls-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bench-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 0 1 13rem;
+  min-inline-size: 0;
+}
+.bench-field.is-grow { flex: 1 1 16rem; }
+/* auto basis: the control is a block child of a column, so a length here would
+   size its height, not its width. */
+.bench-field .form-input,
+.bench-field .form-select { inline-size: 100%; }
+
+.bench-field-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.bench-ranges {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--border-subtle);
+}
+.bench-range { display: flex; flex-direction: column; gap: 0.25rem; flex: 1 1 16rem; min-inline-size: 0; }
+.bench-range-pair { display: flex; align-items: center; gap: 0.5rem; }
+.bench-range-pair .form-input { flex: 1 1 auto; min-inline-size: 0; }
+.bench-range-dash { color: var(--text-muted); flex: 0 0 auto; }
+
+/* Table ------------------------------------------------------------------- */
+
+.bench-scroll { overflow-x: auto; border: none; border-radius: 0; box-shadow: none; }
+.bench-table { min-inline-size: 52rem; }
+.bench-table th, .bench-table td { vertical-align: top; padding-block: 0.625rem; }
+
+.bench-name {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+.bench-name-meta { display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; margin-block-start: 0.25rem; }
+
+/* The row's standing, in one word, where the eye already is. */
+.bench-verdict {
+  font-size: 0.625rem;
+  font-weight: 800;
+  padding: 0.0625rem 0.375rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.bench-verdict.is-worse     { color: var(--danger);  background: var(--danger-subtle);  border-color: var(--danger-border); }
+.bench-verdict.is-better    { color: var(--success); background: var(--success-subtle); border-color: var(--success-border); }
+.bench-verdict.is-equal     { color: var(--text-muted); background: var(--bg-surface-sunken); border-color: var(--border-subtle); }
+.bench-verdict.is-exclusive { color: var(--warning); background: var(--warning-subtle); border-color: var(--warning-border); }
+
+.bench-soft { font-size: 0.625rem; font-weight: 600; color: var(--text-muted); }
+.bench-code { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
+.bench-net {
+  font-size: 0.9375rem;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.bench-net small { font-size: 0.625rem; font-weight: 700; color: var(--text-secondary); }
+
+.bench-sub { font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); line-height: 1.5; }
+.bench-sub.is-quiet { opacity: 0.75; }
+
+/* The three counts. Same shape and size in all three columns so the eye can
+   run down and across them; colour says what the number means for you, not
+   what it is. */
+.bench-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 2rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 900;
+  line-height: 1.2;
+  border: 1px solid transparent;
+}
+.bench-count.is-worse  { color: var(--danger);  background: var(--danger-subtle);  border-color: var(--danger-border); }
+.bench-count.is-equal  { color: var(--text-secondary); background: var(--bg-surface-sunken); border-color: var(--border-subtle); }
+.bench-count.is-better { color: var(--success); background: var(--success-subtle); border-color: var(--success-border); }
+.bench-count.is-none   { color: var(--text-muted); background: none; border: none; font-weight: 600; }
+
+.bench-footnote {
+  padding: 0.75rem 1.25rem;
+  border-block-start: 1px solid var(--border-subtle);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .bench-field, .bench-field.is-grow { flex-basis: 100%; }
+  .bench-range { flex-basis: 100%; }
+  .bench-table { min-inline-size: 44rem; }
+}

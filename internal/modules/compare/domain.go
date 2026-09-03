@@ -328,9 +328,14 @@ type MarketDiscountsFilter struct {
 
 // MarketDiscountRow represents a single discount item displayed on the market discounts page.
 type MarketDiscountRow struct {
-	ID                 int64        `json:"id"`
-	FileID             int64        `json:"file_id"`
-	SupplierName       string       `json:"supplier_name"`
+	ID int64 `json:"id"`
+	// VariantID is the catalog.product_variants row this offer is. It is what
+	// the page links to and what the cart adds; ID mirrors it.
+	VariantID int64 `json:"variant_id"`
+	// AvailableStock is the summed quantity across the vendor's warehouses. It
+	// is always positive: a variant with none never reaches this screen.
+	AvailableStock int64  `json:"available_stock"`
+	SupplierName   string `json:"supplier_name"`
 	ProductName        string       `json:"product_name"`
 	SKU                string       `json:"sku,omitempty"`
 	OriginalPrice      money.Amount `json:"original_price"`

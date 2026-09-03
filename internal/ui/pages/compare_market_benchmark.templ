@@ -155,52 +155,72 @@ templ benchmarkHeader() {
 	</div>
 }
 
+// benchmarkControls is one row: which list, what to find in it, and how to
+// order it. The five range inputs that used to sit beside those — a six-cell
+// grid of labelled boxes taking half the screen before a single result — are
+// behind a disclosure now, because a range is something you reach for
+// occasionally and a search is something you reach for every time.
 templ benchmarkControls(data MarketBenchmarkPageData) {
-	<div class="glass-panel p-6 mb-6">
-		<form method="GET" action="/compare/market-benchmark" class="d-grid gap-4 grid-auto-fit-md">
-			<div class="stack-sm">
-				<label class="form-label">قائمتي</label>
-				<select name="file" class="form-input" onchange="this.form.submit()">
-					for _, f := range data.Files {
-						<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.FileID }>
-							{ f.SupplierName } ({ fmt.Sprintf("%d صنف", f.RowCount) })
-						</option>
-					}
-				</select>
+	<div
+		class="filter-bar bench-controls"
+		x-data={ fmt.Sprintf("{ ranges: %t }", data.MinPrice != "" || data.MaxPrice != "" || data.MinDiscount != "" || data.MaxDiscount != "") }
+	>
+		<form method="GET" action="/compare/market-benchmark" class="bench-controls-form">
+			<input type="hidden" name="tab" value={ data.ActiveTab }/>
+
+			<div class="bench-controls-row">
+				<label class="bench-field">
+					<span class="bench-field-label">قائمتي</span>
+					<select name="file" class="form-select" onchange="this.form.submit()">
+						for _, f := range data.Files {
+							<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.FileID }>
+								{ f.SupplierName } ({ fmt.Sprintf("%d صنف", f.RowCount) })
+							</option>
+						}
+					</select>
+				</label>
+
+				<label class="bench-field is-grow">
+					<span class="bench-field-label">بحث</span>
+					<input type="search" name="q" value={ data.Query } placeholder="اسم الصنف أو الكود…" class="form-input"/>
+				</label>
+
+				<label class="bench-field">
+					<span class="bench-field-label">الترتيب</span>
+					<select name="sort" class="form-select" onchange="this.form.submit()">
+						<option value="" selected?={ data.Sort == "" }>الأكبر فارقاً</option>
+						<option value="price" selected?={ data.Sort == "price" }>السعر النهائي</option>
+						<option value="discount" selected?={ data.Sort == "discount" }>الخصم</option>
+					</select>
+				</label>
+
+				<button type="submit" class="btn btn-primary btn-sm font-bold">تطبيق</button>
+				<button type="button" @click="ranges = !ranges" class="btn btn-secondary btn-sm font-bold" :class="{ 'active': ranges }">
+					نطاق متقدم
+				</button>
+				if data.Query != "" || data.MinPrice != "" || data.MaxPrice != "" || data.MinDiscount != "" || data.MaxDiscount != "" {
+					<a href={ templ.SafeURL(fmt.Sprintf("/compare/market-benchmark?file=%d", data.FileID)) } class="btn btn-ghost btn-sm">مسح</a>
+				}
 			</div>
-			<div class="stack-sm">
-				<label class="form-label">بحث عن صنف</label>
-				<input type="text" name="q" value={ data.Query } placeholder="اسم الصنف أو الكود…" class="form-input"/>
-			</div>
-			<div class="stack-sm">
-				<label class="form-label">الترتيب</label>
-				<select name="sort" class="form-input">
-					<option value="" selected?={ data.Sort == "" }>الأكبر فارقاً</option>
-					<option value="price" selected?={ data.Sort == "price" }>السعر النهائي</option>
-					<option value="discount" selected?={ data.Sort == "discount" }>الخصم</option>
-				</select>
-			</div>
-			<div class="stack-sm">
-				<label class="form-label">نطاق السعر النهائي</label>
-				<div class="d-flex gap-2">
-					<input type="number" step="0.01" min="0" name="min_price" value={ data.MinPrice } placeholder="من" class="form-input"/>
-					<input type="number" step="0.01" min="0" name="max_price" value={ data.MaxPrice } placeholder="إلى" class="form-input"/>
+
+			<div x-show="ranges" x-cloak x-transition.opacity class="bench-ranges">
+				<div class="bench-range">
+					<span class="bench-field-label">السعر النهائي (ج.م)</span>
+					<div class="bench-range-pair">
+						<input type="number" step="0.01" min="0" name="min_price" value={ data.MinPrice } placeholder="من" class="form-input"/>
+						<span class="bench-range-dash">—</span>
+						<input type="number" step="0.01" min="0" name="max_price" value={ data.MaxPrice } placeholder="إلى" class="form-input"/>
+					</div>
 				</div>
-			</div>
-			<div class="stack-sm">
-				<label class="form-label">نطاق الخصم %</label>
-				<div class="d-flex gap-2">
-					<input type="number" step="0.1" min="0" name="min_discount" value={ data.MinDiscount } placeholder="من" class="form-input"/>
-					<input type="number" step="0.1" min="0" name="max_discount" value={ data.MaxDiscount } placeholder="إلى" class="form-input"/>
+				<div class="bench-range">
+					<span class="bench-field-label">الخصم (%)</span>
+					<div class="bench-range-pair">
+						<input type="number" step="0.1" min="0" name="min_discount" value={ data.MinDiscount } placeholder="من" class="form-input"/>
+						<span class="bench-range-dash">—</span>
+						<input type="number" step="0.1" min="0" name="max_discount" value={ data.MaxDiscount } placeholder="إلى" class="form-input"/>
+					</div>
 				</div>
-			</div>
-			<div class="stack-sm">
-				<label class="form-label">&nbsp;</label>
-				<div class="d-flex gap-2">
-					<input type="hidden" name="tab" value={ data.ActiveTab }/>
-					<button type="submit" class="btn btn-primary font-bold">تطبيق</button>
-					<a href={ templ.SafeURL(fmt.Sprintf("/compare/market-benchmark?file=%d", data.FileID)) } class="btn btn-ghost">مسح</a>
-				</div>
+				<button type="submit" class="btn btn-primary btn-sm font-bold">تطبيق النطاق</button>
 			</div>
 		</form>
 	</div>
@@ -260,8 +280,8 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 		if len(data.Result.Rows) == 0 {
 			@benchmarkEmpty(data)
 		} else {
-			<div class="table-container">
-				<table class="data-table">
+			<div class="table-container bench-scroll m-0">
+				<table class="data-table bench-table">
 					<thead>
 						<tr>
 							<th>اسم الصنف</th>
@@ -270,85 +290,110 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 							<th class="text-center">عروض أفضل بالسوق</th>
 							<th class="text-center">عروض مماثلة بالسوق</th>
 							<th class="text-center">عروض أقل بالسوق</th>
-							<th>أفضل عرض بالسوق</th>
-							<th class="text-center">الحالة</th>
 						</tr>
 					</thead>
 					<tbody>
 						for _, row := range data.Result.Rows {
 							<tr>
+								<!-- Identity, with the standing this row has in one word -->
 								<td>
-									<div class="fw-800">{ row.ProductName }</div>
-									if row.InCatalog {
-										<span class="badge badge-emerald text-xs">مرتبط بالكتالوج</span>
-									} else {
-										<span class="badge badge-slate text-xs">مطابقة بالاسم</span>
-									}
+									<div class="bench-name">{ row.ProductName }</div>
+									<div class="bench-name-meta">
+										<span class={ "bench-verdict", benchmarkVerdictTone(row.Classification) }>
+											{ benchmarkRowLabel(row.Classification) }
+										</span>
+										if !row.InCatalog {
+											<span class="bench-soft" title="لم يُربط هذا الصنف بالكتالوج بعد؛ المقارنة تمت بمطابقة الاسم">
+												مطابقة بالاسم
+											</span>
+										}
+									</div>
 								</td>
-								<td class="text-xs text-muted tabular-nums">
+
+								<td class="bench-code tabular-nums">
 									if row.SKU != "" {
 										{ row.SKU }
 									} else {
-										—
+										<span class="text-muted">—</span>
 									}
 								</td>
-								<td class="text-end tabular-nums">
-									<div class="fw-800">{ row.YourNet.String() }</div>
-									<div class="text-xs text-muted">
-										{ fmt.Sprintf("قبل الخصم %s · خصم %.1f%%", row.YourPrice.String(), row.YourDiscount) }
+
+								<!-- Your price. The net figure leads; the list price and
+								     discount that produced it sit under it. -->
+								<td class="text-end">
+									<div class="bench-net tabular-nums">{ row.YourNet.String() } <small>ج.م</small></div>
+									<div class="bench-sub tabular-nums">
+										{ fmt.Sprintf("%s ج.م − %s%%", row.YourPrice.String(), formatBenchPercent(row.YourDiscount)) }
 									</div>
 								</td>
-								<td class="text-center tabular-nums">
+
+								<!-- The three counts. Each is a number the eye can compare
+								     down the column, coloured by what it means for you:
+								     offers beating you are a problem, offers you beat are
+								     not. The cheapest competing offer is named under the
+								     count it belongs to, instead of in a column of its
+								     own. -->
+								<td class="text-center">
 									if row.BetterOffers > 0 {
-										<span class="badge badge-rose">{ fmt.Sprintf("%d", row.BetterOffers) }</span>
-									} else {
-										<span class="text-muted">—</span>
-									}
-								</td>
-								<td class="text-center tabular-nums">
-									if row.EqualOffers > 0 {
-										<span class="badge badge-slate">{ fmt.Sprintf("%d", row.EqualOffers) }</span>
-									} else {
-										<span class="text-muted">—</span>
-									}
-								</td>
-								<td class="text-center tabular-nums">
-									if row.WorseOffers > 0 {
-										<span class="badge badge-emerald">{ fmt.Sprintf("%d", row.WorseOffers) }</span>
-									} else {
-										<span class="text-muted">—</span>
-									}
-								</td>
-								<td>
-									if row.BestSupplier != "" {
-										<div class="fw-800 tabular-nums">{ row.BestNet.String() }</div>
-										<div class="text-xs text-muted">
-											{ row.BestSupplier } · { fmt.Sprintf("خصم %.1f%%", row.BestDiscount) }
-										</div>
-										if row.PriceGap.IsPositive() {
-											<div class="text-xs text-danger">
-												{ fmt.Sprintf("تفرق عنه %s (%.1f%%)", row.PriceGap.String(), row.PriceGapPercent) }
+										<span class="bench-count is-worse tabular-nums">{ fmt.Sprintf("%d", row.BetterOffers) }</span>
+										if row.BestSupplier != "" {
+											<div class="bench-sub">
+												{ fmt.Sprintf("أرخصهم %s ج.م", row.BestNet.String()) }
 											</div>
+											<div class="bench-sub is-quiet">{ row.BestSupplier }</div>
 										}
 									} else {
-										<span class="text-muted">لا يوجد</span>
+										<span class="bench-count is-none">—</span>
 									}
 								</td>
+
 								<td class="text-center">
-									<span class={ "badge", benchmarkRowTone(row.Classification), "text-xs" }>
-										{ benchmarkRowLabel(row.Classification) }
-									</span>
+									if row.EqualOffers > 0 {
+										<span class="bench-count is-equal tabular-nums">{ fmt.Sprintf("%d", row.EqualOffers) }</span>
+									} else {
+										<span class="bench-count is-none">—</span>
+									}
+								</td>
+
+								<td class="text-center">
+									if row.WorseOffers > 0 {
+										<span class="bench-count is-better tabular-nums">{ fmt.Sprintf("%d", row.WorseOffers) }</span>
+									} else {
+										<span class="bench-count is-none">—</span>
+									}
 								</td>
 							</tr>
 						}
 					</tbody>
 				</table>
 			</div>
-			<div class="p-4 px-6 border-t text-xs text-muted">
+			<div class="bench-footnote">
 				{ fmt.Sprintf("عرض %d من %d صنف", data.Result.Shown, data.Result.Total) }
 			</div>
 		}
 	</div>
+}
+
+// formatBenchPercent drops the decimal when there is nothing behind it, so a
+// column of discounts reads as 20% and 12.5%, not 20.0% and 12.5%.
+func formatBenchPercent(pct float64) string {
+	if pct == float64(int64(pct)) {
+		return fmt.Sprintf("%d", int64(pct))
+	}
+	return fmt.Sprintf("%.1f", pct)
+}
+
+// benchmarkVerdictTone colours the one-word standing on the product name.
+func benchmarkVerdictTone(class string) string {
+	switch class {
+	case compare.BenchHigher:
+		return "is-worse"
+	case compare.BenchBetter:
+		return "is-better"
+	case compare.BenchEqual:
+		return "is-equal"
+	}
+	return "is-exclusive"
 }
 
 // benchmarkEmpty says which of the several different empty states this is.

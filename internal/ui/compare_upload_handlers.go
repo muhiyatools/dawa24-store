@@ -228,7 +228,22 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		})
 	}
 
-	// 2. Process valid files with bounded parallel concurrency (up to 6 parallel workers)
+	// 2. Reserve quota for the whole batch, once.
+	//
+	// The per-file upload path also makes room for itself, and used to be the
+	// only thing that did. With six workers running it at the same time, each
+	// read the same active-file count, each concluded the quota was full, and
+	// each archived "everything past the limit" — by then including the files
+	// its siblings had just created. A batch of eight arrived and two survived.
+	// Reserving here means the eviction decision is made once, against the real
+	// batch size, before any of the batch exists.
+	batchArchived, roomErr := h.compareSvc.MakeRoomForFiles(ctx, actor.UserID, orgPtr, len(validItems))
+	if roomErr != nil {
+		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(roomErr, lang))
+		return
+	}
+
+	// 3. Process valid files with bounded parallel concurrency.
 	results := make([]fileResult, len(validItems))
 	if len(validItems) > 0 {
 		numWorkers := 6
@@ -270,10 +285,10 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		wg.Wait()
 	}
 
-	// 3. Aggregate results
+	// 4. Aggregate results
 	var processedCount int
 	var totalRows int
-	var allArchived []string
+	allArchived := batchArchived
 	var uploadedIDs []string
 
 	for _, res := range results {
@@ -288,6 +303,18 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			totalRows += res.file.RowCount
 			allArchived = append(allArchived, res.archived...)
 			uploadedIDs = append(uploadedIDs, strconv.FormatInt(res.file.ID, 10))
+
+			// Matching against the catalogue is what makes an upload useful, so
+			// it is no longer a button the user has to find and press once per
+			// file. The queue is bounded and de-duplicated, so a batch of a
+			// dozen does not become a dozen simultaneous catalogue scans, and
+			// pressing the button anyway does not start a second run over the
+			// same rows.
+			//
+			// AI matching is deliberately off here: it costs money per row and
+			// the automatic path is not a decision anyone made. The button
+			// still offers it.
+			h.compareSvc.EnqueueCatalogMatch(res.file.ID, false, orgPtr)
 		}
 	}
 

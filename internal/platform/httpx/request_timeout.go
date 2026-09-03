@@ -46,6 +46,13 @@ func RequestTimeout(d time.Duration, exempt func(*http.Request) bool) func(http.
 // longer than an ordinary page: file exports, import runs the browser polls,
 // and streamed assistant replies.
 var longRunningPrefixes = []string{
+	// A batch of supplier spreadsheets is read, parsed and matched inside the
+	// request; a dozen large files legitimately outlast an ordinary deadline,
+	// and cutting one short abandons the batch half-processed.
+	"/compare/upload",
+	"/compare/run",
+	"/compare/files/",
+	"/compare/file/",
 	"/vendor/ingest/",
 	"/admin/products/import/",
 	"/admin/products/images/import/",
