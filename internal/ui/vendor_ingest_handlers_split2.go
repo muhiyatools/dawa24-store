@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -157,12 +158,22 @@ func (h *UIHandler) vendorWarehouses(r *http.Request) []*inventory.Warehouse {
 	if h.invSvc == nil {
 		return nil
 	}
+	actor, ok := authctx.From(r.Context())
+	if !ok || actor.OrganizationID <= 0 {
+		return nil
+	}
 	list, err := h.invSvc.ListWarehouses(r.Context())
 	if err != nil {
 		h.log.WarnContext(r.Context(), "warehouses unavailable for import", "error", err)
 		return nil
 	}
-	return list
+	var filtered []*inventory.Warehouse
+	for _, wh := range list {
+		if wh.OrganizationID == actor.OrganizationID {
+			filtered = append(filtered, wh)
+		}
+	}
+	return filtered
 }
 
 // renderImport writes the page.

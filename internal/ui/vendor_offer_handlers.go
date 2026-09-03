@@ -101,10 +101,11 @@ func (h *UIHandler) loadVendorOfferItemOptions(ctx context.Context, orgID int64)
 	stockMap := make(map[int64]*inventory.Stock)
 
 	if h.invSvc != nil && orgID > 0 {
-		warehouses, _ = h.invSvc.ListWarehouses(ctx)
+		allWhs, _ := h.invSvc.ListWarehouses(ctx)
 		stocks, _ = h.invSvc.ListStocksByOrg(ctx, orgID)
-		for _, wh := range warehouses {
-			if wh != nil {
+		for _, wh := range allWhs {
+			if wh != nil && wh.OrganizationID == orgID {
+				warehouses = append(warehouses, wh)
 				whNameMap[wh.ID] = wh.Name
 			}
 		}

@@ -37,7 +37,13 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 	var warehouses []*inventory.Warehouse
 	var total int
 	if h.invSvc != nil {
-		warehouses, total, _ = h.invSvc.ListWarehousesWithTotal(ctx, limit, offset)
+		allWhs, _, _ := h.invSvc.ListWarehousesWithTotal(ctx, limit, offset)
+		for _, wh := range allWhs {
+			if wh.OrganizationID == actor.OrganizationID {
+				warehouses = append(warehouses, wh)
+			}
+		}
+		total = len(warehouses)
 	}
 
 	var branches []*org.Branch

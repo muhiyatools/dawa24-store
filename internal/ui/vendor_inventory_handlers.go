@@ -42,7 +42,12 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 	var warehouses []*inventory.Warehouse
 	if h.invSvc != nil {
 		pagedStocks, total, _ = h.invSvc.ListStocksByOrgWithTotal(ctx, actor.OrganizationID, whID, q, limit, offset)
-		warehouses, _ = h.invSvc.ListWarehouses(ctx)
+		allWhs, _ := h.invSvc.ListWarehouses(ctx)
+		for _, wh := range allWhs {
+			if wh.OrganizationID == actor.OrganizationID {
+				warehouses = append(warehouses, wh)
+			}
+		}
 	}
 
 	var variants []*catalog.ProductVariant
