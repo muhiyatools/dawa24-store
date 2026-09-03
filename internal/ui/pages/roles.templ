@@ -234,6 +234,21 @@ templ RoleEditPage(v RoleEditView, lang, dir string) {
 					</div>
 				}
 			</form>
+		<script>
+			function toggleSectionAll(checkbox, sectionKey) {
+				const section = document.querySelector('[data-section="' + sectionKey + '"]');
+				if (!section) return;
+
+				const perms = section.querySelectorAll('[data-section-perm="' + sectionKey + '"]');
+				const isChecked = checkbox.checked;
+
+				perms.forEach(perm => {
+					if (!perm.disabled) {
+						perm.checked = isChecked;
+					}
+				});
+			}
+		</script>
 		</div>
 	}
 }
@@ -302,18 +317,31 @@ templ rolePermissionMatrix(v RoleEditView) {
 		<div class="glass-panel p-5 mb-4">
 			<div class="flex-between items-center mb-4">
 				<h2 class="text-base font-extrabold text-primary m-0">{ section.Group.NameAr }</h2>
-				<span class="text-xs text-muted">{ fmt.Sprintf("%d صلاحية", len(section.Permissions)) }</span>
+				<div class="d-flex items-center gap-3">
+					if !v.ReadOnly {
+						<label class="d-flex items-center gap-2 text-xs font-bold text-secondary cursor-pointer">
+							<input
+								type="checkbox"
+								data-select-all={ "select-all-" + section.Group.Key }
+								onchange={ "toggleSectionAll(this, '" + section.Group.Key + "')" }
+								class="form-checkbox"
+							/>
+							<span>تحديد الكل</span>
+						</label>
+					}
+					<span class="text-xs text-muted">{ fmt.Sprintf("%d صلاحية", len(section.Permissions)) }</span>
+				</div>
 			</div>
-			<div class="d-grid grid-cols-2 gap-3">
+			<div class="d-grid grid-cols-2 gap-3" data-section={ section.Group.Key }>
 				for _, perm := range section.Permissions {
-					@rolePermissionRow(v, perm)
+					@rolePermissionRow(v, perm, section.Group.Key)
 				}
 			</div>
 		</div>
 	}
 }
 
-templ rolePermissionRow(v RoleEditView, perm rbac.Permission) {
+templ rolePermissionRow(v RoleEditView, perm rbac.Permission, sectionKey string) {
 	<label class="d-flex items-start gap-3 p-2" for={ "perm-" + perm.Key }>
 		<input
 			id={ "perm-" + perm.Key }
@@ -322,6 +350,7 @@ templ rolePermissionRow(v RoleEditView, perm rbac.Permission) {
 			value={ perm.Key }
 			checked?={ v.Granted.Has(perm.Key) }
 			disabled?={ v.ReadOnly }
+			data-section-perm={ sectionKey }
 		/>
 		<span class="d-flex flex-col">
 			<span class="text-sm text-primary font-bold">{ perm.NameAr }</span>

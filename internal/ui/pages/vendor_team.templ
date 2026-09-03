@@ -338,6 +338,12 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 										<td class="col-actions">
 											<div class="table-actions">
 												if m.RoleKey != "org_owner" {
+													<!-- Edit Employee Info Button -->
+													<a href={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d", m.ID)) } class="btn btn-secondary btn-sm font-bold text-xs gap-1" title="تعديل بيانات الموظف">
+														@components.IconEdit("icon-xs")
+														<span>تعديل</span>
+													</a>
+
 													<!-- Toggle Active Status Form -->
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)) } class="m-0">
 														<button

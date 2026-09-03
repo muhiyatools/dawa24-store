@@ -25,13 +25,15 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 				<select id="cb-emp-branch-filter" class="form-select form-select-sm min-w-36" onchange="filterCustomerEmployees()">
 					<option value="">كل الفروع</option>
 					for _, b := range data.Branches {
-						<option value={ fmt.Sprintf("%d", b.ID) }>
-							if b.Name["ar"] != "" {
-								{ b.Name["ar"] }
-							} else {
-								{ b.Name["en"] }
-							}
-						</option>
+						if b.Status == "active" {
+							<option value={ fmt.Sprintf("%d", b.ID) }>
+								if b.Name["ar"] != "" {
+									{ b.Name["ar"] }
+								} else {
+									{ b.Name["en"] }
+								}
+							</option>
+						}
 					}
 				</select>
 			</div>

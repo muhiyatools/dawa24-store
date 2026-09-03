@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -94,6 +95,37 @@ func cbRoleBadgeClass(key string) string {
 	default:
 		return "badge-slate"
 	}
+}
+
+var institutionalWorkCategories = []struct {
+	Key     string
+	LabelAr string
+	LabelEn string
+	Icon    string
+}{
+	{Key: "group", LabelAr: "مجموعة", LabelEn: "Group", Icon: ""},
+	{Key: "sector", LabelAr: "قطاع", LabelEn: "Sector", Icon: ""},
+	{Key: "startup", LabelAr: "شركة ناشئة", LabelEn: "Startup", Icon: ""},
+	{Key: "sole_proprietorship", LabelAr: "مؤسسة فردية", LabelEn: "Sole Proprietorship", Icon: ""},
+	{Key: "audience_category", LabelAr: "فئة جماهيرية", LabelEn: "Audience Category", Icon: ""},
+	{Key: "retail", LabelAr: "تجزئة", LabelEn: "Retail", Icon: ""},
+	{Key: "nonprofit", LabelAr: "منظمة غير ربحية", LabelEn: "Nonprofit Organization", Icon: ""},
+	{Key: "factory", LabelAr: "مصنع", LabelEn: "Factory", Icon: ""},
+	{Key: "cooperative", LabelAr: "جمعية تعاونية", LabelEn: "Cooperative", Icon: ""},
+	{Key: "services", LabelAr: "خدمات", LabelEn: "Services", Icon: ""},
+	{Key: "pharmacy", LabelAr: "صيدلية", LabelEn: "Pharmacy", Icon: ""},
+	{Key: "joint_stock", LabelAr: "شركة مساهمة", LabelEn: "Joint Stock Company", Icon: ""},
+}
+
+func formatBranchWorksJSON(works []string) string {
+	if len(works) == 0 {
+		return "[]"
+	}
+	b, err := json.Marshal(works)
+	if err != nil {
+		return "[]"
+	}
+	return string(b)
 }
 
 templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
@@ -266,8 +298,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													type="button"
 													class="btn btn-secondary btn-xs font-bold gap-1"
 													data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-													@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: '%s', name_en: '%s', code: '%s', city_id: %d, address: '%s', phone: '%s', operating_hours: '%s', google_maps_url: '%s', has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f})",
-														b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, func() int64 { if b.CityID != nil { return *b.CityID }; return 0 }(), b.Address, b.Phone, b.OperatingHours, b.GoogleMapsURL, b.HasColdStorage, b.IsMain, func() float64 { if b.Latitude != nil { return *b.Latitude }; return 30.0444 }(), func() float64 { if b.Longitude != nil { return *b.Longitude }; return 31.2357 }()) }
+													@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: '%s', name_en: '%s', code: '%s', city_id: %d, address: '%s', phone: '%s', operating_hours: '%s', google_maps_url: '%s', has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
+														b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, func() int64 { if b.CityID != nil { return *b.CityID }; return 0 }(), b.Address, b.Phone, b.OperatingHours, b.GoogleMapsURL, b.HasColdStorage, b.IsMain, func() float64 { if b.Latitude != nil { return *b.Latitude }; return 30.0444 }(), func() float64 { if b.Longitude != nil { return *b.Longitude }; return 31.2357 }(), formatBranchWorksJSON(b.InstitutionalWorks)) }
 												>
 													@components.IconEdit("icon-xs")
 													<span>تعديل</span>
@@ -307,6 +339,22 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												<div><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 											}
 										</div>
+
+										<!-- Institutional Works Tags -->
+										if len(b.InstitutionalWorks) > 0 {
+											<div class="d-flex flex-col gap-1 pt-2 pb-2">
+												<div class="text-xs font-bold text-muted uppercase mb-1">
+													الأعمال المؤسسية المغطاة:
+												</div>
+												<div class="d-flex flex-wrap gap-1">
+													for _, cat := range b.InstitutionalWorks {
+														<span class="badge badge-slate text-2xs font-bold">
+															{ formatBranchCategoryLabel(cat) }
+														</span>
+													}
+												</div>
+											</div>
+										}
 
 										<!-- Badges Strip: Cold Storage & Staff Count -->
 										<div class="d-flex items-center justify-between flex-wrap gap-2 pt-2 border-t text-xs">
@@ -453,6 +501,22 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-control text-xs font-semibold" dir="ltr"/>
 							</div>
 
+							<!-- Section: Institutional Works (12 Categories) -->
+							<div class="bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2">
+								<label class="text-xs font-black text-primary m-0 d-block">
+									الأعمال المؤسسية المغطاة (Institutional Works)
+								</label>
+
+								<div class="d-grid grid-cols-2 gap-1.5 mt-1">
+									for _, cat := range institutionalWorkCategories {
+										<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded">
+											<input type="checkbox" name="institutional_works" value={ cat.Key } x-model="form.institutional_works" class="form-checkbox"/>
+											<span>{ cat.LabelAr }</span>
+										</label>
+									}
+								</div>
+							</div>
+
 							<div class="d-flex flex-col gap-2 pt-1">
 								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold">
 									<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" class="form-checkbox"/>
@@ -566,7 +630,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						has_cold_storage: false,
 						is_main: false,
 						latitude: 30.0444,
-						longitude: 31.2357
+						longitude: 31.2357,
+						institutional_works: []
 					},
 					init() {
 						const urlParams = new URLSearchParams(window.location.search);
@@ -597,7 +662,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							has_cold_storage: !!b.has_cold_storage,
 							is_main: !!b.is_main,
 							latitude: b.latitude || 30.0444,
-							longitude: b.longitude || 31.2357
+							longitude: b.longitude || 31.2357,
+							institutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []
 						};
 						const formEl = document.getElementById('new-branch-form');
 						if (formEl) {
@@ -649,5 +715,26 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 		</script>
 		</div>
 	}
+}
+
+func formatBranchCategoryLabel(key string) string {
+	categories := map[string]string{
+		"group":                "مجموعة",
+		"sector":               "قطاع",
+		"startup":              "شركة ناشئة",
+		"sole_proprietorship":  "مؤسسة فردية",
+		"audience_category":    "فئة جماهيرية",
+		"retail":               "تجزئة",
+		"nonprofit":            "منظمة غير ربحية",
+		"factory":              "مصنع",
+		"cooperative":          "جمعية تعاونية",
+		"services":             "خدمات",
+		"pharmacy":             "صيدلية",
+		"joint_stock":          "شركة مساهمة",
+	}
+	if label, ok := categories[key]; ok {
+		return label
+	}
+	return key
 }
 

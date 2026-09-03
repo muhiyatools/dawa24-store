@@ -257,8 +257,8 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 										} else {
 											<span class="badge badge-amber text-xs font-black">قيد المراجعة</span>
 										}
-										if doc.FileURL != "" {
-											<a href={ templ.SafeURL(doc.FileURL) } target="_blank" class="btn btn-secondary btn-xs font-bold">
+										if doc.ID > 0 {
+											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-xs font-bold">
 												معاينة
 											</a>
 										}

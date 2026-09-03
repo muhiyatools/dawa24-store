@@ -335,10 +335,6 @@ func (h *UIHandler) registerVendorContentRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.ai_log.view"))
 		g.Get("/vendor/ai-logs", h.AIConsumptionLogsPage)
 	})
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.institutional.view"))
-		g.Get("/vendor/institutional-work", h.VendorInstitutionalWorkPage)
-	})
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.review.view"))
