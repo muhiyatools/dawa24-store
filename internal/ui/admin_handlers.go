@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -14,113 +15,211 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
+// AdminDashboardPage renders the platform's headline numbers.
+//
+// The numbers come from a cached snapshot that is computed off the request
+// path — see admin_dashboard_cache.go for why that is not optional here. This
+// handler's whole job is to ask for the snapshot and localise it.
 func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	sysCtx := database.AsSystem(ctx)
 	lang, dir := h.localeAndDir(r)
 
-	stats := pages.AdminDashboardStats{
-		TopDevices:   make(map[string]int),
-		TopBrowsers:  make(map[string]int),
-		TopLocations: make(map[string]int),
+	snap := adminDashboard.get(ctx, h.computeDashboardSnapshot)
+	if snap == nil {
+		// Nothing cached and the first computation did not finish inside its
+		// budget. Render the page empty rather than hold the request open: the
+		// refresh is still running and the next load will have it.
+		snap = &dashboardSnapshot{}
 	}
-	var pendingOrgs []*org.Organization
-	var recentOrganizations []*org.Organization
 
-	if h.idSvc != nil {
+	stats, pendingOrgs := dashboardStatsFor(snap, lang)
+	h.renderPage(ctx, w, "render admin dashboard page",
+		pages.AdminDashboard(stats, pendingOrgs, lang, dir))
+}
+
+// dashboardStatsFor projects a snapshot into the page's view model, formatting
+// money and localised text for this request's language.
+func dashboardStatsFor(s *dashboardSnapshot, lang string) (pages.AdminDashboardStats, []*org.Organization) {
+	currency := i18n.T(lang, "common.currency_egp")
+
+	stats := pages.AdminDashboardStats{
+		TotalUsers:            s.totalUsers,
+		TotalOrganizations:    s.totalOrganizations,
+		TotalPharmacies:       s.totalPharmacies,
+		TotalVendors:          s.totalVendors,
+		TotalBranches:         s.totalBranches,
+		PendingApprovals:      s.pendingApprovals,
+		PendingDepositsCount:  s.pendingDepositsCount,
+		PendingDepositsAmount: fmt.Sprintf("%s %s", money.FromMinor(s.pendingDepositsMinor).String(), currency),
+		TotalHeldInWallets:    fmt.Sprintf("%s %s", money.FromMinor(s.heldInWalletsMinor).String(), currency),
+		TotalOrders:           s.totalOrders,
+		ActiveOrdersCount:     s.activeOrders,
+		CompletedOrdersCount:  s.completedOrders,
+		TotalProducts:         s.totalProducts,
+		TotalSavingProducts:   s.totalSavingProducts,
+		TotalGMV:              s.totalGMV,
+		TotalVisitors:         s.totalVisitors,
+		TodayVisitors:         s.todayVisitors,
+		TopDevices:            nonNilCounts(s.topDevices),
+		TopBrowsers:           nonNilCounts(s.topBrowsers),
+		TopLocations:          nonNilCounts(s.topLocations),
+		GatewayOnline:         s.gatewayOnline,
+		RecentOrders:          s.recentOrders,
+		RecentOrganizations:   s.recentOrganizations,
+	}
+
+	if s.hasGMV && !strings.HasPrefix(s.totalGMV, "0.00") && s.totalGMV != "0" {
+		stats.TotalCommission = i18n.T(lang, "admin.dashboard.commission_5pct")
+	} else {
+		stats.TotalCommission = fmt.Sprintf("0.00 %s", currency)
+	}
+
+	return stats, s.pendingOrganizations
+}
+
+func nonNilCounts(m map[string]int) map[string]int {
+	if m == nil {
+		return map[string]int{}
+	}
+	return m
+}
+
+// computeDashboardSnapshot gathers every figure the dashboard shows.
+//
+// The groups below are independent — they touch different schemas and share no
+// state — so they run concurrently. Each one still opens its own transactions;
+// what changed is that the request no longer pays for them, and they no longer
+// run once per page view.
+func (h *UIHandler) computeDashboardSnapshot(ctx context.Context) *dashboardSnapshot {
+	sysCtx := database.AsSystem(ctx)
+	s := &dashboardSnapshot{
+		topDevices:   map[string]int{},
+		topBrowsers:  map[string]int{},
+		topLocations: map[string]int{},
+	}
+
+	identityGroup := func() {
+		if h.idSvc == nil {
+			return
+		}
 		if n, err := h.idSvc.AdminCountUsers(ctx); err == nil {
-			stats.TotalUsers = n
+			s.totalUsers = n
 		}
 	}
-	if h.orgSvc != nil {
+
+	orgGroup := func() {
+		if h.orgSvc == nil {
+			return
+		}
 		if n, err := h.orgSvc.CountOrganizations(ctx, nil, nil); err == nil {
-			stats.TotalOrganizations = n
+			s.totalOrganizations = n
 		}
 		pharmacyType := org.TypeCustomer
 		if n, err := h.orgSvc.CountOrganizations(ctx, &pharmacyType, nil); err == nil {
-			stats.TotalPharmacies = n
+			s.totalPharmacies = n
 		}
 		vendorType := org.TypeVendor
 		if n, err := h.orgSvc.CountOrganizations(ctx, &vendorType, nil); err == nil {
-			stats.TotalVendors = n
+			s.totalVendors = n
 		}
 		pending := org.StatusPending
 		if n, err := h.orgSvc.CountOrganizations(ctx, nil, &pending); err == nil {
-			stats.PendingApprovals = n
+			s.pendingApprovals = n
 		}
 		if list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 6, 0); err == nil {
-			pendingOrgs = list
+			s.pendingOrganizations = list
 		}
-		if recentList, err := h.orgSvc.ListOrganizations(ctx, nil, nil, 6, 0); err == nil {
-			recentOrganizations = recentList
+		if list, err := h.orgSvc.ListOrganizations(ctx, nil, nil, 6, 0); err == nil {
+			s.recentOrganizations = list
 		}
 		// AdminBranchStats and not ListBranches(0): the latter selects every
 		// branch on the platform, joined to identity.users with a correlated
 		// array_agg per row, and materialises the lot in Go so that len() can
 		// be taken of it. The count is a count.
 		if bs, err := h.orgSvc.AdminBranchStats(sysCtx); err == nil {
-			stats.TotalBranches = bs.TotalBranches
+			s.totalBranches = bs.TotalBranches
 		}
 	}
-	if h.commSvc != nil {
+
+	commerceGroup := func() {
+		if h.commSvc == nil {
+			return
+		}
 		if n, err := h.commSvc.CountOrders(ctx); err == nil {
-			stats.TotalOrders = n
+			s.totalOrders = n
 		}
 		if recent, err := h.commSvc.AdminSearchOrders(ctx, "", 8, 0); err == nil {
-			stats.RecentOrders = recent
+			s.recentOrders = recent
 			for _, o := range recent {
 				if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
-					stats.CompletedOrdersCount++
+					s.completedOrders++
 				} else if o.Status != commerce.StatusCancelled && o.Status != commerce.StatusFailed {
-					stats.ActiveOrdersCount++
+					s.activeOrders++
 				}
 			}
 		}
 	}
-	if h.billSvc != nil {
-		if deps, total, err := h.billSvc.AdminListDetailedDeposits(sysCtx, billing.DepositFilter{Status: "pending", Limit: 50}); err == nil {
-			stats.PendingDepositsCount = total
+
+	billingGroup := func() {
+		if h.billSvc == nil {
+			return
+		}
+		if deps, total, err := h.billSvc.AdminListDetailedDeposits(sysCtx,
+			billing.DepositFilter{Status: "pending", Limit: 50}); err == nil {
+			s.pendingDepositsCount = total
 			var depTotal money.Amount
 			for _, d := range deps {
 				depTotal, _ = depTotal.Add(d.Amount)
 			}
-			stats.PendingDepositsAmount = fmt.Sprintf("%s %s", depTotal.String(), i18n.T(lang, "common.currency_egp"))
+			s.pendingDepositsMinor = depTotal.Minor()
 		}
-		if wallets, _, err := h.billSvc.AdminListDetailedWallets(sysCtx, billing.WalletFilter{Limit: 100}); err == nil {
-			var totalHeldMinor int64
-			for _, w := range wallets {
-				totalHeldMinor += w.Balance.Minor()
-			}
-			stats.TotalHeldInWallets = fmt.Sprintf("%s %s", money.FromMinor(totalHeldMinor).String(), i18n.T(lang, "common.currency_egp"))
-		}
-	}
-	if h.catSvc != nil {
-		if _, savingStats, err := h.catSvc.ListAllSavingProductsAdmin(sysCtx, nil, nil, "", "all", 1, 0); err == nil && savingStats != nil {
-			stats.TotalSavingProducts = savingStats.TotalProducts
-		}
-	}
-	if h.adminSvc != nil {
-		if va, err := h.adminSvc.VisitorAnalytics(ctx, 10); err == nil && va != nil {
-			stats.TotalVisitors = va.Total
-			stats.TodayVisitors = va.Today
-			stats.TopDevices = va.ByDevice
-			stats.TopBrowsers = va.ByBrowser
-			stats.TopLocations = va.ByCity
-			stats.TotalGMV = va.TotalGMV
-			if stats.TotalProducts == 0 {
-				stats.TotalProducts = va.TotalProducts
+		if wallets, _, err := h.billSvc.AdminListDetailedWallets(sysCtx,
+			billing.WalletFilter{Limit: 100}); err == nil {
+			for _, wlt := range wallets {
+				s.heldInWalletsMinor += wlt.Balance.Minor()
 			}
 		}
 	}
-	if stats.TotalGMV != "" && !strings.HasPrefix(stats.TotalGMV, "0.00") && stats.TotalGMV != "0" {
-		stats.TotalCommission = i18n.T(lang, "admin.dashboard.commission_5pct")
-	} else {
-		stats.TotalCommission = fmt.Sprintf("0.00 %s", i18n.T(lang, "common.currency_egp"))
-	}
-	if gwAdmin, _, ok := h.getGatewayAdminClient(ctx); ok && gwAdmin != nil {
-		stats.GatewayOnline = true
-	}
-	stats.RecentOrganizations = recentOrganizations
 
-	h.renderPage(ctx, w, "render admin dashboard page", pages.AdminDashboard(stats, pendingOrgs, lang, dir))
+	catalogGroup := func() {
+		if h.catSvc == nil {
+			return
+		}
+		if _, savingStats, err := h.catSvc.ListAllSavingProductsAdmin(
+			sysCtx, nil, nil, "", "all", 1, 0); err == nil && savingStats != nil {
+			s.totalSavingProducts = savingStats.TotalProducts
+		}
+	}
+
+	analyticsGroup := func() {
+		if h.adminSvc == nil {
+			return
+		}
+		if va, err := h.adminSvc.VisitorAnalytics(ctx, 10); err == nil && va != nil {
+			s.totalVisitors = va.Total
+			s.todayVisitors = va.Today
+			s.topDevices = va.ByDevice
+			s.topBrowsers = va.ByBrowser
+			s.topLocations = va.ByCity
+			s.totalGMV = va.TotalGMV
+			s.hasGMV = va.TotalGMV != ""
+			s.totalProducts = va.TotalProducts
+		}
+	}
+
+	runParallel(identityGroup, orgGroup, commerceGroup, billingGroup, catalogGroup, analyticsGroup)
+
+	// The budget ran out, so most of these numbers are zeros that never came
+	// back rather than figures. Returning nil keeps the last good snapshot in
+	// place instead of replacing a real dashboard with an empty one.
+	if ctx.Err() != nil {
+		return nil
+	}
+
+	// Credentials only; this builds no connection and makes no network call.
+	if gwAdmin, _, ok := h.getGatewayAdminClient(ctx); ok && gwAdmin != nil {
+		s.gatewayOnline = true
+	}
+
+	return s
 }
