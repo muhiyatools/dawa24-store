@@ -18,8 +18,8 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					<th>الصنف الدوائي المعتمد</th>
 					<th>المواصفات و SKU</th>
 					<th class="tabular-nums whitespace-nowrap">سعر الجمهور</th>
-					<th class="tabular-nums whitespace-nowrap">سعر بعد الخصم</th>
 					<th class="tabular-nums whitespace-nowrap">الخصم</th>
+					<th class="tabular-nums whitespace-nowrap">سعر بعد الخصم</th>
 					<th class="tabular-nums whitespace-nowrap">سعر التكلفة</th>
 					<th class="tabular-nums whitespace-nowrap">نسبة خصم التكلفة</th>
 					<th class="tabular-nums whitespace-nowrap">صافي ربح الوحدة</th>
@@ -107,13 +107,6 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							}
 						</td>
 
-						<!-- سعر بعد الخصم -->
-						<td class="whitespace-nowrap">
-							<span class="tabular-nums font-black text-brand text-sm whitespace-nowrap">
-								{ v.Variant.EffectiveSellingPrice().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
-							</span>
-						</td>
-
 						<!-- الخصم -->
 						<td class="whitespace-nowrap">
 							if v.Variant.Discount.IsPositive() {
@@ -121,6 +114,13 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							} else {
 								<span class="text-muted text-xs">—</span>
 							}
+						</td>
+
+						<!-- سعر بعد الخصم -->
+						<td class="whitespace-nowrap">
+							<span class="tabular-nums font-black text-brand text-sm whitespace-nowrap">
+								{ v.Variant.EffectiveSellingPrice().String() } <span class="text-xs font-semibold text-secondary">ج.م</span>
+							</span>
 						</td>
 
 						<!-- سعر التكلفة -->

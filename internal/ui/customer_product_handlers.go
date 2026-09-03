@@ -55,16 +55,13 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 	)
 	offers := h.offersForProduct(ctx, product, variants, env, lang)
 
-	// If target variant was specified, prioritize its offer to the top
-	if targetVariantID > 0 && len(offers) > 1 {
-		for i, off := range offers {
-			if off.VariantID == targetVariantID && i > 0 {
-				targetOffer := offers[i]
-				offers = append([]pages.SupplierOffer{targetOffer}, append(offers[:i], offers[i+1:]...)...)
-				break
-			}
-		}
-	}
+	// If the URL named a specific variant, surface it — but only ahead of the
+	// offers it already ranks with. Hoisting it to position 0 unconditionally
+	// is what used to push an out-of-stock or out-of-area supplier above every
+	// orderable one: the page then opened on an offer the pharmacy could not
+	// buy. offersForProduct has already ordered by can-order, covered, in
+	// stock, nearest, cheapest; promoting inside the first tier keeps that.
+	promoteFocusedOffer(offers, targetVariantID)
 
 	h.renderPage(ctx, w, "render product detail page", pages.CustomerProductDetail(product, variants, offers, lang, dir))
 }

@@ -19,7 +19,7 @@ type CompareMatchOptions struct {
 	AIAvailable bool
 }
 
-templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, matching CompareMatchOptions, noticeType, noticeMsg string, isVendor bool) {
+templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, matching CompareMatchOptions, noticeType, noticeMsg string) {
 	@layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir) {
 		<!-- Notice / Toast Banner -->
 		if noticeMsg != "" {
@@ -163,30 +163,6 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 												<div class="text-2xs text-muted mt-0.5 tabular-nums">
 													{ f.OriginalFilename } • { f.CreatedAt.Format("02/01/2006") }
 												</div>
-												if isVendor {
-													<div class="d-flex items-center gap-1.5 mt-1.5">
-														<span class="text-2xs text-muted font-bold">السوق العامة:</span>
-														if f.Visibility == "public" {
-															<button
-																type="button"
-																onclick={ templ.ComponentScript{Call: fmt.Sprintf("toggleFileVisibility(%d, 'private')", f.ID)} }
-																class="badge badge-emerald text-2xs font-bold cursor-pointer"
-																title="ظاهر بالخصومات العامة — انقر للإخفاء"
-															>
-																عام (ظاهر)
-															</button>
-														} else {
-															<button
-																type="button"
-																onclick={ templ.ComponentScript{Call: fmt.Sprintf("toggleFileVisibility(%d, 'public')", f.ID)} }
-																class="badge badge-slate text-2xs font-bold cursor-pointer"
-																title="خاص — انقر للنشر في خصومات السوق العامة"
-															>
-																خاص — نشر
-															</button>
-														}
-													</div>
-												}
 											</div>
 										</div>
 
@@ -499,19 +475,6 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					modal.classList.add('d-none');
 					modal.classList.remove('d-flex');
 				}
-			}
-
-			function toggleFileVisibility(fileId, newVisibility) {
-				const form = document.createElement('form');
-				form.method = 'POST';
-				form.action = `/compare/files/${fileId}/visibility`;
-				const input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = 'visibility';
-				input.value = newVisibility;
-				form.appendChild(input);
-				document.body.appendChild(form);
-				form.submit();
 			}
 
 			function triggerMatchSingleFile(fileId) {

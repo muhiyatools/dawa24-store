@@ -227,32 +227,7 @@ templ savingMappingStage(view SavingImportView) {
 			</form>
 		</div>
 
-		if len(sess.Headers) > 0 && len(sess.SampleRows) > 0 {
-			<div class="mb-md">
-				<h3 class="text-sm font-extrabold text-primary mb-2">معاينة بيانات ملف الإكسل (أول { fmt.Sprint(len(sess.SampleRows)) } صفوف)</h3>
-				<div class="table-container">
-					<table class="data-table">
-						<thead>
-							<tr>
-								for i, h := range sess.Headers {
-									<th class="whitespace-nowrap text-xs">{ fmt.Sprintf("%d. %s", i+1, h) }</th>
-								}
-							</tr>
-						</thead>
-						<tbody>
-							for _, row := range sess.SampleRows {
-								<tr>
-									for _, cell := range row {
-										<td class="text-xs whitespace-nowrap">{ cell }</td>
-									}
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-				<p class="wiz-sub mt-xs">تأكد أن الأعمدة الظاهرة مطابقة لملفك قبل اختيار ربط الأعمدة بالأسفل.</p>
-			</div>
-		}
+		@components.ImportFilePreview(sess.Filename, sess.Headers, sess.SampleRows)
 
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/map", view.ImportURL, sess.ID)) } class="stack-lg">
 			<div class="grid-2">

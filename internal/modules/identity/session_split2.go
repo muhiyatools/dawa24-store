@@ -13,8 +13,26 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-// Get retrieves a session by token and enforces the idle inactivity timeout.
+// Get retrieves a session by token, enforces the idle inactivity timeout, and
+// records the request as user activity.
 func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) {
+	return s.get(ctx, token, true)
+}
+
+// GetWithoutTouch is Get for a request the browser made on its own — a
+// background poll, a heartbeat, a prefetch. It still enforces the idle timeout,
+// but it does not push LastActiveAt forward.
+//
+// This is what makes the 30-minute idle logout actually fire. A logged-in tab
+// polls the notification badge every 60 seconds whether or not anybody is at
+// the keyboard; when that poll counted as activity, LastActiveAt was never more
+// than a minute old and the session lived forever. Idle means "the user did
+// nothing", not "the page did nothing".
+func (s *SessionStore) GetWithoutTouch(ctx context.Context, token string) (*Session, error) {
+	return s.get(ctx, token, false)
+}
+
+func (s *SessionStore) get(ctx context.Context, token string, touch bool) (*Session, error) {
 	if token == "" {
 		return nil, apperr.Unauthorized()
 	}
@@ -49,7 +67,7 @@ func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) 
 
 		// Debounced activity touch
 		now := time.Now().UTC()
-		if now.Sub(lastActive) >= 15*time.Second {
+		if touch && now.Sub(lastActive) >= 15*time.Second {
 			sess.LastActiveAt = now
 		}
 		return sess, nil
@@ -91,7 +109,7 @@ func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) 
 
 	// Debounced activity update in Redis
 	now := time.Now().UTC()
-	if now.Sub(lastActive) >= 15*time.Second {
+	if touch && now.Sub(lastActive) >= 15*time.Second {
 		sess.LastActiveAt = now
 		if data, mErr := json.Marshal(&sess); mErr == nil {
 			remTTL, tErr := rdb.TTL(ctx, sessionKey(token)).Result()

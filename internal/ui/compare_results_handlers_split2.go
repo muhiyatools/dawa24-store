@@ -64,11 +64,11 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 	}
 
 	pageData := pages.MarketIntelligencePageData{
-		Report:         report,
-		Failed:         reportErr != nil,
-		IsCustomer:     actor.IsCustomer(),
-		Query:          savingsQuery,
-		SingleQuery:    exclusiveQuery,
+		Report:      report,
+		Failed:      reportErr != nil,
+		IsCustomer:  actor.IsCustomer(),
+		Query:       savingsQuery,
+		SingleQuery: exclusiveQuery,
 	}
 
 	h.renderPage(ctx, w, "render market intelligence page", pages.CompareMarketIntelligencePage(lang, dir, pageData))

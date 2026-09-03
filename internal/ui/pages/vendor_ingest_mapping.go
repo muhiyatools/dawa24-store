@@ -204,3 +204,50 @@ func fieldSampleText(row FieldMappingRow, cols []FileColumn) string {
 	}
 	return ""
 }
+
+// vendorImportRawPreviewRows caps the raw file preview: enough rows to notice a
+// shifted column, short enough not to become the page.
+const vendorImportRawPreviewRows = 5
+
+// RawFilePreview reconstructs the head of the uploaded sheet from the samples
+// the column analysis already collected, so the mapping stage can show the file
+// as it was read — the same preview every other import wizard gives, and the
+// only place a vendor can catch a wrong file or a misdetected header row before
+// the mapping choices below are made against it.
+//
+// The shortest column decides how many rows are shown: assembling a row out of
+// columns holding different numbers of samples would put values on one line
+// that were never on one line in the file.
+func (v VendorImportView) RawFilePreview() ([]string, [][]string) {
+	cols := v.FileColumns()
+	if len(cols) == 0 {
+		return nil, nil
+	}
+	headers := make([]string, 0, len(cols))
+	depth := -1
+	for _, c := range cols {
+		label := c.Header
+		if label == "" {
+			label = fmt.Sprintf("العمود %d", c.Index+1)
+		}
+		headers = append(headers, label)
+		if depth < 0 || len(c.Preview) < depth {
+			depth = len(c.Preview)
+		}
+	}
+	if depth <= 0 {
+		return nil, nil
+	}
+	if depth > vendorImportRawPreviewRows {
+		depth = vendorImportRawPreviewRows
+	}
+	rows := make([][]string, depth)
+	for r := 0; r < depth; r++ {
+		row := make([]string, len(cols))
+		for c := range cols {
+			row[c] = cols[c].Preview[r]
+		}
+		rows[r] = row
+	}
+	return headers, rows
+}

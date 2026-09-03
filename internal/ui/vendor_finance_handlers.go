@@ -93,19 +93,19 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.VendorPaymentsPageData{
-		Payments:     payments,
-		Invoices:     openInvoices,
-		Stats:        stats,
-		Search:       search,
-		Method:       method,
-		Status:       status,
-		DateFrom:     dateFrom,
-		DateTo:       dateTo,
-		Page:         page,
-		PerPage:      limit,
-		TotalCount:   total,
-		Lang:         lang,
-		Dir:          dir,
+		Payments:   payments,
+		Invoices:   openInvoices,
+		Stats:      stats,
+		Search:     search,
+		Method:     method,
+		Status:     status,
+		DateFrom:   dateFrom,
+		DateTo:     dateTo,
+		Page:       page,
+		PerPage:    limit,
+		TotalCount: total,
+		Lang:       lang,
+		Dir:        dir,
 	}
 
 	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(data))

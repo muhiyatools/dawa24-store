@@ -282,7 +282,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" placeholder=\"ابحث باسم المنشأة، السجل التجاري، الرقم الضريبي...\" class=\"input-control w-full pr-9 text-sm\"> <span class=\"absolute top-2.5 right-3 text-secondary pointer-events-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" placeholder=\"ابحث باسم المنشأة، السجل التجاري، الرقم الضريبي...\" class=\"form-input w-full pr-9 text-sm\"> <span class=\"absolute top-2.5 right-3 text-secondary pointer-events-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -339,12 +339,12 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"table-container\"><table class=\"table-modern\"><thead><tr><th>المنشأة والمؤسسة</th><th>نوع الحساب</th><th>السجل والترخيص</th><th>حالة الاعتماد</th><th class=\"col-actions\">عمليات الاستيراد لمنظمة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>المنشأة والمؤسسة</th><th>نوع الحساب</th><th>السجل والترخيص</th><th>حالة الاعتماد</th><th class=\"col-actions\">عمليات الاستيراد لمنظمة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, orgItem := range data.Organizations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<tr><td><div class=\"d-flex items-center gap-3\"><div class=\"avatar-sm bg-purple-50 text-purple-700 font-black rounded-xl p-2.5 text-xs border border-purple-100 shadow-2xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<tr><td><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge bg-purple-50 text-purple-700 font-black rounded-xl p-2.5 text-xs border border-purple-100 shadow-2xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -571,7 +571,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع منتجات التوفير للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-emerald-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn-close text-secondary hover:text-primary\" @click=\"savingModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/saving/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-blue-200 bg-blue-50/60 mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع منتجات التوفير للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-emerald-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" @click=\"savingModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/saving/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-blue-200 bg-blue-50/60 mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -579,7 +579,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>سيتم رفع ومطابقة ملف الأصناف، وربط النتائج مباشرة بحساب هذه المنشأة في الكتالوج.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملف الإكسل أو CSV (.xlsx, .xls, .csv)</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"input-control w-full text-xs\"></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">طريقة المعالجة والمطابقة</label> <select name=\"match_choice\" class=\"input-control w-full text-xs\"><option value=\"fuzzy\">مطابقة ذكية مع الكتالوج الدوائي العام (موصى به)</option> <option value=\"exact\">مطابقة تامة بالكود ورقم الصنف فقط</option></select></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"savingModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span>سيتم رفع ومطابقة ملف الأصناف، وربط النتائج مباشرة بحساب هذه المنشأة في الكتالوج.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملف الإكسل أو CSV (.xlsx, .xls, .csv)</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input w-full text-xs\"></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">طريقة المعالجة والمطابقة</label> <select name=\"match_choice\" class=\"form-input w-full text-xs\"><option value=\"fuzzy\">مطابقة ذكية مع الكتالوج الدوائي العام (موصى به)</option> <option value=\"exact\">مطابقة تامة بالكود ورقم الصنف فقط</option></select></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"savingModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -595,7 +595,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع مستودع مؤقت للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-purple-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn-close text-secondary hover:text-primary\" @click=\"warehouseModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/temp-warehouse/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-purple-200 bg-purple-50/60 mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><div class=\"stack-xs\"><h3 class=\"font-black text-base text-primary m-0\">رفع مستودع مؤقت للمنظمة</h3><div class=\"text-2xs text-secondary\">المنشأة المستهدفة: <strong class=\"text-purple-700 font-black\" x-text=\"selectedOrg.name\"></strong></div></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" @click=\"warehouseModal = false\">✕</button></div><form method=\"POST\" action=\"/admin/organizations/import/temp-warehouse/upload\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><input type=\"hidden\" name=\"org_id\" :value=\"selectedOrg.id\"><div class=\"alert alert-info p-3 text-2xs rounded-xl border border-purple-200 bg-purple-50/60 mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -603,7 +603,7 @@ func AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span>سيتم تسجيل المستودع المؤقت وربطه بحساب المنشأة وإتاحته للمقارنة في أداة المستودعات المؤقتة.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">اسم المستودع / المورد في أداة المقارنة</label> <input type=\"text\" name=\"supplier_name\" :placeholder=\"selectedOrg.name\" class=\"input-control w-full text-xs\"><div class=\"text-2xs text-secondary mt-1\">اتركه فارغاً لاستخدام اسم المنشأة تلقائياً</div></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملف المخزون (.xlsx, .xls, .csv)</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"input-control w-full text-xs\"></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"warehouseModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span>سيتم تسجيل المستودع المؤقت وربطه بحساب المنشأة وإتاحته للمقارنة في أداة المستودعات المؤقتة.</span></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">اسم المستودع / المورد في أداة المقارنة</label> <input type=\"text\" name=\"supplier_name\" :placeholder=\"selectedOrg.name\" class=\"form-input w-full text-xs\"><div class=\"text-2xs text-secondary mt-1\">اتركه فارغاً لاستخدام اسم المنشأة تلقائياً</div></div><div class=\"form-group mb-3\"><label class=\"form-label font-bold text-xs mb-1\">ملف المخزون (.xlsx, .xls, .csv)</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"form-input w-full text-xs\"></div><div class=\"flex-end gap-2 pt-3 border-t mt-4\"><button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" @click=\"warehouseModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

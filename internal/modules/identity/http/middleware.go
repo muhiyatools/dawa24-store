@@ -51,7 +51,9 @@ func RequireAuth(service *identity.Service, resolver *rbac.Resolver, cookieName 
 				return
 			}
 
-			sess, err := service.ValidateSession(r.Context(), token)
+			// A poll the page issues by itself is not the user doing something,
+			// so it must not keep the session alive past the idle timeout.
+			sess, err := validateForRequest(service, r, token)
 			if err != nil {
 				// Expired/invalid session: clear cookie
 				http.SetCookie(w, &http.Cookie{
@@ -170,7 +172,9 @@ func OptionalAuth(service *identity.Service, resolver *rbac.Resolver, cookieName
 				return
 			}
 
-			sess, err := service.ValidateSession(r.Context(), token)
+			// A poll the page issues by itself is not the user doing something,
+			// so it must not keep the session alive past the idle timeout.
+			sess, err := validateForRequest(service, r, token)
 			if err != nil {
 				// Expired or invalid session: clear cookie so browser stops sending dead token
 				http.SetCookie(w, &http.Cookie{
@@ -271,3 +275,44 @@ func extractToken(r *http.Request, cookieName string) string {
 
 	return ""
 }
+
+// backgroundPollPaths are the endpoints a logged-in page requests on a timer,
+// with nobody necessarily at the keyboard. Reaching one of them proves the tab
+// is open, not that the user is present, so it reads the session without
+// refreshing its idle clock.
+//
+// Keep this in step with the templates: any `hx-trigger="... every Ns"` or
+// setInterval-driven fetch belongs here, or it silently disables the 30-minute
+// idle logout for every user who leaves that page open — which is exactly what
+// the notification badge poll used to do.
+var backgroundPollPaths = map[string]bool{
+	"/notifications/unread-badge": true,
+}
+
+// validateForRequest reads the session, counting the request as user activity
+// only when the user actually made it.
+func validateForRequest(service *identity.Service, r *http.Request, token string) (*identity.Session, error) {
+	if isBackgroundPoll(r) {
+		return service.ValidateSessionWithoutTouch(r.Context(), token)
+	}
+	return service.ValidateSession(r.Context(), token)
+}
+
+// isBackgroundPoll reports whether this request was issued by the page on a
+// timer rather than by the user.
+func isBackgroundPoll(r *http.Request) bool {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		return false
+	}
+	path := r.URL.Path
+	if len(path) > 1 {
+		path = strings.TrimSuffix(path, "/")
+	}
+	if backgroundPollPaths[path] {
+		return true
+	}
+	// An explicit opt-in for callers that are not a fixed path (SSE streams,
+	// progress pollers on a per-session URL).
+	return r.Header.Get("X-Dawa-Background") == "1"
+}
+

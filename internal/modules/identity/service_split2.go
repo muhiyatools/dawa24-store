@@ -81,6 +81,16 @@ func (s *Service) ValidateSession(ctx context.Context, token string) (*Session, 
 	return s.sessionStore.Get(ctx, token)
 }
 
+// ValidateSessionWithoutTouch validates a session without recording the request
+// as user activity, for requests the browser issues on its own. See
+// SessionStore.GetWithoutTouch.
+func (s *Service) ValidateSessionWithoutTouch(ctx context.Context, token string) (*Session, error) {
+	if s.sessionStore == nil {
+		return nil, apperr.Unauthorized()
+	}
+	return s.sessionStore.GetWithoutTouch(ctx, token)
+}
+
 // GetUserByID looks up a user by ID.
 func (s *Service) GetUserByID(ctx context.Context, id int64) (*User, error) {
 	return s.repo.GetUserByID(ctx, id)

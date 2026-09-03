@@ -215,7 +215,7 @@ func AdminReviewsPage(data AdminReviewsPageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" placeholder=\"بحث بنص التقييم، اسم المورد، الصيدلية، رقم الطلب...\" class=\"input-control w-full pr-9 text-sm\"> <span class=\"absolute top-2.5 right-3 text-secondary pointer-events-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" placeholder=\"بحث بنص التقييم، اسم المورد، الصيدلية، رقم الطلب...\" class=\"form-input w-full pr-9 text-sm\"> <span class=\"absolute top-2.5 right-3 text-secondary pointer-events-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -223,7 +223,7 @@ func AdminReviewsPage(data AdminReviewsPageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></div><select name=\"rating\" class=\"input-control text-sm w-auto\"><option value=\"\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></div><select name=\"rating\" class=\"form-select text-sm w-auto\"><option value=\"\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -283,7 +283,7 @@ func AdminReviewsPage(data AdminReviewsPageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ">نجمة واحدة ★☆☆☆☆</option></select> <select name=\"status\" class=\"input-control text-sm w-auto\"><option value=\"\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ">نجمة واحدة ★☆☆☆☆</option></select> <select name=\"status\" class=\"form-select text-sm w-auto\"><option value=\"\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -349,12 +349,12 @@ func AdminReviewsPage(data AdminReviewsPageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"table-container\"><table class=\"table-modern\"><thead><tr><th>المورد المُقيَّم</th><th>الصيدلية المُقيِّمة</th><th>الطلب والتاريخ</th><th>التقييم والمعايير</th><th>نص التقييم والملاحظات</th><th>الحالة</th><th class=\"col-actions\">إجراءات الإدارة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>المورد المُقيَّم</th><th>الصيدلية المُقيِّمة</th><th>الطلب والتاريخ</th><th>التقييم والمعايير</th><th>نص التقييم والملاحظات</th><th>الحالة</th><th class=\"col-actions\">إجراءات الإدارة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, rv := range data.Reviews {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<tr><td><div class=\"d-flex items-center gap-2\"><div class=\"avatar-sm bg-purple-50 text-purple-700 font-black rounded-lg p-2 text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<tr><td><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge bg-purple-50 text-purple-700 font-black rounded-lg p-2 text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

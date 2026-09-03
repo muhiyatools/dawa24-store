@@ -418,7 +418,17 @@
 .align-self-start, .self-start { align-self: flex-start; }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-.bg-gradient-to-r { background-image: linear-gradient(to right, var(--bg-surface), var(--bg-surface-raised)); }
+/* The three stops default to the neutral surface ramp, so this class alone
+   still renders the gradient it always did; a .from-*/.via-*/.to-* class
+   overrides one stop without restating the whole thing. */
+.bg-gradient-to-r {
+  background-image: linear-gradient(
+    to right,
+    var(--grad-from, var(--bg-surface)),
+    var(--grad-via, var(--grad-from, var(--bg-surface))),
+    var(--grad-to, var(--bg-surface-raised))
+  );
+}
 .container { inline-size: 100%; margin-inline: auto; padding-inline: var(--space-md); }
 .max-w-7xl { max-inline-size: 80rem; }
 .max-w-140 { max-inline-size: 8.75rem; }
@@ -486,4 +496,169 @@
 .user-select-none { user-select: none; }
 .dir-rtl { direction: rtl; }
 .dir-ltr { direction: ltr; }
+
+/* ==========================================================================
+   Repairs — utilities templates already reference but nothing defined.
+   Every name below was found by `make check-undefined-classes`: markup was
+   carrying the class, so the element rendered unstyled. They resolve through
+   tokens, so both themes and RTL follow. Numeric Tailwind-ish suffixes are
+   kept because the markup uses them; they map onto our semantic tokens rather
+   than onto a literal palette.
+   ========================================================================== */
+
+/* Surfaces ---------------------------------------------------------------- */
+.bg-brand-subtle   { background-color: var(--brand-subtle, var(--primary-subtle)); }
+.bg-brand-100      { background-color: var(--brand-subtle, var(--primary-subtle)); }
+.bg-blue-subtle    { background-color: var(--info-subtle); }
+.bg-purple-subtle  { background-color: var(--primary-subtle); }
+.bg-amber-subtle   { background-color: var(--warning-subtle); }
+.bg-sky-200        { background-color: var(--info-subtle); }
+.bg-amber-500      { background-color: var(--warning); }
+.bg-amber-600      { background-color: var(--warning-hover, var(--warning)); }
+.bg-rose-600       { background-color: var(--danger); }
+
+/* Text ------------------------------------------------------------------- */
+.text-3xs          { font-size: 0.625rem; line-height: 1.4; }
+.text-blue         { color: var(--info); }
+.text-blue-900     { color: var(--info); }
+.text-blue-950     { color: var(--info); }
+.text-sky-900      { color: var(--info); }
+.text-amber-800    { color: var(--warning); }
+.text-purple-700   { color: var(--accent); }
+.text-rose-400     { color: var(--danger); }
+.text-brand-300    { color: var(--brand); }
+.text-slate-300    { color: var(--text-muted); }
+.accent-brand      { color: var(--brand); accent-color: var(--brand); }
+.underline         { text-decoration: underline; }
+.leading-none      { line-height: 1; }
+.font-sans         { font-family: var(--font-sans, inherit); }
+.break-all         { overflow-wrap: anywhere; word-break: break-word; }
+
+/* Borders — logical, so RTL keeps working. */
+.border-border          { border-color: var(--border-card, var(--border-subtle)); }
+.border-primary-subtle  { border-color: var(--primary-subtle); }
+.border-blue-200        { border-color: var(--info-border); }
+.border-amber-200       { border-color: var(--warning-border); }
+.border-purple-100      { border-color: var(--primary-subtle); }
+.border-purple-200      { border-color: var(--primary-subtle); }
+.border-none            { border: none; }
+.border-top             { border-block-start: 1px solid var(--border-subtle); }
+.border-r               { border-inline-end: 1px solid var(--border-subtle); }
+.border-s-slate         { border-inline-start: 4px solid var(--border-strong, var(--border-subtle)); }
+.border-s-emerald-500   { border-inline-start: 4px solid var(--success); }
+.border-s-amber-500     { border-inline-start: 4px solid var(--warning); }
+.border-s-cyan-500      { border-inline-start: 4px solid var(--info); }
+
+/* Layout & box ------------------------------------------------------------ */
+.grid-cols-1        { grid-template-columns: minmax(0, 1fr); }
+.items-stretch      { align-items: stretch; }
+.justify-around     { justify-content: space-around; }
+.justify-content-start { justify-content: flex-start; }
+.flex-grow          { flex-grow: 1; }
+.overflow-x-hidden  { overflow-x: hidden; }
+.w-max              { inline-size: max-content; max-inline-size: 100%; }
+.h-24               { block-size: 6rem; }
+.min-h-8            { min-block-size: 2rem; }
+.max-h-32           { max-block-size: 8rem; overflow-y: auto; }
+.max-w-28           { max-inline-size: 7rem; }
+.mx-4               { margin-inline: 1rem; }
+.my-4               { margin-block: 1rem; }
+.pr-9               { padding-inline-end: 2.25rem; }
+.right-3            { inset-inline-end: 0.75rem; }
+.inset-inline-end-3 { inset-inline-end: 0.75rem; }
+.top-50             { inset-block-start: 50%; }
+
+/* Effects ----------------------------------------------------------------- */
+.shadow-inner       { box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.06); }
+.backdrop-blur-xs   { backdrop-filter: blur(2px); }
+.backdrop-blur-md   { backdrop-filter: blur(8px); }
+.hover-bg-raised:hover   { background-color: var(--bg-surface-raised); }
+.hover-shadow-md:hover   { box-shadow: var(--shadow-md); }
+.hover-text-brand:hover  { color: var(--brand); }
+
+/* Gradient stops — used with .bg-gradient-to-r. Custom properties so a stop
+   class can be swapped without restating the whole gradient. */
+.from-slate-900 { --grad-from: oklch(0.28 0.09 255); }
+.via-slate-800  { --grad-via:  oklch(0.34 0.09 255); }
+.to-slate-900   { --grad-to:   oklch(0.28 0.09 255); }
+.to-white       { --grad-to:   var(--bg-surface-raised); }
+
+
+/* ==========================================================================
+   Tint utilities (`bg-*/NN`, `border-*/NN`)
+   The markup was written in a Tailwind-ish opacity shorthand that this
+   hand-rolled system never implemented, so every element carrying one of these
+   rendered with no background or no border at all — the "corrupted" panels,
+   modal overlays and tinted table rows across the platform.
+
+   They resolve through tokens rather than a literal palette, so both themes
+   follow: a low-opacity tint of a semantic colour becomes that colour's
+   `-subtle` token, and where the alpha itself carries meaning (overlays,
+   translucent borders) it is a real `color-mix` alpha.
+   ========================================================================== */
+
+.bg-amber-50\/40 { background-color: var(--warning-subtle); }
+.bg-black\/40 { background-color: var(--bg-overlay); }
+.bg-black\/60 { background-color: var(--bg-overlay); }
+.bg-blue-50\/60 { background-color: var(--info-subtle); }
+.bg-blue-50\/70 { background-color: var(--info-subtle); }
+.bg-brand-50\/40 { background-color: var(--primary-subtle); }
+.bg-brand-50\/50 { background-color: var(--primary-subtle); }
+.bg-danger\/5 { background-color: color-mix(in oklab, var(--danger) 5%, transparent); }
+.bg-danger\/80 { background-color: color-mix(in oklab, var(--danger) 80%, transparent); }
+.bg-emerald-50\/20 { background-color: var(--success-subtle); }
+.bg-emerald-50\/40 { background-color: var(--success-subtle); }
+.bg-emerald-50\/60 { background-color: var(--success-subtle); }
+.bg-emerald-50\/70 { background-color: var(--success-subtle); }
+.bg-emerald-50\/90 { background-color: var(--success-subtle); }
+.bg-indigo-50\/40 { background-color: var(--primary-subtle); }
+.bg-info\/10 { background-color: color-mix(in oklab, var(--info) 10%, transparent); }
+.bg-purple-50\/40 { background-color: var(--primary-subtle); }
+.bg-purple-50\/60 { background-color: var(--primary-subtle); }
+.bg-rose-50\/40 { background-color: var(--danger-subtle); }
+.bg-rose-50\/60 { background-color: var(--danger-subtle); }
+.bg-rose-50\/70 { background-color: var(--danger-subtle); }
+.bg-rose-50\/90 { background-color: var(--danger-subtle); }
+.bg-sky-50\/40 { background-color: var(--info-subtle); }
+.bg-sky-50\/70 { background-color: var(--info-subtle); }
+.bg-sky-500\/10 { background-color: color-mix(in oklab, var(--info) 10%, transparent); }
+.bg-sky-500\/15 { background-color: color-mix(in oklab, var(--info) 15%, transparent); }
+.bg-slate-100\/90 { background-color: var(--bg-surface-sunken); }
+.bg-slate-50\/50 { background-color: var(--bg-surface-sunken); }
+.bg-slate-50\/60 { background-color: var(--bg-surface-sunken); }
+.bg-slate-50\/70 { background-color: var(--bg-surface-sunken); }
+.bg-slate-50\/80 { background-color: var(--bg-surface-sunken); }
+.bg-slate-900\/60 { background-color: var(--bg-overlay); }
+.bg-success\/10 { background-color: color-mix(in oklab, var(--success) 10%, transparent); }
+.bg-warning\/10 { background-color: color-mix(in oklab, var(--warning) 10%, transparent); }
+.bg-white\/20 { background-color: color-mix(in oklab, var(--bg-surface-raised) 20%, transparent); }
+.border-amber-200\/60 { border-color: var(--warning-border); }
+.border-amber-500\/30 { border-color: color-mix(in oklab, var(--warning) 30%, transparent); }
+.border-brand-200\/50 { border-color: var(--primary-border); }
+.border-brand-200\/60 { border-color: var(--primary-border); }
+.border-brand-200\/80 { border-color: var(--primary-border); }
+.border-brand-500\/80 { border-color: color-mix(in oklab, var(--brand) 80%, transparent); }
+.border-brand\/20 { border-color: color-mix(in oklab, var(--brand) 20%, transparent); }
+.border-danger\/20 { border-color: color-mix(in oklab, var(--danger) 20%, transparent); }
+.border-danger\/30 { border-color: color-mix(in oklab, var(--danger) 30%, transparent); }
+.border-emerald-200\/60 { border-color: var(--success-border); }
+.border-emerald-200\/80 { border-color: var(--success-border); }
+.border-emerald-500\/80 { border-color: color-mix(in oklab, var(--success) 80%, transparent); }
+.border-indigo-200\/60 { border-color: var(--primary-border); }
+.border-info\/30 { border-color: color-mix(in oklab, var(--info) 30%, transparent); }
+.border-primary\/20 { border-color: color-mix(in oklab, var(--primary) 20%, transparent); }
+.border-purple-200\/60 { border-color: var(--primary-border); }
+.border-sky-200\/60 { border-color: var(--info-border); }
+.border-sky-200\/80 { border-color: var(--info-border); }
+.border-sky-300\/60 { border-color: var(--info-border); }
+.border-sky-500\/20 { border-color: color-mix(in oklab, var(--info) 20%, transparent); }
+.border-sky-500\/25 { border-color: color-mix(in oklab, var(--info) 25%, transparent); }
+.border-slate-200\/60 { border-color: var(--border-subtle); }
+.border-slate-200\/70 { border-color: var(--border-subtle); }
+.border-slate-200\/80 { border-color: var(--border-subtle); }
+.border-slate-200\/90 { border-color: var(--border-subtle); }
+.border-slate-700\/60 { border-color: var(--border-strong); }
+.border-success\/30 { border-color: color-mix(in oklab, var(--success) 30%, transparent); }
+.border-warning\/30 { border-color: color-mix(in oklab, var(--warning) 30%, transparent); }
+.border-white\/30 { border-color: color-mix(in oklab, var(--bg-surface-raised) 30%, transparent); }
 }

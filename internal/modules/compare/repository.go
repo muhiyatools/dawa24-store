@@ -57,7 +57,6 @@ type Repository interface {
 	ListAdminTempWarehousesWithTotal(ctx context.Context, filter AdminTempWarehouseFilter, limit, offset int) ([]*AdminTempWarehouse, int, error)
 	AdminTempWarehouseStats(ctx context.Context, filter AdminTempWarehouseFilter) (totalRows int64, activeCount, archivedCount int, err error)
 	ListTempWarehouseUploaders(ctx context.Context) ([]FileUploader, error)
-	SetFileVisibility(ctx context.Context, id int64, visibility string) error
 	CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error)
 	UpdateFile(ctx context.Context, f *CompareFile) error
 	RenameFile(ctx context.Context, id int64, newSupplierName string) error

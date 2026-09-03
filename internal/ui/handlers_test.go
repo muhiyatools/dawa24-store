@@ -128,18 +128,15 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 	}
 }
 
-// The public marketplace pages stay open to signed-out visitors on purpose.
-//
-// They were briefly put behind a login redirect, and that redirect was removed:
-// a crawler that gets 303 to /auth/login indexes nothing, so gating these cost
-// the search-engine and AI-assistant traffic the catalogue exists to attract.
-// Scraping is answered instead by internal/platform/antiscrape, which refuses
-// the callers that only take data while letting people and search engines
-// through — see scrape_guard_test.go.
+// The public marketplace pages stay open to signed-out visitors on purpose,
+// except /catalog, which is authenticated-only: it publishes supplier identity
+// with net supply prices and stock, and the business requires a signed-in
+// account to see it. Scraping of the remaining open pages is answered by
+// internal/platform/antiscrape — see scrape_guard_test.go.
 func TestPublicMarketplacePagesAreOpenToGuests(t *testing.T) {
 	router := newTestRouter(nil)
 
-	for _, path := range []string{"/catalog", "/offers", "/suppliers"} {
+	for _, path := range []string{"/offers", "/suppliers"} {
 		t.Run("Guest_Allowed_"+path, func(t *testing.T) {
 			req := httptest.NewRequest("GET", path, nil)
 			rec := httptest.NewRecorder()
@@ -151,6 +148,28 @@ func TestPublicMarketplacePagesAreOpenToGuests(t *testing.T) {
 			}
 			if loc := rec.Header().Get("Location"); strings.Contains(loc, "/auth/login") {
 				t.Errorf("GET %s as a guest redirected to %q; the login wall on the public pages was removed deliberately", path, loc)
+			}
+		})
+	}
+}
+
+// /catalog (listing and detail) is authenticated-only: a signed-out visitor is
+// sent to sign in instead of receiving any listing, capped or otherwise.
+func TestCatalogRequiresSignIn(t *testing.T) {
+	router := newTestRouter(nil)
+
+	for _, path := range []string{"/catalog", "/catalog/1"} {
+		t.Run("Guest_Blocked_"+path, func(t *testing.T) {
+			req := httptest.NewRequest("GET", path, nil)
+			rec := httptest.NewRecorder()
+
+			router.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusSeeOther && rec.Code != http.StatusFound && rec.Code != http.StatusTemporaryRedirect {
+				t.Errorf("GET %s for guest returned status %d, want redirect to login", path, rec.Code)
+			}
+			if loc := rec.Header().Get("Location"); !strings.Contains(loc, "/auth/login") {
+				t.Errorf("GET %s redirected to %q, want /auth/login redirect", path, loc)
 			}
 		})
 	}

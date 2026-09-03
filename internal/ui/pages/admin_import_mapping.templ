@@ -46,6 +46,7 @@ templ AdminProductsImportMapping(lang, dir string, view ImportMappingView) {
 				}
 				<form class="d-flex flex-col gap-6" method="POST" hx-boost="false" id="mapping-form">
 					@importFileCard(view)
+					@components.ImportFilePreview(view.Session.Filename, view.FileHeaders, view.FileSampleRows)
 					@importMappingCard(view)
 					@importPreviewCard(view)
 					@importModeCard(view.Modes, view.Session.Mode)

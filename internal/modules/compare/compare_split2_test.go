@@ -366,7 +366,7 @@ func (m *mockCompareRepo) ListDistinctSuppliers(ctx context.Context) ([]string, 
 	var suppliers []string
 	seen := make(map[string]bool)
 	for _, f := range m.files {
-		if f.DeletedAt == nil && f.Status == compare.FileReady && !seen[f.SupplierName] {
+		if f.DeletedAt == nil && f.Status == compare.FileReady && f.IsTempWarehouse && !seen[f.SupplierName] {
 			seen[f.SupplierName] = true
 			suppliers = append(suppliers, f.SupplierName)
 		}

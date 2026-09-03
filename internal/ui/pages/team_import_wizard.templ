@@ -235,6 +235,8 @@ templ teamMappingStage(view TeamImportView) {
 			</form>
 		</div>
 
+		@components.ImportFilePreview(sess.Filename, sess.Headers, sess.SampleRows)
+
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/map", view.ImportURL, sess.ID)) } class="stack-lg">
 			<!-- Column Mapping Section -->
 			<div class="mb-6">

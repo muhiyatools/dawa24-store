@@ -128,7 +128,7 @@ func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error
 			SELECT DISTINCT TRIM(f.supplier_name)
 			FROM compare.files f
 			WHERE f.deleted_at IS NULL AND f.status = 'ready'
-			  AND (f.visibility = 'public' OR f.is_temp_warehouse = TRUE)
+			  AND f.is_temp_warehouse = TRUE
 			  AND TRIM(COALESCE(f.supplier_name, '')) != ''
 			ORDER BY 1 ASC;
 		`)
@@ -172,13 +172,12 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 		"r.price > 0",
 	}
 
-	if filter.OrganizationID != nil && *filter.OrganizationID > 0 {
-		whereClauses = append(whereClauses, fmt.Sprintf("(f.visibility = 'public' OR f.is_temp_warehouse = TRUE OR f.organization_id = $%d)", argIdx))
-		args = append(args, *filter.OrganizationID)
-		argIdx++
-	} else {
-		whereClauses = append(whereClauses, "(f.visibility = 'public' OR f.is_temp_warehouse = TRUE)")
-	}
+	// خصومات السوق العامة shows temporary warehouses and nothing else. Compare
+	// Tool uploads are a private working set: there is no per-file switch that
+	// publishes one here, and no organisation-scoped escape hatch either, so a
+	// row reaching this screen is a moderator-curated temp warehouse by
+	// construction rather than by a flag somebody could flip.
+	whereClauses = append(whereClauses, "f.is_temp_warehouse = TRUE")
 
 	if filter.Query != "" {
 		q := strings.TrimSpace(filter.Query)

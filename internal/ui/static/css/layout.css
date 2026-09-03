@@ -62,9 +62,6 @@
   .filter-form .w-40 {
     inline-size: 100%;
   }
-  .market-list-prices {
-    justify-content: flex-start;
-  }
 }
 
 /* ---- Sidebar Navigation Shell (High Performance, 60fps Smooth) ---- */
@@ -138,10 +135,53 @@
   .sidebar.mobile-open {
     transform: translateX(0);
   }
+  /* A dashboard nav is taller than a phone. Scroll it inside the drawer rather
+     than letting the bottom items fall off the screen unreachable. */
+  .sidebar {
+    max-inline-size: 85vw;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 }
+/* The scrim behind the mobile drawer.
+   app.js creates this element and toggles .active on it. It had no base rule at
+   all, so it was a zero-size div: the page behind the open drawer was never
+   dimmed, and tapping "outside" the drawer hit the page instead of the scrim,
+   which is why the drawer could only be closed from the toggle or Escape. */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal, 9999) - 1);
+  background: var(--bg-overlay, rgba(15, 23, 42, 0.55));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal, 0.25s) ease;
+  /* The scrim is a mobile affordance; on desktop the sidebar is in the flow. */
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-backdrop { display: block; }
+}
+
 .sidebar-backdrop.active {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* While the drawer is open the page behind it must not scroll. Without this the
+   drawer floats over a page that still moves under the thumb, and closing it
+   leaves the reader somewhere they did not choose to be. */
+body.sidebar-mobile-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+@media (min-width: 1025px) {
+  /* A drawer left open when the viewport grows back to desktop must not keep
+     the page locked. */
+  body.sidebar-mobile-open { overflow: visible; touch-action: auto; }
 }
 
 .sidebar-header {
@@ -606,4 +646,109 @@
 }
 
 /* Closes the @layer layout block opened at the top of this file. */
+}
+
+/* ==========================================================================
+   Mobile hardening
+   The dashboard was laid out for a desktop and made to shrink. These rules fix
+   the three things that shrinking alone does not: text inputs that make iOS
+   zoom the page, controls too small to hit with a thumb, and content that
+   overflows the viewport horizontally with no way to reach it.
+   ========================================================================== */
+
+/* --- iOS zoom-on-focus ---------------------------------------------------
+   Mobile Safari zooms the whole page whenever a focused input's font is under
+   16px, and it does not zoom back out. Every form control here is 13px, so
+   every tap on a field left the user in a zoomed viewport they had to pinch
+   out of — on every field, on every form. 16px is the threshold, not a
+   preference; the visual size of the control is kept by trimming padding. */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="search"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  select,
+  textarea,
+  .form-input,
+  .form-select,
+  .form-control,
+  .form-textarea {
+    font-size: 16px;
+    padding-block: 0.5rem;
+  }
+}
+
+/* --- Touch targets -------------------------------------------------------
+   A pointer that cannot hover is a finger, and a finger needs about 44px.
+   This applies by input device rather than by width, so a touch laptop and a
+   tablet get it too. */
+@media (pointer: coarse) {
+  .btn,
+  .tab-btn,
+  .nav-btn,
+  .sidebar-link,
+  .pagination-link,
+  .b2b-pagination a,
+  .b2b-pagination button {
+    min-block-size: 2.75rem;
+  }
+  .btn.btn-icon,
+  .btn.btn-xs.btn-icon {
+    min-inline-size: 2.75rem;
+  }
+  /* Table action buttons stay compact — a row of 44px buttons would make every
+     table row enormous — but get room around them instead. */
+  .data-table td.col-actions .btn,
+  .table-actions .btn {
+    min-block-size: 2.25rem;
+    min-inline-size: 2.25rem;
+  }
+  .data-table td.col-actions,
+  .table-actions { padding-block: 0.5rem; }
+}
+
+/* --- Horizontal overflow -------------------------------------------------
+   .main-content hides overflow-x, so anything wider than the viewport is not
+   scrolled to — it is cut off and gone. Wide content must therefore carry its
+   own scroller. Tables already do; these are the other things that are wide by
+   nature. */
+@media (max-width: 768px) {
+  .page-container > .table-container,
+  .page-container table {
+    max-inline-size: 100%;
+  }
+  /* Filter bars are a row of fixed-width controls; on a phone they stack. */
+  .filter-bar > form,
+  .filter-form {
+    flex-wrap: wrap;
+  }
+  .filter-bar .form-input,
+  .filter-bar .form-select,
+  .filter-form .form-input,
+  .filter-form .form-select {
+    flex: 1 1 100%;
+    min-inline-size: 0;
+  }
+  /* A long unbroken code, SKU or URL is the usual culprit behind a page that
+     scrolls sideways. */
+  .page-container { overflow-wrap: anywhere; }
+  /* …except where breaking mid-token would be wrong. */
+  .page-container code,
+  .page-container .tabular-nums,
+  .page-container .market-code { overflow-wrap: normal; }
+}
+
+/* --- Tap highlight -------------------------------------------------------
+   The default grey flash on every tap reads as a rendering glitch on a dense
+   dashboard. */
+@media (pointer: coarse) {
+  a, button, .btn, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }

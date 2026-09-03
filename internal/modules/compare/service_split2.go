@@ -89,12 +89,6 @@ func (s *Service) ListTempWarehouseUploaders(ctx context.Context) ([]FileUploade
 	return s.repo.ListTempWarehouseUploaders(ctx)
 }
 
-// SetFileVisibility switches a compare file between private and public. Public
-// vendor files surface on the market discounts page.
-func (s *Service) SetFileVisibility(ctx context.Context, id int64, visibility string) error {
-	return s.repo.SetFileVisibility(ctx, id, visibility)
-}
-
 // GetFile retrieves a file by ID.
 func (s *Service) GetFile(ctx context.Context, fileID int64) (*CompareFile, error) {
 	return s.repo.GetFileByID(ctx, fileID)

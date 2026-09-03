@@ -165,8 +165,9 @@ type Entitlement struct {
 // discounts page. Moderator temporary warehouses ignore it (they are always
 // public); a vendor's compare-tool upload is private until the vendor opts in.
 const (
+	// A compare file is always private. خصومات السوق العامة is fed only by
+	// temporary warehouses; there is no switch that publishes an upload there.
 	VisibilityPrivate = "private"
-	VisibilityPublic  = "public"
 )
 
 // CompareFileStatus represents the processing state of an uploaded spreadsheet.

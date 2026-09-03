@@ -203,6 +203,8 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 			الملف: <strong>{ view.Session.Filename }</strong> — تحقّق من عمود كود الصنف وعمود رابط الصورة قبل بدء التنزيل والربط.
 		</p>
 
+		@components.ImportFilePreview(view.Session.Filename, view.Session.Headers, view.Session.SampleRows)
+
 		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/images/import/%s/mapping", view.Session.ID)) } class="stack-lg">
 			<div class="wiz-map">
 				<div class="wiz-map-item">
@@ -226,32 +228,6 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 					</select>
 				</div>
 			</div>
-
-			if len(view.Session.SampleRows) > 0 {
-				<div>
-					<h3 class="wiz-head text-base">معاينة أول 5 صفوف</h3>
-					<div class="table-container m-0">
-						<table class="data-table table-compact m-0">
-							<thead>
-								<tr>
-									for _, h := range view.Session.Headers {
-										<th>{ h }</th>
-									}
-								</tr>
-							</thead>
-							<tbody>
-								for _, row := range view.Session.SampleRows {
-									<tr>
-										for _, cell := range row {
-											<td><div class="cell-clamp" title={ cell }>{ cell }</div></td>
-										}
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			}
 
 			<div class="wiz-actions">
 				<a href="/admin/products/images/import" class="btn btn-ghost">إلغاء والعودة</a>

@@ -105,14 +105,14 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 								name="q"
 								value={ data.SearchQuery }
 								placeholder="بحث بنص التقييم، اسم المورد، الصيدلية، رقم الطلب..."
-								class="input-control w-full pr-9 text-sm"
+								class="form-input w-full pr-9 text-sm"
 							/>
 							<span class="absolute top-2.5 right-3 text-secondary pointer-events-none">
 								@components.IconSearch("icon-xs")
 							</span>
 						</div>
 
-						<select name="rating" class="input-control text-sm w-auto">
+						<select name="rating" class="form-select text-sm w-auto">
 							<option value="" selected?={ data.RatingFilter == "" }>كل التقييمات</option>
 							<option value="5" selected?={ data.RatingFilter == "5" }>5 نجوم ★★★★★</option>
 							<option value="4" selected?={ data.RatingFilter == "4" }>4 نجوم ★★★★☆</option>
@@ -121,7 +121,7 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 							<option value="1" selected?={ data.RatingFilter == "1" }>نجمة واحدة ★☆☆☆☆</option>
 						</select>
 
-						<select name="status" class="input-control text-sm w-auto">
+						<select name="status" class="form-select text-sm w-auto">
 							<option value="" selected?={ data.StatusFilter == "" }>كل الحالات</option>
 							<option value="approved" selected?={ data.StatusFilter == "approved" }>معتمد ومطابق</option>
 							<option value="pending" selected?={ data.StatusFilter == "pending" }>قيد المراجعة</option>
@@ -151,7 +151,7 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container">
-						<table class="table-modern">
+						<table class="data-table">
 							<thead>
 								<tr>
 									<th>المورد المُقيَّم</th>
@@ -168,7 +168,7 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 									<tr>
 										<td>
 											<div class="d-flex items-center gap-2">
-												<div class="avatar-sm bg-purple-50 text-purple-700 font-black rounded-lg p-2 text-xs">
+												<div class="user-avatar-badge bg-purple-50 text-purple-700 font-black rounded-lg p-2 text-xs">
 													@components.IconBuilding("icon-xs")
 												</div>
 												<div class="stack-xs">

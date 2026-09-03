@@ -22,6 +22,11 @@ func (m *mockCompareRepo) ListMarketDiscounts(ctx context.Context, filter compar
 		if !ok || file.DeletedAt != nil || file.Status != compare.FileReady {
 			continue
 		}
+		// خصومات السوق العامة is fed by temporary warehouses only — the same
+		// predicate the real query uses. A Compare Tool upload is never here.
+		if !file.IsTempWarehouse {
+			continue
+		}
 		if supplierFilter != "" && strings.ToLower(file.SupplierName) != supplierFilter {
 			continue
 		}
@@ -325,5 +330,57 @@ func TestUploadAndProcessCompareFile_CSV(t *testing.T) {
 	}
 	if rows[0].Discount != 18.5 {
 		t.Errorf("expected discount 18.5, got %f", rows[0].Discount)
+	}
+}
+
+// TestMarketDiscountsExcludesCompareUploads pins the rule that خصومات السوق
+// العامة carries temporary warehouses and nothing else. A Compare Tool upload
+// is a private working set: there is no switch that publishes one here, so a
+// file whose visibility column happens to read "public" — a leftover from the
+// removed toggle, or a hand-edited row — must still be invisible.
+func TestMarketDiscountsExcludesCompareUploads(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := compare.NewService(repo, logger)
+
+	orgID := int64(201)
+	warehouse := &compare.CompareFile{
+		ID: 900, SupplierName: "مخزن معتمد", Status: compare.FileReady, IsTempWarehouse: true,
+	}
+	upload := &compare.CompareFile{
+		ID: 901, SupplierName: "ملف مقارنة", Status: compare.FileReady,
+		OrganizationID: &orgID, Visibility: "public",
+	}
+	for _, f := range []*compare.CompareFile{warehouse, upload} {
+		if err := repo.CreateFile(ctx, f); err != nil {
+			t.Fatalf("CreateFile(%d): %v", f.ID, err)
+		}
+	}
+	rows := []*compare.CompareFileRow{
+		{FileID: warehouse.ID, RawName: "صنف من المستودع", Price: money.FromMinor(10000), Discount: 20},
+		{FileID: upload.ID, RawName: "صنف من ملف المقارنة", Price: money.FromMinor(10000), Discount: 20},
+	}
+	if err := repo.InsertFileRows(ctx, rows); err != nil {
+		t.Fatalf("InsertFileRows: %v", err)
+	}
+
+	res, err := svc.ListMarketDiscounts(ctx, compare.MarketDiscountsFilter{OrganizationID: &orgID})
+	if err != nil {
+		t.Fatalf("ListMarketDiscounts: %v", err)
+	}
+	for _, item := range res.Items {
+		if item.FileID == upload.ID {
+			t.Fatalf("a compare-tool upload reached /market-discounts: %q", item.ProductName)
+		}
+	}
+	if len(res.Items) != 1 || res.Items[0].FileID != warehouse.ID {
+		t.Fatalf("expected only the temp-warehouse row, got %d items", len(res.Items))
+	}
+
+	for _, s := range res.AvailableSuppliers {
+		if s == upload.SupplierName {
+			t.Fatalf("the supplier filter offers a compare-tool upload: %q", s)
+		}
 	}
 }

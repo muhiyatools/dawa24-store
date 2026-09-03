@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -25,6 +26,14 @@ type SmartOrderMappingData struct {
 	Preview   [][]string
 	HeaderRow int
 	Error     string
+}
+
+// smartOrderFilename is the uploaded file's name, for the preview header.
+func smartOrderFilename(run *smartorder.Run) string {
+	if run == nil {
+		return ""
+	}
+	return run.OriginalFile
 }
 
 // confidenceChip renders how sure the automatic detection was.
@@ -83,29 +92,7 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 					</div>
 				}
 
-				<div class="so-preview">
-					<strong class="so-preview-title">معاينة أول الصفوف</strong>
-					<div class="table-responsive so-preview-table">
-						<table class="data-table">
-							<thead>
-								<tr class="so-preview-head">
-									for i, h := range data.Headers {
-										<th>{ fmt.Sprintf("%d: %s", i+1, h) }</th>
-									}
-								</tr>
-							</thead>
-							<tbody>
-								for _, row := range data.Preview {
-									<tr>
-										for _, cell := range row {
-											<td>{ cell }</td>
-										}
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				</div>
+				@components.ImportFilePreview(smartOrderFilename(data.Run), data.Headers, data.Preview)
 
 				<button type="submit" class="btn btn-primary so-mapping-submit">
 					حفظ التعيين وبدء المطابقة

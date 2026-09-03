@@ -35,10 +35,11 @@ const marketScanLimit = 250000
 func (r *Repository) LoadMarketOffers(
 	ctx context.Context, opts compare.MarketScanOptions,
 ) ([]compare.MarketOffer, error) {
-	// The visibility rule is the same one ListMarketDiscounts applies, stated
-	// once here so the two screens and the feed can never disagree about what
-	// "the market" contains: a file is in the market if it is public or if it
-	// is a temporary warehouse, plus the caller's own organisation's files.
+	// "The market", for aggregation, is the temporary warehouses plus the
+	// caller's own organisation's uploads — the latter so a vendor can price
+	// against their own file. No upload is ever visible to another tenant here;
+	// خصومات السوق العامة (ListMarketDiscounts) is narrower still: temp
+	// warehouses only.
 	const sql = `
 		SELECT r.id, r.file_id, COALESCE(f.supplier_name, ''), r.raw_name,
 		       COALESCE(r.sku, ''), r.price, COALESCE(r.discount, 0),
@@ -50,7 +51,7 @@ func (r *Repository) LoadMarketOffers(
 		WHERE f.deleted_at IS NULL
 		  AND f.status = 'ready'
 		  AND r.price > 0
-		  AND (f.visibility = 'public' OR f.is_temp_warehouse = TRUE
+		  AND (f.is_temp_warehouse = TRUE
 		       OR ($1::bigint IS NOT NULL AND f.organization_id = $1))
 		  AND ($2::bigint IS NULL OR r.file_id <> $2)
 		ORDER BY r.id

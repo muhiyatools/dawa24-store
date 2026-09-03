@@ -9,7 +9,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // uploaderLabelExpr builds a human label for a compare.files.user_id, falling
@@ -29,27 +28,6 @@ const fileColumnsF = `f.id, f.public_id, f.organization_id, f.user_id, f.supplie
 	`COALESCE(f.mapping_config, '{}'::jsonb), f.archived_at, COALESCE(f.archive_reason, ''), ` +
 	`COALESCE(f.error_message, ''), f.is_temp_warehouse, COALESCE(f.visibility, 'private'), ` +
 	`f.created_at, f.updated_at, f.deleted_at`
-
-// SetFileVisibility flips a compare file between 'private' and 'public'. It runs
-// in the caller's tenant context so a vendor updating their own organization's
-// file passes the tenant_isolation_compare_files policy.
-func (r *Repository) SetFileVisibility(ctx context.Context, id int64, visibility string) error {
-	if visibility != compare.VisibilityPrivate && visibility != compare.VisibilityPublic {
-		return apperr.Validation("invalid_visibility", "invalid visibility value", nil)
-	}
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		res, err := tx.Exec(txCtx,
-			`UPDATE compare.files SET visibility = $2, updated_at = now() WHERE id = $1 AND deleted_at IS NULL;`,
-			id, visibility)
-		if err != nil {
-			return err
-		}
-		if res.RowsAffected() == 0 {
-			return apperr.NotFound("compare file")
-		}
-		return nil
-	})
-}
 
 func buildAdminTempWarehouseWhere(filter compare.AdminTempWarehouseFilter) ([]string, []any) {
 	where := []string{adminTempWarehouseScope}

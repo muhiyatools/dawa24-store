@@ -211,156 +211,144 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					</a>
 				</div>
 			} else {
-				<!-- 1. LIST VIEW -->
-				<div class="stack-sm" x-show="currentView === 'list'" x-cloak>
+				<!-- 1. LIST VIEW — one scannable row per offer -->
+				<div class="market-list" x-show="currentView === 'list'" x-cloak>
 					for _, item := range result.Items {
-						<div class="glass-panel p-4 market-list-row">
-							<!-- Right: Product Name & SKU -->
-       <div class="stack-sm">
-								<h3 class="text-lg font-black text-primary m-0 mb-1 leading-snug">
-									{ item.ProductName }
-								</h3>
-								<div class="d-flex items-center gap-2 text-sm text-secondary flex-wrap">
-									<span>الكود:</span>
+						<article class="glass-panel market-list-row">
+							<!-- Zone 1: identity -->
+							<div class="market-list-identity">
+								<h3 class="market-list-title">{ item.ProductName }</h3>
+								<div class="market-list-meta">
 									if item.SKU != "" {
-										<strong class="tabular-nums font-mono text-primary font-bold">{ item.SKU }</strong>
+										<span class="market-code">{ item.SKU }</span>
 									} else {
-										<strong class="tabular-nums font-mono text-muted font-bold">#{ fmt.Sprintf("%d", item.ID) }</strong>
+										<span class="market-code is-muted">#{ fmt.Sprintf("%d", item.ID) }</span>
 									}
-									if item.InCatalog {
-										<span class="badge badge-sky text-xs font-bold">
-											معتمد
-										</span>
-									}
-								</div>
-							</div>
-
-							<!-- Center: Warehouse Pill & Date -->
-							<div class="text-center stack-sm items-center">
-								<div class="badge badge-primary text-sm font-bold py-1 px-3">
-									{ item.SupplierName }
-								</div>
-								<div class="text-sm text-muted mt-1 tabular-nums">
-									تاريخ العرض: <strong class="text-secondary">{ item.CreatedAt.Format("2006-01-02") }</strong>
-								</div>
-							</div>
-
-							<!-- Left: Prices + Discount Pill (tag next to prices) -->
-							<div class="market-list-prices">
-								<!-- Prices Column -->
-								<div class="text-end">
-									<div class="text-xs text-muted mb-1">سعر الجمهور</div>
-									if item.OriginalPrice.Minor() > 0 {
-										<div class="text-sm text-muted tabular-nums line-through">
-											{ formatDiscountPrice(item.OriginalPrice) } ج.م
-										</div>
-									}
-									<div class="text-xs text-muted mt-1">سعر بعد الخصم</div>
-									<div class="text-lg font-black text-primary tabular-nums">
-										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
-									</div>
-								</div>
-
-								<!-- Discount Badge Pill next to prices -->
-         <div class="stack-sm items-center">
-									if item.DiscountPercent >= 40 {
-										<div class="badge badge-rose text-sm font-black py-2 px-3">
-											{ formatDiscount(item.DiscountPercent) }% خصم
-										</div>
-									} else {
-										<div class="badge badge-emerald text-sm font-black py-2 px-3">
-											{ formatDiscount(item.DiscountPercent) }% خصم
-										</div>
-									}
-								</div>
-
-								<!-- Quick Order / Cart Action -->
-        <div class="stack-sm">
-									if item.InCatalog && item.MatchedProductID != nil {
-										<a
-											href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
-											class="btn btn-secondary btn-sm font-bold text-xs"
-											title="عرض في الكتالوج والشراء"
-										>
-											@components.IconCart("icon-xs")
-											<span>طلب</span>
-										</a>
-									} else {
-										<button
-											type="button"
-											class="btn btn-secondary btn-sm font-bold text-xs"
-											disabled
-											title="غير متاح للطلب الفوري عبر السلة"
-										>
-											<span>معاينة</span>
-										</button>
-									}
-								</div>
-							</div>
-						</div>
-					}
-				</div>
-
-				<!-- 2. GRID VIEW : 4 cards per row, compact -->
-				<div class="market-grid" x-show="currentView === 'grid'" x-cloak>
-					for _, item := range result.Items {
-						<div class="glass-panel market-card d-flex flex-col justify-between">
-       <div class="stack-sm">
-								<div class="flex-between items-center mb-1">
-									<span class="badge badge-primary text-xs font-bold">
-										{ item.SupplierName }
-									</span>
+									<span class="badge badge-primary market-supplier-badge">{ item.SupplierName }</span>
 									if item.InCatalog {
 										<span class="badge badge-sky text-xs font-bold">معتمد</span>
 									}
-								</div>
-
-								<h3 class="market-card-title text-primary m-0">
-									{ item.ProductName }
-								</h3>
-
-								<div class="text-xs text-secondary mt-1">
-									<span>الكود: </span>
-									if item.SKU != "" {
-										<strong class="tabular-nums font-mono text-primary font-bold">{ item.SKU }</strong>
-									} else {
-										<strong class="tabular-nums font-mono text-muted font-bold">#{ fmt.Sprintf("%d", item.ID) }</strong>
-									}
+									<span class="market-list-date tabular-nums">{ item.CreatedAt.Format("2006-01-02") }</span>
 								</div>
 							</div>
 
-							<div class="market-price-row">
-         <div class="market-price-col">
+							<!-- Zone 2: the money — public price, discount, net price side by side -->
+							<div class="market-money">
+								<div class="market-money-cell">
+									<span class="market-money-label">سعر الجمهور</span>
 									if item.OriginalPrice.Minor() > 0 {
-										<div class="text-xs text-muted tabular-nums line-through">
-											{ formatDiscountPrice(item.OriginalPrice) } ج.م
-										</div>
+										<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } ج.م</span>
+									} else {
+										<span class="market-money-was is-empty">—</span>
 									}
-									<div class="text-base font-black text-primary tabular-nums">
-										{ formatDiscountPrice(item.PriceAfterDiscount) } ج.م
+								</div>
+
+								<div class="market-money-cell">
+									<span class="market-money-label">الخصم</span>
+									if item.DiscountPercent >= 40 {
+										<span class="market-disc-pill is-hot tabular-nums">{ formatDiscount(item.DiscountPercent) }%</span>
+									} else {
+										<span class="market-disc-pill tabular-nums">{ formatDiscount(item.DiscountPercent) }%</span>
+									}
+								</div>
+
+								<div class="market-money-cell is-net">
+									<span class="market-money-label">سعر بعد الخصم</span>
+									<span class="market-money-net tabular-nums">
+										{ formatDiscountPrice(item.PriceAfterDiscount) } <small>ج.م</small>
+									</span>
+								</div>
+							</div>
+
+							<!-- Zone 3: action -->
+							<div class="market-list-action">
+								if item.InCatalog && item.MatchedProductID != nil {
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
+										class="btn btn-primary btn-sm font-bold"
+										title="عرض في الكتالوج والشراء"
+									>
+										@components.IconCart("icon-xs")
+										<span>طلب</span>
+									</a>
+								} else {
+									<span class="market-no-order" title="هذا العرض غير مرتبط بصنف معتمد، فلا يمكن طلبه من السلة">
+										غير متاح للطلب
+									</span>
+								}
+							</div>
+						</article>
+					}
+				</div>
+
+				<!-- 2. GRID VIEW — four compact cards per row -->
+				<div class="market-grid" x-show="currentView === 'grid'" x-cloak>
+					for _, item := range result.Items {
+						<article class="glass-panel market-card">
+							<header class="market-card-head">
+								<span class="badge badge-primary market-supplier-badge">{ item.SupplierName }</span>
+								if item.InCatalog {
+									<span class="badge badge-sky text-xs font-bold">معتمد</span>
+								}
+							</header>
+
+							<h3 class="market-card-title">{ item.ProductName }</h3>
+
+							<div class="market-card-code">
+								if item.SKU != "" {
+									<span class="market-code">{ item.SKU }</span>
+								} else {
+									<span class="market-code is-muted">#{ fmt.Sprintf("%d", item.ID) }</span>
+								}
+							</div>
+
+							<!-- Price rail: public price, net price and the discount tag together -->
+							<div class="market-card-rail">
+								<div class="market-card-rail-prices">
+									<div class="market-card-rail-row">
+										<span class="market-money-label">سعر الجمهور</span>
+										if item.OriginalPrice.Minor() > 0 {
+											<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) }</span>
+										} else {
+											<span class="market-money-was is-empty">—</span>
+										}
+									</div>
+									<div class="market-card-rail-row">
+										<span class="market-money-label">سعر بعد الخصم</span>
+										<span class="market-money-net tabular-nums">
+											{ formatDiscountPrice(item.PriceAfterDiscount) } <small>ج.م</small>
+										</span>
 									</div>
 								</div>
 								if item.DiscountPercent >= 40 {
-									<span class="badge badge-rose text-xs font-black">
-										{ formatDiscount(item.DiscountPercent) }% خصم
+									<span class="market-disc-pill is-hot is-block tabular-nums">
+										{ formatDiscount(item.DiscountPercent) }%
+										<small>خصم</small>
 									</span>
 								} else {
-									<span class="badge badge-emerald text-xs font-black">
-										{ formatDiscount(item.DiscountPercent) }% خصم
+									<span class="market-disc-pill is-block tabular-nums">
+										{ formatDiscount(item.DiscountPercent) }%
+										<small>خصم</small>
 									</span>
 								}
 							</div>
 
-							if item.InCatalog && item.MatchedProductID != nil {
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
-									class="btn btn-primary btn-sm font-bold text-xs gap-1 w-full justify-center"
-								>
-									@components.IconCart("icon-xs")
-									<span>شراء</span>
-								</a>
-							}
-						</div>
+							<footer class="market-card-foot">
+								if item.InCatalog && item.MatchedProductID != nil {
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
+										class="btn btn-primary btn-sm font-bold w-full justify-center"
+									>
+										@components.IconCart("icon-xs")
+										<span>شراء</span>
+									</a>
+								} else {
+									<span class="market-no-order" title="هذا العرض غير مرتبط بصنف معتمد، فلا يمكن طلبه من السلة">
+										غير متاح للطلب
+									</span>
+								}
+							</footer>
+						</article>
 					}
 				</div>
 

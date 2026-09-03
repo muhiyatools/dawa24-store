@@ -107,7 +107,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								name="q"
 								value={ data.SearchQuery }
 								placeholder="ابحث باسم المنشأة، السجل التجاري، الرقم الضريبي..."
-								class="input-control w-full pr-9 text-sm"
+								class="form-input w-full pr-9 text-sm"
 							/>
 							<span class="absolute top-2.5 right-3 text-secondary pointer-events-none">
 								@components.IconSearch("icon-xs")
@@ -138,7 +138,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container">
-						<table class="table-modern">
+						<table class="data-table">
 							<thead>
 								<tr>
 									<th>المنشأة والمؤسسة</th>
@@ -153,7 +153,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 									<tr>
 										<td>
 											<div class="d-flex items-center gap-3">
-												<div class="avatar-sm bg-purple-50 text-purple-700 font-black rounded-xl p-2.5 text-xs border border-purple-100 shadow-2xs">
+												<div class="user-avatar-badge bg-purple-50 text-purple-700 font-black rounded-xl p-2.5 text-xs border border-purple-100 shadow-2xs">
 													if orgItem.Type == org.TypeVendor {
 														@components.IconTruck("icon-xs")
 													} else {
@@ -265,7 +265,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								</div>
 							</div>
 						</div>
-						<button type="button" class="btn-close text-secondary hover:text-primary" @click="savingModal = false">
+						<button type="button" class="btn btn-secondary btn-icon btn-xs text-muted" @click="savingModal = false">
 							✕
 						</button>
 					</div>
@@ -285,13 +285,13 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								name="file"
 								accept=".xlsx,.xls,.csv"
 								required
-								class="input-control w-full text-xs"
+								class="form-input w-full text-xs"
 							/>
 						</div>
 
 						<div class="form-group mb-3">
 							<label class="form-label font-bold text-xs mb-1">طريقة المعالجة والمطابقة</label>
-							<select name="match_choice" class="input-control w-full text-xs">
+							<select name="match_choice" class="form-input w-full text-xs">
 								<option value="fuzzy">مطابقة ذكية مع الكتالوج الدوائي العام (موصى به)</option>
 								<option value="exact">مطابقة تامة بالكود ورقم الصنف فقط</option>
 							</select>
@@ -330,7 +330,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								</div>
 							</div>
 						</div>
-						<button type="button" class="btn-close text-secondary hover:text-primary" @click="warehouseModal = false">
+						<button type="button" class="btn btn-secondary btn-icon btn-xs text-muted" @click="warehouseModal = false">
 							✕
 						</button>
 					</div>
@@ -349,7 +349,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								type="text"
 								name="supplier_name"
 								:placeholder="selectedOrg.name"
-								class="input-control w-full text-xs"
+								class="form-input w-full text-xs"
 							/>
 							<div class="text-2xs text-secondary mt-1">اتركه فارغاً لاستخدام اسم المنشأة تلقائياً</div>
 						</div>
@@ -361,7 +361,7 @@ templ AdminOrgImportPage(data AdminOrgImportPageData, lang, dir string) {
 								name="file"
 								accept=".xlsx,.xls,.csv"
 								required
-								class="input-control w-full text-xs"
+								class="form-input w-full text-xs"
 							/>
 						</div>
 

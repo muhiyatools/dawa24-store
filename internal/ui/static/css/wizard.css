@@ -536,3 +536,106 @@
 .import-chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
 }
+
+/* ==========================================================================
+   Import file preview (components.ImportFilePreview)
+   The raw first rows of the uploaded spreadsheet, shown in every import wizard
+   between the upload and the column mapping. Wide files scroll inside the
+   block; the row-number column stays pinned so a cell read at the far right is
+   still attributable to a row.
+   ========================================================================== */
+
+.import-preview {
+  border: 1px solid var(--border-card, var(--border-subtle));
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-raised);
+  overflow: hidden;
+  margin-block-end: 1.25rem;
+}
+
+.import-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-surface-sunken);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.import-preview-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.import-preview-meta {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.import-preview-scroll {
+  overflow: auto;
+  max-block-size: 22rem;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overscroll-behavior-x: contain;
+}
+
+.import-preview-scroll .data-table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+  background: var(--bg-surface-raised);
+  box-shadow: inset 0 -1px 0 var(--border-subtle);
+}
+
+/* Row numbers are the anchor, so they stay put while the columns scroll. */
+.import-preview-scroll th.import-preview-rownum,
+.import-preview-scroll td.import-preview-rownum {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  inline-size: 2.75rem;
+  min-inline-size: 2.75rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-surface-sunken);
+  box-shadow: inset -1px 0 0 var(--border-subtle);
+}
+.import-preview-scroll th.import-preview-rownum { z-index: 3; }
+
+/* The column's position in the file, which is what the mapping step below
+   refers to ("العمود 3"). */
+.import-preview-colnum {
+  display: inline-block;
+  min-inline-size: 1.25rem;
+  margin-inline-end: 0.25rem;
+  padding-inline: 0.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  font-size: 0.625rem;
+  font-weight: 800;
+}
+
+.import-preview-note {
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+  .import-preview-scroll { max-block-size: 16rem; }
+}

@@ -253,6 +253,10 @@ func newRouter(
 	r.Use(httpx.Logger(log))
 	r.Use(httpx.SecurityHeaders)
 	r.Use(httpx.Locale)
+	// Shorter than HTTP.WriteTimeout so the application, not the socket, ends a
+	// slow request: the query is cancelled, its pool connection is released,
+	// and the user gets a rendered error instead of the proxy's 502.
+	r.Use(httpx.RequestTimeout(cfg.HTTP.RequestTimeout, httpx.IsLongRunning))
 	r.Use(chimw.Compress(5))
 
 	health := &healthHandler{

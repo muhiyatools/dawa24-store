@@ -74,6 +74,14 @@ type ImportMappingView struct {
 	// PreviewColumns and PreviewRows are the sample of parsed products.
 	PreviewColumns []ImportPreviewColumn
 	PreviewRows    []ImportPreviewRow
+
+	// FileHeaders and FileSampleRows are the spreadsheet as it was read, before
+	// any mapping is applied — the same raw preview every other import wizard
+	// shows. The mapped preview below it answers "what will this become"; this
+	// one answers the question that has to come first, "did I upload the right
+	// file, and did the reader find the right header row".
+	FileHeaders    []string
+	FileSampleRows [][]string
 	// Issues are the findings from the previewed rows.
 	Issues []catalog.RowIssue
 
@@ -184,8 +192,54 @@ func NewImportMappingView(
 	if preview != nil {
 		view.PreviewColumns, view.PreviewRows = importPreviewTable(view.Fields, preview)
 	}
+	view.FileHeaders, view.FileSampleRows = rawFilePreview(view.Structure)
 	return view
 }
+
+// rawFilePreview reconstructs the head of the spreadsheet from the per-column
+// samples the structure analysis already collected, so the mapping screen can
+// show the file as it was read without re-opening it.
+//
+// Columns can carry different numbers of samples; the shortest one sets how
+// many rows are shown, because a row assembled from columns of unequal length
+// would put values on the same line that were never on the same line in the
+// file — a preview that invents data is worse than no preview.
+func rawFilePreview(structure catalog.FileStructure) ([]string, [][]string) {
+	if len(structure.Columns) == 0 {
+		return nil, nil
+	}
+	headers := make([]string, 0, len(structure.Columns))
+	depth := -1
+	for _, col := range structure.Columns {
+		label := col.Header
+		if label == "" {
+			label = col.Letter
+		}
+		headers = append(headers, label)
+		if depth < 0 || len(col.Samples) < depth {
+			depth = len(col.Samples)
+		}
+	}
+	if depth <= 0 {
+		return nil, nil
+	}
+	if depth > importRawPreviewRows {
+		depth = importRawPreviewRows
+	}
+	rows := make([][]string, depth)
+	for r := 0; r < depth; r++ {
+		row := make([]string, len(structure.Columns))
+		for c, col := range structure.Columns {
+			row[c] = col.Samples[r]
+		}
+		rows[r] = row
+	}
+	return headers, rows
+}
+
+// importRawPreviewRows caps the raw preview: enough to spot a shifted column,
+// short enough not to become the page.
+const importRawPreviewRows = 5
 
 // importColumnOptions turns the file's columns into a chooser, labelled with
 // whatever identifies them best: the header the file gave, or a sample value

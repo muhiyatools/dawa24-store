@@ -320,7 +320,12 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	if !strings.Contains(body, "مخزن المتحدة بلقيس") {
 		t.Errorf("expected body to contain supplier name 'مخزن المتحدة بلقيس'")
 	}
-	if !strings.Contains(body, "36% خصم") && !strings.Contains(body, "%36 خصم") {
-		t.Errorf("expected body to contain discount percentage badge")
+	// The discount is its own labelled cell now ("الخصم" above a "36%" pill),
+	// rather than one "36% خصم" string.
+	if !strings.Contains(body, "36%") {
+		t.Errorf("expected body to contain the 36%% discount pill")
+	}
+	if !strings.Contains(body, "market-disc-pill") {
+		t.Errorf("expected the discount to render as a .market-disc-pill next to the prices")
 	}
 }

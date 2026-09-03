@@ -160,8 +160,5 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		AIAvailable: h.compareSvc.AIMatchingAvailable(),
 	}
 
-	// Vendors (org members) may publish a file to the public market discounts page.
-	isVendor := actor.OrganizationID > 0
-
-	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, files, maxAllowedFiles, matching, noticeType, noticeMsg, isVendor))
+	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, files, maxAllowedFiles, matching, noticeType, noticeMsg))
 }

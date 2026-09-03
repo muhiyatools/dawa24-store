@@ -7,8 +7,9 @@ import (
 )
 
 // LoadMarketOffers is the analytical read the two market screens use. The mock
-// applies the same visibility rule the real query does, so a test that adds a
-// private, non-warehouse file sees it excluded here exactly as in production.
+// applies the same rule the real query does: temporary warehouses, plus the
+// caller's own organisation's uploads. A compare-tool upload belonging to
+// another tenant is never in "the market", whatever its visibility column says.
 func (m *mockCompareRepo) LoadMarketOffers(
 	_ context.Context, opts compare.MarketScanOptions,
 ) ([]compare.MarketOffer, error) {
@@ -20,7 +21,7 @@ func (m *mockCompareRepo) LoadMarketOffers(
 		if opts.ExcludeFileID > 0 && f.ID == opts.ExcludeFileID {
 			continue
 		}
-		visible := f.Visibility == "public" || f.IsTempWarehouse
+		visible := f.IsTempWarehouse
 		if !visible && opts.OrganizationID != nil && f.OrganizationID != nil &&
 			*f.OrganizationID == *opts.OrganizationID {
 			visible = true
