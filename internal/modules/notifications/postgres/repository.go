@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -24,6 +26,34 @@ func NewRepository(db *database.DB) *Repository {
 // CreateLog writes a notification delivery log record.
 func (r *Repository) CreateLog(ctx context.Context, l *notifications.NotificationLog) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// Idempotency guard for the in-app feed: an identical notification (same
+		// user, title and body) written again within a short window is almost
+		// always an accidental double-send — a compound notifier that reaches the
+		// user both directly and through an organization fan-out, a
+		// double-submitted form, or a retried request. Collapse it onto the
+		// existing row rather than stacking a duplicate the user has to dismiss
+		// twice.
+		if l.Channel == notifications.ChannelInApp {
+			var exID int64
+			var exPublic string
+			var exCreated time.Time
+			err := tx.QueryRow(txCtx, `
+				SELECT id, public_id, created_at
+				FROM notifications.logs
+				WHERE user_id = $1 AND channel = 'in_app' AND title = $2 AND body = $3
+				  AND created_at > now() - interval '30 seconds'
+				ORDER BY id DESC
+				LIMIT 1;
+			`, l.UserID, l.Title, l.Body).Scan(&exID, &exPublic, &exCreated)
+			if err == nil {
+				l.ID, l.PublicID, l.CreatedAt = exID, exPublic, exCreated
+				return nil
+			}
+			if !errors.Is(err, pgx.ErrNoRows) {
+				return err
+			}
+		}
+
 		query := `
 			INSERT INTO notifications.logs (
 				user_id, organization_id, channel, recipient, title, body, status, error_message, sent_at

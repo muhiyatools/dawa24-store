@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -51,4 +54,56 @@ func FormatTimeSec12(t time.Time) string {
 		return ""
 	}
 	return t.Format(LayoutTimeSec12)
+}
+
+// FormatClock12 converts a stored 24-hour clock string ("HH:MM" or "HH:MM:SS")
+// to the Egyptian 12-hour form the UI shows everywhere times are read back:
+// "16:00" -> "4:00 م", "09:30" -> "9:30 ص", "00:15" -> "12:15 ص". A value that
+// is empty or cannot be parsed is returned unchanged.
+func FormatClock12(clock string) string {
+	s := strings.TrimSpace(clock)
+	if s == "" {
+		return ""
+	}
+	parts := strings.Split(s, ":")
+	if len(parts) < 2 {
+		return clock
+	}
+	h, err1 := strconv.Atoi(strings.TrimSpace(parts[0]))
+	m, err2 := strconv.Atoi(strings.TrimSpace(parts[1]))
+	if err1 != nil || err2 != nil || h < 0 || h > 23 || m < 0 || m > 59 {
+		return clock
+	}
+	suffix := "ص"
+	if h >= 12 {
+		suffix = "م"
+	}
+	h12 := h % 12
+	if h12 == 0 {
+		h12 = 12
+	}
+	return fmt.Sprintf("%d:%02d %s", h12, m, suffix)
+}
+
+// FormatCoverageWindow renders a weekly-coverage delivery window in the Egyptian
+// 12-hour form, or the all-day label when no window was set (both ends empty).
+// from/to are the nullable "HH:MM" strings the workflow repository returns.
+func FormatCoverageWindow(from, to *string) string {
+	f, t := "", ""
+	if from != nil {
+		f = strings.TrimSpace(*from)
+	}
+	if to != nil {
+		t = strings.TrimSpace(*to)
+	}
+	switch {
+	case f == "" && t == "":
+		return "طوال اليوم (24 ساعة)"
+	case f != "" && t != "":
+		return FormatClock12(f) + " – " + FormatClock12(t)
+	case f != "":
+		return "من " + FormatClock12(f)
+	default:
+		return "حتى " + FormatClock12(t)
+	}
 }

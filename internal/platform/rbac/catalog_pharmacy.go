@@ -112,9 +112,6 @@ func pharmacyCompanyPerms() []Permission {
 		pharmacyPage("pharmacy.subscription.view", g, "subscription", "الاشتراك والعضوية", "Subscription"),
 		pharmacyAct("pharmacy.subscription.manage", g, "ترقية أو تجديد الاشتراك", "Upgrade or renew subscription", "pharmacy.subscription.view"),
 
-		pharmacyPage("pharmacy.institutional.view", g, "institutional_work", "الأعمال المؤسسية", "Institutional work"),
-		pharmacyAct("pharmacy.institutional.manage", g, "إدارة الأعمال والاتفاقيات المؤسسية", "Manage institutional works", "pharmacy.institutional.view"),
-
 		pharmacyPage("pharmacy.job.view", g, "jobs", "الوظائف والتوظيف", "Jobs & recruitment"),
 		pharmacyAct("pharmacy.job.manage", g, "إدارة الوظائف والمتقدمين", "Manage jobs and applicants", "pharmacy.job.view"),
 	}

@@ -65,7 +65,7 @@ func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.Co
 	}
 
 	if fromTime != "" && toTime != "" {
-		workingHours = fmt.Sprintf("%s - %s", fromTime, toTime)
+		workingHours = pages.FormatClock12(fromTime) + " – " + pages.FormatClock12(toTime)
 	} else {
 		for _, b := range branches {
 			if b != nil && b.OperatingHours != "" {
@@ -114,10 +114,10 @@ func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.Co
 			}
 			if currentHourMin >= start && currentHourMin <= end {
 				isOpenNow = true
-				statusNote = fmt.Sprintf(i18n.T("ar", "vendor.status.open_until_format"), end)
+				statusNote = fmt.Sprintf(i18n.T("ar", "vendor.status.open_until_format"), pages.FormatClock12(end))
 			} else if currentHourMin < start {
 				isOpenNow = false
-				statusNote = fmt.Sprintf(i18n.T("ar", "vendor.status.closed_until_format"), start)
+				statusNote = fmt.Sprintf(i18n.T("ar", "vendor.status.closed_until_format"), pages.FormatClock12(start))
 			} else {
 				isOpenNow = false
 				statusNote = i18n.T("ar", "vendor.status.closed_working_hours_ended")

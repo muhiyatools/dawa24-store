@@ -17,25 +17,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// VendorInstitutionalWorkPage renders the institutional service enrollments and memberships of the vendor.
-func (h *UIHandler) VendorInstitutionalWorkPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/institutional-work", http.StatusSeeOther)
-		return
-	}
-
-	var works []*org.InstitutionalWork
-	if h.orgSvc != nil {
-		works, _ = h.orgSvc.ListInstitutionalWorks(ctx, true)
-	}
-
-	h.renderPage(ctx, w, "render vendor institutional work", pages.VendorInstitutionalWorkPage(works, lang, dir))
-}
-
 // VendorPharmacyCoveragePage renders which pharmacies fall inside this vendor's branch coverage schedules.
 func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -191,8 +172,8 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 						matchedBranchName = cov.BranchName
 						matchedBranchID = cov.BranchID
 					}
-					if timeWindow == "" && cov.CoverageFrom != nil && cov.CoverageTo != nil {
-						timeWindow = fmt.Sprintf("%s - %s", *cov.CoverageFrom, *cov.CoverageTo)
+					if timeWindow == "" && ((cov.CoverageFrom != nil && *cov.CoverageFrom != "") || (cov.CoverageTo != nil && *cov.CoverageTo != "")) {
+						timeWindow = pages.FormatCoverageWindow(cov.CoverageFrom, cov.CoverageTo)
 					}
 				}
 			}

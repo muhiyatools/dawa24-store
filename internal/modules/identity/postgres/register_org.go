@@ -105,23 +105,15 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 			return fmt.Errorf("identity postgres: register owner membership: %w", err)
 		}
 
-		// 4. Validate or fallback city_id for main branch FK to ensure zero foreign key errors
-		var branchCityID *int64 = orgIn.CityID
-		if branchCityID != nil {
-			var cityExists bool
-			_ = tx.QueryRow(txCtx, `SELECT EXISTS (SELECT 1 FROM platform_admin.cities WHERE id = $1);`, *branchCityID).Scan(&cityExists)
-			if !cityExists {
-				branchCityID = nil
-			}
-		}
-
-		// 4b. The main branch with full address and GPS coordinates.
-		if _, err := tx.Exec(txCtx, `INSERT INTO org.branches (organization_id, name, city_id, address, latitude, longitude, google_maps_url, is_main)`+
-			`VALUES ($1, $2, $3, $4, $5, $6, $7, true);`,
-			result.OrganizationID, tradeName, branchCityID, orgIn.Address, orgIn.Latitude, orgIn.Longitude, orgIn.GoogleMapsURL,
-		); err != nil {
-			return fmt.Errorf("identity postgres: register main branch: %w", err)
-		}
+		// 4. No branch is created here any more. Registration used to insert a
+		// hidden "main branch" named after the organization, which then sat
+		// alongside the first branch the owner actually created — every org
+		// looked like it had one more branch than its team had made, and that
+		// ghost row leaked into the Employees screen. The owner now creates
+		// their first branch explicitly from the Supplier/Pharmacy Branches
+		// page; org.service.CreateBranch marks that first one as the main
+		// branch. The address/GPS collected on the registration form is carried
+		// into that screen's pre-filled form by the UI layer.
 
 		// 5. Audit the privileged creation in the same transaction.
 		if err := database.WriteAudit(txCtx, tx, database.AuditEntry{

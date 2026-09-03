@@ -12,6 +12,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -84,6 +85,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					Phone:        emp.UserPhone,
 					JobTitle:     emp.Member.JobTitle,
 					EmployeeCode: emp.Member.EmployeeCode,
+					BranchID:     derefBranchID(emp.Member.BranchID),
 					BranchName:   emp.BranchName,
 					RoleKey:      emp.Member.RoleKey,
 					RoleName:     roleName,
@@ -133,6 +135,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					Phone:        phone,
 					JobTitle:     m.JobTitle,
 					EmployeeCode: m.EmployeeCode,
+					BranchID:     derefBranchID(m.BranchID),
 					RoleKey:      m.RoleKey,
 					RoleName:     roleName,
 					RoleID:       derefRoleID(m.OrgRoleID),
@@ -290,6 +293,99 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 	h.redirectWithNotice(w, r, "/vendor/team", "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.team.employee_added_success"), name))
 }
 
+// VendorTeamEditSubmit updates an existing employee's profile (name, phone) and
+// membership (job title, employee code, role, branch, active flag). The vendor
+// team screen addresses employees by membership id, so this resolves the
+// underlying user through GetMemberByID before touching the identity record.
+func (h *UIHandler) VendorTeamEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/team", http.StatusSeeOther)
+		return
+	}
+
+	memberID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || memberID <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.org_service_unavailable"))
+		return
+	}
+
+	member, err := h.orgSvc.GetMemberByID(ctx, actor.OrganizationID, memberID)
+	if err != nil || member == nil || member.UserID <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
+		return
+	}
+	if member.RoleKey == "org_owner" {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.cannot_edit_owner"))
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.invalid_form_data"))
+		return
+	}
+
+	name := strings.TrimSpace(r.PostFormValue("name"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
+	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
+	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
+	if roleKey == "" {
+		roleKey = member.RoleKey
+	}
+	if roleKey == "" {
+		roleKey = "org_employee"
+	}
+	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on" || r.PostFormValue("is_active") == "1"
+
+	var branchID *int64
+	if bStr := strings.TrimSpace(r.PostFormValue("branch_id")); bStr != "" {
+		if bID, e := strconv.ParseInt(bStr, 10, 64); e == nil && bID > 0 {
+			branchID = &bID
+		}
+	}
+
+	sysCtx := database.AsSystem(ctx)
+
+	// 1. Profile fields on the identity user. UpdateProfile ignores empty
+	//    values, so a blank field leaves the stored one untouched.
+	if h.idSvc != nil && (name != "" || phone != "") {
+		if _, e := h.idSvc.UpdateProfile(sysCtx, member.UserID, name, name, phone, "", ""); e != nil {
+			h.log.WarnContext(ctx, "vendor employee edit: profile update failed", "user_id", member.UserID, "error", e)
+		}
+	}
+
+	// 2. Membership fields (AddMember upserts on organization_id + user_id).
+	updated := &org.Member{
+		OrganizationID: actor.OrganizationID,
+		UserID:         member.UserID,
+		BranchID:       branchID,
+		RoleKey:        roleKey,
+		OrgRoleID:      member.OrgRoleID,
+		RoleID:         member.RoleID,
+		JobTitle:       jobTitle,
+		EmployeeCode:   employeeCode,
+		IsActive:       isActive,
+	}
+	if err := h.orgSvc.AddMemberDirect(sysCtx, updated); err != nil {
+		h.log.ErrorContext(ctx, "vendor employee edit: member update failed", "member_id", memberID, "error", err)
+		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	if roleKey == "org_manager" && branchID != nil {
+		_ = h.orgSvc.AssignBranchManager(sysCtx, actor.OrganizationID, *branchID, &member.UserID)
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/team", "success", i18n.T(langOf(r), "vendor.team.employee_updated_success"))
+}
+
 // VendorTeamToggleSubmit toggles a member's active status.
 func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -332,7 +428,17 @@ func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.org_service_unavailable"))
 		return
 	}
-	if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, id); err != nil {
+	// The row is addressed by membership id; RemoveMember deletes by user id.
+	member, err := h.orgSvc.GetMemberByID(ctx, actor.OrganizationID, id)
+	if err != nil || member == nil || member.UserID <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
+		return
+	}
+	if member.RoleKey == "org_owner" || member.UserID == actor.UserID {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.cannot_edit_owner"))
+		return
+	}
+	if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, member.UserID); err != nil {
 		h.log.ErrorContext(ctx, "remove member", "error", err, "member", id, "org", actor.OrganizationID)
 		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
 		return
@@ -344,6 +450,15 @@ func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Reques
 // means "no custom role assigned", and the caller falls back to the company's
 // starter role for the member's role_key.
 func derefRoleID(id *int64) int64 {
+	if id == nil {
+		return 0
+	}
+	return *id
+}
+
+// derefBranchID unwraps a member's optional branch assignment; zero means the
+// employee is not tied to a specific branch.
+func derefBranchID(id *int64) int64 {
 	if id == nil {
 		return 0
 	}

@@ -168,7 +168,6 @@ func vendorContentPerms() []Permission {
 		vendorAct("vendor.policy.update", g, "تعديل السياسات", "Edit policies", "vendor.policy.view"),
 		vendorPage("vendor.activity.view", g, "activities", "سجل العمليات والنشاط", "Activity log"),
 		vendorPage("vendor.ai_log.view", g, "ai_logs", "سجل استهلاك الذكاء الاصطناعي", "AI consumption log"),
-		vendorPage("vendor.institutional.view", g, "institutional_work", "الأعمال المؤسسية", "Institutional work"),
 		vendorPage("vendor.review.view", g, "reviews", "التقييمات", "Reviews & ratings"),
 		vendorAct("vendor.review.reply", g, "الرد على تقييمات الصيدليات", "Reply to pharmacy reviews", "vendor.review.view"),
 	}

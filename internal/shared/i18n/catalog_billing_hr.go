@@ -97,6 +97,8 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "vendor.team.employee_added_success", "vendor", "تمت إضافة الموظف '%s' بنجاح وتفعيل صلاحياته على المنشأة.", "Employee '%s' was added successfully and granted organization access.", "Success notice")
 	addKey(e, "vendor.team.invalid_employee_id", "vendor", "معرف الموظف غير صالح.", "Invalid employee ID.", "Validation error")
 	addKey(e, "vendor.team.status_updated_success", "vendor", "تم تحديث حالة حساب الموظف بنجاح.", "Employee account status updated successfully.", "Success notice")
+	addKey(e, "vendor.team.employee_updated_success", "vendor", "تم حفظ وتحديث بيانات وصلاحيات الموظف بنجاح.", "Employee data and permissions saved and updated successfully.", "Success notice")
+	addKey(e, "vendor.team.cannot_edit_owner", "vendor", "لا يمكن تعديل بيانات مالك المنشأة من هنا.", "The organization owner cannot be edited here.", "Validation error")
 	addKey(e, "vendor.team.deleted_success", "vendor", "تم حذف الموظف من المنشأة بنجاح.", "Employee removed from organization successfully.", "Success notice")
 
 	// --- Vendor Customer Connections (User Org) ---

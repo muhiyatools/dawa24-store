@@ -126,11 +126,11 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 											</span>
 										</td>
 
-										<!-- Coverage Time Window -->
+										<!-- Coverage Time Window (Egyptian 12-hour) -->
 										<td>
-											if c.CoverageFrom != nil && c.CoverageTo != nil && *c.CoverageFrom != "" {
+											if (c.CoverageFrom != nil && *c.CoverageFrom != "") || (c.CoverageTo != nil && *c.CoverageTo != "") {
 												<span class="badge badge-secondary font-bold">
-													{ *c.CoverageFrom } - { *c.CoverageTo }
+													{ FormatCoverageWindow(c.CoverageFrom, c.CoverageTo) }
 												</span>
 											} else {
 												<span class="text-muted text-xs">طوال اليوم</span>

@@ -49,19 +49,16 @@ func TestPhaseC_VendorSavingProducts(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "استيراد")
 }
 
-// TestPhaseC_VendorInstitutionalWork verifies Task C.12: Institutional work and pharmacy coverage screens.
-func TestPhaseC_VendorInstitutionalWork(t *testing.T) {
+// TestPhaseC_VendorPharmacyCoverage verifies Task C.12: the pharmacy coverage
+// screen. The standalone institutional-work page was removed — a branch's
+// corporate business now lives only on its card in the Supplier Branches page.
+func TestPhaseC_VendorPharmacyCoverage(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
 	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor", OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
-	// GET /vendor/institutional-work renders
-	rec := doGET(t, r, "/vendor/institutional-work", vendorActor)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "الأعمال والاتفاقيات المؤسسية للمنشأة")
-
 	// GET /vendor/pharmacy-coverage renders
-	rec = doGET(t, r, "/vendor/pharmacy-coverage", vendorActor)
+	rec := doGET(t, r, "/vendor/pharmacy-coverage", vendorActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Contains(t, rec.Body.String(), "الصيدليات المشمولة في نطاق التغطية الأسبوعية")
 }

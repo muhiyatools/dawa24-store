@@ -19,25 +19,8 @@ type VendorBranchesData struct {
 	TotalCount int
 }
 
-var institutionalWorkCategories = []struct {
-	Key     string
-	LabelAr string
-	LabelEn string
-	Icon    string
-}{
-	{Key: "group", LabelAr: "مجموعة", LabelEn: "Group", Icon: ""},
-	{Key: "sector", LabelAr: "قطاع", LabelEn: "Sector", Icon: ""},
-	{Key: "startup", LabelAr: "شركة ناشئة", LabelEn: "Startup", Icon: ""},
-	{Key: "sole_proprietorship", LabelAr: "مؤسسة فردية", LabelEn: "Sole Proprietorship", Icon: ""},
-	{Key: "audience_category", LabelAr: "فئة جماهيرية", LabelEn: "Audience Category", Icon: ""},
-	{Key: "retail", LabelAr: "تجزئة", LabelEn: "Retail", Icon: ""},
-	{Key: "nonprofit", LabelAr: "منظمة غير ربحية", LabelEn: "Nonprofit Organization", Icon: ""},
-	{Key: "factory", LabelAr: "مصنع", LabelEn: "Factory", Icon: ""},
-	{Key: "cooperative", LabelAr: "جمعية تعاونية", LabelEn: "Cooperative", Icon: ""},
-	{Key: "services", LabelAr: "خدمات", LabelEn: "Services", Icon: ""},
-	{Key: "pharmacy", LabelAr: "صيدلية", LabelEn: "Pharmacy", Icon: ""},
-	{Key: "joint_stock", LabelAr: "شركة مساهمة", LabelEn: "Joint Stock Company", Icon: ""},
-}
+// institutionalWorkCategories and formatInstitutionalWorkLabel live in
+// institutional_categories.go — shared with the pharmacy branch screen.
 
 templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 	@layouts.VendorShell("إدارة الفروع ونقاط التوزيع اللوجستية", "branches", lang, dir) {
@@ -587,15 +570,6 @@ func totalCapacitySQM(branches []*org.Branch) float64 {
 		total += b.CapacitySQM
 	}
 	return total
-}
-
-func formatInstitutionalWorkLabel(key string) string {
-	for _, cat := range institutionalWorkCategories {
-		if cat.Key == key {
-			return cat.Icon + " " + cat.LabelAr
-		}
-	}
-	return key
 }
 
 func formatWorksSliceJSON(works []string) string {

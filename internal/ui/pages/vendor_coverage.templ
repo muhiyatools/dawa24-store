@@ -292,6 +292,22 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 				this.coverageTo = to;
 				this.applyDefaultsToAllCities();
 			},
+			clock12(hhmm) {
+				if (!hhmm) return '';
+				const p = String(hhmm).split(':');
+				if (p.length < 2) return hhmm;
+				let h = parseInt(p[0], 10);
+				const m = parseInt(p[1], 10);
+				if (isNaN(h) || isNaN(m)) return hhmm;
+				const suffix = h >= 12 ? 'م' : 'ص';
+				h = h % 12; if (h === 0) h = 12;
+				return h + ':' + String(m).padStart(2, '0') + ' ' + suffix;
+			},
+			coverageWindowLabel() {
+				if (!this.coverageFrom && !this.coverageTo) return 'طوال اليوم (24 ساعة)';
+				if (this.coverageFrom && this.coverageTo) return this.clock12(this.coverageFrom) + ' – ' + this.clock12(this.coverageTo);
+				return this.clock12(this.coverageFrom || this.coverageTo);
+			},
 			openEdit(c) {
 				this.editCov = { ...c };
 				const m = document.getElementById('edit-coverage-modal');
@@ -556,7 +572,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 							<label class="d-block text-xs font-bold mb-2 text-primary">
 								⏰ مواعيد وساعات العمل والتوصيل الافتراضية
 							</label>
-							<div class="d-grid gap-3 mb-3" class="grid-cols-2">
+							<div class="d-grid gap-3 mb-2" class="grid-cols-2">
         <div class="stack-sm">
 									<span class="text-xs text-muted font-semibold d-block mb-1">من (وقت البدء):</span>
 									<input type="time" name="coverage_from" x-model="coverageFrom" class="form-control text-xs"/>
@@ -567,10 +583,16 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 								</div>
 							</div>
 
-							<!-- Time Presets -->
+							<!-- Egyptian 12-hour readout of the chosen window -->
+							<div class="d-flex items-center gap-2 mb-3 text-xs">
+								<span class="text-muted font-semibold">التوقيت المصري:</span>
+								<span class="badge badge-primary font-bold" x-text="coverageWindowLabel()"></span>
+							</div>
+
+							<!-- Time Presets (labelled in the Egyptian 12-hour system) -->
 							<div class="d-flex flex-wrap gap-1">
-								<button type="button" @click="setTimePreset('09:00', '17:00')" class="btn btn-2xs btn-secondary">دوام كامل (9 ص - 5 م)</button>
-								<button type="button" @click="setTimePreset('16:00', '23:00')" class="btn btn-2xs btn-secondary">فترة مسائية</button>
+								<button type="button" @click="setTimePreset('09:00', '17:00')" class="btn btn-2xs btn-secondary">دوام كامل (9:00 ص – 5:00 م)</button>
+								<button type="button" @click="setTimePreset('16:00', '23:00')" class="btn btn-2xs btn-secondary">فترة مسائية (4:00 م – 11:00 م)</button>
 								<button type="button" @click="setTimePreset('', '')" class="btn btn-2xs btn-secondary">طوال اليوم (24 ساعة)</button>
 							</div>
 						</div>

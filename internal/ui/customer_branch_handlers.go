@@ -131,20 +131,21 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	b := &org.Branch{
-		OrganizationID: actor.OrganizationID,
-		Name:           i18n.New(nameAr, nameEn),
-		Code:           code,
-		WarehouseType:  "pharmacy",
-		Address:        address,
-		Phone:          phone,
-		OperatingHours: operatingHours,
-		HasColdStorage: hasColdStorage,
-		GoogleMapsURL:  gmaps,
-		CityID:         cityID,
-		Latitude:       latPtr,
-		Longitude:      lngPtr,
-		IsMain:         isMain,
-		Status:         "active",
+		OrganizationID:     actor.OrganizationID,
+		Name:               i18n.New(nameAr, nameEn),
+		Code:               code,
+		WarehouseType:      "pharmacy",
+		Address:            address,
+		Phone:              phone,
+		OperatingHours:     operatingHours,
+		HasColdStorage:     hasColdStorage,
+		GoogleMapsURL:      gmaps,
+		CityID:             cityID,
+		Latitude:           latPtr,
+		Longitude:          lngPtr,
+		IsMain:             isMain,
+		Status:             "active",
+		InstitutionalWorks: r.Form["institutional_works"],
 	}
 
 	if h.orgSvc != nil {
@@ -233,21 +234,22 @@ func (h *UIHandler) CustomerBranchEditSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	b := &org.Branch{
-		ID:             id,
-		OrganizationID: actor.OrganizationID,
-		Name:           i18n.New(nameAr, nameEn),
-		Code:           code,
-		WarehouseType:  "pharmacy",
-		Address:        address,
-		Phone:          phone,
-		OperatingHours: operatingHours,
-		HasColdStorage: hasColdStorage,
-		GoogleMapsURL:  gmaps,
-		CityID:         cityID,
-		Latitude:       latPtr,
-		Longitude:      lngPtr,
-		IsMain:         isMain,
-		Status:         status,
+		ID:                 id,
+		OrganizationID:     actor.OrganizationID,
+		Name:               i18n.New(nameAr, nameEn),
+		Code:               code,
+		WarehouseType:      "pharmacy",
+		Address:            address,
+		Phone:              phone,
+		OperatingHours:     operatingHours,
+		HasColdStorage:     hasColdStorage,
+		GoogleMapsURL:      gmaps,
+		CityID:             cityID,
+		Latitude:           latPtr,
+		Longitude:          lngPtr,
+		IsMain:             isMain,
+		Status:             status,
+		InstitutionalWorks: r.Form["institutional_works"],
 	}
 
 	if err := h.orgSvc.UpdateBranch(ctx, b); err != nil {

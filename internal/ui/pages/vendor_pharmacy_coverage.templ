@@ -3,71 +3,9 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/org"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-// VendorInstitutionalWorkPage renders vendor institutional memberships.
-templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir string) {
-	@layouts.VendorShell("الأعمال المؤسسية للشركات والجهات", "institutional_work", lang, dir) {
-		<div class="page-container">
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between items-center flex-wrap gap-4">
-     <div class="stack-sm">
-						<div class="d-flex items-center gap-3 mb-1">
-							<div class="user-avatar-badge text-xl">
-								@components.IconBank("icon-sm")
-							</div>
-							<h1 class="text-2xl font-black text-primary m-0">الأعمال والاتفاقيات المؤسسية للمنشأة ({ fmt.Sprintf("%d", len(works)) })</h1>
-						</div>
-						<p class="text-sm text-secondary m-0">إدارة عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد الخاصة</p>
-					</div>
-				</div>
-			</div>
-
-			if len(works) == 0 {
-				<div class="glass-panel p-8 text-center empty-state-glass">
-					<div class="text-4xl mb-3">@components.IconBank("icon-sm")</div>
-					<h3 class="text-lg font-black text-primary mb-2">لا توجد أعمال مؤسسية معتمدة</h3>
-					<p class="text-sm text-secondary m-0">تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية.</p>
-				</div>
-			} else {
-				<div class="glass-panel p-0 mb-6 overflow-hidden">
-					<div class="table-container m-0">
-						<table class="data-table m-0">
-							<thead>
-								<tr>
-									<th>اسم الهيكل المؤسسي</th>
-									<th>الوصف</th>
-									<th class="text-center">نوع التسعير</th>
-									<th class="text-center">الحالة</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, w := range works {
-									<tr>
-										<td class="font-extrabold text-primary text-sm">{ w.Title.Get(i18n.Lang(lang)) }</td>
-										<td class="text-xs text-secondary">{ w.Description.Get(i18n.Lang(lang)) }</td>
-										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ string(w.PricingType) }</span></td>
-										<td class="text-center">
-											if w.IsActive {
-												<span class="badge badge-emerald text-xs font-bold">نشط</span>
-											} else {
-												<span class="badge badge-slate text-xs font-bold">غير نشط</span>
-											}
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			}
-		</div>
-	}
-}
 
 // VendorPharmacyCoveragePage renders pharmacies covered by vendor schedules.
 templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir string) {

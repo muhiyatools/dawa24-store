@@ -97,25 +97,8 @@ func cbRoleBadgeClass(key string) string {
 	}
 }
 
-var institutionalWorkCategories = []struct {
-	Key     string
-	LabelAr string
-	LabelEn string
-	Icon    string
-}{
-	{Key: "group", LabelAr: "مجموعة", LabelEn: "Group", Icon: ""},
-	{Key: "sector", LabelAr: "قطاع", LabelEn: "Sector", Icon: ""},
-	{Key: "startup", LabelAr: "شركة ناشئة", LabelEn: "Startup", Icon: ""},
-	{Key: "sole_proprietorship", LabelAr: "مؤسسة فردية", LabelEn: "Sole Proprietorship", Icon: ""},
-	{Key: "audience_category", LabelAr: "فئة جماهيرية", LabelEn: "Audience Category", Icon: ""},
-	{Key: "retail", LabelAr: "تجزئة", LabelEn: "Retail", Icon: ""},
-	{Key: "nonprofit", LabelAr: "منظمة غير ربحية", LabelEn: "Nonprofit Organization", Icon: ""},
-	{Key: "factory", LabelAr: "مصنع", LabelEn: "Factory", Icon: ""},
-	{Key: "cooperative", LabelAr: "جمعية تعاونية", LabelEn: "Cooperative", Icon: ""},
-	{Key: "services", LabelAr: "خدمات", LabelEn: "Services", Icon: ""},
-	{Key: "pharmacy", LabelAr: "صيدلية", LabelEn: "Pharmacy", Icon: ""},
-	{Key: "joint_stock", LabelAr: "شركة مساهمة", LabelEn: "Joint Stock Company", Icon: ""},
-}
+// institutionalWorkCategories lives in institutional_categories.go — shared with
+// the vendor branch screen.
 
 func formatBranchWorksJSON(works []string) string {
 	if len(works) == 0 {
@@ -717,24 +700,9 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 	}
 }
 
+// formatBranchCategoryLabel is kept as a thin alias of the shared
+// formatInstitutionalWorkLabel so existing template call sites need no change.
 func formatBranchCategoryLabel(key string) string {
-	categories := map[string]string{
-		"group":                "مجموعة",
-		"sector":               "قطاع",
-		"startup":              "شركة ناشئة",
-		"sole_proprietorship":  "مؤسسة فردية",
-		"audience_category":    "فئة جماهيرية",
-		"retail":               "تجزئة",
-		"nonprofit":            "منظمة غير ربحية",
-		"factory":              "مصنع",
-		"cooperative":          "جمعية تعاونية",
-		"services":             "خدمات",
-		"pharmacy":             "صيدلية",
-		"joint_stock":          "شركة مساهمة",
-	}
-	if label, ok := categories[key]; ok {
-		return label
-	}
-	return key
+	return formatInstitutionalWorkLabel(key)
 }
 

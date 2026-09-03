@@ -168,8 +168,8 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 											<strong class="text-accent">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
 										</td>
 										<td class="tabular-nums">
-											if c.CoverageFrom != nil && c.CoverageTo != nil {
-												<span class="font-bold">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
+											if (c.CoverageFrom != nil && *c.CoverageFrom != "") || (c.CoverageTo != nil && *c.CoverageTo != "") {
+												<span class="font-bold">{ FormatCoverageWindow(c.CoverageFrom, c.CoverageTo) }</span>
 											} else {
 												<span class="badge badge-slate text-xs">طوال اليوم</span>
 											}

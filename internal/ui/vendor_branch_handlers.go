@@ -327,6 +327,15 @@ func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Requ
 		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.orgs_service_unavailable"))
 		return
 	}
+	existing, err := h.orgSvc.GetBranch(ctx, id)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.not_found_edit"))
+		return
+	}
+	if existing.IsMain {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "customer.branch.cannot_delete_main"))
+		return
+	}
 	if err := h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID); err != nil {
 		h.log.ErrorContext(ctx, "delete branch", "error", err, "branch", id, "org", actor.OrganizationID)
 		h.redirectWithNotice(w, r, "/vendor/branches", "error", h.safeMessage(err, langOf(r)))

@@ -161,9 +161,21 @@ func (s *Service) CountBranchesByOrg(ctx context.Context) (map[int64]int, error)
 }
 
 // CreateBranch adds a branch location, enforcing that only one branch has is_main = true.
+//
+// Organizations no longer get an auto-provisioned branch at registration, so the
+// first branch an owner creates must become the main one even if the form did
+// not tick "main" — otherwise the org would have branches but no default, and
+// every "main branch" lookup would come back empty.
 func (s *Service) CreateBranch(ctx context.Context, b *Branch) error {
 	if err := b.Validate(); err != nil {
 		return err
+	}
+
+	if !b.IsMain {
+		existing, err := s.repo.ListBranchesByOrg(ctx, b.OrganizationID)
+		if err == nil && len(existing) == 0 {
+			b.IsMain = true
+		}
 	}
 
 	if b.IsMain {
@@ -313,6 +325,14 @@ func (s *Service) ListMembers(ctx context.Context, orgID int64) ([]*Member, erro
 // RemoveMember removes a user from an organization.
 func (s *Service) RemoveMember(ctx context.Context, orgID, userID int64) error {
 	return s.repo.RemoveMember(ctx, orgID, userID)
+}
+
+// GetMemberByID returns one membership row scoped to its organization.
+func (s *Service) GetMemberByID(ctx context.Context, orgID, memberID int64) (*Member, error) {
+	if orgID <= 0 || memberID <= 0 {
+		return nil, apperr.Validation("member.invalid", "Valid org and member IDs are required.", nil)
+	}
+	return s.repo.GetMemberByID(ctx, orgID, memberID)
 }
 
 // ToggleMemberStatus toggles a member's active status.

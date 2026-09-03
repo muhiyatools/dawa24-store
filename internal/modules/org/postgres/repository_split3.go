@@ -26,6 +26,40 @@ func (r *Repository) ToggleMemberStatus(ctx context.Context, orgID, memberID int
 	})
 }
 
+// GetMemberByID returns one membership row scoped to its organization. The
+// vendor team screen addresses employees by membership id (as toggle and role
+// assignment already do); edit and delete resolve the underlying user id
+// through this.
+func (r *Repository) GetMemberByID(ctx context.Context, orgID, memberID int64) (*org.Member, error) {
+	var m org.Member
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var roleID, orgRoleID, branchID *int64
+		query := `SELECT id, organization_id, user_id, branch_id, role_id, role_key, org_role_id,
+		                 COALESCE(employee_code, ''), COALESCE(job_title, ''), is_active, created_at, updated_at
+		          FROM org.members WHERE id = $1 AND organization_id = $2;`
+		err := tx.QueryRow(txCtx, query, memberID, orgID).Scan(
+			&m.ID, &m.OrganizationID, &m.UserID, &branchID, &roleID, &m.RoleKey, &orgRoleID,
+			&m.EmployeeCode, &m.JobTitle, &m.IsActive, &m.CreatedAt, &m.UpdatedAt,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("member")
+			}
+			return err
+		}
+		m.BranchID = branchID
+		m.OrgRoleID = orgRoleID
+		if roleID != nil {
+			m.RoleID = *roleID
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
 // ListMembersByOrg returns members of an organization.
 func (r *Repository) ListMembersByOrg(ctx context.Context, orgID int64) ([]*org.Member, error) {
 	var list []*org.Member

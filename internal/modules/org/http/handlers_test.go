@@ -283,6 +283,10 @@ func (r stubRepo) ToggleMemberStatus(ctx context.Context, orgID, memberID int64)
 	r.fail("ToggleMemberStatus")
 	return nil
 }
+func (r stubRepo) GetMemberByID(ctx context.Context, orgID, memberID int64) (*org.Member, error) {
+	r.fail("GetMemberByID")
+	return nil, nil
+}
 func (r stubRepo) SavePolicies(ctx context.Context, orgID int64, policies []*org.Policy) error {
 	r.fail("SavePolicies")
 	return nil
@@ -320,6 +324,9 @@ func (happyRepo) SaveSocialMedia(ctx context.Context, orgID int64, links []*org.
 
 func (happyRepo) ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error {
 	return nil
+}
+func (happyRepo) GetMemberByID(ctx context.Context, orgID, memberID int64) (*org.Member, error) {
+	return &org.Member{ID: memberID, OrganizationID: orgID}, nil
 }
 func (happyRepo) AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error {
 	return nil

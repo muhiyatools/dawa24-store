@@ -235,19 +235,50 @@ templ RoleEditPage(v RoleEditView, lang, dir string) {
 				}
 			</form>
 		<script>
-			function toggleSectionAll(checkbox, sectionKey) {
-				const section = document.querySelector('[data-section="' + sectionKey + '"]');
-				if (!section) return;
+			(function () {
+				const anchor = document.querySelector('input[name="permissions"]');
+				const form = anchor && anchor.form;
+				if (!form) return;
 
-				const perms = section.querySelectorAll('[data-section-perm="' + sectionKey + '"]');
-				const isChecked = checkbox.checked;
+				const allPerms = () => Array.from(form.querySelectorAll('input[name="permissions"]'));
+				const enabledPerms = () => allPerms().filter(p => !p.disabled);
+				const sectionPerms = (key) => allPerms().filter(p => p.getAttribute('data-section-perm') === key && !p.disabled);
 
-				perms.forEach(perm => {
-					if (!perm.disabled) {
-						perm.checked = isChecked;
+				function reflect(box, list) {
+					if (!box) return;
+					const on = list.length > 0 && list.every(p => p.checked);
+					box.checked = on;
+					box.indeterminate = !on && list.some(p => p.checked);
+				}
+				function syncSection(key) {
+					reflect(form.querySelector('input[data-role="section-toggle"][data-section="' + key + '"]'), sectionPerms(key));
+				}
+				function syncMaster() {
+					reflect(form.querySelector('input[data-role="master-toggle"]'), enabledPerms());
+				}
+				function syncAll() {
+					form.querySelectorAll('input[data-role="section-toggle"]').forEach(b => syncSection(b.getAttribute('data-section')));
+					syncMaster();
+				}
+
+				form.addEventListener('change', function (e) {
+					const t = e.target;
+					if (t.matches && t.matches('input[data-role="master-toggle"]')) {
+						enabledPerms().forEach(p => { p.checked = t.checked; });
+						syncAll();
+					} else if (t.matches && t.matches('input[data-role="section-toggle"]')) {
+						const key = t.getAttribute('data-section');
+						sectionPerms(key).forEach(p => { p.checked = t.checked; });
+						syncSection(key);
+						syncMaster();
+					} else if (t.matches && t.matches('input[name="permissions"]')) {
+						syncSection(t.getAttribute('data-section-perm'));
+						syncMaster();
 					}
 				});
-			}
+
+				syncAll();
+			})();
 		</script>
 		</div>
 	}
@@ -313,6 +344,15 @@ templ roleIdentityFields(v RoleEditView) {
 }
 
 templ rolePermissionMatrix(v RoleEditView) {
+	if !v.ReadOnly && len(v.Sections) > 0 {
+		<div class="glass-panel p-4 mb-4 d-flex items-center justify-between flex-wrap gap-3">
+			<span class="text-sm font-extrabold text-primary">مصفوفة الصلاحيات — { fmt.Sprintf("%d قسم", len(v.Sections)) }</span>
+			<label class="d-flex items-center gap-2 text-xs font-bold text-secondary cursor-pointer">
+				<input type="checkbox" data-role="master-toggle" class="form-checkbox"/>
+				<span>تحديد كل الصلاحيات في هذه اللوحة</span>
+			</label>
+		</div>
+	}
 	for _, section := range v.Sections {
 		<div class="glass-panel p-5 mb-4">
 			<div class="flex-between items-center mb-4">
@@ -322,8 +362,8 @@ templ rolePermissionMatrix(v RoleEditView) {
 						<label class="d-flex items-center gap-2 text-xs font-bold text-secondary cursor-pointer">
 							<input
 								type="checkbox"
-								data-select-all={ "select-all-" + section.Group.Key }
-								onchange={ "toggleSectionAll(this, '" + section.Group.Key + "')" }
+								data-role="section-toggle"
+								data-section={ section.Group.Key }
 								class="form-checkbox"
 							/>
 							<span>تحديد الكل</span>

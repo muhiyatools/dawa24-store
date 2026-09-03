@@ -150,8 +150,20 @@ func (m *mockOrgRepoTeamTest) ToggleMemberStatus(ctx context.Context, orgID, mem
 	return nil
 }
 
-func (m *mockOrgRepoTeamTest) RemoveMember(ctx context.Context, orgID, memberID int64) error {
-	delete(m.members, memberID)
+func (m *mockOrgRepoTeamTest) GetMemberByID(ctx context.Context, orgID, memberID int64) (*org.Member, error) {
+	if mem, ok := m.members[memberID]; ok && mem.OrganizationID == orgID {
+		return mem, nil
+	}
+	return nil, nil
+}
+
+func (m *mockOrgRepoTeamTest) RemoveMember(ctx context.Context, orgID, userID int64) error {
+	// Mirrors the real repository: deletion is by organization + user id.
+	for id, mem := range m.members {
+		if mem.OrganizationID == orgID && mem.UserID == userID {
+			delete(m.members, id)
+		}
+	}
 	return nil
 }
 

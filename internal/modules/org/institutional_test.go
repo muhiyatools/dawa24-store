@@ -337,6 +337,10 @@ func (m *institutionalMockRepo) ToggleMemberStatus(_ context.Context, _, _ int64
 	return nil
 }
 
+func (m *institutionalMockRepo) GetMemberByID(_ context.Context, _, _ int64) (*org.Member, error) {
+	return nil, nil
+}
+
 func (m *institutionalMockRepo) CreateUserOrganization(_ context.Context, uo *org.UserOrganization) error {
 	uo.ID = 1
 	return nil

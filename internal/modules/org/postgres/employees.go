@@ -26,7 +26,7 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 			JOIN identity.users u ON u.id = m.user_id
 			LEFT JOIN org.roles r ON r.id = m.org_role_id
 			LEFT JOIN identity.roles ir ON ir.key = m.role_key
-			LEFT JOIN org.branches b ON b.id = m.branch_id
+			LEFT JOIN org.branches b ON b.id = m.branch_id AND b.deleted_at IS NULL AND b.organization_id = m.organization_id
 			WHERE m.organization_id = $1
 			ORDER BY m.id DESC;
 		`
@@ -102,7 +102,7 @@ func (r *Repository) ListEmployeesWithTotal(ctx context.Context, orgID int64, li
 			JOIN identity.users u ON u.id = m.user_id
 			LEFT JOIN org.roles r ON r.id = m.org_role_id
 			LEFT JOIN identity.roles ir ON ir.key = m.role_key
-			LEFT JOIN org.branches b ON b.id = m.branch_id
+			LEFT JOIN org.branches b ON b.id = m.branch_id AND b.deleted_at IS NULL AND b.organization_id = m.organization_id
 			WHERE m.organization_id = $1
 			ORDER BY m.id DESC
 			LIMIT $2 OFFSET $3;

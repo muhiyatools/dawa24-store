@@ -36,6 +36,7 @@ type Repository interface {
 	AddMember(ctx context.Context, m *Member) error
 	UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error
 	ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error
+	GetMemberByID(ctx context.Context, orgID, memberID int64) (*Member, error)
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
 	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
 	ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*EmployeeView, int, error)

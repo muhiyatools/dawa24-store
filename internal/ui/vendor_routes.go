@@ -161,6 +161,7 @@ func (h *UIHandler) registerVendorTeamRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.team.update"))
 		g.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
+		g.Post("/vendor/team/{id}/edit", h.VendorTeamEditSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.team.delete"))

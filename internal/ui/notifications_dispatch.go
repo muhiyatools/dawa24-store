@@ -41,10 +41,13 @@ func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, ti
 	if err != nil || len(members) == 0 {
 		return
 	}
+	seen := make(map[int64]bool, len(members))
 	for _, m := range members {
-		if m != nil && m.UserID > 0 && m.IsActive {
-			h.dispatchInAppNotification(ctx, m.UserID, &orgID, title, body)
+		if m == nil || m.UserID <= 0 || !m.IsActive || seen[m.UserID] {
+			continue
 		}
+		seen[m.UserID] = true
+		h.dispatchInAppNotification(ctx, m.UserID, &orgID, title, body)
 	}
 }
 
