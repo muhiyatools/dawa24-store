@@ -76,6 +76,10 @@ func (mockCatalogRepoStub) ClearCustomerMappings(context.Context, int64) error {
 }
 
 // stagingRepo is the minimal catalog.Repository the commit path needs.
+func (*stagingRepo) GetVariantsByIDs(context.Context, []int64) (map[int64]*catalog.ProductVariant, error) {
+	return map[int64]*catalog.ProductVariant{}, nil
+}
+
 type stagingRepo struct {
 	mockCatalogRepoStub
 	written []*catalog.Product

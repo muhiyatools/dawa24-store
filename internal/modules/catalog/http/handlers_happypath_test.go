@@ -20,6 +20,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
+func (happyRepo) GetVariantsByIDs(context.Context, []int64) (map[int64]*catalog.ProductVariant, error) {
+	return map[int64]*catalog.ProductVariant{}, nil
+}
+
 type happyRepo struct{}
 
 func (happyRepo) CreateProduct(ctx context.Context, p *catalog.Product) error {

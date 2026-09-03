@@ -15,7 +15,28 @@ import (
 // The previous importer refused these outright and told the vendor to re-save.
 // Roughly a fifth of the files real Egyptian distributors send are BIFF, and
 // telling a supplier to convert their file is how an import never happens.
+//
+// Decoding is two-tier: the modern reader (reader_biff.go) reassembles SST
+// Continue records correctly and accepts files the legacy decoder glues into
+// unreadable blobs; anything it rejects falls through to the legacy path, so
+// files that already imported keep importing byte-for-byte as before.
 func (b *Book) openXLS() (err error) {
+	if merr := b.openXLSModern(); merr == nil {
+		return nil
+	} else {
+		// Reset any partial sheet index the failed attempt recorded; the
+		// legacy decoder rebuilds it from scratch.
+		b.source.Sheets = nil
+		b.source.Sheet = ""
+		b.rows = nil
+	}
+	return b.openXLSLegacy()
+}
+
+// openXLSLegacy decodes a legacy Excel 97-2003 workbook with the original
+// extrame/xls decoder, kept as the fallback for files the modern reader
+// cannot open.
+func (b *Book) openXLSLegacy() (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = b.fallbackFromBinary(fmt.Errorf("panic in XLS parser: %v", r))

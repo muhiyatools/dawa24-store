@@ -68,6 +68,10 @@ func (m *mockCatalogImageRepo) ListVariantsByProduct(_ context.Context, _ int64)
 func (m *mockCatalogImageRepo) ListVariantsByProducts(_ context.Context, _ []int64) ([]*catalog.ProductVariant, error) {
 	return nil, nil
 }
+
+func (m *mockCatalogImageRepo) GetVariantsByIDs(context.Context, []int64) (map[int64]*catalog.ProductVariant, error) {
+	return map[int64]*catalog.ProductVariant{}, nil
+}
 func (m *mockCatalogImageRepo) ListVariantsByOrganization(_ context.Context, _ int64, _ catalog.VariantSearchParams) ([]*catalog.ProductVariant, int, error) {
 	return nil, 0, nil
 }

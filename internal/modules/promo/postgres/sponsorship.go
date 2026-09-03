@@ -268,20 +268,16 @@ func (r *Repository) ActivateSponsorshipRequest(ctx context.Context, id int64, r
 			return apperr.Conflict("sponsorship.already_reviewed", i18n.TDefault("w4_mod.w4str_250_250"))
 		}
 
-		// Deduct credits from the purchase if linked.
-		if sr.PurchaseID != nil {
-			tag, err := tx.Exec(txCtx, `
-				UPDATE promo.sponsorship_purchases
-				SET credits_used = credits_used + $2, updated_at = now()
-				WHERE id = $1 AND credits_used + $2 <= credits_total AND status = 'active';
-			`, *sr.PurchaseID, sr.CreditsUsed)
-			if err != nil {
-				return err
-			}
-			if tag.RowsAffected() == 0 {
-				return apperr.Conflict("sponsorship.insufficient_credits", i18n.TDefault("w4_mod.w4str_254_254"))
-			}
-		}
+		// Credits are NOT taken here. They were reserved when the vendor
+		// submitted the request (SubmitBatchSponsorshipRequests increments
+		// credits_used), and they are released again if the request is rejected
+		// or cancelled. Charging a second time on approval meant every
+		// sponsorship cost two credits, and a vendor who had spent their
+		// balance exactly could not be approved at all: the admin pressed
+		// approve and got "رصيد الرعاية غير كافٍ" on a request the vendor had
+		// already paid for.
+		//
+		// Approval is a decision, not a purchase.
 
 		// Mark as approved + active.
 		tag, err := tx.Exec(txCtx, `

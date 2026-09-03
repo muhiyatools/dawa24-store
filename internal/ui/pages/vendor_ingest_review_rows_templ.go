@@ -753,7 +753,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" class=\"row-center-xs gap-xs\"><input type=\"hidden\" name=\"display_name\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" class=\"review-money-form\"><input type=\"hidden\" name=\"display_name\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -823,7 +823,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" class=\"row-center-xs gap-xs\"><input type=\"hidden\" name=\"display_name\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" class=\"review-money-form\"><input type=\"hidden\" name=\"display_name\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -883,7 +883,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" class=\"row-center-xs gap-xs\"><input type=\"hidden\" name=\"display_name\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" class=\"review-money-form\"><input type=\"hidden\" name=\"display_name\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

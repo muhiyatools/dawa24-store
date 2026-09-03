@@ -483,6 +483,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 					searchQuery: '',
 					showDropdown: false,
 					packagesCredits: %s,
+					hasPackages: %t,
 
 					get currentAvailableList() {
 						if (this.itemType === 'product') {
@@ -528,6 +529,24 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 					onTypeChange() {
 						this.selectedItems = [];
 						this.searchQuery = '';
+					},
+
+					// Whether the request can be sent. This used to be written
+					// inline as a JavaScript expression containing Go's len(),
+					// which threw a ReferenceError on every evaluation — so the
+					// binding never resolved and the button was permanently
+					// dead. The Go side now hands the fact over as a boolean.
+					get canSubmit() {
+						return this.hasPackages
+							&& this.selectedItems.length > 0
+							&& this.selectedItems.length <= this.selectedPkgCredits;
+					},
+
+					get blockedReason() {
+						if (!this.hasPackages) return 'اشترِ باقة رعاية أولاً لتتمكن من إرسال الطلبات';
+						if (this.selectedItems.length === 0) return 'حدد صنفاً واحداً على الأقل لإرسال طلب الرعاية';
+						if (this.selectedItems.length > this.selectedPkgCredits) return 'عدد العناصر المحددة أكبر من رصيدك المتبقي في الباقة';
+						return '';
 					}
 				}`, InStockItemsToJSON(data.ItemOptions), ActiveOffersToJSON(data.ActiveOffers), func() string { if len(data.ActivePurchases) > 0 { return fmt.Sprintf("%d", data.ActivePurchases[0].PackageID) }; return "" }(), func() string {
 					m := make(map[string]int)
@@ -538,7 +557,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 					}
 					b, _ := json.Marshal(m)
 					return string(b)
-				}()) }
+				}(), len(data.ActivePurchases) > 0) }
 			>
 				<div class="d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
 					@components.IconPlus("icon-xs text-brand")
@@ -692,11 +711,12 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 						<button
 							type="submit"
 							class="btn btn-primary btn-sm font-black px-8 shadow-sm gap-2"
-							:disabled="selectedItems.length === 0 || selectedItems.length > selectedPkgCredits || len(data.ActivePurchases) === 0"
+							:disabled="!canSubmit"
 						>
 							@components.IconCheck("icon-xs")
-							<span x-text="selectedItems.length > 0 ? ('إرسال ' + selectedItems.length + ' طلب رعاية للمراجعة (خصم ' + selectedItems.length + ' رصيد)') : 'حدد أصنافاً لإرسال طلب الرعاية'"></span>
+							<span x-text="canSubmit ? ('إرسال ' + selectedItems.length + ' طلب رعاية للمراجعة (خصم ' + selectedItems.length + ' رصيد)') : 'إرسال طلب الرعاية'"></span>
 						</button>
+						<p class="text-2xs text-danger font-bold mt-2 m-0" x-show="blockedReason" x-cloak x-text="blockedReason"></p>
 					</div>
 				</form>
 			</div>

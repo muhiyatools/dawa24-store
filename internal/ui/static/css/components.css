@@ -1831,35 +1831,131 @@ input:focus {
    columns pinned so a row stays readable while the money columns are reached.
    ========================================================================== */
 
+/* The review table is ten columns wide and will not fit a laptop, so it owns a
+   scroller. The shell must not clip it: `overflow: hidden` on the parent hid
+   the scrollbar and, with the panel clipping too, left the last columns
+   unreachable — visible in neither the viewport nor a scroll. */
 .review-table-shell {
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
 }
 
 .review-table-scroll {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
+  inline-size: 100%;
+  /* Both axes explicitly: a scroller with `overflow-y: visible` and
+     `overflow-x: auto` has its `visible` silently computed to `auto` anyway,
+     and saying so is the difference between a header that can be made sticky
+     and one that cannot. */
+  overflow: auto;
+  max-block-size: min(70vh, 46rem);
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
 
 .review-table {
-  min-width: 1220px;
+  /* The sum of the column widths below (1414px), rounded up. Declaring less
+     than the columns actually need is what made the last ones overlap and
+     clip: the table could not shrink to the figure it was given, so the
+     browser resolved the conflict by compressing cells instead of scrolling. */
+  min-inline-size: 1420px;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .review-table th,
 .review-table td {
-  padding: 0.55rem 0.7rem;
+  padding: 0.5rem 0.625rem;
+  vertical-align: middle;
 }
 
-.review-col-pick { width: 42px; }
-.review-col-flag { width: 60px; }
-.review-col-num { width: 58px; }
-.review-col-name { min-width: 270px; }
-.review-col-catalog { min-width: 300px; }
-.review-col-score { width: 104px; }
-.review-col-money { width: 120px; }
-.review-col-qty { width: 100px; }
+/* Pinned header: a hundred rows of prices are unreadable once the header has
+   scrolled off. */
+.review-table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 3;
+  background: var(--bg-surface-sunken, #f8fafc);
+  box-shadow: inset 0 -1px 0 var(--border-card, var(--border-subtle));
+}
+
+/* Pinned identity columns, so a price read at the far end still belongs to a
+   visible product name. RTL-safe: inset-inline-start follows the writing mode. */
+.review-table thead th.review-col-pick,
+.review-table tbody td.review-col-pick { inset-inline-start: 0; }
+.review-table thead th.review-col-flag,
+.review-table tbody td.review-col-flag { inset-inline-start: 42px; }
+.review-table thead th.review-col-pick,
+.review-table thead th.review-col-flag,
+.review-table tbody td.review-col-pick,
+.review-table tbody td.review-col-flag {
+  position: sticky;
+  z-index: 2;
+  background: var(--bg-surface-raised, #fff);
+}
+.review-table thead th.review-col-pick,
+.review-table thead th.review-col-flag {
+  z-index: 4;
+  background: var(--bg-surface-sunken, #f8fafc);
+}
+.review-table tbody td.review-col-flag { box-shadow: inset -1px 0 0 var(--border-subtle); }
+.review-table tbody tr:hover td.review-col-pick,
+.review-table tbody tr:hover td.review-col-flag { background: var(--bg-surface-sunken, #f8fafc); }
+
+.review-col-pick { inline-size: 42px; min-inline-size: 42px; }
+.review-col-flag { inline-size: 60px; min-inline-size: 60px; }
+.review-col-num { inline-size: 58px; min-inline-size: 58px; }
+.review-col-name { min-inline-size: 260px; }
+.review-col-catalog { min-inline-size: 290px; }
+.review-col-score { inline-size: 104px; min-inline-size: 104px; }
+/* Wide enough for "1234.56" plus its save button. At 120px the field was about
+   seventy pixels and truncated every price over three digits. */
+.review-col-money { inline-size: 160px; min-inline-size: 160px; }
+.review-col-qty { inline-size: 120px; min-inline-size: 120px; }
+
+/* The inline edit: a field that shows its whole number, and a compact square
+   save button that never steals width from it. */
+.review-money-form {
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  margin: 0;
+}
+.review-money-form .form-input {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  inline-size: 100%;
+  padding-inline: 0.375rem;
+  padding-block: 0.3125rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+/* Spinners eat a third of a narrow numeric field and are useless for prices. */
+.review-money-form .form-input::-webkit-outer-spin-button,
+.review-money-form .form-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.review-money-form .form-input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.review-money-form .btn {
+  flex: 0 0 auto;
+  inline-size: 1.75rem;
+  min-inline-size: 1.75rem;
+  block-size: 1.75rem;
+  min-block-size: 1.75rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.review-money-form .btn svg { inline-size: 0.875rem; block-size: 0.875rem; }
+
+@media (max-width: 640px) {
+  .review-table-scroll { max-block-size: none; }
+  .review-table { min-inline-size: 1200px; }
+}
 
 .review-table input[type="checkbox"] {
   width: 16px;

@@ -166,7 +166,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		<!-- Public Price (سعر الجمهور - Editable Inline) -->
 		<td class="review-col-money text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-				class="row-center-xs gap-xs">
+				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				if row.Payload != nil && row.Payload.HasQuantity {
 					<input type="hidden" name="quantity" value={ fmt.Sprint(row.Payload.Quantity) }/>
@@ -185,7 +185,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		<!-- Discount Percentage % (نسبة الخصم - Editable Inline) -->
 		<td class="review-col-money text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-				class="row-center-xs gap-xs">
+				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				<input type="number" name="discount"
 					value={ rowDiscountPercentValue(row) }
@@ -209,7 +209,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		<!-- Quantity (Editable Inline) -->
 		<td class="review-col-qty text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-				class="row-center-xs gap-xs">
+				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				if row.Payload != nil && (row.Payload.NetPrice.IsPositive() || row.Payload.PublicPrice.IsPositive()) {
 					if row.Payload.NetPrice.IsPositive() {

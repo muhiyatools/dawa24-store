@@ -134,6 +134,10 @@ func (m *mockCatalogRepo) ListVariantsByProducts(_ context.Context, productIDs [
 	return list, nil
 }
 
+func (m *mockCatalogRepo) GetVariantsByIDs(context.Context, []int64) (map[int64]*ProductVariant, error) {
+	return map[int64]*ProductVariant{}, nil
+}
+
 func (m *mockCatalogRepo) ListVariantsByOrganization(_ context.Context, orgID int64, params VariantSearchParams) ([]*ProductVariant, int, error) {
 	var list []*ProductVariant
 	for _, v := range m.variants {
