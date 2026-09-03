@@ -706,18 +706,40 @@ function initScrollReveal() {
     window.addEventListener(evt, recordActivity, { passive: true, capture: true });
   });
 
+  var idleLogoutKey = 'dawa24_idle_logged_out';
+
+  function redirectIdle() {
+    try {
+      localStorage.setItem(idleLogoutKey, Date.now().toString());
+    } catch(e) {}
+    localStorage.removeItem(lastActivityKey);
+    var curPath = window.location.pathname + window.location.search;
+    window.location.href = '/auth/login?reason=idle_timeout&redirect=' + encodeURIComponent(curPath);
+  }
+
   function checkIdle() {
     try {
+      // Another tab already logged out for idleness: follow immediately so no
+      // tab stays on an authenticated screen with a dead session.
+      if (localStorage.getItem(idleLogoutKey)) {
+        localStorage.removeItem(lastActivityKey);
+        var curPath2 = window.location.pathname + window.location.search;
+        window.location.href = '/auth/login?reason=idle_timeout&redirect=' + encodeURIComponent(curPath2);
+        return;
+      }
       var stored = localStorage.getItem(lastActivityKey);
       var last = stored ? parseInt(stored, 10) : Date.now();
       var elapsed = Date.now() - last;
       if (elapsed >= idleLimitMs) {
-        localStorage.removeItem(lastActivityKey);
-        var curPath = window.location.pathname + window.location.search;
-        window.location.href = '/auth/login?reason=idle_timeout&redirect=' + encodeURIComponent(curPath);
+        redirectIdle();
       }
     } catch(e) {}
   }
+
+  // A fresh login clears a stale cross-tab logout flag from a previous session.
+  try {
+    localStorage.removeItem(idleLogoutKey);
+  } catch(e) {}
 
   setInterval(checkIdle, 10000);
 })();
