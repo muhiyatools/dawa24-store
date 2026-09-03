@@ -277,7 +277,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	var catalogAds []*promo.Ad
 	if h.promoSvc != nil {
 		if ads, err := h.promoSvc.ListActiveAds(ctx, promo.PositionCatalogTop); err == nil {
-			catalogAds = ads
+			catalogAds = shuffleAds(ads)
 			h.enrichAds(ctx, catalogAds)
 		}
 	}

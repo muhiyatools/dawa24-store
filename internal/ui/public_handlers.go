@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -58,7 +60,7 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 		// what made the landing page lock the browser up; it is capped here, at
 		// the source, so no amount of ad inventory can do that again.
 		if allActiveAds, err := h.promoSvc.ListActiveAds(ctx, ""); err == nil && len(allActiveAds) > 0 {
-			stats.Ads = capAds(allActiveAds, maxHeroAds)
+			stats.Ads = capAds(shuffleAds(allActiveAds), maxHeroAds)
 		} else {
 			if heroAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeHero); err == nil {
 				stats.Ads = append(stats.Ads, heroAds...)
@@ -66,13 +68,13 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 			if bannerAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBanner); err == nil {
 				stats.Ads = append(stats.Ads, bannerAds...)
 			}
-			stats.Ads = capAds(stats.Ads, maxHeroAds)
+			stats.Ads = capAds(shuffleAds(stats.Ads), maxHeroAds)
 		}
 		if dealsAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeDeals); err == nil {
-			stats.DealsAds = capAds(dealsAds, maxSectionAds)
+			stats.DealsAds = capAds(shuffleAds(dealsAds), maxSectionAds)
 		}
 		if bottomAds, err := h.promoSvc.ListActiveAds(ctx, promo.PositionHomeBottom); err == nil {
-			stats.BottomAds = capAds(bottomAds, maxSectionAds)
+			stats.BottomAds = capAds(shuffleAds(bottomAds), maxSectionAds)
 		}
 		// One batched enrichment for all three groups rather than three, so the
 		// same supplier appearing in two of them is fetched once.
@@ -140,6 +142,25 @@ func capAds(ads []*promo.Ad, n int) []*promo.Ad {
 		return ads
 	}
 	return ads[:n]
+}
+
+// shuffleAds reorders an ad list in place with Fisher-Yates, so every page
+// refresh shows the ads in a different order instead of the same newest-first
+// lineup. It runs after fetch and before capAds, which is what gives
+// lower-ranked ads a fair chance at the capped slots: the query stays on its
+// index (no ORDER BY RANDOM()) and admin/API orderings stay deterministic.
+// Tracking is unaffected — rotation never changes ad IDs, links or the
+// impression beacons rendered per ad.
+func shuffleAds(ads []*promo.Ad) []*promo.Ad {
+	if len(ads) < 2 {
+		return ads
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := len(ads) - 1; i > 0; i-- {
+		j := r.Intn(i + 1)
+		ads[i], ads[j] = ads[j], ads[i]
+	}
+	return ads
 }
 
 // concatAds joins the page's ad groups into one slice for a single enrichment

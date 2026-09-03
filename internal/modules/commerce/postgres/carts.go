@@ -45,12 +45,37 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			return err
 		}
 
+		// The special_offers join is what resolves bundle lines to their
+		// vendor (cart offer lines reference promo.special_offers rows, not
+		// promo.offers rows — two ID namespaces). Without it every bundle
+		// line resolves to organization 0 and checkout refuses it as
+		// item.vendor_required.
+		//
+		// The table is probed before use: on a database where its migration
+		// has not landed yet, referencing it would fail the whole cart with
+		// 42P01. Degrading to the base-offers join keeps the cart readable
+		// while the schema catches up (migration 172), instead of locking
+		// every pharmacy out of checkout.
+		hasSpecialOffers := false
+		if err := tx.QueryRow(txCtx,
+			`SELECT to_regclass('promo.special_offers') IS NOT NULL`,
+		).Scan(&hasSpecialOffers); err != nil {
+			hasSpecialOffers = false
+		}
+		spoOrgExpr := "NULL"
+		spoTitleExpr := "NULL"
+		spoJoin := ""
+		if hasSpecialOffers {
+			spoOrgExpr = "spo.organization_id"
+			spoTitleExpr = "spo.title"
+			spoJoin = "LEFT JOIN promo.special_offers spo ON spo.id = ci.offer_id"
+		}
 		queryItems := `
 			SELECT ci.id, ci.cart_id, COALESCE(ci.product_id, 0), COALESCE(ci.product_variant_id, 0), ci.quantity, ci.unit_price,
 			       ci.offer_id, ci.created_at, ci.updated_at,
 			       COALESCE(
 			           po.organization_id,
-			           spo.organization_id,
+			           ` + spoOrgExpr + `,
 			           pv.organization_id,
 			           p.organization_id,
 			           (
@@ -62,7 +87,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			           ),
 			           0
 			       ),
-			       COALESCE(p.name, po.title, spo.title, '{"ar":"","en":""}'::jsonb),
+			       COALESCE(p.name, po.title, ` + spoTitleExpr + `, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.name, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.min_order_price, 10.00),
 			       COALESCE((
@@ -75,10 +100,10 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			LEFT JOIN catalog.products p ON p.id = ci.product_id
 			LEFT JOIN catalog.product_variants pv ON pv.id = ci.product_variant_id
 			LEFT JOIN promo.offers po ON po.id = ci.offer_id
-			LEFT JOIN promo.special_offers spo ON spo.id = ci.offer_id
+			` + spoJoin + `
 			LEFT JOIN org.organizations o ON o.id = COALESCE(
 			    po.organization_id,
-			    spo.organization_id,
+			    ` + spoOrgExpr + `,
 			    pv.organization_id,
 			    p.organization_id,
 			    (
@@ -92,10 +117,6 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			WHERE ci.cart_id = $1
 			ORDER BY ci.id ASC;
 		`
-		// NOTE: cart offer lines reference promo.special_offers rows, not
-		// promo.offers rows (two ID namespaces). Both joins are needed: without
-		// the special_offers join every bundle line resolves to organization 0
-		// and checkout refuses it as item.vendor_required.
 		rows, err := tx.Query(txCtx, queryItems, cartID)
 		if err != nil {
 			return err

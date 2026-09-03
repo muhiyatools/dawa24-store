@@ -9,6 +9,48 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
+// shuffleAds must rotate ads per refresh without losing, duplicating or
+// mutating any ad: it is a permutation, and tracking (IDs/links/beacons)
+// rides on identity, never on position.
+func TestShuffleAdsKeepsEveryAd(t *testing.T) {
+	mk := func(ids ...int64) []*promo.Ad {
+		out := make([]*promo.Ad, 0, len(ids))
+		for _, id := range ids {
+			out = append(out, &promo.Ad{ID: id})
+		}
+		return out
+	}
+	if out := shuffleAds(nil); len(out) != 0 {
+		t.Errorf("nil in = %d out, want 0", len(out))
+	}
+	if out := shuffleAds(mk(1)); len(out) != 1 || out[0].ID != 1 {
+		t.Error("singleton shuffled")
+	}
+
+	// Distribution: over many shuffles every ad must reach the front seat,
+	// otherwise rotation is theatre and the cap keeps hiding the same ads.
+	fronts := map[int64]bool{}
+	for i := 0; i < 200; i++ {
+		out := shuffleAds(mk(1, 2, 3, 4, 5, 6, 7, 8))
+		if len(out) != 8 {
+			t.Fatalf("shuffle %d: len = %d, want 8", i, len(out))
+		}
+		seen := map[int64]int{}
+		for _, a := range out {
+			seen[a.ID]++
+		}
+		for id := int64(1); id <= 8; id++ {
+			if seen[id] != 1 {
+				t.Fatalf("shuffle %d: ad %d appears %d times", i, id, seen[id])
+			}
+		}
+		fronts[out[0].ID] = true
+	}
+	if len(fronts) < 2 {
+		t.Error("200 shuffles never rotated the front ad")
+	}
+}
+
 // Special offers that must not be sold are refused with a specific reason.
 func TestValidateSpecialOfferForCheckout(t *testing.T) {
 	past := time.Now().Add(-48 * time.Hour)
