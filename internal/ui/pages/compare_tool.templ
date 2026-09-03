@@ -173,7 +173,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 													type="button"
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("triggerMatchSingleFile(%d)", f.ID)} }
 													class="btn btn-secondary btn-icon btn-xs text-brand"
-													title="مطابقة بالكتالوج المركزي"
+													title="إعادة المطابقة بالكتالوج المركزي — تعمل تلقائياً بعد كل رفع"
 												>
 													@components.IconExternalLink("icon-2xs")
 												</button>
@@ -859,7 +859,9 @@ templ compareMatchPanel(matching CompareMatchOptions) {
 			<strong class="text-xs font-black text-primary">المطابقة بالكتالوج المركزي</strong>
 		</div>
 		<p class="text-2xs text-muted m-0 font-medium leading-relaxed">
-			ربط أصناف الكشوف بالكتالوج الموحد لمقارنة أسعار الأصناف المتشابهة بدقة.
+			تبدأ المطابقة بالكتالوج الموحد تلقائياً لكل ملف بمجرد رفعه، وتعمل في الخلفية
+			على دفعات حتى تنتهي كل الملفات. زر «إعادة المطابقة» بجانب الملف يعيد تشغيلها
+			عند الحاجة فقط.
 		</p>
 		if matching.AIAvailable {
 			<label class="d-flex items-center gap-2 cursor-pointer text-2xs font-bold text-secondary mt-0.5 select-none">

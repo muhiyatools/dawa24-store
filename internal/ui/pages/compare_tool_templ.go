@@ -316,7 +316,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedF
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"btn btn-secondary btn-icon btn-xs text-brand\" title=\"مطابقة بالكتالوج المركزي\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" class=\"btn btn-secondary btn-icon btn-xs text-brand\" title=\"إعادة المطابقة بالكتالوج المركزي — تعمل تلقائياً بعد كل رفع\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -567,7 +567,7 @@ func compareMatchPanel(matching CompareMatchOptions) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<strong class=\"text-xs font-black text-primary\">المطابقة بالكتالوج المركزي</strong></div><p class=\"text-2xs text-muted m-0 font-medium leading-relaxed\">ربط أصناف الكشوف بالكتالوج الموحد لمقارنة أسعار الأصناف المتشابهة بدقة.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<strong class=\"text-xs font-black text-primary\">المطابقة بالكتالوج المركزي</strong></div><p class=\"text-2xs text-muted m-0 font-medium leading-relaxed\">تبدأ المطابقة بالكتالوج الموحد تلقائياً لكل ملف بمجرد رفعه، وتعمل في الخلفية على دفعات حتى تنتهي كل الملفات. زر «إعادة المطابقة» بجانب الملف يعيد تشغيلها عند الحاجة فقط.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
