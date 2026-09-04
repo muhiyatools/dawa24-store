@@ -41,10 +41,10 @@ const (
 
 // MatchLabels renders a match reason in the admin's language.
 var MatchLabels = map[MatchReason]string{
-	MatchSKU:     i18n.TDefault("w4_mod.s_332_332"),
-	MatchBarcode: i18n.TDefault("w4_mod.s_333_333"),
-	MatchName:    i18n.TDefault("w4_mod.s_334_334"),
-	MatchSimilar: i18n.TDefault("w4_mod.s_335_335"),
+	MatchSKU:      i18n.TDefault("w4_mod.s_332_332"),
+	MatchBarcode:  i18n.TDefault("w4_mod.s_333_333"),
+	MatchName:     i18n.TDefault("w4_mod.s_334_334"),
+	MatchSimilar:  i18n.TDefault("w4_mod.s_335_335"),
 	MatchAI:       i18n.TDefault("w4_mod.s_336_336"),
 	MatchDisputed: "تعارض بين المطابقة الآلية والمراجعة الذكية — يلزم القرار يدوياً",
 }

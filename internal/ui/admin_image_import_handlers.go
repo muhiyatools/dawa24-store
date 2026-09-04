@@ -89,7 +89,10 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 		return
 	}
 
-	rawRows, err := sheet.ReadRows(data, header.Filename)
+	// This file is a list of image addresses; that is what the feature is. The
+	// URLs it carries are fetched by the importer under its own scheme, host
+	// and size rules, which is where that check belongs.
+	rawRows, err := sheet.ReadRows(data, header.Filename, sheet.WithAllowURLs(true))
 	if err != nil {
 		// The reader's own message names the actual problem — a password, a
 		// damaged BIFF workbook, an unrecognised container — and is far more

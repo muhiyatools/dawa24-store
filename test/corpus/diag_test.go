@@ -64,4 +64,3 @@ func TestDiagFile(t *testing.T) {
 		t.Fatalf("process: %v", err)
 	}
 }
-

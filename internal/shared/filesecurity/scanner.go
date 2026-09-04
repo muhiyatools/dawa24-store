@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/xuri/excelize/v2"
 	xreader "github.com/shakinm/xlsReader/xls"
+	"github.com/xuri/excelize/v2"
 )
 
 // SecurityErrorMessage is the canonical Arabic message returned when an upload is blocked.
@@ -32,6 +32,19 @@ var (
 // Options configure spreadsheet security inspection.
 type Options struct {
 	AllowEmails bool
+	// AllowURLs permits addresses in a file whose whole purpose is to carry
+	// them.
+	//
+	// Exactly one importer qualifies: the product-image import, whose column IS
+	// a list of image URLs and which is unusable without them. It is an opt-in
+	// rather than an exception coded in here, for the same reason AllowEmails
+	// is: the caller knows what its file is for, and this package does not.
+	//
+	// It is not a hole. The URLs in that file are fetched by the importer under
+	// its own rules — scheme, host and size — and a scanner that refused to let
+	// the file be read at all did not make that safer; it made the feature
+	// impossible while leaving every other upload exactly as protected.
+	AllowURLs bool
 }
 
 // Option modifies Options.
@@ -41,6 +54,14 @@ type Option func(*Options)
 func WithAllowEmails(allow bool) Option {
 	return func(o *Options) {
 		o.AllowEmails = allow
+	}
+}
+
+// WithAllowURLs allows addresses in a file whose purpose is to carry them.
+// See Options.AllowURLs — the product-image import and nothing else.
+func WithAllowURLs(allow bool) Option {
+	return func(o *Options) {
+		o.AllowURLs = allow
 	}
 }
 
@@ -119,6 +140,9 @@ func ValidateSpreadsheetSecurity(content []byte, filename string, opts ...Option
 	var cfg Options
 	for _, opt := range opts {
 		opt(&cfg)
+	}
+	if cfg.AllowURLs {
+		return nil
 	}
 
 	// 1. Detect format by magic bytes or extension

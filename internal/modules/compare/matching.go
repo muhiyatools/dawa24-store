@@ -120,78 +120,28 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 	}
 
 	// -----------------------------------------------------------------------
-	// Strategy 3: Trigram / Candidate Fuzzy Match
+	// Strategy 3: the shared matching engine
 	// -----------------------------------------------------------------------
-	var bestCandidate *CandidateProduct
-	bestScore := 0.0
-
-	for _, c := range candidates {
-		scoreAr := CalculateTextSimilarity(normName, normalizeProductText(c.NameAr))
-		scoreEn := CalculateTextSimilarity(normName, normalizeProductText(c.NameEn))
-		score := math.Max(scoreAr, scoreEn)
-
-		if c.ScientificName != "" {
-			scoreSci := CalculateTextSimilarity(normName, normalizeProductText(c.ScientificName))
-			score = math.Max(score, scoreSci)
-		}
-		if c.ManufacturingCompanies != "" {
-			scoreMfg := CalculateTextSimilarity(normName, normalizeProductText(c.ManufacturingCompanies))
-			score = math.Max(score, scoreMfg)
-		}
-		if c.Pharmacology != "" {
-			scorePh := CalculateTextSimilarity(normName, normalizeProductText(c.Pharmacology))
-			score = math.Max(score, scorePh)
-		}
-
-		if score > bestScore {
-			bestScore = score
-			bestCandidate = c
-		}
-	}
-
-	if bestCandidate != nil && bestScore >= 0.60 {
-		confidence := math.Round(bestScore * 100.0)
-		if bestScore >= 0.90 {
-			return &MatchResult{
-				ProductID:   &bestCandidate.ID,
-				Confidence:  confidence,
-				Method:      MatchMethodFuzzy,
-				MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_162"), int(confidence)),
-			}, nil
-		}
-		return &MatchResult{
-			ProductID:   &bestCandidate.ID,
-			Confidence:  confidence,
-			Method:      MatchMethodPartial,
-			MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_163"), int(confidence)),
-		}, nil
-	}
-
-	// -----------------------------------------------------------------------
-	// Strategy 4: Token-subset / First Meaningful Word Match
-	// -----------------------------------------------------------------------
-	firstWord := extractFirstMeaningfulWord(rawName)
-	if len([]rune(firstWord)) >= 3 {
-		for _, c := range candidates {
-			cSearch := normalizeProductText(c.NameAr + " " + c.NameEn + " " + c.ScientificName)
-			if strings.Contains(cSearch, firstWord) {
-				score := CalculateTextSimilarity(normName, normalizeProductText(c.NameAr))
-				if score > bestScore {
-					bestScore = score
-					bestCandidate = c
-				}
-			}
-		}
-
-		if bestCandidate != nil && bestScore >= 0.55 {
-			confidence := math.Round(bestScore * 100.0)
-			return &MatchResult{
-				ProductID:   &bestCandidate.ID,
-				Confidence:  confidence,
-				Method:      MatchMethodPartial,
-				MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_163"), int(confidence)),
-			}, nil
-		}
+	//
+	// This used to be a similarity blend of its own, and it was the loosest
+	// matcher on the platform by a wide margin. It compared the row against
+	// each candidate's name, its scientific name, its MANUFACTURER and its
+	// PHARMACOLOGY, took the best of the five, and applied anything at 0.60 —
+	// with no strength check, no dosage-form check and no line-extension check.
+	//
+	// Reading a manufacturer as a product name is not a near miss. "GSK" scores
+	// against every row that mentions GSK, and the ladder then returned one
+	// arbitrary GSK product at ninety per cent confidence. The same blend also
+	// made 500 mg and 1 g interchangeable, which is the single mistake this
+	// platform's engine exists to make impossible.
+	//
+	// So the candidates go through internal/shared/productmatch, exactly as the
+	// smart order, the vendor import, the saving list and the master-catalogue
+	// import do: the same rarity weighting, the same dose and form and
+	// line-extension discrimination, the same refusal to choose between two
+	// products the row cannot separate.
+	if res, ok := s.matchAgainst(rawName, sku, barcode, candidates); ok {
+		return res, nil
 	}
 
 	// -----------------------------------------------------------------------
@@ -264,3 +214,79 @@ func extractFirstMeaningfulWord(s string) string { return productmatch.FirstMean
 
 // CalculateTextSimilarity computes string similarity between two normalized strings.
 func CalculateTextSimilarity(s1, s2 string) float64 { return productmatch.TextSimilarity(s1, s2) }
+
+// matchAgainst scores one row against its candidates with the shared engine.
+//
+// The index is built per call because the ladder's signature is per row and its
+// candidate set is a shortlist the caller has already narrowed — a few dozen
+// products, not the catalogue. A caller matching a whole file should build the
+// index once and use productmatch.MatchAll; this exists so the per-row entry
+// point cannot answer differently from the rest of the platform.
+func (s *Service) matchAgainst(
+	rawName, sku, barcode string, candidates []*CandidateProduct,
+) (*MatchResult, bool) {
+	if len(candidates) == 0 {
+		return nil, false
+	}
+
+	masters := make([]productmatch.MasterProduct, 0, len(candidates))
+	for _, c := range candidates {
+		if c == nil || c.ID <= 0 {
+			continue
+		}
+		// The manufacturer and the pharmacology travel in their own fields,
+		// where the engine treats them as corroboration that can never decide a
+		// match on its own. That is the whole difference from the blend this
+		// replaced.
+		masters = append(masters, productmatch.MasterProduct{
+			ID:           c.ID,
+			NameAR:       c.NameAr,
+			NameEN:       c.NameEn,
+			SKU:          c.SKU,
+			Scientific:   c.ScientificName,
+			Manufacturer: c.ManufacturingCompanies,
+		})
+	}
+	if len(masters) == 0 {
+		return nil, false
+	}
+
+	idx := productmatch.NewIndex(masters)
+	res := idx.Match(&productmatch.Row{
+		Name:    strings.TrimSpace(rawName),
+		SKU:     strings.TrimSpace(sku),
+		Barcode: strings.TrimSpace(barcode),
+	}, productmatch.DefaultMatchOptions())
+
+	if !res.Matched() || !res.Level.Settled() {
+		// Ambiguity and review both come back unmatched. Two products that fit
+		// equally well is not a weaker match; it is a question, and this tool
+		// has a screen for asking it.
+		return nil, false
+	}
+
+	confidence := math.Round(res.Score * 100.0)
+	method, label := compareMethodFor(res.Level, confidence)
+	id := res.ProductID
+	return &MatchResult{
+		ProductID:   &id,
+		Confidence:  confidence,
+		Method:      method,
+		MethodLabel: label,
+	}, true
+}
+
+// compareMethodFor renders the engine's level in the vocabulary this tool's
+// stored rows and its screens already use.
+func compareMethodFor(level productmatch.MatchLevel, confidence float64) (MatchMethod, string) {
+	switch level {
+	case productmatch.MatchBarcode:
+		return MatchMethodBarcode, i18n.TDefault("w4_mod.s_372_372")
+	case productmatch.MatchCode:
+		return MatchMethodSKU, i18n.TDefault("w4_mod.sku_161")
+	case productmatch.MatchExact:
+		return MatchMethodExactName, i18n.TDefault("w4_mod.s_373_373")
+	default:
+		return MatchMethodFuzzy, fmt.Sprintf(i18n.TDefault("w4_mod.d_162"), int(confidence))
+	}
+}

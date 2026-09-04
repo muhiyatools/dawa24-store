@@ -94,4 +94,3 @@ func BenchmarkMatchAllSerial(b *testing.B) {
 	}
 	b.ReportMetric(float64(len(file)*b.N)/b.Elapsed().Seconds(), "rows/sec")
 }
-

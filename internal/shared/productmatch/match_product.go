@@ -60,14 +60,14 @@ type MasterProduct struct {
 	// only the descriptive half of a product name — "غسول نسائى 200 مل" against
 	// another company's "غسول نسائي 200 مل" — scores well on the first question
 	// and badly on the second, and the second is the one that was not asked.
-	wAR      []float64
-	wEN      []float64
-	totAR    float64
-	totEN    float64
-	triAR    []trigram
-	triEN    []trigram
-	nums     []float64
-	nameKey  string
+	wAR     []float64
+	wEN     []float64
+	totAR   float64
+	totEN   float64
+	triAR   []trigram
+	triEN   []trigram
+	nums    []float64
+	nameKey string
 	// formKey is the form BOTH names between them state, which is what the
 	// scorer's corroboration bonus and the AI guard's veto read. The per-side
 	// reductions in factsAR/factsEN are what the conflict comparison reads —
@@ -77,8 +77,8 @@ type MasterProduct struct {
 	// only where a name states none.
 	formMeta string
 	// factsAR and factsEN are each name reduced to the attributes it states.
-	factsAR nameFacts
-	factsEN nameFacts
+	factsAR  nameFacts
+	factsEN  nameFacts
 	strength strength
 	// strengthsMeta are the doses the record's concentration column states,
 	// used only where a name states none. See nameFacts.strengths.

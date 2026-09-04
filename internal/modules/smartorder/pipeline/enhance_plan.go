@@ -23,7 +23,6 @@ package pipeline
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
-	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // verifiable reports whether a settled line's match rests on a name, and is
@@ -159,14 +158,4 @@ func appendMissing(ids []int64, id int64) []int64 {
 // this pipeline and the vendor import hash the same question identically.
 func DebugDecisionKey(normName string, candidateIDs []int64) string {
 	return matchflow.DecisionKey(normName, candidateIDs)
-}
-
-// candidateIDs lists a review's shortlist, for callers that need it without the
-// rest of the question.
-func candidateIDs(cs []productmatch.MatchCandidate) []int64 {
-	out := make([]int64, 0, len(cs))
-	for _, c := range cs {
-		out = append(out, c.ProductID)
-	}
-	return out
 }

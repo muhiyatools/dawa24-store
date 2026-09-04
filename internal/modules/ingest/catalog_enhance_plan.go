@@ -20,7 +20,6 @@ package ingest
 
 import (
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
-	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // questions renders the open rows as questions for the model.
@@ -151,14 +150,4 @@ func (r *openRow) firstRow() int {
 		return 0
 	}
 	return r.sourceRows[0]
-}
-
-// shortlist lists a row's retrieved candidates, for the callers that need the
-// ids alone.
-func shortlist(cs []productmatch.MatchCandidate) []int64 {
-	out := make([]int64, 0, len(cs))
-	for _, c := range cs {
-		out = append(out, c.ProductID)
-	}
-	return out
 }

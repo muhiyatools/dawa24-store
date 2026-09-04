@@ -99,16 +99,35 @@ func TestMatchLadder_AllStrategies(t *testing.T) {
 		t.Errorf("expected high confidence >= 90 for normalized match, got %f", match.Confidence)
 	}
 
-	// Strategy 4: First Meaningful Word Match
-	match, err = svc.MatchLadder(ctx, &orgID, "كتافلام شراب أطفال غير مسجل بالجرام", "", "", candidates)
+	// A terser line still resolves: the brand and the strength agree and nothing
+	// contradicts, so the missing pack count is a detail rather than a
+	// difference.
+	match, err = svc.MatchLadder(ctx, &orgID, "كتافلام 50 مجم", "", "", candidates)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if match.ProductID == nil || *match.ProductID != 20 {
-		t.Errorf("expected Strategy 4 (First Meaningful Word) to match product 20, got %v", match.ProductID)
+		t.Errorf("expected the terse Cataflam line to match product 20, got %v", match.ProductID)
 	}
-	if match.Method != compare.MatchMethodPartial {
-		t.Errorf("expected partial method for token search, got %s", match.Method)
+
+	// 🚦 Sharing a brand is not being the same product.
+	//
+	// "كتافلام شراب أطفال" is a paediatric syrup and product 20 is the
+	// fifty-milligram tablet. They share the brand and nothing else, and the
+	// ladder used to join them on exactly that — its "first meaningful word"
+	// strategy matched on the brand alone at 55%, with no form check and no
+	// strength check.
+	//
+	// This is the class of wrong match the shared engine exists to refuse: a
+	// syrup is not a tablet, and a price comparison built on that tells a
+	// pharmacy the wrong medicine is cheaper elsewhere.
+	match, err = svc.MatchLadder(ctx, &orgID, "كتافلام شراب أطفال غير مسجل بالجرام", "", "", candidates)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if match.ProductID != nil {
+		t.Errorf("a paediatric syrup was matched to the 50mg tablet of the same brand: %d",
+			*match.ProductID)
 	}
 
 	// Strategy 5: Unmatched (< 55%)

@@ -168,10 +168,21 @@ type Book struct {
 // OpenConfig configures spreadsheet opening.
 type OpenConfig struct {
 	AllowEmails bool
+	// AllowURLs is for the one importer whose file is a list of addresses.
+	// See filesecurity.Options.AllowURLs.
+	AllowURLs bool
 }
 
 // OpenOption modifies OpenConfig.
 type OpenOption func(*OpenConfig)
+
+// WithAllowURLs permits addresses in a file whose purpose is to carry them —
+// the product-image import, and nothing else.
+func WithAllowURLs(allow bool) OpenOption {
+	return func(c *OpenConfig) {
+		c.AllowURLs = allow
+	}
+}
 
 // WithAllowEmails permits valid email addresses in spreadsheet cells (e.g. for team member imports).
 func WithAllowEmails(allow bool) OpenOption {
@@ -195,6 +206,9 @@ func Open(content []byte, filename string, opts ...OpenOption) (*Book, error) {
 	var secOpts []filesecurity.Option
 	if cfg.AllowEmails {
 		secOpts = append(secOpts, filesecurity.WithAllowEmails(true))
+	}
+	if cfg.AllowURLs {
+		secOpts = append(secOpts, filesecurity.WithAllowURLs(true))
 	}
 	if err := filesecurity.ValidateSpreadsheetSecurity(content, filename, secOpts...); err != nil {
 		return nil, err
