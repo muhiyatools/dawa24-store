@@ -87,7 +87,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	if h.catSvc != nil {
 		variants, total, err := h.catSvc.ListVendorVariants(database.AsSystem(ctx), id, catalog.VendorVariantQuery{
 			Query:      q,
-			Status:     "active",
+			Status:     r.URL.Query().Get("status"),
 			Stock:      stockFilter,
 			PageNumber: page,
 			PerPage:    limit,

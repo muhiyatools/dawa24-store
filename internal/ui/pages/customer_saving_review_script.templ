@@ -1,0 +1,283 @@
+package pages
+
+templ CustomerSavingReviewScript() {
+	<script>
+		function pollPharmacyImportProgress(sessionId) {
+			if (pharmacyPollInterval) { clearInterval(pharmacyPollInterval); pharmacyPollInterval = null; }
+			if (pharmacyProgressBar) { pharmacyProgressBar.stop(); }
+
+			if (window.ImportProgress) {
+				pharmacyProgressBar = new window.ImportProgress({
+					fill:    document.getElementById('pharmacy-progress-bar'),
+					label:   document.getElementById('pharmacy-progress-phase'),
+					percent: document.getElementById('pharmacy-progress-percent'),
+					count:   document.getElementById('pharmacy-progress-counter'),
+				});
+				pharmacyProgressBar.start();
+			}
+
+			const step = () => {
+				fetch('/customer/saving-products/import/session/' + sessionId + '/progress')
+				.then(r => r.json())
+				.then(sess => {
+					if (!sess || !sess.success) {
+						if (pharmacyProgressBar) pharmacyProgressBar.fail(sess && sess.error ? sess.error : 'فشلت معالجة الجلسة.');
+						alert((sess && sess.error) || 'فشلت معالجة الجلسة.');
+						showPharmacyImportStep('config');
+						return;
+					}
+					if (sess.status === 'failed') {
+						if (pharmacyProgressBar) pharmacyProgressBar.fail(sess.error_message || 'خطأ غير معروف');
+						alert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));
+						showPharmacyImportStep('config');
+						return;
+					}
+
+					if (pharmacyProgressBar) {
+						pharmacyProgressBar.update({
+							percent: sess.progress,
+							message: sess.progress_phase,
+							current: sess.processed_rows,
+							total:   sess.total_rows,
+							done:    sess.status === 'ready',
+						});
+					}
+
+					if (sess.status === 'ready') {
+						pharmacyStagedData = sess;
+						renderPharmacyStagedReview(sess);
+						return;
+					}
+					setTimeout(step, 600);
+				})
+				.catch(err => {
+					console.error('poll progress error', err);
+					setTimeout(step, 2000);
+				});
+			};
+			step();
+		}
+
+		function showPharmacyImportStep(step) {
+			const configStep = document.getElementById('pharmacy-import-step-config');
+			const progressStep = document.getElementById('pharmacy-import-step-progress');
+			const reviewStep = document.getElementById('pharmacy-import-step-review');
+
+			const subtitle = document.getElementById('pharmacy-import-modal-subtitle');
+			const icon = document.getElementById('pharmacy-import-modal-icon');
+
+			const startBtn = document.getElementById('pharmacy-start-btn');
+			const commitBtn = document.getElementById('pharmacy-commit-btn');
+			const backBtn = document.getElementById('pharmacy-back-btn');
+			const cancelBtn = document.getElementById('pharmacy-cancel-btn');
+
+			if (configStep) configStep.classList.toggle('d-none', step !== 'config');
+			if (progressStep) progressStep.classList.toggle('d-none', step !== 'progress');
+			if (reviewStep) reviewStep.classList.toggle('d-none', step !== 'review');
+
+			if (step === 'config') {
+				if (subtitle) subtitle.textContent = 'الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة';
+				if (icon) icon.textContent = '';
+				if (startBtn) startBtn.classList.remove('d-none');
+				if (commitBtn) commitBtn.classList.add('d-none');
+				if (backBtn) backBtn.classList.add('d-none');
+				if (cancelBtn) cancelBtn.textContent = 'إلغاء';
+			} else if (step === 'progress') {
+				if (subtitle) subtitle.textContent = 'الخطوة 2 من 3: المعالجة والمطابقة في الخلفية';
+				if (icon) icon.textContent = '';
+				if (startBtn) startBtn.classList.add('d-none');
+				if (commitBtn) commitBtn.classList.add('d-none');
+				if (backBtn) backBtn.classList.add('d-none');
+				if (cancelBtn) cancelBtn.textContent = 'إلغاء المعالجة';
+			} else if (step === 'review') {
+				if (subtitle) subtitle.textContent = 'الخطوة 3 من 3: مراجعة المسودة وتأكيد الحفظ النهائي';
+				if (icon) icon.textContent = '';
+				if (startBtn) startBtn.classList.add('d-none');
+				if (commitBtn) commitBtn.classList.remove('d-none');
+				if (backBtn) backBtn.classList.remove('d-none');
+				if (cancelBtn) cancelBtn.textContent = 'تفريغ وإلغاء المسودة';
+			}
+		}
+
+		function renderPharmacyStagedReview(sess) {
+			showPharmacyImportStep('review');
+
+			const totalCountEl = document.getElementById('pharmacy-review-total-count');
+			if (totalCountEl) totalCountEl.textContent = sess.total_rows || (sess.items ? sess.items.length : 0);
+			const matchedCountEl = document.getElementById('pharmacy-review-matched-count');
+			if (matchedCountEl) matchedCountEl.textContent = sess.matched_rows || 0;
+			const unlinkedCountEl = document.getElementById('pharmacy-review-unlinked-count');
+			if (unlinkedCountEl) unlinkedCountEl.textContent = sess.unlinked_rows || 0;
+			const totalQtyEl = document.getElementById('pharmacy-review-total-qty');
+			if (totalQtyEl) totalQtyEl.textContent = Number(sess.total_quantity || 0).toLocaleString();
+
+			const bAll = document.getElementById('pharmacy-badge-all');
+			if (bAll) bAll.textContent = sess.items ? sess.items.length : 0;
+			const bMatched = document.getElementById('pharmacy-badge-matched');
+			if (bMatched) bMatched.textContent = sess.matched_rows || 0;
+			const bUnlinked = document.getElementById('pharmacy-badge-unlinked');
+			if (bUnlinked) bUnlinked.textContent = sess.unlinked_rows || 0;
+
+			renderPharmacyReviewRows(sess.items || []);
+		}
+
+		function renderPharmacyReviewRows(items) {
+			const tbody = document.getElementById('pharmacy-review-table-body');
+			if (!tbody) return;
+
+			const searchVal = (document.getElementById('pharmacy-review-search')?.value || '').trim().toLowerCase();
+
+			let html = '';
+			let selectedCount = 0;
+
+			items.forEach((item, idx) => {
+				const isMatched = !!item.product_id;
+				if (pharmacyCurrentTab === 'matched' && !isMatched) return;
+				if (pharmacyCurrentTab === 'unlinked' && isMatched) return;
+
+				if (searchVal) {
+					const n = (item.name_product || '').toLowerCase();
+					const s = (item.sku || '').toLowerCase();
+					const m = (item.master_product_name || '').toLowerCase();
+					if (!n.includes(searchVal) && !s.includes(searchVal) && !m.includes(searchVal)) {
+						return;
+					}
+				}
+
+				if (item.included !== false) selectedCount++;
+
+				let matchBadge = '<span class="badge badge-amber text-xs">غير مرتبط (جديد)</span>';
+				if (isMatched) {
+					if (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {
+						matchBadge = '<span class="badge badge-emerald text-xs">كود SKU</span>';
+					} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {
+						matchBadge = '<span class="badge badge-emerald text-xs">اسم متطابق</span>';
+					} else if (item.match_type === 'core_name') {
+						matchBadge = '<span class="badge badge-sky text-xs">اسم مجرد</span>';
+					} else {
+						const conf = Math.round((item.confidence || 0) * 100);
+						matchBadge = '<span class="badge badge-purple text-xs">تشابه ' + conf + '%</span>';
+					}
+				}
+
+				const masterDisplay = item.master_product_name ? 
+					('<strong>' + item.master_product_name + '</strong>' + (item.master_product_sku ? ' <code class="text-xs text-muted">(' + item.master_product_sku + ')</code>' : '')) : 
+					'<span>— صنف حر غير مقيد —</span>';
+
+				const checkedAttr = (item.included !== false) ? 'checked' : '';
+
+				html += '<tr class="rule-bottom">' +
+					'<td class="text-center">' +
+						'<input type="checkbox" class="pharmacy-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' onchange="updatePharmacyRowInclusion(' + idx + ', this.checked)" />' +
+					'</td>' +
+					'<td><strong class="text-body">' + (item.name_product || '') + '</strong></td>' +
+					'<td><code class="text-xs">' + (item.sku || '—') + '</code></td>' +
+					'<td>' + masterDisplay + '</td>' +
+					'<td class="text-center">' + matchBadge + '</td>' +
+					'<td class="text-center tabular-nums font-bold">' + (item.quantity || 0) + '</td>' +
+					'<td class="text-end tabular-nums font-bold">' + (item.price || '0.00') + ' ج.م</td>' +
+					'</tr>';
+			});
+
+			if (!html) {
+				html = '<tr><td colspan="7">لا توجد أصناف تطابق الفلتر الحالي.</td></tr>';
+			}
+
+			tbody.innerHTML = html;
+			const countEl = document.getElementById('pharmacy-selected-count');
+			if (countEl) countEl.textContent = selectedCount;
+		}
+
+		function updatePharmacyRowInclusion(idx, included) {
+			if (pharmacyStagedData && pharmacyStagedData.items && pharmacyStagedData.items[idx]) {
+				pharmacyStagedData.items[idx].included = included;
+			}
+			let count = 0;
+			if (pharmacyStagedData && pharmacyStagedData.items) {
+				pharmacyStagedData.items.forEach(it => { if (it.included !== false) count++; });
+			}
+			const countEl = document.getElementById('pharmacy-selected-count');
+			if (countEl) countEl.textContent = count;
+		}
+
+		function toggleAllPharmacyStagedRows(checked) {
+			if (pharmacyStagedData && pharmacyStagedData.items) {
+				pharmacyStagedData.items.forEach(it => { it.included = checked; });
+			}
+			const cbs = document.querySelectorAll('.pharmacy-staged-row-cb');
+			cbs.forEach(cb => cb.checked = checked);
+			const countEl = document.getElementById('pharmacy-selected-count');
+			if (countEl) countEl.textContent = checked && pharmacyStagedData && pharmacyStagedData.items ? pharmacyStagedData.items.length : 0;
+		}
+
+		function filterPharmacyReviewTable(tab) {
+			pharmacyCurrentTab = tab;
+			['all', 'matched', 'unlinked'].forEach(t => {
+				const btn = document.getElementById('pharmacy-tab-' + t);
+				if (btn) {
+					btn.classList.toggle('active', t === tab);
+				}
+			});
+			if (pharmacyStagedData && pharmacyStagedData.items) {
+				renderPharmacyReviewRows(pharmacyStagedData.items);
+			}
+		}
+
+		function searchPharmacyReviewTable(val) {
+			if (pharmacyStagedData && pharmacyStagedData.items) {
+				renderPharmacyReviewRows(pharmacyStagedData.items);
+			}
+		}
+
+		function commitPharmacyStagedImport() {
+			if (!pharmacyActiveSessionId) return;
+
+			const btn = document.getElementById('pharmacy-commit-btn');
+			if (btn) {
+				btn.disabled = true;
+				btn.textContent = '⏳ جاري الحفظ النهائي في قاعدة البيانات...';
+			}
+
+			fetch('/customer/saving-products/import/session/' + pharmacyActiveSessionId + '/commit', {
+				method: 'POST',
+			})
+			.then(r => r.json())
+			.then(res => {
+				if (!res.success) {
+					alert(res.error || 'فشل حفظ الأصناف.');
+					if (btn) {
+						btn.disabled = false;
+						btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';
+					}
+					return;
+				}
+				alert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');
+				window.location.reload();
+			})
+			.catch(err => {
+				console.error('commit error', err);
+				alert('حدث خطأ في الاتصال أثناء تأكيد الحفظ.');
+				if (btn) {
+					btn.disabled = false;
+					btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';
+				}
+			});
+		}
+
+		function handlePharmacyImportCancelClick() {
+			if (pharmacyPollInterval) clearInterval(pharmacyPollInterval);
+
+			if (pharmacyActiveSessionId) {
+				fetch('/customer/saving-products/import/session/' + pharmacyActiveSessionId + '/cancel', { method: 'POST' }).catch(() => {});
+				pharmacyActiveSessionId = null;
+				pharmacyStagedData = null;
+			}
+			closePharmacyImportModal();
+		}
+
+		function backToPharmacyImportConfig() {
+			if (pharmacyPollInterval) clearInterval(pharmacyPollInterval);
+			showPharmacyImportStep('config');
+		}
+	</script>
+}

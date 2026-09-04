@@ -426,6 +426,53 @@ if (document.readyState === 'loading') {
   initMapPickers();
 }
 
+/**
+ * Programmatically set the location of a map picker and pan/zoom its Leaflet instance.
+ * Used by branch managers and admin city modals on edit.
+ */
+window.dawaSetMapLocation = function(target, lat, lon, zoom) {
+  var el = typeof target === 'string' ? document.querySelector(target) : target;
+  if (!el) return;
+  var pLat = parseFloat(lat);
+  var pLon = parseFloat(lon);
+  if (isNaN(pLat) || isNaN(pLon)) return;
+
+  var z = (zoom !== undefined && zoom !== null) ? zoom : 14;
+
+  function doUpdate(container) {
+    if (typeof container._updateCoords === 'function') {
+      container._updateCoords(pLat, pLon, z);
+      if (container._leaflet_map) {
+        container._leaflet_map.invalidateSize();
+        setTimeout(function() {
+          if (container._leaflet_map) container._leaflet_map.invalidateSize();
+        }, 200);
+      }
+      return true;
+    }
+    var canvas = container.querySelector ? container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
+    if (canvas && typeof canvas._updateCoords === 'function') {
+      canvas._updateCoords(pLat, pLon, z);
+      if (canvas._leaflet_map) {
+        canvas._leaflet_map.invalidateSize();
+        setTimeout(function() {
+          if (canvas._leaflet_map) canvas._leaflet_map.invalidateSize();
+        }, 200);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  if (!doUpdate(el)) {
+    el.dataset.defaultLat = pLat;
+    el.dataset.defaultLon = pLon;
+    initMapPickers();
+    setTimeout(function() { doUpdate(el); }, 150);
+  }
+};
+window.setMapPickerLocation = window.dawaSetMapLocation;
+
 /* --------------------------------------------------------------------------
    "موقعي الحالي" — one delegated handler for the eight buttons that ask for it.
 

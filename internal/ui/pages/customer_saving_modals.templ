@@ -1,0 +1,129 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ CustomerSavingModals(lang string) {
+	<!-- MODAL 1: Create / Edit Saving Product Modal -->
+	@components.Modal(components.ModalProps{
+		ID:    "pharmacy-saving-product-modal",
+		Title: "إضافة طلب توفير جديد",
+		Size:  "md",
+	}) {
+		<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products" class="d-flex flex-col gap-4 m-0">
+			<input type="hidden" id="pharmacy-form-saving-id" name="id" value=""/>
+			
+			<div class="modal-body d-flex flex-col gap-3">
+				<div class="stack-sm">
+					<label class="form-label text-sm font-bold text-primary">
+						اسم الصنف الدوائي بالصيدلية <span class="text-danger">*</span>
+					</label>
+					<input
+						type="text"
+						id="pharmacy-form-name-product"
+						name="name_product"
+						required
+						placeholder="مثال: أوجمنتين 1 جم 14 قرص"
+						class="form-input w-full-rounded"
+					/>
+				</div>
+
+				<div class="d-grid grid-cols-2 gap-3">
+					<div class="stack-sm">
+						<label class="form-label text-sm font-bold text-primary">
+							رمز SKU (اختياري)
+						</label>
+						<input
+							type="text"
+							id="pharmacy-form-sku"
+							name="sku"
+							placeholder="كود الصنف..."
+							class="form-input w-full-rounded"
+						/>
+					</div>
+
+					<div class="stack-sm">
+						<label class="form-label text-sm font-bold text-primary">
+							الكمية المطلوبة
+						</label>
+						<input
+							type="number"
+							step="any"
+							id="pharmacy-form-qty"
+							name="qty"
+							placeholder="0"
+							class="form-input w-full-rounded"
+						/>
+					</div>
+				</div>
+
+				<div class="stack-sm">
+					<label class="form-label text-sm font-bold text-primary">
+						سعر الشراء الحالي / المستهدف (ج.م)
+					</label>
+					<input
+						type="number"
+						step="0.01"
+						id="pharmacy-form-price"
+						name="price"
+						placeholder="0.00"
+						class="form-input w-full-rounded"
+					/>
+				</div>
+
+				<div class="d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken">
+					<label class="font-extrabold text-sm text-primary">
+						ربط الصنف بالكتالوج المركزي العام
+					</label>
+					
+					<input type="hidden" id="pharmacy-form-product-id" name="product_id" value=""/>
+					
+					<div class="stack-sm d-none" id="pharmacy-selected-product-box">
+						<span id="pharmacy-selected-product-label" class="font-bold text-sm text-primary"></span>
+						<button type="button" class="btn btn-secondary btn-sm font-bold" onclick="clearPharmacySelectedProduct()">
+							إلغاء الربط 
+						</button>
+					</div>
+
+					<div id="pharmacy-search-product-container" class="relative">
+						<input
+							type="text"
+							id="pharmacy-product-search-input"
+							placeholder="ابحث بالاسم أو SKU لربط الصنف بالكتالوج..."
+							class="form-input w-full"
+							oninput="searchPharmacyCatalogProductsLive(this.value)"
+						/>
+						<div class="stack-sm d-none" id="pharmacy-product-search-dropdown"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary font-bold" onclick="closePharmacyCreateModal()">
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary font-bold px-6">
+					حفظ وتثبيت البيانات
+				</button>
+			</div>
+		</form>
+	}
+
+	<!-- MODAL 2: Bulk Import & Staged Review Wizard Modal -->
+	@CustomerSavingImportModal(lang)
+
+	<!-- MODAL 3: Providing Organizations & Offers Modal -->
+	@components.Modal(components.ModalProps{
+		ID:       "pharmacy-providers-modal",
+		Title:    "عروض الموردين والأسعار المتاحة بالكتالوج",
+		Subtitle: "مقارنة عروض الموردين الحية للصنف المختار",
+		Size:     "lg",
+	}) {
+		<div id="pharmacy-providers-modal-content" class="modal-body p-4">
+			<div class="text-center text-muted p-8">
+				⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...
+			</div>
+		</div>
+	}
+}

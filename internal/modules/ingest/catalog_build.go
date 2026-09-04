@@ -92,7 +92,7 @@ func (w *importWriter) variantStatus(row *productmatch.Row) catalog.ProductStatu
 	case "inactive":
 		return catalog.StatusInactive
 	}
-	if w.settings.PublishImmediately {
+	if w.settings.PublishImmediately || row.Quantity > 0 {
 		return catalog.StatusActive
 	}
 	return catalog.StatusInactive
