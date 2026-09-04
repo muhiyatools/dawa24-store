@@ -215,6 +215,22 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 									<!-- Column 2: Inventory & Coverage Status -->
 									<div class="p-4 rounded-xl bg-surface-raised border stack-xs text-start text-xs">
+										if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
+											<div class="mb-2 p-1.5 px-2.5 rounded-lg bg-surface-sunken border text-2xs d-flex items-center gap-1.5 flex-wrap">
+												<span class="text-muted font-bold">فرع الاستلام:</span>
+												<span class="text-primary font-black d-flex items-center gap-1">
+													if buying.IsLocked {
+														@components.IconLock("icon-2xs text-amber")
+													} else {
+														@components.IconMapPin("icon-2xs text-brand")
+													}
+													<span>{ ActiveBranchName(buying) }</span>
+												</span>
+												if buying.IsLocked {
+													<span class="badge badge-amber text-2xs font-bold">مقيد</span>
+												}
+											</div>
+										}
 										<div class="flex-between items-center pb-1.5 border-b">
 											<span class="text-muted">المخزون المتاح:</span>
 											if offers[0].AvailableStock > 0 {

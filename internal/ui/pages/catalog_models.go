@@ -6,6 +6,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -175,3 +176,19 @@ type IngestWizardData struct {
 	NoticeMessage    string
 	ConfidenceFilter string
 }
+
+// ActiveBranchName resolves the current active branch name for customer shell or product displays.
+func ActiveBranchName(buying authctx.BuyingBranch) string {
+	if buying.Active != nil {
+		for _, b := range buying.Branches {
+			if b.ID == *buying.Active {
+				return b.Name
+			}
+		}
+	}
+	if len(buying.Branches) > 0 {
+		return buying.Branches[0].Name
+	}
+	return "الفرع المعتمد"
+}
+

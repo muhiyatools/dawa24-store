@@ -82,10 +82,17 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 										</div>
 									</div>
 
-									<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold gap-1">
-										@components.IconPlus("icon-xs")
-										<span>إدارة فروع الصيدلية</span>
-									</a>
+									if buying, has := authctx.BuyingBranchFrom(ctx); !has || !buying.IsLocked {
+										<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold gap-1">
+											@components.IconPlus("icon-xs")
+											<span>إدارة فروع الصيدلية</span>
+										</a>
+									} else {
+										<span class="badge badge-amber text-xs font-bold gap-1">
+											@components.IconLock("icon-2xs")
+											<span>فرع الاستلام مقيد بحسابك</span>
+										</span>
+									}
 								</div>
 
 								<div class="d-flex flex-col gap-3">

@@ -191,10 +191,10 @@ func buildUIHandler(
 		log,
 	)
 
-	// Every employee of a Ù…Ù†Ø´Ø£Ø© spends against that Ù…Ù†Ø´Ø£Ø©'s own Gateway key.
+	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//
-	// The four hand-rolled copies of this â€” two here, one in the dashboard
-	// handler, one in the admin handler â€” each provisioned inline on the request
+	// The four hand-rolled copies of this — two here, one in the dashboard
+	// handler, one in the admin handler — each provisioned inline on the request
 	// path and each minted a fresh key every time, which revoked the one before
 	// it. tenantKeyProvisioner does the same job once, with a per-organisation
 	// lock, a validated cache, and a plan that follows the subscription.
@@ -207,9 +207,9 @@ func buildUIHandler(
 	uiHandler.SetMatchMemory(sharedMatchMemory)
 
 	// Tenant key resolution is wired unconditionally, outside the `ai != nil`
-	// block below. Approving a Ù…Ù†Ø´Ø£Ø© provisions its Gateway identity through
+	// block below. Approving a منشأة provisions its Gateway identity through
 	// this port, and that has to keep working on a deployment where the
-	// completion client is absent â€” otherwise approval silently skips
+	// completion client is absent — otherwise approval silently skips
 	// provisioning and the tenant is left with no user and no key.
 	uiHandler.SetTenantGatewayKeys(tenantKeys)
 

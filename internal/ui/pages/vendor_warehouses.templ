@@ -11,31 +11,31 @@ import (
 
 // VendorWarehousesPage renders the list of vendor warehouses.
 templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string, page, perPage, totalCount int) {
-	@layouts.VendorShell("Ø§Ù„Ù…Ø®Ø§Ø²Ù† ÙˆÙ…ÙˆØ§Ù‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†", "warehouses", lang, dir) {
+	@layouts.VendorShell("المخازن ومواقع التخزين", "warehouses", lang, dir) {
 		<div x-data="{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }" class="page-container">
 			
 			<!-- Header & Action Bar -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconBuilding("icon-sm")
 							</div>
-							<h1 class="text-2xl font-black text-primary m-0">Ù…Ø®Ø§Ø²Ù† ÙˆÙ…ÙˆØ§Ù‚Ø¹ ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ù†Ø´Ø£Ø©</h1>
+							<h1 class="text-2xl font-black text-primary m-0">مخازن ومواقع تخزين المنشأة</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
-							Ø¥Ø¯Ø§Ø±Ø© Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØªØ®Ø²ÙŠÙ†ØŒ Ø±Ø¨Ø·Ù‡Ø§ Ø¨Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠØ©ØŒ ÙˆÙ…ØªØ§Ø¨Ø¹Ø© Ø§Ù„Ø£Ø±ØµØ¯Ø© ÙˆØ§Ù„ØªØ­ÙˆÙŠÙ„Ø§Øª
+							إدارة مراكز التخزين، ربطها بالفروع التوزيعية، ومتابعة الأرصدة والتحويلات
 						</p>
 					</div>
 					<div class="d-flex items-center gap-3 flex-wrap">
 						<a href="/vendor/transfers" class="btn btn-secondary btn-sm font-bold gap-1.5">
 							@components.IconRefresh("icon-xs")
-							<span>Ø³Ø¬Ù„Ø§Øª Ø­Ø±ÙƒØ© Ø§Ù„Ù…Ø®Ø§Ø²Ù†</span>
+							<span>سجلات حركة المخازن</span>
 						</a>
 						<button type="button" class="btn btn-primary btn-sm font-bold" @click="showAddModal = true">
 							@components.IconPlus("icon-xs")
-							<span>Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²Ù† Ø¬Ø¯ÙŠØ¯</span>
+							<span>إضافة مخزن جديد</span>
 						</button>
 					</div>
 				</div>
@@ -44,13 +44,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Quick Metric Stat Cards -->
 			<div class="dashboard-stat-grid mb-6">
 				<div class="stat-card-3d">
-					<div class="stat-card-label">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø®Ø§Ø²Ù†</div>
+					<div class="stat-card-label">إجمالي المخازن</div>
 					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", totalCount) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„Ø©</span>
+					<span class="text-xs text-secondary mt-1 d-block">مراكز التخزين المسجلة</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">Ø§Ù„Ù…Ø®Ø§Ø²Ù† Ø§Ù„Ù†Ø´Ø·Ø©</div>
+					<div class="stat-card-label text-success">المخازن النشطة</div>
 					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", func() int {
 							c := 0
@@ -60,13 +60,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							return c
 						}()) }
 					</div>
-					<span class="text-xs text-secondary mt-1 d-block">Ø¬Ø§Ù‡Ø²Ø© Ù„Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø¹Ù…Ù„ÙŠØ§Øª</span>
+					<span class="text-xs text-secondary mt-1 d-block">جاهزة للتوريد والعمليات</span>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-brand">Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠØ©</div>
+					<div class="stat-card-label text-brand">الفروع التوزيعية</div>
 					<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(branches)) }</div>
-					<span class="text-xs text-secondary mt-1 d-block">ÙØ±ÙˆØ¹ ÙˆØ®Ø·ÙˆØ· ØªÙˆØ²ÙŠØ¹ Ù…Ø±ØªØ¨Ø·Ø©</span>
+					<span class="text-xs text-secondary mt-1 d-block">فروع وخطوط توزيع مرتبطة</span>
 				</div>
 			</div>
 
@@ -75,20 +75,20 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				if len(warehouses) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconBuilding("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø®Ø§Ø²Ù† Ù…Ø³Ø¬Ù„Ø©</h3>
-						<p class="text-sm text-secondary m-0">ÙŠÙ…ÙƒÙ†Ùƒ ØªØ³Ø¬ÙŠÙ„ Ù…Ø®Ø§Ø²Ù† Ø¬Ø¯ÙŠØ¯Ø© Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ø£Ø¯ÙˆÙŠØ© ÙˆØ±Ø¨Ø·Ù‡Ø§ Ø¨Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠØ©.</p>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد مخازن مسجلة</h3>
+						<p class="text-sm text-secondary m-0">يمكنك تسجيل مخازن جديدة لتخزين الأدوية وربطها بالفروع التوزيعية.</p>
 					</div>
 				} else {
 					<div class="table-container m-0">
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>Ø§Ù„Ù…Ø®Ø²Ù†</th>
-									<th>Ø§Ù„ÙƒÙˆØ¯</th>
-									<th>Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ù…Ø±ØªØ¨Ø·</th>
-									<th>Ø§Ù„Ø¹Ù†ÙˆØ§Ù† ÙˆØ±Ù‚Ù… Ø§Ù„ØªÙˆØ§ØµÙ„</th>
-									<th class="text-center">Ø§Ù„Ø­Ø§Ù„Ø©</th>
-									<th class="col-actions">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
+									<th>المخزن</th>
+									<th>الكود</th>
+									<th>الفرع المرتبط</th>
+									<th>العنوان ورقم التواصل</th>
+									<th class="text-center">الحالة</th>
+									<th class="col-actions">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -99,7 +99,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 												<div class="user-avatar-badge">
 													@components.IconBuilding("icon-xs")
 												</div>
-            <div class="stack-sm">
+												<div class="stack-sm">
 													<strong class="text-primary text-sm font-extrabold">{ w.Name }</strong>
 													<div class="text-xs text-muted">ID #{ fmt.Sprintf("%d", w.ID) }</div>
 												</div>
@@ -111,10 +111,10 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										<td>
 											if w.BranchID != nil && *w.BranchID > 0 {
 												<span class="badge badge-sky text-xs font-bold">
-													ÙØ±Ø¹ #{ fmt.Sprintf("%d", *w.BranchID) }
+													فرع #{ fmt.Sprintf("%d", *w.BranchID) }
 												</span>
 											} else {
-												<span class="text-muted text-xs">Ù…Ø®Ø²Ù† Ø¹Ø§Ù…</span>
+												<span class="text-muted text-xs">مخزن عام</span>
 											}
 										</td>
 										<td>
@@ -129,30 +129,30 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										</td>
 										<td class="text-center">
 											if w.IsActive {
-												<span class="badge badge-emerald text-xs font-bold">Ù†Ø´Ø·</span>
+												<span class="badge badge-emerald text-xs font-bold">نشط</span>
 											} else {
-												<span class="badge badge-rose text-xs font-bold">Ù…Ø¹Ø·Ù„</span>
+												<span class="badge badge-rose text-xs font-bold">معطل</span>
 											}
 										</td>
 										<td class="col-actions">
 											<div class="table-actions">
-												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm font-bold text-xs" title="Ø¹Ø±Ø¶ Ø§Ù„Ø£ØµÙ†Ø§Ù ÙˆØ§Ù„Ø£Ø±ØµØ¯Ø©">
+												<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", w.ID)) } class="btn btn-secondary btn-sm font-bold text-xs" title="عرض الأصناف والأرصدة">
 													@components.IconPackage("icon-xs")
-													<span>Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø®Ø²ÙˆÙ†</span>
+													<span>عرض المخزون</span>
 												</a>
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm font-bold text-xs"
 													@click={ fmt.Sprintf("editWh = { id: %d, name: %q, code: %q, address: %q, phone: %q, branch_id: %d, is_active: %t }; editModal = true;", w.ID, w.Name, w.Code, w.Address, w.Phone, func() int64 { if w.BranchID != nil { return *w.BranchID }; return 0 }(), w.IsActive) }
 												>
-													ØªØ¹Ø¯ÙŠÙ„
+													تعديل
 												</button>
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d/toggle", w.ID)) } class="m-0">
 													<button type="submit" class="btn btn-secondary btn-sm text-muted text-xs">
 														if w.IsActive {
-															ØªØ¹Ø·ÙŠÙ„
+															تعطيل
 														} else {
-															ØªÙØ¹ÙŠÙ„
+															تفعيل
 														}
 													</button>
 												</form>
@@ -179,21 +179,21 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-show="showAddModal"
 				x-cloak
 				x-transition.opacity
-				class="fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60"
+				class="modal-backdrop"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
 					@click.outside="showAddModal = false"
-					class="glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto"
+					class="glass-panel p-6 max-w-lg w-full"
 				>
-					<div class="flex-between items-center mb-4 pb-3 border-b border-slate-100">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2.5">
-							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+							<div class="user-avatar-badge text-brand">
 								@components.IconBuilding("icon-sm")
 							</div>
-       <div class="stack-sm">
-								<h3 class="text-base font-black text-primary m-0">Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²Ù† / Ù…Ø±ÙƒØ² ØªØ®Ø²ÙŠÙ† Ø¬Ø¯ÙŠØ¯</h3>
-								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">ØªØ³Ø¬ÙŠÙ„ Ù…ÙˆÙ‚Ø¹ ØªØ®Ø²ÙŠÙ† Ø¬Ø¯ÙŠØ¯ Ù„Ø±Ø¨Ø·Ù‡ Ø¨Ø§Ù„ÙØ±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø®Ø²ÙˆÙ†</p>
+							<div class="stack-sm">
+								<h3 class="text-base font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p>
 							</div>
 						</div>
 						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">
@@ -202,20 +202,20 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					</div>
 
 					<form method="POST" action="/vendor/warehouses" class="d-flex flex-col gap-4 m-0">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø§Ø³Ù… Ø§Ù„Ù…Ø®Ø²Ù† <span class="text-danger">*</span></label>
-							<input type="text" name="name" required class="form-input text-xs font-semibold w-full" placeholder="Ù…Ø«Ù„Ø§Ù‹: Ù…Ø®Ø²Ù† Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ / Ù…Ø®Ø²Ù† Ù…Ø¯ÙŠÙ†Ø© Ù†ØµØ±" />
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
+							<input type="text" name="name" required class="form-input text-xs font-semibold w-full" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">ÙƒÙˆØ¯ Ø§Ù„Ù…Ø®Ø²Ù† (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن (اختياري)</label>
 							<input type="text" name="code" class="form-input text-xs font-mono w-full" placeholder="WH-01" />
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø§Ù„ÙØ±Ø¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠ Ø§Ù„Ù…Ø±ØªØ¨Ø·</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
 							<select name="branch_id" class="form-input text-xs font-semibold w-full">
-								<option value="">Ø¨Ø¯ÙˆÙ† ÙØ±Ø¹ Ù…Ø­Ø¯Ø¯ (Ù…Ø®Ø²Ù† Ø¹Ø§Ù… Ø±Ø¦ÙŠØ³ÙŠ)</option>
+								<option value="">بدون فرع محدد (مخزن عام رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
 										if b.Name["ar"] != "" {
@@ -223,25 +223,25 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										} else {
 											{ b.Name["en"] }
 										}
-										(ÙØ±Ø¹ #{ fmt.Sprintf("%d", b.ID) })
+										(فرع #{ fmt.Sprintf("%d", b.ID) })
 									</option>
 								}
 							</select>
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø¨Ø§Ù„ØªÙØµÙŠÙ„</label>
-							<input type="text" name="address" class="form-input text-xs w-full" placeholder="Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ø§Ù„ØµÙ†Ø§Ø¹ÙŠØ©ØŒ Ø§Ù„Ù‚Ø·Ø¹Ø© 14ØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©" />
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
+							<input type="text" name="address" class="form-input text-xs w-full" placeholder="المنطقة الصناعية، القطعة 14، القاهرة" />
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ÙˆØ§Ù„ØªÙˆØ§ØµÙ„</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
 							<input type="text" name="phone" class="form-input text-xs tabular-nums w-full" placeholder="01012345678" />
 						</div>
 
-						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100">
-							<button type="button" class="btn btn-secondary text-xs font-bold" @click="showAddModal = false">Ø¥Ù„ØºØ§Ø¡</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">Ø­ÙØ¸ ÙˆØªÙØ¹ÙŠÙ„ Ø§Ù„Ù…Ø®Ø²Ù†</button>
+						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="showAddModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">حفظ وتفعيل المخزن</button>
 						</div>
 					</form>
 				</div>
@@ -252,21 +252,21 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-show="editModal"
 				x-cloak
 				x-transition.opacity
-				class="fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60"
+				class="modal-backdrop"
 				@keydown.escape.window="editModal = false"
 			>
 				<div
 					@click.outside="editModal = false"
-					class="glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto"
+					class="glass-panel p-6 max-w-lg w-full"
 				>
-					<div class="flex-between items-center mb-4 pb-3 border-b border-slate-100">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2.5">
-							<div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs">
+							<div class="user-avatar-badge text-amber">
 								@components.IconEdit("icon-sm")
 							</div>
-       <div class="stack-sm">
-								<h3 class="text-base font-black text-primary m-0">ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø®Ø²Ù†</h3>
-								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">ØªØ­Ø¯ÙŠØ« Ù…Ø¹Ù„ÙˆÙ…Ø§Øª ÙˆØ¨ÙŠØ§Ù†Ø§Øª Ù…ÙˆÙ‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†</p>
+							<div class="stack-sm">
+								<h3 class="text-base font-black text-primary m-0">تعديل بيانات المخزن</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تحديث معلومات وبيانات موقع التخزين</p>
 							</div>
 						</div>
 						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">
@@ -275,20 +275,20 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					</div>
 
 					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="d-flex flex-col gap-4 m-0">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø§Ø³Ù… Ø§Ù„Ù…Ø®Ø²Ù† <span class="text-danger">*</span></label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
 							<input type="text" name="name" x-model="editWh.name" required class="form-input text-xs font-semibold w-full" />
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">ÙƒÙˆØ¯ Ø§Ù„Ù…Ø®Ø²Ù†</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن</label>
 							<input type="text" name="code" x-model="editWh.code" class="form-input text-xs font-mono w-full" />
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø§Ù„ÙØ±Ø¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠ Ø§Ù„Ù…Ø±ØªØ¨Ø·</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
 							<select name="branch_id" x-model="editWh.branch_id" class="form-input text-xs font-semibold w-full">
-								<option value="0">Ø¨Ø¯ÙˆÙ† ÙØ±Ø¹ Ù…Ø­Ø¯Ø¯ (Ù…Ø®Ø²Ù† Ø±Ø¦ÙŠØ³ÙŠ)</option>
+								<option value="0">بدون فرع محدد (مخزن رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
 										if b.Name["ar"] != "" {
@@ -296,32 +296,32 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 										} else {
 											{ b.Name["en"] }
 										}
-										(ÙØ±Ø¹ #{ fmt.Sprintf("%d", b.ID) })
+										(فرع #{ fmt.Sprintf("%d", b.ID) })
 									</option>
 								}
 							</select>
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø¨Ø§Ù„ØªÙØµÙŠÙ„</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" x-model="editWh.address" class="form-input text-xs w-full" />
 						</div>
 
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ÙˆØ§Ù„ØªÙˆØ§ØµÙ„</label>
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
 							<input type="text" name="phone" x-model="editWh.phone" class="form-input text-xs tabular-nums w-full" />
 						</div>
 
-      <div class="stack-sm">
+						<div class="stack-sm">
 							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
 								<input type="checkbox" name="is_active" value="true" x-model="editWh.is_active" class="form-checkbox" />
-								<span>Ø§Ù„Ù…Ø®Ø²Ù† Ù…ÙØ¹Ù„ ÙˆÙ†Ø´Ø· Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø®Ø²ÙˆÙ†</span>
+								<span>المخزن مفعل ونشط لإدارة المخزون</span>
 							</label>
 						</div>
 
-						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100">
-							<button type="button" class="btn btn-secondary text-xs font-bold" @click="editModal = false">Ø¥Ù„ØºØ§Ø¡</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">Ø­ÙØ¸ Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª</button>
+						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="editModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">حفظ التغييرات</button>
 						</div>
 					</form>
 				</div>

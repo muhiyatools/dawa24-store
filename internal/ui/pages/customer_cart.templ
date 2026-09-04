@@ -69,29 +69,37 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 								}
 							</span>
 							<span class="badge badge-emerald text-xs">الفرع النشط</span>
+							if buying.IsLocked {
+								<span class="badge badge-amber text-xs font-bold gap-1">
+									@components.IconLock("icon-2xs")
+									<span>مقيد بحسابك</span>
+								</span>
+							}
 						</div>
 					</div>
 				</div>
-    <div class="stack-sm">
-					<form method="POST" action="/customer/set-branch" class="m-0 d-inline-flex items-center gap-2">
-						<input type="hidden" name="redirect_to" value="/cart" />
-						<span class="text-xs text-secondary font-semibold">تغيير الفرع:</span>
-						<select
-							name="branch_id"
-							class="form-select form-input-sm"
-							onchange="this.form.submit()"
-						>
-							for _, b := range buying.Branches {
-								<option
-									value={ fmt.Sprintf("%d", b.ID) }
-									selected?={ buying.Active != nil && *buying.Active == b.ID }
-								>
-									{ b.Name }
-								</option>
-							}
-						</select>
-					</form>
-				</div>
+				if !buying.IsLocked {
+					<div class="stack-sm">
+						<form method="POST" action="/customer/set-branch" class="m-0 d-inline-flex items-center gap-2">
+							<input type="hidden" name="redirect_to" value="/cart" />
+							<span class="text-xs text-secondary font-semibold">تغيير الفرع:</span>
+							<select
+								name="branch_id"
+								class="form-select form-input-sm"
+								onchange="this.form.submit()"
+							>
+								for _, b := range buying.Branches {
+									<option
+										value={ fmt.Sprintf("%d", b.ID) }
+										selected?={ buying.Active != nil && *buying.Active == b.ID }
+									>
+										{ b.Name }
+									</option>
+								}
+							</select>
+						</form>
+					</div>
+				}
 			</div>
 		}
 		<div class="cart-grid-layout">

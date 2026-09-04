@@ -59,7 +59,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">Ù…Ø®Ø§Ø²Ù† ÙˆÙ…ÙˆØ§Ù‚Ø¹ ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ù†Ø´Ø£Ø©</h1></div><p class=\"text-sm text-secondary m-0\">Ø¥Ø¯Ø§Ø±Ø© Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØªØ®Ø²ÙŠÙ†ØŒ Ø±Ø¨Ø·Ù‡Ø§ Ø¨Ø§Ù„Ù\u0081Ø±ÙˆØ¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠØ©ØŒ ÙˆÙ…ØªØ§Ø¨Ø¹Ø© Ø§Ù„Ø£Ø±ØµØ¯Ø© ÙˆØ§Ù„ØªØ\u00adÙˆÙŠÙ„Ø§Øª</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/vendor/transfers\" class=\"btn btn-secondary btn-sm font-bold gap-1.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">مخازن ومواقع تخزين المنشأة</h1></div><p class=\"text-sm text-secondary m-0\">إدارة مراكز التخزين، ربطها بالفروع التوزيعية، ومتابعة الأرصدة والتحويلات</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/vendor/transfers\" class=\"btn btn-secondary btn-sm font-bold gap-1.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -67,7 +67,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>Ø³Ø¬Ù„Ø§Øª Ø\u00adØ±ÙƒØ© Ø§Ù„Ù…Ø®Ø§Ø²Ù†</span></a> <button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"showAddModal = true\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>سجلات حركة المخازن</span></a> <button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"showAddModal = true\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,7 +75,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>Ø¥Ø¶Ø§Ù\u0081Ø© Ù…Ø®Ø²Ù† Ø¬Ø¯ÙŠØ¯</span></button></div></div></div><!-- Quick Metric Stat Cards --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø®Ø§Ø²Ù†</div><div class=\"stat-card-value text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إضافة مخزن جديد</span></button></div></div></div><!-- Quick Metric Stat Cards --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">إجمالي المخازن</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -88,7 +88,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><span class=\"text-xs text-secondary mt-1 d-block\">Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„Ø©</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">Ø§Ù„Ù…Ø®Ø§Ø²Ù† Ø§Ù„Ù†Ø´Ø·Ø©</div><div class=\"stat-card-value text-success tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مراكز التخزين المسجلة</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">المخازن النشطة</div><div class=\"stat-card-value text-success tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><span class=\"text-xs text-secondary mt-1 d-block\">Ø¬Ø§Ù‡Ø²Ø© Ù„Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø¹Ù…Ù„ÙŠØ§Øª</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">Ø§Ù„Ù\u0081Ø±ÙˆØ¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠØ©</div><div class=\"stat-card-value text-brand tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><span class=\"text-xs text-secondary mt-1 d-block\">جاهزة للتوريد والعمليات</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">الفروع التوزيعية</div><div class=\"stat-card-value text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -122,7 +122,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><span class=\"text-xs text-secondary mt-1 d-block\">Ù\u0081Ø±ÙˆØ¹ ÙˆØ®Ø·ÙˆØ· ØªÙˆØ²ÙŠØ¹ Ù…Ø±ØªØ¨Ø·Ø©</span></div></div><!-- Warehouses Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><span class=\"text-xs text-secondary mt-1 d-block\">فروع وخطوط توزيع مرتبطة</span></div></div><!-- Warehouses Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -135,12 +135,12 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><h3 class=\"text-lg font-black text-primary mb-2\">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø®Ø§Ø²Ù† Ù…Ø³Ø¬Ù„Ø©</h3><p class=\"text-sm text-secondary m-0\">ÙŠÙ…ÙƒÙ†Ùƒ ØªØ³Ø¬ÙŠÙ„ Ù…Ø®Ø§Ø²Ù† Ø¬Ø¯ÙŠØ¯Ø© Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ø£Ø¯ÙˆÙŠØ© ÙˆØ±Ø¨Ø·Ù‡Ø§ Ø¨Ø§Ù„Ù\u0081Ø±ÙˆØ¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠØ©.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد مخازن مسجلة</h3><p class=\"text-sm text-secondary m-0\">يمكنك تسجيل مخازن جديدة لتخزين الأدوية وربطها بالفروع التوزيعية.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>Ø§Ù„Ù…Ø®Ø²Ù†</th><th>Ø§Ù„ÙƒÙˆØ¯</th><th>Ø§Ù„Ù\u0081Ø±Ø¹ Ø§Ù„Ù…Ø±ØªØ¨Ø·</th><th>Ø§Ù„Ø¹Ù†ÙˆØ§Ù† ÙˆØ±Ù‚Ù… Ø§Ù„ØªÙˆØ§ØµÙ„</th><th class=\"text-center\">Ø§Ù„Ø\u00adØ§Ù„Ø©</th><th class=\"col-actions\">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المخزن</th><th>الكود</th><th>الفرع المرتبط</th><th>العنوان ورقم التواصل</th><th class=\"text-center\">الحالة</th><th class=\"col-actions\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -197,14 +197,14 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 						return templ_7745c5c3_Err
 					}
 					if w.BranchID != nil && *w.BranchID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-sky text-xs font-bold\">Ù\u0081Ø±Ø¹ #")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-sky text-xs font-bold\">فرع #")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *w.BranchID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 114, Col: 59}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 114, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"text-muted text-xs\">Ù…Ø®Ø²Ù† Ø¹Ø§Ù…</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"text-muted text-xs\">مخزن عام</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -267,12 +267,12 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 						return templ_7745c5c3_Err
 					}
 					if w.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-emerald text-xs font-bold\">Ù†Ø´Ø·</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-emerald text-xs font-bold\">نشط</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-rose text-xs font-bold\">Ù…Ø¹Ø·Ù„</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-rose text-xs font-bold\">معطل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -290,7 +290,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"btn btn-secondary btn-sm font-bold text-xs\" title=\"Ø¹Ø±Ø¶ Ø§Ù„Ø£ØµÙ†Ø§Ù\u0081 ÙˆØ§Ù„Ø£Ø±ØµØ¯Ø©\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"btn btn-secondary btn-sm font-bold text-xs\" title=\"عرض الأصناف والأرصدة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -298,7 +298,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø®Ø²ÙˆÙ†</span></a> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>عرض المخزون</span></a> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -316,7 +316,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\">ØªØ¹Ø¯ÙŠÙ„</button><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\">تعديل</button><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -334,12 +334,12 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 						return templ_7745c5c3_Err
 					}
 					if w.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "ØªØ¹Ø·ÙŠÙ„")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "تعطيل")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "ØªÙ\u0081Ø¹ÙŠÙ„")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "تفعيل")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -365,7 +365,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div><!-- Add Warehouse Modal --><div x-show=\"showAddModal\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60\" @keydown.escape.window=\"showAddModal = false\"><div @click.outside=\"showAddModal = false\" class=\"glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div><!-- Add Warehouse Modal --><div x-show=\"showAddModal\" x-cloak x-transition.opacity class=\"modal-backdrop\" @keydown.escape.window=\"showAddModal = false\"><div @click.outside=\"showAddModal = false\" class=\"glass-panel p-6 max-w-lg w-full\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2.5\"><div class=\"user-avatar-badge text-brand\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -373,7 +373,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">Ø¥Ø¶Ø§Ù\u0081Ø© Ù…Ø®Ø²Ù† / Ù…Ø±ÙƒØ² ØªØ®Ø²ÙŠÙ† Ø¬Ø¯ÙŠØ¯</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">ØªØ³Ø¬ÙŠÙ„ Ù…ÙˆÙ‚Ø¹ ØªØ®Ø²ÙŠÙ† Ø¬Ø¯ÙŠØ¯ Ù„Ø±Ø¨Ø·Ù‡ Ø¨Ø§Ù„Ù\u0081Ø±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø®Ø²ÙˆÙ†</p></div></div><button type=\"button\" @click=\"showAddModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">إضافة مخزن / مركز تخزين جديد</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p></div></div><button type=\"button\" @click=\"showAddModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -381,7 +381,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div><form method=\"POST\" action=\"/vendor/warehouses\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø§Ø³Ù… Ø§Ù„Ù…Ø®Ø²Ù† <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" required class=\"form-input text-xs font-semibold w-full\" placeholder=\"Ù…Ø«Ù„Ø§Ù‹: Ù…Ø®Ø²Ù† Ø§Ù„Ù‚Ø§Ù‡Ø±Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ / Ù…Ø®Ø²Ù† Ù…Ø¯ÙŠÙ†Ø© Ù†ØµØ±\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">ÙƒÙˆØ¯ Ø§Ù„Ù…Ø®Ø²Ù† (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label> <input type=\"text\" name=\"code\" class=\"form-input text-xs font-mono w-full\" placeholder=\"WH-01\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø§Ù„Ù\u0081Ø±Ø¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠ Ø§Ù„Ù…Ø±ØªØ¨Ø·</label> <select name=\"branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"\">Ø¨Ø¯ÙˆÙ† Ù\u0081Ø±Ø¹ Ù…Ø\u00adØ¯Ø¯ (Ù…Ø®Ø²Ù† Ø¹Ø§Ù… Ø±Ø¦ÙŠØ³ÙŠ)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div><form method=\"POST\" action=\"/vendor/warehouses\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">اسم المخزن <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" required class=\"form-input text-xs font-semibold w-full\" placeholder=\"مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">كود المخزن (اختياري)</label> <input type=\"text\" name=\"code\" class=\"form-input text-xs font-mono w-full\" placeholder=\"WH-01\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الفرع التوزيعي المرتبط</label> <select name=\"branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"\">بدون فرع محدد (مخزن عام رئيسي)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -432,14 +432,14 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "(Ù\u0081Ø±Ø¹ #")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "(فرع #")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 226, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 226, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø¨Ø§Ù„ØªÙ\u0081ØµÙŠÙ„</label> <input type=\"text\" name=\"address\" class=\"form-input text-xs w-full\" placeholder=\"Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ø§Ù„ØµÙ†Ø§Ø¹ÙŠØ©ØŒ Ø§Ù„Ù‚Ø·Ø¹Ø© 14ØŒ Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ\u0081 ÙˆØ§Ù„ØªÙˆØ§ØµÙ„</label> <input type=\"text\" name=\"phone\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"01012345678\"></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"showAddModal = false\">Ø¥Ù„ØºØ§Ø¡</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">Ø\u00adÙ\u0081Ø¸ ÙˆØªÙ\u0081Ø¹ÙŠÙ„ Ø§Ù„Ù…Ø®Ø²Ù†</button></div></form></div></div><!-- Edit Warehouse Modal --><div x-show=\"editModal\" x-cloak x-transition.opacity class=\"fixed inset-0 z-50 d-flex items-center justify-center p-4 bg-slate-900/60\" @keydown.escape.window=\"editModal = false\"><div @click.outside=\"editModal = false\" class=\"glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-slate-100\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" class=\"form-input text-xs w-full\" placeholder=\"المنطقة الصناعية، القطعة 14، القاهرة\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رقم الهاتف والتواصل</label> <input type=\"text\" name=\"phone\" class=\"form-input text-xs tabular-nums w-full\" placeholder=\"01012345678\"></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"showAddModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">حفظ وتفعيل المخزن</button></div></form></div></div><!-- Edit Warehouse Modal --><div x-show=\"editModal\" x-cloak x-transition.opacity class=\"modal-backdrop\" @keydown.escape.window=\"editModal = false\"><div @click.outside=\"editModal = false\" class=\"glass-panel p-6 max-w-lg w-full\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2.5\"><div class=\"user-avatar-badge text-amber\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -458,7 +458,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø®Ø²Ù†</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">ØªØ\u00adØ¯ÙŠØ« Ù…Ø¹Ù„ÙˆÙ…Ø§Øª ÙˆØ¨ÙŠØ§Ù†Ø§Øª Ù…ÙˆÙ‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†</p></div></div><button type=\"button\" @click=\"editModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">تعديل بيانات المخزن</h3><p class=\"text-2xs text-secondary m-0 mt-0.5 font-medium\">تحديث معلومات وبيانات موقع التخزين</p></div></div><button type=\"button\" @click=\"editModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -466,7 +466,7 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button></div><form :action=\"'/vendor/warehouses/' + editWh.id\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø§Ø³Ù… Ø§Ù„Ù…Ø®Ø²Ù† <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" x-model=\"editWh.name\" required class=\"form-input text-xs font-semibold w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">ÙƒÙˆØ¯ Ø§Ù„Ù…Ø®Ø²Ù†</label> <input type=\"text\" name=\"code\" x-model=\"editWh.code\" class=\"form-input text-xs font-mono w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø§Ù„Ù\u0081Ø±Ø¹ Ø§Ù„ØªÙˆØ²ÙŠØ¹ÙŠ Ø§Ù„Ù…Ø±ØªØ¨Ø·</label> <select name=\"branch_id\" x-model=\"editWh.branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"0\">Ø¨Ø¯ÙˆÙ† Ù\u0081Ø±Ø¹ Ù…Ø\u00adØ¯Ø¯ (Ù…Ø®Ø²Ù† Ø±Ø¦ÙŠØ³ÙŠ)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button></div><form :action=\"'/vendor/warehouses/' + editWh.id\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">اسم المخزن <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name\" x-model=\"editWh.name\" required class=\"form-input text-xs font-semibold w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">كود المخزن</label> <input type=\"text\" name=\"code\" x-model=\"editWh.code\" class=\"form-input text-xs font-mono w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">الفرع التوزيعي المرتبط</label> <select name=\"branch_id\" x-model=\"editWh.branch_id\" class=\"form-input text-xs font-semibold w-full\"><option value=\"0\">بدون فرع محدد (مخزن رئيسي)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -517,14 +517,14 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "(Ù\u0081Ø±Ø¹ #")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "(فرع #")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 299, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_warehouses.templ`, Line: 299, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -535,13 +535,13 @@ func VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Bra
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø¨Ø§Ù„ØªÙ\u0081ØµÙŠÙ„</label> <input type=\"text\" name=\"address\" x-model=\"editWh.address\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ\u0081 ÙˆØ§Ù„ØªÙˆØ§ØµÙ„</label> <input type=\"text\" name=\"phone\" x-model=\"editWh.phone\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"editWh.is_active\" class=\"form-checkbox\"> <span>Ø§Ù„Ù…Ø®Ø²Ù† Ù…Ù\u0081Ø¹Ù„ ÙˆÙ†Ø´Ø· Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø®Ø²ÙˆÙ†</span></label></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"editModal = false\">Ø¥Ù„ØºØ§Ø¡</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">Ø\u00adÙ\u0081Ø¸ Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</select></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">العنوان بالتفصيل</label> <input type=\"text\" name=\"address\" x-model=\"editWh.address\" class=\"form-input text-xs w-full\"></div><div class=\"stack-sm\"><label class=\"form-label text-xs font-bold text-primary mb-1.5 d-block\">رقم الهاتف والتواصل</label> <input type=\"text\" name=\"phone\" x-model=\"editWh.phone\" class=\"form-input text-xs tabular-nums w-full\"></div><div class=\"stack-sm\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"editWh.is_active\" class=\"form-checkbox\"> <span>المخزن مفعل ونشط لإدارة المخزون</span></label></div><div class=\"flex-between items-center gap-3 mt-2 pt-3 border-t\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"editModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-6 shadow-sm\">حفظ التغييرات</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.VendorShell("Ø§Ù„Ù…Ø®Ø§Ø²Ù† ÙˆÙ…ÙˆØ§Ù‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†", "warehouses", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.VendorShell("المخازن ومواقع التخزين", "warehouses", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    DAWA 24 — INVENTORY & ORDER WIZARD MODULE (wizard.js)
    Import progress polling, dropzone preview & step flow
    ========================================================================== */
@@ -81,7 +81,7 @@ function initImportDropZone() {
 
   input.addEventListener('change', () => {
     const file = input.files && input.files[0];
-    title.textContent = file ? file.name : 'Ø§Ø®ØªØ± Ø§Ù„Ù…Ù„Ù Ø£Ùˆ Ø§Ø³Ø­Ø¨Ù‡ Ø¥Ù„Ù‰ Ù‡Ù†Ø§';
+    title.textContent = file ? file.name : 'اختر الملف أو اسحبه إلى هنا';
   });
 
   ['dragenter', 'dragover'].forEach((evt) => {

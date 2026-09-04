@@ -58,6 +58,13 @@ func (h *UIHandler) buildCatalogVariantCards(
 
 		if len(offers) > 0 {
 			for _, off := range offers {
+				// When a customer/pharmacist is browsing the catalog for their branch:
+				// Only include offers that actually cover their receiving branch.
+				if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+					if !off.IsCovered {
+						continue
+					}
+				}
 				if inStock && off.AvailableStock <= 0 {
 					continue
 				}

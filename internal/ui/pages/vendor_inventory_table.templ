@@ -1,0 +1,161 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// VendorInventoryTable renders the data table and pagination for inventory items.
+templ VendorInventoryTable(data VendorInventoryData) {
+	if len(data.Stocks) == 0 {
+		<div class="p-12 text-center empty-state-glass">
+			<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
+			<h3 class="text-lg font-black text-primary mb-2">لا توجد أصناف تطابق البحث</h3>
+			<p class="text-sm text-secondary m-0">لم يتم العثور على أي تشغيلات أو كميات مخزون مطابقة لمعايير البحث المحددة.</p>
+		</div>
+	} else {
+		<div class="table-container m-0">
+			<table class="data-table m-0">
+				<thead>
+					<tr>
+						<th>الصنف والتشغيلة</th>
+						<th>المخزن / الفرع</th>
+						<th>الرصيد المتاح</th>
+						<th>حد إعادة الطلب</th>
+						<th>الحالة</th>
+						<th class="col-actions">الإجراءات</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, s := range data.Stocks {
+						<tr>
+							<td>
+								<div class="d-flex items-center gap-3">
+									<div class="user-avatar-badge">
+										@components.IconPackage("icon-xs")
+									</div>
+									<div class="stack-sm">
+										<strong class="text-primary text-sm font-extrabold d-block">
+											{ resolveVariantName(s.ProductVariantID, data.Variants) }
+										</strong>
+										<div class="text-xs text-muted tabular-nums">
+											<span>Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }</span>
+											{ resolveVariantMeta(s.ProductVariantID, data.Variants) }
+										</div>
+									</div>
+								</div>
+							</td>
+							<td>
+								<div class="font-bold text-primary text-xs">
+									{ resolveWarehouseName(s.WarehouseID, data.Warehouses) }
+								</div>
+								<div class="text-xs text-muted tabular-nums">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
+							</td>
+							<td>
+								if s.Quantity > s.MinThreshold {
+									<span class="badge badge-emerald tabular-nums text-xs font-black">
+										{ fmt.Sprintf("%d", s.Quantity) } عبوة
+									</span>
+								} else if s.Quantity > 0 {
+									<span class="badge badge-amber tabular-nums text-xs font-black">
+										{ fmt.Sprintf("%d", s.Quantity) } عبوة (منخفض)
+									</span>
+								} else {
+									<span class="badge badge-rose tabular-nums text-xs font-black">
+										نفد الرصيد
+									</span>
+								}
+							</td>
+							<td class="tabular-nums">
+								<span class="text-xs text-secondary font-bold">
+									{ fmt.Sprintf("%d", s.MinThreshold) } عبوة
+								</span>
+							</td>
+							<td>
+								if s.Quantity > 0 {
+									<span class="badge badge-emerald text-xs font-bold">جاهز للبيع</span>
+								} else {
+									<span class="badge badge-rose text-xs font-bold">غير متوفر</span>
+								}
+							</td>
+							<td class="col-actions">
+								<div class="table-actions">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
+										@click={ fmt.Sprintf("transferStock = { id: %d, variant_id: %d, product_id: %d, name: %q, from_wh_id: %d, from_wh_name: %q, qty: %d }; transferModal = true;", s.ID, s.ProductVariantID, s.ProductID, resolveVariantName(s.ProductVariantID, data.Variants), s.WarehouseID, resolveWarehouseName(s.WarehouseID, data.Warehouses), s.Quantity) }
+										title="نقل رصيد هذا الصنف إلى مخزن آخر"
+									>
+										@components.IconRefresh("icon-xs")
+										<span>نقل المخزون</span>
+									</button>
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
+										@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, data.Variants), s.Quantity) }
+									>
+										<span>تعديل الرصيد</span>
+									</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		@components.B2BPagination(components.PaginationProps{
+			CurrentPage: data.Page,
+			PageSize:    data.PerPage,
+			TotalCount:  data.Total,
+			BaseURL:     "/vendor/inventory",
+			QueryValues: url.Values{"q": {data.Query}, "warehouse_id": {fmt.Sprintf("%d", data.WarehouseID)}},
+		})
+	}
+}
+
+func resolveWarehouseName(whID int64, warehouses []*inventory.Warehouse) string {
+	for _, w := range warehouses {
+		if w.ID == whID {
+			return w.Name
+		}
+	}
+	return fmt.Sprintf("مخزن #%d", whID)
+}
+
+func resolveVariantName(variantID int64, variants []*catalog.ProductVariant) string {
+	for _, v := range variants {
+		if v.ID == variantID {
+			if v.Name["ar"] != "" {
+				return v.Name["ar"]
+			}
+			if v.Name["en"] != "" {
+				return v.Name["en"]
+			}
+			if v.SKU != "" {
+				return "تشغيلة " + v.SKU
+			}
+		}
+	}
+	return fmt.Sprintf("تشغيلة رقم #%d", variantID)
+}
+
+func resolveVariantMeta(variantID int64, variants []*catalog.ProductVariant) string {
+	for _, v := range variants {
+		if v.ID == variantID {
+			meta := ""
+			if v.BatchNumber != "" {
+				meta += " • تشغيلة: " + v.BatchNumber
+			}
+			if v.ExpiryDate != nil {
+				meta += " • صلاحية: " + v.ExpiryDate.Format("2006-01")
+			}
+			return meta
+		}
+	}
+	return ""
+}

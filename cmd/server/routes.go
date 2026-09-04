@@ -254,10 +254,10 @@ func mountAuthenticatedModules(
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterApprovedRoutes(r)
 
-	// Every employee of a Ù…Ù†Ø´Ø£Ø© spends against that Ù…Ù†Ø´Ø£Ø©'s own Gateway key.
+	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//
-	// The four hand-rolled copies of this â€” two here, one in the dashboard
-	// handler, one in the admin handler â€” each provisioned inline on the request
+	// The four hand-rolled copies of this — two here, one in the dashboard
+	// handler, one in the admin handler — each provisioned inline on the request
 	// path and each minted a fresh key every time, which revoked the one before
 	// it. tenantKeyProvisioner does the same job once, with a per-organisation
 	// lock, a validated cache, and a plan that follows the subscription.

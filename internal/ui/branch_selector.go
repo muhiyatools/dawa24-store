@@ -58,7 +58,7 @@ func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) 
 	lang := langOf(r)
 	if actor.BranchID != nil && *actor.BranchID > 0 {
 		b, err := h.orgSvc.GetBranch(r.Context(), *actor.BranchID)
-		if err == nil && b != nil && b.Status == "active" {
+		if err == nil && b != nil && b.Status != "inactive" && b.Status != "suspended" {
 			return []authctx.BranchOption{{ID: b.ID, Name: branchName(b, lang)}}
 		}
 	}
@@ -68,7 +68,7 @@ func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) 
 	}
 	options := make([]authctx.BranchOption, 0, len(branches))
 	for _, b := range branches {
-		if b == nil || b.Status != "active" {
+		if b == nil || b.Status == "inactive" || b.Status == "suspended" {
 			continue
 		}
 		options = append(options, authctx.BranchOption{ID: b.ID, Name: branchName(b, lang)})

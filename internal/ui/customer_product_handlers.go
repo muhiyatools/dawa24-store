@@ -55,12 +55,20 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 	)
 	offers := h.offersForProduct(ctx, product, variants, env, lang)
 
+	// When a customer/pharmacist is viewing the product, only show choices that are
+	// actually covered and available to use for their receiving branch.
+	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		var coveredOffers []pages.SupplierOffer
+		for _, off := range offers {
+			if off.IsCovered {
+				coveredOffers = append(coveredOffers, off)
+			}
+		}
+		offers = coveredOffers
+	}
+
 	// If the URL named a specific variant, surface it — but only ahead of the
-	// offers it already ranks with. Hoisting it to position 0 unconditionally
-	// is what used to push an out-of-stock or out-of-area supplier above every
-	// orderable one: the page then opened on an offer the pharmacy could not
-	// buy. offersForProduct has already ordered by can-order, covered, in
-	// stock, nearest, cheapest; promoting inside the first tier keeps that.
+	// offers it already ranks with.
 	promoteFocusedOffer(offers, targetVariantID)
 
 	h.renderPage(ctx, w, "render product detail page", pages.CustomerProductDetail(product, variants, offers, lang, dir))

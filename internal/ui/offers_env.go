@@ -109,7 +109,7 @@ func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) 
 		return 0
 	}
 	for _, b := range branches {
-		if b == nil || b.Status != "active" {
+		if b == nil || b.Status == "inactive" || b.Status == "suspended" {
 			continue
 		}
 		if b.IsMain {
@@ -117,7 +117,7 @@ func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) 
 		}
 	}
 	for _, b := range branches {
-		if b != nil && b.Status == "active" {
+		if b != nil && b.Status != "inactive" && b.Status != "suspended" {
 			return b.ID
 		}
 	}
@@ -158,7 +158,7 @@ func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Act
 			return 0, 0, false
 		}
 		for _, b := range branches {
-			if b == nil {
+			if b == nil || b.Status == "inactive" || b.Status == "suspended" {
 				continue
 			}
 			if branch == nil {
