@@ -22,6 +22,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
@@ -135,4 +136,15 @@ func (h *UIHandler) SetStorage(s *storage.Client) {
 // SetCompareService configures the compare module service for UI handlers.
 func (h *UIHandler) SetCompareService(s *compare.Service) {
 	h.compareSvc = s
+}
+
+// SetImportRunRepo wires the durable import run repository.
+func (h *UIHandler) SetImportRunRepo(repo importrun.Repository) {
+	h.importRunRepo = repo
+}
+
+// SetImportQueue wires background queue dispatch functions for imports.
+func (h *UIHandler) SetImportQueue(stage ImportStageEnqueueFunc, commit ImportCommitEnqueueFunc) {
+	h.importStageEnqueue = stage
+	h.importCommitEnqueue = commit
 }

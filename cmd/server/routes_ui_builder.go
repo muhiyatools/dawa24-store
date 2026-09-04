@@ -307,10 +307,11 @@ func buildUIHandler(
 		return rbac.EnsureCompanyRoles(ctx, db, orgID, orgType)
 	})
 
-	// Smart ordering (specs/001-smart-ordering-system). The server has no queue
-	// client, so runs are left queued and the worker collects them â€” which is
-	// also what makes a run survive a server restart mid-import.
+	// Smart ordering (specs/001-smart-ordering-system).
 	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, ai, log)
+
+	// Unified durable imports (Task 18).
+	wireImports(db, uiHandler, catSvcUI, log)
 
 	// Audience-gated UI groups (Rebuild V2 Â§1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is

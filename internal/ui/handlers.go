@@ -29,6 +29,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
@@ -102,7 +103,18 @@ type UIHandler struct {
 	// matchMemory is the shared decision cache. Nil is allowed and simply means
 	// every question is paid for again.
 	matchMemory matchflow.Memory
+
+	// Unified durable import runs (Task 18).
+	importRunRepo       importrun.Repository
+	importStageEnqueue  ImportStageEnqueueFunc
+	importCommitEnqueue ImportCommitEnqueueFunc
 }
+
+// ImportStageEnqueueFunc hands a prepared import run to the background worker.
+type ImportStageEnqueueFunc func(ctx context.Context, runID, orgID int64) error
+
+// ImportCommitEnqueueFunc hands a ready import run to the background commit worker.
+type ImportCommitEnqueueFunc func(ctx context.Context, runID, orgID int64) error
 
 // RoleSeederFunc provisions the starter roles for one company.
 type RoleSeederFunc func(ctx context.Context, orgID int64, orgType string) error
@@ -228,6 +240,7 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Get("/components/capsule-assistant", h.CapsuleAssistantPanel)
 	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
+	r.Get("/imports/{id}/progress", h.ImportProgressJSON)
 
 	// Settings (Approved only)
 	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))

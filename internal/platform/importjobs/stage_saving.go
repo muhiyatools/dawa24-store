@@ -21,7 +21,7 @@ type SavingPayload struct {
 	QtyCol       int        `json:"qty_col"`
 	PriceCol     int        `json:"price_col"`
 	ProductIDCol int        `json:"product_id_col"`
-	MatchChoice  string     `json:"match_choice,omitempty"`
+	MatchChoice  any        `json:"match_choice,omitempty"`
 	UseAI        bool       `json:"use_ai,omitempty"`
 	Lang         string     `json:"lang,omitempty"`
 }

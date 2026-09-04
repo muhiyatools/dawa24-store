@@ -42,6 +42,11 @@ var globalSavingImportSessionStore = &SavingImportSessionStore{
 	sessions: make(map[string]*SavingImportSession),
 }
 
+// GlobalSavingImportSessionStore returns the shared saving import session store.
+func GlobalSavingImportSessionStore() *SavingImportSessionStore {
+	return globalSavingImportSessionStore
+}
+
 func init() {
 	go func() {
 		ticker := time.NewTicker(15 * time.Minute)
@@ -59,6 +64,31 @@ func (s *SavingImportSessionStore) NewSession(orgID, userID int64, filename stri
 	b := make([]byte, 16)
 	_, _ = rand.Read(b)
 	id := hex.EncodeToString(b)
+
+	session := &SavingImportSession{
+		Success:       true,
+		ID:            id,
+		OrgID:         orgID,
+		UserID:        userID,
+		Filename:      filename,
+		Status:        SessionStateProcessing,
+		Phase:         SavingPhaseReview,
+		Progress:      5,
+		ProgressPhase: i18n.TDefault("w4_ui.s_94_94"),
+		TotalRows:     totalRows,
+		Items:         make([]*StagedSavingItem, 0, totalRows),
+		CreatedAt:     time.Now(),
+		ExpiresAt:     time.Now().Add(4 * time.Hour),
+	}
+
+	s.sessions[id] = session
+	return session
+}
+
+// NewSessionWithID creates a new session in processing state with a predetermined ID.
+func (s *SavingImportSessionStore) NewSessionWithID(id string, orgID, userID int64, filename string, totalRows int) *SavingImportSession {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	session := &SavingImportSession{
 		Success:       true,
