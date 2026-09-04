@@ -250,10 +250,11 @@ func (m *mockAvailabilityProbe) CustomerBranch(ctx context.Context, branchID int
 	lat := 30.0
 	lon := 31.0
 	return commerce.BranchAvailability{
-		ID:             branchID,
-		OrganizationID: 99,
-		Latitude:       &lat,
-		Longitude:      &lon,
+		ID:                 branchID,
+		OrganizationID:     99,
+		Latitude:           &lat,
+		Longitude:          &lon,
+		InstitutionalWorks: []string{"commercial"},
 	}, nil
 }
 func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID ...*int64) (bool, error) {
