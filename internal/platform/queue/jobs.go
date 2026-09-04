@@ -71,3 +71,36 @@ func (SmartOrderRunArgs) InsertOpts() river.InsertOpts {
 	// stage and multiply upstream requests after a transient failure.
 	return river.InsertOpts{Queue: "smartorder", MaxAttempts: 1}
 }
+
+// ImportStageArgs defines job parameters for parsing and matching an uploaded
+// file against the catalogue.  The job carries only identifiers; the file
+// content, mapping choices and staged rows live in platform.import_runs /
+// platform.import_run_rows.
+//
+// MaxAttempts is 1: a retry would re-run the AI matching stage and double-bill
+// the tenant's credits.  A failed staging run is recoverable by re-uploading.
+type ImportStageArgs struct {
+	RunID          int64 `json:"run_id"`
+	OrganizationID int64 `json:"organization_id"`
+}
+
+func (ImportStageArgs) Kind() string { return "imports.stage" }
+func (ImportStageArgs) InsertOpts() river.InsertOpts {
+	return river.InsertOpts{Queue: "imports", MaxAttempts: 1}
+}
+
+// ImportCommitArgs defines job parameters for persisting the reviewed rows
+// from a staged import run into their destination tables.
+//
+// MaxAttempts is 3: the commit uses ON CONFLICT (run_id, row_number) DO
+// NOTHING on the child table and upserts on the target, so retries are
+// idempotent.
+type ImportCommitArgs struct {
+	RunID          int64 `json:"run_id"`
+	OrganizationID int64 `json:"organization_id"`
+}
+
+func (ImportCommitArgs) Kind() string { return "imports.commit" }
+func (ImportCommitArgs) InsertOpts() river.InsertOpts {
+	return river.InsertOpts{Queue: "imports", MaxAttempts: 3}
+}

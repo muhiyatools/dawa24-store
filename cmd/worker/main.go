@@ -16,6 +16,8 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	comparePostgres "github.com/muhiya/dawa24-store/internal/modules/compare/postgres"
@@ -25,6 +27,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/importjobs"
+	importrunPostgres "github.com/muhiya/dawa24-store/internal/platform/importrun/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
@@ -79,6 +83,16 @@ func run() error {
 		ai = gateway.WithUsageRecorder(gateway.New(cfg.Gateway, log), usageRecorder)
 	}
 	registerSmartOrderWorker(workers, db, ai, log)
+
+	// Unified import workers (Task 18). Stage parses and matches the uploaded
+	// file; commit persists the reviewed rows into their destination tables.
+	// Both run from the "imports" queue, which cfg.Worker.Queues already
+	// provisions with 2 workers.
+	importRunRepo := importrunPostgres.New(db)
+	catRepo := catalogPostgres.NewRepository(db)
+	catSvcWorker := catalog.NewService(catRepo, log)
+	river.AddWorker(workers, importjobs.NewStageWorker(db, importRunRepo, catSvcWorker, log))
+	river.AddWorker(workers, importjobs.NewCommitWorker(db, importRunRepo, catSvcWorker, log))
 
 	queueClient, err := queue.New(db, workers, cfg.Worker, log)
 	if err != nil {
