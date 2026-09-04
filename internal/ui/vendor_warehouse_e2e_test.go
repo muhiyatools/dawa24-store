@@ -319,6 +319,15 @@ func TestVendorWarehouseDetailPage_Overhaul_E2E(t *testing.T) {
 	if !strings.Contains(body, "بانادول إكسترا 24 قرص") {
 		t.Errorf("expected body to contain Panadol product name")
 	}
+	if !strings.Contains(body, "سعر الجمهور") || !strings.Contains(body, "نسبة الخصم") || !strings.Contains(body, "سعر بعد الخصم") {
+		t.Errorf("expected table to contain separated 'سعر الجمهور', 'نسبة الخصم', and 'سعر بعد الخصم' headers")
+	}
+	if strings.Contains(body, "line-through") {
+		t.Errorf("public price should not contain dash/line-through")
+	}
+	if !strings.Contains(body, "52.00") || !strings.Contains(body, "%15.00") || !strings.Contains(body, "48.50") {
+		t.Errorf("expected separated values: public price 52.00, discount %%15.00, and price after discount 48.50")
+	}
 	if !strings.Contains(body, "Paracetamol + Caffeine") {
 		t.Errorf("expected body to contain scientific name")
 	}

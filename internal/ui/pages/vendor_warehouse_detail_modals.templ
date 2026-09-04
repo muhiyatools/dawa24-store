@@ -1,0 +1,198 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorWarehouseDetailModals(data VendorWarehouseDetailData) {
+	<!-- Quick Stock Adjustment Modal -->
+	<div
+		class="stack-sm"
+		x-show="adjustModal"
+		x-cloak
+		@keydown.escape.window="adjustModal = false"
+		@click.self="adjustModal = false"
+	>
+		<div class="glass-panel p-6">
+			<div class="flex-between items-center mb-4 pb-2 border-b">
+				<div class="stack-sm">
+					<h3 class="text-base font-black text-primary m-0">
+						تعديل رصيد الصنف بالمخزن
+					</h3>
+					<p class="text-xs text-secondary m-0 mt-1">
+						تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً
+					</p>
+				</div>
+				<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+			</div>
+
+			<form :action={ fmt.Sprintf("'/vendor/warehouses/%d/stocks/' + adjustStock.id + '/adjust'", data.Warehouse.ID) } method="POST" class="d-flex flex-col gap-4">
+				<!-- Product Summary Header -->
+				<div class="p-3 bg-surface-sunken rounded-lg border">
+					<div class="text-xs text-muted font-bold mb-1">الصنف المختار:</div>
+					<div class="font-extrabold text-primary text-sm" x-text="adjustStock.name"></div>
+					<div class="d-flex gap-3 mt-1 text-xs text-secondary" x-show="adjustStock.batch">
+						<span>رقم التشغيلة: <strong class="text-primary tabular-nums" x-text="adjustStock.batch"></strong></span>
+					</div>
+				</div>
+
+				<!-- Current vs New Quantity -->
+				<div class="d-grid gap-3 grid-cols-2">
+					<div class="stack-sm">
+						<label class="form-label text-xs font-bold text-secondary mb-1">الرصيد الحالي بالمخزن</label>
+						<div class="form-input text-center font-black tabular-nums text-muted bg-surface-sunken text-sm flex-center" x-text="adjustStock.qty + ' عبوة'"></div>
+					</div>
+
+					<div class="stack-sm">
+						<label class="form-label text-xs font-bold text-brand mb-1">الرصيد الفعلي الجديد <span class="text-danger">*</span></label>
+						<input
+							type="number"
+							name="new_quantity"
+							min="0"
+							required
+							class="form-input text-center font-black tabular-nums text-sm w-full"
+							:value="adjustStock.qty"
+							placeholder="0"
+						/>
+					</div>
+				</div>
+
+				<!-- Reason for Adjustment -->
+				<div class="stack-sm">
+					<label class="form-label text-xs font-bold text-secondary mb-1">سبب التسوية / التعديل <span class="text-danger">*</span></label>
+					<select name="reason" class="form-select text-xs w-full" required>
+						<option value="جرد دوري ومطابقة فعلية">جرد دوري ومطابقة فعلية</option>
+						<option value="استلام شحنة إضافية / توريد">استلام شحنة إضافية / توريد</option>
+						<option value="تسوية تلفيات أو إرجاع مورد">تسوية تلفيات أو إرجاع مورد</option>
+						<option value="تصحيح خطأ في إدخال الرصيد السابق">تصحيح خطأ في إدخال الرصيد السابق</option>
+						<option value="تسوية أخرى">تسوية أخرى</option>
+					</select>
+				</div>
+
+				<div class="d-flex items-center justify-end gap-3 mt-2">
+					<button type="button" class="btn btn-secondary text-xs" @click="adjustModal = false">إلغاء</button>
+					<button type="submit" class="btn btn-primary text-xs font-bold">حفظ وتحديث الرصيد فورياً</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Transfer Stock to Another Warehouse Modal -->
+	<div
+		x-show="transferModal"
+		x-cloak
+		class="modal-backdrop"
+		@keydown.escape.window="transferModal = false"
+		@click.self="transferModal = false"
+	>
+		<div class="glass-panel p-6 max-w-lg w-full">
+			<div class="flex-between items-center mb-4 pb-2 border-b">
+				<div class="stack-sm">
+					<div class="d-flex items-center gap-2">
+						<div class="user-avatar-badge text-brand">
+							@components.IconRefresh("icon-xs")
+						</div>
+						<h3 class="text-base font-black text-primary m-0">
+							تحويل رصيد الصنف إلى مخزن آخر
+						</h3>
+					</div>
+					<p class="text-xs text-secondary m-0 mt-1">
+						نقل كمية محددة من هذا الصنف من مخزن { data.Warehouse.Name } إلى أحد مخازنك الأخرى
+					</p>
+				</div>
+				<button type="button" @click="transferModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+			</div>
+
+			<form action="/vendor/inventory/transfer" method="POST" class="d-flex flex-col gap-4 m-0">
+				<input type="hidden" name="stock_id" :value="transferStock.id" />
+				<input type="hidden" name="variant_id" :value="transferStock.variant_id" />
+				<input type="hidden" name="product_id" :value="transferStock.product_id" />
+				<input type="hidden" name="from_warehouse_id" value={ fmt.Sprintf("%d", data.Warehouse.ID) } />
+				<input type="hidden" name="redirect_url" value={ fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID) } />
+
+				<!-- Product & Source Info Card -->
+				<div class="p-3.5 bg-surface-sunken rounded-xl border stack-xs">
+					<div class="text-2xs text-muted font-bold">الصنف المراد نقله:</div>
+					<div class="font-black text-primary text-sm" x-text="transferStock.name"></div>
+					<div class="flex-between items-center text-xs mt-2 pt-2 border-t text-secondary">
+						<span>المخزن المصدر: <strong class="text-primary">{ data.Warehouse.Name }</strong></span>
+						<span>الرصيد المتاح: <strong class="text-brand tabular-nums" x-text="transferStock.qty + ' عبوة'"></strong></span>
+					</div>
+				</div>
+
+				<!-- Target Warehouse Selection -->
+				<div class="stack-xs">
+					<label class="form-label text-xs font-bold text-primary mb-1">المخزن الوجهة (المراد التحويل إليه) <span class="text-danger">*</span></label>
+					if len(data.OtherWarehouses) > 0 {
+						<select name="to_warehouse_id" class="form-select text-xs w-full font-bold" required>
+							<option value="">-- اختر المخزن المراد التحويل إليه --</option>
+							for _, wh := range data.OtherWarehouses {
+								<option value={ fmt.Sprintf("%d", wh.ID) }>
+									{ wh.Name } { fmt.Sprintf("(كود: %s)", wh.Code) }
+								</option>
+							}
+						</select>
+					} else {
+						<div class="p-3 rounded-lg bg-amber-subtle text-amber text-xs font-bold d-flex items-center gap-2">
+							@components.IconAlert("icon-xs")
+							<span>لا يوجد مخازن نشطة أخرى لديك. يجب توفر مخزنين على الأقل لإجراء تحويل مخزني.</span>
+						</div>
+					}
+				</div>
+
+				<!-- Quantity to Transfer -->
+				<div class="stack-xs">
+					<label class="form-label text-xs font-bold text-brand mb-1">الكمية المراد نقلها (عبوة) <span class="text-danger">*</span></label>
+					<input
+						type="number"
+						name="quantity"
+						min="1"
+						:max="transferStock.qty"
+						required
+						class="form-input text-center font-black tabular-nums text-base w-full"
+						placeholder="0"
+					/>
+					<div class="text-2xs text-muted mt-0.5">
+						الحد الأقصى للتحويل: <strong class="tabular-nums" x-text="transferStock.qty"></strong> عبوة
+					</div>
+				</div>
+
+				<!-- Notes / Reason -->
+				<div class="stack-xs">
+					<label class="form-label text-xs font-bold text-secondary mb-1">سبب / ملاحظات التحويل</label>
+					<textarea
+						name="notes"
+						rows="2"
+						class="form-input text-xs w-full"
+						placeholder="مثال: تغذية فرع الجيزة، إعادة توزيع المخزون..."
+					></textarea>
+				</div>
+
+				<!-- Immediate Receive Checkbox -->
+				<div class="p-2.5 bg-surface-raised rounded-lg border d-flex items-center gap-2.5">
+					<input type="checkbox" name="immediate" id="wh_transfer_imm" value="true" checked class="form-checkbox" />
+					<label for="wh_transfer_imm" class="text-xs font-bold text-secondary cursor-pointer m-0 select-none">
+						تأكيد الاستلام الفوري وإضافة الرصيد مباشرة إلى المخزن الوجهة
+					</label>
+				</div>
+
+				<!-- Actions -->
+				<div class="d-flex items-center justify-end gap-3 mt-2">
+					<button type="button" class="btn btn-secondary text-xs" @click="transferModal = false">إلغاء</button>
+					if len(data.OtherWarehouses) > 0 {
+						<button type="submit" class="btn btn-primary text-xs font-black gap-1.5" :disabled="transferStock.qty <= 0">
+							@components.IconRefresh("icon-xs")
+							<span>تأكيد تحويل المخزون</span>
+						</button>
+					} else {
+						<button type="button" disabled class="btn btn-secondary text-xs font-bold opacity-50 cursor-not-allowed">
+							غير متاح (مخزن واحد فقط)
+						</button>
+					}
+				</div>
+			</form>
+		</div>
+	</div>
+}
