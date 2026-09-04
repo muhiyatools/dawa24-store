@@ -117,21 +117,91 @@ func strengthsConflict(rowText, prodText string) bool {
 // information rather than agreement OR disagreement: a row stating a 120 ml
 // bottle and a product stating 200 mg have not contradicted each other, and
 // scoring that as a conflict cost a long list of correct matches half a point
-// each. agree is true as soon as any shared unit matches, because a combination
-// product states several doses and one of them agreeing is what identifies it.
+// each.
+//
+// agree requires EVERY shared unit to match, and that is a correction rather
+// than a tightening. It used to be true as soon as any shared unit matched,
+// reasoning that a combination product states several doses and one of them
+// agreeing identifies it. What that actually did was let one figure vouch for
+// another: "اميكين 100مجم/2مل فيال" and "اميكين 250مجم/2مل فيال" are two
+// different vials of amikacin, they agree on the 2 ml of solvent, and on the
+// strength of that agreement the engine applied one as the other. So did
+// "البوستيكس دي 16/12.5مجم" against "البوستيكس دي 32/12.5مجم", and every other
+// family whose members share a vehicle and differ in the drug.
+//
+// Within a unit, agreement is set equality rather than overlap, for the same
+// reason: 5/5 mg and 5/10 mg overlap on the 5 and are two products.
 func compareStrengths(rowDoses, prodDoses []strength) (agree, comparable bool) {
-	for _, a := range rowDoses {
-		for _, b := range prodDoses {
-			if a.unit != b.unit {
-				continue
-			}
-			comparable = true
-			if sameStrength(a, b) {
-				return true, true
-			}
+	rows, prods := byUnit(rowDoses), byUnit(prodDoses)
+	agree = true
+	for unit, a := range rows {
+		b, shared := prods[unit]
+		if !shared {
+			continue // this measurement is missing from the other side
+		}
+		comparable = true
+		if !doseSetsEqual(a, b) {
+			agree = false
 		}
 	}
-	return false, comparable
+	return agree && comparable, comparable
+}
+
+// byUnit groups a dose set by the unit each dose was measured in.
+func byUnit(set []strength) map[string][]strength {
+	out := make(map[string][]strength, 2)
+	for _, s := range set {
+		out[s.unit] = append(out[s.unit], s)
+	}
+	return out
+}
+
+// doseSetsEqual decides whether two dose lists of one unit describe the same
+// product.
+//
+// Containment, not equality, except between two combinations. A pharmacy
+// abbreviates: it writes "اتاكاند بلس 16 مجم" for a product the catalogue
+// records as 16/12.5 mg, and refusing that would refuse the commonest way a
+// combination is ordered. What it does NOT do is invent a component — so where
+// BOTH sides state a ratio, the ratios have to be the same one: املوفيران
+// 5/5 مجم and املوفيران 5/10 مجم each state two components, they share the 5,
+// and they are two products.
+//
+// The same containment rule covers a name that measures more than it doses.
+// "الفابونيد 1 مكجم/مل (1مل=2مكجم)" states the concentration twice over; a row
+// that states it once has not disagreed.
+func doseSetsEqual(a, b []strength) bool {
+	if isCombination(a) && isCombination(b) {
+		return doseSetCovers(a, b) && doseSetCovers(b, a)
+	}
+	return doseSetCovers(a, b) || doseSetCovers(b, a)
+}
+
+// isCombination reports whether a dose list came from a ratio — "32/25 مجم"
+// rather than "32 مجم".
+func isCombination(set []strength) bool {
+	for _, s := range set {
+		if s.parts > 1 {
+			return true
+		}
+	}
+	return false
+}
+
+func doseSetCovers(have, want []strength) bool {
+	for _, w := range want {
+		found := false
+		for _, h := range have {
+			if sameStrength(h, w) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return true
 }
 
 // modifierConflict compares the line-extension words that separate one product

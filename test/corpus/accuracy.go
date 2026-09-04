@@ -41,6 +41,14 @@ type Accuracy struct {
 	RightOffered int `json:"right_offered"`
 	WrongOffered int `json:"wrong_offered"`
 
+	// Ambiguous and Review split the offered population by why it was not
+	// applied: two candidates nothing in the row separates, or one candidate
+	// too weak to apply. They need different fixes and are reported apart.
+	Ambiguous      int `json:"ambiguous"`
+	AmbiguousRight int `json:"ambiguous_right"`
+	Review         int `json:"review"`
+	ReviewRight    int `json:"review_right"`
+
 	// Missed counts rows reported as having no match at all.
 	Missed int `json:"missed"`
 	// TruthInShortlist counts rows whose correct product was somewhere in the
@@ -163,6 +171,17 @@ func Score(name string, idx *productmatch.Index, labels []Labelled,
 			}
 		case o.res.Matched():
 			acc.Offered++
+			if o.res.Level == productmatch.MatchAmbiguous {
+				acc.Ambiguous++
+				if right {
+					acc.AmbiguousRight++
+				}
+			} else {
+				acc.Review++
+				if right {
+					acc.ReviewRight++
+				}
+			}
 			if right {
 				acc.RightOffered++
 			} else {
@@ -228,10 +247,12 @@ func (a Accuracy) HardPrecisionPct() float64 {
 func (a Accuracy) Format() string {
 	return fmt.Sprintf(
 		"%-14s labels=%-6d applied=%-6d WRONG=%-5d precision=%6.2f%%  recall=%6.2f%%  "+
-			"hard-precision=%6.2f%% (wrong=%d/%d)  offered=%d(w=%d)  missed=%d  truth-in-list=%d",
+			"hard-precision=%6.2f%% (wrong=%d/%d)  ambiguous=%d(ok=%d)  review=%d(ok=%d)  "+
+			"missed=%d  truth-in-list=%d",
 		a.Name, a.Labels, a.Applied, a.WrongApplied, a.PrecisionPct(), a.RecallPct(),
 		a.HardPrecisionPct(), a.HardWrong, a.HardApplied,
-		a.Offered, a.WrongOffered, a.Missed, a.TruthInShortlist)
+		a.Ambiguous, a.AmbiguousRight, a.Review, a.ReviewRight,
+		a.Missed, a.TruthInShortlist)
 }
 
 // Calibration renders the reported-score buckets, which is how a score is

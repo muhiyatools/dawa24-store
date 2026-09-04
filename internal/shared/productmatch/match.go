@@ -270,8 +270,14 @@ type scoredProduct struct {
 	// well a contradicting one is spelled. See discriminate.go.
 	conflicts []conflict
 	mass      float64
-	reason    string
-	exact     bool
+	// evidence is the score BEFORE the contradictions are applied — how alike
+	// the two are, before asking whether they can be the same product. It is
+	// what the shortlist is filtered on, so a candidate the row contradicts is
+	// still shown to the reviewer with the contradiction named, rather than
+	// vanishing and leaving "no similar product found" as the only explanation.
+	evidence float64
+	reason   string
+	exact    bool
 }
 
 // score rates every plausible catalogue product for one query.
@@ -291,7 +297,7 @@ func (idx *Index) score(q *query, opts MatchOptions) []scoredProduct {
 			continue
 		}
 		seen[p.ID] = true
-		if sp, ok := idx.rate(q, p); ok && sp.score >= opts.MinReview {
+		if sp, ok := idx.rate(q, p); ok && sp.evidence >= opts.MinReview {
 			out = append(out, sp)
 		}
 	}
@@ -345,6 +351,14 @@ func (idx *Index) decide(q *query, scored []scoredProduct, opts MatchOptions) Ma
 		!idx.separated(q, best.product, scored[1].product)
 
 	switch {
+	case best.score < opts.MinReview:
+		// Everything found contradicts the row badly enough that none of it can
+		// be offered as an answer. The shortlist still travels with the result,
+		// because "nothing matched" and "these three were close and every one
+		// of them disagrees about the dose" are different things to be told.
+		res.ProductID = 0
+		res.Level = MatchNone
+		res.Reason = "أقرب الأصناف في الكتالوج تختلف في خصائص أساسية عن هذا الصف: " + best.reason
 	case tied:
 		res.Level = MatchAmbiguous
 		res.Reason = fmt.Sprintf(

@@ -160,7 +160,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 					<!-- Stock & Expiry -->
 					<div class="flex-between text-xs mb-3 font-semibold">
-						<div>
+						<div class="d-flex items-center gap-1.5 flex-wrap">
 							if v.AvailableStock > 0 {
 								<span class="badge badge-emerald gap-1 font-bold">
 									<span>متاح ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)</span>
@@ -168,6 +168,12 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 							} else {
 								<span class="badge badge-rose gap-1 font-bold">
 									<span>غير متوفر</span>
+								</span>
+							}
+							if !v.IsCovered {
+								<span class="badge badge-rose gap-1 font-bold" title={ v.CoverageReason }>
+									@components.IconAlert("icon-2xs")
+									<span>خارج التغطية اليوم</span>
 								</span>
 							}
 						</div>
@@ -249,10 +255,17 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 							}
 						</div>
 					} else {
-						<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-xs">
-							<span>تفاصيل الصنف والموردين</span>
-							@components.IconArrowLeft("icon-xs")
-						</a>
+						<div class="d-flex flex-col gap-1 w-full text-center">
+							if !v.IsCovered && v.CoverageReason != "" {
+								<span class="text-2xs text-danger font-bold d-block truncate" title={ v.CoverageReason }>
+									{ v.CoverageReason }
+								</span>
+							}
+							<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-xs">
+								<span>تفاصيل الصنف والموردين</span>
+								@components.IconArrowLeft("icon-xs")
+							</a>
+						</div>
 					}
 				</div>
 			</div>

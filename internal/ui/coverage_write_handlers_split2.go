@@ -269,3 +269,25 @@ func (h *UIHandler) VendorCoverageToggleSubmit(w http.ResponseWriter, r *http.Re
 	}
 	h.redirectWithNotice(w, r, "/vendor/coverage", "success", fmt.Sprintf(i18n.T(lang, "vendor.coverage.toggle_success"), stateLabel))
 }
+
+// VendorCoverageDeleteAllSubmit wipes all weekly coverages belonging to the authenticated vendor organization.
+func (h *UIHandler) VendorCoverageDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
+		return
+	}
+
+	if h.wfSvc != nil {
+		if err := h.wfSvc.DeleteAllCoverageForOrganization(ctx, actor.OrganizationID); err != nil {
+			h.log.ErrorContext(ctx, "delete all weekly coverages failed", "error", err, "org", actor.OrganizationID)
+			h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.delete_error"))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/coverage", "success", "تم حذف جميع نطاقات التغطية الخاصة بك بنجاح.")
+}
+

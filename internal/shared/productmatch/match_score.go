@@ -30,20 +30,6 @@ const (
 	corroborationFull  = 0.50
 )
 
-// conflictPenalty converts a unit of conflict mass into points of score.
-//
-// It is what a contradiction costs a candidate that is offered anyway. The
-// ordering has already been settled without it — a conflicting candidate ranks
-// behind a clean one whatever their scores — so this decides only what the
-// review screen prints beside a candidate it is showing under protest, and how
-// far below the applied threshold it lands.
-//
-// Set so a disagreeing dose costs 0.45, which is what it cost when penalties
-// and evidence were summed together. The figures below it fall out of the mass
-// table in discriminate.go rather than being tuned one at a time, which is the
-// point of having the table.
-const conflictPenalty = 0.45
-
 // corroborationFactor discounts attribute agreement when the names barely
 // agree, and leaves it alone once they do.
 //
@@ -80,7 +66,7 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		// prevents certain non-pharmaceutical matches from falling below the cutoff.
 		weight = 0.88
 	}
-	score := name*weight - mass*conflictPenalty
+	score := name * weight
 
 	reasons := make([]string, 0, 6)
 	reasons = append(reasons, "تشابه الاسم "+percent(name))
@@ -113,7 +99,7 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 	// because two candidates both pinned at 0.97 are not "close" — they are
 	// equal, and the tie test excluded scores at the ceiling.
 	exact := false
-	if mass == 0 {
+	if len(conflicts) == 0 {
 		exact = name >= 0.98 || (name >= 0.90 && weight == 0.88)
 		switch {
 		case exact:
@@ -123,9 +109,16 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		}
 	}
 
+	// What the contradictions leave. Applied last and as a factor, so nothing
+	// above it can outrun it: the lifts operate on uncontradicted evidence and
+	// this is what remains of that evidence once the row's own attributes have
+	// been consulted. See survival.
+	evidence := clamp(score)
+
 	return scoredProduct{
 		product:   p,
-		score:     clamp(score),
+		score:     clamp(evidence * survival(conflicts)),
+		evidence:  evidence,
 		conflicts: conflicts,
 		mass:      mass,
 		reason:    strings.Join(reasons, " + "),

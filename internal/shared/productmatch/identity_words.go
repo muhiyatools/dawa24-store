@@ -195,14 +195,55 @@ func editSimilarity(a, b string) float64 {
 }
 
 // modifiersIn is the set of line-extension keys a text carries.
+//
+// Adjacent letters are folded first. A modified-release line is written "sr" by
+// one supplier, "s.r." by the next and "اس ار" by the catalogue, and only the
+// first of those is a token this vocabulary holds — so the same product
+// contradicted itself across scripts, which is the worst possible outcome for a
+// check whose whole purpose is to separate one product from another.
 func modifiersIn(text string) map[string]struct{} {
+	words := strings.Fields(sheet.NormalizeName(text))
 	out := make(map[string]struct{}, 2)
-	for _, w := range strings.Fields(sheet.NormalizeName(text)) {
+	for i, w := range words {
 		if key, ok := variantModifiers[w]; ok {
+			out[key] = struct{}{}
+			continue
+		}
+		if i+1 >= len(words) {
+			continue
+		}
+		if key, ok := releaseCodePair(w, words[i+1]); ok {
 			out[key] = struct{}{}
 		}
 	}
 	return out
+}
+
+// releaseCodePair folds two adjacent letters onto the release code they spell.
+//
+// "اس"+"ار" is SR and "سي"+"ار" is CR, in a catalogue that writes both that way
+// and a supplier file that writes them "sr" and "c.r.". Only the codes already
+// in the modifier vocabulary are recognised, so this widens how a known
+// extension may be spelled and never invents one.
+func releaseCodePair(a, b string) (string, bool) {
+	first, ok := letterNames[a]
+	if !ok || first == "" {
+		return "", false
+	}
+	second, ok := letterNames[b]
+	if !ok || second == "" {
+		return "", false
+	}
+	key, ok := variantModifiers[first+second]
+	return key, ok
+}
+
+// releaseCodes are the two-letter runs that name a different product rather
+// than abbreviating a dosage form. They are compared as modifiers, not as
+// identity letters — see modifiersIn.
+var releaseCodes = map[string]bool{
+	"sr": true, "cr": true, "xr": true, "mr": true, "er": true,
+	"xl": true, "la": true, "dr": true, "od": true,
 }
 
 // variantModifiers are the words that make one product in a brand family a
@@ -260,12 +301,18 @@ var variantModifiers = map[string]string{
 	// paediatric product disagreeing with itself in the other language.
 	"بيبي": "paed", "بيبى": "paed", "baby": "paed", "infant": "paed",
 	"جونيور": "paed", "junior": "paed", "بيديا": "paed", "pedia": "paed",
-	"kids": "paed", "children": "paed", "child": "paed",
+	"kids": "paed", "children": "paed", "child": "paed", "paed": "paed",
+	"paediatric": "paed", "pediatric": "paed",
 	"اطفال": "paed", "للاطفال": "paed", "الاطفال": "paed", "اطفل": "paed",
 	"كبار": "adult", "للكبار": "adult", "adult": "adult", "adults": "adult",
-	"مان": "men", "men": "men", "رجالي": "men", "للرجال": "men", "الرجال": "men",
+	"مان": "men", "men": "men", "man": "men", "رجالي": "men", "للرجال": "men",
+	"الرجال": "men", "رجالى": "men",
 	"وومن": "women", "women": "women", "حريمي": "women", "للسيدات": "women",
 	"السيدات": "women", "سيدات": "women", "نسائي": "women", "للنساء": "women",
+
+	// Route and presentation lines sold beside the ordinary one
+	"للمضغ": "chew", "مضغ": "chew", "للمص": "chew", "chewable": "chew", "chew": "chew",
+	"فوار": "eff", "فوارة": "eff", "فواره": "eff", "effervescent": "eff", "eff": "eff",
 
 	// Formulation families sold side by side
 	"دوو": "duo", "duo": "duo",

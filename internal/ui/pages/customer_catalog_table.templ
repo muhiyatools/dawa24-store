@@ -114,6 +114,13 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 										نفد المخزون
 									</span>
 								}
+								if !v.IsCovered {
+									<div class="mt-1">
+										<span class="badge badge-rose font-bold text-2xs" title={ v.CoverageReason }>
+											خارج التغطية اليوم
+										</span>
+									</div>
+								}
 								if v.ExpiryDate != "" {
 									<div class="text-2xs text-muted tabular-nums mt-0.5 font-mono">
 										{ v.ExpiryDate }

@@ -18,6 +18,7 @@ type Repository interface {
 	SaveBatchWeeklyCoverage(ctx context.Context, coverages []*WeeklyCoverage) error
 	UpdateWeeklyCoverage(ctx context.Context, c *WeeklyCoverage) error
 	DeleteWeeklyCoverage(ctx context.Context, id int64) error
+	DeleteAllCoverageForOrganization(ctx context.Context, orgID int64) error
 	ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error
 	GetWeeklyCoverageByID(ctx context.Context, id int64) (*WeeklyCoverage, error)
 	ListWeeklyCoverage(ctx context.Context, branchID int64) ([]*WeeklyCoverage, error)

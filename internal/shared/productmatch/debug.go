@@ -222,3 +222,29 @@ func DebugModifiers(text string) []string {
 	sort.Strings(out)
 	return out
 }
+
+// DebugSides renders each of a product's name reductions, so a probe can say
+// which spelling a comparison actually agreed with.
+func DebugSides(p *MasterProduct) []string {
+	out := make([]string, 0, 2)
+	for _, f := range p.sides() {
+		s := "form=" + f.formKey + " sub=" + f.subForm + " counts="
+		for _, c := range f.qty.counts {
+			s += c.class + ":" + formatFloat(c.value) + " "
+		}
+		s += "residual="
+		for _, r := range f.qty.residual {
+			s += formatFloat(r) + " "
+		}
+		s += "marks="
+		for m := range f.marks {
+			s += m + " "
+		}
+		s += "mods="
+		for m := range f.mods {
+			s += m + " "
+		}
+		out = append(out, s)
+	}
+	return out
+}

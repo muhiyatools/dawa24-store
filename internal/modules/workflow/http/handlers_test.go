@@ -52,6 +52,10 @@ func (r stubRepo) DeleteWeeklyCoverage(context.Context, int64) error {
 	r.fail("DeleteWeeklyCoverage")
 	return nil
 }
+func (r stubRepo) DeleteAllCoverageForOrganization(context.Context, int64) error {
+	r.fail("DeleteAllCoverageForOrganization")
+	return nil
+}
 func (r stubRepo) ToggleWeeklyCoverage(context.Context, int64, bool) error {
 	r.fail("ToggleWeeklyCoverage")
 	return nil
@@ -142,6 +146,9 @@ func (happyRepo) UpdateWeeklyCoverage(ctx context.Context, c *workflow.WeeklyCov
 	return nil
 }
 func (happyRepo) DeleteWeeklyCoverage(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) DeleteAllCoverageForOrganization(ctx context.Context, orgID int64) error {
 	return nil
 }
 func (happyRepo) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error {

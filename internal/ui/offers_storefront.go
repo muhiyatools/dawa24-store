@@ -197,10 +197,13 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				covReason = "يرجى تحديد فرع صيدلية للاستلام أولاً للتمكن من الطلب"
 			}
 		} else {
-			isCovered = true
-			if stockQty > 0 {
-				canAddToCart = true
-			} else {
+			isCovered = false
+			canAddToCart = false
+			if !hasActor {
+				covReason = "يرجى تسجيل الدخول بحساب صيدلية للطلب"
+			} else if !isPharmacy {
+				covReason = "الطلب متاح فقط لحسابات الصيدليات المعتمدة"
+			} else if stockQty <= 0 {
 				covReason = i18n.T(lang, "offers.cov_reason_out_of_stock")
 			}
 		}

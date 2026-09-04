@@ -80,6 +80,19 @@ func (m *mockWorkflowRepo) DeleteWeeklyCoverage(_ context.Context, id int64) err
 	return apperr.NotFound("weekly_coverage")
 }
 
+func (m *mockWorkflowRepo) DeleteAllCoverageForOrganization(_ context.Context, orgID int64) error {
+	for bID, list := range m.coverage {
+		filtered := make([]*WeeklyCoverage, 0, len(list))
+		for _, c := range list {
+			if c.OrganizationID != orgID {
+				filtered = append(filtered, c)
+			}
+		}
+		m.coverage[bID] = filtered
+	}
+	return nil
+}
+
 func (m *mockWorkflowRepo) ToggleWeeklyCoverage(_ context.Context, id int64, isActive bool) error {
 	for _, list := range m.coverage {
 		for _, c := range list {

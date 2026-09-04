@@ -31,6 +31,14 @@ type nameFacts struct {
 	mods    map[string]struct{}
 	marks   map[string]struct{}
 	qty     quantities
+	// strengths are the doses the NAME states. The record's concentration
+	// column is kept apart, in MasterProduct.strengthsMeta, and consulted only
+	// where the name states nothing — it disagrees with the name it sits beside
+	// often enough to matter. "ايه سي سي 200مجم 20 كيس" is filed under a
+	// concentration of 20 mg; "اكنيتون 5مجم/مل" under 15 mg/ml. Pooling the two
+	// gave every such product a second, wrong strength that contradicted every
+	// row asking for it, including a row that had copied the name exactly.
+	strengths []strength
 }
 
 // factsOf reduces one name.
@@ -39,11 +47,12 @@ func factsOf(name string) nameFacts {
 		return nameFacts{}
 	}
 	return nameFacts{
-		formKey: formKeyOf(name),
-		subForm: topicalSubForm(name),
-		mods:    modifiersIn(name),
-		marks:   identityMarks(name),
-		qty:     readQuantities(name),
+		formKey:   formKeyOf(name),
+		subForm:   topicalSubForm(name),
+		mods:      modifiersIn(name),
+		marks:     identityMarks(name),
+		qty:       readQuantities(name),
+		strengths: strengthSet(name),
 	}
 }
 
@@ -51,7 +60,7 @@ func factsOf(name string) nameFacts {
 // holding only one of its two names.
 func (f nameFacts) empty() bool {
 	return f.formKey == "" && f.subForm == "" &&
-		len(f.mods) == 0 && len(f.marks) == 0 &&
+		len(f.mods) == 0 && len(f.marks) == 0 && len(f.strengths) == 0 &&
 		len(f.qty.counts) == 0 && len(f.qty.residual) == 0
 }
 
@@ -86,4 +95,16 @@ func (p *MasterProduct) formOf(f nameFacts) string {
 		return f.formKey
 	}
 	return p.formMeta
+}
+
+// dosesOf is the strengths a side states, falling back to the record's own
+// concentration column where the name states none.
+//
+// Same order as formOf, for the same reason and on the same evidence: the name
+// is what a person wrote and the column is what an importer filled in.
+func (p *MasterProduct) dosesOf(f nameFacts) []strength {
+	if len(f.strengths) > 0 {
+		return f.strengths
+	}
+	return p.strengthsMeta
 }

@@ -94,6 +94,7 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 		g.Post("/vendor/coverage/{id}/edit", h.VendorCoverageUpdateSubmit)
 		g.Post("/vendor/coverage/{id}/delete", h.VendorCoverageDeleteSubmit)
 		g.Post("/vendor/coverage/{id}/toggle", h.VendorCoverageToggleSubmit)
+		g.Post("/vendor/coverage/delete-all", h.VendorCoverageDeleteAllSubmit)
 		g.Post("/vendor/delivery-bands", h.VendorDeliveryBandCreateSubmit)
 		g.Post("/vendor/delivery-bands/create", h.VendorDeliveryBandCreateSubmit)
 		g.Post("/vendor/delivery-bands/{id}/delete", h.VendorDeliveryBandDeleteSubmit)

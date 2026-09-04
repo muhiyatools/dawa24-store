@@ -138,6 +138,16 @@ func lookahead(words []string, i int) string {
 		i++
 		next := words[i]
 		if !hasDigit(next) {
+			// An abbreviation between the figure and the noun it counts.
+			// "14 f.c. tabs" is fourteen tablets; stopping at the "f" recorded
+			// fourteen of nothing, so the English half of every catalogue
+			// record stated no pack count at all and could not contradict one.
+			if _, filler := abbreviationLetters[next]; filler {
+				continue
+			}
+			if _, named := letterNames[next]; named {
+				continue
+			}
 			return next
 		}
 		if _, tail, ok := splitLeadingNumber(next); ok && tail != "" {
@@ -232,13 +242,18 @@ func identityMarks(text string) map[string]struct{} {
 		if hasDigit(w) {
 			continue
 		}
-		if len([]rune(w)) >= minLinkRunes {
-			if !noiseWords[w] && !isMeasureWord(w) {
+		if _, named := letterNames[w]; !named {
+			// Anything that is not a letter is a word this letter could be
+			// modifying. The bar used to be four runes, which made "ادو جي"
+			// carry no mark where "addo-g" carried one — the Arabic brand is
+			// three letters long and the English is four, and that is not a
+			// difference between two products.
+			if len([]rune(w)) >= 2 && !noiseWords[w] && !isMeasureWord(w) {
 				seenWord = true
 			}
 			continue
 		}
-		if key, ok := letterNames[w]; !ok || key == "" {
+		if _, ok := letterNames[w]; !ok {
 			continue
 		}
 		// A RUN of letters is an abbreviation, not an identity.
@@ -254,44 +269,58 @@ func identityMarks(text string) map[string]struct{} {
 		// The exception is the release codes, which are genuinely written as
 		// two letters and genuinely name another product: "200mg c.r." is not
 		// "200mg".
-		run := letterRun(words, i)
-		if len(run) > 1 && !releaseCodes[strings.Join(run, "")] {
-			i += len(run) - 1
+		start, end := letterRun(words, i)
+		i = end - 1
+		if end-start > 1 {
+			// Two or more letters together are an abbreviation — film-coated,
+			// intravenous, USP — or a release code, and a release code is a
+			// line extension rather than an identity letter, so the modifier
+			// vocabulary owns it. Either way, nothing to record here.
 			continue
 		}
 		if !seenWord {
 			continue // nothing yet for this letter to be an extension of
 		}
+		key := letterNames[words[start]]
+		if key == "" {
+			continue
+		}
 		if out == nil {
 			out = make(map[string]struct{}, 2)
 		}
-		for _, r := range run {
-			if k := letterNames[r]; k != "" {
-				out[k] = struct{}{}
-			}
-		}
-		i += len(run) - 1
+		out[key] = struct{}{}
 	}
 	return out
 }
 
-// letterRun collects the maximal run of consecutive single-letter tokens
-// starting at i.
-func letterRun(words []string, i int) []string {
-	out := make([]string, 0, 3)
-	for ; i < len(words); i++ {
-		w := words[i]
+// letterRun returns the bounds of the maximal run of single-letter tokens
+// containing i.
+//
+// Both directions, and the backward half is what makes it work. The tokens of
+// an abbreviation are not all identity letters — "i.v." is an i this engine
+// does not name and a v it does not name either, "u.s.p" is a u it ignores
+// beside an s and a p it does not — so a forward-only scan starting at the
+// first letter it RECOGNISES saw "m" alone in "i.m." and read Abilify Maintena
+// I.M. as a product line called M.
+func letterRun(words []string, i int) (start, end int) {
+	isLetter := func(w string) bool {
 		if hasDigit(w) || len([]rune(w)) >= minLinkRunes {
-			break
+			return false
 		}
-		if _, named := letterNames[w]; !named {
-			if _, filler := abbreviationLetters[w]; !filler {
-				break
-			}
+		if _, named := letterNames[w]; named {
+			return true
 		}
-		out = append(out, w)
+		_, filler := abbreviationLetters[w]
+		return filler
 	}
-	return out
+	start, end = i, i+1
+	for start > 0 && isLetter(words[start-1]) {
+		start--
+	}
+	for end < len(words) && isLetter(words[end]) {
+		end++
+	}
+	return start, end
 }
 
 // abbreviationLetters are short tokens that belong to an abbreviation run
@@ -304,13 +333,6 @@ var abbreviationLetters = map[string]struct{}{
 	"a": {}, "e": {}, "i": {}, "j": {}, "l": {}, "o": {}, "u": {}, "v": {},
 	"w": {}, "y": {}, "اي": {}, "ايه": {}, "او": {}, "يو": {}, "في": {},
 	"ال": {}, "ام": {},
-}
-
-// releaseCodes are the two-letter runs that DO name a different product: the
-// modified-release lines, written "c.r." or "سي ار" as often as "cr".
-var releaseCodes = map[string]bool{
-	"sr": true, "cr": true, "xr": true, "mr": true, "er": true,
-	"xl": true, "la": true, "dr": true, "od": true,
 }
 
 // letterNames folds the ways one letter is written onto a single key.
@@ -338,6 +360,16 @@ var letterNames = map[string]string{
 	"t": "t", "تي": "t",
 	"x": "x", "اكس": "x",
 	"z": "z", "زد": "z",
+	// The bare Arabic letters. Every one of them occurs fewer than thirty times
+	// in a twenty-thousand-product catalogue, which is what makes them safe:
+	// a letter standing alone in a pharmacy name is a product line, not a word.
+	//
+	// "و" and "ا" are the exceptions and are left out. The first is the
+	// conjunction — "ليمون و عسل" — and the second is a bare alef that carries
+	// no sound of its own.
+	"ب": "b", "ت": "t", "ج": "g", "د": "d", "ر": "r", "ز": "z",
+	"ش": "s", "ص": "s", "ط": "t", "ع": "a", "ف": "f", "ق": "q",
+	"ك": "k", "ل": "l", "ه": "h", "ي": "y",
 }
 
 // topicalSubForm separates the semi-solid topicals the form key groups together.
@@ -366,11 +398,23 @@ var topicalWords = map[string]string{
 	"كريم": "cream", "cream": "cream", "crm": "cream",
 	"مرهم": "ointment", "ointment": "ointment", "oint": "ointment",
 	"جل": "gel", "جيل": "gel", "gel": "gel",
-	"لوسيون": "lotion", "لوشن": "lotion", "lotion": "lotion",
 	"معجون": "paste", "paste": "paste",
 	"رغوة": "foam", "فوم": "foam", "foam": "foam",
 	"بلسم": "balm", "balm": "balm",
 	"زيت": "oil", "oil": "oil",
 	"سيروم": "serum", "serum": "serum",
 	"بودرة": "powder", "بودره": "powder", "باودر": "powder", "powder": "powder",
+	// The wash family. formKeyOf groups a lotion under "topical" and a wash
+	// under "wash", and merging those two at the class level — which the
+	// discrimination form does, because اكنيل لوسيون and اكنيل غسول are one
+	// bottle — would otherwise let a shampoo settle a row asking for a cream.
+	// The sub-form is what keeps them apart.
+	//
+	// Lotion sits with the washes rather than with the creams for the same
+	// reason: in this catalogue the two words name the same products.
+	"غسول": "wash", "wash": "wash", "لوسيون": "wash", "لوشن": "wash",
+	"lotion": "wash", "cleanser": "wash", "مطهر": "wash",
+	"شامبو": "shampoo", "shampoo": "shampoo",
+	"صابون": "soap", "صابونة": "soap", "صابونه": "soap", "soap": "soap",
+	"مضمضة": "mouthwash", "مضمضه": "mouthwash", "mouthwash": "mouthwash",
 }

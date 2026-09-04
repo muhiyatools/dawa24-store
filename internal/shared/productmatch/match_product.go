@@ -80,6 +80,9 @@ type MasterProduct struct {
 	factsAR nameFacts
 	factsEN nameFacts
 	strength strength
+	// strengthsMeta are the doses the record's concentration column states,
+	// used only where a name states none. See nameFacts.strengths.
+	strengthsMeta []strength
 	// strengths is every dose the record states, not merely the first.
 	//
 	// The scorer used to compare one against one, which made two unrelated
@@ -147,6 +150,7 @@ func prepare(p *MasterProduct) {
 	p.factsEN = factsOf(p.NameEN)
 	p.strength = parseStrength(p.NameAR + " " + p.NameEN + " " + p.Concentration)
 	p.strengths = strengthSet(p.NameAR + " " + p.NameEN + " " + p.Concentration)
+	p.strengthsMeta = strengthSet(p.Concentration)
 	p.packSize = InferPackSize(p.NameAR + " " + p.NameEN)
 	p.makerTokens = coreTokens(p.Manufacturer)
 	p.makerKey = sheet.NormalizeKey(p.Manufacturer)

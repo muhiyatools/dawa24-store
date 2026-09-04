@@ -3,6 +3,7 @@ package ui
 import (
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -55,21 +56,26 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 	)
 	offers := h.offersForProduct(ctx, product, variants, env, lang)
 
-	// When a customer/pharmacist is viewing the product, only show choices that are
-	// actually covered and available to use for their receiving branch.
-	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-		var coveredOffers []pages.SupplierOffer
-		for _, off := range offers {
-			if off.IsCovered {
-				coveredOffers = append(coveredOffers, off)
+	if targetVariantID > 0 {
+		for i := range offers {
+			if offers[i].VariantID == targetVariantID {
+				if i > 0 {
+					focused := offers[i]
+					copy(offers[1:i+1], offers[0:i])
+					offers[0] = focused
+				}
+				break
 			}
 		}
-		offers = coveredOffers
+	} else {
+		// When browsing general product, prioritize covered offers at the top
+		sort.SliceStable(offers, func(i, j int) bool {
+			if offers[i].IsCovered != offers[j].IsCovered {
+				return offers[i].IsCovered
+			}
+			return false
+		})
 	}
-
-	// If the URL named a specific variant, surface it — but only ahead of the
-	// offers it already ranks with.
-	promoteFocusedOffer(offers, targetVariantID)
 
 	h.renderPage(ctx, w, "render product detail page", pages.CustomerProductDetail(product, variants, offers, lang, dir))
 }

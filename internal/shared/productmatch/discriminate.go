@@ -41,22 +41,54 @@ type conflict struct {
 
 // Conflict masses.
 //
-// Ordered by what the disagreement proves rather than by how visible it is. A
-// dose that differs proves two products; a tube that is 25 g on one side and 50
-// on the other proves two products; a cream against an ointment is two products
-// in this catalogue but is also the attribute suppliers are loosest about, so
-// it carries less.
+// A mass is read two ways and both are deliberate. It orders candidates against
+// each other — less contradiction first, always, whatever the names look like —
+// and it says how much of a candidate's score survives the contradiction: the
+// score is multiplied by (1 − mass), so a mass of 1 leaves nothing and a mass
+// of 0.45 leaves a bit over half.
+//
+// That second reading is why the numbers sit where they do. Everything at or
+// above massLetter takes a candidate below the applied threshold on its own, so
+// a row whose ONLY plausible answer contradicts its strength, its brand
+// extension, its form or its identity letter reaches a person rather than a
+// price list. Below that line — a pack count, a stray figure, a cream against
+// an ointment — the contradiction still decides which candidate wins, but it
+// does not by itself refuse the only candidate there is.
+//
+// Ordered by what the disagreement proves rather than by how visible it is.
 const (
 	massDose      = 1.00 // 500 mg is not 1 g
-	massDoseParts = 0.90 // 16 mg is not 16/12.5 mg — a combination is another product
-	massModifier  = 0.90 // بانادول is not بانادول اكسترا
-	massForm      = 0.85 // a syrup is not a tablet
-	massLetter    = 0.70 // بتنوفيت ان is not بتنوفيت سي
-	massCount     = 0.55 // 20 tablets is not 200
-	massFigure    = 0.50 // a figure that named nothing, and differs anyway
-	massSubForm   = 0.45 // a cream is not an ointment
-	massPack      = 0.35 // the pack-size column disagreeing with the name
+	massDoseParts = 0.95 // 16 mg is not 16/12.5 mg — a combination is another product
+	massModifier  = 0.95 // بانادول is not بانادول اكسترا
+	massForm      = 0.90 // a syrup is not a tablet
+	massLetter    = 0.80 // بتنوفيت ان is not بتنوفيت سي
+	massCount     = 0.70 // 20 tablets is not 200
+	massFigure    = 0.60 // a figure that named nothing, and differs anyway
+	massSubForm   = 0.55 // a cream is not an ointment
+	massPack      = 0.45 // the pack-size column disagreeing with the name
 )
+
+// survival is the share of a candidate's evidence that survives everything it
+// contradicts.
+//
+// Multiplicative rather than subtractive, and that is the change that made the
+// reported score mean something. Subtraction let a large name similarity buy
+// its way past a contradiction — 0.97 minus a fifth is still applied — and it
+// made the number printed on the review screen an arithmetic residue rather
+// than a statement about the product. A factor cannot be outrun: whatever the
+// names look like, a candidate that contradicts the dose keeps a fifth of
+// whatever it had.
+//
+// Independent factors, because the conflicts are largely independent evidence:
+// a product that differs in strength AND in form is further away than one that
+// differs in either.
+func survival(cs []conflict) float64 {
+	f := 1.0
+	for _, c := range cs {
+		f *= 1 - c.mass
+	}
+	return f
+}
 
 // conflictsOf lists everything a candidate contradicts about a row.
 //
@@ -65,60 +97,180 @@ const (
 // is, and holding that against a catalogue entry which spells out its strength
 // would refuse the commonest correct match in the file.
 func (idx *Index) conflictsOf(q *query, p *MasterProduct) []conflict {
-	var best []conflict
-	for i, side := range p.sides() {
-		cs := idx.conflictsAgainst(q, p, side)
-		if i == 0 || conflictMass(cs) < conflictMass(best) {
-			best = cs
-		}
-		if len(best) == 0 {
-			break
-		}
-	}
-	return best
-}
-
-// conflictsAgainst compares a row with one spelling of a candidate.
-func (idx *Index) conflictsAgainst(q *query, p *MasterProduct, side nameFacts) []conflict {
 	var out []conflict
+	sides := p.sides()
 
-	switch agree, comparable := compareStrengths(q.strengths, p.strengths); {
-	case !comparable:
-		// Neither side measured the same thing. Missing information.
-	case agree:
-		// The doses match. Whether they match in the same NUMBER of parts is a
-		// separate question and the one the combination families turn on.
-		if doseComponentsDiffer(q.strengths, p.strengths) {
-			out = append(out, conflict{"dose_parts", massDoseParts})
-		}
-	default:
+	switch doseVerdict(q, p, sides) {
+	case dosesConflict:
 		out = append(out, conflict{"strength", massDose})
+	case dosesPartsDiffer:
+		out = append(out, conflict{"dose_parts", massDoseParts})
 	}
 
-	if modifierSetsConflict(q.mods, side.mods, q.rawName, p.NameAR+" "+p.NameEN) {
+	// Everything below is asked of each spelling separately and answered by the
+	// spelling that agrees, if any exists.
+	//
+	// A spelling that says NOTHING about an attribute does not get a vote on
+	// it, and that rule is load-bearing. The first version of this took the
+	// whole side with the fewest conflicts, and the English half of a catalogue
+	// record routinely states less than the Arabic half — "advochol 10mg 14
+	// f.c. tabs" parsed to no pack count at all — so the uninformative side won
+	// every comparison and switched the count check off for the entire
+	// catalogue. Silence is not agreement.
+	if conflictsOnEverySide(sides, func(f nameFacts) bool {
+		return modifierSetsConflict(q.mods, f.mods, q.rawName, p.NameAR+" "+p.NameEN)
+	}) {
 		out = append(out, conflict{"modifier", massModifier})
 	}
-	if !markSetsAgree(q.marks, side.marks) {
+	if conflictsOnEverySide(sides, func(f nameFacts) bool {
+		return !markSetsAgree(q.marks, f.marks)
+	}) {
 		out = append(out, conflict{"letter", massLetter})
 	}
-	sideForm := p.formOf(side)
-	if q.formKey != "" && sideForm != "" && q.formKey != sideForm {
+
+	switch {
+	case q.formKey == "":
+		// The row named no form. It cannot be contradicted about one.
+	case conflictsOnStatingSide(sides,
+		func(f nameFacts) bool { return p.formOf(f) != "" },
+		func(f nameFacts) bool { return formClass(q.formKey) != formClass(p.formOf(f)) }):
 		out = append(out, conflict{"form", massForm})
-	} else if q.subForm != "" && side.subForm != "" && q.subForm != side.subForm {
+	case q.subForm != "" && conflictsOnStatingSide(sides,
+		func(f nameFacts) bool { return f.subForm != "" },
+		func(f nameFacts) bool { return q.subForm != f.subForm }):
 		out = append(out, conflict{"sub_form", massSubForm})
 	}
-	countConflict := countsDisagree(q.qty.counts, side.qty.counts)
-	if countConflict {
+
+	countConflict := conflictsOnStatingSide(sides,
+		func(f nameFacts) bool { return sharesCountClass(q.qty.counts, f.qty.counts) },
+		func(f nameFacts) bool { return countsDisagree(q.qty.counts, f.qty.counts) })
+	switch {
+	case countConflict:
 		out = append(out, conflict{"count", massCount})
-	} else if residualsDisagree(q.qty.residual, side.qty.residual) {
+	case conflictsOnStatingSide(sides,
+		func(f nameFacts) bool { return len(f.qty.residual) > 0 },
+		func(f nameFacts) bool { return residualsDisagree(q.qty.residual, f.qty.residual) }):
 		out = append(out, conflict{"figure", massFigure})
 	}
+
 	if q.packSize > 0 && p.packSize > 0 && q.packSize != p.packSize && !countConflict {
 		// Only when the names did not already say so, or the same difference
 		// would be charged twice.
 		out = append(out, conflict{"pack", massPack})
 	}
 	return out
+}
+
+// The three answers the dose comparison can give.
+const (
+	dosesAgree = iota
+	dosesPartsDiffer
+	dosesConflict
+)
+
+// doseVerdict compares the row's doses against each spelling of the candidate
+// and reports the best answer any of them gives.
+//
+// A spelling that measures nothing the row also measured does not vote, which
+// is the same rule the other attributes follow: silence is missing information,
+// not agreement and not contradiction.
+func doseVerdict(q *query, p *MasterProduct, sides []nameFacts) int {
+	verdict := dosesAgree
+	compared := false
+	for _, f := range sides {
+		doses := p.dosesOf(f)
+		agree, comparable := compareStrengths(q.strengths, doses)
+		if !comparable {
+			continue
+		}
+		if agree {
+			// This spelling agrees. Whether it agrees in the same NUMBER of
+			// components is a separate question, and the one the combination
+			// families turn on: اتاكاند is 32 مجم and اتاكاند بلس is 32/25 مجم.
+			if !doseComponentsDiffer(q.strengths, doses) {
+				return dosesAgree
+			}
+			verdict = dosesPartsDiffer
+			compared = true
+			continue
+		}
+		if !compared {
+			verdict = dosesConflict
+		}
+		compared = true
+	}
+	if !compared {
+		return dosesAgree
+	}
+	return verdict
+}
+
+// conflictsOnEverySide reports a disagreement no spelling of the candidate
+// escapes.
+//
+// Used for the checks that are symmetric — a modifier or a letter present on
+// one side and absent on the other is a difference either way round — where an
+// empty side is a real answer rather than a missing one.
+func conflictsOnEverySide(sides []nameFacts, differs func(nameFacts) bool) bool {
+	for _, f := range sides {
+		if !differs(f) {
+			return false
+		}
+	}
+	return len(sides) > 0
+}
+
+// conflictsOnStatingSide reports a disagreement among the spellings that have
+// something to say, ignoring the ones that do not.
+//
+// Used for the checks where absence is silence: a catalogue name that omits the
+// pack count has not contradicted a row that states one.
+func conflictsOnStatingSide(sides []nameFacts, states, differs func(nameFacts) bool) bool {
+	stated := false
+	for _, f := range sides {
+		if !states(f) {
+			continue
+		}
+		stated = true
+		if !differs(f) {
+			return false
+		}
+	}
+	return stated
+}
+
+// sharesCountClass reports whether the two names counted the same kind of thing,
+// which is the precondition for their counts being able to disagree at all.
+func sharesCountClass(a, b []countUnit) bool {
+	for _, x := range a {
+		for _, y := range b {
+			if x.class == y.class {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// formClass groups the dosage forms that a row and a catalogue entry may name
+// differently while meaning the same shelf.
+//
+// Tablets and capsules are one class because the person typing an order uses
+// اقراص and كبسول interchangeably for any solid oral form. Creams, ointments,
+// gels and washes are one class because Egyptian names call the same bottle
+// لوسيون and غسول — and what genuinely separates a cream from a shampoo is
+// compared underneath, as a sub-form.
+//
+// Everything else stays distinct. A syrup is not an injection, and a sachet of
+// granules is not a strip of tablets.
+func formClass(key string) string {
+	switch key {
+	case "tablet", "capsule":
+		return "solid_oral"
+	case "topical", "wash":
+		return "external"
+	}
+	return key
 }
 
 // conflictMass sums what a candidate contradicts.

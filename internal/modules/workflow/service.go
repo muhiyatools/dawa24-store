@@ -92,6 +92,14 @@ func (s *Service) DeleteWeeklyCoverage(ctx context.Context, id int64) error {
 	return s.repo.DeleteWeeklyCoverage(ctx, id)
 }
 
+// DeleteAllCoverageForOrganization deletes all weekly coverage entries for an organization.
+func (s *Service) DeleteAllCoverageForOrganization(ctx context.Context, orgID int64) error {
+	if orgID <= 0 {
+		return apperr.Validation("coverage.org_id_invalid", "Invalid organization ID.", nil)
+	}
+	return s.repo.DeleteAllCoverageForOrganization(ctx, orgID)
+}
+
 // ToggleWeeklyCoverage toggles the active state of a coverage entry.
 func (s *Service) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error {
 	if id <= 0 {

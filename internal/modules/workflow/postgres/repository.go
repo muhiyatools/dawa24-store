@@ -184,6 +184,15 @@ func (r *Repository) DeleteWeeklyCoverage(ctx context.Context, id int64) error {
 	})
 }
 
+// DeleteAllCoverageForOrganization removes all weekly coverage records belonging to an organization.
+func (r *Repository) DeleteAllCoverageForOrganization(ctx context.Context, orgID int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `DELETE FROM workflow.weekly_coverages WHERE organization_id = $1;`
+		_, err := tx.Exec(txCtx, query, orgID)
+		return err
+	})
+}
+
 // ToggleWeeklyCoverage toggles the active state of a coverage record.
 func (r *Repository) ToggleWeeklyCoverage(ctx context.Context, id int64, isActive bool) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {

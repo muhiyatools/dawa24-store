@@ -52,29 +52,53 @@ func syntheticCatalogue(n int) []MasterProduct {
 	return out
 }
 
-// syntheticRows are what a supplier file looks like: the same products, spelled
-// differently, with noise appended and some brands misspelled by a letter.
-func syntheticRows(n, brandCount int) []*Row {
+// syntheticRows are what a supplier file looks like: products the catalogue
+// actually carries, spelled differently, with noise appended and some brands
+// misspelled by a letter.
+//
+// Drawn FROM the catalogue rather than assembled from the same word lists, and
+// that is not a cosmetic change. The generator used to pick a brand, a strength
+// and a form independently, so most of its rows named a strength no product of
+// that brand was sold in — and the test then asserted that the engine matched
+// four fifths of them. It was measuring how readily the scorer would settle for
+// a product whose dose contradicted the row, which is the one thing this engine
+// must never do. A supplier's file lists things that exist.
+func syntheticRows(n int, catalogue []MasterProduct) []*Row {
 	rng := rand.New(rand.NewSource(2))
-	strengths := []string{"5 مجم", "10 مجم", "20 مجم", "250 مجم", "500 مجم", "1 جم"}
-	forms := []string{"اقراص", "كبسولات", "شراب", "امبول", "كريم", "لبوس"}
+	forms := map[string]string{
+		"أقراص": "اقراص", "كبسول": "كبسولات", "شراب": "شراب",
+		"حقن": "امبول", "كريم": "كريم", "لبوس": "لبوس",
+	}
 
 	out := make([]*Row, 0, n)
 	for i := 0; i < n; i++ {
-		b := rng.Intn(brandCount)
-		brand := syntheticBrand(b)
+		p := catalogue[rng.Intn(len(catalogue))]
+		brand := firstWord(p.NameAR)
 		if i%4 == 0 {
 			// One row in four carries the spelling variance this market
 			// produces, so the benchmark exercises the variant channel rather
 			// than only the exact one.
 			brand = misspell(brand)
 		}
+		form := forms[p.DosageForm]
+		if form == "" {
+			form = p.DosageForm
+		}
 		out = append(out, &Row{
-			Name: fmt.Sprintf("%s %s %s سعر جديد",
-				brand, strengths[rng.Intn(len(strengths))], forms[rng.Intn(len(forms))]),
+			Name: fmt.Sprintf("%s %s %s سعر جديد", brand, p.Concentration, form),
 		})
 	}
 	return out
+}
+
+// firstWord is the brand at the head of a synthetic catalogue name.
+func firstWord(name string) string {
+	for i, r := range name {
+		if r == ' ' {
+			return name[:i]
+		}
+	}
+	return name
 }
 
 // syntheticBrand builds a distinct Arabic brand name from an index.
@@ -137,7 +161,7 @@ func BenchmarkIndexBuild150k(b *testing.B) {
 func BenchmarkMatchRowAgainst150k(b *testing.B) {
 	products := syntheticCatalogue(150_000)
 	idx := NewIndex(products)
-	rows := syntheticRows(1_000, 150_000/6)
+	rows := syntheticRows(1_000, products)
 	opts := DefaultMatchOptions()
 
 	b.ResetTimer()
@@ -156,7 +180,7 @@ func TestThirtyThousandRowsAgainstAHundredAndFiftyThousandProducts(t *testing.T)
 	}
 
 	idx := NewIndex(syntheticCatalogue(150_000))
-	rows := syntheticRows(30_000, 150_000/6)
+	rows := syntheticRows(30_000, syntheticCatalogue(150_000))
 	opts := DefaultMatchOptions()
 
 	var matched, unmatched int

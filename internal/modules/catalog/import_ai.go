@@ -41,7 +41,7 @@ type AIMapper interface {
 //
 // A handful of rows is all a model needs and all it should be paid for: the
 // header names the column and the sample shows what actually sits under it,
-// which is what settles an ambiguous heading like i18n.TDefault("w4_ui.s_140_140") holding barcodes.
+// which is what settles an ambiguous heading like الكود holding barcodes.
 type ColumnMapRequest struct {
 	Headers []string   `json:"headers"`
 	Sample  [][]string `json:"sample_rows"`
@@ -83,10 +83,10 @@ You are given the header row, a few sample data rows, and the list of database f
 
 Rules:
 - Use ONLY field names from target_fields. Never invent one.
-- Judge by the sample values, not only the header. A column headed i18n.TDefault("w4_ui.s_140_140") holding 13-digit numbers is barcode, not sku.
+- Judge by the sample values, not only the header. A column headed الكود holding 13-digit numbers is barcode, not sku.
 - Assign each field to at most one column, and each column to at most one field.
 - OMIT columns you do not recognise. A missing mapping is safe; a wrong one corrupts every row.
-- Arabic headers are common: i18n.TDefault("w4_ui.s_53_53")=name_ar, i18n.TDefault("w4_mod.s_251_251")=manufacturer, i18n.TDefault("w4_mod.s_252_252")=price, i18n.TDefault("w4_mod.s_253_253")=public_price, i18n.TDefault("w4_mod.s_254_254")=dosage_form, i18n.TDefault("w4_mod.s_255_255")/i18n.TDefault("w4_mod.s_256_256")=category, i18n.TDefault("w4_mod.s_257_257")=generic_name, i18n.TDefault("w4_mod.s_258_258")=concentration, i18n.TDefault("w4_mod.s_259_259")=unit.
+- Arabic headers are common: اسم الصنف=name_ar, الشركة المصنعة=manufacturer, سعر البيع=price, سعر الجمهور=public_price, الشكل الصيدلي=dosage_form, التصنيف/الفئة=category, الاسم العلمي=generic_name, التركيز=concentration, الوحدة=unit.
 - Distinguish price kinds: selling price=price, public/consumer price=public_price, cost/purchase price=cost_price.
 
 Respond with ONLY JSON: {"columns":[{"column":1,"field":"name_ar","confidence":0.95}]}`

@@ -40,16 +40,12 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 	}
 	hasCoords := target.Lat != 0 || target.Lon != 0
 
-	var timeParam *string
-	if len(optWhen) > 0 && !optWhen[0].IsZero() {
-		tStr := optWhen[0].Format("15:04:05")
-		timeParam = &tStr
-	}
-
 	err := cs.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		// Strict check: current day of week (or explicit daily coverage) and valid operating time window
+		// Evaluates coverage for the specified weekday (or all-week coverage).
+		// A branch is covered if the vendor explicitly covers the branch's city,
+		// or if the branch's GPS coordinates fall within the vendor's delivery radius.
 		query := `
-			SELECT GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 3000) AS allowed_radius,
+			SELECT GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 15000) AS allowed_radius,
 			       CASE 
 			           WHEN COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL AND $5::boolean = true THEN
 			               platform.distance_meters(
@@ -67,19 +63,10 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			  AND (wc.day_of_week = $4::integer OR wc.day_of_week IS NULL)
 			  AND wc.is_active = true
 			  AND (
-			      $7::text IS NULL
-			      OR (wc.coverage_from IS NULL AND wc.coverage_to IS NULL)
-			      OR (
-			          wc.coverage_from <= wc.coverage_to
-			          AND $7::time >= wc.coverage_from
-			          AND $7::time <= wc.coverage_to
-			      )
-			      OR (
-			          wc.coverage_from > wc.coverage_to
-			          AND ($7::time >= wc.coverage_from OR $7::time <= wc.coverage_to)
-			      )
-			  )
-			  AND (
+			      -- 1. Direct city match: if vendor covers this city, all branches in this city are covered
+			      ($6::bigint > 0 AND wc.city_id = $6::bigint)
+			      OR
+			      -- 2. Spatial distance match: branch coordinates fall within coverage radius
 			      (
 			          $5::boolean = true
 			          AND COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL
@@ -89,18 +76,13 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			              COALESCE(wc.longitude, c.longitude, b.longitude)::numeric,
 			              $2::numeric,
 			              $3::numeric
-			          )::integer <= GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 3000)
-			      )
-			      OR (
-			          ($5::boolean = false OR (COALESCE(wc.latitude, c.latitude, b.latitude) IS NULL AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NULL))
-			          AND $6::bigint > 0
-			          AND wc.city_id = $6::bigint
+			          )::integer <= GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 15000)
 			      )
 			  )
 			ORDER BY (wc.day_of_week = $4::integer) DESC, actual_meters ASC
 			LIMIT 1;
 		`
-		err := tx.QueryRow(txCtx, query, orgID, target.Lat, target.Lon, dayInt, hasCoords, targetCityID, timeParam).Scan(&distanceMeters, &actualMeters)
+		err := tx.QueryRow(txCtx, query, orgID, target.Lat, target.Lon, dayInt, hasCoords, targetCityID).Scan(&distanceMeters, &actualMeters)
 		if err == nil {
 			return nil
 		}
