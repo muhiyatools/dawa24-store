@@ -144,7 +144,9 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT b.id, b.public_id, b.organization_id, b.name,
-			       COALESCE(b.code, ''), b.address, b.city_id, b.latitude, b.longitude,
+			       COALESCE(b.code, ''), b.address, b.city_id,
+			       COALESCE(b.latitude, c.latitude) AS latitude,
+			       COALESCE(b.longitude, c.longitude) AS longitude,
 			       COALESCE(b.google_maps_url, ''), b.manager_id,
 			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), b.manager_name, ''),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''),
@@ -152,6 +154,7 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 			       COALESCE(b.capacity_sqm, 0), COALESCE(b.operating_hours, ''),
 			       COALESCE(b.status, 'active'), b.is_main, COALESCE(b.phone, ''), b.created_at, b.updated_at
 			FROM org.branches b
+			LEFT JOIN platform_admin.cities c ON c.id = b.city_id
 			LEFT JOIN identity.users u ON u.id = b.manager_id
 			WHERE b.id = $1 AND b.deleted_at IS NULL;
 		`
@@ -197,7 +200,9 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT b.id, b.public_id, b.organization_id, b.name,
-			       COALESCE(b.code, ''), b.address, b.city_id, b.latitude, b.longitude,
+			       COALESCE(b.code, ''), b.address, b.city_id,
+			       COALESCE(b.latitude, c.latitude) AS latitude,
+			       COALESCE(b.longitude, c.longitude) AS longitude,
 			       COALESCE(b.google_maps_url, ''), b.manager_id,
 			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), b.manager_name, ''),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''),
@@ -208,6 +213,7 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 			                 FROM org.branch_institutional_works w
 			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b
+			LEFT JOIN platform_admin.cities c ON c.id = b.city_id
 			LEFT JOIN identity.users u ON u.id = b.manager_id
 			WHERE ($1::bigint = 0 OR b.organization_id = $1) AND b.deleted_at IS NULL
 			ORDER BY b.is_main DESC, b.id ASC;

@@ -166,8 +166,18 @@ func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Act
 			}
 		}
 	}
-	if branch == nil || branch.Latitude == nil || branch.Longitude == nil {
+	if branch == nil {
 		return 0, 0, false
 	}
-	return *branch.Latitude, *branch.Longitude, true
+	if branch.Latitude != nil && branch.Longitude != nil && (*branch.Latitude != 0 || *branch.Longitude != 0) {
+		return *branch.Latitude, *branch.Longitude, true
+	}
+	if branch.CityID != nil && *branch.CityID > 0 && h.adminSvc != nil {
+		if city, err := h.adminSvc.GetCity(ctx, *branch.CityID); err == nil && city != nil {
+			if city.Latitude != 0 || city.Longitude != 0 {
+				return city.Latitude, city.Longitude, true
+			}
+		}
+	}
+	return 0, 0, false
 }

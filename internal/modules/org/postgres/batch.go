@@ -71,7 +71,9 @@ func (r *Repository) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT b.id, b.public_id, b.organization_id, b.name,
-			       COALESCE(b.code, ''), b.address, b.city_id, b.latitude, b.longitude,
+			       COALESCE(b.code, ''), b.address, b.city_id,
+			       COALESCE(b.latitude, c.latitude) AS latitude,
+			       COALESCE(b.longitude, c.longitude) AS longitude,
 			       COALESCE(b.google_maps_url, ''), b.manager_id,
 			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), b.manager_name, ''),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''),
@@ -82,6 +84,7 @@ func (r *Repository) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.
 			                 FROM org.branch_institutional_works w
 			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b
+			LEFT JOIN platform_admin.cities c ON c.id = b.city_id
 			LEFT JOIN identity.users u ON u.id = b.manager_id
 			WHERE b.id = ANY($1) AND b.deleted_at IS NULL;
 		`

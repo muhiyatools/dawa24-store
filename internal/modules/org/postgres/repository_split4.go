@@ -113,13 +113,16 @@ func (r *Repository) ListBranchesWithTotal(ctx context.Context, filter org.Branc
 		}
 
 		dataQuery := fmt.Sprintf(`
-			SELECT b.id, b.public_id, b.organization_id, b.name, b.code, b.address, b.city_id, b.latitude, b.longitude,
+			SELECT b.id, b.public_id, b.organization_id, b.name, b.code, b.address, b.city_id,
+			       COALESCE(b.latitude, c.latitude) AS latitude,
+			       COALESCE(b.longitude, c.longitude) AS longitude,
 			       b.google_maps_url, b.manager_id, b.warehouse_type, b.has_cold_storage, b.capacity_sqm,
 			       b.operating_hours, b.status, b.is_main, b.phone, b.created_at, b.updated_at,
 			       COALESCE((SELECT array_agg(w.work_category)
 			                 FROM org.branch_institutional_works w
 			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b
+			LEFT JOIN platform_admin.cities c ON c.id = b.city_id
 			LEFT JOIN org.organizations o ON o.id = b.organization_id
 			WHERE %s
 			ORDER BY b.created_at DESC, b.id DESC

@@ -114,29 +114,30 @@ func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) 
 	if b == nil {
 		return commerce.BranchAvailability{}, nil
 	}
-	lat := b.Latitude
-	lng := b.Longitude
-	if lat == nil || lng == nil {
-		defLat := 30.0444
-		defLng := 31.2357
-		lat = &defLat
-		lng = &defLng
-	}
 	return commerce.BranchAvailability{
 		ID:             b.ID,
 		OrganizationID: b.OrganizationID,
-		Latitude:       lat,
-		Longitude:      lng,
+		CityID:         b.CityID,
+		Latitude:       b.Latitude,
+		Longitude:      b.Longitude,
 	}, nil
 }
 
 // VendorCovers defers to the one implementation of the coverage rule. There is
 // deliberately no second distance calculation anywhere in this codebase.
-func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday) (bool, error) {
+func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID ...*int64) (bool, error) {
 	if p.coverage == nil {
 		return false, nil // fail closed
 	}
-	served, _, err := p.coverage.ServesPoint(ctx, vendorOrgID, day, workflow.Coord{Lat: lat, Lon: lon})
+	var targetCityID *int64
+	if len(cityID) > 0 && cityID[0] != nil && *cityID[0] > 0 {
+		targetCityID = cityID[0]
+	}
+	served, _, err := p.coverage.ServesPoint(ctx, vendorOrgID, day, workflow.Coord{
+		Lat:    lat,
+		Lon:    lon,
+		CityID: targetCityID,
+	})
 	if err != nil {
 		return false, err
 	}

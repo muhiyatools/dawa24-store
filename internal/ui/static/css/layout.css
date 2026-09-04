@@ -554,6 +554,10 @@ body.sidebar-mobile-open {
   border-radius: 2px;
   transition: width 0.4s var(--ease-smooth);
 }
+.order-progress-bar.w-10 { width: 10%; }
+.order-progress-bar.w-40 { width: 40%; }
+.order-progress-bar.w-75 { width: 75%; }
+.order-progress-bar.w-100 { width: 100%; }
 
 .order-step-item {
   position: relative;

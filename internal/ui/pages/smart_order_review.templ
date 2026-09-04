@@ -9,63 +9,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// SmartOrderReviewLine is one line as the review screen shows it.
-type SmartOrderReviewLine struct {
-	Line           *smartorder.Line
-	VendorName     string
-	AvailableStock int
-	UnitPrice      money.Amount
-	DiscountPct    float64
-	LineNet        money.Amount
-	DecidedBy      smartorder.DecidedBy
-	SkippedName    string
-	SkippedExcess  float64
-	Alternatives   int
-}
-
-// SmartOrderReviewGroup is the lines going to one supplier.
-type SmartOrderReviewGroup struct {
-	VendorName string
-	Lines      []SmartOrderReviewLine
-	Subtotal   money.Amount
-}
-
-// SmartOrderReviewData is the review screen's payload.
-type SmartOrderReviewData struct {
-	Run        *smartorder.Run
-	Groups     []SmartOrderReviewGroup
-	Excluded   []*smartorder.Line
-	BranchName string
-	Stale      []smartorder.StaleLine
-	Error      string
-}
-
-func decidedLabel(d smartorder.DecidedBy) string {
-	switch d {
-	case smartorder.DecidedLowestPrice:
-		return "أقل سعر"
-	case smartorder.DecidedHighestDiscount:
-		return "أعلى خصم"
-	case smartorder.DecidedFollowedSuppliers:
-		return "مورد مفضل"
-	case smartorder.DecidedOnlyCandidate:
-		return "المورد الوحيد"
-	case smartorder.DecidedUser:
-		return "اختيار يدوي"
-	case smartorder.DecidedDefault:
-		return "تلقائي"
-	}
-	return "—"
-}
-
-func totalOrderableItems(groups []SmartOrderReviewGroup) int {
-	total := 0
-	for _, g := range groups {
-		total += len(g.Lines)
-	}
-	return total
-}
-
 // SmartOrderReviewPage is step 5: review and place.
 templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 	@layouts.CustomerShell("مراجعة وتأكيد الطلب الذكي", "purchase-request", lang, dir, nil) {
@@ -225,19 +168,18 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										</td>
 
 										<!-- 3. Requested Quantity (with in-place stepper form) -->
-										<td class="col-actions">
-											<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
-            <div class="table-actions">
-													<button type="button" class="btn btn-ghost btn-xs" onclick="stepReviewQty(this, -1)">−</button>
+										<td class="text-center align-middle">
+											<form class="d-inline-flex items-center gap-1" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
+												<div class="order-qty-stepper">
+													<button type="button" class="btn btn-secondary btn-icon btn-sm qty-step-btn" onclick="stepReviewQty(this, -1)">−</button>
 													<input
 														type="number"
 														name="quantity"
 														value={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
 														min="1"
-														class="tabular-nums"
-													
+														class="form-input row-qty-input font-bold"
 													/>
-													<button type="button" class="btn btn-ghost btn-xs" onclick="stepReviewQty(this, 1)">+</button>
+													<button type="button" class="btn btn-secondary btn-icon btn-sm qty-step-btn" onclick="stepReviewQty(this, 1)">+</button>
 												</div>
 												<button type="submit" class="btn btn-secondary btn-xs font-bold" title="حفظ الكمية">
 													تعديل

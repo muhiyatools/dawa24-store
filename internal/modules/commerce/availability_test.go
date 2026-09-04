@@ -31,7 +31,7 @@ func (p *stubProbe) Vendor(context.Context, int64) (VendorAvailability, error) {
 func (p *stubProbe) CustomerBranch(context.Context, int64) (BranchAvailability, error) {
 	return p.branch, p.branchErr
 }
-func (p *stubProbe) VendorCovers(context.Context, int64, float64, float64, time.Weekday) (bool, error) {
+func (p *stubProbe) VendorCovers(context.Context, int64, float64, float64, time.Weekday, ...*int64) (bool, error) {
 	return p.covers, p.coverErr
 }
 
@@ -149,9 +149,20 @@ func TestCheckAvailability(t *testing.T) {
 			wantReason: ReasonBranchNotOwned,
 		},
 		{
-			name:       "a branch with no map location cannot be covered",
+			name:       "a branch with no map location and no city cannot be covered",
 			probe:      func(p *stubProbe) { p.branch.Latitude, p.branch.Longitude = nil, nil },
 			wantReason: ReasonBranchNoLocation,
+		},
+		{
+			name: "a branch with city_id but no coordinates is covered when vendor covers it",
+			probe: func(p *stubProbe) {
+				p.branch.Latitude, p.branch.Longitude = nil, nil
+				cID := int64(45)
+				p.branch.CityID = &cID
+				p.covers = true
+			},
+			wantAllow: true,
+			wantMax:   5,
 		},
 		{
 			// Nothing checked this before, so a pharmacy could order from a

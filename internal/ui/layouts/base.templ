@@ -80,19 +80,13 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 				<link rel="stylesheet" href={ Asset(cssPath) }/>
 			}
 			<script defer src={ Asset("/static/vendor/htmx-1.9.10.min.js") }></script>
+			// Component scripts define their window globals and Alpine data components
+			// before Alpine boots. With defer, execution preserves document order.
+			<script defer src={ Asset("/static/js/combobox.js") }></script>
+			<script defer src={ Asset("/static/js/ads-wizard.js") }></script>
+			<script defer src={ Asset("/static/js/wallet.js") }></script>
 			<script defer src={ Asset("/static/vendor/alpine-3.13.5.min.js") }></script>
 			<script defer src={ Asset("/static/js/app.js") }></script>
-			// One searchable dropdown for the whole platform (components.Combobox).
-			// Alpine must already be parsed when a component registers, and both
-			// are deferred, so document order is the ordering: this file only
-			// defines window.dawaCombobox, which x-data calls at init time.
-			<script defer src={ Asset("/static/js/combobox.js") }></script>
-			// The advertisement wizard's step machine. It was an eighty-line
-			// x-data attribute that also carried the supplier's whole inventory.
-			<script defer src={ Asset("/static/js/ads-wizard.js") }></script>
-			// The wallet's payment-method dialog, which serves both adding and
-			// editing a saved method.
-			<script defer src={ Asset("/static/js/wallet.js") }></script>
 			// maps.js defines ensureLeaflet + initMapPickers. It is ~9 KB and self
 			// -contained; Leaflet itself (the ~200 KB payload) is still fetched on
 			// demand by ensureLeaflet only when a map element is present. Loading

@@ -61,6 +61,7 @@ type VendorAvailability struct {
 type BranchAvailability struct {
 	ID             int64
 	OrganizationID int64
+	CityID         *int64
 	Latitude       *float64
 	Longitude      *float64
 }
@@ -73,7 +74,7 @@ type AvailabilityProbe interface {
 	Variant(ctx context.Context, variantID int64) (VariantAvailability, error)
 	Vendor(ctx context.Context, orgID int64) (VendorAvailability, error)
 	CustomerBranch(ctx context.Context, branchID int64) (BranchAvailability, error)
-	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday) (bool, error)
+	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID ...*int64) (bool, error)
 }
 
 // AvailabilityRequest describes one prospective purchase line.
@@ -205,7 +206,7 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	}
 
 	// 5. The supplier must cover that branch's location on the relevant weekday.
-	if branch.Latitude == nil || branch.Longitude == nil {
+	if (branch.Latitude == nil || branch.Longitude == nil) && (branch.CityID == nil || *branch.CityID <= 0) {
 		return denied(ReasonBranchNoLocation, variant.StockQty,
 			i18n.TDefault("w4_mod.w4str_136_136"),
 			"This branch has no map location yet; set one to order."), nil
@@ -214,7 +215,14 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	if when.IsZero() {
 		when = time.Now()
 	}
-	covered, err := s.availability.VendorCovers(ctx, req.VendorOrgID, *branch.Latitude, *branch.Longitude, when.Weekday())
+	var bLat, bLon float64
+	if branch.Latitude != nil {
+		bLat = *branch.Latitude
+	}
+	if branch.Longitude != nil {
+		bLon = *branch.Longitude
+	}
+	covered, err := s.availability.VendorCovers(ctx, req.VendorOrgID, bLat, bLon, when.Weekday(), branch.CityID)
 	if err != nil {
 		return AvailabilityResult{}, fmt.Errorf("availability: coverage for vendor %d: %w", req.VendorOrgID, err)
 	}

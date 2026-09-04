@@ -1,0 +1,183 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ CustomerOrderSidebar(order *commerce.Order, lang string) {
+	<!-- Left Column: Summary & Metadata -->
+	<div class="d-flex flex-col gap-6">
+		<!-- 1. Financial Summary Card -->
+		<div class="glass-panel p-6 mb-0">
+			<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+				<span class="text-xl">@components.IconFileText("icon-sm")</span>
+				<h2 class="text-base font-extrabold text-primary m-0">
+					الملخص المالي للفاتورة
+				</h2>
+			</div>
+
+			<div class="d-flex flex-col gap-3 text-xs">
+				<div class="flex-between items-center">
+					<span class="text-secondary">إجمالي الأصناف:</span>
+					<span id="live-summary-subtotal" class="tabular-nums font-bold text-primary">
+						if order.Subtotal.Minor() > 0 {
+							{ order.Subtotal.String() } ج.م
+						} else {
+							{ order.TotalAmount.String() } ج.م
+						}
+					</span>
+				</div>
+
+				<div class="flex-between items-center text-success">
+					<span>إجمالي الخصم الممنوح:</span>
+					<span id="live-summary-discount" class="tabular-nums font-bold">
+						if order.TotalDiscount.Minor() > 0 {
+							- { order.TotalDiscount.String() } ج.م
+						} else if order.DiscountAmount.Minor() > 0 {
+							- { order.DiscountAmount.String() } ج.م
+						} else {
+							0.00 ج.م
+						}
+					</span>
+				</div>
+
+				<div class="flex-between items-center" id="order-summary-shipping" data-shipping-minor={ fmt.Sprintf("%d", order.ShippingFee.Minor()) }>
+					<span class="text-secondary">مصاريف الشحن والتوصيل:</span>
+					<span class="tabular-nums font-bold text-primary">
+						if order.ShippingFee.Minor() > 0 {
+							{ order.ShippingFee.String() } ج.م
+						} else {
+							<span class="text-emerald font-bold">مجاناً</span>
+						}
+					</span>
+				</div>
+
+				if order.TaxAmount.Minor() > 0 {
+					<div class="flex-between items-center" id="order-summary-tax" data-tax-rate={ fmt.Sprintf("%.4f", orderTaxRate(order)) }>
+						<span class="text-secondary">ضريبة القيمة المضافة:</span>
+						<span id="live-summary-tax" class="tabular-nums font-bold text-primary">{ order.TaxAmount.String() } ج.م</span>
+					</div>
+				}
+
+				<div class="border-t my-1"></div>
+
+				<div class="flex-between items-baseline">
+					<span class="font-extrabold text-primary text-sm">المبلغ الصافي المستحق:</span>
+					<div class="text-2xl font-black text-brand tabular-nums">
+						<span id="live-summary-total">{ order.TotalAmount.String() }</span> <span class="text-xs font-bold text-secondary">ج.م</span>
+					</div>
+				</div>
+
+				<!-- Payment method pill -->
+				<div class="mt-2 p-3 rounded-lg bg-surface-sunken border text-xs">
+					<div class="flex-between items-center mb-1">
+						<span class="text-muted">طريقة الدفع:</span>
+						<span class="font-bold text-primary">
+							if order.PaymentMethod == "cod" || order.PaymentMethod == "" {
+								<span>دفع عند الاستلام (COD)</span>
+							} else {
+								<span>{ order.PaymentMethod }</span>
+							}
+						</span>
+					</div>
+					<div class="flex-between items-center">
+						<span class="text-muted">حالة السداد:</span>
+						if order.PaymentStatus == commerce.PaymentPaid {
+							<span class="text-emerald font-bold">مدفوع بالكامل</span>
+						} else {
+							<span class="text-amber font-bold">مستحق عند الاستلام</span>
+						}
+					</div>
+				</div>
+
+				<!-- Print invoice button CTA -->
+				<div class="mt-2">
+					if order.Status != commerce.StatusPending {
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
+							target="_blank"
+							class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1"
+						>
+							@components.IconPrinter("icon-xs")
+							<span>طباعة الفاتورة</span>
+						</a>
+					} else {
+						<div class="bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted">
+							<span>تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+
+		<!-- 2. Pharmacy Receiving Branch Card -->
+		<div class="glass-panel p-6 mb-0">
+			<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+				<span class="text-xl">@components.IconBuilding("icon-sm")</span>
+				<h2 class="text-base font-extrabold text-primary m-0">
+					بيانات فرع الاستلام
+				</h2>
+			</div>
+
+			<div class="d-flex flex-col gap-3 text-xs">
+				<div class="stack-sm">
+					<div class="text-muted font-bold mb-1">فرع الصيدلية:</div>
+					<div class="text-primary font-bold">
+						if order.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
+							{ order.CustomerBranchName.Get(i18n.Lang(lang)) }
+						} else {
+							<span>الفرع الرئيسي للصيدلية</span>
+						}
+					</div>
+				</div>
+
+				if order.CustomerManagerName != "" {
+					<div class="stack-sm">
+						<div class="text-muted font-bold mb-1">الصيدلي المسؤول:</div>
+						<div class="text-primary font-bold">{ order.CustomerManagerName }</div>
+					</div>
+				}
+
+				if order.CustomerBranchPhone != "" {
+					<div class="stack-sm">
+						<div class="text-muted font-bold mb-1">هاتف الفرع:</div>
+						<div class="text-primary font-bold tabular-nums font-mono">{ order.CustomerBranchPhone }</div>
+					</div>
+				}
+
+				<div class="stack-sm">
+					<div class="text-muted font-bold mb-1">عنوان التوصيل المسجل:</div>
+					<div class="text-secondary leading-relaxed">
+						if order.CustomerBranchAddress != "" {
+							{ order.CustomerBranchAddress }
+						} else {
+							<span class="text-muted">العنوان المسجل في ملف المنشأة</span>
+						}
+					</div>
+				</div>
+
+				if order.Notes != "" {
+					<div class="mt-1 p-3 rounded-lg bg-surface-sunken border">
+						<div class="text-muted font-bold mb-1">ملاحظات خاصة بالتسليم:</div>
+						<div class="text-primary text-xs">{ order.Notes }</div>
+					</div>
+				}
+			</div>
+		</div>
+
+		<!-- 3. Quality & Cold-Chain Badge Card -->
+		<div class="glass-panel p-4 mb-0 text-xs d-flex flex-col gap-2 border-brand-subtle">
+			<div class="d-flex items-center gap-2 font-black text-brand">
+				<span>❄️</span>
+				<span>معايير النقل المبرد المعتمد</span>
+			</div>
+			<p class="m-0 text-secondary leading-relaxed">
+				تخضع كافة الشحنات لرقابة درجات الحرارة وسلسلة التبريد الموثقة لضمان فاعلية ومأمونية الأصناف الدوائية.
+			</p>
+		</div>
+	</div>
+}

@@ -256,7 +256,7 @@ func (m *mockAvailabilityProbe) CustomerBranch(ctx context.Context, branchID int
 		Longitude:      &lon,
 	}, nil
 }
-func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday) (bool, error) {
+func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID ...*int64) (bool, error) {
 	return true, nil
 }
 
