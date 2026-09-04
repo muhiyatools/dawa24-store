@@ -110,8 +110,12 @@ templ CustomerProductDetailOffersTable(product *catalog.Product, offers []Suppli
 											</button>
 										</form>
 									} else {
-										<button type="button" disabled class="btn btn-secondary btn-xs font-bold opacity-60">
-											غير متاح
+										<button type="button" disabled class="btn btn-secondary btn-xs font-bold opacity-60" title={ off.CoverageReason }>
+											if off.CoverageReason != "" {
+												{ off.CoverageReason }
+											} else {
+												غير متاح
+											}
 										</button>
 									}
 								</td>

@@ -442,17 +442,29 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											} else {
 												<div class="table-actions">
 													if !isCovered {
-														<span class="badge badge-rose text-2xs font-bold" title={ data.GetCoverageReason(v) }>
-															غير مغطى
-														</span>
+														if data.GetCoverageReason(v) != "" {
+															<span class="badge badge-rose text-2xs font-bold" title={ data.GetCoverageReason(v) }>
+																{ data.GetCoverageReason(v) }
+															</span>
+														} else {
+															<span class="badge badge-rose text-2xs font-bold">
+																غير مغطى
+															</span>
+														}
 													} else if availStock <= 0 {
 														<span class="badge badge-slate text-2xs font-bold">
 															غير متوفر
 														</span>
 													} else {
-														<span class="badge badge-slate text-2xs font-bold">
-															غير متاح للطلب
-														</span>
+														if data.GetCoverageReason(v) != "" {
+															<span class="badge badge-amber text-2xs font-bold" title={ data.GetCoverageReason(v) }>
+																{ data.GetCoverageReason(v) }
+															</span>
+														} else {
+															<span class="badge badge-slate text-2xs font-bold">
+																غير متاح للطلب
+															</span>
+														}
 													}
 													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
 														@components.IconArrowLeft("icon-xs")
@@ -594,17 +606,29 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									} else {
 										<div class="row-center-xs">
 											if !isCovered {
-												<span class="badge badge-rose text-xs font-bold w-full text-center py-2" title={ data.GetCoverageReason(v) }>
-													خارج نطاق التغطية
-												</span>
+												if data.GetCoverageReason(v) != "" {
+													<span class="badge badge-rose text-xs font-bold w-full text-center py-2" title={ data.GetCoverageReason(v) }>
+														{ data.GetCoverageReason(v) }
+													</span>
+												} else {
+													<span class="badge badge-rose text-xs font-bold w-full text-center py-2">
+														خارج نطاق التغطية
+													</span>
+												}
 											} else if availStock <= 0 {
 												<span class="badge badge-slate text-xs font-bold w-full text-center py-2">
 													نفد من المخزون
 												</span>
 											} else {
-												<span class="badge badge-slate text-xs font-bold w-full text-center py-2">
-													غير متاح للطلب
-												</span>
+												if data.GetCoverageReason(v) != "" {
+													<span class="badge badge-amber text-xs font-bold w-full text-center py-2" title={ data.GetCoverageReason(v) }>
+														{ data.GetCoverageReason(v) }
+													</span>
+												} else {
+													<span class="badge badge-slate text-xs font-bold w-full text-center py-2">
+														غير متاح للطلب
+													</span>
+												}
 											}
 										</div>
 									}

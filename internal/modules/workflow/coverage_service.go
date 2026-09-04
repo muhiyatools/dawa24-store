@@ -61,8 +61,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			  AND (wc.day_of_week = $4::integer OR wc.day_of_week IS NULL)
 			  AND wc.is_active = true
 			  AND (
-			      ($6::bigint > 0 AND wc.city_id = $6::bigint)
-			      OR (
+			      (
 			          $5::boolean = true
 			          AND COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL
 			          AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NOT NULL
@@ -72,6 +71,11 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			              $2::numeric,
 			              $3::numeric
 			          )::integer <= GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 3000)
+			      )
+			      OR (
+			          ($5::boolean = false OR (COALESCE(wc.latitude, c.latitude, b.latitude) IS NULL AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NULL))
+			          AND $6::bigint > 0
+			          AND wc.city_id = $6::bigint
 			      )
 			  )
 			ORDER BY (wc.day_of_week = $4::integer) DESC, actual_meters ASC
@@ -104,8 +108,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			WHERE wc.organization_id = $1::bigint
 			  AND wc.is_active = true
 			  AND (
-			      ($5::bigint > 0 AND wc.city_id = $5::bigint)
-			      OR (
+			      (
 			          $4::boolean = true
 			          AND COALESCE(wc.latitude, c.latitude, b.latitude) IS NOT NULL
 			          AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NOT NULL
@@ -115,6 +118,11 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			              $2::numeric,
 			              $3::numeric
 			          )::integer <= GREATEST(COALESCE(c.coverage_radius_meters, 0), COALESCE(wc.distance_meters, 0), 3000)
+			      )
+			      OR (
+			          ($4::boolean = false OR (COALESCE(wc.latitude, c.latitude, b.latitude) IS NULL AND COALESCE(wc.longitude, c.longitude, b.longitude) IS NULL))
+			          AND $5::bigint > 0
+			          AND wc.city_id = $5::bigint
 			      )
 			  )
 			ORDER BY actual_meters ASC
@@ -128,21 +136,7 @@ func (cs *CoverageService) ServesPoint(ctx context.Context, orgID int64, day tim
 			return err
 		}
 
-		// Third try: check if vendor has ANY active weekly coverage rows configured.
-		// If vendor has defined coverage, but none cover this target, fail (errNoRows).
-		// Only if vendor has zero coverage rows at all, check if vendor exists and is approved for platform default.
-		var hasAnyCoverages bool
-		_ = tx.QueryRow(txCtx, `SELECT EXISTS(SELECT 1 FROM workflow.weekly_coverages WHERE organization_id = $1 AND is_active = true)`, orgID).Scan(&hasAnyCoverages)
-		if !hasAnyCoverages {
-			var vendorExists bool
-			err = tx.QueryRow(txCtx, `SELECT EXISTS(SELECT 1 FROM org.organizations WHERE id = $1 AND status = 'approved')`, orgID).Scan(&vendorExists)
-			if err == nil && vendorExists {
-				distanceMeters = 50000
-				defAct := 1000
-				actualMeters = &defAct
-				return nil
-			}
-		}
+		// If vendor has defined coverage or none that matches, fail closed.
 		return pgx.ErrNoRows
 	})
 

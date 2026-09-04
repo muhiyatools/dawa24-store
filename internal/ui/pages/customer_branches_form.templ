@@ -8,7 +8,11 @@ import (
 
 templ CustomerBranchesForm(data CustomerBranchesData) {
 	<!-- Unified Pharmacy Branch Form (Add / Edit Modes) -->
-	<div class="glass-panel p-5" id="new-branch-form">
+	<div
+		class="glass-panel p-5"
+		id="new-branch-form"
+		@dawa-coords-change.window="if ($event.detail && ($event.detail.targetId === 'customer-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }"
+	>
 		<div class="d-flex items-start justify-between gap-3 pb-3 mb-3 border-b">
 			<div>
 				<h3 class="text-base font-bold text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع صيدلية جديد'"></h3>
@@ -107,8 +111,8 @@ templ CustomerBranchesForm(data CustomerBranchesData) {
 						<span data-map-coords-badge class="tabular-nums font-bold text-primary">30.0444, 31.2357</span>
 						<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">موقعي الحالي</button>
 					</div>
-					<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude"/>
-					<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude"/>
+					<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude" @input="form.latitude = parseFloat($event.target.value) || form.latitude" @change="form.latitude = parseFloat($event.target.value) || form.latitude"/>
+					<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude" @input="form.longitude = parseFloat($event.target.value) || form.longitude" @change="form.longitude = parseFloat($event.target.value) || form.longitude"/>
 				</div>
 			</div>
 
@@ -189,6 +193,8 @@ templ CustomerBranchesScript() {
 					this.mode = 'edit';
 					this.editId = b.id;
 					this.formAction = '/customer/branches/' + b.id + '/edit';
+					const latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;
+					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
 					this.form = {
 						id: b.id,
 						name_ar: b.name_ar || '',
@@ -201,8 +207,8 @@ templ CustomerBranchesScript() {
 						google_maps_url: b.google_maps_url || '',
 						has_cold_storage: !!b.has_cold_storage,
 						is_main: !!b.is_main,
-						latitude: b.latitude || 30.0444,
-						longitude: b.longitude || 31.2357,
+						latitude: latVal,
+						longitude: lonVal,
 						institutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []
 					};
 					const formEl = document.getElementById('new-branch-form');
@@ -211,7 +217,7 @@ templ CustomerBranchesScript() {
 					}
 					this.$nextTick(() => {
 						if (window.dawaSetMapLocation) {
-							window.dawaSetMapLocation('#customer-branch-map-picker', b.latitude || 30.0444, b.longitude || 31.2357, 14);
+							window.dawaSetMapLocation('#customer-branch-map-picker', latVal, lonVal, 14);
 						}
 					});
 				},

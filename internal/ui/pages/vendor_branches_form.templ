@@ -9,7 +9,11 @@ import (
 
 templ VendorBranchesForm(data VendorBranchesData, lang string) {
 	<!-- Sticky form panel, add and edit modes (left in RTL, right in LTR) -->
-	<div id="branch-form-panel" class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6">
+	<div
+		id="branch-form-panel"
+		class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6"
+		@dawa-coords-change.window="if ($event.detail && ($event.detail.targetId === 'vendor-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }"
+	>
 		<!-- Form Header -->
 		<div class="flex-between items-center pb-3 border-b">
 			<div class="d-flex items-center gap-2">
@@ -90,8 +94,8 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 						</button>
 					</div>
 
-					<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude"/>
-					<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude"/>
+					<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude" @input="form.latitude = parseFloat($event.target.value) || form.latitude" @change="form.latitude = parseFloat($event.target.value) || form.latitude"/>
+					<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude" @input="form.longitude = parseFloat($event.target.value) || form.longitude" @change="form.longitude = parseFloat($event.target.value) || form.longitude"/>
 				</div>
 			</div>
 
@@ -238,6 +242,8 @@ templ VendorBranchesScript() {
 					this.mode = 'edit';
 					this.editId = b.id;
 					this.formAction = '/vendor/branches/' + b.id + '/edit';
+					const latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;
+					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
 					this.form = {
 						id: b.id,
 						name_ar: b.name_ar || '',
@@ -252,8 +258,8 @@ templ VendorBranchesScript() {
 						google_maps_url: b.google_maps_url || '',
 						has_cold_storage: !!b.has_cold_storage,
 						is_main: !!b.is_main,
-						latitude: b.latitude || 30.0444,
-						longitude: b.longitude || 31.2357,
+						latitude: latVal,
+						longitude: lonVal,
 						institutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []
 					};
 					const formEl = document.getElementById('branch-form-panel');
@@ -262,7 +268,7 @@ templ VendorBranchesScript() {
 					}
 					this.$nextTick(() => {
 						if (window.dawaSetMapLocation) {
-							window.dawaSetMapLocation('#vendor-branch-map-picker', b.latitude || 30.0444, b.longitude || 31.2357, 14);
+							window.dawaSetMapLocation('#vendor-branch-map-picker', latVal, lonVal, 14);
 						}
 					});
 				},

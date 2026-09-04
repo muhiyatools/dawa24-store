@@ -115,11 +115,12 @@ func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) 
 		return commerce.BranchAvailability{}, nil
 	}
 	return commerce.BranchAvailability{
-		ID:             b.ID,
-		OrganizationID: b.OrganizationID,
-		CityID:         b.CityID,
-		Latitude:       b.Latitude,
-		Longitude:      b.Longitude,
+		ID:                 b.ID,
+		OrganizationID:     b.OrganizationID,
+		CityID:             b.CityID,
+		Latitude:           b.Latitude,
+		Longitude:          b.Longitude,
+		InstitutionalWorks: b.InstitutionalWorks,
 	}, nil
 }
 

@@ -40,7 +40,7 @@ func healthyProbe() *stubProbe {
 	return &stubProbe{
 		variant: VariantAvailability{ID: 10, OrganizationID: 7, StockQty: 5, Active: true},
 		vendor:  VendorAvailability{ID: 7, IsVendor: true, Approved: true},
-		branch:  BranchAvailability{ID: 3, OrganizationID: 99, Latitude: &lat, Longitude: &lon},
+		branch:  BranchAvailability{ID: 3, OrganizationID: 99, Latitude: &lat, Longitude: &lon, InstitutionalWorks: []string{"retail"}},
 		covers:  true,
 	}
 }
@@ -170,6 +170,14 @@ func TestCheckAvailability(t *testing.T) {
 			name:       "a supplier that does not cover the branch is refused",
 			probe:      func(p *stubProbe) { p.covers = false },
 			wantReason: ReasonNotCovered,
+		},
+		{
+			name: "a branch with zero institutional works is refused",
+			probe: func(p *stubProbe) {
+				p.branch.InstitutionalWorks = nil
+			},
+			wantReason: ReasonBranchNoInstitutionalWorks,
+			wantMax:    5,
 		},
 	}
 

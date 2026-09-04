@@ -290,9 +290,17 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 											</form>
 										} else {
 											<div class="d-flex flex-col justify-center items-center h-full text-center gap-2">
-												<span class="text-xs text-muted font-bold">الطلب غير متاح حالياً</span>
+												if offers[0].CoverageReason != "" {
+													<span class="text-xs text-danger font-bold">{ offers[0].CoverageReason }</span>
+												} else {
+													<span class="text-xs text-muted font-bold">الطلب غير متاح حالياً</span>
+												}
 												<button type="button" disabled class="btn btn-secondary text-xs w-full py-2.5 font-bold cursor-not-allowed opacity-60">
-													غير متاح للطلب المباشر
+													if offers[0].CoverageReason != "" {
+														{ offers[0].CoverageReason }
+													} else {
+														غير متاح للطلب المباشر
+													}
 												</button>
 											</div>
 										}

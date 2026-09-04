@@ -36,9 +36,10 @@ const (
 	ReasonBelowMinimum      Reason = "below_minimum"
 	ReasonBranchInvalid     Reason = "branch_invalid"
 	ReasonBranchNotOwned    Reason = "branch_not_owned"
-	ReasonBranchNoLocation  Reason = "branch_no_location"
-	ReasonNotCovered        Reason = "not_covered"
-	ReasonQuantityInvalid   Reason = "quantity_invalid"
+	ReasonBranchNoLocation           Reason = "branch_no_location"
+	ReasonBranchNoInstitutionalWorks Reason = "branch_no_institutional_works"
+	ReasonNotCovered                 Reason = "not_covered"
+	ReasonQuantityInvalid            Reason = "quantity_invalid"
 )
 
 // VariantAvailability is the slice of a catalog variant that the rule needs.
@@ -59,11 +60,12 @@ type VendorAvailability struct {
 
 // BranchAvailability is the slice of a pharmacy branch that the rule needs.
 type BranchAvailability struct {
-	ID             int64
-	OrganizationID int64
-	CityID         *int64
-	Latitude       *float64
-	Longitude      *float64
+	ID                 int64
+	OrganizationID     int64
+	CityID             *int64
+	Latitude           *float64
+	Longitude          *float64
+	InstitutionalWorks []string
 }
 
 // AvailabilityProbe is what commerce needs from the catalog, org and workflow
@@ -205,7 +207,14 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 			"The selected branch does not belong to your organization."), nil
 	}
 
-	// 5. The supplier must cover that branch's location on the relevant weekday.
+	// 5. The delivery branch must have active institutional works.
+	if len(branch.InstitutionalWorks) == 0 {
+		return denied(ReasonBranchNoInstitutionalWorks, variant.StockQty,
+			"الفرع غير مرتبط بأي أعمال مؤسسية. يرجى تفعيل عمل مؤسسي للفرع للتمكن من الطلب.",
+			"No institutional works are associated with this branch. Please enable institutional works to place orders."), nil
+	}
+
+	// 6. The supplier must cover that branch's location on the relevant weekday.
 	if (branch.Latitude == nil || branch.Longitude == nil) && (branch.CityID == nil || *branch.CityID <= 0) {
 		return denied(ReasonBranchNoLocation, variant.StockQty,
 			i18n.TDefault("w4_mod.w4str_136_136"),

@@ -244,7 +244,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													type="button"
 													class="btn btn-secondary btn-xs font-bold gap-1"
 													data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-													@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: '%s', name_en: '%s', code: '%s', city_id: %d, address: '%s', phone: '%s', operating_hours: '%s', google_maps_url: '%s', has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
+													@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: %q, name_en: %q, code: %q, city_id: %d, address: %q, phone: %q, operating_hours: %q, google_maps_url: %q, has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
 														b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, func() int64 { if b.CityID != nil { return *b.CityID }; return 0 }(), b.Address, b.Phone, b.OperatingHours, b.GoogleMapsURL, b.HasColdStorage, b.IsMain, func() float64 { if b.Latitude != nil { return *b.Latitude }; return 30.0444 }(), func() float64 { if b.Longitude != nil { return *b.Longitude }; return 31.2357 }(), formatBranchWorksJSON(b.InstitutionalWorks)) }
 												>
 													@components.IconEdit("icon-xs")

@@ -718,17 +718,65 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"d-flex flex-col justify-center items-center h-full text-center gap-2\"><span class=\"text-xs text-muted font-bold\">الطلب غير متاح حالياً</span> <button type=\"button\" disabled class=\"btn btn-secondary text-xs w-full py-2.5 font-bold cursor-not-allowed opacity-60\">غير متاح للطلب المباشر</button></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"d-flex flex-col justify-center items-center h-full text-center gap-2\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if offers[0].CoverageReason != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span class=\"text-xs text-danger font-bold\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var33 string
+						templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(offers[0].CoverageReason)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail.templ`, Line: 294, Col: 83}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<span class=\"text-xs text-muted font-bold\">الطلب غير متاح حالياً</span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<button type=\"button\" disabled class=\"btn btn-secondary text-xs w-full py-2.5 font-bold cursor-not-allowed opacity-60\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if offers[0].CoverageReason != "" {
+						var templ_7745c5c3_Var34 string
+						templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(offers[0].CoverageReason)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail.templ`, Line: 300, Col: 40}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "غير متاح للطلب المباشر")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</button></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<!-- Creative Sourcing Request State (No Offers) --> <div class=\"p-6 text-center d-flex flex-col items-center gap-3\"><div class=\"w-12 h-12 rounded-xl bg-primary-subtle text-primary flex-center text-xl\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<!-- Creative Sourcing Request State (No Offers) --> <div class=\"p-6 text-center d-flex flex-col items-center gap-3\"><div class=\"w-12 h-12 rounded-xl bg-primary-subtle text-primary flex-center text-xl\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -736,20 +784,20 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div><div><h4 class=\"font-extrabold text-sm text-primary m-0 mb-1\">لا تتوفر عروض فورية لهذا الصنف حالياً</h4><p class=\"text-xs text-muted m-0 leading-relaxed\">يمكنك إرسال طلب توريد مباشر لشبكة الموردين والشركات المعتمدة في منطقتك لتلقي عروض الأسعار والتوافر.</p></div><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div><div><h4 class=\"font-extrabold text-sm text-primary m-0 mb-1\">لا تتوفر عروض فورية لهذا الصنف حالياً</h4><p class=\"text-xs text-muted m-0 leading-relaxed\">يمكنك إرسال طلب توريد مباشر لشبكة الموردين والشركات المعتمدة في منطقتك لتلقي عروض الأسعار والتوافر.</p></div><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var33 templ.SafeURL
-				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/purchase-request?product_id=%d", product.ID)))
+				var templ_7745c5c3_Var35 templ.SafeURL
+				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/purchase-request?product_id=%d", product.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail.templ`, Line: 316, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail.templ`, Line: 324, Col: 99}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" class=\"btn btn-primary btn-sm font-bold gap-1 mt-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" class=\"btn btn-primary btn-sm font-bold gap-1 mt-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -757,12 +805,12 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<span>+ إرسال طلب توريد للموردين</span></a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<span>+ إرسال طلب توريد للموردين</span></a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div></div></div></div><!-- 2. Other Supplier Offers Comparison Table -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div></div></div></div><!-- 2. Other Supplier Offers Comparison Table -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -770,7 +818,7 @@ func CustomerProductDetail(product *catalog.Product, variants []*catalog.Product
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</div><script>\n\t\t\tfunction stepCatalogQty(btn, delta) {\n\t\t\t\tconst form = btn.closest('form') || btn.closest('.product-detail-buy-box');\n\t\t\t\tif (!form) return;\n\t\t\t\tconst input = form.querySelector('input[name=\"qty\"]');\n\t\t\t\tif (input) {\n\t\t\t\t\tlet val = parseInt(input.value, 10) || 1;\n\t\t\t\t\tval += delta;\n\t\t\t\t\tconst min = parseInt(input.getAttribute('min') || '1', 10);\n\t\t\t\t\tconst max = parseInt(input.getAttribute('max') || '9999', 10);\n\t\t\t\t\tif (val < min) val = min;\n\t\t\t\t\tif (val > max && max > 0) val = max;\n\t\t\t\t\tinput.value = val;\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</div><script>\n\t\t\tfunction stepCatalogQty(btn, delta) {\n\t\t\t\tconst form = btn.closest('form') || btn.closest('.product-detail-buy-box');\n\t\t\t\tif (!form) return;\n\t\t\t\tconst input = form.querySelector('input[name=\"qty\"]');\n\t\t\t\tif (input) {\n\t\t\t\t\tlet val = parseInt(input.value, 10) || 1;\n\t\t\t\t\tval += delta;\n\t\t\t\t\tconst min = parseInt(input.getAttribute('min') || '1', 10);\n\t\t\t\t\tconst max = parseInt(input.getAttribute('max') || '9999', 10);\n\t\t\t\t\tif (val < min) val = min;\n\t\t\t\t\tif (val > max && max > 0) val = max;\n\t\t\t\t\tinput.value = val;\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

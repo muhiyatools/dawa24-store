@@ -269,11 +269,22 @@ function initMapPickers() {
       if (latInput) {
         latInput.value = fixedLat.toFixed(6);
         latInput.dispatchEvent(new Event('input', { bubbles: true }));
+        latInput.dispatchEvent(new Event('change', { bubbles: true }));
       }
       if (lonInput) {
         lonInput.value = fixedLon.toFixed(6);
         lonInput.dispatchEvent(new Event('input', { bubbles: true }));
+        lonInput.dispatchEvent(new Event('change', { bubbles: true }));
       }
+
+      window.dispatchEvent(new CustomEvent('dawa-coords-change', {
+        detail: {
+          lat: fixedLat,
+          lon: fixedLon,
+          targetId: container.id || '',
+          container: container
+        }
+      }));
 
       const gmapsUrl = `https://www.google.com/maps?q=${fixedLat},${fixedLon}`;
       if (gmapsInput) gmapsInput.value = gmapsUrl;
@@ -439,14 +450,19 @@ window.dawaSetMapLocation = function(target, lat, lon, zoom) {
 
   var z = (zoom !== undefined && zoom !== null) ? zoom : 14;
 
+  function triggerInvalidate(mapInstance) {
+    if (!mapInstance) return;
+    mapInstance.invalidateSize();
+    setTimeout(function() { mapInstance.invalidateSize(); }, 60);
+    setTimeout(function() { mapInstance.invalidateSize(); }, 200);
+    setTimeout(function() { mapInstance.invalidateSize(); }, 400);
+  }
+
   function doUpdate(container) {
     if (typeof container._updateCoords === 'function') {
       container._updateCoords(pLat, pLon, z);
       if (container._leaflet_map) {
-        container._leaflet_map.invalidateSize();
-        setTimeout(function() {
-          if (container._leaflet_map) container._leaflet_map.invalidateSize();
-        }, 200);
+        triggerInvalidate(container._leaflet_map);
       }
       return true;
     }
@@ -454,10 +470,7 @@ window.dawaSetMapLocation = function(target, lat, lon, zoom) {
     if (canvas && typeof canvas._updateCoords === 'function') {
       canvas._updateCoords(pLat, pLon, z);
       if (canvas._leaflet_map) {
-        canvas._leaflet_map.invalidateSize();
-        setTimeout(function() {
-          if (canvas._leaflet_map) canvas._leaflet_map.invalidateSize();
-        }, 200);
+        triggerInvalidate(canvas._leaflet_map);
       }
       return true;
     }

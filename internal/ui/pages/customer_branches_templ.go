@@ -413,7 +413,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var13 string
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("setEditMode({id: %d, name_ar: '%s', name_en: '%s', code: '%s', city_id: %d, address: '%s', phone: '%s', operating_hours: '%s', google_maps_url: '%s', has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("setEditMode({id: %d, name_ar: %q, name_en: %q, code: %q, city_id: %d, address: %q, phone: %q, operating_hours: %q, google_maps_url: %q, has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
 						b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, func() int64 {
 							if b.CityID != nil {
 								return *b.CityID

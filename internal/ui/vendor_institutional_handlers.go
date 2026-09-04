@@ -135,12 +135,13 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 				isMatch := false
 				dist := -1
 
+				hasCoords := cov.Latitude != nil && cov.Longitude != nil && pb.Latitude != nil && pb.Longitude != nil
 				// 1. Match by Coordinates / Distance radius
-				if cov.Latitude != nil && cov.Longitude != nil && pb.Latitude != nil && pb.Longitude != nil {
+				if hasCoords {
 					dist = haversineCoverageDistance(*cov.Latitude, *cov.Longitude, *pb.Latitude, *pb.Longitude)
 					maxDist := cov.DistanceMeters
 					if maxDist <= 0 {
-						maxDist = 50000 // default 50km
+						maxDist = 3000 // default 3km
 					}
 					if dist <= maxDist {
 						isMatch = true
@@ -154,8 +155,8 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 					}
 				}
 
-				// 2. Match by City ID fallback
-				if !isMatch && cov.CityID != nil && pb.CityID != nil && *cov.CityID == *pb.CityID {
+				// 2. Match by City ID fallback only if coordinates are absent
+				if !hasCoords && cov.CityID != nil && pb.CityID != nil && *cov.CityID == *pb.CityID {
 					isMatch = true
 					if matchReason == "" {
 						matchReason = i18n.T(lang, "vendor.coverage.within_distribution_city")

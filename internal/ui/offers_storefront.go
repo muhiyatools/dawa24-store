@@ -167,7 +167,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 						canAddToCart = (stockQty > 0)
 					} else {
 						covReason = res.MessageAr
-						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
+						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
 							isCovered = false
 							canAddToCart = false
 						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
@@ -187,12 +187,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 					canAddToCart = false
 				}
 			} else if customerBranchID <= 0 {
-				isCovered = true
-				if stockQty > 0 {
-					canAddToCart = true
-				} else {
-					covReason = i18n.T(lang, "offers.cov_reason_out_of_stock")
-				}
+				isCovered = false
+				canAddToCart = false
+				covReason = "يرجى تحديد فرع صيدلية للاستلام أولاً للتمكن من الطلب"
 			}
 		} else {
 			isCovered = true

@@ -127,7 +127,11 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 					covReason := ""
 
 					if isCustomer {
-						if h.commSvc != nil && customerBranchID > 0 {
+						if customerBranchID <= 0 {
+							isCovered = false
+							canAddToCart = false
+							covReason = "يرجى تحديد فرع صيدلية للاستلام أولاً للتمكن من الطلب"
+						} else if h.commSvc != nil {
 							res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 								VariantID:        v.ID,
 								VendorOrgID:      id,
@@ -142,7 +146,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 									canAddToCart = (availStock > 0)
 								} else {
 									covReason = res.MessageAr
-									if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
+									if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
 										isCovered = false
 										canAddToCart = false
 									} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {

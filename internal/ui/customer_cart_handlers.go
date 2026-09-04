@@ -46,7 +46,10 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		branchID := h.pharmacyBranchID(ctx, &actor)
 		for _, it := range cart.Items {
 			it.IsCovered = true
-			if branchID > 0 && it.ProductVariantID > 0 && it.OrganizationID > 0 {
+			if branchID <= 0 {
+				it.IsCovered = false
+				it.CoverageReason = "يرجى تحديد فرع صيدلية للاستلام أولاً"
+			} else if it.ProductVariantID > 0 && it.OrganizationID > 0 {
 				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 					VariantID:        it.ProductVariantID,
 					VendorOrgID:      it.OrganizationID,
@@ -57,9 +60,13 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 				})
 				if err == nil {
 					if !res.Allowed {
-						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
+						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
 							it.IsCovered = false
-							it.CoverageReason = i18n.T(langOf(r), "customer.cart.coverage_outside")
+							if res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
+								it.CoverageReason = res.MessageAr
+							} else {
+								it.CoverageReason = i18n.T(langOf(r), "customer.cart.coverage_outside")
+							}
 						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
 							it.CoverageReason = i18n.T(langOf(r), "customer.cart.out_of_stock")
 						}

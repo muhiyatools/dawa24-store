@@ -48,6 +48,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					is_active: true
 				},
 				openEdit(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {
+					const latVal = (lat && lat !== 0) ? Number(lat) : 30.0444;
+					const lonVal = (lon && lon !== 0) ? Number(lon) : 31.2357;
 					this.editForm = {
 						id: id,
 						gov_id: govId > 0 ? String(govId) : '',
@@ -62,7 +64,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					this.isEditOpen = true;
 					this.$nextTick(() => {
 						if (window.dawaSetMapLocation) {
-							window.dawaSetMapLocation('#edit-city-map-picker', lat || 30.0444, lon || 31.2357, 13);
+							window.dawaSetMapLocation('#edit-city-map-picker', latVal, lonVal, 13);
 						}
 					});
 				},
@@ -70,6 +72,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					this.isEditOpen = false;
 				},
 				openGovEdit(id, nameAr, nameEn, lat, lon, isActive) {
+					const latVal = (lat && lat !== 0) ? Number(lat) : 30.0444;
+					const lonVal = (lon && lon !== 0) ? Number(lon) : 31.2357;
 					this.govEditForm = {
 						id: id,
 						name_ar: nameAr || '',
@@ -81,7 +85,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					this.isGovEditOpen = true;
 					this.$nextTick(() => {
 						if (window.dawaSetMapLocation) {
-							window.dawaSetMapLocation('#edit-gov-map-picker', lat || 30.0444, lon || 31.2357, 11);
+							window.dawaSetMapLocation('#edit-gov-map-picker', latVal, lonVal, 11);
 						}
 					});
 				},
