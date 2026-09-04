@@ -2,6 +2,8 @@ package org
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // Repository defines the storage contract for organization management.
@@ -34,6 +36,17 @@ type Repository interface {
 	AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error
 
 	AddMember(ctx context.Context, m *Member) error
+
+	// Profile sections and the change requests that gate the identity one.
+	ReadProfileSection(ctx context.Context, orgID int64, section ProfileSection) (ProfileFields, error)
+	ApplyProfileSection(ctx context.Context, orgID int64, section ProfileSection, fields ProfileFields) error
+	ApplyApprovedProfileChange(ctx context.Context, tx pgx.Tx, req *ProfileChangeRequest) error
+	CreateProfileChangeRequest(ctx context.Context, req *ProfileChangeRequest) error
+	PendingProfileChanges(ctx context.Context, orgID int64) (map[ProfileSection]*ProfileChangeRequest, error)
+	GetProfileChangeRequest(ctx context.Context, id int64) (*ProfileChangeRequest, error)
+	ListProfileChangeRequests(ctx context.Context, status string, limit, offset int) ([]*ProfileChangeRequest, int, error)
+	DecideProfileChangeRequest(ctx context.Context, id, reviewerID int64, approve bool, notes string, apply func(context.Context, pgx.Tx, *ProfileChangeRequest) error) (*ProfileChangeRequest, error)
+	WithdrawProfileChangeRequest(ctx context.Context, orgID, id int64) error
 	GetMember(ctx context.Context, orgID, memberID int64) (*Member, error)
 	UpdateMember(ctx context.Context, orgID, memberID int64, patch MemberPatch) error
 	CountMembersByBranch(ctx context.Context, orgID int64) (map[int64]int, error)

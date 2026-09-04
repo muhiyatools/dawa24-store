@@ -245,10 +245,14 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	// settings page used to carry a third, lower-quality write path that even
 	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
 	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
-	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
-	r.Post("/settings/payment-methods/{id}/edit", h.SettingsPaymentMethodEditSubmit)
-	r.Post("/settings/payment-methods/{id}/default", h.SettingsPaymentMethodSetDefaultSubmit)
-	r.Post("/settings/payment-methods/{id}/delete", h.SettingsPaymentMethodDeleteSubmit)
+	// The payment-method writes live on the wallet screens, behind
+	// pharmacy.wallet.manage / vendor.wallet.manage. These paths stayed
+	// reachable by any approved member because this tier has no permission gate
+	// of its own, so they redirect rather than accept a write.
+	r.Post("/settings/payment-methods", h.PaymentMethodsRedirect)
+	r.Post("/settings/payment-methods/{id}/edit", h.PaymentMethodsRedirect)
+	r.Post("/settings/payment-methods/{id}/default", h.PaymentMethodsRedirect)
+	r.Post("/settings/payment-methods/{id}/delete", h.PaymentMethodsRedirect)
 
 	// Wallet, invoices, messages, requests
 	r.Get("/wallet", h.WalletPage)

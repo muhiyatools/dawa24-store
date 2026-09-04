@@ -281,17 +281,6 @@ type InvoiceLine struct {
 	TotalPrice  money.Amount `json:"total_price"`
 }
 
-// UserPaymentMethod represents a stored payment method identifier.
-type UserPaymentMethod struct {
-	ID                int64     `json:"id"`
-	PublicID          string    `json:"public_id"`
-	UserID            int64     `json:"user_id"`
-	Provider          string    `json:"provider"`
-	AccountIdentifier string    `json:"account_identifier"`
-	IsDefault         bool      `json:"is_default"`
-	CreatedAt         time.Time `json:"created_at"`
-}
-
 // PlatformPaymentMethod represents a payment channel configured for the platform.
 type PlatformPaymentMethod struct {
 	ID                string    `json:"id"`                  // e.g. "bank_transfer", "instapay", "card", "vodafone_cash"

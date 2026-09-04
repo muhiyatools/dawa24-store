@@ -170,27 +170,17 @@ func (r *Repository) UpdateCustomerPendingOrder(
 					return fmt.Errorf("update line %d: %w", l.ID, err)
 				}
 			} else {
-				// Insert newly added line
-				effectivePrice, _ := l.UnitPrice.Sub(l.DiscountAmount)
-				if effectivePrice.IsNegative() {
-					effectivePrice = money.Zero
-				}
-				lineTotal, _ := effectivePrice.MulInt(int64(l.Quantity))
-
-				nameJSON := fmt.Sprintf(`{"ar": %q, "en": %q}`, l.ProductName, l.ProductName)
-				_, err = tx.Exec(txCtx, `
-					INSERT INTO commerce.order_lines (
-						order_id, shipment_id, organization_id, product_name, sku,
-						unit_price, quantity, discount_amount, total_price
-					) VALUES (
-						$1, $2, $3, $4::jsonb, $5,
-						$6, $7, $8, $9
-					);
-				`, order.ID, defaultShipmentID, defaultOrgID, nameJSON, "CUSTOM",
-					l.UnitPrice, l.Quantity, l.DiscountAmount, lineTotal)
-				if err != nil {
-					return fmt.Errorf("insert line: %w", err)
-				}
+				// A pharmacy editing its own pending order may change quantities
+				// and drop lines. It may not invent one.
+				//
+				// The old "إضافة صنف جديد يدوياً" path inserted a free-text row
+				// at a price the buyer typed, with sku 'CUSTOM', no product, no
+				// variant and therefore no stock check — and attached it to the
+				// first shipment regardless of which supplier was meant to fill
+				// it. A supplier was then asked to ship a line they had never
+				// listed, at a price they had never quoted.
+				return apperr.Validation("order.line_not_editable",
+					i18n.TDefault("customer.order.no_manual_lines"), nil)
 			}
 		}
 
@@ -256,13 +246,34 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			return err
 		}
 
-		// 6. Update shipment if exists
-		if defaultShipmentID > 0 {
-			_, _ = tx.Exec(txCtx, `
-				UPDATE commerce.order_shipments
-				SET subtotal = $1, total_amount = $2, updated_at = now()
-				WHERE id = $3;
-			`, newSubtotal, newTotalAmount, defaultShipmentID)
+		// 6. Recalculate every shipment from its own lines.
+		//
+		// This wrote the *whole order's* subtotal and total onto the *first*
+		// shipment and left the rest untouched. A pharmacy buying from three
+		// suppliers therefore ended up with parcel 1 claiming the entire order's
+		// value and parcels 2 and 3 still showing pre-edit figures, which is
+		// what each supplier reads on their own shipment screen.
+		//
+		// The shipping fee stays on the shipment: it is that vendor's delivery
+		// quote and is not affected by a quantity change.
+		if _, err := tx.Exec(txCtx, `
+			UPDATE commerce.order_shipments s
+			SET subtotal     = COALESCE(t.subtotal, 0),
+			    total_amount = COALESCE(t.subtotal, 0) - COALESCE(t.discount, 0)
+			                   + COALESCE(s.shipping_fee, 0),
+			    updated_at   = now()
+			FROM (
+				SELECT sh.id,
+				       COALESCE(SUM(l.unit_price * l.quantity), 0) AS subtotal,
+				       COALESCE(SUM(l.discount_amount), 0)         AS discount
+				FROM commerce.order_shipments sh
+				LEFT JOIN commerce.order_lines l ON l.shipment_id = sh.id
+				WHERE sh.order_id = $1
+				GROUP BY sh.id
+			) t
+			WHERE s.id = t.id AND s.order_id = $1;
+		`, order.ID); err != nil {
+			return fmt.Errorf("recalculate shipments: %w", err)
 		}
 
 		// 7. Record status history audit log

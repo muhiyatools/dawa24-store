@@ -64,9 +64,23 @@ func (s *Service) AdminRejectSponsorshipRequest(ctx context.Context, id int64, n
 		return err
 	}
 
-	// Refund the reserved credit if a purchase was linked.
-	if sr.PurchaseID != nil {
-		_ = s.repo.IncrementSponsorshipPurchaseCreditsUsed(sysCtx, *sr.PurchaseID, -sr.CreditsUsed)
+	// Refund the reserved credit if a purchase was linked. A refund that fails
+	// is a balance the vendor is owed, so it is logged rather than dropped.
+	if sr.PurchaseID != nil && sr.CreditsUsed > 0 {
+		if _, err := s.repo.ConsumeSponsorshipCredits(sysCtx, ConsumeCredits{
+			OrganizationID: sr.OrganizationID,
+			PurchaseID:     *sr.PurchaseID,
+			Credits:        sr.CreditsUsed,
+			Refund:         true,
+			Reason:         CreditSponsorshipRejected,
+			EntityType:     string(sr.ItemType),
+			EntityID:       &sr.ID,
+			ActorUserID:    &reviewerID,
+			Note:           i18n.TDefault("promo.credits.note.request_rejected"),
+		}); err != nil {
+			s.log.ErrorContext(ctx, "sponsorship reject: credit refund failed",
+				"error", err, "request_id", id, "purchase_id", *sr.PurchaseID)
+		}
 	}
 	s.log.InfoContext(ctx, "sponsorship request rejected", "request_id", id, "reviewer_id", reviewerID)
 	return nil

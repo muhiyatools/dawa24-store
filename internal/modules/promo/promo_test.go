@@ -197,8 +197,14 @@ func (m *mockPromoRepo) ListSponsorshipPurchasesByOrg(_ context.Context, _ int64
 func (m *mockPromoRepo) ListActiveSponsorshipPurchasesByOrg(_ context.Context, _ int64) ([]*SponsorshipPurchase, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(_ context.Context, _ int64, _ int) error {
-	return nil
+func (m *mockPromoRepo) ConsumeSponsorshipCredits(context.Context, ConsumeCredits) (*CreditEntry, error) {
+	return &CreditEntry{}, nil
+}
+func (m *mockPromoRepo) ListCreditEntries(context.Context, int64, int, int) ([]*CreditEntry, int, error) {
+	return nil, 0, nil
+}
+func (m *mockPromoRepo) ListOrgCreditEntries(context.Context, int64, int, int) ([]*CreditEntry, int, error) {
+	return nil, 0, nil
 }
 func (m *mockPromoRepo) ExpireSponsorshipPurchases(_ context.Context) (int64, error) {
 	return 0, nil
@@ -366,4 +372,12 @@ func (m *mockPromoRepo) AddSpecialOfferLocation(_ context.Context, loc *SpecialO
 }
 func (m *mockPromoRepo) ListSpecialOfferLocations(_ context.Context, _ int64) ([]*SpecialOfferLocation, error) {
 	return []*SpecialOfferLocation{{ID: 1, Radius: 1000}}, nil
+}
+
+func (m *mockPromoRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (m *mockPromoRepo) ListCreditAccounts(context.Context, string, int, int) ([]*CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (m *mockPromoRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*SponsorshipPurchase, int, error) {
+	return nil, 0, nil
 }

@@ -172,7 +172,9 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 									</div>
 
 									<div class="d-flex items-center gap-4">
-										<!-- Horizontal Stepper -->
+										if item.IsOfferLine() {
+											@cartOfferQuantity(item.Quantity)
+										} else {
 										<div class="cart-stepper-control">
 											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
 												<input type="hidden" name="item_id" value={ fmt.Sprintf("%d", item.ID) } />
@@ -205,6 +207,7 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 												</button>
 											</form>
 										</div>
+										}
 
 										<!-- Total Line Item Price -->
 										<div class="tabular-nums text-end font-extrabold text-base text-primary min-w-0">
@@ -302,4 +305,17 @@ templ CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) 
 			</div>
 		</div>
 	}
+}
+
+// An offer is bought as a whole. Its cart line carries no variant, so the
+// stepper's own hidden variant_id would be 0 and the availability check it
+// triggers would have nothing to check; worse, a bundle priced as one thing
+// silently became "one thing × 3" at a price the vendor never set. The quantity
+// is shown, and the line is removed rather than adjusted.
+templ cartOfferQuantity(quantity int) {
+	<div class="cart-offer-qty" title="كمية العرض ثابتة ولا يمكن تعديلها">
+		@components.IconTag("icon-2xs")
+		<span class="tabular-nums font-extrabold">{ fmt.Sprintf("%d", quantity) }</span>
+		<span class="cart-offer-qty-label">عرض كامل</span>
+	</div>
 }

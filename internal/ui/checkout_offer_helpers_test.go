@@ -111,10 +111,23 @@ func TestCheckoutValidationMessage(t *testing.T) {
 		t.Errorf("line_unavailable not mapped: %q %v", msg, ok)
 	}
 
-	// Unknown codes and non-validation errors keep the generic path.
-	unknown := apperr.Validation("checkout.something_new", "new", nil)
-	if _, ok := checkoutValidationMessage("ar", unknown); ok {
-		t.Error("unknown code mapped, want generic path")
+	// A code this function has never heard of still carries a message the
+	// domain wrote for a person to read, and that message is what the pharmacy
+	// needs. Sending it to the generic path was the bug: every unenumerated
+	// refusal — quantity above the offer's maximum, stock exhausted mid-order,
+	// a line below the supplier's minimum — arrived as the envelope's "بيانات
+	// الطلب غير صالحة", which names neither the line nor the reason.
+	unknown := apperr.Validation("checkout.something_new", "الكمية المطلوبة تتجاوز المتاح", nil)
+	msg, ok = checkoutValidationMessage("ar", unknown)
+	if !ok || msg != "الكمية المطلوبة تتجاوز المتاح" {
+		t.Errorf("an unenumerated refusal lost its own message: %q %v", msg, ok)
+	}
+
+	// A code with no message has nothing to show, so it keeps the generic page
+	// rather than flashing an empty notice.
+	silent := apperr.Validation("checkout.something_new", "", nil)
+	if _, ok := checkoutValidationMessage("ar", silent); ok {
+		t.Error("a refusal with no message produced an empty notice")
 	}
 	if _, ok := checkoutValidationMessage("ar", apperr.Internal(errors.New("boom"))); ok {
 		t.Error("internal error mapped, want generic path")

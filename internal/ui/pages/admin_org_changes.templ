@@ -1,0 +1,140 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// طلبات تعديل بيانات المنشآت — the review queue.
+//
+// Every row shows the whole diff rather than a "view" link to it. A moderator
+// deciding whether a supplier may rename itself needs the old and new value
+// side by side, and hiding that behind a second request is how the decision
+// gets made on the strength of the company's name alone.
+
+// AdminOrgChangeRow is one request with the organization it belongs to.
+type AdminOrgChangeRow struct {
+	Request *org.ProfileChangeRequest
+	OrgName string
+}
+
+// AdminOrgChangesView is the queue page.
+type AdminOrgChangesView struct {
+	Lang       string
+	Rows       []AdminOrgChangeRow
+	Status     string
+	Total      int
+	Page       int
+	PerPage    int
+	CanDecide  bool
+	NoticeKind string
+	Notice     string
+}
+
+templ AdminOrgChangesPage(v AdminOrgChangesView, lang, dir string) {
+	@layouts.AdminShell(i18n.T(lang, "admin.org_changes.title")+" | دواء 24", "org_changes", lang, dir) {
+		<div class="page-container">
+			@roleNotice(v.NoticeKind, v.Notice)
+
+			<div class="glass-panel p-6 mb-4">
+				<h1 class="text-2xl font-black text-primary m-0">{ i18n.T(lang, "admin.org_changes.title") }</h1>
+				<p class="text-sm text-secondary m-0 mt-1">{ i18n.T(lang, "admin.org_changes.subtitle") }</p>
+			</div>
+
+			<div class="glass-panel p-3 mb-4 d-flex gap-2 flex-wrap">
+				@orgChangeTab(v.Status, "pending", i18n.T(lang, "admin.org_changes.tab_pending"))
+				@orgChangeTab(v.Status, "approved", i18n.T(lang, "admin.org_changes.tab_approved"))
+				@orgChangeTab(v.Status, "rejected", i18n.T(lang, "admin.org_changes.tab_rejected"))
+				@orgChangeTab(v.Status, "", i18n.T(lang, "admin.org_changes.tab_all"))
+			</div>
+
+			if len(v.Rows) == 0 {
+				<div class="glass-panel p-8 text-center">
+					<h2 class="text-lg font-black text-primary m-0">{ i18n.T(lang, "admin.org_changes.empty_title") }</h2>
+					<p class="text-sm text-secondary m-0 mt-2">{ i18n.T(lang, "admin.org_changes.empty_message") }</p>
+				</div>
+			} else {
+				for _, row := range v.Rows {
+					@adminOrgChangeCard(v, row)
+				}
+				@components.B2BPagination(components.PaginationProps{
+					CurrentPage: v.Page,
+					PageSize:    v.PerPage,
+					TotalCount:  v.Total,
+					BaseURL:     "/admin/organizations/change-requests",
+					QueryValues: orgChangesQuery(v.Status),
+				})
+			}
+		</div>
+	}
+}
+
+templ orgChangeTab(current, status, label string) {
+	<a
+		href={ templ.SafeURL(orgChangesHref(status)) }
+		class={ "tab-btn", templ.KV("is-active", current == status) }
+	>{ label }</a>
+}
+
+templ adminOrgChangeCard(v AdminOrgChangesView, row AdminOrgChangeRow) {
+	<article class="glass-panel p-5 mb-3">
+		<div class="flex-between items-start flex-wrap gap-3 pb-3 mb-3 border-b">
+			<div class="stack-2xs">
+				<h2 class="text-base font-black text-primary m-0">{ row.OrgName }</h2>
+				<p class="text-xs text-secondary m-0">
+					{ fmt.Sprintf("%s — %s", i18n.Translate(v.Lang, "org.profile.section."+string(row.Request.Section)), row.Request.CreatedAt.Format("2006-01-02 15:04")) }
+				</p>
+			</div>
+			@orgChangeStatusBadge(v.Lang, row.Request.Status)
+		</div>
+
+		<dl class="org-diff mb-3">
+			for _, key := range row.Request.Changed() {
+				<div class="org-diff-row">
+					<dt>{ organizationFieldLabel(v.Lang, key) }</dt>
+					<dd>
+						<span class="org-diff-was">{ orgFieldOrDash(row.Request.Previous[key]) }</span>
+						<span aria-hidden="true">←</span>
+						<strong class="org-diff-next">{ orgFieldOrDash(row.Request.Proposed[key]) }</strong>
+					</dd>
+				</div>
+			}
+		</dl>
+
+		if row.Request.AdminNotes != "" {
+			<p class="text-xs text-secondary m-0 mb-3">{ row.Request.AdminNotes }</p>
+		}
+
+		if v.CanDecide && row.Request.Status == org.ChangePending {
+			<div class="d-flex gap-2 flex-wrap items-end pt-3 border-t">
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/change-requests/%d/approve", row.Request.ID)) } class="m-0">
+					<button type="submit" class="btn btn-primary btn-sm font-bold">{ i18n.T(v.Lang, "org.approve_org") }</button>
+				</form>
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/change-requests/%d/reject", row.Request.ID)) } class="m-0 d-flex gap-2 items-end flex-wrap">
+					<div>
+						<label class="form-label text-2xs" for={ fmt.Sprintf("reason-%d", row.Request.ID) }>
+							{ i18n.T(v.Lang, "org.rejection_reason") }
+						</label>
+						<input id={ fmt.Sprintf("reason-%d", row.Request.ID) } type="text" name="notes" required class="form-input" placeholder={ i18n.T(v.Lang, "admin.org_changes.rejection_reason_required") }/>
+					</div>
+					<button type="submit" class="btn btn-secondary btn-sm font-bold">{ i18n.T(v.Lang, "org.reject_org") }</button>
+				</form>
+			</div>
+		}
+	</article>
+}
+
+templ orgChangeStatusBadge(lang string, status org.ProfileChangeStatus) {
+	switch status {
+		case org.ChangePending:
+			<span class="badge badge-amber text-2xs font-bold">{ i18n.T(lang, "admin.org_changes.tab_pending") }</span>
+		case org.ChangeApproved:
+			<span class="badge badge-emerald text-2xs font-bold">{ i18n.T(lang, "admin.org_changes.tab_approved") }</span>
+		default:
+			<span class="badge badge-slate text-2xs font-bold">{ i18n.T(lang, "admin.org_changes.tab_rejected") }</span>
+	}
+}

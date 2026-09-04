@@ -30,7 +30,17 @@ type Repository interface {
 	GetSponsorshipPurchaseByID(ctx context.Context, id int64) (*SponsorshipPurchase, error)
 	ListSponsorshipPurchasesByOrg(ctx context.Context, orgID int64) ([]*SponsorshipPurchase, error)
 	ListActiveSponsorshipPurchasesByOrg(ctx context.Context, orgID int64) ([]*SponsorshipPurchase, error)
-	IncrementSponsorshipPurchaseCreditsUsed(ctx context.Context, purchaseID int64, credits int) error
+	// ConsumeSponsorshipCredits moves a purchase's balance and writes the
+	// ledger entry explaining the movement in the same transaction, so
+	// credits_used and promo.sponsorship_credit_entries cannot disagree. It
+	// replaced IncrementSponsorshipPurchaseCreditsUsed, which moved a counter
+	// and recorded nothing.
+	ConsumeSponsorshipCredits(ctx context.Context, in ConsumeCredits) (*CreditEntry, error)
+	ListCreditEntries(ctx context.Context, purchaseID int64, limit, offset int) ([]*CreditEntry, int, error)
+	ListOrgCreditEntries(ctx context.Context, orgID int64, limit, offset int) ([]*CreditEntry, int, error)
+	CreditTotals(ctx context.Context, purchaseID int64) (consumed, refunded int, err error)
+	ListCreditAccounts(ctx context.Context, search string, limit, offset int) ([]*CreditAccount, int, error)
+	ListPurchasesForOrg(ctx context.Context, orgID int64, limit, offset int) ([]*SponsorshipPurchase, int, error)
 	ExpireSponsorshipPurchases(ctx context.Context) (int64, error)
 
 	// Sponsorship requests — the approval workflow.

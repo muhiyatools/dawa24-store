@@ -259,20 +259,22 @@ func (h *UIHandler) TenantPaymentMethodAddSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	_ = r.ParseForm()
-	provider, identifier, err := buildPaymentMethodIdentifier(r)
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "common.invalid_form_data"))
+		return
+	}
+	in, err := readPaymentMethodForm(r)
 	if err != nil {
 		h.redirectWithNotice(w, r, dest, "error", err.Error())
 		return
 	}
 
-	isDefault := r.PostFormValue("is_default") == "1"
-
 	pm := &billing.UserPaymentMethod{
 		UserID:            actor.UserID,
-		Provider:          provider,
-		AccountIdentifier: identifier,
-		IsDefault:         isDefault,
+		Provider:          in.Provider,
+		AccountIdentifier: in.Identifier,
+		Details:           in.Details,
+		IsDefault:         r.PostFormValue("is_default") == "1",
 	}
 
 	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {

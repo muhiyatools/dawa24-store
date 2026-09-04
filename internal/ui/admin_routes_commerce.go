@@ -120,6 +120,9 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/offers-packages/views/{id}", h.AdminOfferAnalyticsViewsPage)
 		g.Get("/admin/offers-packages/clicks", h.AdminOfferAnalyticsClicksPage)
 		g.Get("/admin/offers-packages/clicks/{id}", h.AdminOfferAnalyticsClicksPage)
+		g.Get("/admin/offers-packages/organizations", h.AdminOffersPackagesOrganizationsPage)
+		g.Get("/admin/offers-packages/organizations/{id}", h.AdminOffersPackagesOrganizationDetailPage)
+		g.Get("/admin/offers-packages/purchases/{id}/statement", h.CreditStatementPage)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("promo.offer_package.update", "promo.offer_package.view"))

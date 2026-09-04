@@ -68,8 +68,14 @@ func (s *stubPromoRepo) ListSponsorshipPurchasesByOrg(context.Context, int64) ([
 func (s *stubPromoRepo) ListActiveSponsorshipPurchasesByOrg(context.Context, int64) ([]*SponsorshipPurchase, error) {
 	return nil, nil
 }
-func (s *stubPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(context.Context, int64, int) error {
-	return nil
+func (s *stubPromoRepo) ConsumeSponsorshipCredits(context.Context, ConsumeCredits) (*CreditEntry, error) {
+	return &CreditEntry{}, nil
+}
+func (s *stubPromoRepo) ListCreditEntries(context.Context, int64, int, int) ([]*CreditEntry, int, error) {
+	return nil, 0, nil
+}
+func (s *stubPromoRepo) ListOrgCreditEntries(context.Context, int64, int, int) ([]*CreditEntry, int, error) {
+	return nil, 0, nil
 }
 func (s *stubPromoRepo) ExpireSponsorshipPurchases(context.Context) (int64, error) { return 0, nil }
 func (s *stubPromoRepo) CreateSponsorshipRequest(context.Context, *SponsorshipRequest) error {
@@ -273,4 +279,12 @@ func assertOfferSaved(t *testing.T, repo *stubPromoRepo, offer *Offer) {
 	if offer.OrganizationID != 7 {
 		t.Fatalf("offer must carry the tenant org, got %d", offer.OrganizationID)
 	}
+}
+
+func (s *stubPromoRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (s *stubPromoRepo) ListCreditAccounts(context.Context, string, int, int) ([]*CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (s *stubPromoRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*SponsorshipPurchase, int, error) {
+	return nil, 0, nil
 }

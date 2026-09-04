@@ -37,12 +37,13 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.organization.view"))
-		g.Get("/vendor/organization", h.VendorOrganizationPage)
-		g.Get("/vendor/settings/organization", h.VendorOrganizationPage)
+		g.Get("/vendor/organization", h.OrganizationProfilePage)
+		g.Get("/vendor/settings/organization", h.OrganizationProfilePage)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.organization.update"))
-		g.Post("/vendor/organization", h.VendorOrganizationSubmit)
+		g.Post("/vendor/organization/{section}", h.OrganizationProfileSectionSubmit)
+		g.Post("/vendor/organization/requests/{id}/withdraw", h.OrganizationProfileWithdrawSubmit)
 	})
 
 	r.Group(func(g chi.Router) {
@@ -218,6 +219,9 @@ func (h *UIHandler) registerVendorPromoRoutes(r chi.Router) {
 		g.Get("/vendor/offers-packages/sponsorships", h.VendorOffersPackagesSponsorshipsPage)
 		g.Get("/vendor/offers-packages/sponsorships/{id}", h.VendorOffersPackagesSponsorshipsPage)
 		g.Get("/vendor/offers-packages/promotions", h.VendorOffersPackagesPromotionsPage)
+		// كشف حساب للباقة: where this purchase's credits went. The card showed
+		// "31 / 50" and nothing about the missing nineteen.
+		g.Get("/vendor/offers-packages/purchases/{id}/statement", h.CreditStatementPage)
 		g.Get("/vendor/sponsorship-requests", h.VendorSponsorshipRequestsPage)
 		g.Post("/vendor/sponsorship-requests/new", h.VendorSponsorshipRequestSubmit)
 		g.Post("/vendor/sponsorship-requests/{id}/cancel", h.VendorSponsorshipRequestCancelSubmit)
@@ -301,6 +305,14 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 		g.Post("/vendor/wallet/deposit", h.TenantWalletDepositSubmit)
 		g.Post("/vendor/wallet/withdraw", h.TenantWalletWithdrawSubmit)
 		g.Post("/vendor/wallet/payment-methods", h.TenantPaymentMethodAddSubmit)
+		// Editing and re-defaulting a saved method lived only under
+		// /settings/payment-methods, which is gated on approval and not on the
+		// wallet permission at all — so a member without vendor.wallet.manage
+		// could add and change payment details there, and the wallet screen
+		// they were actually on could not offer an edit form. Both now sit
+		// beside the add, behind the same grant.
+		g.Post("/vendor/wallet/payment-methods/{id}/edit", h.SettingsPaymentMethodEditSubmit)
+		g.Post("/vendor/wallet/payment-methods/{id}/default", h.SettingsPaymentMethodSetDefaultSubmit)
 		g.Post("/vendor/wallet/payment-methods/{id}/delete", h.TenantPaymentMethodDeleteSubmit)
 	})
 }

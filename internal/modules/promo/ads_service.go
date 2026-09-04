@@ -50,7 +50,13 @@ func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 		return nil, apperr.Conflict("ad.insufficient_credits", "رصيد الرعاية غير كافٍ. يتطلب إنشاء الإعلان 2 رصيد رعاية على الأقل.")
 	}
 
-	if err := s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, selectedPurchase.ID, AdCreditCost); err != nil {
+	if _, err := s.repo.ConsumeSponsorshipCredits(ctx, ConsumeCredits{
+		OrganizationID: orgID,
+		PurchaseID:     selectedPurchase.ID,
+		Credits:        AdCreditCost,
+		Reason:         CreditAdCreated,
+		EntityType:     "ad",
+	}); err != nil {
 		return nil, err
 	}
 	a.AdPlanID = nil
@@ -65,8 +71,22 @@ func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 		a.StartsAt = time.Now().UTC()
 	}
 	if err := s.repo.CreateAd(ctx, a); err != nil {
-		// Refund credits on failure
-		_ = s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, selectedPurchase.ID, -AdCreditCost)
+		// The credit was reserved before the ad was written, so a failed
+		// write has to give it back. A refund that itself fails leaves the
+		// vendor short by two credits with nothing to show for it, so it is
+		// logged rather than discarded.
+		if _, refundErr := s.repo.ConsumeSponsorshipCredits(ctx, ConsumeCredits{
+			OrganizationID: orgID,
+			PurchaseID:     selectedPurchase.ID,
+			Credits:        AdCreditCost,
+			Refund:         true,
+			Reason:         CreditAdRefunded,
+			EntityType:     "ad",
+			Note:           i18n.TDefault("promo.credits.note.ad_failed"),
+		}); refundErr != nil {
+			s.log.ErrorContext(ctx, "ad create: credit refund failed",
+				"error", refundErr, "purchase_id", selectedPurchase.ID)
+		}
 		return nil, err
 	}
 	s.log.InfoContext(ctx, "ad created with 2 credits deducted", "ad_id", a.ID, "org_id", orgID, "position", a.Position, "purchase_id", selectedPurchase.ID)

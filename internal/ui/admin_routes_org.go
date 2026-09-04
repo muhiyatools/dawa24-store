@@ -35,6 +35,7 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("org.approval.view"))
 		g.Get("/admin/approvals", h.AdminApprovalsPage)
+		g.Get("/admin/organizations/change-requests", h.AdminOrgChangesPage)
 	})
 
 	r.Group(func(g chi.Router) {
@@ -44,6 +45,8 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Post("/admin/approvals/{id}/approve", h.AdminApproveOrgSubmit)
 		g.Post("/admin/approvals/{id}/reject", h.AdminRejectOrgSubmit)
 		g.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
+		g.Post("/admin/organizations/change-requests/{id}/approve", h.AdminOrgChangeApproveSubmit)
+		g.Post("/admin/organizations/change-requests/{id}/reject", h.AdminOrgChangeRejectSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

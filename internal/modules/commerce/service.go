@@ -80,6 +80,12 @@ type CheckoutInput struct {
 	PaymentMethod      string                 `json:"payment_method"`
 	ShippingFee        money.Amount           `json:"shipping_fee,omitempty"`
 	VendorShippingFees map[int64]money.Amount `json:"vendor_shipping_fees,omitempty"` // distance delivery fee per vendor shipment
+	// VendorBranchIDs is the fulfilling branch per vendor. VendorBranchID above
+	// holds one branch resolved from the first vendor in the cart, and every
+	// shipment was stamped with it — so in a three-supplier order, supplier B's
+	// parcel named supplier A's warehouse as its origin, which is the address
+	// their own shipment screen shows them.
+	VendorBranchIDs map[int64]*int64 `json:"vendor_branch_ids,omitempty"`
 	TaxAmount          money.Amount           `json:"tax_amount,omitempty"`
 	Notes              string                 `json:"notes,omitempty"`
 	Items              []CheckoutLineItem     `json:"items"`
@@ -127,7 +133,8 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 
 	// Group line items by vendor organization
 	vendorMap := make(map[int64][]*OrderLine)
-	var orderSubtotal money.Amount
+	// orderSubtotal is gross; orderNet is what the customer owes for goods.
+	var orderSubtotal, orderNet money.Amount
 
 	for _, item := range input.Items {
 		if item.VendorOrgID <= 0 {
@@ -175,7 +182,21 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 
 		vendorMap[item.VendorOrgID] = append(vendorMap[item.VendorOrgID], line)
 		var addErr error
-		orderSubtotal, addErr = orderSubtotal.Add(lineTotal)
+		// Gross, before line discounts.
+		//
+		// Checkout used to accumulate lineTotal here, so an order's subtotal
+		// arrived already net of its discounts while its discount total was
+		// stored beside it. The order screen reads
+		// "إجمالي الأصناف − إجمالي الخصم + شحن + ضريبة = الصافي" and that sum
+		// simply did not come out: the discount was taken off the figure and
+		// then shown again. Editing the order made it worse, because the edit
+		// path recomputes subtotal gross — the same order's subtotal changed
+		// meaning depending on whether anyone had touched it.
+		orderSubtotal, addErr = orderSubtotal.Add(lineSubtotal)
+		if addErr != nil {
+			return nil, apperr.Internal(addErr)
+		}
+		orderNet, addErr = orderNet.Add(lineTotal)
 		if addErr != nil {
 			return nil, apperr.Internal(addErr)
 		}
@@ -184,10 +205,14 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 	// Enforce the offer's minimum order amount (063). The sanctioned minimum is
 	// supplied by the caller from the approved offer; every checkout path is
 	// gated here, server-side.
-	if input.MinOrderAmount.IsPositive() && orderSubtotal.Minor() < input.MinOrderAmount.Minor() {
+	//
+	// The gate is on the net figure: an offer's minimum is about what the
+	// customer actually pays for the goods, not what they would have paid
+	// without the offer's own discount.
+	if input.MinOrderAmount.IsPositive() && orderNet.Minor() < input.MinOrderAmount.Minor() {
 		return nil, apperr.Validation("checkout.min_order_not_met",
 			"Order total is below the offer's minimum order amount.", map[string]string{
-				"order_total":     orderSubtotal.String(),
+				"order_total":     orderNet.String(),
 				"min_order_total": input.MinOrderAmount.String(),
 			})
 	}
@@ -197,10 +222,21 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 	var calculatedShippingFee money.Amount
 
 	for vendorOrgID, lines := range vendorMap {
-		var shipmentSubtotal money.Amount
+		// Same convention as the order: subtotal gross, total net. This is also
+		// what UpdateCustomerPendingOrder recomputes, so a shipment's figures
+		// mean the same thing before and after an edit.
+		var shipmentSubtotal, shipmentNet money.Amount
 		for _, line := range lines {
 			var addErr error
-			shipmentSubtotal, addErr = shipmentSubtotal.Add(line.TotalPrice)
+			lineGross, mulErr := line.UnitPrice.MulInt(int64(line.Quantity))
+			if mulErr != nil {
+				return nil, apperr.Internal(mulErr)
+			}
+			shipmentSubtotal, addErr = shipmentSubtotal.Add(lineGross)
+			if addErr != nil {
+				return nil, apperr.Internal(addErr)
+			}
+			shipmentNet, addErr = shipmentNet.Add(line.TotalPrice)
 			if addErr != nil {
 				return nil, apperr.Internal(addErr)
 			}
@@ -214,7 +250,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			}
 		}
 
-		shipmentTotal := shipmentSubtotal
+		shipmentTotal := shipmentNet
 		if shipmentShippingFee.IsPositive() {
 			shipmentTotal, _ = shipmentTotal.Add(shipmentShippingFee)
 			calculatedShippingFee, _ = calculatedShippingFee.Add(shipmentShippingFee)
@@ -222,7 +258,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 
 		shipments = append(shipments, &OrderShipment{
 			OrganizationID: vendorOrgID,
-			BranchID:       input.VendorBranchID,
+			BranchID:       shipmentBranchFor(input, vendorOrgID),
 			Status:         StatusPending,
 			Subtotal:       shipmentSubtotal,
 			ShippingFee:    shipmentShippingFee,
@@ -249,10 +285,10 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			return nil, apperr.Internal(addErr)
 		}
 	}
-	// Subtotal is already net of line discounts (legacy behaviour). TotalDiscount
-	// reproduces the invoice's discount total (063); FinalPrice is what the
-	// customer pays: the net total plus freight and tax.
-	finalPrice := orderSubtotal
+	// Subtotal is gross; DiscountAmount and TotalDiscount carry the discount;
+	// FinalPrice is what the customer pays. The three now satisfy the arithmetic
+	// the order screen prints: subtotal − discount + freight + tax.
+	finalPrice := orderNet
 	if shippingFee.IsPositive() {
 		finalPrice, _ = finalPrice.Add(shippingFee)
 	}
@@ -280,7 +316,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		UserAddressID:     input.UserAddressID,
 		Status:            StatusPending,
 		Subtotal:          orderSubtotal,
-		DiscountAmount:    money.Zero,
+		DiscountAmount:    totalDiscount,
 		TotalDiscount:     totalDiscount,
 		ShippingFee:       shippingFee,
 		TaxAmount:         input.TaxAmount,
@@ -333,4 +369,15 @@ func (s *Service) TransitionOrderStatus(
 // CancelOrder transitions an order to cancelled status.
 func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserID *int64, reason string) error {
 	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
+}
+
+// shipmentBranchFor picks the branch that actually fulfils one vendor's parcel.
+//
+// It falls back to the order-level branch only when the caller resolved none
+// for this vendor — an offer checkout, where the offer itself names the branch.
+func shipmentBranchFor(input CheckoutInput, vendorOrgID int64) *int64 {
+	if branch, ok := input.VendorBranchIDs[vendorOrgID]; ok && branch != nil && *branch > 0 {
+		return branch
+	}
+	return input.VendorBranchID
 }

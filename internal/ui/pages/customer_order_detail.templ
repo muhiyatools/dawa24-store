@@ -322,9 +322,6 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									<span class="badge badge-amber text-xs font-black">
 										<span>تعديل الكميات متاح ومحفوظ في قاعدة البيانات</span>
 									</span>
-									<button type="button" class="btn btn-secondary btn-xs font-bold gap-1" onclick="window.openOrderEditModal()">
-										<span>إضافة / حذف صنف</span>
-									</button>
 								} else {
 									<span class="badge badge-slate text-xs font-bold" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
 										<span>الطلب مؤكد ولا يمكن تعديله</span>
@@ -908,7 +905,6 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			</div>
 
 			<!-- Edit Order Modal (Only rendered/available when order is pending) -->
-			@CustomerOrderEditModal(order, lang)
 
 			<!-- Review Vendor Shipment Modal -->
 			@CustomerOrderReviewModal(order, lang)

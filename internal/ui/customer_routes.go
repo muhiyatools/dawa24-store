@@ -120,6 +120,14 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Post("/customer/wallet/deposit", h.TenantWalletDepositSubmit)
 		g.Post("/customer/wallet/withdraw", h.TenantWalletWithdrawSubmit)
 		g.Post("/customer/wallet/payment-methods", h.TenantPaymentMethodAddSubmit)
+		// Editing and re-defaulting a saved method lived only under
+		// /settings/payment-methods, which is gated on approval and not on the
+		// wallet permission at all — so a member without pharmacy.wallet.manage
+		// could add and change payment details there, and the wallet screen
+		// they were actually on could not offer an edit form. Both now sit
+		// beside the add, behind the same grant.
+		g.Post("/customer/wallet/payment-methods/{id}/edit", h.SettingsPaymentMethodEditSubmit)
+		g.Post("/customer/wallet/payment-methods/{id}/default", h.SettingsPaymentMethodSetDefaultSubmit)
 		g.Post("/customer/wallet/payment-methods/{id}/delete", h.TenantPaymentMethodDeleteSubmit)
 	})
 
@@ -242,6 +250,20 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.document.manage"))
 		g.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
 		g.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
+	})
+
+	// Pharmacies get the same بيانات المنشأة page suppliers get. Both are
+	// organizations on this platform and both were approved against the same
+	// four identity fields; only suppliers having a page to edit them was an
+	// accident of which dashboard was built first.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.organization.view"))
+		g.Get("/customer/organization", h.OrganizationProfilePage)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.organization.update"))
+		g.Post("/customer/organization/{section}", h.OrganizationProfileSectionSubmit)
+		g.Post("/customer/organization/requests/{id}/withdraw", h.OrganizationProfileWithdrawSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

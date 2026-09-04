@@ -172,9 +172,16 @@ func (m *mockPromoRepo) ListSponsorshipPurchasesByOrg(ctx context.Context, orgID
 func (m *mockPromoRepo) ListActiveSponsorshipPurchasesByOrg(ctx context.Context, orgID int64) ([]*promo.SponsorshipPurchase, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(ctx context.Context, purchaseID int64, credits int) error {
-	return nil
+func (m *mockPromoRepo) ConsumeSponsorshipCredits(context.Context, promo.ConsumeCredits) (*promo.CreditEntry, error) {
+	return &promo.CreditEntry{}, nil
 }
+func (m *mockPromoRepo) ListCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
+	return nil, 0, nil
+}
+func (m *mockPromoRepo) ListOrgCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
+	return nil, 0, nil
+}
+func (m *mockPromoRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
 func (m *mockPromoRepo) ExpireSponsorshipPurchases(ctx context.Context) (int64, error) { return 0, nil }
 
 func (m *mockPromoRepo) CreateSponsorshipRequest(ctx context.Context, r *promo.SponsorshipRequest) error {
@@ -534,4 +541,10 @@ func TestVendorOfferEditAndAdminModerationWorkflow(t *testing.T) {
 	if mockRepo.spec.AdminStatus != "approved" {
 		t.Fatalf("expected AdminStatus approved, got %s", mockRepo.spec.AdminStatus)
 	}
+}
+func (m *mockPromoRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (m *mockPromoRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
+	return nil, 0, nil
 }

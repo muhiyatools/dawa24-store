@@ -243,11 +243,11 @@ func (r *Repository) AddPaymentMethod(ctx context.Context, pm *billing.UserPayme
 			}
 		}
 		query := `
-			INSERT INTO billing.user_payment_methods (user_id, provider, account_identifier, is_default)
-			VALUES ($1, $2, $3, $4)
+			INSERT INTO billing.user_payment_methods (user_id, provider, account_identifier, details, is_default)
+			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id, public_id, created_at;
 		`
-		return tx.QueryRow(txCtx, query, pm.UserID, pm.Provider, pm.AccountIdentifier, pm.IsDefault).
+		return tx.QueryRow(txCtx, query, pm.UserID, pm.Provider, pm.AccountIdentifier, pm.Details, pm.IsDefault).
 			Scan(&pm.ID, &pm.PublicID, &pm.CreatedAt)
 	})
 }
@@ -256,9 +256,9 @@ func (r *Repository) AddPaymentMethod(ctx context.Context, pm *billing.UserPayme
 func (r *Repository) GetPaymentMethodByID(ctx context.Context, userID, id int64) (*billing.UserPaymentMethod, error) {
 	var pm billing.UserPaymentMethod
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, public_id, user_id, provider, account_identifier, is_default, created_at FROM billing.user_payment_methods WHERE id = $1 AND user_id = $2;`
+		query := `SELECT id, public_id, user_id, provider, account_identifier, COALESCE(details, '{}'::jsonb), is_default, created_at FROM billing.user_payment_methods WHERE id = $1 AND user_id = $2;`
 		return tx.QueryRow(txCtx, query, id, userID).
-			Scan(&pm.ID, &pm.PublicID, &pm.UserID, &pm.Provider, &pm.AccountIdentifier, &pm.IsDefault, &pm.CreatedAt)
+			Scan(&pm.ID, &pm.PublicID, &pm.UserID, &pm.Provider, &pm.AccountIdentifier, &pm.Details, &pm.IsDefault, &pm.CreatedAt)
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -273,7 +273,7 @@ func (r *Repository) GetPaymentMethodByID(ctx context.Context, userID, id int64)
 func (r *Repository) ListPaymentMethods(ctx context.Context, userID int64) ([]*billing.UserPaymentMethod, error) {
 	var list []*billing.UserPaymentMethod
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, public_id, user_id, provider, account_identifier, is_default, created_at FROM billing.user_payment_methods WHERE user_id = $1 ORDER BY is_default DESC, id DESC;`
+		query := `SELECT id, public_id, user_id, provider, account_identifier, COALESCE(details, '{}'::jsonb), is_default, created_at FROM billing.user_payment_methods WHERE user_id = $1 ORDER BY is_default DESC, id DESC;`
 		rows, err := tx.Query(txCtx, query, userID)
 		if err != nil {
 			return err
@@ -281,7 +281,7 @@ func (r *Repository) ListPaymentMethods(ctx context.Context, userID int64) ([]*b
 		defer rows.Close()
 		for rows.Next() {
 			var pm billing.UserPaymentMethod
-			if err := rows.Scan(&pm.ID, &pm.PublicID, &pm.UserID, &pm.Provider, &pm.AccountIdentifier, &pm.IsDefault, &pm.CreatedAt); err != nil {
+			if err := rows.Scan(&pm.ID, &pm.PublicID, &pm.UserID, &pm.Provider, &pm.AccountIdentifier, &pm.Details, &pm.IsDefault, &pm.CreatedAt); err != nil {
 				return err
 			}
 			list = append(list, &pm)
@@ -301,10 +301,10 @@ func (r *Repository) UpdatePaymentMethod(ctx context.Context, pm *billing.UserPa
 		}
 		query := `
 			UPDATE billing.user_payment_methods
-			SET provider = $1, account_identifier = $2, is_default = $3
-			WHERE id = $4 AND user_id = $5;
+			SET provider = $1, account_identifier = $2, details = $3, is_default = $4
+			WHERE id = $5 AND user_id = $6;
 		`
-		tag, err := tx.Exec(txCtx, query, pm.Provider, pm.AccountIdentifier, pm.IsDefault, pm.ID, pm.UserID)
+		tag, err := tx.Exec(txCtx, query, pm.Provider, pm.AccountIdentifier, pm.Details, pm.IsDefault, pm.ID, pm.UserID)
 		if err != nil {
 			return err
 		}

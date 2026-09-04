@@ -287,5 +287,3 @@ func (r *Repository) AdminAdjustWallet(
 ) error {
 	return r.AdminPerformWalletAdjustment(ctx, walletID, amount, billing.TxAdjustment, reason, actorID)
 }
-
-

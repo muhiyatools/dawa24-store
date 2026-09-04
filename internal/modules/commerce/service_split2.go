@@ -167,6 +167,31 @@ func (s *Service) SetCartLineQuantity(ctx context.Context, userID, itemID int64,
 	if err != nil {
 		return nil, err
 	}
+
+	// An offer's quantity belongs to the offer, not to the buyer.
+	//
+	// A bundle is priced, stocked and approved as one thing. Multiplying it in
+	// the cart produced a total the vendor never quoted, and the control that
+	// did it sent no variant, so nothing checked whether the extra bundles
+	// could be filled — the refusal arrived at checkout as "بيانات الطلب غير
+	// صالحة", after the pharmacy had committed to the order.
+	//
+	// The rule lives here rather than in the handler because the cart page, the
+	// htmx stepper and order editing all reach this method, and only one of the
+	// three would have remembered to ask.
+	if qty > 0 {
+		current, err := s.repo.GetCartWithItems(ctx, cart.ID)
+		if err != nil {
+			return nil, err
+		}
+		for _, line := range current.Items {
+			if line.ID == itemID && line.IsOfferLine() && line.Quantity != qty {
+				return nil, apperr.Validation("cart.offer_quantity_locked",
+					i18n.TDefault("customer.offer.quantity_locked"), nil)
+			}
+		}
+	}
+
 	if err := s.repo.SetCartItemQuantityByID(ctx, cart.ID, itemID, qty); err != nil {
 		return nil, err
 	}

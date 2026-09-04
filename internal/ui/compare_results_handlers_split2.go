@@ -170,15 +170,15 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	// caller's organization — the source clause is a constant, so nothing a
 	// request sends can widen it to include a supplier's private upload.
 	filter := compare.MarketDiscountsFilter{
-		Query:          query,
-		Supplier:       supplier,
-		MinPrice:       minPricePtr,
-		MaxPrice:       maxPricePtr,
-		MinDiscount:    minDiscPtr,
-		MaxDiscount:    maxDiscPtr,
-		SortBy:         sortBy,
-		Page:           page,
-		Limit:          limit,
+		Query:       query,
+		Supplier:    supplier,
+		MinPrice:    minPricePtr,
+		MaxPrice:    maxPricePtr,
+		MinDiscount: minDiscPtr,
+		MaxDiscount: maxDiscPtr,
+		SortBy:      sortBy,
+		Page:        page,
+		Limit:       limit,
 	}
 
 	var result *compare.MarketDiscountsResult

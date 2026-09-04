@@ -91,8 +91,14 @@ func (stubRepo) ListSponsorshipPurchasesByOrg(context.Context, int64) ([]*promo.
 func (stubRepo) ListActiveSponsorshipPurchasesByOrg(context.Context, int64) ([]*promo.SponsorshipPurchase, error) {
 	return nil, nil
 }
-func (stubRepo) IncrementSponsorshipPurchaseCreditsUsed(context.Context, int64, int) error {
-	return nil
+func (stubRepo) ConsumeSponsorshipCredits(context.Context, promo.ConsumeCredits) (*promo.CreditEntry, error) {
+	return &promo.CreditEntry{}, nil
+}
+func (stubRepo) ListCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
+	return nil, 0, nil
+}
+func (stubRepo) ListOrgCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
+	return nil, 0, nil
 }
 func (stubRepo) ExpireSponsorshipPurchases(context.Context) (int64, error) { return 0, nil }
 func (stubRepo) CreateSponsorshipRequest(context.Context, *promo.SponsorshipRequest) error {
@@ -332,8 +338,14 @@ func (happyRepo) ListSponsorshipPurchasesByOrg(context.Context, int64) ([]*promo
 func (happyRepo) ListActiveSponsorshipPurchasesByOrg(context.Context, int64) ([]*promo.SponsorshipPurchase, error) {
 	return nil, nil
 }
-func (happyRepo) IncrementSponsorshipPurchaseCreditsUsed(context.Context, int64, int) error {
-	return nil
+func (happyRepo) ConsumeSponsorshipCredits(context.Context, promo.ConsumeCredits) (*promo.CreditEntry, error) {
+	return &promo.CreditEntry{}, nil
+}
+func (happyRepo) ListCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ListOrgCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
+	return nil, 0, nil
 }
 func (happyRepo) ExpireSponsorshipPurchases(context.Context) (int64, error) { return 0, nil }
 func (happyRepo) CreateSponsorshipRequest(context.Context, *promo.SponsorshipRequest) error {
@@ -370,4 +382,19 @@ func (happyRepo) RankedSponsorshipsForProducts(context.Context, []int64) ([]*pro
 }
 func (happyRepo) RankedSponsorshipsForOffers(context.Context, []int64) ([]*promo.RankedSponsorship, error) {
 	return nil, nil
+}
+
+func (stubRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (happyRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (stubRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (stubRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
+	return nil, 0, nil
 }

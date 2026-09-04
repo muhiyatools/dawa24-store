@@ -82,3 +82,19 @@ func (h *UIHandler) SettingsBranchManagerAssignSubmit(w http.ResponseWriter, r *
 	}
 	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "settings.emp.manager_assigned_success"))
 }
+
+// PaymentMethodsRedirect sends an old /settings/payment-methods write to the
+// wallet screen that now owns it.
+//
+// Those routes sat in the approved-only tier, which has no permission gate: a
+// member holding neither pharmacy.wallet.manage nor vendor.wallet.manage could
+// add, edit and delete the company's payment details through them, while the
+// wallet page they were looking at offered no edit form at all. The writes moved
+// beside the wallet; this keeps a stale form or bookmark from silently failing.
+func (h *UIHandler) PaymentMethodsRedirect(w http.ResponseWriter, r *http.Request) {
+	target := "/customer/wallet"
+	if actor, ok := authctx.From(r.Context()); ok && actor.IsVendor() {
+		target = "/vendor/wallet"
+	}
+	http.Redirect(w, r, target, http.StatusSeeOther)
+}

@@ -7,15 +7,17 @@ import (
 )
 
 type mockOrgRepo struct {
-	orgs          map[int64]*Organization
-	branches      map[int64][]*Branch
-	members       map[int64][]*Member
-	reviews       map[int64][]*Review
-	policies      map[int64][]*Policy
-	followers     map[int64]map[int64]bool
-	deliveryBands map[int64][]*DeliveryBand
-	roles         []*Role
-	nextID        int64
+	orgs           map[int64]*Organization
+	branches       map[int64][]*Branch
+	members        map[int64][]*Member
+	reviews        map[int64][]*Review
+	policies       map[int64][]*Policy
+	followers      map[int64]map[int64]bool
+	deliveryBands  map[int64][]*DeliveryBand
+	roles          []*Role
+	profiles       map[int64]map[ProfileSection]ProfileFields
+	changeRequests []*ProfileChangeRequest
+	nextID         int64
 }
 
 func newMockOrgRepo() *mockOrgRepo {

@@ -178,7 +178,19 @@ func (s *Service) SubmitSponsorshipRequest(ctx context.Context, itemType Sponsor
 	// The credit is refunded if the admin rejects the request (in the admin
 	// activation path the credit was already reserved at submission time, so
 	// rejection releases it).
-	_ = s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, purchase.ID, 1)
+	if _, err := s.repo.ConsumeSponsorshipCredits(ctx, ConsumeCredits{
+		OrganizationID: orgID,
+		PurchaseID:     purchase.ID,
+		Credits:        1,
+		Reason:         CreditSponsorshipRequested,
+		EntityType:     string(itemType),
+		EntityID:       &sr.ID,
+	}); err != nil {
+		// The request exists and the reservation did not happen. Silence here
+		// let a vendor submit more requests than they had credits for.
+		s.log.ErrorContext(ctx, "sponsorship request: credit reservation failed",
+			"error", err, "request_id", sr.ID, "purchase_id", purchase.ID)
+	}
 
 	s.log.InfoContext(ctx, "sponsorship request submitted", "request_id", sr.ID, "item_type", string(itemType), "item_id", itemID, "package_id", packageID)
 	return sr, nil
@@ -248,7 +260,16 @@ func (s *Service) SubmitBatchSponsorshipRequests(ctx context.Context, itemType S
 	}
 
 	if len(created) > 0 {
-		_ = s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, purchase.ID, len(created)*SponsorshipCreditCost)
+		if _, err := s.repo.ConsumeSponsorshipCredits(ctx, ConsumeCredits{
+			OrganizationID: orgID,
+			PurchaseID:     purchase.ID,
+			Credits:        len(created) * SponsorshipCreditCost,
+			Reason:         CreditSponsorshipBatch,
+			EntityType:     string(itemType),
+		}); err != nil {
+			s.log.ErrorContext(ctx, "batch sponsorship: credit reservation failed",
+				"error", err, "count", len(created), "purchase_id", purchase.ID)
+		}
 	}
 
 	s.log.InfoContext(ctx, "batch sponsorship requests submitted", "count", len(created), "org_id", orgID, "package_id", packageID)
@@ -304,9 +325,16 @@ func (s *Service) CancelSponsorshipRequest(ctx context.Context, id int64) error 
 	}
 
 	if sr.PurchaseID != nil && sr.CreditsUsed > 0 {
-		if err := s.repo.IncrementSponsorshipPurchaseCreditsUsed(
-			database.AsSystem(ctx), *sr.PurchaseID, -sr.CreditsUsed,
-		); err != nil {
+		if _, err := s.repo.ConsumeSponsorshipCredits(database.AsSystem(ctx), ConsumeCredits{
+			OrganizationID: sr.OrganizationID,
+			PurchaseID:     *sr.PurchaseID,
+			Credits:        sr.CreditsUsed,
+			Refund:         true,
+			Reason:         CreditSponsorshipRejected,
+			EntityType:     string(sr.ItemType),
+			EntityID:       &sr.ID,
+			Note:           i18n.TDefault("promo.credits.note.request_cancelled"),
+		}); err != nil {
 			// The request is already cancelled; a failed refund is a balance
 			// discrepancy someone has to see, not a silent loss.
 			s.log.ErrorContext(ctx, "sponsorship cancel: credit refund failed",

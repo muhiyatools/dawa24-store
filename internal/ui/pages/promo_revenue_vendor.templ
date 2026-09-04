@@ -422,6 +422,13 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 									<div class="text-xs text-muted font-medium tabular-nums">
 										تنتهي في: <strong class="text-secondary font-bold">{ p.ExpiresAt.Format("2006-01-02") }</strong>
 									</div>
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/vendor/offers-packages/purchases/%d/statement", p.ID)) }
+										class="btn btn-secondary btn-sm font-bold mt-3 gap-1 justify-center"
+									>
+										@components.IconClock("icon-2xs")
+										<span>استهلاك الباقة</span>
+									</a>
 								</div>
 							}
 						}

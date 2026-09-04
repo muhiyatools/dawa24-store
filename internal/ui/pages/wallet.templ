@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -43,13 +44,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 	}}
 	<div
 		class="page-container"
-		x-data="{
-			activeSection: 'transactions',
-			isDepositModalOpen: false,
-			isWithdrawModalOpen: false,
-			isAddPaymentModalOpen: false,
-			paymentType: 'bank'
-		}"
+		x-data={ walletState(data) }
 	>
 		<!-- Compact Page Header -->
 		<div class="d-flex items-center justify-between flex-wrap gap-3 mb-4">
@@ -218,7 +213,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				<button
 					type="button"
 					class="btn btn-primary btn-sm font-bold"
-					@click="isAddPaymentModalOpen = true"
+					@click="openPaymentAdd()"
 				>
 					@components.IconPlus("icon-xs")
 					<span>إضافة وسيلة دفع جديدة</span>
@@ -236,7 +231,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					<button
 						type="button"
 						class="btn btn-outline-brand btn-sm font-bold mt-3 mx-auto"
-						@click="isAddPaymentModalOpen = true"
+						@click="openPaymentAdd()"
 					>
 						@components.IconPlus("icon-xs")
 						<span>إضافة وسيلة دفع الآن</span>
@@ -273,8 +268,24 @@ templ walletContent(data WalletViewData, lang, dir string) {
 								</div>
 							</div>
 
-							<div>
-								<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", ternary(data.IsVendor, "/vendor/wallet", "/customer/wallet"), pm.ID)) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف وسيلة الدفع؟');">
+							<div class="d-flex items-center gap-1">
+								if !pm.IsDefault {
+									<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/default", walletBaseURL(data.IsVendor), pm.ID)) } method="POST" class="m-0">
+										<button type="submit" class="btn btn-icon btn-ghost btn-xs" title="تعيين كوسيلة افتراضية">
+											@components.IconCheckCircle("icon-xs")
+										</button>
+									</form>
+								}
+								<button
+									type="button"
+									class="btn btn-icon btn-ghost btn-xs"
+									title="تعديل وسيلة الدفع"
+									data-payment-method={ paymentMethodJSON(pm) }
+									@click="openPaymentEdit($el)"
+								>
+									@components.IconEdit("icon-xs")
+								</button>
+								<form action={ templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", walletBaseURL(data.IsVendor), pm.ID)) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف وسيلة الدفع؟');">
 									<button type="submit" class="btn btn-icon btn-ghost btn-xs text-danger" title="حذف وسيلة الدفع">
 										@components.IconTrash("icon-xs")
 									</button>
@@ -419,5 +430,81 @@ func paymentProviderTitle(provider string) string {
 		return "تحويل بنكي رسمي"
 	default:
 		return provider
+	}
+}
+
+// walletState is the wallet page's Alpine payload, including the payment
+// dialog's mode.
+//
+// paymentEditID is what makes one dialog serve both add and edit: zero posts to
+// the add endpoint, an id posts to that method's edit endpoint. There was no
+// edit dialog at all before — the route existed and nothing could open it.
+func walletState(data WalletViewData) string {
+	cfg := struct {
+		Base string `json:"base"`
+	}{Base: walletBaseURL(data.IsVendor)}
+	encoded, err := json.Marshal(cfg)
+	if err != nil {
+		encoded = []byte(`{"base":"/customer/wallet"}`)
+	}
+	return fmt.Sprintf("dawaWallet(%s)", string(encoded))
+}
+
+// paymentMethodJSON is one saved method's structured fields, for the edit
+// dialog to reopen.
+//
+// Only what the form can put back: the card number is not here because it is
+// not stored anywhere.
+func paymentMethodJSON(pm *billing.UserPaymentMethod) string {
+	if pm == nil {
+		return "{}"
+	}
+	payload := struct {
+		ID             int64  `json:"id"`
+		Type           string `json:"type"`
+		IsDefault      bool   `json:"is_default"`
+		AccountHolder  string `json:"account_holder"`
+		BankName       string `json:"bank_name"`
+		IBAN           string `json:"iban"`
+		AccountNumber  string `json:"account_number"`
+		InstapayHandle string `json:"instapay_handle"`
+		WalletProvider string `json:"wallet_provider"`
+		WalletPhone    string `json:"wallet_phone"`
+		CardBrand      string `json:"card_brand"`
+		CardLast4      string `json:"card_last4"`
+	}{
+		ID:             pm.ID,
+		Type:           PaymentMethodFormValue(pm.Provider),
+		IsDefault:      pm.IsDefault,
+		AccountHolder:  pm.Details.AccountHolder,
+		BankName:       pm.Details.BankName,
+		IBAN:           pm.Details.IBAN,
+		AccountNumber:  pm.Details.AccountNumber,
+		InstapayHandle: pm.Details.InstapayHandle,
+		WalletProvider: pm.Details.WalletProvider,
+		WalletPhone:    pm.Details.WalletPhone,
+		CardBrand:      pm.Details.CardBrand,
+		CardLast4:      pm.Details.CardLast4,
+	}
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
+}
+
+// PaymentMethodFormValue maps a stored provider onto the dialog's option value.
+//
+// The column holds "wallet" while the dialog offers "vodafone_cash", so
+// reopening a saved wallet without this showed the first option — a bank
+// account — over a wallet's fields.
+func PaymentMethodFormValue(stored string) string {
+	switch stored {
+	case "wallet":
+		return "vodafone_cash"
+	case "bank", "instapay", "card":
+		return stored
+	default:
+		return "bank"
 	}
 }

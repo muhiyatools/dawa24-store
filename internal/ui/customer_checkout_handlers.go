@@ -82,6 +82,18 @@ func checkoutValidationMessage(lang string, err error) (string, bool) {
 		}
 		return "أحد الأصناف غير متاح حالياً (نفد المخزون أو خارج التغطية). راجع السلة ثم أعد المحاولة.", true
 	default:
+		// Every other validation refusal already carries a message the domain
+		// wrote for a person to read — "الكمية المطلوبة من X تتجاوز المتاح",
+		// "الحد الأدنى لهذا العرض هو N". Falling through to renderError
+		// replaced all of them with the envelope's "بيانات الطلب غير صالحة",
+		// which is the bug: the pharmacy was told the order was invalid and
+		// never which line, or why.
+		//
+		// A code with no message is the one case that still falls through: an
+		// empty notice would be worse than the generic page.
+		if ae.Msg != "" {
+			return ae.Msg, true
+		}
 		return "", false
 	}
 }
@@ -323,7 +335,13 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	// branch resolved from the FIRST vendor in the cart — into every call, so a
 	// pharmacy buying from three suppliers paid three deliveries all priced as
 	// if they shipped from the same place. See org/delivery_service.go.
+	//
+	// The same loop resolves each vendor's own fulfilling branch. Stamping every
+	// shipment with input.VendorBranchID — one branch, taken from the first
+	// vendor in the cart — told supplier B's parcel it shipped from supplier A's
+	// warehouse.
 	vendorShippingFees := make(map[int64]money.Amount)
+	vendorBranches := make(map[int64]*int64)
 	for _, it := range items {
 		if it.VendorOrgID <= 0 {
 			continue
@@ -333,8 +351,10 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 		vendorShippingFees[it.VendorOrgID] =
 			h.QuoteVendorDelivery(ctx, it.VendorOrgID, input.BranchID).Fee
+		vendorBranches[it.VendorOrgID] = h.vendorFulfillingBranch(ctx, it.VendorOrgID)
 	}
 	input.VendorShippingFees = vendorShippingFees
+	input.VendorBranchIDs = vendorBranches
 
 	order, err := h.commSvc.Checkout(ctx, input)
 	if err != nil {
@@ -356,4 +376,25 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.commSvc.ClearCart(ctx, userID)
 	http.Redirect(w, r, "/orders/"+strconv.FormatInt(order.ID, 10), http.StatusSeeOther)
+}
+
+// vendorFulfillingBranch picks the branch a vendor ships from: their main
+// branch, or their first if none is marked main. nil means the vendor has no
+// branches and the order-level branch stands.
+func (h *UIHandler) vendorFulfillingBranch(ctx context.Context, vendorOrgID int64) *int64 {
+	if h.orgSvc == nil || vendorOrgID <= 0 {
+		return nil
+	}
+	branches, err := h.orgSvc.ListBranches(ctx, vendorOrgID)
+	if err != nil || len(branches) == 0 {
+		return nil
+	}
+	for _, b := range branches {
+		if b.IsMain {
+			id := b.ID
+			return &id
+		}
+	}
+	id := branches[0].ID
+	return &id
 }

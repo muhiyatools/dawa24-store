@@ -13,6 +13,8 @@ func loadCatalogDefaults(e *engine) {
 	loadMarketIntelKeys(e)
 	loadDevelopersAndSystemKeys(e)
 	loadOrgBranchesGeoKeys(e)
+	loadOrgProfileKeys(e)
+	loadPromoCreditKeys(e)
 	loadChatAndAttachmentsKeys(e)
 	loadErrorsAndValidationKeys(e)
 	loadWave3Keys(e)

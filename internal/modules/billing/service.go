@@ -342,5 +342,3 @@ func (s *Service) ListDetailedPayments(ctx context.Context, filter PaymentFilter
 func (s *Service) ListDetailedInvoices(ctx context.Context, filter InvoiceFilter) ([]*AdminInvoiceView, int, error) {
 	return s.repo.AdminListDetailedInvoices(ctx, filter)
 }
-
-
