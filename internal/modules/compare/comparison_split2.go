@@ -33,7 +33,6 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 	byNorm := make(map[string]*ProductComparisonRow)
 	byCore := make(map[string]*ProductComparisonRow)
 	bySorted := make(map[string]*ProductComparisonRow)
-	byCatalogID := make(map[int64]*ProductComparisonRow)
 
 	supplierBestCounts := make(map[string]int)
 	var suppliersList []string
@@ -56,23 +55,19 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 
 			var compRow *ProductComparisonRow
 
-			// 1. Match by Catalog ID if linked
-			if r.MatchedProductID != nil && *r.MatchedProductID > 0 {
-				compRow = byCatalogID[*r.MatchedProductID]
-			}
-			// 2. Match by SKU
-			if compRow == nil && cleanSKU != "" {
+			// 1. Match across vendor files by clean SKU
+			if cleanSKU != "" {
 				compRow = bySKU[cleanSKU]
 			}
-			// 3. Match by exact normalized Arabic/English name
+			// 2. Match across vendor files by exact normalized Arabic/English name
 			if compRow == nil && normText != "" {
 				compRow = byNorm[normText]
 			}
-			// 4. Match by core drug phonetic/noise-free key
+			// 3. Match across vendor files by core drug phonetic/noise-free key
 			if compRow == nil && coreKey != "" {
 				compRow = byCore[coreKey]
 			}
-			// 5. Match by bag-of-words sorted key
+			// 4. Match across vendor files by bag-of-words sorted key
 			if compRow == nil && sortedKey != "" {
 				compRow = bySorted[sortedKey]
 			}
@@ -91,21 +86,17 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 
 			if compRow == nil {
 				compRow = &ProductComparisonRow{
-					MatchedProductID: r.MatchedProductID,
-					ProductName:      r.RawName,
-					SKU:              r.SKU,
-					Offers:           make(map[string]SupplierOffer),
-					BestPrice:        r.Price,
-					BestDiscount:     r.Discount,
-					BestNetPrice:     netPrice,
-					BestSupplier:     f.SupplierName,
+					ProductName:  r.RawName,
+					SKU:          r.SKU,
+					Offers:       make(map[string]SupplierOffer),
+					BestPrice:    r.Price,
+					BestDiscount: r.Discount,
+					BestNetPrice: netPrice,
+					BestSupplier: f.SupplierName,
 				}
 				resultRows = append(resultRows, compRow)
 
 				// Register in all lookup indices
-				if r.MatchedProductID != nil && *r.MatchedProductID > 0 {
-					byCatalogID[*r.MatchedProductID] = compRow
-				}
 				if cleanSKU != "" {
 					bySKU[cleanSKU] = compRow
 				}

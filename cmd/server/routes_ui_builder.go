@@ -226,12 +226,7 @@ func buildUIHandler(
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
-		// The compare tool now runs the same catalogue matching stage as every
-		// other importer, so it gets the same enhancer and the same decision
-		// cache. Before this it had a matched_product_id column that nothing
-		// ever wrote, and its comparisons joined supplier lines to each other
-		// on a normalised string instead of to the catalogue.
-		compareSvcUI.SetMatchEnhancer(&ingestEnhanceAdapter{caps: aiCapabilitiesSvc})
+
 
 		// The catalogue import's three mapping calls: which column is which
 		// field, and which existing category and pharmaceutical form each of the
@@ -268,8 +263,6 @@ func buildUIHandler(
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)
 	}
-	compareSvcUI.SetCatalogSource(newCompareCatalog(catSvcUI))
-	compareSvcUI.SetMatchMemory(sharedMatchMemory)
 	uiHandler.SetCompareService(compareSvcUI)
 
 	if storageClient != nil {

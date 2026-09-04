@@ -12,7 +12,6 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // ClientInfo captures client environment details for session device cap tracking.
@@ -37,18 +36,6 @@ type Service struct {
 	log       *slog.Logger
 	aiMatcher AIMatcher
 	storage   *storage.Client
-
-	// The catalogue matching stage, which this tool did not have. See
-	// catalog_match.go: every row carried a matched_product_id and nothing
-	// ever set it, so a price comparison was built by joining supplier lines
-	// to each other on a normalised string.
-	catalog  CatalogSource
-	enhancer matchflow.Enhancer
-	memory   matchflow.Memory
-
-	// The bounded worker pool that runs catalogue matching. See
-	// catalog_match_queue.go: matching is automatic now, so it needs a limit.
-	matchQ matchQueue
 }
 
 // NewService creates a new compare service.
@@ -62,6 +49,11 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 // SetAIMatcher configures the optional AI matching capability (Wave B / Plan V5 §2.6).
 func (s *Service) SetAIMatcher(m AIMatcher) {
 	s.aiMatcher = m
+}
+
+// AIMatchingAvailable reports whether AI matching is enabled.
+func (s *Service) AIMatchingAvailable() bool {
+	return s != nil && s.aiMatcher != nil
 }
 
 // SetStorage configures the object storage client for downloading uploaded files.

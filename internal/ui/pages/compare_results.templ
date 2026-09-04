@@ -216,11 +216,6 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										<td>
 											<div class="d-flex items-center gap-2 flex-wrap mb-1">
 												<strong class="text-sm font-extrabold text-primary">{ row.ProductName }</strong>
-												if row.InCatalog {
-													<span class="badge badge-emerald text-xs font-bold">معتمد</span>
-												} else {
-													<span class="badge badge-amber text-xs font-bold">كشف مورد</span>
-												}
 											</div>
 											if row.SKU != "" {
 												<span class="text-xs text-muted tabular-nums">كود: { row.SKU }</span>

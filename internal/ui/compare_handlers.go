@@ -155,10 +155,5 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	matching := pages.CompareMatchOptions{
-		Available:   h.compareSvc.MatchingAvailable(),
-		AIAvailable: h.compareSvc.AIMatchingAvailable(),
-	}
-
-	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, files, maxAllowedFiles, matching, noticeType, noticeMsg))
+	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, files, maxAllowedFiles, noticeType, noticeMsg))
 }

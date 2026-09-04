@@ -278,6 +278,14 @@ const (
 	MatchMethodUnmatched    MatchMethod = "none"
 )
 
+// RowMatch records one row's match result for bulk persistence.
+type RowMatch struct {
+	RowID      int64
+	ProductID  *int64
+	Confidence float64
+	Method     MatchMethod
+}
+
 // CompareFileRow represents an individual drug/product item extracted from a spreadsheet.
 type CompareFileRow struct {
 	ID                 int64          `json:"id"`

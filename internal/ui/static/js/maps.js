@@ -200,6 +200,11 @@ function initMapPickers() {
       scrollWheelZoom: true,
     });
 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
     canvas._leaflet_map = map;
     container._leaflet_map = map;
 
@@ -232,6 +237,7 @@ function initMapPickers() {
       });
       io.observe(canvas);
     }
+    setTimeout(() => { if (map) map.invalidateSize(); }, 200);
 
     // Custom pulse marker icon (matches Laravel reference)
     const customIcon = L.divIcon({

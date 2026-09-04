@@ -76,7 +76,7 @@ type AvailabilityProbe interface {
 	Variant(ctx context.Context, variantID int64) (VariantAvailability, error)
 	Vendor(ctx context.Context, orgID int64) (VendorAvailability, error)
 	CustomerBranch(ctx context.Context, branchID int64) (BranchAvailability, error)
-	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID ...*int64) (bool, error)
+	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error)
 }
 
 // AvailabilityRequest describes one prospective purchase line.
@@ -231,7 +231,7 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	if branch.Longitude != nil {
 		bLon = *branch.Longitude
 	}
-	covered, err := s.availability.VendorCovers(ctx, req.VendorOrgID, bLat, bLon, when.Weekday(), branch.CityID)
+	covered, err := s.availability.VendorCovers(ctx, req.VendorOrgID, bLat, bLon, when.Weekday(), branch.CityID, when)
 	if err != nil {
 		return AvailabilityResult{}, fmt.Errorf("availability: coverage for vendor %d: %w", req.VendorOrgID, err)
 	}

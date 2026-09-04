@@ -261,13 +261,6 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
-
-		// Automatically start catalog matching in the background for uploaded file
-		var orgPtr *int64
-		if actor.OrganizationID > 0 {
-			orgPtr = &actor.OrganizationID
-		}
-		_ = h.compareSvc.StartBackgroundCatalogMatch(id, false, orgPtr)
 	}
 
 	queue := strings.TrimSpace(r.FormValue("setup_queue"))
