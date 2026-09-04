@@ -39,9 +39,11 @@ func (h *UIHandler) VendorOfferLocationsPage(w http.ResponseWriter, r *http.Requ
 	locs, _ := h.promoSvc.ListSpecialOfferLocations(ctx, id)
 
 	data := pages.VendorOfferLocationsData{
-		Offer:     offer,
-		Locations: locs,
-		Cities:    h.listCities(ctx),
+		Offer:         offer,
+		Locations:     locs,
+		Cities:        h.listCities(ctx),
+		NoticeType:    r.URL.Query().Get("notice"),
+		NoticeMessage: r.URL.Query().Get("msg"),
 	}
 
 	h.renderPage(ctx, w, "render vendor offer locations page", pages.VendorOfferLocationsPage(data, lang, dir))
@@ -67,9 +69,30 @@ func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.
 	lat, _ := strconv.ParseFloat(r.PostFormValue("latitude"), 64)
 	lon, _ := strconv.ParseFloat(r.PostFormValue("longitude"), 64)
 	radius, _ := strconv.Atoi(r.PostFormValue("radius"))
-	if radius <= 0 {
-		radius = 500
+	addrAr := r.PostFormValue("address_ar")
+
+	// If city is selected, populate defaults if coords/radius are missing or default
+	if cityIDVal > 0 {
+		for _, c := range h.listCities(ctx) {
+			if c != nil && c.ID == cityIDVal {
+				if (lat == 0 && lon == 0) || (lat == 30.0444 && lon == 31.2357 && c.Latitude != 0) {
+					lat = c.Latitude
+					lon = c.Longitude
+				}
+				if radius <= 0 {
+					radius = c.NormalizedRadius()
+				}
+				if addrAr == "" {
+					addrAr = c.Name.Get("ar")
+				}
+				break
+			}
+		}
 	}
+	if radius <= 0 {
+		radius = 1000
+	}
+
 	day, _ := strconv.Atoi(r.PostFormValue("day_of_week"))
 	if day <= 0 {
 		day = 1
@@ -78,8 +101,8 @@ func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.
 	loc := &promo.SpecialOfferLocation{
 		OfferID:     offerID,
 		CityID:      cityID,
-		AddressAr:   r.PostFormValue("address_ar"),
-		AddressEn:   r.PostFormValue("address_ar"),
+		AddressAr:   addrAr,
+		AddressEn:   addrAr,
 		Latitude:    lat,
 		Longitude:   lon,
 		Radius:      radius,
@@ -96,9 +119,6 @@ func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// The offer must be this vendor's. Without the check any signed-in supplier
-	// could bolt a coverage area onto a competitor's offer by changing the id
-	// in the URL.
 	offer, err := h.promoSvc.GetSpecialOffer(ctx, offerID)
 	if err != nil || offer == nil || offer.OrganizationID != actor.OrganizationID {
 		h.redirectWithNotice(w, r, "/vendor/offers", "error", i18n.T(lang, "vendor.offer.forbidden"))
@@ -112,6 +132,40 @@ func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.
 	}
 
 	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "vendor.offer.location_added_success"))
+}
+
+// VendorOfferLocationDeleteSubmit deletes a geographic coverage location from an offer.
+func (h *UIHandler) VendorOfferLocationDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers", http.StatusSeeOther)
+		return
+	}
+
+	offerID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	locID, _ := strconv.ParseInt(chi.URLParam(r, "locId"), 10, 64)
+	back := fmt.Sprintf("/vendor/offers/%d/locations", offerID)
+
+	if offerID <= 0 || locID <= 0 || h.promoSvc == nil {
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.offer.location_not_found"))
+		return
+	}
+
+	offer, err := h.promoSvc.GetSpecialOffer(ctx, offerID)
+	if err != nil || offer == nil || offer.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/offers", "error", i18n.T(lang, "vendor.offer.forbidden"))
+		return
+	}
+
+	if err := h.promoSvc.DeleteSpecialOfferLocation(ctx, locID, offerID, actor.OrganizationID); err != nil {
+		h.log.ErrorContext(ctx, "delete special offer location", "error", err, "offer_id", offerID, "loc_id", locID)
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "vendor.offer.location_delete_failed"))
+		return
+	}
+
+	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "vendor.offer.location_deleted_success"))
 }
 
 // VendorOfferDeleteSubmit deletes a special offer.

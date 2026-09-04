@@ -82,38 +82,14 @@ func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Reque
 		total, _ = strconv.Atoi(r.URL.Query().Get("total"))
 	}
 
-	var nextFileID int64
-	var remainingQueue string
-	if queueParam != "" {
-		idParts := strings.Split(queueParam, ",")
-		var cleanedParts []string
-		foundCurrent := false
-		for _, part := range idParts {
-			part = strings.TrimSpace(part)
-			if part == "" {
-				continue
-			}
-			partID, _ := strconv.ParseInt(part, 10, 64)
-			if partID == id {
-				foundCurrent = true
-				continue
-			}
-			if foundCurrent {
-				if nextFileID == 0 {
-					nextFileID = partID
-				}
-				cleanedParts = append(cleanedParts, part)
-			}
+	nextFileID, remainingQueue := parseCompareQueue(queueParam, id)
+	if total <= 0 {
+		if queueParam != "" {
+			total = len(strings.Split(queueParam, ","))
 		}
 		if total <= 0 {
-			total = len(idParts)
+			total = 1
 		}
-		if len(cleanedParts) > 0 {
-			remainingQueue = strings.Join(cleanedParts, ",")
-		}
-	}
-	if total <= 0 {
-		total = 1
 	}
 
 	h.renderPage(ctx, w, "render compare file mapping modal", pages.CompareFileMappingModal(file, headers, preview, detectedMapping, isSetup, step, total, remainingQueue, nextFileID))
@@ -301,17 +277,7 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 	step, _ := strconv.Atoi(r.FormValue("step"))
 	total, _ := strconv.Atoi(r.FormValue("total"))
 
-	var nextFileID int64
-	var nextQueue string
-	if queue != "" {
-		parts := strings.Split(queue, ",")
-		if len(parts) > 0 {
-			nextFileID, _ = strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
-			if len(parts) > 1 {
-				nextQueue = strings.Join(parts[1:], ",")
-			}
-		}
-	}
+	nextFileID, nextQueue := parseCompareQueue(queue, id)
 
 	if r.Header.Get("Accept") == "application/json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -333,3 +299,32 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين، وبدأت عملية المطابقة التلقائية مع الكتالوج في الخلفية بنجاح.")
 }
+
+// parseCompareQueue parses remaining file IDs in a setup queue, filtering out the current file ID.
+func parseCompareQueue(queueParam string, currentID int64) (int64, string) {
+	if queueParam == "" {
+		return 0, ""
+	}
+	rawParts := strings.Split(queueParam, ",")
+	var cleaned []string
+	for _, part := range rawParts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		pid, err := strconv.ParseInt(part, 10, 64)
+		if err != nil || pid <= 0 {
+			continue
+		}
+		if pid == currentID {
+			continue
+		}
+		cleaned = append(cleaned, part)
+	}
+	if len(cleaned) == 0 {
+		return 0, ""
+	}
+	nextID, _ := strconv.ParseInt(cleaned[0], 10, 64)
+	return nextID, strings.Join(cleaned, ",")
+}
+

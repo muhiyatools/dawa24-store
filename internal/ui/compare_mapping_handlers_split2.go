@@ -51,17 +51,7 @@ func (h *UIHandler) CompareFileSkipSubmit(w http.ResponseWriter, r *http.Request
 	step, _ := strconv.Atoi(r.FormValue("step"))
 	total, _ := strconv.Atoi(r.FormValue("total"))
 
-	var nextFileID int64
-	var nextQueue string
-	if queue != "" {
-		parts := strings.Split(queue, ",")
-		if len(parts) > 0 {
-			nextFileID, _ = strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
-			if len(parts) > 1 {
-				nextQueue = strings.Join(parts[1:], ",")
-			}
-		}
-	}
+	nextFileID, nextQueue := parseCompareQueue(queue, id)
 
 	if r.Header.Get("Accept") == "application/json" {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")

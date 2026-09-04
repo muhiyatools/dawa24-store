@@ -205,6 +205,9 @@ func (s *stubPromoRepo) AddSpecialOfferLocation(context.Context, *SpecialOfferLo
 func (s *stubPromoRepo) ListSpecialOfferLocations(context.Context, int64) ([]*SpecialOfferLocation, error) {
 	return nil, nil
 }
+func (s *stubPromoRepo) DeleteSpecialOfferLocation(context.Context, int64, int64, int64) error {
+	return nil
+}
 
 func validOffer() *Offer {
 	now := time.Now().UTC()

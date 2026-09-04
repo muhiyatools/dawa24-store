@@ -2,7 +2,6 @@ package pages
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -17,90 +16,6 @@ import (
 // market discount tells a supplier nothing about whether one outlier or forty
 // houses are undercutting them, and the previous version of this page showed
 // only an average — over a market of a hundred rows.
-
-type MarketBenchmarkPageData struct {
-	Result *compare.BenchmarkResult
-	// Failed separates a broken query from an empty market. Both used to render
-	// as "لا توجد أصناف مطابقة", which is the single most misleading thing this
-	// screen could say.
-	Failed      bool
-	Files       []*compare.CompareFile
-	FileID      int64
-	Query       string
-	MinPrice    string
-	MaxPrice    string
-	MinDiscount string
-	MaxDiscount string
-	// ActiveTab is one of "all", "higher", "equal", "better", "exclusive".
-	ActiveTab string
-	// Sort is "", "discount" or "price".
-	Sort       string
-	IsCustomer bool
-}
-
-func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
-	vals := url.Values{}
-	if d.FileID > 0 {
-		vals.Set("file", fmt.Sprintf("%d", d.FileID))
-	}
-	if d.Query != "" {
-		vals.Set("q", d.Query)
-	}
-	if d.MinPrice != "" {
-		vals.Set("min_price", d.MinPrice)
-	}
-	if d.MaxPrice != "" {
-		vals.Set("max_price", d.MaxPrice)
-	}
-	if d.MinDiscount != "" {
-		vals.Set("min_discount", d.MinDiscount)
-	}
-	if d.MaxDiscount != "" {
-		vals.Set("max_discount", d.MaxDiscount)
-	}
-	if tab != "" && tab != "all" {
-		vals.Set("tab", tab)
-	}
-	if sort != "" {
-		vals.Set("sort", sort)
-	}
-	if len(vals) == 0 {
-		return "/compare/market-benchmark"
-	}
-	return "/compare/market-benchmark?" + vals.Encode()
-}
-
-func benchmarkTabClass(active, tab string) string {
-	if active == tab || (active == "" && tab == "all") {
-		return "tab-btn active"
-	}
-	return "tab-btn"
-}
-
-func benchmarkRowTone(class string) string {
-	switch class {
-	case compare.BenchHigher:
-		return "badge-rose"
-	case compare.BenchBetter:
-		return "badge-emerald"
-	case compare.BenchEqual:
-		return "badge-slate"
-	}
-	return "badge-amber"
-}
-
-func benchmarkRowLabel(class string) string {
-	switch class {
-	case compare.BenchHigher:
-		return "سعرك أعلى"
-	case compare.BenchBetter:
-		return "أنت الأفضل"
-	case compare.BenchEqual:
-		return "مماثل للسوق"
-	}
-	return "حصري"
-}
-
 templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 	<div class="page-container">
 		@benchmarkHeader()
@@ -288,7 +203,9 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 						<tr>
 							<th>اسم الصنف</th>
 							<th>الكود</th>
-							<th class="text-end">سعري / الخصم</th>
+							<th class="text-end tabular-nums">سعر الجمهور</th>
+							<th class="text-center tabular-nums">الخصم</th>
+							<th class="text-end tabular-nums">السعر بعد الخصم</th>
 							<th class="text-center">عروض أفضل بالسوق</th>
 							<th class="text-center">عروض مماثلة بالسوق</th>
 							<th class="text-center">عروض أقل بالسوق</th>
@@ -320,13 +237,21 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 									}
 								</td>
 
-								<!-- Your price. The net figure leads; the list price and
-								     discount that produced it sit under it. -->
-								<td class="text-end">
-									<div class="bench-net tabular-nums">{ row.YourNet.String() } <small>ج.م</small></div>
-									<div class="bench-sub tabular-nums">
-										{ fmt.Sprintf("%s ج.م − %s%%", row.YourPrice.String(), formatBenchPercent(row.YourDiscount)) }
-									</div>
+								<!-- سعر الجمهور -->
+								<td class="text-end tabular-nums">
+									<span class="font-bold text-secondary">{ row.YourPrice.String() }</span>
+									<small class="text-muted text-xs ms-1">ج.م</small>
+								</td>
+
+								<!-- الخصم -->
+								<td class="text-center tabular-nums">
+									<span class="badge badge-emerald text-xs font-bold">{ formatBenchPercent(row.YourDiscount) }%</span>
+								</td>
+
+								<!-- السعر بعد الخصم -->
+								<td class="text-end tabular-nums">
+									<span class="bench-net font-extrabold text-primary">{ row.YourNet.String() }</span>
+									<small class="text-muted text-xs ms-1">ج.م</small>
 								</td>
 
 								<!-- The three counts, each a button onto the suppliers
@@ -374,28 +299,6 @@ templ benchmarkCountCell(fileID, rowID int64, bucket string, count int, tone, la
 	} else {
 		<span class="bench-count is-none" aria-hidden="true">—</span>
 	}
-}
-
-// formatBenchPercent drops the decimal when there is nothing behind it, so a
-// column of discounts reads as 20% and 12.5%, not 20.0% and 12.5%.
-func formatBenchPercent(pct float64) string {
-	if pct == float64(int64(pct)) {
-		return fmt.Sprintf("%d", int64(pct))
-	}
-	return fmt.Sprintf("%.1f", pct)
-}
-
-// benchmarkVerdictTone colours the one-word standing on the product name.
-func benchmarkVerdictTone(class string) string {
-	switch class {
-	case compare.BenchHigher:
-		return "is-worse"
-	case compare.BenchBetter:
-		return "is-better"
-	case compare.BenchEqual:
-		return "is-equal"
-	}
-	return "is-exclusive"
 }
 
 // benchmarkEmpty says which of the several different empty states this is.

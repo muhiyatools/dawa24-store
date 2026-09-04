@@ -103,4 +103,5 @@ type Repository interface {
 	DeleteSpecialOffer(ctx context.Context, id, orgID int64) error
 	AddSpecialOfferLocation(ctx context.Context, loc *SpecialOfferLocation) error
 	ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*SpecialOfferLocation, error)
+	DeleteSpecialOfferLocation(ctx context.Context, id, offerID, orgID int64) error
 }

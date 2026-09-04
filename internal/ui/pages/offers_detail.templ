@@ -19,6 +19,9 @@ type OfferDetailPageData struct {
 	Products       []*promo.SpecialOfferProduct
 	Locations      []*promo.SpecialOfferLocation
 	IsCustomerUser bool
+	IsCovered      bool
+	CoverageReason string
+	CustomerBranch *org.Branch
 }
 
 templ OfferDetail(lang, dir string, data OfferDetailPageData) {
@@ -120,6 +123,36 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 			</div>
 		</div>
 
+		<!-- Coverage Status Notification for Pharmacies -->
+		if data.IsCustomerUser {
+			if data.IsCovered {
+				<div class="alert alert-success d-flex items-center gap-3 p-4 rounded-xl mb-6 shadow-xs border">
+					@components.IconCheckCircle("icon-sm flex-shrink-0")
+					<div>
+						<strong class="text-sm font-black d-block">فرع صيدليتك مشمول في نطاق توصيل هذا العرض</strong>
+						if data.CustomerBranch != nil {
+							<span class="text-xs font-medium text-secondary">
+								الفرع المحدد: { data.CustomerBranch.Name.Get(i18n.Lang(lang)) } — { data.CoverageReason }
+							</span>
+						}
+					</div>
+				</div>
+			} else {
+				<div class="alert alert-warning d-flex items-center gap-3 p-4 rounded-xl mb-6 shadow-xs border">
+					@components.IconAlert("icon-sm flex-shrink-0")
+					<div>
+						<strong class="text-sm font-black d-block">تنبيه: فرع صيدليتك خارج نطاق التغطية الجغرافية لهذا العرض</strong>
+						<span class="text-xs font-medium text-secondary">
+							if data.CustomerBranch != nil {
+								الفرع المحدد: { data.CustomerBranch.Name.Get(i18n.Lang(lang)) } — 
+							}
+							{ data.CoverageReason }. يرجى استعراض جدول نطاقات التغطية المعتمدة أدناه.
+						</span>
+					</div>
+				</div>
+			}
+		}
+
 		<!-- Direct Add-to-Cart Action Bar -->
 		<div class="p-5 bg-surface-raised border rounded-2xl mb-6 shadow-sm flex-between items-center flex-wrap gap-4">
 			<div class="d-flex items-center gap-3">
@@ -150,10 +183,17 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 								class="form-input tabular-nums text-center font-bold text-sm w-20 py-2 rounded-xl"
 							/>
 						</div>
-						<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm">
-							@components.IconCart("icon-xs")
-							<span>إضافة العرض إلى السلة والشراء الآن</span>
-						</button>
+						if !data.IsCovered {
+							<button type="button" disabled class="btn btn-secondary font-bold text-xs px-6 py-2.5 gap-2 cursor-not-allowed opacity-75">
+								@components.IconAlert("icon-xs text-warning")
+								<span>غير متاح لفرعك (خارج التغطية)</span>
+							</button>
+						} else {
+							<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm">
+								@components.IconCart("icon-xs")
+								<span>إضافة العرض إلى السلة والشراء الآن</span>
+							</button>
+						}
 					</form>
 				} else {
 					<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)) } class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm">
@@ -232,6 +272,79 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 											lineTotal := money.FromMinor(p.CustomPrice.Minor() * int64(p.Quantity))
 										}}
 										{ lineTotal.String() } <span class="text-2xs font-bold text-secondary">ج.م</span>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+
+		<!-- Offer Geographic Locations Coverage Section -->
+		<div class="mb-6">
+			<div class="flex-between items-center mb-3">
+				<h3 class="text-base font-black text-primary m-0 d-flex items-center gap-2">
+					@components.IconGlobe("icon-xs text-brand")
+					<span>نطاقات ومناطق التغطية المشمولة بالعرض ({ fmt.Sprintf("%d", len(data.Locations)) } نطاقات)</span>
+				</h3>
+				<span class="text-xs text-muted font-medium">جدول التوزيع الجغرافي ومواعيد الشحن</span>
+			</div>
+
+			if len(data.Locations) == 0 {
+				<div class="p-5 bg-surface-sunken rounded-2xl border text-center text-xs text-secondary font-medium leading-relaxed">
+					<div class="w-8 h-8 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-2">
+						@components.IconTruck("icon-xs")
+					</div>
+					<span>يسري هذا العرض على كافة الصيدليات المشمولة بجدول التغطية الأسبوعية العام المعتمد لمستودع/فرع المورد.</span>
+				</div>
+			} else {
+				<div class="table-container m-0 border rounded-2xl overflow-hidden shadow-xs">
+					<table class="data-table m-0 text-xs w-full">
+						<thead>
+							<tr>
+								<th class="py-3 text-start ps-4">المدينة / المركز</th>
+								<th class="py-3 text-start">المنطقة والتفاصيل</th>
+								<th class="text-center py-3">نطاق التغطية</th>
+								<th class="text-center py-3">يوم التوصيل</th>
+								<th class="text-center py-3">نافذة التوصيل</th>
+								<th class="text-center py-3 pe-4">الحالة</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, loc := range data.Locations {
+								<tr>
+									<td class="py-3 ps-4 font-bold text-primary">
+										if loc.CityName != "" {
+											{ loc.CityName }
+										} else {
+											<span>مدينة محددة</span>
+										}
+									</td>
+									<td class="py-3 text-secondary">
+										if loc.AddressAr != "" {
+											{ loc.AddressAr }
+										} else {
+											<span class="text-muted">—</span>
+										}
+									</td>
+									<td class="text-center tabular-nums py-3 font-bold">
+										<span class="badge badge-sky text-xs">
+											{ formatOfferRadius(loc.Radius) }
+										</span>
+									</td>
+									<td class="text-center py-3 font-bold text-primary">
+										{ formatDayName(loc.DayOfWeek) }
+									</td>
+									<td class="text-center tabular-nums py-3 text-secondary font-medium">
+										if loc.TimeFrom != "" || loc.TimeTo != "" {
+											<span>{ loc.TimeFrom } – { loc.TimeTo }</span>
+										} else {
+											<span class="text-muted">طوال اليوم</span>
+										}
+									</td>
+									<td class="text-center py-3 pe-4">
+										<span class="badge badge-emerald text-2xs font-bold">نشط</span>
 									</td>
 								</tr>
 							}

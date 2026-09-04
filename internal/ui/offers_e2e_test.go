@@ -119,6 +119,9 @@ func (m *mockPromoRepo) DeleteSpecialOffer(ctx context.Context, id, orgID int64)
 func (m *mockPromoRepo) AddSpecialOfferLocation(ctx context.Context, loc *promo.SpecialOfferLocation) error {
 	return nil
 }
+func (m *mockPromoRepo) DeleteSpecialOfferLocation(ctx context.Context, id, offerID, orgID int64) error {
+	return nil
+}
 func (m *mockPromoRepo) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*promo.SpecialOfferLocation, error) {
 	if m.spec != nil {
 		return m.spec.Locations, nil

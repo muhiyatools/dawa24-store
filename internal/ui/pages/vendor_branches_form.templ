@@ -94,8 +94,8 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 						</button>
 					</div>
 
-					<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude" @input="form.latitude = parseFloat($event.target.value) || form.latitude" @change="form.latitude = parseFloat($event.target.value) || form.latitude"/>
-					<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude" @input="form.longitude = parseFloat($event.target.value) || form.longitude" @change="form.longitude = parseFloat($event.target.value) || form.longitude"/>
+					<input type="hidden" name="latitude" data-map-input="lat" x-model="form.latitude"/>
+					<input type="hidden" name="longitude" data-map-input="lon" x-model="form.longitude"/>
 				</div>
 			</div>
 
@@ -234,11 +234,27 @@ templ VendorBranchesScript() {
 					const urlParams = new URLSearchParams(window.location.search);
 					const editParam = urlParams.get('edit');
 					if (editParam) {
-						const btn = document.querySelector(`[data-edit-branch-btn="${editParam}"]`);
-						if (btn) btn.click();
+						this.$nextTick(() => {
+							const btn = document.querySelector(`[data-edit-branch-btn="${editParam}"]`);
+							if (btn) {
+								this.setEditModeFromElement(btn);
+							}
+						});
+					}
+				},
+				setEditModeFromElement(btnEl) {
+					if (!btnEl) return;
+					try {
+						const raw = btnEl.getAttribute('data-branch-data');
+						if (!raw) return;
+						const b = JSON.parse(raw);
+						this.setEditMode(b);
+					} catch (e) {
+						console.error('Failed to parse branch data for editing:', e);
 					}
 				},
 				setEditMode(b) {
+					if (!b || !b.id) return;
 					this.mode = 'edit';
 					this.editId = b.id;
 					this.formAction = '/vendor/branches/' + b.id + '/edit';
@@ -267,7 +283,7 @@ templ VendorBranchesScript() {
 						formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					}
 					this.$nextTick(() => {
-						if (window.dawaSetMapLocation) {
+						if (typeof window.dawaSetMapLocation === 'function') {
 							window.dawaSetMapLocation('#vendor-branch-map-picker', latVal, lonVal, 14);
 						}
 					});

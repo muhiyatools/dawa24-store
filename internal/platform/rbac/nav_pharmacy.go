@@ -73,7 +73,7 @@ func pharmacyNav() []NavSection {
 					Perm: "pharmacy.subscription.view"},
 				{Key: "activities", Href: "/customer/activities", Icon: "clock",
 					NameAr: "سجل العمليات والنشاط", NameEn: "Activity log",
-					Perm: "pharmacy.team.view", Also: []string{"pharmacy.dashboard.view"}},
+					Perm: "pharmacy.activity.view", Also: []string{"pharmacy.team.view"}},
 				{Key: "jobs", Href: "/customer/jobs", Icon: "briefcase",
 					NameAr: "الوظائف والتوظيف", NameEn: "Jobs",
 					Perm: "pharmacy.job.view"},

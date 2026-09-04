@@ -624,15 +624,47 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				total = total || 1;
 				queue = queue || '';
 
-				root.innerHTML = `
-     <div class="stack-sm">
-						<div class="glass-panel p-4">
-							<div class="stat-card-label">@components.IconSettings("icon-sm")</div>
-							<div class="stat-card-label">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
-							<div class="stat-card-label">جاري قراءة البيانات وإعداد المعاينة الذكية</div>
-						</div>
-					</div>
-				`;
+				const existingDialog = root.querySelector('dialog');
+				const existingBox = existingDialog ? existingDialog.querySelector('.modal-box') : null;
+
+				if (existingBox) {
+					// Keep existing modal open and smoothly indicate progress
+					const submitBtn = existingBox.querySelector('#mapping-submit-btn');
+					if (submitBtn) {
+						submitBtn.disabled = true;
+						submitBtn.innerHTML = '⏳ جاري الانتقال للملف التالي...';
+					}
+					const form = existingBox.querySelector('#compare-mapping-form');
+					if (form) {
+						form.classList.add('opacity-50', 'pointer-events-none');
+					}
+				} else {
+					// First modal open in batch: mount dialog container with loading state
+					root.innerHTML = `
+						<dialog id="compare-mapping-modal-backdrop" class="modal" open>
+							<div class="modal-box modal-xl">
+								<div class="modal-header">
+									<div class="d-flex items-center gap-2">
+										<span class="text-primary font-bold">⚙️</span>
+										<div>
+											<h3 class="modal-title">معالج ضبط أعمدة الملفات (${step} من ${total})</h3>
+											<p class="text-xs text-muted mt-0.5 m-0">جاري قراءة بيانات الكشف وإعداد المعاينة الذكية...</p>
+										</div>
+									</div>
+									<form class="m-0" method="dialog">
+										<button type="button" class="modal-close" onclick="closeMappingModal()" aria-label="إغلاق">✕</button>
+									</form>
+								</div>
+								<div class="modal-body p-6 text-center">
+									<div class="py-8 text-muted">
+										<div class="text-2xl mb-2">⏳</div>
+										<div class="font-bold text-sm">جاري قراءة أعمدة الملف وتحليل المحتوى...</div>
+									</div>
+								</div>
+							</div>
+						</dialog>
+					`;
+				}
 
 				fetch(`/compare/files/${fileId}/mapping-modal?setup=1&queue=${encodeURIComponent(queue)}&step=${step}&total=${total}`)
 					.then(res => {
@@ -641,12 +673,26 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					})
 					.then(html => {
 						isModalLoading = false;
+						const parser = new DOMParser();
+						const doc = parser.parseFromString(html, 'text/html');
+						const newDialog = doc.querySelector('dialog');
+						const currentDialog = root.querySelector('dialog');
+
+						if (currentDialog && newDialog) {
+							const newBox = newDialog.querySelector('.modal-box');
+							const currentBox = currentDialog.querySelector('.modal-box');
+							if (newBox && currentBox) {
+								currentBox.replaceWith(newBox);
+								return;
+							}
+						}
+
 						root.innerHTML = html;
 					})
 					.catch(err => {
 						isModalLoading = false;
 						alert('تعذر فتح معالج ضبط الأعمدة: ' + err.message);
-						root.innerHTML = '';
+						closeMappingModal();
 					});
 			}
 
@@ -657,12 +703,25 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 				isModalLoading = true;
 				root.innerHTML = `
-     <div class="stack-sm">
-						<div class="glass-panel p-4">
-							<div class="stat-card-label">⏳</div>
-							<div class="stat-card-label">جاري قراءة أعمدة الملف ومعاينتها...</div>
+					<dialog id="compare-mapping-modal-backdrop" class="modal" open>
+						<div class="modal-box modal-xl">
+							<div class="modal-header">
+								<div class="d-flex items-center gap-2">
+									<span class="text-primary font-bold">⚙️</span>
+									<h3 class="modal-title">تعيين أعمدة كشف المورد</h3>
+								</div>
+								<form class="m-0" method="dialog">
+									<button type="button" class="modal-close" onclick="closeMappingModal()" aria-label="إغلاق">✕</button>
+								</form>
+							</div>
+							<div class="modal-body p-6 text-center">
+								<div class="py-8 text-muted">
+									<div class="text-2xl mb-2">⏳</div>
+									<div class="font-bold text-sm">جاري قراءة أعمدة الملف ومعاينتها...</div>
+								</div>
+							</div>
 						</div>
-					</div>
+					</dialog>
 				`;
 
 				fetch(`/compare/files/${fileId}/mapping-modal`)
@@ -677,7 +736,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					.catch(err => {
 						isModalLoading = false;
 						alert('تعذر فتح نافذة تعيين الأعمدة: ' + err.message);
-						root.innerHTML = '';
+						closeMappingModal();
 					});
 			}
 
@@ -730,15 +789,17 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				}
 
 				const root = document.getElementById('mapping-modal-root');
-				if (root) {
-					root.innerHTML = `
-      <div class="stack-sm">
-							<div class="glass-panel p-4">
-								<div class="stat-card-label">⏩</div>
-								<div class="stat-card-label">جاري تخطي الملف والانتقال للملف التالي...</div>
-							</div>
-						</div>
-					`;
+				const currentDialog = root ? root.querySelector('dialog') : null;
+				if (currentDialog) {
+					const form = currentDialog.querySelector('#compare-mapping-form');
+					if (form) {
+						form.classList.add('opacity-50', 'pointer-events-none');
+					}
+					const submitBtn = currentDialog.querySelector('#mapping-submit-btn');
+					if (submitBtn) {
+						submitBtn.disabled = true;
+						submitBtn.innerHTML = '⏩ جاري تخطي الملف...';
+					}
 				}
 
 				const formData = new FormData();
@@ -774,6 +835,10 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 			function closeMappingModal() {
 				const root = document.getElementById('mapping-modal-root');
 				if (root) {
+					const dialog = root.querySelector('dialog');
+					if (dialog && typeof dialog.close === 'function') {
+						try { dialog.close(); } catch(e) {}
+					}
 					root.innerHTML = '';
 				}
 			}

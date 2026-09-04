@@ -96,6 +96,45 @@ func formatBranchWorksJSON(works []string) string {
 	return string(b)
 }
 
+func formatCustomerBranchJSON(b *org.Branch) string {
+	if b == nil {
+		return "{}"
+	}
+	cityID := int64(0)
+	if b.CityID != nil {
+		cityID = *b.CityID
+	}
+	lat := 30.0444
+	if b.Latitude != nil {
+		lat = *b.Latitude
+	}
+	lon := 31.2357
+	if b.Longitude != nil {
+		lon = *b.Longitude
+	}
+	m := map[string]any{
+		"id":                  b.ID,
+		"name_ar":             b.Name.Get("ar"),
+		"name_en":             b.Name.Get("en"),
+		"code":                b.Code,
+		"city_id":             cityID,
+		"address":             b.Address,
+		"phone":               b.Phone,
+		"operating_hours":     b.OperatingHours,
+		"google_maps_url":     b.GoogleMapsURL,
+		"has_cold_storage":    b.HasColdStorage,
+		"is_main":             b.IsMain,
+		"latitude":            lat,
+		"longitude":           lon,
+		"institutional_works": b.InstitutionalWorks,
+	}
+	bytes, err := json.Marshal(m)
+	if err != nil {
+		return "{}"
+	}
+	return string(bytes)
+}
+
 templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
 	@layouts.CustomerShell(i18n.T(lang, "nav.pharmacy_branches"), "branches", lang, dir, perms) {
 		<div x-data="customerBranchManager()" x-init="init()" class="page-container">
@@ -244,8 +283,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													type="button"
 													class="btn btn-secondary btn-xs font-bold gap-1"
 													data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-													@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: %q, name_en: %q, code: %q, city_id: %d, address: %q, phone: %q, operating_hours: %q, google_maps_url: %q, has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
-														b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, func() int64 { if b.CityID != nil { return *b.CityID }; return 0 }(), b.Address, b.Phone, b.OperatingHours, b.GoogleMapsURL, b.HasColdStorage, b.IsMain, func() float64 { if b.Latitude != nil { return *b.Latitude }; return 30.0444 }(), func() float64 { if b.Longitude != nil { return *b.Longitude }; return 31.2357 }(), formatBranchWorksJSON(b.InstitutionalWorks)) }
+													data-branch-data={ formatCustomerBranchJSON(b) }
+													@click="setEditModeFromElement($el)"
 												>
 													@components.IconEdit("icon-xs")
 													<span>تعديل</span>

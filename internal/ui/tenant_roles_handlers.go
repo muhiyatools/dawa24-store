@@ -283,6 +283,9 @@ func (h *UIHandler) tenantMemberRoleAssign(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, base, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+	if m, err := h.orgSvc.GetMember(ctx, actor.OrganizationID, memberID); err == nil && m != nil && m.UserID > 0 {
+		h.invalidatePermissions(m.UserID, actor.OrganizationID)
+	}
 	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
 	h.redirectWithNotice(w, r, base, "success", i18n.T(langOf(r), "tenant.roles.member_assigned_success"))
 }

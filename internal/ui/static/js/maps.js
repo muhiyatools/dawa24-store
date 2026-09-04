@@ -203,26 +203,30 @@ function initMapPickers() {
     canvas._leaflet_map = map;
     container._leaflet_map = map;
 
-    // Add standard OpenStreetMap tiles
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(map);
-
-    // Auto resize observer on canvas container
+     // Auto resize observer on canvas container with debounce and loop guard
     if (window.ResizeObserver) {
+      let lastW = canvas.clientWidth;
+      let lastH = canvas.clientHeight;
+      let roTimer = null;
       const ro = new ResizeObserver(() => {
-        map.invalidateSize();
+        if (canvas.clientWidth === lastW && canvas.clientHeight === lastH) return;
+        lastW = canvas.clientWidth;
+        lastH = canvas.clientHeight;
+        if (roTimer) return;
+        roTimer = requestAnimationFrame(() => {
+          roTimer = null;
+          if (map) map.invalidateSize();
+        });
       });
       ro.observe(canvas);
-      ro.observe(container);
     }
     if (window.IntersectionObserver) {
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setTimeout(() => map.invalidateSize(), 50);
-            setTimeout(() => map.invalidateSize(), 200);
+            requestAnimationFrame(() => {
+              if (map) map.invalidateSize();
+            });
           }
         });
       });
@@ -232,7 +236,7 @@ function initMapPickers() {
     // Custom pulse marker icon (matches Laravel reference)
     const customIcon = L.divIcon({
       className: 'custom-map-pin',
-      html: `<div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#0ea5e9; color:#fff; border-radius:50%; box-shadow:0 4px 14px rgba(14,165,233,0.5); border:3px solid #ffffff; font-size:18px; cursor:grab; transform:translate(-50%, -50%);">ðŸ“</div>`,
+      html: `<div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#0ea5e9; color:#fff; border-radius:50%; box-shadow:0 4px 14px rgba(14,165,233,0.5); border:3px solid #ffffff; font-size:18px; cursor:grab; transform:translate(-50%, -50%);">📍</div>`,
       iconSize: [36, 36],
       iconAnchor: [18, 18],
     });
@@ -253,76 +257,83 @@ function initMapPickers() {
       }).addTo(map);
     }
 
-    function updateCoordinates(lat, lon, zoom = null) {
-      const fixedLat = parseFloat(lat.toFixed(6));
-      const fixedLon = parseFloat(lon.toFixed(6));
+    let isInternalUpdating = false;
+    function updateCoordinates(lat, lon, zoom = null, userAction = false) {
+      if (isInternalUpdating) return;
+      isInternalUpdating = true;
+      try {
+        const fixedLat = parseFloat(Number(lat).toFixed(6));
+        const fixedLon = parseFloat(Number(lon).toFixed(6));
 
-      marker.setLatLng([fixedLat, fixedLon]);
-      if (circle) circle.setLatLng([fixedLat, fixedLon]);
+        if (isNaN(fixedLat) || isNaN(fixedLon)) return;
 
-      if (zoom !== null) {
-        map.setView([fixedLat, fixedLon], zoom, { animate: true });
-      } else {
-        map.panTo([fixedLat, fixedLon], { animate: true });
-      }
+        marker.setLatLng([fixedLat, fixedLon]);
+        if (circle) circle.setLatLng([fixedLat, fixedLon]);
 
-      if (latInput) {
-        latInput.value = fixedLat.toFixed(6);
-        latInput.dispatchEvent(new Event('input', { bubbles: true }));
-        latInput.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-      if (lonInput) {
-        lonInput.value = fixedLon.toFixed(6);
-        lonInput.dispatchEvent(new Event('input', { bubbles: true }));
-        lonInput.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-
-      window.dispatchEvent(new CustomEvent('dawa-coords-change', {
-        detail: {
-          lat: fixedLat,
-          lon: fixedLon,
-          targetId: container.id || '',
-          container: container
+        if (zoom !== null) {
+          map.setView([fixedLat, fixedLon], zoom, { animate: false });
+        } else {
+          map.panTo([fixedLat, fixedLon], { animate: false });
         }
-      }));
 
-      const gmapsUrl = `https://www.google.com/maps?q=${fixedLat},${fixedLon}`;
-      if (gmapsInput) gmapsInput.value = gmapsUrl;
-      gmapsLinks.forEach((link) => { link.href = gmapsUrl; });
-      if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
+        if (latInput && parseFloat(latInput.value) !== fixedLat) {
+          latInput.value = fixedLat.toFixed(6);
+        }
+        if (lonInput && parseFloat(lonInput.value) !== fixedLon) {
+          lonInput.value = fixedLon.toFixed(6);
+        }
 
-      // Sync city selectors and hidden city ID
-      if (typeof window.syncCityDropdownsWithCoordinates === 'function') {
-        window.syncCityDropdownsWithCoordinates(fixedLat, fixedLon);
-      }
+        window.dispatchEvent(new CustomEvent('dawa-coords-change', {
+          detail: {
+            lat: fixedLat,
+            lon: fixedLon,
+            targetId: container.id || '',
+            container: container,
+            userAction: userAction
+          }
+        }));
 
-      // Auto-fetch detailed street/district address via Reverse Geocoding
-      if (typeof window.fetchDetailedAddressFromCoords === 'function') {
-        window.fetchDetailedAddressFromCoords(fixedLat, fixedLon);
+        const gmapsUrl = `https://www.google.com/maps?q=${fixedLat},${fixedLon}`;
+        if (gmapsInput) gmapsInput.value = gmapsUrl;
+        gmapsLinks.forEach((link) => { link.href = gmapsUrl; });
+        if (badge) badge.textContent = `${fixedLat.toFixed(4)}, ${fixedLon.toFixed(4)}`;
+
+        // Only sync city selector or reverse geocode if triggered by user action
+        if (userAction) {
+          if (typeof window.syncCityDropdownsWithCoordinates === 'function') {
+            window.syncCityDropdownsWithCoordinates(fixedLat, fixedLon);
+          }
+          if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+            window.fetchDetailedAddressFromCoords(fixedLat, fixedLon);
+          }
+        }
+      } finally {
+        isInternalUpdating = false;
       }
     }
 
     container._updateCoords = updateCoordinates;
     canvas._updateCoords = updateCoordinates;
 
-    // Map Click Handler
+    // Map Click Handler (User action = true)
     map.on('click', (e) => {
-      updateCoordinates(e.latlng.lat, e.latlng.lng);
+      updateCoordinates(e.latlng.lat, e.latlng.lng, null, true);
     });
 
-    // Marker Drag Handler
+    // Marker Drag Handler (User action = true)
     marker.on('dragend', () => {
       const pos = marker.getLatLng();
-      updateCoordinates(pos.lat, pos.lng);
+      updateCoordinates(pos.lat, pos.lng, null, true);
     });
 
     // Manual Lat / Lon Input Change Handlers
     if (latInput && lonInput) {
       const onManualInputChange = () => {
+        if (isInternalUpdating) return;
         const parsedLat = parseFloat(latInput.value);
         const parsedLon = parseFloat(lonInput.value);
         if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
-          updateCoordinates(parsedLat, parsedLon, map.getZoom());
+          updateCoordinates(parsedLat, parsedLon, map.getZoom(), true);
         }
       };
       latInput.addEventListener('change', onManualInputChange);
@@ -333,6 +344,7 @@ function initMapPickers() {
     const citySelectors = parentScope.querySelectorAll('select[name="city_id"], select[name="branch_city_id"], select[name="governorate_id"], [data-city-selector], [data-map-city], [data-gov-selector]');
     citySelectors.forEach((sel) => {
       sel.addEventListener('change', (e) => {
+        if (isInternalUpdating) return;
         const selEl = e.target;
         const opt = selEl.selectedOptions && selEl.selectedOptions[0] ? selEl.selectedOptions[0] : null;
         if (!opt) return;
@@ -350,11 +362,7 @@ function initMapPickers() {
         }
 
         if (!isNaN(cLat) && !isNaN(cLon) && (cLat !== 0 || cLon !== 0)) {
-          updateCoordinates(cLat, cLon, 13);
-          const name = opt.text ? opt.text.trim() : '';
-          if (window.showToast && name && !name.startsWith('--')) {
-            showToast('تم تعيين المنطقة تلقائياً: ' + name + ' 📍', 'info');
-          }
+          updateCoordinates(cLat, cLon, 13, false);
         }
       });
     });
@@ -384,8 +392,10 @@ function initMapPickers() {
           const parsedLat = parseFloat(match[1]);
           const parsedLon = parseFloat(match[2]);
           if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
-            updateCoordinates(parsedLat, parsedLon, 16);
-            showToast('تم استخراج وتعيين الإحداثيات تلقائياً من الرابط 📍', 'success');
+            updateCoordinates(parsedLat, parsedLon, 16, false);
+            if (window.showToast) {
+              showToast('تم استخراج وتعيين الإحداثيات تلقائياً من الرابط 📍', 'success');
+            }
           }
         }
       };
@@ -393,7 +403,7 @@ function initMapPickers() {
       gmapsInput.addEventListener('paste', () => setTimeout(onGmapsUrlInput, 50));
     }
 
-    // Auto Invalidate Size for Modals and Tabs with Debounce
+    // Auto Invalidate Size for Modals and Tabs
     const modalParent = container.closest('dialog, .modal, .tab-pane');
     if (modalParent) {
       let isInvalidating = false;
@@ -403,28 +413,17 @@ function initMapPickers() {
         if (isOpen) {
           isInvalidating = true;
           requestAnimationFrame(() => {
-            map.invalidateSize();
-            setTimeout(() => {
-              map.invalidateSize();
-              isInvalidating = false;
-            }, 250);
+            if (map) map.invalidateSize();
+            isInvalidating = false;
           });
         }
       });
       resizeObserver.observe(modalParent, { attributes: true, attributeFilter: ['style', 'class', 'open'] });
     }
 
-    let resizeTimer = null;
-    window.addEventListener('resize', () => {
-      if (resizeTimer) return;
-      resizeTimer = requestAnimationFrame(() => {
-        map.invalidateSize();
-        resizeTimer = null;
-      });
-    }, { passive: true });
-
-    setTimeout(() => map.invalidateSize(), 150);
-    setTimeout(() => map.invalidateSize(), 400);
+    requestAnimationFrame(() => {
+      if (map) map.invalidateSize();
+    });
   });
 }
 
@@ -450,27 +449,19 @@ window.dawaSetMapLocation = function(target, lat, lon, zoom) {
 
   var z = (zoom !== undefined && zoom !== null) ? zoom : 14;
 
-  function triggerInvalidate(mapInstance) {
-    if (!mapInstance) return;
-    mapInstance.invalidateSize();
-    setTimeout(function() { mapInstance.invalidateSize(); }, 60);
-    setTimeout(function() { mapInstance.invalidateSize(); }, 200);
-    setTimeout(function() { mapInstance.invalidateSize(); }, 400);
-  }
-
   function doUpdate(container) {
     if (typeof container._updateCoords === 'function') {
-      container._updateCoords(pLat, pLon, z);
+      container._updateCoords(pLat, pLon, z, false);
       if (container._leaflet_map) {
-        triggerInvalidate(container._leaflet_map);
+        requestAnimationFrame(function() { container._leaflet_map.invalidateSize(); });
       }
       return true;
     }
     var canvas = container.querySelector ? container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
     if (canvas && typeof canvas._updateCoords === 'function') {
-      canvas._updateCoords(pLat, pLon, z);
+      canvas._updateCoords(pLat, pLon, z, false);
       if (canvas._leaflet_map) {
-        triggerInvalidate(canvas._leaflet_map);
+        requestAnimationFrame(function() { canvas._leaflet_map.invalidateSize(); });
       }
       return true;
     }
@@ -481,7 +472,7 @@ window.dawaSetMapLocation = function(target, lat, lon, zoom) {
     el.dataset.defaultLat = pLat;
     el.dataset.defaultLon = pLon;
     initMapPickers();
-    setTimeout(function() { doUpdate(el); }, 150);
+    setTimeout(function() { doUpdate(el); }, 100);
   }
 };
 window.setMapPickerLocation = window.dawaSetMapLocation;

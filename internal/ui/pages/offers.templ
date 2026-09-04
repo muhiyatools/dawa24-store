@@ -29,6 +29,9 @@ type OfferCardData struct {
 	ProductsCount      int
 	Image              string
 	IsSponsored        bool
+	IsCustomerUser     bool
+	IsCovered          bool
+	CoverageReason     string
 }
 
 templ OffersPage(lang, dir string, offers []*OfferCardData, sort string) {
@@ -120,7 +123,7 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 						<div>
 							<!-- Card Top Badges -->
 							<div class="flex-between items-center mb-3">
-								<div>
+								<div class="d-flex items-center gap-1.5 flex-wrap">
 									if o.DiscountPercentage > 0 {
 										<span class="badge badge-emerald font-black text-xs shadow-xs">
 											خصم { fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
@@ -133,6 +136,19 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 										<span class="badge badge-sky font-bold text-xs shadow-xs">
 											عرض خاص
 										</span>
+									}
+									if o.IsCustomerUser {
+										if o.IsCovered {
+											<span class="badge badge-emerald text-2xs font-bold" title={ o.CoverageReason }>
+												@components.IconCheck("icon-2xs")
+												<span>مشمول بالتغطية</span>
+											</span>
+										} else {
+											<span class="badge badge-amber text-2xs font-bold" title={ o.CoverageReason }>
+												@components.IconAlert("icon-2xs")
+												<span>خارج التغطية</span>
+											</span>
+										}
 									}
 								</div>
 								if o.IsSponsored {

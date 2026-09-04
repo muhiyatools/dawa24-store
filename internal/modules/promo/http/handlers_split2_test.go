@@ -123,6 +123,28 @@ func (happyRepo) AddSpecialOfferLocation(ctx context.Context, loc *promo.Special
 func (happyRepo) ListSpecialOfferLocations(ctx context.Context, offerID int64) ([]*promo.SpecialOfferLocation, error) {
 	return []*promo.SpecialOfferLocation{{ID: 1, Radius: 1000}}, nil
 }
+func (happyRepo) DeleteSpecialOfferLocation(ctx context.Context, id, offerID, orgID int64) error {
+	return nil
+}
+func (r stubRepo) DeleteSpecialOfferLocation(context.Context, int64, int64, int64) error {
+	r.fail("DeleteSpecialOfferLocation")
+	return nil
+}
+
+func (stubRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (happyRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (stubRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (stubRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
+	return nil, 0, nil
+}
 
 const testCookieName = "dawa24_session"
 

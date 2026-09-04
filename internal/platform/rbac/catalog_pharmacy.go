@@ -114,6 +114,8 @@ func pharmacyCompanyPerms() []Permission {
 
 		pharmacyPage("pharmacy.job.view", g, "jobs", "الوظائف والتوظيف", "Jobs & recruitment"),
 		pharmacyAct("pharmacy.job.manage", g, "إدارة الوظائف والمتقدمين", "Manage jobs and applicants", "pharmacy.job.view"),
+
+		pharmacyPage("pharmacy.activity.view", g, "activities", "سجل العمليات والنشاط", "Activity log"),
 	}
 }
 

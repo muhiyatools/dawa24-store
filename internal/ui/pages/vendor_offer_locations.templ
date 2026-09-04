@@ -2,7 +2,7 @@ package pages
 
 import (
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -10,9 +10,11 @@ import (
 )
 
 type VendorOfferLocationsData struct {
-	Offer     *promo.SpecialOffer
-	Locations []*promo.SpecialOfferLocation
-	Cities    []*platformadmin.City
+	Offer         *promo.SpecialOffer
+	Locations     []*promo.SpecialOfferLocation
+	Cities        []*platformadmin.City
+	NoticeType    string
+	NoticeMessage string
 }
 
 var daysOfWeek = []struct {
@@ -30,53 +32,169 @@ var daysOfWeek = []struct {
 
 templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) {
 	@layouts.VendorShell("نطاقات التغطية الجغرافية للعرض | Offer Locations", "offers", lang, dir) {
-  <div class="stack-sm">
-			
-			<!-- Header -->
-   <div class="stack-sm">
-				<div class="d-flex items-center gap-2">
-					<div class="stack-xs text-sm">
-						@components.IconGlobe("icon-sm")
+		<div class="page-container py-4">
+			<!-- Navigation Breadcrumb -->
+			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 font-bold">
+				<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+				<span>/</span>
+				<a href="/vendor/offers" class="text-secondary transition-colors">العروض والخصومات</a>
+				<span>/</span>
+				<span class="text-primary font-black">نطاقات التغطية الجغرافية</span>
+			</nav>
+
+			<!-- Notice / Toast Banner -->
+			if data.NoticeMessage != "" {
+				if data.NoticeType == "error" {
+					<div class="alert alert-danger d-flex items-center gap-3 p-4 rounded-xl mb-6">
+						@components.IconAlert("icon-sm flex-shrink-0")
+						<span class="font-semibold text-sm">{ data.NoticeMessage }</span>
 					</div>
-     <div class="stack-sm">
-						<div class="stack-xs text-sm">
-							تغطية العرض الجغرافية
-						</div>
-						<h1 class="text-2xl fw-800 text-primary m-0">
-							نطاقات التغطية وأوقات التوصيل: { data.Offer.Title.Get(i18n.Lang(lang)) }
-						</h1>
+				} else {
+					<div class="alert alert-success d-flex items-center gap-3 p-4 rounded-xl mb-6">
+						@components.IconCheckCircle("icon-sm flex-shrink-0")
+						<span class="font-semibold text-sm">{ data.NoticeMessage }</span>
 					</div>
+				}
+			}
+
+			<!-- Hero Header -->
+			<div class="glass-panel p-6 mb-6 flex-between flex-wrap gap-4 items-center border rounded-2xl shadow-sm">
+				<div>
+					<div class="d-flex items-center gap-2 mb-1">
+						<span class="badge badge-sky font-bold text-xs">
+							@components.IconGlobe("icon-2xs")
+							<span>تغطية العرض الحصرية</span>
+						</span>
+						if data.Offer.Status == "active" {
+							<span class="badge badge-emerald text-xs font-bold">العرض نشط</span>
+						} else {
+							<span class="badge badge-slate text-xs font-bold">{ data.Offer.Status }</span>
+						}
+					</div>
+					<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
+						نطاقات التغطية وأوقات التوصيل: { data.Offer.Title.Get(i18n.Lang(lang)) }
+					</h1>
+					<p class="text-xs text-secondary mt-1 mb-0 font-medium">
+						حدد المدن والمناطق الجغرافية وأيام التوصيل التي يسري عليها هذا العرض الترويجي للطلب المباشر من الصيدليات
+					</p>
 				</div>
 
-				<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold">
-					<span>← العودة لجميع العروض</span>
-				</a>
+				<div class="d-flex items-center gap-2.5">
+					<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold gap-2">
+						<span>← العودة لجميع العروض</span>
+					</a>
+				</div>
 			</div>
 
 			<!-- Split Layout: Form on Left, List on Right -->
-			<div class="locations-grid">
-				
+			<div class="grid-2 mb-6 items-start">
 				<!-- Add New Location Coverage Form -->
-    <div class="stack-sm">
-					<h3 class="font-bold text-sm m-0">
-						+ إضافة نطاق تغطية جغرافي جديد
-					</h3>
+				<div class="glass-panel p-6 border rounded-2xl shadow-sm">
+					<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+						@components.IconMapPin("icon-sm text-brand flex-shrink-0")
+						<div>
+							<h2 class="text-base font-black text-primary m-0">
+								إضافة نطاق تغطية جغرافي جديد
+							</h2>
+							<p class="text-xs text-muted m-0 mt-0.5 font-medium">
+								اختر المدينة ونصف القطر ومواعيد التوصيل لتفعيل العرض لصيدليات المنطقة
+							</p>
+						</div>
+					</div>
 
-					<form class="stack-md" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST">
-						
+					<form action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/new", data.Offer.ID)) } method="POST" class="d-flex flex-col gap-4">
+						<!-- City & Radius Grid -->
+						<div class="grid-2">
+							<div>
+								<label class="form-label text-xs font-bold mb-1.5 d-block">
+									المدينة / المركز <span class="text-danger">*</span>
+								</label>
+								<select name="city_id" data-map-city class="form-input w-full font-bold text-xs" required>
+									<option value="">-- اختر المدينة المستهدفة --</option>
+									for _, c := range data.Cities {
+										<option value={ fmt.Sprintf("%d", c.ID) }>
+											{ c.Name.Get(i18n.Lang(lang)) }
+										</option>
+									}
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label text-xs font-bold mb-1.5 d-block">
+									نصف قطر التغطية (بالمتر)
+								</label>
+								<input
+									type="number"
+									name="radius"
+									data-map-radius
+									value="1000"
+									step="100"
+									min="200"
+									max="50000"
+									class="form-input tabular-nums w-full text-xs font-bold"
+									required
+								/>
+							</div>
+						</div>
+
+						<!-- Detailed Area / Address Text -->
+						<div>
+							<label class="form-label text-xs font-bold mb-1.5 d-block">
+								تفاصيل النطاق والمنطقة المغطاة (بالعربية)
+							</label>
+							<input
+								type="text"
+								name="address_ar"
+								placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس"
+								class="form-input w-full text-xs"
+							/>
+						</div>
+
+						<!-- Delivery Day & Time Window Grid -->
+						<div class="grid-3-col">
+							<div>
+								<label class="form-label text-xs font-bold mb-1.5 d-block">
+									يوم التوصيل
+								</label>
+								<select name="day_of_week" class="form-input w-full text-xs font-bold">
+									for _, d := range daysOfWeek {
+										<option value={ fmt.Sprintf("%d", d.ID) }>{ d.Name }</option>
+									}
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label text-xs font-bold mb-1.5 d-block">
+									من الساعة
+								</label>
+								<input type="time" name="time_from" value="09:00" class="form-input w-full text-xs"/>
+							</div>
+
+							<div>
+								<label class="form-label text-xs font-bold mb-1.5 d-block">
+									إلى الساعة
+								</label>
+								<input type="time" name="time_to" value="18:00" class="form-input w-full text-xs"/>
+							</div>
+						</div>
+
 						<!-- Leaflet Map Picker with Radius Circle -->
-						<div class="stack-sm">
-       <label class="form-label">
-								حدد مركز ونصف قطر التغطية على الخريطة
+						<div>
+							<label class="form-label text-xs font-bold mb-1.5 d-block">
+								تحديد مركز التغطية على الخريطة
 							</label>
 
-							<div class="stack-sm" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000">
+							<div class="map-picker-wrapper border rounded-xl overflow-hidden" data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" data-default-radius="1000">
 								<div class="map-container map-canvas"></div>
 
-								
-        <div class="stack-sm">
-									<span data-map-coords-badge>30.0444, 31.2357</span>
-									<button type="button" data-map-locate class="btn btn-secondary btn-xs">موقعي</button>
+								<div class="p-2.5 bg-surface-sunken border-t flex-between items-center text-xs">
+									<div class="d-flex items-center gap-1.5 font-mono text-muted">
+										@components.IconMapPin("icon-2xs text-brand")
+										<span data-map-coords-badge class="tabular-nums">30.0444, 31.2357</span>
+									</div>
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">
+										موقعي الحالي
+									</button>
 								</div>
 
 								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
@@ -84,101 +202,93 @@ templ VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) 
 							</div>
 						</div>
 
-      <div class="stack-sm">
-       <div class="stack-sm">
-								<label class="form-label">
-									المدينة / المحافظة <span class="text-danger">*</span>
-								</label>
-								<select name="city_id" data-map-city class="form-input w-full">
-									<option value="">-- اختر المدينة --</option>
-									for _, c := range data.Cities {
-										<option value={ fmt.Sprintf("%d", c.ID) }>
-											{ c.Name.Get(i18n.Lang(lang)) }
-										</option>
-									}
-								</select>
-
-							</div>
-
-       <div class="stack-sm">
-								<label class="form-label">
-									نصف قطر التغطية (بالمتر)
-								</label>
-								<input type="number" name="radius" data-map-radius value="1000" step="100" min="200" max="50000" class="form-input tabular-nums w-full"/>
-							</div>
-						</div>
-
-      <div class="stack-sm">
-							<label class="form-label">
-								العنوان والمنطقة المغطاة (بالعربية)
-							</label>
-							<input type="text" name="address_ar" placeholder="مثال: مدينة نصر ومصر الجديدة والتجمع الخامس" class="form-input w-full"/>
-						</div>
-
-      <div class="stack-sm">
-       <div class="stack-sm">
-								<label class="form-label">
-									يوم التوصيل
-								</label>
-								<select name="day_of_week" class="form-input w-full">
-									for _, d := range daysOfWeek {
-										<option value={ fmt.Sprintf("%d", d.ID) }>{ d.Name }</option>
-									}
-								</select>
-							</div>
-
-       <div class="stack-sm">
-								<label class="form-label">
-									من الساعة
-								</label>
-								<input type="time" name="time_from" value="09:00" class="form-input"/>
-							</div>
-
-       <div class="stack-sm">
-								<label class="form-label">
-									إلى الساعة
-								</label>
-								<input type="time" name="time_to" value="18:00" class="form-input"/>
-							</div>
-						</div>
-
-						<button type="submit" class="btn btn-primary">
+						<button type="submit" class="btn btn-primary font-black text-sm py-2.5 w-full justify-center gap-2 shadow-sm">
 							@components.IconPlus("icon-xs")
-							<span>حفظ نطاق التغطية للعرض</span>
+							<span>حفظ وإضافة نطاق التغطية للعرض</span>
 						</button>
 					</form>
 				</div>
 
 				<!-- Existing Locations List -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<h3 class="text-lg fw-800 text-primary m-0">
-							النطاقات المسجلة لهذا العرض
-						</h3>
-						<span class="badge badge-sky tabular-nums font-bold">
-							{ fmt.Sprintf("%d نطاقات", len(data.Locations)) }
+				<div class="glass-panel p-6 border rounded-2xl shadow-sm">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div class="d-flex items-center gap-2">
+							@components.IconTruck("icon-sm text-brand flex-shrink-0")
+							<h2 class="text-base font-black text-primary m-0">
+								النطاقات المسجلة لهذا العرض
+							</h2>
+						</div>
+						<span class="badge badge-sky tabular-nums font-black text-xs px-2.5 py-1">
+							{ fmt.Sprintf("%d نطاقات مسجلة", len(data.Locations)) }
 						</span>
 					</div>
 
 					if len(data.Locations) == 0 {
-						<div class="stack-xs text-sm">
-							لا توجد نطاقات جغرافية مضافة لهذا العرض بعد. استخدم النموذج لإضافة أول نطاق.
+						<div class="p-8 bg-surface-sunken rounded-2xl border text-center">
+							<div class="w-12 h-12 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center mx-auto mb-3">
+								@components.IconGlobe("icon-md")
+							</div>
+							<h3 class="text-sm font-black text-primary mb-1">لا توجد نطاقات جغرافية مخصصة بعد</h3>
+							<p class="text-xs text-secondary mb-3 max-w-sm mx-auto font-medium leading-relaxed">
+								عند عدم تخصيص نطاقات، يسري هذا العرض تلقائياً على كافة الصيدليات المشمولة بالتغطية الأسبوعية لمستودعك/فرعك.
+							</p>
+							<span class="text-2xs text-muted font-bold d-block">
+								أضف أول نطاق حصري من النموذج على اليمين لتحديد مدن أو أحياء معينة.
+							</span>
 						</div>
 					} else {
-      <div class="stack-sm">
+						<div class="d-flex flex-col gap-3">
 							for _, loc := range data.Locations {
-        <div class="stack-sm">
-         <div class="stack-sm">
-										<div class="stack-xs text-sm">
-											{ loc.CityName } - { loc.AddressAr }
+								<div class="p-4 rounded-xl border bg-surface-sunken flex-between items-start gap-3">
+									<div class="d-flex flex-col gap-2 flex-1 min-w-0">
+										<div class="d-flex items-center gap-2 flex-wrap">
+											<span class="badge badge-primary font-black text-xs">
+												if loc.CityName != "" {
+													{ loc.CityName }
+												} else {
+													<span>مدينة محددة</span>
+												}
+											</span>
+											<span class="badge badge-sky font-bold text-xs tabular-nums">
+												نصف القطر: { formatOfferRadius(loc.Radius) }
+											</span>
+											<span class="badge badge-emerald font-bold text-2xs">نشط</span>
 										</div>
-          <div class="stack-sm">
-											<div class="stack-sm">نصف قطر التغطية: <strong class="tabular-nums text-accent">{ fmt.Sprintf("%d م", loc.Radius) }</strong></div>
-											<div class="stack-xs text-sm">أوقات التوصيل: { formatDayName(loc.DayOfWeek) } ({ loc.TimeFrom } - { loc.TimeTo })</div>
+
+										if loc.AddressAr != "" {
+											<div class="text-xs font-bold text-primary truncate">
+												{ loc.AddressAr }
+											</div>
+										}
+
+										<div class="d-flex items-center gap-2 text-2xs text-muted font-medium flex-wrap">
+											<div class="d-flex items-center gap-1">
+												@components.IconClock("icon-2xs")
+												<span>{ formatDayName(loc.DayOfWeek) }</span>
+											</div>
+											if loc.TimeFrom != "" || loc.TimeTo != "" {
+												<span>({ loc.TimeFrom } – { loc.TimeTo })</span>
+											}
+											<span class="text-muted">•</span>
+											<span class="font-mono tabular-nums">{ fmt.Sprintf("%.4f, %.4f", loc.Latitude, loc.Longitude) }</span>
 										</div>
 									</div>
 
-									<span class="badge badge-emerald">نشط</span>
+									<form
+										action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations/%d/delete", data.Offer.ID, loc.ID)) }
+										method="POST"
+										onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا من العرض؟');"
+										class="m-0 flex-shrink-0"
+									>
+										<button
+											type="submit"
+											class="btn btn-danger btn-xs font-bold gap-1 px-2.5 py-1.5"
+											title="حذف نطاق التغطية"
+										>
+											@components.IconTrash("icon-2xs")
+											<span>حذف</span>
+										</button>
+									</form>
 								</div>
 							}
 						</div>
@@ -195,5 +305,12 @@ func formatDayName(day int) string {
 			return d.Name
 		}
 	}
-	return "يوم محدد"
+	return "كافة الأيام"
+}
+
+func formatOfferRadius(radius int) string {
+	if radius >= 1000 {
+		return fmt.Sprintf("%.1f كم (%d م)", float64(radius)/1000.0, radius)
+	}
+	return fmt.Sprintf("%d متر", radius)
 }

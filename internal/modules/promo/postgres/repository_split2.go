@@ -272,12 +272,42 @@ func (r *Repository) AddSpecialOfferLocation(ctx context.Context, loc *promo.Spe
 				COALESCE($7, 500), COALESCE($8, 1) - 1, NULLIF($9, '')::time, NULLIF($10, '')::time,
 				COALESCE(NULLIF($11, ''), 'active'), COALESCE(NULLIF($12, ''), 'approved')
 			)
+			ON CONFLICT (offer_id, city_id) DO UPDATE SET
+				address_ar = EXCLUDED.address_ar,
+				address_en = EXCLUDED.address_en,
+				latitude = EXCLUDED.latitude,
+				longitude = EXCLUDED.longitude,
+				radius_meters = EXCLUDED.radius_meters,
+				day_of_week = EXCLUDED.day_of_week,
+				time_from = EXCLUDED.time_from,
+				time_to = EXCLUDED.time_to,
+				status = EXCLUDED.status,
+				admin_status = EXCLUDED.admin_status
 			RETURNING id, created_at;
 		`
 		return tx.QueryRow(txCtx, query,
 			loc.OfferID, loc.CityID, loc.AddressAr, loc.AddressEn, loc.Latitude, loc.Longitude,
 			loc.Radius, loc.DayOfWeek, loc.TimeFrom, loc.TimeTo, loc.Status, loc.AdminStatus,
 		).Scan(&loc.ID, &loc.CreatedAt)
+	})
+}
+
+// DeleteSpecialOfferLocation removes one coverage area for an offer.
+func (r *Repository) DeleteSpecialOfferLocation(ctx context.Context, id, offerID, orgID int64) error {
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			DELETE FROM promo.offer_location_covers
+			WHERE id = $1 AND offer_id = $2
+			  AND ($3 = 0 OR organization_id = $3);
+		`
+		ct, err := tx.Exec(txCtx, query, id, offerID, orgID)
+		if err != nil {
+			return err
+		}
+		if ct.RowsAffected() == 0 {
+			return apperr.NotFound("special_offer_location")
+		}
+		return nil
 	})
 }
 

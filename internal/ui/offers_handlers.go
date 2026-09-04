@@ -32,6 +32,13 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 		sortParam = "newest"
 	}
 
+	actor, hasActor := authctx.From(ctx)
+	isCustomer := hasActor && actor.IsCustomer()
+	var customerBranch *org.Branch
+	if isCustomer {
+		customerBranch = h.pharmacyCustomerBranch(ctx, &actor)
+	}
+
 	var offerCards []*pages.OfferCardData
 	if h.promoSvc != nil {
 		offers, err := h.promoSvc.ListActiveOffers(ctx, 100, 0)
@@ -80,7 +87,9 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 
 			prodCount := len(o.ProductIDs)
 			var totalPrice money.Amount
-			if sp, err := h.promoSvc.GetSpecialOffer(ctx, o.ID); err == nil && sp != nil {
+			var sp *promo.SpecialOffer
+			if spRes, err := h.promoSvc.GetSpecialOffer(ctx, o.ID); err == nil && spRes != nil {
+				sp = spRes
 				if len(sp.Products) > 0 {
 					prodCount = len(sp.Products)
 				}
@@ -90,6 +99,21 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				}
 				if sp.DiscountPercentage > 0 {
 					discPct = sp.DiscountPercentage
+				}
+			}
+
+			isCovered := true
+			covReason := ""
+			if isCustomer {
+				if sp != nil {
+					isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
+				} else {
+					spStub := &promo.SpecialOffer{
+						ID:             o.ID,
+						OrganizationID: o.OrganizationID,
+						BranchID:       o.BranchID,
+					}
+					isCovered, covReason = h.checkOfferCoverage(ctx, spStub, customerBranch)
 				}
 			}
 
@@ -108,6 +132,9 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				ExpiresAt:          o.ExpiresAt,
 				ProductsCount:      prodCount,
 				IsSponsored:        sponsoredOfferIDs[o.ID],
+				IsCustomerUser:     isCustomer,
+				IsCovered:          isCovered,
+				CoverageReason:     covReason,
 			})
 		}
 
@@ -224,9 +251,17 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	locs, _ := h.promoSvc.ListSpecialOfferLocations(ctx, id)
+	sp.Locations = locs
 
 	actor, ok := authctx.From(ctx)
 	isCustomer := ok && actor.IsCustomer()
+	var customerBranch *org.Branch
+	isCovered := true
+	covReason := ""
+	if isCustomer {
+		customerBranch = h.pharmacyCustomerBranch(ctx, &actor)
+		isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
+	}
 
 	data := pages.OfferDetailPageData{
 		Offer:          sp,
@@ -234,6 +269,9 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		Products:       sp.Products,
 		Locations:      locs,
 		IsCustomerUser: isCustomer,
+		IsCovered:      isCovered,
+		CoverageReason: covReason,
+		CustomerBranch: customerBranch,
 	}
 
 	h.renderPage(ctx, w, "render offer detail", pages.OfferDetail(lang, dir, data))

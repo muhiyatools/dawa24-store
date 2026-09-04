@@ -209,6 +209,7 @@ func (h *UIHandler) registerVendorPromoRoutes(r chi.Router) {
 		g.Post("/vendor/offers/new", h.VendorOfferNewSubmit)
 		g.Post("/vendor/offers/{id}/edit", h.VendorOfferEditSubmit)
 		g.Post("/vendor/offers/{id}/locations/new", h.VendorOfferLocationNewSubmit)
+		g.Post("/vendor/offers/{id}/locations/{locId}/delete", h.VendorOfferLocationDeleteSubmit)
 		g.Post("/vendor/offers/{id}/delete", h.VendorOfferDeleteSubmit)
 	})
 

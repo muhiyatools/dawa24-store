@@ -348,6 +348,11 @@ func (s *Service) ListSpecialOfferLocations(ctx context.Context, offerID int64) 
 	return s.repo.ListSpecialOfferLocations(ctx, offerID)
 }
 
+// DeleteSpecialOfferLocation removes a geographic coverage record.
+func (s *Service) DeleteSpecialOfferLocation(ctx context.Context, id, offerID, orgID int64) error {
+	return s.repo.DeleteSpecialOfferLocation(ctx, id, offerID, orgID)
+}
+
 // ListAllSpecialOffers lists all special offers across the platform for admin review.
 func (s *Service) ListAllSpecialOffers(ctx context.Context, limit, offset int) ([]*SpecialOffer, error) {
 	return s.repo.ListAllSpecialOffers(ctx, limit, offset)

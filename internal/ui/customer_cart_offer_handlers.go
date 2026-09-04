@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -82,6 +83,21 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 			h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", msg)
 			return
 		}
+	}
+
+	// Verify offer location and delivery coverage for the pharmacy branch
+	branch := h.pharmacyCustomerBranch(ctx, &actor)
+	offerForCheck := sp
+	if offerForCheck == nil && baseOffer != nil {
+		offerForCheck = &promo.SpecialOffer{
+			ID:             baseOffer.ID,
+			OrganizationID: baseOffer.OrganizationID,
+			BranchID:       baseOffer.BranchID,
+		}
+	}
+	if covered, reason := h.checkOfferCoverage(ctx, offerForCheck, branch); !covered {
+		h.offerAddFailed(w, r, offerID, reason)
+		return
 	}
 
 	// Whichever view resolved, reduce both to the three facts a cart line needs.

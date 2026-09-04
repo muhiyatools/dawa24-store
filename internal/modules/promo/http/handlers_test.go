@@ -383,18 +383,3 @@ func (happyRepo) RankedSponsorshipsForProducts(context.Context, []int64) ([]*pro
 func (happyRepo) RankedSponsorshipsForOffers(context.Context, []int64) ([]*promo.RankedSponsorship, error) {
 	return nil, nil
 }
-
-func (stubRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
-func (happyRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
-func (stubRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
-	return nil, 0, nil
-}
-func (stubRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
-	return nil, 0, nil
-}
-func (happyRepo) ListCreditAccounts(context.Context, string, int, int) ([]*promo.CreditAccount, int, error) {
-	return nil, 0, nil
-}
-func (happyRepo) ListPurchasesForOrg(context.Context, int64, int, int) ([]*promo.SponsorshipPurchase, int, error) {
-	return nil, 0, nil
-}
