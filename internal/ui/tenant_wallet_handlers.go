@@ -230,7 +230,19 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 		orgPtr = &actor.OrganizationID
 	}
 
-	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
+	walletUserID, candidateUIDs := resolveTenantUserIDs(ctx, h, actor)
+	if senderPMIDPtr != nil && *senderPMIDPtr > 0 && senderAccount == "" {
+		for _, uid := range candidateUIDs {
+			if pm, err := h.billSvc.GetPaymentMethodByID(ctx, uid, *senderPMIDPtr); err == nil && pm != nil {
+				senderAccount = pm.AccountIdentifier
+				break
+			}
+		}
+	}
+	if senderAccount == "" && ref != "" {
+		senderAccount = ref
+	}
+
 	if _, err := h.billSvc.RequestDepositExtended(ctx, walletUserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes, platformMethodID, senderAccount, senderPMIDPtr); err != nil {
 		h.log.ErrorContext(ctx, "failed to submit deposit request", "error", err)
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
@@ -269,14 +281,33 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 	if destDetails == "" && destID != "" {
 		destDetails = destID
 	}
-	if destDetails == "" {
-		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.destination_required"))
-		return
-	}
 
 	var userPMIDPtr *int64
 	if pmID, err := strconv.ParseInt(r.PostFormValue("user_payment_method_id"), 10, 64); err == nil && pmID > 0 {
 		userPMIDPtr = &pmID
+	}
+
+	walletUserID, candidateUIDs := resolveTenantUserIDs(ctx, h, actor)
+	if userPMIDPtr != nil && *userPMIDPtr > 0 && (destDetails == "" || payoutType == "") {
+		for _, uid := range candidateUIDs {
+			if pm, err := h.billSvc.GetPaymentMethodByID(ctx, uid, *userPMIDPtr); err == nil && pm != nil {
+				if destDetails == "" {
+					destDetails = pm.AccountIdentifier
+				}
+				if payoutType == "" {
+					payoutType = pm.Provider
+				}
+				break
+			}
+		}
+	}
+
+	if destDetails == "" {
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.destination_required"))
+		return
+	}
+	if payoutType == "" {
+		payoutType = "bank"
 	}
 
 	notes := strings.TrimSpace(r.PostFormValue("reason"))
@@ -290,8 +321,6 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
-
-	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
 
 	// Verify wallet available balance
 	wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP")

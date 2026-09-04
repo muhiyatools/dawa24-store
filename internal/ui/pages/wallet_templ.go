@@ -108,7 +108,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>المحفظة والرصيد المالي</span></h1><p class=\"text-xs text-secondary m-0 mt-1\">إدارة الرصيد المتاح، شحن المحفظة، وسجل العمليات المالية وطرق الدفع</p></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"isWithdrawModalOpen = true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>المحفظة والرصيد المالي</span></h1><p class=\"text-xs text-secondary m-0 mt-1\">إدارة الرصيد المتاح، شحن المحفظة، وسجل العمليات المالية وطرق الدفع</p></div><div class=\"d-flex items-center gap-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"openWithdrawModal()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -116,7 +116,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>طلب سحب رصيد</span></button> <button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"isDepositModalOpen = true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>طلب سحب رصيد</span></button> <button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"openDepositModal()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

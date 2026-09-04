@@ -228,85 +228,11 @@ func walletState(data WalletViewData) string {
 	pmsJSON := platformMethodsJSON(data.PlatformPaymentMethods)
 	umsJSON := userPaymentMethodsJSON(data.PaymentMethods)
 
-	firstPlatformID := ""
-	firstPlatformType := "bank"
-	for _, p := range data.PlatformPaymentMethods {
-		if p != nil && p.IsActive && p.IsDepositEnabled {
-			firstPlatformID = p.ID
-			firstPlatformType = p.ProviderType
-			break
-		}
-	}
-
-	firstSenderPMID := "manual"
-	firstSenderAccount := ""
-	for _, m := range data.PaymentMethods {
-		if m != nil && m.Provider == firstPlatformType {
-			firstSenderPMID = fmt.Sprintf("%d", m.ID)
-			firstSenderAccount = strings.ReplaceAll(m.AccountIdentifier, "'", "\\'")
-			break
-		}
-	}
-
-	return fmt.Sprintf(`typeof dawaWallet === 'function' ? dawaWallet({base: '%s'}) : {
-		activeSection: 'transactions',
-		isDepositModalOpen: false,
-		isWithdrawModalOpen: false,
-		isAddPaymentModalOpen: false,
+	return fmt.Sprintf(`dawaWallet({
 		base: '%s',
-		paymentType: 'bank',
-		paymentEditID: 0,
-		paymentForm: { account_holder: '', bank_name: '', iban: '', account_number: '', instapay_handle: '', wallet_provider: '', wallet_phone: '', card_brand: '', card_last4: '', is_default: false },
 		platformMethods: %s,
-		userMethods: %s,
-		selectedPlatformId: '%s',
-		selectedPlatformType: '%s',
-		selectedSenderPMID: '%s',
-		senderAccount: '%s',
-		withdrawPayoutType: 'bank',
-		withdrawUserMethodId: '0',
-		withdrawDestinationDetails: '',
-		get selectedPlatform() {
-			return this.platformMethods.find(p => p.id === this.selectedPlatformId) || null;
-		},
-		get filteredSenderMethods() {
-			return this.userMethods.filter(m => m.provider === this.selectedPlatformType);
-		},
-		onPlatformChange() {
-			const p = this.selectedPlatform;
-			this.selectedPlatformType = p ? p.provider_type : '';
-			const matching = this.filteredSenderMethods;
-			if (matching.length > 0) {
-				this.selectedSenderPMID = String(matching[0].id);
-				this.senderAccount = matching[0].identifier;
-			} else {
-				this.selectedSenderPMID = 'manual';
-				this.senderAccount = '';
-			}
-		},
-		onSenderMethodChange() {
-			if (this.selectedSenderPMID === 'manual') {
-				this.senderAccount = '';
-			} else {
-				const m = this.userMethods.find(x => String(x.id) === String(this.selectedSenderPMID));
-				if (m) this.senderAccount = m.identifier;
-			}
-		},
-		onWithdrawMethodChange() {
-			if (this.withdrawUserMethodId === 'manual' || this.withdrawUserMethodId === '0') {
-				this.withdrawDestinationDetails = '';
-			} else {
-				const m = this.userMethods.find(x => String(x.id) === String(this.withdrawUserMethodId));
-				if (m) {
-					this.withdrawDestinationDetails = m.identifier;
-					this.withdrawPayoutType = m.provider;
-				}
-			}
-		},
-		openPaymentAdd() { this.paymentEditID = 0; this.paymentType = 'bank'; this.paymentForm = { account_holder: '', bank_name: '', iban: '', account_number: '', instapay_handle: '', wallet_provider: '', wallet_phone: '', card_brand: '', card_last4: '', is_default: false }; this.isAddPaymentModalOpen = true; },
-		openPaymentEdit(el) { try { var pm = JSON.parse(el.dataset.paymentMethod || '{}'); this.paymentEditID = pm.id || 0; this.paymentType = pm.type || 'bank'; this.paymentForm = Object.assign({}, pm); this.isAddPaymentModalOpen = true; } catch(e){} },
-		paymentFormAction() { return this.paymentEditID ? this.base + '/payment-methods/' + this.paymentEditID + '/edit' : this.base + '/payment-methods'; }
-	}`, base, base, pmsJSON, umsJSON, firstPlatformID, firstPlatformType, firstSenderPMID, firstSenderAccount)
+		userMethods: %s
+	})`, base, pmsJSON, umsJSON)
 }
 
 func paymentMethodJSON(pm *billing.UserPaymentMethod) string {
