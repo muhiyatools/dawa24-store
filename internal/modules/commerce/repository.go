@@ -48,6 +48,7 @@ type Repository interface {
 	VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*OrderShipment, error)
 	ListOrderHistory(ctx context.Context, orderID int64) ([]*OrderStatusHistory, error)
 	RateOrder(ctx context.Context, orderID int64, customerID int64, rating float64, review string) error
+	GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*OrderLineOfferDetails, error)
 
 	AddToWishlist(ctx context.Context, userID int64, productID int64) error
 	RemoveFromWishlist(ctx context.Context, userID int64, productID int64) error

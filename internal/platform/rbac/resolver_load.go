@@ -128,12 +128,14 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 		isOwner   bool
 		orgType   string
 		orgStatus string
+		branchID  *int64
 	)
 	err := tx.QueryRow(ctx, `
 		SELECT m.role_key,
 		       o.type,
 		       o.status,
-		       r.id, r.name, r.is_owner
+		       r.id, r.name, r.is_owner,
+		       m.branch_id
 		  FROM org.members m
 		  JOIN org.organizations o ON o.id = m.organization_id
 		  LEFT JOIN org.roles r
@@ -151,7 +153,7 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 		   AND m.status = 'active'
 		   AND m.is_active = true
 		   AND o.deleted_at IS NULL;
-	`, g.UserID, g.OrganizationID).Scan(&roleKey, &orgType, &orgStatus, &roleID, &roleName, &isOwner)
+	`, g.UserID, g.OrganizationID).Scan(&roleKey, &orgType, &orgStatus, &roleID, &roleName, &isOwner, &branchID)
 	if err == pgx.ErrNoRows {
 		// Not a member of the organization they asked about. Nothing is
 		// granted for it — including to a staff user, whose authority over a
@@ -168,6 +170,7 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 	// against "vendor" then silently took the wrong branch.
 	g.OrgType = NormalizeOrgType(orgType)
 	g.OrgStatus = orgStatus
+	g.BranchID = branchID
 	g.MemberRoleKey = roleKey
 	if scope, ok := TenantScopeFor(orgType); ok {
 		g.Scope = scope

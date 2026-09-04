@@ -36,6 +36,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 				})
 
 				<div class="page-container">
+					@AuthNoticeBanner()
 					{ children... }
 				</div>
 			</main>

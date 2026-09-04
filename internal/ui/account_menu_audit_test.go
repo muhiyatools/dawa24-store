@@ -212,7 +212,7 @@ func TestVendorCannotReachCustomerOrders(t *testing.T) {
 	}
 	a.Grants(rbac.Default().KeysFor(rbac.ScopeVendor))
 
-	if got := reachStatus(newTestRouter(a), "/orders"); got != http.StatusNotFound {
-		t.Fatalf("/orders for a supplier returned %d, want 404 — the account-menu audit cannot detect the bug it exists for", got)
+	if got := reachStatus(newTestRouter(a), "/orders"); got != http.StatusSeeOther {
+		t.Fatalf("/orders for a supplier returned %d, want 303 — should redirect to supplier dashboard", got)
 	}
 }

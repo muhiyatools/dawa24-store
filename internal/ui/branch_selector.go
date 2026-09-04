@@ -35,7 +35,10 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 		}
 
 		selection := authctx.BuyingBranch{Branches: options}
-		if active := h.validatedCookieBranch(r, actor, options); active != nil {
+		if actor.BranchID != nil && *actor.BranchID > 0 {
+			selection.Active = actor.BranchID
+			selection.IsLocked = true
+		} else if active := h.validatedCookieBranch(r, actor, options); active != nil {
 			selection.Active = active
 			actor.BranchID = active
 		} else if len(options) > 0 {
@@ -52,11 +55,17 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 
 // customerBranchOptions lists the actor's active branches for the selector.
 func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) []authctx.BranchOption {
+	lang := langOf(r)
+	if actor.BranchID != nil && *actor.BranchID > 0 {
+		b, err := h.orgSvc.GetBranch(r.Context(), *actor.BranchID)
+		if err == nil && b != nil && b.Status == "active" {
+			return []authctx.BranchOption{{ID: b.ID, Name: branchName(b, lang)}}
+		}
+	}
 	branches, err := h.orgSvc.ListBranches(r.Context(), actor.OrganizationID)
 	if err != nil {
 		return nil
 	}
-	lang := langOf(r)
 	options := make([]authctx.BranchOption, 0, len(branches))
 	for _, b := range branches {
 		if b == nil || b.Status != "active" {
@@ -91,6 +100,12 @@ func (h *UIHandler) SetBuyingBranchSubmit(w http.ResponseWriter, r *http.Request
 	actor, ok := authctx.From(r.Context())
 	if !ok || !actor.IsCustomer() || h.orgSvc == nil {
 		http.Redirect(w, r, "/catalog", http.StatusSeeOther)
+		return
+	}
+
+	if actor.BranchID != nil && *actor.BranchID > 0 {
+		// Employee is strictly locked to their assigned branch; cannot switch.
+		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
 		return
 	}
 

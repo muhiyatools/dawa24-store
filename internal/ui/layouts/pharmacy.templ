@@ -47,6 +47,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 				})
 
 				<div class="page-container">
+					@AuthNoticeBanner()
 					{ children... }
 				</div>
 			</main>
@@ -61,16 +62,33 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 templ PharmacyBranchSelector(ctx context.Context) {
 	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-			<div class="nav-pop" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
-				<button
-					type="button"
-					class="nav-trigger"
-					@click="open = !open"
-					:aria-expanded="open ? 'true' : 'false'"
-					aria-haspopup="menu"
-					title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
-				>
-					@components.IconMapPin("icon-xs")
+			if buying.IsLocked {
+				<div class="nav-pop" title="الفرع المخصص لحسابك الوظيفي (غير متاح التبديل)">
+					<div class="nav-trigger cursor-default opacity-90">
+						@components.IconLock("icon-xs text-amber")
+						<span class="nav-trigger-text">
+							<span class="nav-trigger-label">BRANCH</span>
+							<span class="nav-trigger-value">
+								for _, b := range buying.Branches {
+									if buying.Active != nil && *buying.Active == b.ID {
+										{ b.Name }
+									}
+								}
+							</span>
+						</span>
+					</div>
+				</div>
+			} else {
+				<div class="nav-pop" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+					<button
+						type="button"
+						class="nav-trigger"
+						@click="open = !open"
+						:aria-expanded="open ? 'true' : 'false'"
+						aria-haspopup="menu"
+						title="تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية"
+					>
+						@components.IconMapPin("icon-xs")
 					<span class="nav-trigger-text">
 						<span class="nav-trigger-label">BRANCH</span>
 						<span class="nav-trigger-value">
@@ -115,6 +133,7 @@ templ PharmacyBranchSelector(ctx context.Context) {
 					</div>
 				</div>
 			</div>
+			}
 		}
 	}
 }

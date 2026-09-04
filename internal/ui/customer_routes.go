@@ -94,8 +94,10 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.order.view"))
 		g.Get("/orders", h.CustomerOrdersPage)
 		g.Get("/orders/{id}", h.CustomerOrderDetailPage)
+		g.Get("/orders/{id}/lines/{lineID}/offer-details", h.CustomerOrderLineOfferDetails)
 		g.Get("/customer/orders", h.CustomerOrdersPage)
 		g.Get("/customer/orders/{id}", h.CustomerOrderDetailPage)
+		g.Get("/customer/orders/{id}/lines/{lineID}/offer-details", h.CustomerOrderLineOfferDetails)
 		g.Get("/orders/offers", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/orders", http.StatusMovedPermanently)
 		})

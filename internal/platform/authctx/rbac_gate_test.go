@@ -51,7 +51,7 @@ func TestTenantPageGateIsTheCompanyBoundary(t *testing.T) {
 			// The case the whole change exists for.
 			name:  "a company member without the grant is refused",
 			actor: member("vendor.dashboard.view", "vendor.order.view"),
-			want:  http.StatusNotFound,
+			want:  http.StatusSeeOther,
 		},
 		{
 			name:  "a company member with the grant passes",
@@ -70,7 +70,7 @@ func TestTenantPageGateIsTheCompanyBoundary(t *testing.T) {
 				a.Grants([]string{"vendor.*"})
 				return a
 			}(),
-			want: http.StatusNotFound,
+			want: http.StatusSeeOther,
 		},
 		{
 			// Staff authority over a tenant comes from platform permissions,
@@ -81,13 +81,13 @@ func TestTenantPageGateIsTheCompanyBoundary(t *testing.T) {
 				a.Grants([]string{"*"})
 				return a
 			}(),
-			want: http.StatusNotFound,
+			want: http.StatusSeeOther,
 		},
 		{
 			// A grant for the other tenant dashboard is not this one.
 			name:  "a pharmacy grant does not open a vendor page",
 			actor: member("pharmacy.wallet.view"),
-			want:  http.StatusNotFound,
+			want:  http.StatusSeeOther,
 		},
 	}
 
@@ -115,10 +115,10 @@ func TestAdminGateHasNoRoleNameBypass(t *testing.T) {
 		return a
 	}
 
-	if got := serve(gate, staff("developer"), "/admin/developers"); got != http.StatusNotFound {
+	if got := serve(gate, staff("developer"), "/admin/developers"); got != http.StatusSeeOther {
 		t.Errorf("a role named 'developer' with no grants passed the gate: status %d", got)
 	}
-	if got := serve(gate, staff("super_admin"), "/admin/developers"); got != http.StatusNotFound {
+	if got := serve(gate, staff("super_admin"), "/admin/developers"); got != http.StatusSeeOther {
 		t.Errorf("a role named 'super_admin' with no grants passed the gate: status %d", got)
 	}
 	if got := serve(gate, staff("super_admin", "*"), "/admin/developers"); got != http.StatusOK {
@@ -131,7 +131,7 @@ func TestAdminGateHasNoRoleNameBypass(t *testing.T) {
 	// A non-staff account never reaches /admin, grant or no grant.
 	notStaff := &authctx.Actor{UserID: 9, Role: "customer"}
 	notStaff.Grants([]string{"*"})
-	if got := serve(gate, notStaff, "/admin/developers"); got != http.StatusNotFound {
+	if got := serve(gate, notStaff, "/admin/developers"); got != http.StatusSeeOther {
 		t.Errorf("a non-staff account with a wildcard grant reached /admin: status %d", got)
 	}
 }
@@ -147,7 +147,7 @@ func TestAnyOfGates(t *testing.T) {
 	if got := serve(gate, staff("billing.payment.view"), "/admin/finance"); got != http.StatusOK {
 		t.Errorf("holding the second alternative was refused: status %d", got)
 	}
-	if got := serve(gate, staff("commerce.order.view"), "/admin/finance"); got != http.StatusNotFound {
+	if got := serve(gate, staff("commerce.order.view"), "/admin/finance"); got != http.StatusSeeOther {
 		t.Errorf("holding neither alternative passed: status %d", got)
 	}
 }

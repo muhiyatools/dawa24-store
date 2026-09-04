@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -165,7 +166,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					</div>
 
 					<!-- Delivery Confirmation Code PIN Banner (for Pharmacy Recipient) -->
-					for _, sh := range order.Shipments {
+					for idx, sh := range order.Shipments {
 						if sh != nil && sh.DeliveryCode != "" && sh.Status != commerce.StatusDelivered && sh.Status != commerce.StatusCompleted && sh.Status != commerce.StatusCancelled {
 							<div class="glass-panel p-5 mb-0 border-2 border-emerald-500/80 bg-emerald-50/20 rounded-2xl shadow-xs">
 								<div class="flex-between items-center flex-wrap gap-4">
@@ -174,20 +175,27 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 											@components.IconShield("icon-md")
 										</div>
 										<div class="stack-sm">
-											<div class="d-flex items-center gap-2">
+											<div class="d-flex items-center gap-2 flex-wrap">
+												<span class="badge badge-primary font-black text-xs">طرد { fmt.Sprintf("%d", idx+1) }</span>
 												<h3 class="text-sm font-black text-emerald-950 m-0">
-													كود تأكيد الاستلام الخاص بك (Delivery PIN)
+													كود استلام طرد: { sh.VendorName.Get(i18n.ParseLang(lang)) }
 												</h3>
 												<span class="badge badge-emerald text-2xs font-extrabold">سري للصيدلية</span>
 											</div>
+											<div class="d-flex items-center gap-2 mt-1 text-xs text-emerald-900 font-bold">
+												<span>رقم الشحنة: <span class="font-mono">{ sh.ShipmentNumber }</span></span>
+												if sh.TrackingNumber != "" {
+													<span>| بوليصة: <span class="font-mono">{ sh.TrackingNumber }</span></span>
+												}
+											</div>
 											<p class="text-xs text-emerald-800 m-0 mt-1 font-medium max-w-md leading-relaxed">
-												أعطِ هذا الكود لمندوب الشحن فقط عند وصوله لمقر الصيدلية وفحص واستلام كامل الأصناف وسداد القيمة.
+												أعطِ هذا الكود فقط لمندوب مورد هذا الطرد ({ sh.VendorName.Get(i18n.ParseLang(lang)) }) عند استلام أصنافه والتأكد منها وسداد القيمة.
 											</p>
 										</div>
 									</div>
 
 									<div class="text-center bg-white p-3 px-5 rounded-xl border border-emerald-300 shadow-xs">
-										<span class="text-2xs text-secondary font-bold d-block mb-1">كود التسليم للمندوب:</span>
+										<span class="text-2xs text-secondary font-bold d-block mb-1">كود التسليم لمندوب طرد { fmt.Sprintf("%d", idx+1) }:</span>
 										<div class="text-2xl font-black text-emerald-700 font-mono tracking-widest tabular-nums select-all">
 											{ sh.DeliveryCode }
 										</div>
@@ -233,6 +241,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 			<!-- Review Vendor Shipment Modal -->
 			@CustomerOrderReviewModal(order, lang)
+
+			<!-- Offer Bundle Manifest Modal Target Container -->
+			<div id="order-offer-modal-container"></div>
 
 			@CustomerOrderDetailScript()
 		</div>

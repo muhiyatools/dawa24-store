@@ -196,6 +196,7 @@ type BranchOption struct {
 type BuyingBranch struct {
 	Branches []BranchOption
 	Active   *int64
+	IsLocked bool
 }
 
 type ctxKeyBuyingBranch struct{}

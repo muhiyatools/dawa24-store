@@ -36,13 +36,13 @@ func TestVendorCoverageRoutes(t *testing.T) {
 	vendorRouter := newTestCoverageRouter(vendorActor, wfRepo, orgRepo)
 	customerRouter := newTestCoverageRouter(customerActor, wfRepo, orgRepo)
 
-	// T4: Customer attempting to reach /vendor/coverage gets 404
-	t.Run("Customer GET /vendor/coverage returns 404", func(t *testing.T) {
+	// T4: Customer attempting to reach /vendor/coverage gets redirected (303)
+	t.Run("Customer GET /vendor/coverage returns 303", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/vendor/coverage", nil)
 		rec := httptest.NewRecorder()
 		customerRouter.ServeHTTP(rec, req)
-		if rec.Code != http.StatusNotFound {
-			t.Errorf("want 404, got %d", rec.Code)
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303, got %d", rec.Code)
 		}
 	})
 

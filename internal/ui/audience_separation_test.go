@@ -73,8 +73,8 @@ func TestASupplierCannotReachPharmacyPages(t *testing.T) {
 			if rec.Code == http.StatusOK {
 				t.Errorf("a supplier opened the pharmacy page %s", path)
 			}
-			if rec.Code != http.StatusNotFound {
-				t.Errorf("status = %d, want 404", rec.Code)
+			if rec.Code != http.StatusSeeOther {
+				t.Errorf("status = %d, want 303", rec.Code)
 			}
 		})
 	}
@@ -92,8 +92,8 @@ func TestAPharmacyCannotReachSupplierPages(t *testing.T) {
 			if rec.Code == http.StatusOK {
 				t.Errorf("a pharmacy opened the supplier page %s", path)
 			}
-			if rec.Code != http.StatusNotFound {
-				t.Errorf("status = %d, want 404", rec.Code)
+			if rec.Code != http.StatusSeeOther {
+				t.Errorf("status = %d, want 303", rec.Code)
 			}
 		})
 	}

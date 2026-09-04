@@ -174,9 +174,9 @@ func TestSharedRoutesEnforceAudience(t *testing.T) {
 			rec := httptest.NewRecorder()
 			router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, tc.path, nil))
 
-			if rec.Code != http.StatusNotFound {
-				t.Errorf("GET %s as %s returned %d, want %d — the other audience's URL space must not exist",
-					tc.path, tc.actorType, rec.Code, http.StatusNotFound)
+			if rec.Code != http.StatusSeeOther {
+				t.Errorf("GET %s as %s returned %d, want %d — unauthorized audience should redirect to dashboard",
+					tc.path, tc.actorType, rec.Code, http.StatusSeeOther)
 			}
 		})
 	}

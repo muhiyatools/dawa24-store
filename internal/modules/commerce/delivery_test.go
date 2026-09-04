@@ -107,6 +107,9 @@ func (m *deliveryMockRepo) ListOrderHistory(_ context.Context, _ int64) ([]*comm
 func (m *deliveryMockRepo) RateOrder(_ context.Context, _, _ int64, _ float64, _ string) error {
 	return nil
 }
+func (m *deliveryMockRepo) GetOfferDetailsForOrderLine(_ context.Context, _, _ int64) (*commerce.OrderLineOfferDetails, error) {
+	return nil, nil
+}
 func (m *deliveryMockRepo) AddToWishlist(_ context.Context, _, _ int64) error      { return nil }
 func (m *deliveryMockRepo) RemoveFromWishlist(_ context.Context, _, _ int64) error { return nil }
 func (m *deliveryMockRepo) ListWishlist(_ context.Context, _ int64) ([]*commerce.WishlistItem, error) {

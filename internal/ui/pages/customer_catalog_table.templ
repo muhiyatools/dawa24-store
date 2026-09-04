@@ -16,7 +16,9 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 						<th class="col-brand">الشركة المصنعة</th>
 						<th class="col-supplier">المورد والفرع</th>
 						<th class="col-stock text-center">المخزون والصلاحية</th>
-						<th class="col-price text-start">سعر التوريد والخصم</th>
+						<th class="col-public-price text-start">سعر الجمهور</th>
+						<th class="col-price text-start">سعر التوريد الصافي</th>
+						<th class="col-discount text-center">نسبة الخصم</th>
 						<th class="col-action text-center">الطلب والإجراءات</th>
 					</tr>
 				</thead>
@@ -119,27 +121,38 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 								}
 							</td>
 
-							<!-- Col 5: Net Price & Public Price & Discount -->
-							<td class="col-price">
-								<div class="d-flex flex-col gap-0.5">
-									<div class="d-flex items-baseline gap-1 font-black text-brand text-sm tabular-nums">
-										<span>{ v.Price.String() }</span>
+							<!-- Col 5: Public Price (سعر الجمهور) -->
+							<td class="col-public-price">
+								if v.PublicPrice.IsPositive() {
+									<div class="d-flex items-baseline gap-1 font-black text-primary text-sm tabular-nums">
+										<span>{ v.PublicPrice.String() }</span>
 										<span class="text-2xs font-bold text-secondary">ج.م</span>
 									</div>
-									if v.PublicPrice.IsPositive() && v.DiscountPercent > 0 {
-										<div class="d-flex items-center gap-1.5 text-2xs text-muted tabular-nums">
-											<span class="line-through">{ v.PublicPrice.String() } ج.م</span>
-											<span class="badge badge-emerald text-2xs font-bold py-0 px-1">-{ fmt.Sprintf("%d%%", v.DiscountPercent) }</span>
-										</div>
-									} else if v.PublicPrice.IsPositive() {
-										<div class="text-2xs text-muted tabular-nums">
-											<span>سعر الجمهور: { v.PublicPrice.String() } ج.م</span>
-										</div>
-									}
+								} else {
+									<span class="text-xs text-muted font-bold">-</span>
+								}
+							</td>
+
+							<!-- Col 6: Net Supply Price (سعر التوريد الصافي) -->
+							<td class="col-price">
+								<div class="d-flex items-baseline gap-1 font-black text-brand text-sm tabular-nums">
+									<span>{ v.Price.String() }</span>
+									<span class="text-2xs font-bold text-secondary">ج.م</span>
 								</div>
 							</td>
 
-							<!-- Col 6: Cart & Favorite Actions -->
+							<!-- Col 7: Discount Percentage (نسبة الخصم) -->
+							<td class="col-discount text-center">
+								if v.DiscountPercent > 0 {
+									<span class="badge badge-emerald font-black text-xs tabular-nums py-0.5 px-2 shadow-2xs">
+										-{ fmt.Sprintf("%d%%", v.DiscountPercent) }
+									</span>
+								} else {
+									<span class="text-xs text-muted font-bold">-</span>
+								}
+							</td>
+
+							<!-- Col 8: Cart & Favorite Actions -->
 							<td class="col-actions col-action">
 								<div class="table-actions">
 									<!-- Favorite Button -->

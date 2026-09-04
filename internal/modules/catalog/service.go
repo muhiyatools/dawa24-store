@@ -233,6 +233,9 @@ func (s *Service) DeleteProduct(ctx context.Context, id int64) error {
 
 // Search runs full Arabic/English search across the product catalogue.
 func (s *Service) Search(ctx context.Context, params SearchParams) ([]*Product, error) {
+	if params.FirstWord == "" && params.Query != "" {
+		params.FirstWord = FirstWordOf(params.Query)
+	}
 	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
 		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
 			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)
@@ -246,6 +249,9 @@ func (s *Service) Search(ctx context.Context, params SearchParams) ([]*Product, 
 
 // Count returns the total count of products matching search filters.
 func (s *Service) Count(ctx context.Context, params SearchParams) (int, error) {
+	if params.FirstWord == "" && params.Query != "" {
+		params.FirstWord = FirstWordOf(params.Query)
+	}
 	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
 		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
 			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)
@@ -259,6 +265,9 @@ func (s *Service) Count(ctx context.Context, params SearchParams) (int, error) {
 
 // SearchWithTotal searches products and returns total matching count for pagination.
 func (s *Service) SearchWithTotal(ctx context.Context, params SearchParams) ([]*Product, int, error) {
+	if params.FirstWord == "" && params.Query != "" {
+		params.FirstWord = FirstWordOf(params.Query)
+	}
 	if s.instGate != nil && len(params.AllowedWorkIDs) == 0 {
 		if uid, err := authctx.UserID(ctx); err == nil && uid > 0 {
 			works, err := s.instGate.AllowedWorkIDs(ctx, uid, params.FilterMode)

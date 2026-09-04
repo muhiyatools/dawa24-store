@@ -300,3 +300,99 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 	return r.GetOrderByID(ctx, order.ID)
 }
+
+// GetOfferDetailsForOrderLine fetches the bundle/offer information and all included items
+// for an order line that was purchased under a promotional offer.
+func (r *Repository) GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*commerce.OrderLineOfferDetails, error) {
+	var details commerce.OrderLineOfferDetails
+	details.LineID = lineID
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var offerProductID *int64
+		err := tx.QueryRow(txCtx, `
+			SELECT offer_product_id
+			FROM commerce.order_lines
+			WHERE id = $1 AND order_id = $2
+		`, lineID, orderID).Scan(&offerProductID)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("order_line")
+			}
+			return err
+		}
+		if offerProductID == nil || *offerProductID <= 0 {
+			return apperr.NotFound("offer_not_found_on_line")
+		}
+
+		rows, err := tx.Query(txCtx, `
+			SELECT o.id, o.title, o.description, o.discount_type, o.discount_value,
+			       COALESCE(org.name->>'ar', org.name->>'en', ''),
+			       op.product_id, op.variant_id, COALESCE(op.custom_qty, 1),
+			       COALESCE(op.custom_price, 0), COALESCE(op.custom_discount_percentage, 0),
+			       p.name, COALESCE(pv.name, ''), COALESCE(pv.sku, '')
+			FROM promo.offer_products op_target
+			JOIN promo.offers o ON o.id = op_target.offer_id
+			JOIN promo.offer_products op ON op.offer_id = o.id
+			LEFT JOIN catalog.products p ON p.id = op.product_id
+			LEFT JOIN catalog.product_variants pv ON pv.id = op.variant_id
+			LEFT JOIN org.organizations org ON org.id = o.organization_id
+			WHERE op_target.id = $1
+			ORDER BY op.id ASC;
+		`, *offerProductID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var (
+				offerID     int64
+				title       i18n.Text
+				desc        i18n.Text
+				discType    string
+				discVal     money.Amount
+				vendorName  string
+				prodID      int64
+				varID       *int64
+				qty         int
+				custPrice   money.Amount
+				custDiscPct float64
+				prodName    i18n.Text
+				varName     string
+				sku         string
+			)
+			if err := rows.Scan(
+				&offerID, &title, &desc, &discType, &discVal,
+				&vendorName,
+				&prodID, &varID, &qty,
+				&custPrice, &custDiscPct,
+				&prodName, &varName, &sku,
+			); err != nil {
+				return err
+			}
+			details.OfferID = offerID
+			details.Title = title
+			details.Description = desc
+			details.DiscountType = discType
+			details.DiscountValue = discVal
+			details.VendorName = vendorName
+
+			details.Items = append(details.Items, commerce.OrderLineOfferItem{
+				ProductID:             prodID,
+				ProductName:           prodName,
+				VariantID:             varID,
+				VariantName:           varName,
+				SKU:                   sku,
+				Quantity:              qty,
+				CustomPrice:           custPrice,
+				CustomDiscountPercent: custDiscPct,
+			})
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &details, nil
+}
+

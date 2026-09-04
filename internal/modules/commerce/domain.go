@@ -336,3 +336,28 @@ type UpdateCustomerOrderInput struct {
 	Lines   []OrderLineEditItem `json:"lines"`
 	Notes   string              `json:"notes,omitempty"`
 }
+
+// OrderLineOfferItem represents a product included in an offer bundle.
+type OrderLineOfferItem struct {
+	ProductID             int64        `json:"product_id"`
+	ProductName           i18n.Text    `json:"product_name"`
+	VariantID             *int64       `json:"variant_id,omitempty"`
+	VariantName           string       `json:"variant_name,omitempty"`
+	SKU                   string       `json:"sku,omitempty"`
+	Quantity              int          `json:"quantity"`
+	CustomPrice           money.Amount `json:"custom_price"`
+	CustomDiscountPercent float64      `json:"custom_discount_percentage"`
+}
+
+// OrderLineOfferDetails carries full manifest information for an offer bundle line.
+type OrderLineOfferDetails struct {
+	OfferID       int64                `json:"offer_id"`
+	LineID        int64                `json:"line_id"`
+	Title         i18n.Text            `json:"title"`
+	Description   i18n.Text            `json:"description"`
+	VendorName    string               `json:"vendor_name"`
+	DiscountType  string               `json:"discount_type"`
+	DiscountValue money.Amount         `json:"discount_value"`
+	Items         []OrderLineOfferItem `json:"items"`
+}
+

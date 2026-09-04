@@ -279,10 +279,12 @@ func (h *UIHandler) SmartOrderHistoryPage(w http.ResponseWriter, r *http.Request
 		http.Redirect(w, r, "/customer/smart-order/new", http.StatusSeeOther)
 		return
 	}
-	_, _ = h.smartOrderSvc.History(ctx, actor.OrganizationID, 50, 0)
-	// History shares the import screen for now. A dedicated view is presentation,
-	// not behaviour, and the run data it needs is already exposed by the service.
-	http.Redirect(w, r, "/customer/smart-order/new", http.StatusSeeOther)
+	runs, err := h.smartOrderSvc.History(ctx, actor.OrganizationID, 50, 0)
+	if err != nil {
+		h.log.ErrorContext(ctx, "smart order history: fetch runs", "error", err, "org_id", actor.OrganizationID)
+	}
+	lang, dir := h.localeAndDir(r)
+	h.renderPage(ctx, w, "render smart order history page", pages.SmartOrderHistoryPage(runs, lang, dir))
 }
 
 // splitCandidates separates the chosen offer from the alternatives the buyer

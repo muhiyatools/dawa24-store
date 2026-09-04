@@ -296,7 +296,10 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		    WHEN platform.normalize_arabic(name->>'ar') ILIKE '%' || platform.normalize_arabic($1) || '%' THEN 5
 		    WHEN name->>'en' ILIKE '%' || $1 || '%' THEN 6
 		    WHEN $13 <> '' AND platform.normalize_arabic(name->>'ar') ILIKE '% ' || platform.normalize_arabic($13) || '%' THEN 7
-		    ELSE 8
+		    WHEN COALESCE(scientific_name, '') ILIKE '%' || $1 || '%' THEN 8
+		    WHEN COALESCE(active, '') ILIKE '%' || $1 || '%' OR COALESCE(manufacturing_companies, '') ILIKE '%' || $1 || '%' THEN 9
+		    WHEN sku ILIKE '%' || $1 || '%' OR barcode ILIKE '%' || $1 || '%' THEN 10
+		    ELSE 11
 		  END,
 			  ` + searchOrderSuffix(params.Query) + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;

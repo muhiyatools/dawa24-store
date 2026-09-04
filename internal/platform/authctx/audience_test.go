@@ -39,7 +39,7 @@ func TestRequirePagePermission(t *testing.T) {
 				IsStaff: false,
 				Role:    "customer",
 			},
-			wantStatus: http.StatusNotFound,
+			wantStatus: http.StatusSeeOther,
 		},
 		{
 			name: "Staff user lacking permission gets 404 (T5a/T5b)",
@@ -50,7 +50,7 @@ func TestRequirePagePermission(t *testing.T) {
 				Role:        "support",
 				Permissions: []string{"catalog.product.view"},
 			},
-			wantStatus: http.StatusNotFound,
+			wantStatus: http.StatusSeeOther,
 		},
 		{
 			name: "Staff user with required permission gets 200 (T5c)",
@@ -87,7 +87,7 @@ func TestRequirePagePermission(t *testing.T) {
 				IsStaff: true,
 				Role:    "developer",
 			},
-			wantStatus: http.StatusNotFound,
+			wantStatus: http.StatusSeeOther,
 		},
 		{
 			name: "Wildcard permission bypasses check",
@@ -204,22 +204,22 @@ func TestCrossAudienceGates(t *testing.T) {
 		OrgStatus:      "approved",
 	}
 
-	// 1. Customer accessing /vendor/* path gets 404
+	// 1. Customer accessing /vendor/* path gets 303 redirect
 	reqCV := httptest.NewRequest("GET", "/vendor/documents", nil)
 	reqCV = reqCV.WithContext(authctx.WithActor(reqCV.Context(), customerActor))
 	recCV := httptest.NewRecorder()
 	vendorGate(okHandler).ServeHTTP(recCV, reqCV)
-	if recCV.Code != http.StatusNotFound {
-		t.Errorf("Customer on vendor gate: got %d, want 404", recCV.Code)
+	if recCV.Code != http.StatusSeeOther {
+		t.Errorf("Customer on vendor gate: got %d, want 303", recCV.Code)
 	}
 
-	// 2. Vendor accessing /customer/* path gets 404
+	// 2. Vendor accessing /customer/* path gets 303 redirect
 	reqVC := httptest.NewRequest("GET", "/customer/documents", nil)
 	reqVC = reqVC.WithContext(authctx.WithActor(reqVC.Context(), vendorActor))
 	recVC := httptest.NewRecorder()
 	customerGate(okHandler).ServeHTTP(recVC, reqVC)
-	if recVC.Code != http.StatusNotFound {
-		t.Errorf("Vendor on customer gate: got %d, want 404", recVC.Code)
+	if recVC.Code != http.StatusSeeOther {
+		t.Errorf("Vendor on customer gate: got %d, want 303", recVC.Code)
 	}
 
 	// 3. Customer accessing customer gate gets 200

@@ -100,11 +100,16 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		discountAmt := money.Zero
 		var discountBPS int64 = 0
 
-		if v.Discount.IsPositive() && v.Price.IsPositive() && v.Price.Minor() > v.Discount.Minor() {
+		if v.Discount.IsPositive() && v.Price.IsPositive() {
 			oldPrice = v.Price
-			price = money.FromMinor(v.Price.Minor() - v.Discount.Minor())
-			discountAmt = v.Discount
-			discountBPS = int64(v.Discount.Minor()) * 10000 / int64(v.Price.Minor())
+			// In catalog schema, v.Discount stores the discount percentage (e.g. 15.00 for 15%).
+			discPct := float64(v.Discount.Minor()) / 100.0
+			if discPct > 0 && discPct < 100 {
+				discountBPS = int64(discPct * 100.0)
+				discMinor := int64(float64(v.Price.Minor()) * (discPct / 100.0))
+				discountAmt = money.FromMinor(discMinor)
+				price = money.FromMinor(v.Price.Minor() - discMinor)
+			}
 		} else if product != nil && product.Price.IsPositive() && v.Price.IsPositive() && product.Price.Minor() > v.Price.Minor() {
 			oldPrice = product.Price
 			price = v.Price

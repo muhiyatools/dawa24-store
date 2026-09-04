@@ -74,7 +74,15 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl so-new-order-page\"><h1 class=\"so-page-title\">الطلب الذكي، استيراد ملف</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl so-new-order-page\"><div class=\"flex-between items-center mb-4 flex-wrap gap-2\"><h1 class=\"so-page-title m-0\">الطلب الذكي، استيراد ملف</h1><a href=\"/customer/smart-order/history\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconClock("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>سجل العمليات والمسودات السابقة</span></a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,66 +91,66 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				return templ_7745c5c3_Err
 			}
 			if data.Error != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"so-alert so-alert-error\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"so-alert so-alert-error\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Error)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 43, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 49, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/customer/smart-order\" enctype=\"multipart/form-data\" class=\"glass-panel p-6 mb-0 so-new-order-form\"><div class=\"so-form-field\"><label class=\"so-field-label\">ملف الأصناف المطلوبة</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"so-file-input\"><p class=\"so-help-text\">الصيغ المدعومة: xlsx، xls، csv — بدون حد لعدد الأصناف.</p></div><div class=\"so-form-field\"><label class=\"so-field-label\">فرع التسليم</label> <select name=\"branch_id\" required class=\"form-select\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form method=\"POST\" action=\"/customer/smart-order\" enctype=\"multipart/form-data\" class=\"glass-panel p-6 mb-0 so-new-order-form\"><div class=\"so-form-field\"><label class=\"so-field-label\">ملف الأصناف المطلوبة</label> <input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv\" required class=\"so-file-input\"><p class=\"so-help-text\">الصيغ المدعومة: xlsx، xls، csv — بدون حد لعدد الأصناف.</p></div><div class=\"so-form-field\"><label class=\"so-field-label\">فرع التسليم</label> <select name=\"branch_id\" required class=\"form-select\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 59, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 65, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " selected")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, ">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, ">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 60, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 66, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -150,19 +158,19 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(" — " + b.City)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 62, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 68, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</select><p class=\"so-help-text\">موقع الفرع هو ما تُقاس عليه تغطية الموردين، وهو عنوان تسليم الطلب.</p></div><fieldset class=\"so-criteria-fieldset\"><legend class=\"so-field-label\">معايير اختيار الموردين</legend><p class=\"so-help-text so-criteria-help\">رتّب المعايير حسب الأولوية. المعيار الأعلى يقرر، بشرط ألا يتجاوز المورد نطاق التسامح فوق أقل سعر صافٍ.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select><p class=\"so-help-text\">موقع الفرع هو ما تُقاس عليه تغطية الموردين، وهو عنوان تسليم الطلب.</p></div><fieldset class=\"so-criteria-fieldset\"><legend class=\"so-field-label\">معايير اختيار الموردين</legend><p class=\"so-help-text so-criteria-help\">رتّب المعايير حسب الأولوية. المعيار الأعلى يقرر، بشرط ألا يتجاوز المورد نطاق التسامح فوق أقل سعر صافٍ.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -171,113 +179,113 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				{"highest_discount", "أعلى خصم"},
 				{"lowest_price", "أقل سعر"},
 			} {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<label class=\"so-criteria-row\"><input type=\"checkbox\" name=\"criteria\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<label class=\"so-criteria-row\"><input type=\"checkbox\" name=\"criteria\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 83, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 89, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" checked> <span class=\"so-criteria-label\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" checked> <span class=\"so-criteria-label\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 84, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 90, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span> <input type=\"number\" name=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span> <input type=\"number\" name=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue("priority_" + c.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 85, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 91, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", i+1))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 85, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 91, Col: 87}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" min=\"1\" max=\"3\" class=\"so-priority-input\"></label>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" min=\"1\" max=\"3\" class=\"so-priority-input\"></label>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"so-tolerance-field\"><label class=\"so-subfield-label\">نطاق التسامح (%)</label> <input type=\"number\" name=\"tolerance_pct\" value=\"5\" min=\"0\" max=\"100\" step=\"0.5\" class=\"so-tolerance-input\"><p class=\"so-help-text so-help-text-small\">مورد متابَع أغلى من أرخص عرض بأكثر من هذه النسبة يُستبعَد، ويُذكر ذلك في نتيجة الصنف.</p></div></fieldset><div class=\"so-form-grid\"><div class=\"so-form-field\"><label class=\"so-subfield-label\">الكمية الافتراضية</label> <input type=\"number\" name=\"default_quantity\" value=\"0\" min=\"0\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">تُطبَّق فقط على الصفوف التي لا تحمل كمية في الملف.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">أقل نسبة مطابقة (%)</label> <input type=\"number\" name=\"min_match_score\" value=\"50\" min=\"25\" max=\"100\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">المطابقة بالاسم أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة لا يُعرض ولا يُراجَع.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">الحد الأقصى للميزانية (اختياري)</label> <input type=\"text\" name=\"max_budget\" inputmode=\"decimal\" placeholder=\"مثال: 150000.00\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">للعرض فقط: لا يمنع الطلب ولا يحذف أي صنف.</p></div></div><div class=\"so-options\"><label class=\"so-option-row\"><input type=\"checkbox\" name=\"use_saving_products\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"so-tolerance-field\"><label class=\"so-subfield-label\">نطاق التسامح (%)</label> <input type=\"number\" name=\"tolerance_pct\" value=\"5\" min=\"0\" max=\"100\" step=\"0.5\" class=\"so-tolerance-input\"><p class=\"so-help-text so-help-text-small\">مورد متابَع أغلى من أرخص عرض بأكثر من هذه النسبة يُستبعَد، ويُذكر ذلك في نتيجة الصنف.</p></div></fieldset><div class=\"so-form-grid\"><div class=\"so-form-field\"><label class=\"so-subfield-label\">الكمية الافتراضية</label> <input type=\"number\" name=\"default_quantity\" value=\"0\" min=\"0\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">تُطبَّق فقط على الصفوف التي لا تحمل كمية في الملف.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">أقل نسبة مطابقة (%)</label> <input type=\"number\" name=\"min_match_score\" value=\"50\" min=\"25\" max=\"100\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">المطابقة بالاسم أولاً ثم الذكاء الاصطناعي. ما دون هذه النسبة لا يُعرض ولا يُراجَع.</p></div><div class=\"so-form-field\"><label class=\"so-subfield-label\">الحد الأقصى للميزانية (اختياري)</label> <input type=\"text\" name=\"max_budget\" inputmode=\"decimal\" placeholder=\"مثال: 150000.00\" class=\"form-control\"><p class=\"so-help-text so-help-text-small\">للعرض فقط: لا يمنع الطلب ولا يحذف أي صنف.</p></div></div><div class=\"so-options\"><label class=\"so-option-row\"><input type=\"checkbox\" name=\"use_saving_products\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Profile != nil && data.Profile.UseSavingProducts {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "> <span>استخدام منتجات التوفير في المطابقة</span></label> <label class=\"so-option-row\"><input type=\"checkbox\" name=\"use_ai_matching\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "> <span>استخدام منتجات التوفير في المطابقة</span></label> <label class=\"so-option-row\"><input type=\"checkbox\" name=\"use_ai_matching\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if !data.AIAvailable {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " disabled")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " disabled")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if data.AIAvailable && (data.Profile == nil || data.Profile.UseAIMatching) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "> <span>تفعيل مطابقة الذكاء الاصطناعي</span></label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "> <span>تفعيل مطابقة الذكاء الاصطناعي</span></label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if !data.AIAvailable {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<p class=\"so-option-warning\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<p class=\"so-option-warning\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIUnavailableReason)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 132, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order.templ`, Line: 138, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><button type=\"submit\" class=\"btn btn-primary so-new-order-submit\"><span>رفع الملف والمتابعة</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><button type=\"submit\" class=\"btn btn-primary so-new-order-submit\"><span>رفع الملف والمتابعة</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -285,7 +293,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</button></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</button></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -146,10 +146,10 @@ func TestRoleRoutePermissionMatrix(t *testing.T) {
 				"anonymous":         http.StatusSeeOther, // redirects non-staff to login
 				"super_admin":       http.StatusOK,
 				"platform_support":  http.StatusOK,
-				"vendor_approved":   http.StatusNotFound,
-				"vendor_pending":    http.StatusNotFound,
-				"customer_approved": http.StatusNotFound,
-				"customer_pending":  http.StatusNotFound,
+				"vendor_approved":   http.StatusSeeOther, // redirects to /vendor/dashboard with flash notice
+				"vendor_pending":    http.StatusSeeOther,
+				"customer_approved": http.StatusSeeOther, // redirects to /customer/dashboard with flash notice
+				"customer_pending":  http.StatusSeeOther,
 			},
 		},
 		{
@@ -157,33 +157,33 @@ func TestRoleRoutePermissionMatrix(t *testing.T) {
 			expectedStatuses: map[string]int{
 				"anonymous":         http.StatusSeeOther,
 				"super_admin":       http.StatusOK,
-				"platform_support":  http.StatusNotFound, // missing identity.user.view permission
-				"vendor_approved":   http.StatusNotFound,
-				"vendor_pending":    http.StatusNotFound,
-				"customer_approved": http.StatusNotFound,
-				"customer_pending":  http.StatusNotFound,
+				"platform_support":  http.StatusSeeOther, // missing identity.user.view permission -> redirects to admin dashboard
+				"vendor_approved":   http.StatusSeeOther,
+				"vendor_pending":    http.StatusSeeOther,
+				"customer_approved": http.StatusSeeOther,
+				"customer_pending":  http.StatusSeeOther,
 			},
 		},
 		{
 			path: "/vendor/dashboard",
 			expectedStatuses: map[string]int{
 				"anonymous":         http.StatusSeeOther,
-				"super_admin":       http.StatusNotFound,
-				"platform_support":  http.StatusNotFound,
+				"super_admin":       http.StatusSeeOther, // non-vendor redirects to admin dashboard
+				"platform_support":  http.StatusSeeOther,
 				"vendor_approved":   http.StatusOK,
 				"vendor_pending":    http.StatusFound, // redirects to /onboarding/pending
-				"customer_approved": http.StatusNotFound,
-				"customer_pending":  http.StatusNotFound,
+				"customer_approved": http.StatusSeeOther, // redirects to /customer/dashboard
+				"customer_pending":  http.StatusSeeOther,
 			},
 		},
 		{
 			path: "/customer/dashboard",
 			expectedStatuses: map[string]int{
 				"anonymous":         http.StatusSeeOther,
-				"super_admin":       http.StatusNotFound,
-				"platform_support":  http.StatusNotFound,
-				"vendor_approved":   http.StatusNotFound,
-				"vendor_pending":    http.StatusNotFound,
+				"super_admin":       http.StatusSeeOther, // non-customer redirects to admin dashboard
+				"platform_support":  http.StatusSeeOther,
+				"vendor_approved":   http.StatusSeeOther, // redirects to /vendor/dashboard
+				"vendor_pending":    http.StatusSeeOther,
 				"customer_approved": http.StatusOK,
 				"customer_pending":  http.StatusFound, // redirects to /onboarding/pending
 			},

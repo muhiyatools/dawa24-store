@@ -1,10 +1,11 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ WalletModals(isVendor bool) {
+templ WalletModals(data WalletViewData) {
 	<!-- Deposit Modal -->
 	<div
 		class="modal-backdrop"
@@ -26,7 +27,7 @@ templ WalletModals(isVendor bool) {
 			</div>
 
 			<form
-				action={ templ.SafeURL(ternary(isVendor, "/vendor/wallet/deposit", "/customer/wallet/deposit")) }
+				action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/wallet/deposit", "/customer/wallet/deposit")) }
 				method="POST"
 				enctype="multipart/form-data"
 				class="stack-sm p-5"
@@ -39,11 +40,39 @@ templ WalletModals(isVendor bool) {
 				<div class="form-group mb-2">
 					<label class="form-label text-xs">وسيلة التحويل أو الإيداع *</label>
 					<select name="payment_method" required class="form-select form-select-sm">
-						<option value="bank_transfer">تحويل بنكي (Bank Transfer - CIB/QNB)</option>
-						<option value="instapay">إنستاباي (InstaPay)</option>
-						<option value="vodafone_cash">فودافون كاش (Vodafone Cash)</option>
-						<option value="credit_card">بطاقة دفع إلكتروني (Visa / Mastercard)</option>
+						if len(data.PaymentMethods) > 0 {
+							<optgroup label="وسائل الدفع وحساباتك المسجلة">
+								for _, pm := range data.PaymentMethods {
+									<option value={ pm.AccountIdentifier }>{ pm.AccountIdentifier }</option>
+								}
+							</optgroup>
+						}
+						if len(data.PlatformPaymentMethods) > 0 {
+							<optgroup label="حسابات المنصة الرسمية">
+								for _, ppm := range data.PlatformPaymentMethods {
+									if ppm.IsDepositEnabled && ppm.IsActive {
+										<option value={ ppm.ID }>{ ppm.Name.Get(i18n.AR) } - { ppm.AccountName } ({ ppm.BankName })</option>
+									}
+								}
+							</optgroup>
+						}
+						<optgroup label="وسائل تحويل أخرى">
+							<option value="bank_transfer">تحويل بنكي (Bank Transfer - CIB/QNB)</option>
+							<option value="instapay">إنستاباي (InstaPay)</option>
+							<option value="vodafone_cash">فودافون كاش (Vodafone Cash)</option>
+							<option value="credit_card">بطاقة دفع إلكتروني (Visa / Mastercard)</option>
+						</optgroup>
 					</select>
+					<div class="mt-1 d-flex items-center justify-between">
+						<span class="text-2xs text-muted">اختر الحساب الذي قمت بالتحويل منه أو إليه</span>
+						<button
+							type="button"
+							class="btn-link text-2xs font-bold text-brand"
+							@click="isDepositModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
+						>
+							+ إضافة وسيلة دفع جديدة
+						</button>
+					</div>
 				</div>
 
 				<div class="form-group mb-2">
@@ -90,7 +119,7 @@ templ WalletModals(isVendor bool) {
 			</div>
 
 			<form
-				action={ templ.SafeURL(ternary(isVendor, "/vendor/wallet/withdraw", "/customer/wallet/withdraw")) }
+				action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/wallet/withdraw", "/customer/wallet/withdraw")) }
 				method="POST"
 				class="stack-sm p-5"
 			>
@@ -101,7 +130,46 @@ templ WalletModals(isVendor bool) {
 
 				<div class="form-group mb-2">
 					<label class="form-label text-xs">الحساب البنكي أو المحفظة المستلمة *</label>
-					<input type="text" name="destination_id" required class="form-input form-input-sm" placeholder="رقم الحساب / الآيبان / إنستاباي" />
+					if len(data.PaymentMethods) > 0 {
+						<select name="destination_id" required class="form-select form-select-sm">
+							<option value="">-- اختر وسيلة الدفع أو الحساب المستلم --</option>
+							for _, pm := range data.PaymentMethods {
+								<option value={ pm.AccountIdentifier }>
+									{ pm.AccountIdentifier }
+									if pm.IsDefault {
+										{" (الافتراضي)"}
+									}
+								</option>
+							}
+						</select>
+						<div class="mt-1 d-flex items-center justify-between">
+							<span class="text-2xs text-muted">سيتم تحويل المبالغ المسحوبة إلى هذا الحساب المسجل</span>
+							<button
+								type="button"
+								class="btn-link text-2xs font-bold text-brand"
+								@click="isWithdrawModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
+							>
+								+ إضافة حساب جديد
+							</button>
+						</div>
+					} else {
+						<div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 stack-xs">
+							<div class="d-flex items-center gap-1.5 font-bold">
+								@components.IconAlert("icon-xs text-amber-600")
+								<span>لم تسجل أي وسيلة دفع بعد</span>
+							</div>
+							<p class="m-0 text-2xs">
+								يجب تسجيل وتأكيد حساب بنكي أو محفظة إلكترونية واحدة على الأقل قبل تقديم طلب سحب رصيد.
+							</p>
+							<button
+								type="button"
+								class="btn btn-secondary btn-xs font-bold mt-1 self-start"
+								@click="isWithdrawModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
+							>
+								+ إضافة وسيلة دفع الآن
+							</button>
+						</div>
+					}
 				</div>
 
 				<div class="form-group mb-3">
@@ -111,7 +179,15 @@ templ WalletModals(isVendor bool) {
 
 				<div class="d-flex items-center justify-end gap-2 pt-2 border-t">
 					<button type="button" class="btn btn-secondary btn-sm" @click="isWithdrawModalOpen = false">إلغاء</button>
-					<button type="submit" class="btn btn-danger btn-sm font-bold">تأكيد طلب السحب</button>
+					<button
+						type="submit"
+						class="btn btn-danger btn-sm font-bold"
+						if len(data.PaymentMethods) == 0 {
+							disabled
+						}
+					>
+						تأكيد طلب السحب
+					</button>
 				</div>
 			</form>
 		</div>

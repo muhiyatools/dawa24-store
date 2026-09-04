@@ -1,0 +1,32 @@
+package layouts
+
+import "github.com/muhiya/dawa24-store/internal/ui/components"
+
+// AuthNoticeBanner renders an in-app flash banner if an unauthorized access attempt
+// redirected the user to their dashboard.
+templ AuthNoticeBanner() {
+	if notice := GetAuthNotice(ctx); notice != "" {
+		<div
+			x-data="{ show: true }"
+			x-show="show"
+			x-transition
+			class="alert alert-warning mb-4 d-flex items-center justify-between gap-3 p-3 rounded-2xl border"
+			role="alert"
+		>
+			<div class="d-flex items-center gap-2.5">
+				@components.IconLock("alert-icon icon-sm text-amber-600 flex-shrink-0")
+				<span class="alert-message text-sm font-bold">
+					عذراً، ليس لديك الصلاحيات الكافية للوصول إلى الصفحة المطلوبة. تم توجيهك إلى لوحتك الرئيسية.
+				</span>
+			</div>
+			<button
+				type="button"
+				@click="show = false"
+				class="btn btn-icon btn-ghost btn-xs"
+				aria-label="إغلاق"
+			>
+				@components.IconClose("icon-xs")
+			</button>
+		</div>
+	}
+}

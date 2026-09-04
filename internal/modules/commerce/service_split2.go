@@ -340,3 +340,12 @@ func (s *Service) RejectNegotiation(ctx context.Context, orderID int64, reason s
 	}
 	return s.repo.RejectNegotiation(ctx, orderID, reason, actorID)
 }
+
+// GetOfferDetailsForOrderLine returns the offer details and bundled items for an order line.
+func (s *Service) GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*OrderLineOfferDetails, error) {
+	if orderID <= 0 || lineID <= 0 {
+		return nil, apperr.Validation("order.invalid_id", "Valid order ID and line ID are required.", nil)
+	}
+	return s.repo.GetOfferDetailsForOrderLine(ctx, orderID, lineID)
+}
+

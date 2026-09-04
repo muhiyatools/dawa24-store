@@ -34,6 +34,8 @@ type Grant struct {
 	MemberRoleName string
 	// IsOrgOwner marks the company owner, who holds their whole dashboard.
 	IsOrgOwner bool
+	// BranchID is non-nil when the member is bound to one branch.
+	BranchID *int64
 	// Permissions is the resolved holding.
 	Permissions Set
 	// Keys is the same holding as a sorted slice, for the session record.

@@ -36,7 +36,13 @@ type SmartOrderNewData struct {
 templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 	@layouts.CustomerShell("الطلب الذكي", "purchase-request", lang, dir, nil) {
 		<div class="page-container max-w-4xl so-new-order-page">
-			<h1 class="so-page-title">الطلب الذكي، استيراد ملف</h1>
+			<div class="flex-between items-center mb-4 flex-wrap gap-2">
+				<h1 class="so-page-title m-0">الطلب الذكي، استيراد ملف</h1>
+				<a href="/customer/smart-order/history" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+					@components.IconClock("icon-xs")
+					<span>سجل العمليات والمسودات السابقة</span>
+				</a>
+			</div>
 			@WizardRail(OrderRail(StepFile))
 			if data.Error != "" {
 				<div class="so-alert so-alert-error">

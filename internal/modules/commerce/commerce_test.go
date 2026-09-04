@@ -335,3 +335,8 @@ func (m *mockCommerceRepo) GetVendorFinancialSummary(_ context.Context, vendorOr
 		Period: period,
 	}, nil
 }
+
+func (m *mockCommerceRepo) GetOfferDetailsForOrderLine(_ context.Context, _, _ int64) (*OrderLineOfferDetails, error) {
+	return nil, nil
+}
+

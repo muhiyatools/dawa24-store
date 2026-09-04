@@ -49,7 +49,7 @@ func RequireStaff(log *slog.Logger) func(http.Handler) http.Handler {
 				return
 			}
 			if !actor.IsStaff {
-				notFound(w, r)
+				redirectUnauthorized(w, r, actor)
 				return
 			}
 			next.ServeHTTP(w, r)
@@ -61,17 +61,8 @@ func RequireStaff(log *slog.Logger) func(http.Handler) http.Handler {
 // several and holding any one of them is enough, for a page two roles reach
 // for different reasons.
 //
-// It answers with the audience policy's 404 rather than a JSON 403: a support
-// agent must not learn that /admin/developers or other restricted admin
-// subtrees exist.
-//
-// There is no longer a role-name bypass here. It used to read
-// `actor.Role == "super_admin" || actor.Role == "developer"`, which meant the
-// developer role could open every admin page regardless of its grants, and
-// meant a new staff role could not be given full access without editing this
-// function. Both roles now hold their access as permissions like everyone
-// else — super_admin holds the whole catalogue, which is the same outcome
-// arrived at through the system rather than around it.
+// It answers with an unauthorized redirect rather than a JSON 403: a support
+// agent is sent to their dashboard with a clear notification.
 func RequirePagePermission(permissionKeys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +72,7 @@ func RequirePagePermission(permissionKeys ...string) func(http.Handler) http.Han
 				return
 			}
 			if !actor.IsStaff {
-				notFound(w, r)
+				redirectUnauthorized(w, r, actor)
 				return
 			}
 			if actor.CanAny(permissionKeys...) {
@@ -89,7 +80,7 @@ func RequirePagePermission(permissionKeys ...string) func(http.Handler) http.Han
 				return
 			}
 			denied(r, "admin", actor, permissionKeys)
-			notFound(w, r)
+			redirectUnauthorized(w, r, actor)
 		})
 	}
 }
@@ -98,12 +89,6 @@ func RequirePagePermission(permissionKeys ...string) func(http.Handler) http.Han
 // dashboard. It is the same rule as the admin gate, held against the caller's
 // own company: the permissions were resolved from their membership, so a role
 // that reveals /vendor/wallet in one company says nothing about another.
-//
-// The vendor and pharmacy dashboards had no gate of any kind before this. Every
-// sidebar link was rendered for every member and every route was reachable by
-// URL, so a warehouse clerk could open the wallet, the team page and the role
-// editor — the company owner had a roles screen that was static markup and no
-// way to stop them.
 func RequireTenantPagePermission(permissionKeys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -113,14 +98,13 @@ func RequireTenantPagePermission(permissionKeys ...string) func(http.Handler) ht
 				return
 			}
 			// Staff do not hold tenant permissions and have no business on a
-			// company dashboard; the audience gate already said so, and this
-			// keeps the two answers consistent.
+			// company dashboard; the audience gate already said so.
 			if actor.IsStaff {
-				notFound(w, r)
+				redirectUnauthorized(w, r, actor)
 				return
 			}
 			if actor.OrganizationID <= 0 && actor.OrgID <= 0 {
-				notFound(w, r)
+				redirectUnauthorized(w, r, actor)
 				return
 			}
 			if actor.CanAny(permissionKeys...) {
@@ -128,7 +112,7 @@ func RequireTenantPagePermission(permissionKeys ...string) func(http.Handler) ht
 				return
 			}
 			denied(r, "tenant", actor, permissionKeys)
-			notFound(w, r)
+			redirectUnauthorized(w, r, actor)
 		})
 	}
 }
@@ -316,8 +300,8 @@ func requireType(log *slog.Logger, want string) func(http.Handler) http.Handler 
 			}
 			if actor.IsStaff {
 				// Staff are not customers or vendors; /customer/* and
-				// /vendor/* do not exist for them either.
-				notFound(w, r)
+				// /vendor/* redirect them to admin dashboard with a notice.
+				redirectUnauthorized(w, r, actor)
 				return
 			}
 			if want == "customer" {
@@ -334,9 +318,45 @@ func requireType(log *slog.Logger, want string) func(http.Handler) http.Handler 
 			log.WarnContext(r.Context(), "audience denied",
 				"path", r.URL.Path, "user_id", actor.UserID,
 				"org_type", actor.OrgType, "want", want)
-			notFound(w, r)
+			redirectUnauthorized(w, r, actor)
 		})
 	}
+}
+
+// redirectUnauthorized redirects an authenticated caller to their permitted home dashboard
+// with an authorization notice instead of showing a blank 404 page.
+func redirectUnauthorized(w http.ResponseWriter, r *http.Request, actor Actor) {
+	target := "/"
+	if actor.IsCustomer() {
+		target = "/customer/dashboard"
+	} else if actor.IsVendor() {
+		target = "/vendor/dashboard"
+	} else if actor.IsStaff {
+		target = "/admin/dashboard"
+	}
+
+	if r.URL.Path == target {
+		target = "/"
+	}
+
+	dest := target + "?auth_notice=forbidden"
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_flash",
+		Value:    "forbidden",
+		Path:     "/",
+		MaxAge:   15,
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", dest)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	http.Redirect(w, r, dest, http.StatusSeeOther)
 }
 
 // redirectToLogin sends the caller to sign in, preserving where they were

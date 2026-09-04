@@ -110,6 +110,10 @@ func (r stubRepo) RateOrder(ctx context.Context, orderID int64, customerID int64
 	r.fail("RateOrder")
 	return nil
 }
+func (r stubRepo) GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*commerce.OrderLineOfferDetails, error) {
+	r.fail("GetOfferDetailsForOrderLine")
+	return nil, nil
+}
 
 func (r stubRepo) AddToWishlist(ctx context.Context, userID int64, productID int64) error {
 	r.fail("AddToWishlist")
@@ -344,3 +348,7 @@ func (happyRepo) UpdateCustomerPendingOrder(ctx context.Context, order *commerce
 func (happyRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
 	return &commerce.VendorFinancialSummary{Period: period}, nil
 }
+func (happyRepo) GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*commerce.OrderLineOfferDetails, error) {
+	return nil, nil
+}
+

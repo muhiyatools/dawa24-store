@@ -249,14 +249,14 @@ func (r *Repository) GetShipmentForDeliveryByTracking(ctx context.Context, track
 			LEFT JOIN org.branches b ON b.id = ord.branch_id
 			WHERE LOWER(TRIM(s.tracking_number)) = LOWER(TRIM($1))
 			   OR LOWER(TRIM(s.shipment_number)) = LOWER(TRIM($1))
-			   OR LOWER(TRIM(s.public_id)) = LOWER(TRIM($1))
+			   OR LOWER(s.public_id::text) = LOWER(TRIM($1))
 			ORDER BY s.id DESC
 			LIMIT 1;
 		`
 		var statusStr, payStatusStr string
 		err := tx.QueryRow(txCtx, query, tracking).Scan(
 			&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID, &s.ShipmentNumber,
-			&s.Status, &s.Subtotal, &s.ShippingFee, &s.TotalAmount, &s.TrackingNumber,
+			&statusStr, &s.Subtotal, &s.ShippingFee, &s.TotalAmount, &s.TrackingNumber,
 			&s.CarrierName, &s.DeliveryCode, &s.DeliveryAttempts, &s.DeliveryLockedUntil,
 			&s.DeliveryNotes, &s.CollectedAmountMinor, &s.DeliveredByCourierAt,
 			&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,

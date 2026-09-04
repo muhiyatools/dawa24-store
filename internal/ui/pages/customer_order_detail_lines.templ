@@ -105,6 +105,7 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 																</span>
 															</div>
 														}
+														@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
 														<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
 														<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
 														<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
@@ -206,6 +207,7 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 													</span>
 												</div>
 											}
+											@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
 											<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
 											<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
 											<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
@@ -322,6 +324,7 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 													<div class="font-extrabold text-primary text-xs">
 														{ l.ProductName.Get(i18n.Lang(lang)) }
 													</div>
+													@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
 												</td>
 												<td class="text-center">
 													<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">
@@ -364,6 +367,7 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 										<div class="font-extrabold text-primary text-xs">
 											{ l.ProductName.Get(i18n.Lang(lang)) }
 										</div>
+										@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
 									</td>
 									<td class="text-center">
 										<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">

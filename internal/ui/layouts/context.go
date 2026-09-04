@@ -78,3 +78,24 @@ func IsCurrentPath(ctx context.Context, href string) bool {
 	}
 	return p == href
 }
+
+type authNoticeKey struct{}
+
+// WithAuthNotice embeds an authorization flash message into the request context.
+func WithAuthNotice(ctx context.Context, notice string) context.Context {
+	if notice == "" {
+		return ctx
+	}
+	return context.WithValue(ctx, authNoticeKey{}, notice)
+}
+
+// GetAuthNotice retrieves the authorization flash message from context, if any.
+func GetAuthNotice(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+	if n, ok := ctx.Value(authNoticeKey{}).(string); ok {
+		return n
+	}
+	return ""
+}
