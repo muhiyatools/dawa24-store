@@ -46,7 +46,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SiteName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 24, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 24, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -59,7 +59,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 28, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 28, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -72,7 +72,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(siteSettings.SiteDescription)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 34, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 34, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -85,7 +85,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.ContactEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 49, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 49, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -98,7 +98,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SupportEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 53, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 53, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 60, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 60, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -124,7 +124,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.WhatsApp)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_settings_site.templ`, Line: 64, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 64, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {

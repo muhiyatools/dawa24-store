@@ -121,7 +121,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 79, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 79, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -144,7 +144,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 80, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 80, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -170,7 +170,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 101, Col: 111}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 101, Col: 111}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -183,7 +183,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveCoverages(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 105, Col: 128}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 105, Col: 128}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -196,7 +196,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countCoveredCities(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 109, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 109, Col: 124}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -235,7 +235,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(dayOfWeekAr(c.DayOfWeek))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 143, Col: 38}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 143, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -253,7 +253,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(c.OrgName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 148, Col: 52}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 148, Col: 52}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -271,7 +271,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", c.OrganizationID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 150, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 150, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -294,7 +294,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(c.CityName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 155, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 155, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -322,7 +322,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(c.BranchName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 162, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 162, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -345,7 +345,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d كم", c.DistanceMeters/1000))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 168, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 168, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -363,7 +363,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(FormatCoverageWindow(c.CoverageFrom, c.CoverageTo))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 172, Col: 88}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 172, Col: 88}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
@@ -401,7 +401,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var15 templ.SafeURL
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/toggle", c.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 187, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 187, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -414,7 +414,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", !c.IsActive))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 188, Col: 89}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 188, Col: 89}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
@@ -427,7 +427,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.SelectedOrgID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 189, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 189, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -455,7 +455,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var18 templ.SafeURL
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 202, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 202, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -468,7 +468,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.SelectedOrgID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 203, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 203, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
@@ -529,7 +529,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.SelectedOrgID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 238, Col: 93}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 238, Col: 93}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -547,7 +547,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 245, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 245, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {
@@ -570,7 +570,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 246, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 246, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -593,7 +593,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 257, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 257, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 					if templ_7745c5c3_Err != nil {
@@ -607,7 +607,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 259, Col: 25}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 259, Col: 25}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -617,7 +617,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 261, Col: 25}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 261, Col: 25}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -641,7 +641,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", ct.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 273, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 273, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -654,7 +654,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(ct.Name.Get(i18n.AR))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_weekly_coverages.templ`, Line: 274, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_weekly_coverages.templ`, Line: 274, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {

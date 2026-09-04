@@ -71,6 +71,8 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("billing.payment.update"))
 		g.Post("/admin/finance/deposits/{id}/approve", h.AdminDepositApproveSubmit)
 		g.Post("/admin/finance/deposits/{id}/reject", h.AdminDepositRejectSubmit)
+		g.Post("/admin/finance/withdrawals/{id}/approve", h.AdminWithdrawalApproveSubmit)
+		g.Post("/admin/finance/withdrawals/{id}/reject", h.AdminWithdrawalRejectSubmit)
 	})
 
 	// Plans & Subscriptions Hub

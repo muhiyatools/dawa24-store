@@ -183,7 +183,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							var templ_7745c5c3_Var3 templ.SafeURL
 							templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/ads/click/%d", ad.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 146, Col: 66}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 146, Col: 66}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 							if templ_7745c5c3_Err != nil {
@@ -196,7 +196,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							var templ_7745c5c3_Var4 string
 							templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/ads/impression/%d", ad.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 147, Col: 58}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 147, Col: 58}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 							if templ_7745c5c3_Err != nil {
@@ -214,7 +214,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var5 string
 								templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 154, Col: 36}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 154, Col: 36}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 								if templ_7745c5c3_Err != nil {
@@ -232,7 +232,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var6 string
 								templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 156, Col: 34}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 156, Col: 34}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 								if templ_7745c5c3_Err != nil {
@@ -245,7 +245,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var7 string
 								templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.DisplayTitle(lang))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 156, Col: 64}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 156, Col: 64}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 								if templ_7745c5c3_Err != nil {
@@ -273,7 +273,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var8 string
 								templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ad.SupplierName)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 163, Col: 86}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 163, Col: 86}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 								if templ_7745c5c3_Err != nil {
@@ -291,7 +291,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							var templ_7745c5c3_Var9 string
 							templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayTitle(lang))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 165, Col: 82}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 165, Col: 82}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 							if templ_7745c5c3_Err != nil {
@@ -309,7 +309,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var10 string
 								templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayText(lang))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 167, Col: 85}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 167, Col: 85}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 								if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var11 string
 								templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(ad.PublicPrice)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 171, Col: 89}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 171, Col: 89}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 								if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var12 string
 								templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DiscountPercent)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 172, Col: 87}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 172, Col: 87}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 								if templ_7745c5c3_Err != nil {
@@ -354,7 +354,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 								var templ_7745c5c3_Var13 string
 								templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ad.SupplyPrice)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 173, Col: 86}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 173, Col: 86}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 								if templ_7745c5c3_Err != nil {
@@ -400,7 +400,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var15 templ.SafeURL
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 191, Col: 329}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 191, Col: 329}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -413,7 +413,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var14).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 				if templ_7745c5c3_Err != nil {
@@ -443,7 +443,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var18 templ.SafeURL
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "أقراص", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 198, Col: 355}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 198, Col: 355}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -456,7 +456,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var17).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
@@ -478,7 +478,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var21 templ.SafeURL
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "كبسولات", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 204, Col: 359}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 204, Col: 359}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -491,7 +491,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var20).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 				if templ_7745c5c3_Err != nil {
@@ -513,7 +513,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var24 templ.SafeURL
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "شراب", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 210, Col: 353}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 210, Col: 353}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -526,7 +526,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var23).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 				if templ_7745c5c3_Err != nil {
@@ -548,7 +548,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var27 templ.SafeURL
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "حقن", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 216, Col: 351}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 216, Col: 351}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -561,7 +561,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var26).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 				if templ_7745c5c3_Err != nil {
@@ -583,7 +583,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var30 templ.SafeURL
 				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "مرهم", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 222, Col: 353}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 222, Col: 353}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 				if templ_7745c5c3_Err != nil {
@@ -596,7 +596,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var29).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 				if templ_7745c5c3_Err != nil {
@@ -618,7 +618,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var33 templ.SafeURL
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "فوار", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 228, Col: 353}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 228, Col: 353}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
@@ -631,7 +631,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var34 string
 				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var32).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 				if templ_7745c5c3_Err != nil {
@@ -653,7 +653,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var36 templ.SafeURL
 				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "قطرة", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 234, Col: 353}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 234, Col: 353}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
@@ -666,7 +666,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var37 string
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var35).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 				if templ_7745c5c3_Err != nil {
@@ -687,7 +687,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 259, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 259, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 				if templ_7745c5c3_Err != nil {
@@ -799,7 +799,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var40).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 				if templ_7745c5c3_Err != nil {
@@ -842,7 +842,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				var templ_7745c5c3_Var45 string
 				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var43).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
 				if templ_7745c5c3_Err != nil {
@@ -873,7 +873,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var46 string
 						templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(data.Query)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 319, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 319, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 						if templ_7745c5c3_Err != nil {
@@ -886,7 +886,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var47 templ.SafeURL
 						templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 320, Col: 347}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 320, Col: 347}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 						if templ_7745c5c3_Err != nil {
@@ -905,7 +905,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var48 string
 						templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveCategory)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 325, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 325, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 						if templ_7745c5c3_Err != nil {
@@ -918,7 +918,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var49 templ.SafeURL
 						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 326, Col: 337}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 326, Col: 337}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 						if templ_7745c5c3_Err != nil {
@@ -937,7 +937,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var50 string
 						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveBrand)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 331, Col: 49}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 331, Col: 49}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 						if templ_7745c5c3_Err != nil {
@@ -950,7 +950,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var51 templ.SafeURL
 						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 332, Col: 343}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 332, Col: 343}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 						if templ_7745c5c3_Err != nil {
@@ -969,7 +969,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var52 string
 						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(data.DosageForm)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 337, Col: 46}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 337, Col: 46}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 						if templ_7745c5c3_Err != nil {
@@ -982,7 +982,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var53 templ.SafeURL
 						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 338, Col: 337}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 338, Col: 337}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 						if templ_7745c5c3_Err != nil {
@@ -1001,7 +1001,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var54 templ.SafeURL
 						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 344, Col: 343}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 344, Col: 343}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 						if templ_7745c5c3_Err != nil {
@@ -1020,7 +1020,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 						var templ_7745c5c3_Var55 templ.SafeURL
 						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_catalog.templ`, Line: 350, Col: 335}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 350, Col: 335}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 						if templ_7745c5c3_Err != nil {

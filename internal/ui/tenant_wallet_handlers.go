@@ -2,12 +2,9 @@ package ui
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -111,6 +108,22 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 				depositRequests = deps
 			}
 		}
+
+		// Withdrawal requests back the status filter (billing.wallet_withdrawals.status).
+		// pending/rejected show matching requests; completed shows ledger only.
+		// A type filter other than withdrawal hides withdrawal requests.
+		var withdrawalRequests []*billing.WalletWithdrawal
+		wantWithdrawals := txStatus != "completed" && (txType == "" || txType == string(billing.TxWithdrawal))
+		if wantWithdrawals {
+			withStatus := ""
+			if txStatus == "pending" || txStatus == "rejected" {
+				withStatus = txStatus
+			}
+			if withs, err := h.billSvc.ListUserWithdrawalsWithStatus(ctx, walletUserID, withStatus, 50, 0); err == nil {
+				withdrawalRequests = withs
+			}
+		}
+
 		if wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP"); err == nil && wItem != nil {
 			wallet = wItem
 			// Ledger rows back the type filter (billing.wallet_transactions.type).
@@ -122,24 +135,37 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+
+		viewData := pages.WalletViewData{
+			IsVendor:               isVendor,
+			Wallet:                 wallet,
+			Transactions:           txs,
+			DepositRequests:        depositRequests,
+			WithdrawalRequests:     withdrawalRequests,
+			PaymentMethods:         paymentMethods,
+			PlatformPaymentMethods: platformPaymentMethods,
+			NoticeType:             r.URL.Query().Get("notice"),
+			NoticeMessage:          r.URL.Query().Get("msg"),
+			TxStatus:               txStatus,
+			TxType:                 txType,
+			Page:                   page,
+			PerPage:                limit,
+			TotalCount:             totalTxCount,
+		}
+
+		h.renderPage(ctx, w, "render tenant wallet page", pages.WalletPage(viewData, lang, dir))
+		return
 	}
 
 	viewData := pages.WalletViewData{
-		IsVendor:               isVendor,
-		Wallet:                 wallet,
-		Transactions:           txs,
-		DepositRequests:        depositRequests,
-		PaymentMethods:         paymentMethods,
-		PlatformPaymentMethods: platformPaymentMethods,
-		NoticeType:             r.URL.Query().Get("notice"),
-		NoticeMessage:          r.URL.Query().Get("msg"),
-		TxStatus:               txStatus,
-		TxType:                 txType,
-		Page:                   page,
-		PerPage:                limit,
-		TotalCount:             totalTxCount,
+		IsVendor:      isVendor,
+		NoticeType:    r.URL.Query().Get("notice"),
+		NoticeMessage: r.URL.Query().Get("msg"),
+		TxStatus:      txStatus,
+		TxType:        txType,
+		Page:          page,
+		PerPage:       limit,
 	}
-
 	h.renderPage(ctx, w, "render tenant wallet page", pages.WalletPage(viewData, lang, dir))
 }
 
@@ -163,7 +189,17 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	platformMethodID := strings.TrimSpace(r.PostFormValue("platform_method_id"))
+	senderAccount := strings.TrimSpace(r.PostFormValue("sender_account"))
+	var senderPMIDPtr *int64
+	if spmID, err := strconv.ParseInt(r.PostFormValue("sender_payment_method_id"), 10, 64); err == nil && spmID > 0 {
+		senderPMIDPtr = &spmID
+	}
+
 	method := strings.TrimSpace(r.PostFormValue("payment_method"))
+	if method == "" && platformMethodID != "" {
+		method = platformMethodID
+	}
 	ref := strings.TrimSpace(r.PostFormValue("reference_number"))
 	notes := strings.TrimSpace(r.PostFormValue("notes"))
 
@@ -195,7 +231,7 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
-	if _, err := h.billSvc.RequestDeposit(ctx, walletUserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes); err != nil {
+	if _, err := h.billSvc.RequestDepositExtended(ctx, walletUserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes, platformMethodID, senderAccount, senderPMIDPtr); err != nil {
 		h.log.ErrorContext(ctx, "failed to submit deposit request", "error", err)
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
@@ -227,147 +263,51 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	destAcc := strings.TrimSpace(r.PostFormValue("destination_id"))
-	if details := strings.TrimSpace(r.PostFormValue("destination_details")); details != "" {
-		if destAcc != "" {
-			destAcc = destAcc + " - " + details
-		} else {
-			destAcc = details
-		}
+	payoutType := strings.TrimSpace(r.PostFormValue("payout_method_type"))
+	destDetails := strings.TrimSpace(r.PostFormValue("destination_details"))
+	destID := strings.TrimSpace(r.PostFormValue("destination_id"))
+	if destDetails == "" && destID != "" {
+		destDetails = destID
 	}
-	if destAcc == "" {
+	if destDetails == "" {
 		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.destination_required"))
 		return
 	}
 
-	reason := r.PostFormValue("reason")
-	desc := fmt.Sprintf(i18n.T(lang, "wallet.withdraw.desc_prefix"), destAcc)
-	if reason != "" {
-		desc += fmt.Sprintf(i18n.T(lang, "wallet.withdraw.reason_suffix"), reason)
+	var userPMIDPtr *int64
+	if pmID, err := strconv.ParseInt(r.PostFormValue("user_payment_method_id"), 10, 64); err == nil && pmID > 0 {
+		userPMIDPtr = &pmID
 	}
+
+	notes := strings.TrimSpace(r.PostFormValue("reason"))
 
 	if h.billSvc == nil {
 		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.service_unavailable"))
 		return
 	}
 
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+
 	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
-	if _, err := h.billSvc.Withdraw(ctx, walletUserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
-		h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
+
+	// Verify wallet available balance
+	wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP")
+	if err != nil || wItem == nil || wItem.Balance.Minor() < amt.Minor() {
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.insufficient_funds"))
+		return
+	}
+
+	if _, err := h.billSvc.RequestWithdrawal(ctx, walletUserID, orgPtr, "EGP", amt, payoutType, destDetails, userPMIDPtr, notes); err != nil {
+		h.log.ErrorContext(ctx, "failed wallet withdrawal request", "error", err)
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.withdraw.success"))
-}
+	// Dispatch in-app notification
+	go h.notifyWalletWithdrawal(context.Background(), walletUserID, actor.OrganizationID, amt, "pending")
 
-// TenantPaymentMethodAddSubmit saves a new payment method from the dedicated wallet page.
-func (h *UIHandler) TenantPaymentMethodAddSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang := langOf(r)
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.UserID == 0 {
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
-	}
-
-	dest := walletDestFor(actor)
-
-	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.service_unavailable"))
-		return
-	}
-
-	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "common.invalid_form_data"))
-		return
-	}
-	in, err := readPaymentMethodForm(r)
-	if err != nil {
-		h.redirectWithNotice(w, r, dest, "error", err.Error())
-		return
-	}
-
-	pm := &billing.UserPaymentMethod{
-		UserID:            actor.UserID,
-		Provider:          in.Provider,
-		AccountIdentifier: in.Identifier,
-		Details:           in.Details,
-		IsDefault:         r.PostFormValue("is_default") == "1",
-	}
-
-	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {
-		h.log.ErrorContext(ctx, "failed to add payment method", "error", err)
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
-		return
-	}
-
-	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.created_success"))
-}
-
-// TenantPaymentMethodDeleteSubmit deletes a saved payment method from the dedicated wallet page.
-func (h *UIHandler) TenantPaymentMethodDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang := langOf(r)
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.UserID == 0 {
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
-	}
-
-	dest := walletDestFor(actor)
-
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
-		return
-	}
-
-	if h.billSvc != nil {
-		_, candidateUIDs := resolveTenantUserIDs(ctx, h, actor)
-		deleted := false
-		for _, uid := range candidateUIDs {
-			if err := h.billSvc.DeletePaymentMethod(ctx, uid, id); err == nil {
-				deleted = true
-				break
-			}
-		}
-		if !deleted {
-			h.log.ErrorContext(ctx, "failed to delete payment method", "id", id)
-			h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
-			return
-		}
-	}
-
-	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.deleted_success"))
-}
-
-// resolveTenantUserIDs returns the primary wallet user ID and all candidate user IDs for the tenant org.
-func resolveTenantUserIDs(ctx context.Context, h *UIHandler, actor authctx.Actor) (int64, []int64) {
-	walletUserID := actor.UserID
-	seen := make(map[int64]bool)
-	var list []int64
-
-	addUID := func(uid int64) {
-		if uid > 0 && !seen[uid] {
-			seen[uid] = true
-			list = append(list, uid)
-		}
-	}
-	addUID(actor.UserID)
-
-	if actor.OrganizationID > 0 && h.orgSvc != nil {
-		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
-			for _, emp := range emps {
-				if emp != nil && emp.Member != nil {
-					if emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "owner" || emp.Member.RoleKey == "org_admin" {
-						walletUserID = emp.Member.UserID
-					}
-					addUID(emp.Member.UserID)
-				}
-			}
-		}
-	}
-	addUID(walletUserID)
-	return walletUserID, list
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.withdraw.pending_success"))
 }

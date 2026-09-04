@@ -26,6 +26,9 @@ type AdminFinanceData struct {
 	TotalTransactions    int
 	TotalDeposits        int
 	PendingDepositsCount int
+	Withdrawals          []*billing.AdminWalletWithdrawalView
+	TotalWithdrawals     int
+	PendingWithdrawalsCount int
 	TotalRevenue         money.Amount
 	TotalCommission      money.Amount
 	TotalPaid            money.Amount
@@ -50,12 +53,22 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				rejectDepositID: 0,
 				rejectDepositAmount: '',
 				rejectUserName: '',
+				rejectWithdrawalID: 0,
+				rejectWithdrawalAmount: '',
+				rejectWithdrawalUserName: '',
 				receiptModalURL: '',
 				openRejectModal(id, amount, userName) {
 					this.rejectDepositID = id;
 					this.rejectDepositAmount = amount;
 					this.rejectUserName = userName;
 					const modal = document.getElementById('finance-reject-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
+				},
+				openRejectWithdrawalModal(id, amount, userName) {
+					this.rejectWithdrawalID = id;
+					this.rejectWithdrawalAmount = amount;
+					this.rejectWithdrawalUserName = userName;
+					const modal = document.getElementById('finance-reject-withdrawal-modal');
 					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				},
 				openReceiptModal(url) {
@@ -156,6 +169,15 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d قيد المراجعة", data.PendingDepositsCount) }</span>
 						} else {
 							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalDeposits) }</span>
+						}
+					</a>
+					<a href="/admin/finance?tab=withdrawals" class={ "tab-btn", templ.KV("active", data.ActiveTab == "withdrawals") }>
+						@components.IconArrowLeft("icon-xs")
+						<span>طلبات سحب الرصيد</span>
+						if data.PendingWithdrawalsCount > 0 {
+							<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d قيد المراجعة", data.PendingWithdrawalsCount) }</span>
+						} else {
+							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalWithdrawals) }</span>
 						}
 					</a>
 					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices") }>
@@ -365,6 +387,172 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 											"q":      {data.Query},
 											"status": {data.StatusFilter},
 											"method": {data.MethodFilter},
+										},
+									})
+								}
+							}
+						</div>
+					}
+
+					<!-- TAB 0B: WITHDRAWAL REQUESTS REVIEW -->
+					if data.ActiveTab == "withdrawals" {
+						<div class="tab-panel active space-y-4">
+							<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
+								<div class="stack-sm">
+									<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
+										<span>@components.IconArrowLeft("icon-sm")</span>
+										<span>مراجعة وتدقيق طلبات سحب الرصيد</span>
+									</h2>
+									<p class="text-xs text-secondary mt-1 mb-0">الموافقة والاعتماد الفوري لسحوبات الصيدليات والموردين وخصم الرصيد، أو الرفض مع ذكر السبب.</p>
+								</div>
+								<!-- Search & Filter Form -->
+								<form method="GET" action="/admin/finance" class="d-flex gap-2 items-center flex-wrap m-0">
+									<input type="hidden" name="tab" value="withdrawals"/>
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث بالاسم، الإيميل، الهاتف، أو الحساب..." class="form-input text-sm min-w-64"/>
+									<select name="status" class="form-select text-sm w-auto">
+										<option value="">كل الحالات</option>
+										<option value="pending" selected?={ data.StatusFilter == "pending" }>⏳ قيد المراجعة (Pending)</option>
+										<option value="approved" selected?={ data.StatusFilter == "approved" }>معتمدة ومصروفة (Approved)</option>
+										<option value="rejected" selected?={ data.StatusFilter == "rejected" }>مرفوضة (Rejected)</option>
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm font-bold">تصفية</button>
+									if data.Query != "" || data.StatusFilter != "" {
+										<a href="/admin/finance?tab=withdrawals" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
+									}
+								</form>
+							</div>
+
+							if len(data.Withdrawals) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات سحب مطابقة", Message: "لم يتم العثور على أي طلبات سحب رصيد تطابق معايير الفلترة المحددة."})
+							} else {
+								<div class="table-container m-0">
+									<table class="data-table m-0">
+										<thead>
+											<tr>
+												<th class="nowrap"># الطلب</th>
+												<th>المستخدم / المنشأة</th>
+												<th class="nowrap">المبلغ المطلوب</th>
+												<th>وسيلة وبيانات الاستلام</th>
+												<th class="nowrap">تاريخ الطلب</th>
+												<th>الحالة والملاحظات</th>
+												<th class="col-actions nowrap min-w-40">الإجراءات والتدقيق</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, w := range data.Withdrawals {
+												<tr class="align-middle">
+													<td class="tabular-nums font-black text-accent nowrap">
+														#{ fmt.Sprintf("WTH-%d", w.ID) }
+													</td>
+													<td>
+														<div class="font-bold text-primary text-sm">{ w.UserName }</div>
+														<div class="text-xs text-muted tabular-nums mt-0.5" dir="ltr">
+															<span>{ w.UserEmail }</span>
+															if w.UserPhone != "" {
+																<span> • { w.UserPhone }</span>
+															}
+														</div>
+														if w.OrganizationName != "" {
+															<div class="mt-1">
+																<span class="badge badge-sky text-xs font-bold">{ w.OrganizationName }</span>
+															</div>
+														}
+													</td>
+													<td>
+														<div class="tabular-nums font-black text-danger text-base nowrap">
+															- { w.Amount.String() } ج.م
+														</div>
+													</td>
+													<td>
+														<div class="d-flex flex-col gap-1">
+															if w.PayoutMethodType != "" {
+																<span class="badge badge-purple text-xs font-black w-fit">{ paymentProviderTitle(w.PayoutMethodType) }</span>
+															}
+															<div class="text-xs font-bold text-primary select-all">
+																{ w.DestinationDetails }
+															</div>
+														</div>
+													</td>
+													<td class="tabular-nums text-xs text-muted nowrap">
+														{ w.CreatedAt.Format("2006-01-02 03:04 PM") }
+													</td>
+													<td>
+														<div class="d-flex flex-col gap-1 items-start">
+															if w.Status == billing.WithdrawalPending {
+																<span class="badge badge-amber text-xs font-black">
+																	<span>⏳ قيد المراجعة</span>
+																</span>
+															} else if w.Status == billing.WithdrawalApproved {
+																<span class="badge badge-emerald text-xs font-black">
+																	<span>معتمد ومخصوم</span>
+																</span>
+																if w.ReviewerName != "" {
+																	<div class="text-xs text-muted">بواسطة: { w.ReviewerName }</div>
+																}
+																if w.TransactionID != nil {
+																	<div class="text-xs text-muted tabular-nums">معاملة #{ fmt.Sprintf("TX-%d", *w.TransactionID) }</div>
+																}
+															} else if w.Status == billing.WithdrawalRejected {
+																<span class="badge badge-danger text-xs font-black">
+																	<span>مرفوض</span>
+																</span>
+																if w.RejectionReason != "" {
+																	<div class="text-xs text-danger bg-danger-subtle p-1 rounded border max-w-xs break-words">
+																		<strong>السبب:</strong> { w.RejectionReason }
+																	</div>
+																}
+																if w.ReviewerName != "" {
+																	<div class="text-xs text-muted">بواسطة: { w.ReviewerName }</div>
+																}
+															}
+															if w.UserNotes != "" {
+																<div class="text-xs text-secondary bg-surface-sunken p-1 rounded border max-w-xs break-words">
+																	{ w.UserNotes }
+																</div>
+															}
+														</div>
+													</td>
+													<td class="col-actions nowrap">
+														if w.Status == billing.WithdrawalPending {
+															<div class="table-actions">
+																<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/withdrawals/%d/approve", w.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد طلب السحب وخصمه من الرصيد الآن؟');">
+																	<button
+																		type="submit"
+																		class="btn btn-success btn-xs font-bold gap-1"
+																	>
+																		@components.IconCheck("icon-xs")
+																		<span>اعتماد وصرف</span>
+																	</button>
+																</form>
+																<button
+																	type="button"
+																	class="btn btn-danger btn-xs font-bold gap-1"
+																	@click={ fmt.Sprintf("openRejectWithdrawalModal(%d, '%s', '%s')", w.ID, w.Amount.String(), strings.ReplaceAll(w.UserName, "'", "\\'")) }
+																>
+																	@components.IconClose("icon-xs")
+																	<span>رفض</span>
+																</button>
+															</div>
+														} else {
+															<span class="badge badge-secondary text-xs">تمت المعالجة</span>
+														}
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+
+								if data.TotalWithdrawals > 0 {
+									@components.B2BPagination(components.PaginationProps{
+										CurrentPage: data.Page,
+										PageSize:    data.PerPage,
+										TotalCount:  data.TotalWithdrawals,
+										BaseURL:     "/admin/finance",
+										QueryValues: url.Values{
+											"tab":    {"withdrawals"},
+											"q":      {data.Query},
+											"status": {data.StatusFilter},
 										},
 									})
 								}
@@ -996,6 +1184,31 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 						<button type="button" class="btn btn-secondary" data-modal-close="finance-reject-modal">إلغاء</button>
 						<button type="submit" class="btn btn-danger font-bold">
 							<span>تأكيد رفض الطلب</span>
+						</button>
+					</div>
+				</form>
+			}
+
+			<!-- Reject Withdrawal Request Modal -->
+			@components.Modal(components.ModalProps{
+				ID:    "finance-reject-withdrawal-modal",
+				Title: "رفض طلب سحب الرصيد",
+				Size:  "sm",
+			}) {
+				<form :action="'/admin/finance/withdrawals/' + rejectWithdrawalID + '/reject'" method="POST" class="d-flex flex-col gap-4 m-0 text-start">
+					<div class="d-flex flex-col gap-3">
+						<div class="bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold">
+							أنت على وشك رفض طلب السحب المقدم من <strong x-text="rejectWithdrawalUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="rejectWithdrawalAmount + ' ج.م'"></strong>. لن يتم خصم الرصيد.
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label font-bold" for="rejection_reason_withdrawal">سبب الرفض (سيظهر للمستخدم في حسابه) *</label>
+							<textarea id="rejection_reason_withdrawal" name="rejection_reason" rows="3" class="form-input w-full" placeholder="مثال: بيانات الحساب غير صحيحة / الآيبان غير مطابق للاسم / تعذر إتمام التحويل..." required></textarea>
+						</div>
+					</div>
+					<div class="d-flex justify-end gap-3 mt-2">
+						<button type="button" class="btn btn-secondary" data-modal-close="finance-reject-withdrawal-modal">إلغاء</button>
+						<button type="submit" class="btn btn-danger font-bold">
+							<span>تأكيد رفض طلب السحب</span>
 						</button>
 					</div>
 				</form>

@@ -43,7 +43,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d موردين", len(offers)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 15, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 15, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -61,7 +61,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(off.SupplierName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 38, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 38, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -89,7 +89,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(off.BranchName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 45, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 45, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -108,7 +108,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(off.OldPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 58, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 58, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -122,7 +122,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(off.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 60, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 60, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", int(float64(off.DiscountBPS)/100.0+0.5)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 68, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 68, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -168,7 +168,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(off.Price.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 77, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 77, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -186,7 +186,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عبوة", off.AvailableStock))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 83, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 83, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", off.VariantID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 102, Col: 90}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 102, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 					if templ_7745c5c3_Err != nil {
@@ -242,7 +242,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", product.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 103, Col: 87}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 103, Col: 87}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -255,7 +255,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", off.SupplierID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 104, Col: 96}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 104, Col: 96}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 					if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", off.SupplierID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 105, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 105, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 					if templ_7745c5c3_Err != nil {
@@ -281,7 +281,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(off.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 106, Col: 77}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 106, Col: 77}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
@@ -294,7 +294,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", max(1, off.MinOrderQty)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 107, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 107, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 					if templ_7745c5c3_Err != nil {
@@ -312,7 +312,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(off.CoverageReason)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 113, Col: 121}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 113, Col: 121}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
@@ -326,7 +326,7 @@ func CustomerProductDetailOffersTable(product *catalog.Product, offers []Supplie
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(off.CoverageReason)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_product_detail_offers.templ`, Line: 115, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_product_detail_offers.templ`, Line: 115, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {

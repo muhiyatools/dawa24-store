@@ -196,6 +196,8 @@ func loadFrontendUIKeysB(e *engine) {
 	addKey(e, "wallet.withdraw.desc_prefix", "wallet", "طلب سحب رصيد إلى: %s", "Withdrawal request to: %s", "Withdrawal description")
 	addKey(e, "wallet.withdraw.reason_suffix", "wallet", " (السبب: %s)", " (Reason: %s)", "Withdrawal reason suffix")
 	addKey(e, "wallet.withdraw.success", "wallet", "تم خصم وتسجيل طلب السحب بنجاح.", "Withdrawal request deducted and registered successfully.", "Success notice")
+	addKey(e, "wallet.withdraw.pending_success", "wallet", "تم تسجيل طلب سحب الرصيد بنجاح، والعملية قيد مراجعة وتدقيق الإدارة المالية.", "Withdrawal request registered successfully and is under review by the finance department.", "Success notice")
+	addKey(e, "wallet.withdraw.insufficient_funds", "wallet", "رصيد المحفظة المتاح غير كافٍ لإتمام طلب السحب.", "Available wallet balance is insufficient for this withdrawal request.", "Validation error")
 
 	// --- Organization Documents ---
 	addKey(e, "docs.load_failed", "docs", "تعذر تحميل المستندات، حاول مجدداً.", "Failed to load documents, please try again.", "Load error")

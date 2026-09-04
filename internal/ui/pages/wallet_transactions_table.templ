@@ -9,33 +9,31 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-// UnifiedWalletTransaction is a view model that combines ledger entries and deposit requests.
+// UnifiedWalletTransaction is a view model that combines ledger entries and deposit/withdrawal requests.
 type UnifiedWalletTransaction struct {
-	IsDepositRequest bool
-	DepositID        int64
-	TypeBadgeClass   string
-	TypeLabel        string
-	StatusBadgeClass string
-	StatusLabel      string
-	AmountFormatted  string
-	IsPositive       bool
-	BalanceAfter     string
-	Description      string
-	Reference        string
-	AttachmentURL    string
-	CreatedAt        string
+	IsDepositRequest    bool
+	IsWithdrawalRequest bool
+	DepositID           int64
+	WithdrawalID        int64
+	TypeBadgeClass      string
+	TypeLabel           string
+	StatusBadgeClass    string
+	StatusLabel         string
+	AmountFormatted     string
+	IsPositive          bool
+	BalanceAfter        string
+	Description         string
+	Reference           string
+	AttachmentURL       string
+	CreatedAt           string
 }
 
-func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit) []UnifiedWalletTransaction {
+func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, withs []*billing.WalletWithdrawal) []UnifiedWalletTransaction {
 	var list []UnifiedWalletTransaction
 
 	// 1. Pending or rejected deposit requests that are not yet ledger transactions
 	for _, dep := range deps {
-		if dep == nil {
-			continue
-		}
-		// If deposit is approved, it already has a ledger transaction in data.Transactions
-		if dep.Status == "approved" {
+		if dep == nil || dep.Status == "approved" {
 			continue
 		}
 
@@ -68,7 +66,44 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 		})
 	}
 
-	// 2. Completed ledger transactions
+	// 2. Pending or rejected withdrawal requests that are not yet ledger transactions
+	for _, with := range withs {
+		if with == nil || with.Status == "approved" {
+			continue
+		}
+
+		statusBadge := "badge-amber"
+		statusLabel := "قيد المراجعة"
+		if with.Status == "rejected" {
+			statusBadge = "badge-rose"
+			statusLabel = "مرفوض"
+		} else if with.Status == "cancelled" {
+			statusBadge = "badge-slate"
+			statusLabel = "ملغي"
+		}
+
+		desc := fmt.Sprintf("طلب سحب رصيد إلى: %s (طلب #%d)", with.DestinationDetails, with.ID)
+		if with.RejectionReason != "" && with.Status == "rejected" {
+			desc += fmt.Sprintf(" [سبب الرفض: %s]", with.RejectionReason)
+		}
+
+		list = append(list, UnifiedWalletTransaction{
+			IsWithdrawalRequest: true,
+			WithdrawalID:        with.ID,
+			TypeBadgeClass:      "badge-amber",
+			TypeLabel:           "طلب سحب رصيد",
+			StatusBadgeClass:    statusBadge,
+			StatusLabel:         statusLabel,
+			AmountFormatted:     "-" + with.Amount.String() + " ج.م",
+			IsPositive:          false,
+			BalanceAfter:        "-",
+			Description:         desc,
+			Reference:           with.PublicID,
+			CreatedAt:           with.CreatedAt.Format("2006-01-02 03:04 PM"),
+		})
+	}
+
+	// 3. Completed ledger transactions
 	for _, tx := range txs {
 		if tx == nil {
 			continue
@@ -111,8 +146,8 @@ func buildUnifiedTransactions(txs []*billing.WalletTransaction, deps []*billing.
 	return list
 }
 
-templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, page, perPage, totalCount int, baseURL string, query url.Values) {
-	{{ items := buildUnifiedTransactions(txs, deps) }}
+templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.WalletDeposit, withs []*billing.WalletWithdrawal, page, perPage, totalCount int, baseURL string, query url.Values) {
+	{{ items := buildUnifiedTransactions(txs, deps, withs) }}
 	<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
 		if len(items) == 0 {
 			<div class="p-6">

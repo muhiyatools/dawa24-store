@@ -54,7 +54,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(lang)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 23, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 23, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -67,7 +67,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(dir)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 23, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 23, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -109,7 +109,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ErrorMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 89, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 89, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.SuccessMessage)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 102, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 102, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -177,7 +177,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.TrackingQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 126, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 126, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.ShipmentNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 150, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 150, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.TrackingNumber)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 152, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 152, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -291,7 +291,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 186, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 186, Col: 118}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -309,7 +309,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 192, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 192, Col: 107}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchAddress)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 200, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 200, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerManagerName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 211, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 211, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -371,7 +371,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var13 templ.SafeURL
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 220, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 220, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -392,7 +392,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchPhone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 224, Col: 83}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 224, Col: 83}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -449,7 +449,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Shipment.Lines)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 258, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 258, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -467,7 +467,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(line.ProductName.Get(i18n.ParseLang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 265, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 265, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -485,7 +485,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(line.VariantName.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 267, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 267, Col: 98}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -503,7 +503,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 272, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 272, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -539,7 +539,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Shipment.TrackingNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 297, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 297, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
@@ -557,7 +557,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Shipment.ShipmentNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 299, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 299, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 					if templ_7745c5c3_Err != nil {
@@ -575,7 +575,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Shipment.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 301, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 301, Col: 92}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 				if templ_7745c5c3_Err != nil {
@@ -593,7 +593,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.TotalAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 331, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 331, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -637,7 +637,7 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.DeliveredAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `courier_delivery.templ`, Line: 371, Col: 90}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 371, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {

@@ -58,7 +58,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, p
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", totalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 17, Col: 140}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 17, Col: 140}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, p
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 39, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 39, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, p
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 40, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 40, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -112,7 +112,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, p
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalDiscount.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 41, Col: 85}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 41, Col: 85}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -125,7 +125,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, p
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 42, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 42, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, p
 					var templ_7745c5c3_Var8 templ.SafeURL
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 44, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 44, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(offer.Title.Get("ar"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 70, Col: 109}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 70, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(offer.DiscountValue.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 71, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 71, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -246,7 +246,7 @@ func CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", offer.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 77, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 77, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -363,7 +363,7 @@ func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(orderNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 121, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 121, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
@@ -382,7 +382,7 @@ func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(order.OrderNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 131, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 131, Col: 56}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -395,7 +395,7 @@ func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(string(order.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 133, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 133, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -408,7 +408,7 @@ func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(order.CreatedAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_saving_orders.templ`, Line: 136, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving_orders.templ`, Line: 136, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {

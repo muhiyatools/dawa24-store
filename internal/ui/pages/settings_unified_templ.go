@@ -79,7 +79,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.unified_title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 43, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 43, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -92,7 +92,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.unified_desc"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 47, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 47, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -110,7 +110,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var5 templ.SafeURL
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(walletHref))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 53, Col: 41}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 53, Col: 41}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -131,7 +131,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "billing.wallet_balance"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 55, Col: 53}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 55, Col: 53}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -157,7 +157,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.tab_profile"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 71, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 71, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -178,7 +178,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.tab_preferences"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 82, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 82, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -191,7 +191,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.profile_section_title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 94, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 94, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -209,7 +209,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.User.AvatarURL)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 113, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 113, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 				if templ_7745c5c3_Err != nil {
@@ -240,7 +240,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.avatar_label"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 125, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 125, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -261,7 +261,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.avatar_change"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 129, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 129, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -287,7 +287,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.avatar_delete"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 156, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 156, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -305,7 +305,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.avatar_hint"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 162, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 162, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -318,7 +318,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.full_name"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 168, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 168, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(userNameVal(data.User, lang))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 169, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 169, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
@@ -344,7 +344,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.email"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 173, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 173, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -357,7 +357,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(userEmailVal(data.User))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 174, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 174, Col: 118}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
@@ -370,7 +370,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.phone"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 178, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 178, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(userPhoneVal(data.User))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 179, Col: 116}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 179, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.account_role"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 183, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 183, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -409,7 +409,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(userRoleVal(data.User))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 184, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 184, Col: 118}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {
@@ -430,7 +430,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.save_profile"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 190, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 190, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -451,7 +451,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.delete_account_title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 201, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 201, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
@@ -464,7 +464,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.delete_account_desc"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 204, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 204, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -485,7 +485,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.delete_account_btn"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 213, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 213, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -498,7 +498,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.pref_title"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 227, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 227, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
@@ -511,7 +511,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.pref_email"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 233, Col: 85}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 233, Col: 85}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -524,7 +524,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.pref_email_desc"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 234, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 234, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -537,7 +537,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.pref_promos"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 241, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 241, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -550,7 +550,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.pref_promos_desc"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 242, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 242, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -571,7 +571,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "settings.save_preferences"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `settings_unified.templ`, Line: 250, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/settings_unified.templ`, Line: 250, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {

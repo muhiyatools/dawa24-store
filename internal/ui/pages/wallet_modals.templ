@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -32,47 +33,128 @@ templ WalletModals(data WalletViewData) {
 				enctype="multipart/form-data"
 				class="stack-sm p-5"
 			>
-				<div class="form-group mb-2">
-					<label class="form-label text-xs">مبلغ الإيداع (ج.م) *</label>
-					<input type="number" name="amount" step="0.01" min="1" required class="form-input form-input-sm" placeholder="مثال: 5000" />
+				<input type="hidden" name="payment_method" :value="selectedPlatform ? selectedPlatform.name : 'bank_transfer'" />
+
+				<div class="alert alert-info text-xs mb-3">
+					@components.IconInfo("icon-xs")
+					<span>طلبات شحن الرصيد تُقدم بحالة (قيد المراجعة) ويتم التحقق من التحويل من قبل الإدارة المالية وقيد الرصيد فور اعتماده.</span>
 				</div>
 
-				<div class="form-group mb-2">
+				<!-- Step 1: Platform Payment Channel -->
+				<div class="form-group mb-3">
+					<label class="form-label text-xs font-bold">1. وسيلة الدفع وحساب الاستلام للمنصة *</label>
+					<select
+						name="platform_method_id"
+						x-model="selectedPlatformId"
+						@change="onPlatformChange()"
+						required
+						class="form-select form-select-sm font-bold"
+					>
+						if len(data.PlatformPaymentMethods) > 0 {
+							for _, ppm := range data.PlatformPaymentMethods {
+								if ppm.IsDepositEnabled && ppm.IsActive {
+									<option value={ ppm.ID }>
+										{ ppm.Name.Get(i18n.AR) }
+									</option>
+								}
+							}
+						}
+					</select>
+					<span class="text-2xs text-muted mt-1 d-block">اختر طريقة الدفع التي ترغب في التحويل إلى حساب المنصة من خلالها</span>
+				</div>
+
+				<!-- Visual Platform Destination Details Card -->
+				<template x-if="selectedPlatform">
+					<div class="glass-panel p-3 mb-3 bg-surface-sunken border rounded-lg">
+						<div class="d-flex items-center justify-between mb-2">
+							<span class="text-xs font-black text-brand" x-text="selectedPlatform.name"></span>
+							<span class="badge badge-sky text-2xs font-bold" x-text="selectedPlatform.provider_type"></span>
+						</div>
+						<div class="stack-xs text-xs">
+							<template x-if="selectedPlatform.account_name">
+								<div class="d-flex items-center justify-between">
+									<span class="text-muted">اسم صاحب الحساب:</span>
+									<span class="font-bold text-primary" x-text="selectedPlatform.account_name"></span>
+								</div>
+							</template>
+							<template x-if="selectedPlatform.bank_name">
+								<div class="d-flex items-center justify-between">
+									<span class="text-muted">اسم البنك:</span>
+									<span class="font-bold text-primary" x-text="selectedPlatform.bank_name"></span>
+								</div>
+							</template>
+							<template x-if="selectedPlatform.account_number">
+								<div class="d-flex items-center justify-between">
+									<span class="text-muted">رقم الحساب:</span>
+									<span class="font-mono font-bold text-primary select-all" dir="ltr" x-text="selectedPlatform.account_number"></span>
+								</div>
+							</template>
+							<template x-if="selectedPlatform.iban">
+								<div class="d-flex items-center justify-between">
+									<span class="text-muted">رقم الآيبان (IBAN):</span>
+									<span class="font-mono font-bold text-primary select-all text-xs" dir="ltr" x-text="selectedPlatform.iban"></span>
+								</div>
+							</template>
+							<template x-if="selectedPlatform.instapay_handle">
+								<div class="d-flex items-center justify-between">
+									<span class="text-muted">معرف إنستاباي (IPA):</span>
+									<span class="font-mono font-black text-brand select-all" dir="ltr" x-text="selectedPlatform.instapay_handle"></span>
+								</div>
+							</template>
+							<template x-if="selectedPlatform.phone_number">
+								<div class="d-flex items-center justify-between">
+									<span class="text-muted">رقم الهاتف / المحفظة:</span>
+									<span class="font-mono font-bold text-primary select-all" dir="ltr" x-text="selectedPlatform.phone_number"></span>
+								</div>
+							</template>
+							<template x-if="selectedPlatform.description">
+								<div class="text-2xs text-secondary mt-1 border-t pt-1" x-text="selectedPlatform.description"></div>
+							</template>
+						</div>
+					</div>
+				</template>
+
+				<!-- Step 2: Sender Payment Method (Filtered to match platform provider type) -->
+				<div class="form-group mb-3">
 					<div class="flex-between items-center mb-1">
-						<label class="form-label text-xs m-0">وسيلة التحويل أو الإيداع *</label>
+						<label class="form-label text-xs font-bold m-0">2. وسيلة الدفع التي سترسل منها *</label>
 						<button
 							type="button"
 							class="btn-link text-2xs font-bold text-brand"
 							@click="isDepositModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
 						>
-							+ إضافة وسيلة دفع جديدة وحفظها بحسابك
+							+ إضافة وسيلة دفع جديدة لحسابك
 						</button>
 					</div>
-					<select name="payment_method" required class="form-select form-select-sm">
-						if len(data.PaymentMethods) > 0 {
-							<optgroup label="وسائل الدفع وحساباتك المسجلة">
-								for _, pm := range data.PaymentMethods {
-									<option value={ pm.AccountIdentifier } selected?={ pm.IsDefault }>{ pm.AccountIdentifier }</option>
-								}
-							</optgroup>
-						}
-						if len(data.PlatformPaymentMethods) > 0 {
-							<optgroup label="حسابات المنصة الرسمية">
-								for _, ppm := range data.PlatformPaymentMethods {
-									if ppm.IsDepositEnabled && ppm.IsActive {
-										<option value={ ppm.ID }>{ ppm.Name.Get(i18n.AR) } - { ppm.AccountName } ({ ppm.BankName })</option>
-									}
-								}
-							</optgroup>
-						}
-						<optgroup label="وسائل تحويل أخرى">
-							<option value="bank_transfer">تحويل بنكي (Bank Transfer - CIB/QNB)</option>
-							<option value="instapay">إنستاباي (InstaPay)</option>
-							<option value="vodafone_cash">فودافون كاش (Vodafone Cash)</option>
-							<option value="credit_card">بطاقة دفع إلكتروني (Visa / Mastercard)</option>
-						</optgroup>
+					<select
+						name="sender_payment_method_id"
+						x-model="selectedSenderPMID"
+						@change="onSenderMethodChange()"
+						class="form-select form-select-sm"
+					>
+						<template x-for="m in filteredSenderMethods" :key="m.id">
+							<option :value="String(m.id)" x-text="m.identifier + ' (حسابك المسجل)'"></option>
+						</template>
+						<option value="manual">-- إدخال رقم الحساب / المحفظة يدوياً --</option>
 					</select>
-					<span class="text-2xs text-muted mt-1 d-block">اختر وسيلة الدفع التي قمت بالتحويل منها أو الحساب المعتمد</span>
+					<span class="text-2xs text-muted mt-1 d-block">يتم عرض طرق الدفع المسجلة لديك والمطابقة لنوع وسيلة الاستلام المحددة</span>
+
+					<div x-show="selectedSenderPMID === 'manual' || filteredSenderMethods.length === 0" class="mt-2">
+						<label class="form-label text-2xs">رقم الحساب أو الهاتف أو عنوان إنستاباي المحول منه *</label>
+						<input
+							type="text"
+							name="sender_account"
+							x-model="senderAccount"
+							class="form-input form-input-sm"
+							placeholder="أدخل رقم الحساب أو الآيبان أو الهاتف الذي تم التحويل منه بدقة"
+						/>
+					</div>
+				</div>
+
+				<!-- Step 3: Transfer Details -->
+				<div class="form-group mb-2">
+					<label class="form-label text-xs">3. مبلغ الإيداع (ج.م) *</label>
+					<input type="number" name="amount" step="0.01" min="1" required class="form-input form-input-sm" placeholder="مثال: 5000" />
 				</div>
 
 				<div class="form-group mb-2">
@@ -123,9 +205,40 @@ templ WalletModals(data WalletViewData) {
 				method="POST"
 				class="stack-sm p-5"
 			>
+				<!-- Balance Card -->
+				<div class="glass-panel p-3 mb-3 bg-surface-sunken border rounded-lg flex-between items-center">
+					<div>
+						<span class="text-xs text-muted d-block">الرصيد الفعلي المتاح للسحب</span>
+						<strong class={ "text-base font-black tabular-nums", walletBalanceClass(data.Wallet) }>
+							{ walletBalance(data.Wallet) }
+						</strong>
+					</div>
+					<span class="badge badge-emerald text-2xs font-bold">جاهز للسحب</span>
+				</div>
+
+				if data.Wallet == nil || data.Wallet.Balance.Minor() <= 0 {
+					<div class="alert alert-warning text-xs mb-3">
+						@components.IconAlert("icon-xs")
+						<span>رصيد محفظتك الحالي غير كافٍ لإجراء سحب. يجب أن يتوفر رصيد أكبر من الصفر لتقديم طلب السحب.</span>
+					</div>
+				}
+
+				<div class="alert alert-info text-xs mb-3">
+					@components.IconInfo("icon-xs")
+					<span>ملاحظة هامة: طلب السحب يُقدم بحالة (قيد المراجعة) ليتم تدقيقه من قبل الإدارة المالية وتحويل المبلغ لحسابك فور اعتماده.</span>
+				</div>
+
 				<div class="form-group mb-2">
-					<label class="form-label text-xs">مبلغ السحب (ج.م) *</label>
-					<input type="number" name="amount" step="0.01" min="1" required class="form-input form-input-sm" placeholder="أدخل المبلغ المطلوب سحبه" />
+					<label class="form-label text-xs">مبلغ السحب المطلوب (ج.م) *</label>
+					<input
+						type="number"
+						name="amount"
+						step="0.01"
+						min="1"
+						required
+						class="form-input form-input-sm"
+						placeholder="أدخل المبلغ المراد سحبه"
+					/>
 				</div>
 
 				<div class="form-group mb-2">
@@ -139,39 +252,44 @@ templ WalletModals(data WalletViewData) {
 							+ إضافة وسيلة دفع جديدة لحسابك
 						</button>
 					</div>
-					if len(data.PaymentMethods) > 0 {
-						<select name="destination_id" required class="form-select form-select-sm">
-							<option value="">-- اختر وسيلة الدفع أو الحساب المستلم --</option>
+
+					<select
+						name="user_payment_method_id"
+						x-model="withdrawUserMethodId"
+						@change="onWithdrawMethodChange()"
+						class="form-select form-select-sm"
+					>
+						if len(data.PaymentMethods) > 0 {
+							<option value="0">-- اختر وسيلة دفع من حساباتك المسجلة --</option>
 							for _, pm := range data.PaymentMethods {
-								<option value={ pm.AccountIdentifier } selected?={ pm.IsDefault }>
+								<option value={ fmt.Sprintf("%d", pm.ID) } selected?={ pm.IsDefault }>
 									{ pm.AccountIdentifier }
 									if pm.IsDefault {
 										{" (الافتراضي)"}
 									}
 								</option>
 							}
+						}
+						<option value="manual">-- إدخال حساب استلام يدوي --</option>
+					</select>
+
+					<div x-show="withdrawUserMethodId === 'manual' || withdrawUserMethodId === '0'" class="stack-xs mt-2">
+						<label class="form-label text-2xs">نوع وسيلة الاستلام *</label>
+						<select name="payout_method_type" x-model="withdrawPayoutType" class="form-select form-select-sm">
+							<option value="bank">تحويل بنكي رسمي (Bank Transfer)</option>
+							<option value="instapay">إنستاباي (InstaPay)</option>
+							<option value="wallet">محفظة هاتف ذكي (فودافون كاش / أورنج)</option>
 						</select>
-						<span class="text-2xs text-muted mt-1 d-block">سيتم تحويل المبالغ المسحوبة إلى هذا الحساب المسجل لديك</span>
-					} else {
-						<div class="stack-xs">
-							<select name="destination_id" required class="form-select form-select-sm">
-								<option value="">-- اختر طريقة الاستلام أو اكتب بياناتها --</option>
-								<option value="تحويل بنكي">تحويل بنكي رسمي (Bank Transfer)</option>
-								<option value="إنستاباي">إنستاباي (InstaPay)</option>
-								<option value="محفظة فودافون كاش">محفظة إلكترونية (فودافون كاش / أورنج)</option>
-							</select>
-							<input
-								type="text"
-								name="destination_details"
-								class="form-input form-input-sm mt-1"
-								placeholder="أدخل رقم الحساب أو الآيبان أو رقم المحفظة / إنستاباي بدقة..."
-							/>
-							<div class="d-flex items-center gap-1 text-2xs text-amber-600 mt-1">
-								@components.IconInfo("icon-2xs")
-								<span>نوصي بحفظ وسيلة دفع في تبويب 'طرق الدفع' لتظهر هنا دائماً تلقائياً</span>
-							</div>
-						</div>
-					}
+
+						<label class="form-label text-2xs mt-1">بيانات الحساب أو المحفظة بدقة *</label>
+						<input
+							type="text"
+							name="destination_details"
+							x-model="withdrawDestinationDetails"
+							class="form-input form-input-sm"
+							placeholder="اسم البنك، رقم الحساب أو الآيبان، أو رقم المحفظة / عنوان إنستاباي بدقة..."
+						/>
+					</div>
 				</div>
 
 				<div class="form-group mb-3">
@@ -183,7 +301,8 @@ templ WalletModals(data WalletViewData) {
 					<button type="button" class="btn btn-secondary btn-sm" @click="isWithdrawModalOpen = false">إلغاء</button>
 					<button
 						type="submit"
-						class="btn btn-danger btn-sm font-bold"
+						class="btn btn-primary btn-sm font-bold"
+						disabled?={ data.Wallet == nil || data.Wallet.Balance.Minor() <= 0 }
 					>
 						تأكيد طلب السحب
 					</button>

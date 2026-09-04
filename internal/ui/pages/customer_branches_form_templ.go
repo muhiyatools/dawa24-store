@@ -47,7 +47,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 66, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 66, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -60,7 +60,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", c.Latitude))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 67, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 67, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -73,7 +73,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", c.Longitude))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 68, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 68, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -87,7 +87,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 71, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 71, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -97,7 +97,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["en"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 73, Col: 23}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 73, Col: 23}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -121,7 +121,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(cat.Key)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 135, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 135, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +134,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(cat.LabelAr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_branches_form.templ`, Line: 136, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 136, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {

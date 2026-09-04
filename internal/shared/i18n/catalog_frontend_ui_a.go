@@ -249,6 +249,12 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "notif.wallet_deposit_pending_body", "wallet", "تم استلام إشعار الإيداع بمبلغ %s ج.م وجاري تدقيقه واعتماده.", "Deposit notice of %s EGP received and is being verified and approved.", "Wallet deposit pending body")
 	addKey(e, "notif.wallet_deposit_rejected_title", "wallet", "تم رفض طلب شحن الرصيد", "Wallet top-up request rejected", "Wallet deposit rejected title")
 	addKey(e, "notif.wallet_deposit_rejected_body", "wallet", "تم رفض طلب إيداع مبلغ %s ج.م في المحفظة.", "Deposit request of %s EGP was rejected.", "Wallet deposit rejected body")
+	addKey(e, "notif.wallet_withdrawal_approved_title", "wallet", "تمت الموافقة على طلب سحب الرصيد", "Wallet withdrawal request approved", "Wallet withdrawal approved title")
+	addKey(e, "notif.wallet_withdrawal_approved_body", "wallet", "تم اعتماد طلب سحب مبلغ %s ج.م وتحويله بنجاح.", "Amount of %s EGP was approved and paid out.", "Wallet withdrawal approved body")
+	addKey(e, "notif.wallet_withdrawal_pending_title", "wallet", "طلب سحب رصيد قيد المراجعة", "Withdrawal request under review", "Wallet withdrawal pending title")
+	addKey(e, "notif.wallet_withdrawal_pending_body", "wallet", "تم استلام طلب سحب مبلغ %s ج.م وجارٍ تدقيقه واعتماده.", "Withdrawal request of %s EGP received and is being verified and approved.", "Wallet withdrawal pending body")
+	addKey(e, "notif.wallet_withdrawal_rejected_title", "wallet", "تم رفض طلب سحب الرصيد", "Wallet withdrawal request rejected", "Wallet withdrawal rejected title")
+	addKey(e, "notif.wallet_withdrawal_rejected_body", "wallet", "تم رفض طلب سحب مبلغ %s ج.م من المحفظة.", "Withdrawal request of %s EGP was rejected.", "Wallet withdrawal rejected body")
 
 	// --- Registration & Organization Approval Notifications ---
 	addKey(e, "notif.account_registered_title", "identity", "مرحباً بك في منصة دواء 24! 🌿", "Welcome to Dawa24 Platform!", "Welcome registration title")

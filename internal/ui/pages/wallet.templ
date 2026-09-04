@@ -16,7 +16,7 @@ templ WalletPage(data WalletViewData, lang, dir string) {
 
 templ walletContent(data WalletViewData, lang, dir string) {
 	{{
-		pendingCount := computePendingDepositsCount(data.DepositRequests)
+		pendingCount := computePendingDepositsCount(data.DepositRequests) + computePendingWithdrawalsCount(data.WithdrawalRequests)
 		completedCount := len(data.Transactions)
 		totalOpsCount := completedCount + pendingCount
 	}}
@@ -170,9 +170,9 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				</form>
 			</div>
 			if data.IsVendor {
-				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet", walletTxQueryValues(data))
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.WithdrawalRequests, data.Page, data.PerPage, data.TotalCount, "/vendor/wallet", walletTxQueryValues(data))
 			} else {
-				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet", walletTxQueryValues(data))
+				@WalletTransactionsTable(data.Transactions, data.DepositRequests, data.WithdrawalRequests, data.Page, data.PerPage, data.TotalCount, "/customer/wallet", walletTxQueryValues(data))
 			}
 		</div>
 

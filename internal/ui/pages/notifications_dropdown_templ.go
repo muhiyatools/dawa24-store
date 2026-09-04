@@ -57,7 +57,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d غير مقروء", unread))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `notifications_dropdown.templ`, Line: 23, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 23, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -103,7 +103,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `notifications_dropdown.templ`, Line: 1, Col: 0}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 1, Col: 0}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -124,7 +124,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(n.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `notifications_dropdown.templ`, Line: 41, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 41, Col: 45}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(n.Body)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `notifications_dropdown.templ`, Line: 42, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 42, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread in
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(RelTime(n.CreatedAt))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `notifications_dropdown.templ`, Line: 45, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 45, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -224,7 +224,7 @@ func NotificationsUnreadBadge(unread int) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", unread))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `notifications_dropdown.templ`, Line: 68, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/notifications_dropdown.templ`, Line: 68, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {

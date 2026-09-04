@@ -159,7 +159,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عروض ترويجية", len(offers)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 85, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 85, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -240,7 +240,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", o.DiscountPercentage))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 129, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 129, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -258,7 +258,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(o.DiscountValue.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 133, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 133, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -283,7 +283,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.CoverageReason)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 142, Col: 88}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 142, Col: 88}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 						if templ_7745c5c3_Err != nil {
@@ -309,7 +309,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(o.CoverageReason)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 147, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 147, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 						if templ_7745c5c3_Err != nil {
@@ -359,7 +359,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(o.Title.Get(i18n.ParseLang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 166, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 166, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -377,7 +377,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(o.Description.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 172, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 172, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -404,7 +404,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrganizationName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 183, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 183, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -428,7 +428,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(o.BranchName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 190, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 190, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -451,7 +451,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d أصناف", o.ProductsCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 197, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 197, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -482,7 +482,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(o.ExpiresAt, lang))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 206, Col: 118}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 206, Col: 118}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -505,7 +505,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(o.TotalPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 218, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 218, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -523,7 +523,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(o.MinOrderAmount.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 223, Col: 38}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 223, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -546,7 +546,7 @@ func OffersContent(lang string, offers []*OfferCardData, sort string) templ.Comp
 				var templ_7745c5c3_Var17 templ.SafeURL
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/offers/%d", o.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `offers.templ`, Line: 235, Col: 61}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 235, Col: 61}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {

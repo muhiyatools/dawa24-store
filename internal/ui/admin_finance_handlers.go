@@ -45,12 +45,15 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		wallets              []*billing.AdminWalletView
 		transactions         []*billing.AdminWalletTransactionView
 		deposits             []*billing.AdminWalletDepositView
+		withdrawals          []*billing.AdminWalletWithdrawalView
 		totalInvoices        int
 		totalPayments        int
 		totalWallets         int
 		totalTransactions    int
 		totalDeposits        int
 		pendingDepositsCount int
+		totalWithdrawals     int
+		pendingWithdrawalsCount int
 	)
 
 	if h.billSvc != nil {
@@ -67,6 +70,22 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 			Offset:        depOffset,
 		})
 		_, pendingDepositsCount, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
+			Status: "pending",
+			Limit:  1,
+		})
+
+		withLimit, withOffset := 1, 0
+		if tab == "withdrawals" {
+			withLimit, withOffset = limit, offset
+		}
+		withdrawals, totalWithdrawals, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
+			Search:   searchQuery,
+			Status:   statusFilter,
+			WalletID: walletID,
+			Limit:    withLimit,
+			Offset:   withOffset,
+		})
+		_, pendingWithdrawalsCount, _ = h.billSvc.AdminListDetailedWithdrawals(ctx, billing.WithdrawalFilter{
 			Status: "pending",
 			Limit:  1,
 		})
@@ -136,7 +155,9 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 
 	totalPaid := money.FromMinor(totalPaidMinor)
 	totalRevenue := money.FromMinor(totalRevenueMinor)
-	commission := money.FromMinor(totalRevenueMinor * 5 / 100)
+
+	// Platform commission is 5% of gross payments
+	commission := money.FromMinor(int64(float64(totalPaidMinor) * 0.05))
 
 	var totalHeldMinor int64
 	for _, w := range wallets {
@@ -145,29 +166,32 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	totalHeld := money.FromMinor(totalHeldMinor)
 
 	data := pages.AdminFinanceData{
-		ActiveTab:            tab,
-		Invoices:             invoices,
-		Payments:             payments,
-		Wallets:              wallets,
-		Transactions:         transactions,
-		Deposits:             deposits,
-		TotalInvoices:        totalInvoices,
-		TotalPayments:        totalPayments,
-		TotalWallets:         totalWallets,
-		TotalTransactions:    totalTransactions,
-		TotalDeposits:        totalDeposits,
-		PendingDepositsCount: pendingDepositsCount,
-		TotalRevenue:         totalRevenue,
-		TotalCommission:      commission,
-		TotalPaid:            totalPaid,
-		TotalHeld:            totalHeld,
-		Query:                searchQuery,
-		StatusFilter:         statusFilter,
-		TypeFilter:           typeFilter,
-		MethodFilter:         methodFilter,
-		SelectedWalletID:     walletID,
-		Page:                 page,
-		PerPage:              limit,
+		ActiveTab:               tab,
+		Invoices:                invoices,
+		Payments:                payments,
+		Wallets:                 wallets,
+		Transactions:            transactions,
+		Deposits:                deposits,
+		Withdrawals:             withdrawals,
+		TotalInvoices:           totalInvoices,
+		TotalPayments:           totalPayments,
+		TotalWallets:            totalWallets,
+		TotalTransactions:       totalTransactions,
+		TotalDeposits:           totalDeposits,
+		PendingDepositsCount:    pendingDepositsCount,
+		TotalWithdrawals:        totalWithdrawals,
+		PendingWithdrawalsCount: pendingWithdrawalsCount,
+		TotalRevenue:            totalRevenue,
+		TotalCommission:         commission,
+		TotalPaid:               totalPaid,
+		TotalHeld:               totalHeld,
+		Query:                   searchQuery,
+		StatusFilter:            statusFilter,
+		TypeFilter:              typeFilter,
+		MethodFilter:            methodFilter,
+		SelectedWalletID:        walletID,
+		Page:                    page,
+		PerPage:                 limit,
 	}
 
 	h.renderPage(ctx, w, "render admin finance page", pages.AdminFinance(data, lang, dir))

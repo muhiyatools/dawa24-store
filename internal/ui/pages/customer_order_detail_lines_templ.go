@@ -81,7 +81,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 			var templ_7745c5c3_Var2 templ.SafeURL
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 45, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 45, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -104,7 +104,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 52, Col: 105}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 52, Col: 105}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -117,7 +117,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sh.VendorName.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 53, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 53, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -130,7 +130,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(sh.ShipmentNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 54, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 54, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(sh.TrackingNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 58, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 58, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -205,7 +205,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(order.TotalAmount.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 113, Col: 145}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 113, Col: 145}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -241,7 +241,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 131, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 131, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -254,7 +254,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(sh.VendorName.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 133, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 133, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -272,7 +272,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(sh.TrackingNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 138, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 138, Col: 93}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -291,7 +291,7 @@ func CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*o
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(sh.DeliveryCode)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 142, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 142, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", l.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 201, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 201, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
@@ -397,7 +397,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", l.UnitPrice.Minor()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 202, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 202, Col: 64}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -410,7 +410,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", unitDiscountMinor(l)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 203, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 203, Col: 68}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {
@@ -423,7 +423,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", minAllowedQty(l)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 204, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 204, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {
@@ -436,7 +436,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", maxAllowedQty(l)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 205, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 205, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 		if templ_7745c5c3_Err != nil {
@@ -449,7 +449,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", l.AvailableStock))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 206, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 206, Col: 60}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 		if templ_7745c5c3_Err != nil {
@@ -467,7 +467,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/orders/%d/lines/%d/offer-details", order.ID, l.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 213, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 213, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
@@ -488,7 +488,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(l.ProductName.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 219, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 219, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -506,7 +506,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(l.ProductName.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 223, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 223, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -530,7 +530,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(l.VariantName.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 229, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 229, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -549,7 +549,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(l.SKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 232, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 232, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
@@ -573,7 +573,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", l.AvailableStock))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 239, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 239, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
@@ -595,7 +595,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", l.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 244, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 244, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
@@ -608,7 +608,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(l.ProductName.Get(i18n.Lang(lang)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 245, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 245, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 		if templ_7745c5c3_Err != nil {
@@ -621,7 +621,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(l.UnitPrice.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 246, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 246, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 		if templ_7745c5c3_Err != nil {
@@ -634,7 +634,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(l.DiscountAmount.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 247, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 247, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 		if templ_7745c5c3_Err != nil {
@@ -647,7 +647,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", l.Quantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 256, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 256, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 		if templ_7745c5c3_Err != nil {
@@ -660,7 +660,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", minAllowedQty(l)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 257, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 257, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 		if templ_7745c5c3_Err != nil {
@@ -678,7 +678,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", maxAllowedQty(l)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 259, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 259, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 			if templ_7745c5c3_Err != nil {
@@ -696,7 +696,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(linePublicPrice(l).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 269, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 269, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -715,7 +715,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", int(discPct+0.5)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 274, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 274, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
@@ -738,7 +738,7 @@ func EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(l.TotalPrice.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 280, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 280, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
@@ -793,7 +793,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/orders/%d/lines/%d/offer-details", order.ID, l.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 297, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 297, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 			if templ_7745c5c3_Err != nil {
@@ -814,7 +814,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(l.ProductName.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 303, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 303, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 			if templ_7745c5c3_Err != nil {
@@ -832,7 +832,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var38 string
 			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(l.ProductName.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 307, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 307, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 			if templ_7745c5c3_Err != nil {
@@ -856,7 +856,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(l.VariantName.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 313, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 313, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 				if templ_7745c5c3_Err != nil {
@@ -875,7 +875,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 				var templ_7745c5c3_Var40 string
 				templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(l.SKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 316, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 316, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 				if templ_7745c5c3_Err != nil {
@@ -902,7 +902,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var41 string
 		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", l.Quantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 324, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 324, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 		if templ_7745c5c3_Err != nil {
@@ -915,7 +915,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(linePublicPrice(l).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 328, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 328, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
@@ -934,7 +934,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 			var templ_7745c5c3_Var43 string
 			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", int(discPct+0.5)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 333, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 333, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 			if templ_7745c5c3_Err != nil {
@@ -957,7 +957,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var44 string
 		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(l.UnitPrice.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 339, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 339, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 		if templ_7745c5c3_Err != nil {
@@ -970,7 +970,7 @@ func ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang str
 		var templ_7745c5c3_Var45 string
 		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(l.TotalPrice.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_detail_lines.templ`, Line: 342, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_detail_lines.templ`, Line: 342, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 		if templ_7745c5c3_Err != nil {

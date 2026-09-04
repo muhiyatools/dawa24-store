@@ -151,7 +151,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(view.TargetOrgName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 33, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 33, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(view.TargetOrgType)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 35, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 35, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -200,7 +200,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var8 templ.SafeURL
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.BaseURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 52, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 52, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -235,7 +235,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var9).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -248,7 +248,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(view.NoticeMsg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 65, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 65, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -267,7 +267,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(view.Fatal)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 72, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 72, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -280,7 +280,7 @@ func savingImportContent(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var13 templ.SafeURL
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 74, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 74, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -365,7 +365,7 @@ func savingUploadStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var15 templ.SafeURL
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL + "/upload"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 105, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 105, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func savingUploadStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var16 templ.SafeURL
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.BaseURL + "/sample.xlsx"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 116, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 116, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -399,7 +399,7 @@ func savingUploadStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var17 templ.SafeURL
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.BaseURL + "/sample.csv"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 120, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 120, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -454,7 +454,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Filename)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 171, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 171, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -467,7 +467,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 03:04 PM"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 175, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 175, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -480,7 +480,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(sess.TotalRows))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 178, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 178, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -508,7 +508,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(string(sess.Status))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 186, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 186, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
@@ -531,7 +531,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 				var templ_7745c5c3_Var23 templ.SafeURL
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%s", view.ImportURL, sess.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 192, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 192, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
@@ -549,7 +549,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 				var templ_7745c5c3_Var24 templ.SafeURL
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%s", view.ImportURL, sess.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 196, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 196, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -567,7 +567,7 @@ func savingSessionsHistoryCard(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var25 templ.SafeURL
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 200, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 200, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -615,7 +615,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Filename)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 222, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 222, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -628,7 +628,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(sess.TotalRows))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 222, Col: 104}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 222, Col: 104}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -641,7 +641,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var29 templ.SafeURL
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 224, Col: 116}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 224, Col: 116}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -662,7 +662,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var30 templ.SafeURL
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/%s/map", view.ImportURL, sess.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 232, Col: 95}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 232, Col: 95}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -680,7 +680,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(h)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 238, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 238, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 			if templ_7745c5c3_Err != nil {
@@ -703,7 +703,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d. %s", i+1, h))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 238, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 238, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
@@ -726,7 +726,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(h)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 248, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 248, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 			if templ_7745c5c3_Err != nil {
@@ -749,7 +749,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d. %s", i+1, h))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 248, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 248, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -772,7 +772,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(h)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 258, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 258, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 			if templ_7745c5c3_Err != nil {
@@ -795,7 +795,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d. %s", i+1, h))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 258, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 258, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
@@ -818,7 +818,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(h)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 268, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 268, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 			if templ_7745c5c3_Err != nil {
@@ -841,7 +841,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 			var templ_7745c5c3_Var38 string
 			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d. %s", i+1, h))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 268, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 268, Col: 104}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 			if templ_7745c5c3_Err != nil {
@@ -869,7 +869,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var39 templ.SafeURL
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 294, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 294, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
@@ -912,7 +912,7 @@ func savingCompletedStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var41 string
 		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(sess.InsertedCount + sess.UpdatedCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 309, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 309, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 		if templ_7745c5c3_Err != nil {
@@ -925,7 +925,7 @@ func savingCompletedStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var42 templ.SafeURL
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.BaseURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 313, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 313, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
@@ -938,7 +938,7 @@ func savingCompletedStage(view SavingImportView) templ.Component {
 		var templ_7745c5c3_Var43 templ.SafeURL
 		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 316, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_wizard.templ`, Line: 316, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
