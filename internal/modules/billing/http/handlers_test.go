@@ -283,6 +283,30 @@ func (r stubRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64
 	r.fail("AdminRejectDepositRequest")
 	return nil, nil
 }
+func (r stubRepo) CreateWithdrawalRequest(ctx context.Context, w *billing.WalletWithdrawal) error {
+	r.fail("CreateWithdrawalRequest")
+	return nil
+}
+func (r stubRepo) GetWithdrawalRequestByID(ctx context.Context, id int64) (*billing.WalletWithdrawal, error) {
+	r.fail("GetWithdrawalRequestByID")
+	return nil, nil
+}
+func (r stubRepo) ListWithdrawalRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*billing.WalletWithdrawal, error) {
+	r.fail("ListWithdrawalRequestsByUserWithStatus")
+	return nil, nil
+}
+func (r stubRepo) AdminListDetailedWithdrawals(ctx context.Context, filter billing.WithdrawalFilter) ([]*billing.AdminWalletWithdrawalView, int, error) {
+	r.fail("AdminListDetailedWithdrawals")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
+	r.fail("AdminApproveWithdrawalRequest")
+	return nil, nil, nil
+}
+func (r stubRepo) AdminRejectWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64, reason string) (*billing.WalletWithdrawal, error) {
+	r.fail("AdminRejectWithdrawalRequest")
+	return nil, nil
+}
 
 type happyRepo struct{}
 

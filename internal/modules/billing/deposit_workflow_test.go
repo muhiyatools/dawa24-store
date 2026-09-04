@@ -122,6 +122,30 @@ func (m *mockBillingRepo) AdminRejectDepositRequest(ctx context.Context, deposit
 	return dep, nil
 }
 
+func (m *mockBillingRepo) CreateWithdrawalRequest(_ context.Context, _ *billing.WalletWithdrawal) error {
+	return nil
+}
+
+func (m *mockBillingRepo) GetWithdrawalRequestByID(_ context.Context, _ int64) (*billing.WalletWithdrawal, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) ListWithdrawalRequestsByUserWithStatus(_ context.Context, _ int64, _ string, _, _ int) ([]*billing.WalletWithdrawal, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedWithdrawals(_ context.Context, _ billing.WithdrawalFilter) ([]*billing.AdminWalletWithdrawalView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, _ int64, _ int64) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
+	return nil, nil, nil
+}
+
+func (m *mockBillingRepo) AdminRejectWithdrawalRequest(_ context.Context, _ int64, _ int64, _ string) (*billing.WalletWithdrawal, error) {
+	return nil, nil
+}
+
 func TestDepositWorkflowLifecycle(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()

@@ -88,7 +88,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var3 string
 						templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(r.RunNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 74, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 74, Col: 27}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 						if templ_7745c5c3_Err != nil {
@@ -98,7 +98,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var4 string
 						templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("RUN-%d", r.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 76, Col: 43}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 76, Col: 43}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 						if templ_7745c5c3_Err != nil {
@@ -113,7 +113,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(r.OriginalFile)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 81, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 81, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / %d صنف", r.Stats.MatchedRows, r.Stats.TotalRows))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 95, Col: 85}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 95, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -163,7 +163,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 							var templ_7745c5c3_Var7 string
 							templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%%%d مطابقة", int((float64(r.Stats.MatchedRows)/float64(r.Stats.TotalRows))*100)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 99, Col: 117}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 99, Col: 117}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 							if templ_7745c5c3_Err != nil {
@@ -192,7 +192,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(r.EstimatedTotal.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 109, Col: 39}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 109, Col: 39}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(r.CreatedAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 115, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 115, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var10 templ.SafeURL
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/review?run_id=%d", r.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 120, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 120, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -259,7 +259,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var11 templ.SafeURL
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d", *r.OrderID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 128, Col: 72}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 128, Col: 72}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -285,7 +285,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var12 templ.SafeURL
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/review?run_id=%d", r.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 136, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 136, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -303,7 +303,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var13 templ.SafeURL
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/new?resume_id=%d", r.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 144, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_history.templ`, Line: 144, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {

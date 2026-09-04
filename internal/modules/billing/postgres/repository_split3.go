@@ -18,9 +18,10 @@ func (r *Repository) CreateDepositRequest(ctx context.Context, dep *billing.Wall
 		query := `
 			INSERT INTO billing.wallet_deposits (
 				wallet_id, user_id, organization_id, amount, currency, payment_method, 
-				reference_number, attachment_url, user_notes, status
+				reference_number, attachment_url, user_notes, status,
+				platform_method_id, sender_account, sender_payment_method_id
 			)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending')
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', NULLIF($10, ''), $11, $12)
 			RETURNING id, public_id, status, created_at, updated_at;
 		`
 		var statusStr string
@@ -28,6 +29,7 @@ func (r *Repository) CreateDepositRequest(ctx context.Context, dep *billing.Wall
 			txCtx, query,
 			dep.WalletID, dep.UserID, dep.OrganizationID, dep.Amount, dep.Currency,
 			dep.PaymentMethod, dep.ReferenceNumber, dep.AttachmentURL, dep.UserNotes,
+			dep.PlatformMethodID, dep.SenderAccount, dep.SenderPaymentMethodID,
 		).Scan(&dep.ID, &dep.PublicID, &statusStr, &dep.CreatedAt, &dep.UpdatedAt); err != nil {
 			return fmt.Errorf("create deposit request: %w", err)
 		}
@@ -44,6 +46,7 @@ func (r *Repository) GetDepositRequestByID(ctx context.Context, id int64) (*bill
 			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
 			       payment_method, reference_number, COALESCE(attachment_url, ''), COALESCE(user_notes, ''),
 			       status, COALESCE(rejection_reason, ''), reviewed_by, reviewed_at, transaction_id,
+			       COALESCE(platform_method_id, ''), COALESCE(sender_account, ''), sender_payment_method_id,
 			       created_at, updated_at
 			FROM billing.wallet_deposits
 			WHERE id = $1;
@@ -53,6 +56,7 @@ func (r *Repository) GetDepositRequestByID(ctx context.Context, id int64) (*bill
 			&dep.ID, &dep.PublicID, &dep.WalletID, &dep.UserID, &dep.OrganizationID, &dep.Amount, &dep.Currency,
 			&dep.PaymentMethod, &dep.ReferenceNumber, &dep.AttachmentURL, &dep.UserNotes,
 			&statusStr, &dep.RejectionReason, &dep.ReviewedBy, &dep.ReviewedAt, &dep.TransactionID,
+			&dep.PlatformMethodID, &dep.SenderAccount, &dep.SenderPaymentMethodID,
 			&dep.CreatedAt, &dep.UpdatedAt,
 		)
 		if err != nil {
@@ -120,6 +124,7 @@ func (r *Repository) ListDepositRequestsByUserWithStatus(ctx context.Context, us
 			SELECT id, public_id::text, wallet_id, user_id, organization_id, amount, currency,
 			       payment_method, reference_number, COALESCE(attachment_url, ''), COALESCE(user_notes, ''),
 			       status, COALESCE(rejection_reason, ''), reviewed_by, reviewed_at, transaction_id,
+			       COALESCE(platform_method_id, ''), COALESCE(sender_account, ''), sender_payment_method_id,
 			       created_at, updated_at
 			FROM billing.wallet_deposits
 			WHERE user_id = $1` + statusPred + `
@@ -140,6 +145,7 @@ func (r *Repository) ListDepositRequestsByUserWithStatus(ctx context.Context, us
 				&dep.ID, &dep.PublicID, &dep.WalletID, &dep.UserID, &dep.OrganizationID, &dep.Amount, &dep.Currency,
 				&dep.PaymentMethod, &dep.ReferenceNumber, &dep.AttachmentURL, &dep.UserNotes,
 				&statusStr, &dep.RejectionReason, &dep.ReviewedBy, &dep.ReviewedAt, &dep.TransactionID,
+				&dep.PlatformMethodID, &dep.SenderAccount, &dep.SenderPaymentMethodID,
 				&dep.CreatedAt, &dep.UpdatedAt,
 			); err != nil {
 				return err

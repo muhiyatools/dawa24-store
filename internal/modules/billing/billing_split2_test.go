@@ -141,6 +141,30 @@ func (m *mockBillingRepo) AdminRejectDepositRequest(_ context.Context, _ int64, 
 	return nil, nil
 }
 
+func (m *mockBillingRepo) CreateWithdrawalRequest(_ context.Context, _ *WalletWithdrawal) error {
+	return nil
+}
+
+func (m *mockBillingRepo) GetWithdrawalRequestByID(_ context.Context, _ int64) (*WalletWithdrawal, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) ListWithdrawalRequestsByUserWithStatus(_ context.Context, _ int64, _ string, _, _ int) ([]*WalletWithdrawal, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedWithdrawals(_ context.Context, _ WithdrawalFilter) ([]*AdminWalletWithdrawalView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminApproveWithdrawalRequest(_ context.Context, _ int64, _ int64) (*WalletWithdrawal, *WalletTransaction, error) {
+	return nil, nil, nil
+}
+
+func (m *mockBillingRepo) AdminRejectWithdrawalRequest(_ context.Context, _ int64, _ int64, _ string) (*WalletWithdrawal, error) {
+	return nil, nil
+}
+
 func (m *mockBillingRepo) GetVendorPaymentStats(_ context.Context, _ int64) (*VendorPaymentStats, error) {
 	return &VendorPaymentStats{}, nil
 }

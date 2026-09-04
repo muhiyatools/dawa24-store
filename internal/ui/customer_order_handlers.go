@@ -76,6 +76,7 @@ func (h *UIHandler) CustomerOrderDetailPage(w http.ResponseWriter, r *http.Reque
 		h.renderError(w, r, err)
 		return
 	}
+	h.enrichOrderPricing(ctx, order)
 
 	history, _ := h.commSvc.GetOrderHistory(ctx, id)
 

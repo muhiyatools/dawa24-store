@@ -138,20 +138,20 @@
 			if (self.done) return;
 			var idle = (Date.now() - self.lastServerAt) / 1000;
 			var gap = self.target - self.shown;
-			if (gap > 0.2) {
-				// Ease toward what the server already confirmed.
-				self.shown += gap * 0.18;
-			} else if (idle > 1) {
+			if (gap > 0.1) {
+				// Ease smoothly toward what the server already confirmed.
+				self.shown += gap * 0.25;
+			} else if (idle > 0.5) {
 				// The server has told us nothing new. Creep toward the next
 				// whole point without ever arriving, so the bar shows life
 				// without claiming progress nobody reported.
 				var room = (self.target + 1) * DRIFT_CEILING - self.shown;
 				if (room > 0) {
-					self.shown += room * (1 - Math.pow(0.5, 0.25 / DRIFT_HALF_LIFE));
+					self.shown += room * (1 - Math.pow(0.5, 0.10 / DRIFT_HALF_LIFE));
 				}
 			}
 			self.render();
-		}, 250);
+		}, 100);
 	};
 
 	ImportProgress.prototype.stop = function () {
@@ -171,6 +171,7 @@
 	ImportProgress.prototype.poll = function (url, intervalMs) {
 		var self = this;
 		var failures = 0;
+		var pollInterval = intervalMs || 500;
 		this.start();
 		var tick = function () {
 			fetch(url, { headers: { Accept: 'application/json' } })
@@ -181,7 +182,7 @@
 				.then(function (data) {
 					failures = 0;
 					self.update(data);
-					if (!self.done) setTimeout(tick, intervalMs || 1500);
+					if (!self.done) setTimeout(tick, pollInterval);
 				})
 				.catch(function () {
 					failures++;
@@ -189,7 +190,7 @@
 						self.fail('تعذّر الاتصال بالخادم لمتابعة التقدم. المعالجة قد تكون مستمرة في الخلفية — أعد تحميل الصفحة.');
 						return;
 					}
-					setTimeout(tick, (intervalMs || 1500) * 2);
+					setTimeout(tick, pollInterval * 2);
 				});
 		};
 		tick();

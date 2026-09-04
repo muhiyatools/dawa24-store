@@ -14,7 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-func OfferBundleBadge(orderID, lineID int64, offerProductID *int64) templ.Component {
+func OfferBundleBadge(orderID, lineID int64, isOffer bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -35,7 +35,7 @@ func OfferBundleBadge(orderID, lineID int64, offerProductID *int64) templ.Compon
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if offerProductID != nil && *offerProductID > 0 {
+		if isOffer {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mt-1\"><button type=\"button\" class=\"badge badge-primary text-2xs font-bold cursor-pointer hover:opacity-85 transition-all d-inline-flex items-center gap-1 border-0\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -43,7 +43,7 @@ func OfferBundleBadge(orderID, lineID int64, offerProductID *int64) templ.Compon
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/orders/%d/lines/%d/offer-details", orderID, lineID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_order_offer_badge.templ`, Line: 15, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_order_offer_badge.templ`, Line: 15, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {

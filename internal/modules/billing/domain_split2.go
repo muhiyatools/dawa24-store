@@ -212,3 +212,79 @@ type PrintableInvoiceData struct {
 	Notes          string                  `json:"notes,omitempty"`
 	QRCodeData     string                  `json:"qr_code_data"`
 }
+
+// WithdrawalStatus tracks the approval workflow lifecycle of a wallet withdrawal.
+type WithdrawalStatus string
+
+const (
+	WithdrawalPending  WithdrawalStatus = "pending"
+	WithdrawalApproved WithdrawalStatus = "approved"
+	WithdrawalRejected WithdrawalStatus = "rejected"
+)
+
+// WalletWithdrawal records a user withdrawal request subject to administrative approval.
+type WalletWithdrawal struct {
+	ID                  int64            `json:"id"`
+	PublicID            string           `json:"public_id"`
+	WalletID            int64            `json:"wallet_id"`
+	UserID              int64            `json:"user_id"`
+	OrganizationID      *int64           `json:"organization_id,omitempty"`
+	Amount              money.Amount     `json:"amount"`
+	Currency            string           `json:"currency"`
+	PayoutMethodType    string           `json:"payout_method_type"`
+	DestinationDetails  string           `json:"destination_details"`
+	UserPaymentMethodID *int64           `json:"user_payment_method_id,omitempty"`
+	UserNotes           string           `json:"user_notes,omitempty"`
+	Status              WithdrawalStatus `json:"status"`
+	RejectionReason     string           `json:"rejection_reason,omitempty"`
+	ReviewedBy          *int64           `json:"reviewed_by,omitempty"`
+	ReviewedAt          *time.Time       `json:"reviewed_at,omitempty"`
+	TransactionID       *int64           `json:"transaction_id,omitempty"`
+	CreatedAt           time.Time        `json:"created_at"`
+	UpdatedAt           time.Time        `json:"updated_at"`
+}
+
+// CanCancel reports whether the withdrawal request can still be cancelled by the user.
+func (w *WalletWithdrawal) CanCancel() bool {
+	return w != nil && w.Status == WithdrawalPending
+}
+
+// AdminWalletWithdrawalView represents an enriched withdrawal request record for admin audit and review.
+type AdminWalletWithdrawalView struct {
+	ID                  int64            `json:"id"`
+	PublicID            string           `json:"public_id"`
+	WalletID            int64            `json:"wallet_id"`
+	UserID              int64            `json:"user_id"`
+	UserName            string           `json:"user_name"`
+	UserEmail           string           `json:"user_email"`
+	UserPhone           string           `json:"user_phone"`
+	OrganizationID      *int64           `json:"organization_id,omitempty"`
+	OrganizationName    string           `json:"organization_name"`
+	OrganizationType    string           `json:"organization_type"`
+	Amount              money.Amount     `json:"amount"`
+	Currency            string           `json:"currency"`
+	PayoutMethodType    string           `json:"payout_method_type"`
+	DestinationDetails  string           `json:"destination_details"`
+	UserPaymentMethodID *int64           `json:"user_payment_method_id,omitempty"`
+	UserNotes           string           `json:"user_notes,omitempty"`
+	Status              WithdrawalStatus `json:"status"`
+	RejectionReason     string           `json:"rejection_reason,omitempty"`
+	ReviewedBy          *int64           `json:"reviewed_by,omitempty"`
+	ReviewerName        string           `json:"reviewer_name,omitempty"`
+	ReviewedAt          *time.Time       `json:"reviewed_at,omitempty"`
+	TransactionID       *int64           `json:"transaction_id,omitempty"`
+	CreatedAt           time.Time        `json:"created_at"`
+	UpdatedAt           time.Time        `json:"updated_at"`
+}
+
+// WithdrawalFilter specifies parameters for querying wallet withdrawal requests.
+type WithdrawalFilter struct {
+	UserID           int64
+	WalletID         int64
+	Status           string // "pending", "approved", "rejected", ""
+	PayoutMethodType string
+	Search           string
+	Limit            int
+	Offset           int
+}
+

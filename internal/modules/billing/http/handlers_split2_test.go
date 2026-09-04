@@ -147,6 +147,26 @@ func (happyRepo) AdminApproveDepositRequest(ctx context.Context, depositID int64
 func (happyRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*billing.WalletDeposit, error) {
 	return &billing.WalletDeposit{ID: depositID, Status: billing.DepositRejected, RejectionReason: reason}, nil
 }
+func (happyRepo) CreateWithdrawalRequest(ctx context.Context, w *billing.WalletWithdrawal) error {
+	w.ID = 1
+	w.Status = billing.WithdrawalPending
+	return nil
+}
+func (happyRepo) GetWithdrawalRequestByID(ctx context.Context, id int64) (*billing.WalletWithdrawal, error) {
+	return &billing.WalletWithdrawal{ID: id, Status: billing.WithdrawalPending}, nil
+}
+func (happyRepo) ListWithdrawalRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*billing.WalletWithdrawal, error) {
+	return []*billing.WalletWithdrawal{{ID: 1, UserID: userID, Status: billing.WithdrawalPending}}, nil
+}
+func (happyRepo) AdminListDetailedWithdrawals(ctx context.Context, filter billing.WithdrawalFilter) ([]*billing.AdminWalletWithdrawalView, int, error) {
+	return []*billing.AdminWalletWithdrawalView{{ID: 1, UserID: 1, Status: billing.WithdrawalPending}}, 1, nil
+}
+func (happyRepo) AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64) (*billing.WalletWithdrawal, *billing.WalletTransaction, error) {
+	return &billing.WalletWithdrawal{ID: withdrawalID, Status: billing.WithdrawalApproved}, &billing.WalletTransaction{ID: 1}, nil
+}
+func (happyRepo) AdminRejectWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64, reason string) (*billing.WalletWithdrawal, error) {
+	return &billing.WalletWithdrawal{ID: withdrawalID, Status: billing.WithdrawalRejected, RejectionReason: reason}, nil
+}
 func (happyRepo) GetVendorPaymentStats(ctx context.Context, orgID int64) (*billing.VendorPaymentStats, error) {
 	return &billing.VendorPaymentStats{}, nil
 }

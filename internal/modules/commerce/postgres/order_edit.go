@@ -308,85 +308,73 @@ func (r *Repository) GetOfferDetailsForOrderLine(ctx context.Context, orderID, l
 	details.LineID = lineID
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		var offerProductID *int64
+		var (
+			offerProductID *int64
+			nameAr, nameEn string
+		)
 		err := tx.QueryRow(txCtx, `
-			SELECT offer_product_id
+			SELECT offer_product_id, COALESCE(product_name->>'ar', ''), COALESCE(product_name->>'en', '')
 			FROM commerce.order_lines
 			WHERE id = $1 AND order_id = $2
-		`, lineID, orderID).Scan(&offerProductID)
+		`, lineID, orderID).Scan(&offerProductID, &nameAr, &nameEn)
 		if err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("order_line")
 			}
 			return err
 		}
-		if offerProductID == nil || *offerProductID <= 0 {
+
+		var offerID int64
+		if offerProductID != nil && *offerProductID > 0 {
+			offerID = *offerProductID
+		} else {
+			_ = tx.QueryRow(txCtx, `SELECT id FROM promo.offers WHERE (title->>'ar' = $1 OR title->>'en' = $2) AND deleted_at IS NULL LIMIT 1`, nameAr, nameEn).Scan(&offerID)
+			if offerID <= 0 {
+				_ = tx.QueryRow(txCtx, `SELECT COALESCE(offer_id, 0) FROM commerce.orders WHERE id = $1`, orderID).Scan(&offerID)
+			}
+		}
+		if offerID <= 0 {
 			return apperr.NotFound("offer_not_found_on_line")
 		}
 
-		rows, err := tx.Query(txCtx, `
-			SELECT o.id, o.title, o.description, o.discount_type, o.discount_value,
-			       COALESCE(org.name->>'ar', org.name->>'en', ''),
-			       op.product_id, op.variant_id, COALESCE(op.custom_qty, 1),
-			       COALESCE(op.custom_price, 0), COALESCE(op.custom_discount_percentage, 0),
-			       p.name, COALESCE(pv.name, ''), COALESCE(pv.sku, '')
-			FROM promo.offer_products op_target
-			JOIN promo.offers o ON o.id = op_target.offer_id
-			JOIN promo.offer_products op ON op.offer_id = o.id
-			LEFT JOIN catalog.products p ON p.id = op.product_id
-			LEFT JOIN catalog.product_variants pv ON pv.id = op.variant_id
+		err = tx.QueryRow(txCtx, `
+			SELECT o.id, o.title, o.description, o.discount_type, o.discount_value, COALESCE(org.name->>'ar', org.name->>'en', '')
+			FROM promo.offers o
 			LEFT JOIN org.organizations org ON org.id = o.organization_id
-			WHERE op_target.id = $1
-			ORDER BY op.id ASC;
-		`, *offerProductID)
+			WHERE (o.id = $1 OR o.id IN (SELECT offer_id FROM promo.offer_products WHERE id = $1)) AND o.deleted_at IS NULL LIMIT 1
+		`, offerID).Scan(&details.OfferID, &details.Title, &details.Description, &details.DiscountType, &details.DiscountValue, &details.VendorName)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("offer_not_found")
+			}
+			return err
+		}
+
+		rows, err := tx.Query(txCtx, `
+			SELECT COALESCE(op.product_id, pv.product_id, 0), op.variant_id, COALESCE(op.custom_qty, 1),
+			       COALESCE(op.custom_price, 0), COALESCE(op.custom_discount_percentage, 0),
+			       COALESCE(p.name, jsonb_build_object('ar', pv.name->>'ar', 'en', pv.name->>'en')),
+			       COALESCE(pv.name->>'ar', pv.name->>'en', ''), COALESCE(pv.sku, '')
+			FROM promo.offer_products op
+			LEFT JOIN catalog.product_variants pv ON (pv.id = op.variant_id OR (op.variant_id IS NULL AND pv.product_id = op.product_id))
+			LEFT JOIN catalog.products p ON p.id = COALESCE(op.product_id, pv.product_id)
+			WHERE op.offer_id = $1 ORDER BY op.id ASC;
+		`, details.OfferID)
 		if err != nil {
 			return err
 		}
 		defer rows.Close()
 
 		for rows.Next() {
-			var (
-				offerID     int64
-				title       i18n.Text
-				desc        i18n.Text
-				discType    string
-				discVal     money.Amount
-				vendorName  string
-				prodID      int64
-				varID       *int64
-				qty         int
-				custPrice   money.Amount
-				custDiscPct float64
-				prodName    i18n.Text
-				varName     string
-				sku         string
-			)
+			var it commerce.OrderLineOfferItem
 			if err := rows.Scan(
-				&offerID, &title, &desc, &discType, &discVal,
-				&vendorName,
-				&prodID, &varID, &qty,
-				&custPrice, &custDiscPct,
-				&prodName, &varName, &sku,
+				&it.ProductID, &it.VariantID, &it.Quantity,
+				&it.CustomPrice, &it.CustomDiscountPercent,
+				&it.ProductName, &it.VariantName, &it.SKU,
 			); err != nil {
 				return err
 			}
-			details.OfferID = offerID
-			details.Title = title
-			details.Description = desc
-			details.DiscountType = discType
-			details.DiscountValue = discVal
-			details.VendorName = vendorName
-
-			details.Items = append(details.Items, commerce.OrderLineOfferItem{
-				ProductID:             prodID,
-				ProductName:           prodName,
-				VariantID:             varID,
-				VariantName:           varName,
-				SKU:                   sku,
-				Quantity:              qty,
-				CustomPrice:           custPrice,
-				CustomDiscountPercent: custDiscPct,
-			})
+			details.Items = append(details.Items, it)
 		}
 		return rows.Err()
 	})

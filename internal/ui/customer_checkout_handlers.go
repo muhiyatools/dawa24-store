@@ -91,11 +91,28 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		pID := it.ProductID
 		vID := it.ProductVariantID
 		vOrgID := it.OrganizationID
-		if vOrgID <= 0 && h.catSvc != nil && pID > 0 {
+		var listPrice money.Amount
+		var discAmount money.Amount
+		var costDiscPct float64
+
+		if h.catSvc != nil && pID > 0 {
 			if prod, variants, err := h.catSvc.GetProduct(ctx, pID); err == nil && prod != nil {
+				if prod.Price.IsPositive() {
+					listPrice = prod.Price
+				}
 				for _, v := range variants {
-					if v != nil && v.ID == vID && v.OrganizationID > 0 {
-						vOrgID = v.OrganizationID
+					if v != nil && v.ID == vID {
+						if v.OrganizationID > 0 && vOrgID <= 0 {
+							vOrgID = v.OrganizationID
+						}
+						if v.Price.IsPositive() {
+							listPrice = v.Price
+						}
+						if v.CostDiscountPercentage > 0 {
+							costDiscPct = v.CostDiscountPercentage
+						} else if v.Discount.IsPositive() && listPrice.IsPositive() {
+							costDiscPct = (float64(v.Discount.Minor()) / float64(listPrice.Minor())) * 100.0
+						}
 						break
 					}
 				}
@@ -111,25 +128,54 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		if vOrgID <= 0 && it.OfferID != nil && *it.OfferID > 0 && h.promoSvc != nil {
 			if spo, serr := h.promoSvc.GetSpecialOffer(ctx, *it.OfferID); serr == nil && spo != nil && spo.OrganizationID > 0 {
 				vOrgID = spo.OrganizationID
+				if spo.DiscountPercentage > 0 {
+					costDiscPct = spo.DiscountPercentage
+				}
 			} else if offer, oerr := h.promoSvc.GetOffer(ctx, *it.OfferID); oerr == nil && offer != nil && offer.OrganizationID > 0 {
 				vOrgID = offer.OrganizationID
+				if offer.DiscountValue.IsPositive() {
+					costDiscPct = float64(offer.DiscountValue.Minor()) / 100.0
+				}
 			}
 		}
 		uPrice := it.UnitPrice
 		if uPrice.IsZero() {
 			uPrice, _ = money.Parse("38.50")
 		}
+		if listPrice.IsZero() || listPrice.Minor() < uPrice.Minor() {
+			listPrice = uPrice
+		}
+		if listPrice.Minor() > uPrice.Minor() {
+			unitDisc := listPrice.Minor() - uPrice.Minor()
+			discAmount = money.FromMinor(unitDisc * int64(it.Quantity))
+			if costDiscPct <= 0 && listPrice.Minor() > 0 {
+				costDiscPct = (float64(unitDisc) / float64(listPrice.Minor())) * 100.0
+			}
+		}
 		pName := it.ProductName
 		if len(pName) == 0 {
 			pName = i18n.Text{"ar": i18n.TDefault("w4_ui.s_67_67"), "en": "Certified Medicine"}
 		}
+		var pIDPtr *int64
+		if pID > 0 {
+			pIDPtr = &pID
+		}
+		var vIDPtr *int64
+		if vID > 0 {
+			vIDPtr = &vID
+		}
 		items = append(items, commerce.CheckoutLineItem{
-			VendorOrgID:      vOrgID,
-			ProductID:        &pID,
-			ProductVariantID: &vID,
-			ProductName:      pName,
-			Quantity:         it.Quantity,
-			UnitPrice:        uPrice,
+			VendorOrgID:            vOrgID,
+			ProductID:              pIDPtr,
+			ProductVariantID:       vIDPtr,
+			ProductName:            pName,
+			OfferProductID:         it.OfferID,
+			Quantity:               it.Quantity,
+			UnitPrice:              uPrice,
+			ListPrice:              listPrice,
+			OriginalPrice:          listPrice,
+			DiscountAmount:         discAmount,
+			CostDiscountPercentage: costDiscPct,
 		})
 		// One offer per order (main_orders parity). If the cart mixes offers,
 		// the order degrades to a legacy non-offer order — the cart-per-offer

@@ -84,3 +84,32 @@ func (s *Service) AdminRejectDeposit(ctx context.Context, depositID int64, revie
 	s.log.InfoContext(ctx, "admin rejected wallet deposit", "deposit_id", depositID, "reviewer_id", reviewerID, "reason", reason)
 	return dep, nil
 }
+
+// AdminListDetailedWithdrawals returns withdrawal requests enriched with user, tenant, and reviewer details.
+func (s *Service) AdminListDetailedWithdrawals(ctx context.Context, filter WithdrawalFilter) ([]*AdminWalletWithdrawalView, int, error) {
+	return s.repo.AdminListDetailedWithdrawals(ctx, filter)
+}
+
+// AdminApproveWithdrawal approves a pending withdrawal request, debiting the user's wallet ledger.
+func (s *Service) AdminApproveWithdrawal(ctx context.Context, withdrawalID int64, reviewerID int64) (*WalletWithdrawal, *WalletTransaction, error) {
+	w, tx, err := s.repo.AdminApproveWithdrawalRequest(ctx, withdrawalID, reviewerID)
+	if err != nil {
+		return nil, nil, err
+	}
+	s.log.InfoContext(ctx, "admin approved wallet withdrawal", "withdrawal_id", withdrawalID, "reviewer_id", reviewerID, "amount", w.Amount.String())
+	return w, tx, nil
+}
+
+// AdminRejectWithdrawal rejects a pending withdrawal request with an explanatory reason.
+func (s *Service) AdminRejectWithdrawal(ctx context.Context, withdrawalID int64, reviewerID int64, reason string) (*WalletWithdrawal, error) {
+	if reason == "" {
+		reason = "تم رفض طلب السحب من قبل الإدارة"
+	}
+	w, err := s.repo.AdminRejectWithdrawalRequest(ctx, withdrawalID, reviewerID, reason)
+	if err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "admin rejected wallet withdrawal", "withdrawal_id", withdrawalID, "reviewer_id", reviewerID, "reason", reason)
+	return w, nil
+}
+

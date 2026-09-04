@@ -48,7 +48,7 @@ templ CustomerSavingReviewScript() {
 						renderPharmacyStagedReview(sess);
 						return;
 					}
-					setTimeout(step, 600);
+					setTimeout(step, 500);
 				})
 				.catch(err => {
 					console.error('poll progress error', err);

@@ -9,13 +9,13 @@ import (
 )
 
 type CourierDeliveryData struct {
-	TrackingQuery string
-	Shipment      *commerce.OrderShipment
-	ErrorMessage  string
+	TrackingQuery  string
+	Shipment       *commerce.OrderShipment
+	ErrorMessage   string
 	SuccessMessage string
-	IsLocked      bool
-	RemainingLock int
-	IsCompleted   bool
+	IsLocked       bool
+	RemainingLock  int
+	IsCompleted    bool
 }
 
 templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
@@ -26,66 +26,69 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<meta name="robots" content="noindex, nofollow, noarchive" />
 			<title>بوابة المندوب لتسليم الشحنات | دواء 24</title>
+			<link rel="preconnect" href="https://fonts.googleapis.com" />
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" />
 			<link rel="stylesheet" href="/static/css/modern.css" />
 			<link rel="stylesheet" href="/static/css/components.css" />
 			<link rel="stylesheet" href="/static/css/utilities.css" />
 			<link rel="stylesheet" href="/static/css/design-system.css" />
 		</head>
 		<body class="bg-surface-sunken min-h-screen d-flex flex-col text-primary font-sans">
-			<!-- Top Standalone Header -->
+			<!-- Top Standalone Header with Official Logo -->
 			<header class="bg-surface border-b sticky top-0 z-40 px-4 py-3 shadow-xs">
 				<div class="d-flex items-center justify-between max-w-xl mx-auto">
-					<div class="d-flex items-center gap-2.5">
-						<div class="w-9 h-9 rounded-xl bg-brand text-white d-flex items-center justify-center font-black text-sm shadow-2xs">
-							24
-						</div>
-						<div class="stack-2xs">
-							<div class="text-sm font-black text-primary leading-tight">دواء 24 — بوابة المندوب</div>
-							<div class="text-2xs text-secondary font-medium">تسليم وتوثيق الشحنات الدوائية بالكود</div>
-						</div>
+					<div class="d-flex items-center gap-3">
+						<a href="/delivery" class="d-flex items-center gap-2 text-decoration-none">
+							<img src="/static/img/logo.png" alt="دواء 24" class="h-8 w-auto object-contain" onerror="this.classList.add('hidden')" />
+							<div class="stack-2xs text-start">
+								<span class="text-sm font-black text-primary leading-tight">دواء 24</span>
+								<span class="text-2xs text-secondary font-bold">بوابة المندوب والتسليم</span>
+							</div>
+						</a>
 					</div>
-					<div class="d-flex items-center gap-1 text-2xs font-bold text-secondary bg-surface-sunken px-2.5 py-1 rounded-full border">
+					<div class="d-flex items-center gap-1.5 text-2xs font-extrabold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
 						@components.IconShield("icon-2xs text-emerald-600")
-						<span>تحقق مشفر</span>
+						<span>تحقق مشفر 256-bit</span>
 					</div>
 				</div>
 			</header>
 
-			<!-- Main Content Container (Mobile-Optimized) -->
+			<!-- Main Container -->
 			<main class="flex-1 p-4 pb-12">
 				<div class="max-w-xl mx-auto space-y-4">
 					
-					<!-- Operational Flow Guide (Clear Instructions for Couriers) -->
-					<div class="glass-panel p-4 rounded-2xl border border-brand-200/60 bg-gradient-to-r from-brand-50/40 via-surface to-surface shadow-xs">
-						<div class="d-flex items-center gap-2 mb-2 text-brand font-black text-xs">
+					<!-- Operational Flow Guide -->
+					<div class="glass-panel p-4 rounded-2xl border bg-surface shadow-xs">
+						<div class="d-flex items-center gap-2 mb-2.5 text-brand font-black text-xs">
 							@components.IconInfo("icon-xs")
-							<span>خطوات تسليم الشحنة للمندوب:</span>
+							<span>خطوات تسليم الشحنة الدوائية:</span>
 						</div>
-						<div class="grid grid-cols-3 gap-2 text-center text-2xs font-bold">
-							<div class="p-2 rounded-xl bg-surface border">
-								<span class="d-block text-brand mb-0.5">1. التحقق</span>
-								<span class="text-secondary font-normal">مطابقة الصيدلية والعنوان</span>
+						<div class="grid grid-cols-3 gap-2.5 text-center text-2xs font-bold">
+							<div class="p-2.5 rounded-xl bg-surface-sunken border">
+								<span class="d-block text-brand mb-1">1. المطابقة</span>
+								<span class="text-secondary font-medium">الفرع والعنوان</span>
 							</div>
-							<div class="p-2 rounded-xl bg-surface border">
-								<span class="d-block text-brand mb-0.5">2. التسليم</span>
-								<span class="text-secondary font-normal">فحص الطرد وتحصيل المبلغ</span>
+							<div class="p-2.5 rounded-xl bg-surface-sunken border">
+								<span class="d-block text-brand mb-1">2. الفحص</span>
+								<span class="text-secondary font-medium">الطرود والتحصيل</span>
 							</div>
-							<div class="p-2 rounded-xl bg-surface border">
-								<span class="d-block text-brand mb-0.5">3. كود PIN</span>
-								<span class="text-secondary font-normal">إدخال كود استلام الصيدلية</span>
+							<div class="p-2.5 rounded-xl bg-surface-sunken border">
+								<span class="d-block text-brand mb-1">3. كود PIN</span>
+								<span class="text-secondary font-medium">توثيق الاستلام</span>
 							</div>
 						</div>
 					</div>
 
-					<!-- Feedback Banners -->
+					<!-- Error & Success Feedback Banners -->
 					if data.ErrorMessage != "" {
-						<div class="alert alert-danger p-4 rounded-2xl mb-4 border border-rose-200 bg-rose-50/90 text-rose-900 shadow-xs">
-							<div class="d-flex items-center gap-2.5">
+						<div class="alert alert-danger p-4 rounded-2xl border border-rose-200 bg-rose-50 text-rose-900 shadow-xs">
+							<div class="d-flex items-center gap-3">
 								@components.IconAlert("icon-sm text-rose-600 shrink-0")
-								<div class="stack-sm">
-									<div class="font-black text-xs">{ data.ErrorMessage }</div>
+								<div class="stack-xs text-start">
+									<strong class="font-black text-xs">{ data.ErrorMessage }</strong>
 									if data.IsLocked {
-										<div class="text-2xs text-rose-700 mt-0.5">يرجى الانتظار والمحاولة لاحقاً بعد انتهاء فترة القفل.</div>
+										<span class="text-2xs text-rose-700">يرجى الانتظار والمحاولة لاحقاً بعد انتهاء فترة القفل الأمني.</span>
 									}
 								</div>
 							</div>
@@ -93,38 +96,38 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 					}
 
 					if data.SuccessMessage != "" {
-						<div class="alert alert-success p-4 rounded-2xl mb-4 border border-emerald-200 bg-emerald-50/90 text-emerald-900 shadow-xs">
-							<div class="d-flex items-center gap-2.5">
+						<div class="alert alert-success p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-xs">
+							<div class="d-flex items-center gap-3">
 								@components.IconCheckCircle("icon-sm text-emerald-600 shrink-0")
-								<div class="font-black text-xs">{ data.SuccessMessage }</div>
+								<strong class="font-black text-xs">{ data.SuccessMessage }</strong>
 							</div>
 						</div>
 					}
 
-					<!-- State 1: Search Form (When no shipment loaded or searching for another) -->
+					<!-- State 1: Search Form -->
 					if data.Shipment == nil {
-						<div class="glass-panel text-center p-6 rounded-2xl border shadow-xs">
-							<div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand d-inline-flex items-center justify-center mb-4 border border-brand-100 shadow-2xs">
+						<div class="glass-panel text-center p-6 rounded-2xl border bg-surface shadow-xs">
+							<div class="w-14 h-14 rounded-2xl bg-brand-subtle text-brand d-inline-flex items-center justify-center mb-4 border shadow-2xs">
 								@components.IconTruck("icon-md")
 							</div>
 
-							<h2 class="text-lg font-black text-primary m-0 mb-1.5">
-								استعلام وتسليم شحنة
+							<h2 class="text-lg font-black text-primary m-0 mb-2">
+								استعلام وتسليم شحنة دوائية
 							</h2>
-							<p class="text-xs text-secondary leading-relaxed max-w-sm mx-auto mb-6 font-medium">
+							<p class="text-xs text-secondary leading-relaxed max-w-sm mx-auto mb-5 font-medium">
 								أدخل رقم الشحنة أو بوليصة التتبع المسلمة لك من المورد لمعاينة بيانات الصيدلية والأصناف المطلوب تسليمها.
 							</p>
 
 							<form method="GET" action="/delivery" class="m-0 space-y-4">
-								<div class="stack-sm">
+								<div>
 									<input
 										type="text"
 										name="tracking"
 										value={ data.TrackingQuery }
 										required
 										autofocus
-										placeholder="مثال: TRK-ORD-100-1102"
-										class="form-input text-sm text-center font-mono font-bold w-full p-3 rounded-xl border-slate-300"
+										placeholder="مثال: TRK-6023-15588"
+										class="form-input text-base text-center font-mono font-black w-full p-3 rounded-xl border border-slate-300"
 									/>
 								</div>
 								<button
@@ -139,11 +142,11 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 					} else {
 						<!-- State 2: Shipment Loaded -->
 						
-						<!-- Status & Top Ribbon -->
-						<div class="glass-panel p-4 rounded-2xl border shadow-xs mb-3">
+						<!-- Status & Identification Card -->
+						<div class="glass-panel p-4 rounded-2xl border bg-surface shadow-xs">
 							<div class="flex-between items-center flex-wrap gap-2">
-								<div class="stack-2xs">
-									<span class="text-2xs text-secondary font-mono d-block mb-0.5">رقم الشحنة:</span>
+								<div class="stack-2xs text-start">
+									<span class="text-2xs text-secondary font-mono">رقم الشحنة:</span>
 									<h2 class="text-base font-black text-primary font-mono m-0">{ data.Shipment.ShipmentNumber }</h2>
 									if data.Shipment.TrackingNumber != "" {
 										<span class="text-2xs text-muted font-mono font-bold">بوليصة: { data.Shipment.TrackingNumber }</span>
@@ -171,27 +174,27 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 						</div>
 
 						<!-- Recipient Pharmacy Info Card -->
-						<div class="glass-panel p-4 rounded-2xl border shadow-xs">
-							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-sky-800">
-								@components.IconMapPin("icon-xs text-sky-600")
+						<div class="glass-panel p-4 rounded-2xl border bg-surface shadow-xs">
+							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b text-primary">
+								@components.IconMapPin("icon-xs text-brand")
 								<h3 class="text-xs font-black m-0">بيانات الصيدلية المستلمة</h3>
 							</div>
 
-							<div class="space-y-2.5 text-xs">
-								<div class="flex-between items-baseline">
+							<div class="space-y-3 text-xs text-start">
+								<div class="flex-between items-baseline flex-wrap gap-1">
 									<span class="text-secondary font-medium">اسم الصيدلية:</span>
-									<strong class="text-primary font-bold text-sm">{ data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)) }</strong>
+									<strong class="text-primary font-extrabold text-sm">{ data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)) }</strong>
 								</div>
 
 								if data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) != "" {
-									<div class="flex-between items-baseline">
+									<div class="flex-between items-baseline flex-wrap gap-1">
 										<span class="text-secondary font-medium">الفرع:</span>
-										<span class="text-primary font-semibold">{ data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) }</span>
+										<span class="text-primary font-bold">{ data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) }</span>
 									</div>
 								}
 
 								if data.Shipment.CustomerBranchAddress != "" {
-									<div class="pt-2 border-t border-slate-100">
+									<div class="pt-2 border-t">
 										<span class="text-secondary font-medium d-block mb-1">العنوان بالتفصيل:</span>
 										<div class="p-2.5 rounded-lg bg-surface-sunken border text-primary font-bold leading-relaxed">
 											{ data.Shipment.CustomerBranchAddress }
@@ -199,10 +202,10 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 									</div>
 								}
 
-								<!-- Direct Contact Button -->
-								<div class="pt-2 flex-between items-center gap-2">
-									<div class="stack-2xs">
-										<span class="text-2xs text-secondary d-block font-medium">المسؤول:</span>
+								<!-- Pharmacist Contact & Phone Call Button -->
+								<div class="pt-2 border-t flex-between items-center gap-2 flex-wrap">
+									<div class="stack-2xs text-start">
+										<span class="text-2xs text-secondary font-medium">المسؤول بالفرع:</span>
 										<span class="text-xs font-bold text-primary">
 											if data.Shipment.CustomerManagerName != "" {
 												{ data.Shipment.CustomerManagerName }
@@ -226,31 +229,31 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 						</div>
 
 						<!-- Financial Collection Box -->
-						<div class="glass-panel p-4 rounded-2xl border shadow-xs">
-							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-emerald-800">
-								@components.IconWallet("icon-xs text-emerald-600")
+						<div class="glass-panel p-4 rounded-2xl border bg-surface shadow-xs">
+							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b text-primary">
+								@components.IconWallet("icon-xs text-brand")
 								<h3 class="text-xs font-black m-0">التحصيل والمبالغ المالية</h3>
 							</div>
 
 							if data.Shipment.PaymentMethod == "cod" || data.Shipment.PaymentStatus != commerce.PaymentPaid {
-								<div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center mb-2">
-									<span class="text-2xs font-extrabold text-emerald-800 d-block mb-0.5">المبلغ المطلوب تحصيله نقداً من الصيدلية:</span>
+								<div class="p-4 rounded-xl bg-surface-sunken border text-center mb-1">
+									<span class="text-2xs font-extrabold text-secondary d-block mb-1">المبلغ المطلوب تحصيله نقداً من الصيدلية:</span>
 									<div class="text-2xl font-black text-emerald-700 tabular-nums font-mono">
 										@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.Shipment.TotalAmount })
 									</div>
-									<span class="badge badge-amber font-extrabold text-2xs mt-1">الدفع عند الاستلام (COD)</span>
+									<span class="badge badge-amber font-extrabold text-2xs mt-2">الدفع عند الاستلام (COD)</span>
 								</div>
 							} else {
-								<div class="p-3 rounded-xl bg-sky-50 border border-sky-200 text-center mb-2">
-									<div class="text-xs font-black text-sky-800 mb-0.5">مدفوع مسبقاً بالكامل إلكترونياً</div>
-									<div class="text-2xs text-sky-700 font-medium">لا يلزم تحصيل أي مبالغ نقدية من الصيدلية لهذه الشحنة.</div>
+								<div class="p-3.5 rounded-xl bg-surface-sunken border text-center mb-1">
+									<div class="text-xs font-black text-emerald-700 mb-1">مدفوع مسبقاً بالكامل إلكترونياً</div>
+									<div class="text-2xs text-secondary font-medium">لا يلزم تحصيل أي مبالغ نقدية من الصيدلية لهذه الشحنة.</div>
 								</div>
 							}
 						</div>
 
 						<!-- Items Summary Table -->
-						<div class="glass-panel p-4 rounded-2xl border shadow-xs">
-							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-primary">
+						<div class="glass-panel p-4 rounded-2xl border bg-surface shadow-xs">
+							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b text-primary">
 								@components.IconPackage("icon-xs text-brand")
 								<h3 class="text-xs font-black m-0">محتويات وأصناف الشحنة ({ fmt.Sprintf("%d", len(data.Shipment.Lines)) } صنف)</h3>
 							</div>
@@ -258,7 +261,7 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 							<div class="space-y-2">
 								for _, line := range data.Shipment.Lines {
 									<div class="p-2.5 rounded-lg bg-surface-sunken border flex-between items-center gap-3">
-										<div class="flex-1 min-w-0">
+										<div class="flex-1 min-w-0 text-start">
 											<div class="text-xs font-bold text-primary truncate">{ line.ProductName.Get(i18n.ParseLang(lang)) }</div>
 											if line.VariantName.Get(i18n.ParseLang(lang)) != "" {
 												<div class="text-2xs text-muted truncate">{ line.VariantName.Get(i18n.ParseLang(lang)) }</div>
@@ -274,11 +277,11 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 							</div>
 						</div>
 
-						<!-- State 2.1: Handover Verification Form (Active) -->
+						<!-- Handover Verification Form (Active) -->
 						if data.Shipment.Status != commerce.StatusDelivered && data.Shipment.Status != commerce.StatusCompleted && data.Shipment.Status != commerce.StatusCancelled {
-							<div class="glass-panel p-5 rounded-2xl border-2 border-brand-500/80 shadow-md">
-								<div class="text-center mb-5">
-									<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand d-inline-flex items-center justify-center mb-2 shadow-2xs">
+							<div class="glass-panel p-5 rounded-2xl border border-brand bg-surface shadow-md">
+								<div class="text-center mb-4">
+									<div class="w-10 h-10 rounded-xl bg-brand-subtle text-brand d-inline-flex items-center justify-center mb-2 shadow-2xs">
 										@components.IconShield("icon-xs")
 									</div>
 									<h3 class="text-sm font-black text-primary m-0">
@@ -314,9 +317,8 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 										/>
 									</div>
 
-									<!-- Amount Collected Confirmation -->
 									if data.Shipment.PaymentMethod == "cod" || data.Shipment.PaymentStatus != commerce.PaymentPaid {
-										<div class="p-3 rounded-xl bg-surface-sunken border">
+										<div class="p-3 rounded-xl bg-surface-sunken border text-start">
 											<label class="d-flex items-center gap-2.5 cursor-pointer select-none">
 												<input
 													type="checkbox"
@@ -332,8 +334,7 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 										</div>
 									}
 
-									<!-- Optional Notes -->
-									<div class="stack-sm">
+									<div class="stack-sm text-start">
 										<label class="form-label text-2xs font-bold text-secondary block mb-1">
 											ملاحظات التسليم (اختياري):
 										</label>
@@ -355,24 +356,23 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 								</form>
 							</div>
 						} else if data.Shipment.Status == commerce.StatusDelivered || data.Shipment.Status == commerce.StatusCompleted {
-							<!-- State 2.2: Already Delivered Success Card -->
-							<div class="glass-panel text-center p-6 rounded-2xl bg-emerald-50/40 border-emerald-200">
-								<div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 d-inline-flex items-center justify-center mb-3 shadow-2xs">
+							<div class="glass-panel text-center p-6 rounded-2xl bg-surface border shadow-xs">
+								<div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 d-inline-flex items-center justify-center mb-3 shadow-2xs">
 									@components.IconCheckCircle("icon-md")
 								</div>
-								<h3 class="text-base font-black text-emerald-900 m-0 mb-1">
+								<h3 class="text-base font-black text-primary m-0 mb-1">
 									تم تسليم الشحنة وتوثيقها بنجاح
 								</h3>
-								<p class="text-xs text-emerald-800 m-0 font-medium">
+								<p class="text-xs text-secondary m-0 font-medium">
 									تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال أمر التوريد.
 								</p>
 								if data.Shipment.DeliveredAt != nil {
-									<div class="text-2xs text-emerald-700 mt-2 font-mono tabular-nums">
+									<div class="text-2xs text-secondary mt-2 font-mono tabular-nums">
 										وقت التسليم: { data.Shipment.DeliveredAt.Format("2006-01-02 03:04 PM") }
 									</div>
 								}
 
-								<div class="pt-4 mt-4 border-t border-emerald-200/60">
+								<div class="pt-4 mt-4 border-t">
 									<a href="/delivery" class="btn btn-secondary text-xs font-bold py-2 px-4">
 										<span>تسليم شحنة أخرى</span>
 									</a>
@@ -380,7 +380,6 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 							</div>
 						}
 
-						<!-- Back / Switch Shipment Link -->
 						<div class="text-center pt-2">
 							<a href="/delivery" class="text-xs font-bold text-secondary text-decoration-none">
 								<span>← البحث عن شحنة أخرى</span>
@@ -393,3 +392,4 @@ templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
 		</body>
 	</html>
 }
+

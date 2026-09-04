@@ -6,8 +6,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ OfferBundleBadge(orderID, lineID int64, offerProductID *int64) {
-	if offerProductID != nil && *offerProductID > 0 {
+templ OfferBundleBadge(orderID, lineID int64, isOffer bool) {
+	if isOffer {
 		<div class="mt-1">
 			<button
 				type="button"

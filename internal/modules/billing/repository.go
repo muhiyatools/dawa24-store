@@ -67,6 +67,13 @@ type Repository interface {
 	AdminApproveDepositRequest(ctx context.Context, depositID int64, reviewerID int64) (*WalletDeposit, *WalletTransaction, error)
 	AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*WalletDeposit, error)
 
+	CreateWithdrawalRequest(ctx context.Context, w *WalletWithdrawal) error
+	GetWithdrawalRequestByID(ctx context.Context, id int64) (*WalletWithdrawal, error)
+	ListWithdrawalRequestsByUserWithStatus(ctx context.Context, userID int64, status string, limit, offset int) ([]*WalletWithdrawal, error)
+	AdminListDetailedWithdrawals(ctx context.Context, filter WithdrawalFilter) ([]*AdminWalletWithdrawalView, int, error)
+	AdminApproveWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64) (*WalletWithdrawal, *WalletTransaction, error)
+	AdminRejectWithdrawalRequest(ctx context.Context, withdrawalID int64, reviewerID int64, reason string) (*WalletWithdrawal, error)
+
 	ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error)
 	ListPaymentsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, int, error)
 

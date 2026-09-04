@@ -121,7 +121,7 @@ func AdminOfferPackageDetailPage(pkgID int64, lang, dir string) templ.Component 
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", pkgID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 44, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 44, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", req.OrganizationID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 109, Col: 109}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 109, Col: 109}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", req.ItemID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 117, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 117, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -270,7 +270,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", req.PackageID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 118, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 118, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -288,7 +288,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 							var templ_7745c5c3_Var11 string
 							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", req.Package.TierLevel))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 122, Col: 67}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 122, Col: 67}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 							if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 03:04 PM"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 137, Col: 121}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 137, Col: 121}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -349,7 +349,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 							var templ_7745c5c3_Var13 templ.SafeURL
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 141, Col: 127}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 141, Col: 127}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
@@ -370,7 +370,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 							var templ_7745c5c3_Var14 templ.SafeURL
 							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/reject", req.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 147, Col: 126}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `promo_revenue_admin_subpages.templ`, Line: 147, Col: 126}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 							if templ_7745c5c3_Err != nil {

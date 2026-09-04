@@ -1,8 +1,11 @@
 package pages
 
 import (
+	"strings"
+
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 func reviewScoreOf(rev *org.Review) int {
@@ -110,4 +113,56 @@ func orderTaxRate(order *commerce.Order) float64 {
 		return float64(order.TaxAmount.Minor()) / float64(taxable.Minor())
 	}
 	return 0.0
+}
+
+func linePublicPrice(l *commerce.OrderLine) money.Amount {
+	if l == nil {
+		return money.Zero
+	}
+	p := l.ListPrice
+	if p.IsPositive() && p.Minor() >= l.UnitPrice.Minor() {
+		return p
+	}
+	if l.OriginalPrice.IsPositive() && l.OriginalPrice.Minor() >= l.UnitPrice.Minor() {
+		return l.OriginalPrice
+	}
+	if l.DiscountAmount.IsPositive() && l.Quantity > 0 {
+		return money.FromMinor(l.UnitPrice.Minor() + (l.DiscountAmount.Minor() / int64(l.Quantity)))
+	}
+	if l.CostDiscountPercentage > 0 && l.CostDiscountPercentage < 100 {
+		mult := 1.0 - (l.CostDiscountPercentage / 100.0)
+		if mult > 0.05 {
+			return money.FromMinor(int64(float64(l.UnitPrice.Minor()) / mult))
+		}
+	}
+	return l.UnitPrice
+}
+
+func lineDiscountPercent(l *commerce.OrderLine) float64 {
+	if l == nil {
+		return 0
+	}
+	if l.CostDiscountPercentage > 0 {
+		return l.CostDiscountPercentage
+	}
+	pub := linePublicPrice(l)
+	if pub.Minor() > l.UnitPrice.Minor() {
+		return (float64(pub.Minor()-l.UnitPrice.Minor()) / float64(pub.Minor())) * 100.0
+	}
+	if l.DiscountAmount.IsPositive() && l.Quantity > 0 && l.UnitPrice.IsPositive() {
+		return (float64(l.DiscountAmount.Minor()) / float64(l.UnitPrice.Minor()*int64(l.Quantity))) * 100.0
+	}
+	return 0
+}
+
+func isOrderLineAnOffer(l *commerce.OrderLine) bool {
+	if l == nil {
+		return false
+	}
+	if l.OfferProductID != nil && *l.OfferProductID > 0 {
+		return true
+	}
+	ar := l.ProductName.Get("ar")
+	en := l.ProductName.Get("en")
+	return strings.Contains(ar, "عرض") || strings.Contains(ar, "باقة") || strings.Contains(en, "Offer") || strings.Contains(en, "Bundle")
 }

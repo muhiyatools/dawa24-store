@@ -88,43 +88,7 @@ func (s *Service) RequestDeposit(
 	attachmentURL string,
 	userNotes string,
 ) (*WalletDeposit, error) {
-	if err := ValidateCreditAmount(amount); err != nil {
-		return nil, err
-	}
-	if currency == "" {
-		currency = "EGP"
-	}
-	if method == "" {
-		return nil, apperr.Validation("payment_method.required", i18n.T("ar", "billing.val.method_required"), nil)
-	}
-	if referenceNumber == "" {
-		return nil, apperr.Validation("reference_number.required", i18n.T("ar", "billing.val.ref_required"), nil)
-	}
-
-	wallet, err := s.repo.GetOrCreateWallet(ctx, userID, currency)
-	if err != nil {
-		return nil, err
-	}
-
-	dep := &WalletDeposit{
-		WalletID:        wallet.ID,
-		UserID:          userID,
-		OrganizationID:  orgID,
-		Amount:          amount,
-		Currency:        currency,
-		PaymentMethod:   method,
-		ReferenceNumber: referenceNumber,
-		AttachmentURL:   attachmentURL,
-		UserNotes:       userNotes,
-		Status:          DepositPending,
-	}
-
-	if err := s.repo.CreateDepositRequest(ctx, dep); err != nil {
-		return nil, err
-	}
-
-	s.log.InfoContext(ctx, "wallet deposit requested", "deposit_id", dep.ID, "user_id", userID, "amount", amount.String(), "method", method)
-	return dep, nil
+	return s.RequestDepositExtended(ctx, userID, orgID, currency, amount, method, referenceNumber, attachmentURL, userNotes, "", "", nil)
 }
 
 // EditPendingDeposit allows the user to update a deposit request as long as it remains in pending status.

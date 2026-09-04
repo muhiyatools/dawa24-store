@@ -77,16 +77,19 @@ type WalletDeposit struct {
 	UserID          int64         `json:"user_id"`
 	OrganizationID  *int64        `json:"organization_id,omitempty"`
 	Amount          money.Amount  `json:"amount"`
-	Currency        string        `json:"currency"`
-	PaymentMethod   string        `json:"payment_method"`
-	ReferenceNumber string        `json:"reference_number"`
-	AttachmentURL   string        `json:"attachment_url,omitempty"`
-	UserNotes       string        `json:"user_notes,omitempty"`
-	Status          DepositStatus `json:"status"`
-	RejectionReason string        `json:"rejection_reason,omitempty"`
-	ReviewedBy      *int64        `json:"reviewed_by,omitempty"`
-	ReviewedAt      *time.Time    `json:"reviewed_at,omitempty"`
-	TransactionID   *int64        `json:"transaction_id,omitempty"`
+	Currency              string        `json:"currency"`
+	PaymentMethod         string        `json:"payment_method"`
+	ReferenceNumber       string        `json:"reference_number"`
+	PlatformMethodID      string        `json:"platform_method_id,omitempty"`
+	SenderAccount         string        `json:"sender_account,omitempty"`
+	SenderPaymentMethodID *int64        `json:"sender_payment_method_id,omitempty"`
+	AttachmentURL         string        `json:"attachment_url,omitempty"`
+	UserNotes             string        `json:"user_notes,omitempty"`
+	Status                DepositStatus `json:"status"`
+	RejectionReason       string        `json:"rejection_reason,omitempty"`
+	ReviewedBy            *int64        `json:"reviewed_by,omitempty"`
+	ReviewedAt            *time.Time    `json:"reviewed_at,omitempty"`
+	TransactionID         *int64        `json:"transaction_id,omitempty"`
 	CreatedAt       time.Time     `json:"created_at"`
 	UpdatedAt       time.Time     `json:"updated_at"`
 }

@@ -75,86 +75,7 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 										</thead>
 										<tbody>
 											for _, l := range sh.Lines {
-												<tr
-													class="order-table-row"
-													data-line-id={ fmt.Sprintf("%d", l.ID) }
-													data-unit-price-minor={ fmt.Sprintf("%d", l.UnitPrice.Minor()) }
-													data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(l)) }
-													data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
-													data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }
-													data-available-stock={ fmt.Sprintf("%d", l.AvailableStock) }
-												>
-													<td>
-														<div class="font-extrabold text-primary text-xs">
-															{ l.ProductName.Get(i18n.Lang(lang)) }
-														</div>
-														if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
-															<div class="text-xs text-muted mt-1">
-																if l.VariantName.Get(i18n.Lang(lang)) != "" {
-																	<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
-																}
-																if l.SKU != "" {
-																	<span class="font-mono text-xs ms-1">SKU: { l.SKU }</span>
-																}
-															</div>
-														}
-														if l.AvailableStock > 0 {
-															<div class="mt-1">
-																<span class="badge badge-emerald text-xs font-bold">
-																	المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
-																</span>
-															</div>
-														}
-														@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
-														<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
-														<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
-														<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
-														<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
-														<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
-													</td>
-													<td class="text-center align-middle">
-														<div class="order-qty-stepper">
-															<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
-															<input
-																type="number"
-																name="quantity[]"
-																value={ fmt.Sprintf("%d", l.Quantity) }
-																min={ fmt.Sprintf("%d", minAllowedQty(l)) }
-																if maxAllowedQty(l) < 99999 {
-																	max={ fmt.Sprintf("%d", maxAllowedQty(l)) }
-																}
-																required
-																class="form-input row-qty-input font-bold"
-																oninput="recalcRowTotal(this)"
-															/>
-															<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
-														</div>
-													</td>
-													<td class="text-end tabular-nums font-bold text-xs text-primary">
-														{ l.UnitPrice.String() } ج.م
-													</td>
-													<td class="text-center tabular-nums">
-														{{
-															discPct := 0.0
-															if l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
-																discPct = (float64(l.DiscountAmount.Minor()) / float64(l.UnitPrice.Minor())) * 100.0
-															}
-														}}
-														if discPct > 0 {
-															<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%.1f%%", discPct) }</span>
-														} else {
-															<span class="text-xs text-muted">0%</span>
-														}
-													</td>
-													<td class="text-end tabular-nums font-black text-brand text-xs">
-														<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
-													</td>
-													<td class="col-actions">
-														<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
-															@components.IconX("icon-sm")
-														</button>
-													</td>
-												</tr>
+												@EditableOrderLineRow(order, l, lang)
 											}
 										</tbody>
 									</table>
@@ -177,86 +98,7 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 							</thead>
 							<tbody>
 								for _, l := range order.Lines {
-									<tr
-										class="order-table-row"
-										data-line-id={ fmt.Sprintf("%d", l.ID) }
-										data-unit-price-minor={ fmt.Sprintf("%d", l.UnitPrice.Minor()) }
-										data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(l)) }
-										data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
-										data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }
-										data-available-stock={ fmt.Sprintf("%d", l.AvailableStock) }
-									>
-										<td>
-											<div class="font-extrabold text-primary text-xs">
-												{ l.ProductName.Get(i18n.Lang(lang)) }
-											</div>
-											if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
-												<div class="text-xs text-muted mt-1">
-													if l.VariantName.Get(i18n.Lang(lang)) != "" {
-														<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
-													}
-													if l.SKU != "" {
-														<span class="font-mono text-xs ms-1">SKU: { l.SKU }</span>
-													}
-												</div>
-											}
-											if l.AvailableStock > 0 {
-												<div class="mt-1">
-													<span class="badge badge-emerald text-xs font-bold">
-														المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
-													</span>
-												</div>
-											}
-											@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
-											<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
-											<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
-											<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
-											<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
-											<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
-										</td>
-										<td class="text-center align-middle">
-											<div class="order-qty-stepper">
-												<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
-												<input
-													type="number"
-													name="quantity[]"
-													value={ fmt.Sprintf("%d", l.Quantity) }
-													min={ fmt.Sprintf("%d", minAllowedQty(l)) }
-													if maxAllowedQty(l) < 99999 {
-														max={ fmt.Sprintf("%d", maxAllowedQty(l)) }
-													}
-													required
-													class="form-input row-qty-input font-bold"
-													oninput="recalcRowTotal(this)"
-												/>
-												<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
-											</div>
-										</td>
-										<td class="text-end tabular-nums font-bold text-xs text-primary">
-											{ l.UnitPrice.String() } ج.م
-										</td>
-										<td class="text-center tabular-nums">
-											{{
-												discPct := 0.0
-												if l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
-													discPct = (float64(l.DiscountAmount.Minor()) / float64(l.UnitPrice.Minor())) * 100.0
-												}
-											}}
-											if discPct > 0 {
-												<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%.1f%%", discPct) }</span>
-											} else {
-												<span class="text-xs text-muted">0%</span>
-											}
-										</td>
-										<td class="text-end tabular-nums font-black text-brand text-xs">
-											<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
-										</td>
-										<td class="col-actions">
-											<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
-												@components.IconX("icon-sm")
-											</button>
-										</td>
-									</tr>
+									@EditableOrderLineRow(order, l, lang)
 								}
 							</tbody>
 						</table>
@@ -312,35 +154,15 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 										<tr>
 											<th>الصنف الدوائي</th>
 											<th class="text-center">الكمية</th>
-											<th class="text-end">السعر</th>
-											<th class="text-end">الخصم</th>
+											<th class="text-end">سعر الجمهور</th>
+											<th class="text-center">نسبة الخصم</th>
+											<th class="text-end">سعر التوريد</th>
 											<th class="text-end">الإجمالي</th>
 										</tr>
 									</thead>
 									<tbody>
 										for _, l := range sh.Lines {
-											<tr>
-												<td>
-													<div class="font-extrabold text-primary text-xs">
-														{ l.ProductName.Get(i18n.Lang(lang)) }
-													</div>
-													@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
-												</td>
-												<td class="text-center">
-													<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">
-														{ fmt.Sprintf("%d", l.Quantity) }
-													</span>
-												</td>
-												<td class="text-end tabular-nums text-xs text-primary font-bold">
-													{ l.UnitPrice.String() } ج.م
-												</td>
-												<td class="text-end tabular-nums text-xs text-success font-bold">
-													{ l.DiscountAmount.String() } ج.م
-												</td>
-												<td class="text-end tabular-nums font-black text-brand text-xs">
-													{ l.TotalPrice.String() } ج.م
-												</td>
-											</tr>
+											@ReadOnlyOrderLineRow(order, l, lang)
 										}
 									</tbody>
 								</table>
@@ -355,35 +177,15 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 							<tr>
 								<th>الصنف الدوائي</th>
 								<th class="text-center">الكمية</th>
-								<th class="text-end">السعر</th>
-								<th class="text-end">الخصم</th>
+								<th class="text-end">سعر الجمهور</th>
+								<th class="text-center">نسبة الخصم</th>
+								<th class="text-end">سعر التوريد</th>
 								<th class="text-end">الإجمالي</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, l := range order.Lines {
-								<tr>
-									<td>
-										<div class="font-extrabold text-primary text-xs">
-											{ l.ProductName.Get(i18n.Lang(lang)) }
-										</div>
-										@OfferBundleBadge(order.ID, l.ID, l.OfferProductID)
-									</td>
-									<td class="text-center">
-										<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">
-											{ fmt.Sprintf("%d", l.Quantity) }
-										</span>
-									</td>
-									<td class="text-end tabular-nums text-xs text-primary font-bold">
-										{ l.UnitPrice.String() } ج.م
-									</td>
-									<td class="text-end tabular-nums text-xs text-success font-bold">
-										{ l.DiscountAmount.String() } ج.م
-									</td>
-									<td class="text-end tabular-nums font-black text-brand text-xs">
-										{ l.TotalPrice.String() } ج.م
-									</td>
-								</tr>
+								@ReadOnlyOrderLineRow(order, l, lang)
 							}
 						</tbody>
 					</table>
@@ -391,4 +193,153 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 			}
 		}
 	</div>
+}
+
+templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string) {
+	<tr
+		class="order-table-row"
+		data-line-id={ fmt.Sprintf("%d", l.ID) }
+		data-unit-price-minor={ fmt.Sprintf("%d", l.UnitPrice.Minor()) }
+		data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(l)) }
+		data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
+		data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }
+		data-available-stock={ fmt.Sprintf("%d", l.AvailableStock) }
+	>
+		<td>
+			if isOrderLineAnOffer(l) {
+				<button
+					type="button"
+					class="btn-link text-brand font-extrabold text-xs d-inline-flex items-center gap-1.5 p-0 border-0 bg-transparent text-start cursor-pointer hover:underline"
+					hx-get={ fmt.Sprintf("/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
+					hx-target="#order-offer-modal-container"
+					hx-swap="innerHTML"
+					title="معاينة تفاصيل ومحتويات هذا العرض"
+				>
+					@components.IconPackage("icon-xs shrink-0 text-brand")
+					<span>{ l.ProductName.Get(i18n.Lang(lang)) }</span>
+				</button>
+			} else {
+				<div class="font-extrabold text-primary text-xs">
+					{ l.ProductName.Get(i18n.Lang(lang)) }
+				</div>
+			}
+			if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
+				<div class="text-xs text-muted mt-1">
+					if l.VariantName.Get(i18n.Lang(lang)) != "" {
+						<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
+					}
+					if l.SKU != "" {
+						<span class="font-mono text-xs ms-1">SKU: { l.SKU }</span>
+					}
+				</div>
+			}
+			if l.AvailableStock > 0 {
+				<div class="mt-1">
+					<span class="badge badge-emerald text-xs font-bold">
+						المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
+					</span>
+				</div>
+			}
+			@OfferBundleBadge(order.ID, l.ID, isOrderLineAnOffer(l))
+			<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
+			<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
+			<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
+			<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
+			<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
+		</td>
+		<td class="text-center align-middle">
+			<div class="order-qty-stepper">
+				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
+				<input
+					type="number"
+					name="quantity[]"
+					value={ fmt.Sprintf("%d", l.Quantity) }
+					min={ fmt.Sprintf("%d", minAllowedQty(l)) }
+					if maxAllowedQty(l) < 99999 {
+						max={ fmt.Sprintf("%d", maxAllowedQty(l)) }
+					}
+					required
+					class="form-input row-qty-input font-bold"
+					oninput="recalcRowTotal(this)"
+				/>
+				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold qty-step-btn" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
+			</div>
+		</td>
+		<td class="text-end tabular-nums font-bold text-xs text-primary">
+			{ linePublicPrice(l).String() } ج.م
+		</td>
+		<td class="text-center tabular-nums">
+			{{ discPct := lineDiscountPercent(l) }}
+			if discPct > 0 {
+				<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%d%%", int(discPct + 0.5)) }</span>
+			} else {
+				<span class="text-xs text-muted">0%</span>
+			}
+		</td>
+		<td class="text-end tabular-nums font-black text-brand text-xs">
+			<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
+		</td>
+		<td class="col-actions">
+			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
+				@components.IconX("icon-sm")
+			</button>
+		</td>
+	</tr>
+}
+
+templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string) {
+	<tr>
+		<td>
+			if isOrderLineAnOffer(l) {
+				<button
+					type="button"
+					class="btn-link text-brand font-extrabold text-xs d-inline-flex items-center gap-1.5 p-0 border-0 bg-transparent text-start cursor-pointer hover:underline"
+					hx-get={ fmt.Sprintf("/orders/%d/lines/%d/offer-details", order.ID, l.ID) }
+					hx-target="#order-offer-modal-container"
+					hx-swap="innerHTML"
+					title="معاينة تفاصيل ومحتويات هذا العرض"
+				>
+					@components.IconPackage("icon-xs shrink-0 text-brand")
+					<span>{ l.ProductName.Get(i18n.Lang(lang)) }</span>
+				</button>
+			} else {
+				<div class="font-extrabold text-primary text-xs">
+					{ l.ProductName.Get(i18n.Lang(lang)) }
+				</div>
+			}
+			if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
+				<div class="text-xs text-muted mt-1">
+					if l.VariantName.Get(i18n.Lang(lang)) != "" {
+						<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
+					}
+					if l.SKU != "" {
+						<span class="font-mono text-xs ms-1">SKU: { l.SKU }</span>
+					}
+				</div>
+			}
+			@OfferBundleBadge(order.ID, l.ID, isOrderLineAnOffer(l))
+		</td>
+		<td class="text-center">
+			<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">
+				{ fmt.Sprintf("%d", l.Quantity) }
+			</span>
+		</td>
+		<td class="text-end tabular-nums text-xs text-primary font-bold">
+			{ linePublicPrice(l).String() } ج.م
+		</td>
+		<td class="text-center tabular-nums">
+			{{ discPct := lineDiscountPercent(l) }}
+			if discPct > 0 {
+				<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%d%%", int(discPct + 0.5)) }</span>
+			} else {
+				<span class="text-xs text-muted">0%</span>
+			}
+		</td>
+		<td class="text-end tabular-nums text-xs text-secondary font-bold">
+			{ l.UnitPrice.String() } ج.م
+		</td>
+		<td class="text-end tabular-nums font-black text-brand text-xs">
+			{ l.TotalPrice.String() } ج.م
+		</td>
+	</tr>
 }
