@@ -91,15 +91,26 @@ func keysOf(set map[int64]struct{}) []int64 {
 }
 
 // pharmacyBranchID resolves the branch the actor is buying for: the
-// member-bound branch first (if assigned to a specific branch), else
-// the branch chosen in the shell selector, else the main branch, else
-// the first active one.
+// branch chosen in the shell selector first, else the member-bound branch
+// (if assigned and active), else the main active branch, else the first active one.
 func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) int64 {
-	if actor != nil && actor.BranchID != nil && *actor.BranchID > 0 {
-		return *actor.BranchID
-	}
 	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
-		return *selection.Active
+		if h.orgSvc != nil && actor != nil && actor.OrganizationID > 0 {
+			if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err == nil && b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
+				return b.ID
+			}
+		} else {
+			return *selection.Active
+		}
+	}
+	if actor != nil && actor.BranchID != nil && *actor.BranchID > 0 {
+		if h.orgSvc != nil && actor.OrganizationID > 0 {
+			if b, err := h.orgSvc.GetBranch(ctx, *actor.BranchID); err == nil && b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
+				return b.ID
+			}
+		} else {
+			return *actor.BranchID
+		}
 	}
 	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
 		return 0
@@ -109,7 +120,7 @@ func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) 
 		return 0
 	}
 	for _, b := range branches {
-		if b == nil || b.Status == "inactive" || b.Status == "suspended" {
+		if b == nil || b.Status == "inactive" || b.Status == "suspended" || b.OrganizationID != actor.OrganizationID {
 			continue
 		}
 		if b.IsMain {
@@ -117,7 +128,7 @@ func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) 
 		}
 	}
 	for _, b := range branches {
-		if b != nil && b.Status != "inactive" && b.Status != "suspended" {
+		if b != nil && b.Status != "inactive" && b.Status != "suspended" && b.OrganizationID == actor.OrganizationID {
 			return b.ID
 		}
 	}
@@ -125,31 +136,22 @@ func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) 
 }
 
 // pharmacyBranchCoords resolves the branch the actor is buying for: the
-// member-bound branch first (if assigned to a specific branch), else
-// the branch chosen in the shell selector, else the main branch, else
-// the first active one. Returns false when the pharmacy
-// has no branch with coordinates. Coordinates come from the database branch
-// record, never from the request (Rebuild V2 §3.2).
+// branch chosen in the shell selector first, else the member-bound branch
+// (if assigned and active), else the main active branch, else the first active one.
 func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Actor) (lat, lng float64, ok bool) {
 	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
 		return 0, 0, false
 	}
 
 	var branch *org.Branch
-	if actor.BranchID != nil && *actor.BranchID > 0 {
-		if b, err := h.orgSvc.GetBranch(ctx, *actor.BranchID); err != nil {
-			h.log.DebugContext(ctx, "pharmacy branch coords: get actor branch", "branch_id", *actor.BranchID, "error", err)
-		} else if b != nil {
+	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
+		if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err == nil && b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
 			branch = b
 		}
 	}
-	if branch == nil {
-		if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
-			if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err != nil {
-				h.log.DebugContext(ctx, "pharmacy branch coords: get branch selection optional", "branch_id", *selection.Active, "error", err)
-			} else if b != nil {
-				branch = b
-			}
+	if branch == nil && actor.BranchID != nil && *actor.BranchID > 0 {
+		if b, err := h.orgSvc.GetBranch(ctx, *actor.BranchID); err == nil && b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
+			branch = b
 		}
 	}
 	if branch == nil {
@@ -158,7 +160,7 @@ func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Act
 			return 0, 0, false
 		}
 		for _, b := range branches {
-			if b == nil || b.Status == "inactive" || b.Status == "suspended" {
+			if b == nil || b.Status == "inactive" || b.Status == "suspended" || b.OrganizationID != actor.OrganizationID {
 				continue
 			}
 			if branch == nil {

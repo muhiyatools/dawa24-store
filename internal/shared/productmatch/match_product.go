@@ -68,7 +68,17 @@ type MasterProduct struct {
 	triEN    []trigram
 	nums     []float64
 	nameKey  string
-	formKey  string
+	// formKey is the form BOTH names between them state, which is what the
+	// scorer's corroboration bonus and the AI guard's veto read. The per-side
+	// reductions in factsAR/factsEN are what the conflict comparison reads —
+	// see facts.go for why those must not be pooled.
+	formKey string
+	// formMeta is the form the record's own dosage-form column states, used
+	// only where a name states none.
+	formMeta string
+	// factsAR and factsEN are each name reduced to the attributes it states.
+	factsAR nameFacts
+	factsEN nameFacts
 	strength strength
 	// strengths is every dose the record states, not merely the first.
 	//
@@ -102,6 +112,15 @@ type MasterProduct struct {
 type strength struct {
 	value float64
 	unit  string
+	// parts is how many figures the ratio this dose came from carried: 1 for a
+	// plain "500 مجم", 2 for the "32/25 مجم" of a combination.
+	//
+	// It is what tells اتاكاند from اتاكاند بلس without reading the name's
+	// grammar. Counting the doses per UNIT instead does not work: "2.5مجم/5مل
+	// شراب 100 مل" states two millilitre figures for reasons that have nothing
+	// to do with combination, and comparing those counts made a product
+	// contradict itself written two ways.
+	parts int
 }
 
 func (s strength) known() bool { return s.value > 0 }
@@ -123,6 +142,9 @@ func prepare(p *MasterProduct) {
 	}
 	full := p.NameAR + " " + p.NameEN + " " + p.DosageForm
 	p.formKey = formKeyOf(full)
+	p.formMeta = formKeyOf(p.DosageForm)
+	p.factsAR = factsOf(p.NameAR)
+	p.factsEN = factsOf(p.NameEN)
 	p.strength = parseStrength(p.NameAR + " " + p.NameEN + " " + p.Concentration)
 	p.strengths = strengthSet(p.NameAR + " " + p.NameEN + " " + p.Concentration)
 	p.packSize = InferPackSize(p.NameAR + " " + p.NameEN)

@@ -65,10 +65,3 @@ func TestDiagFile(t *testing.T) {
 	}
 }
 
-func trunc(s string, n int) string {
-	r := []rune(s)
-	if len(r) <= n {
-		return s
-	}
-	return string(r[:n])
-}

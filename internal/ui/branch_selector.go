@@ -35,7 +35,9 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 		}
 
 		selection := authctx.BuyingBranch{Branches: options}
-		if actor.BranchID != nil && *actor.BranchID > 0 {
+		// Only non-owner staff strictly bound to a single branch get locked.
+		// Owners and managers can freely view and switch between all branches.
+		if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && len(options) == 1 && options[0].ID == *actor.BranchID {
 			selection.Active = actor.BranchID
 			selection.IsLocked = true
 		} else if active := h.validatedCookieBranch(r, actor, options); active != nil {
@@ -49,30 +51,39 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 		ctx := authctx.WithBuyingBranch(r.Context(), selection)
 		ctx = authctx.WithActor(ctx, actor)
 		next.ServeHTTP(w, r.WithContext(ctx))
-
 	})
 }
 
 // customerBranchOptions lists the actor's active branches for the selector.
 func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) []authctx.BranchOption {
 	lang := langOf(r)
-	if actor.BranchID != nil && *actor.BranchID > 0 {
-		b, err := h.orgSvc.GetBranch(r.Context(), *actor.BranchID)
-		if err == nil && b != nil && b.Status != "inactive" && b.Status != "suspended" {
-			return []authctx.BranchOption{{ID: b.ID, Name: branchName(b, lang)}}
-		}
-	}
 	branches, err := h.orgSvc.ListBranches(r.Context(), actor.OrganizationID)
 	if err != nil {
 		return nil
 	}
+
 	options := make([]authctx.BranchOption, 0, len(branches))
 	for _, b := range branches {
-		if b == nil || b.Status == "inactive" || b.Status == "suspended" {
+		if b == nil || b.OrganizationID != actor.OrganizationID || b.Status == "inactive" || b.Status == "suspended" {
+			continue
+		}
+		// Non-owner employee strictly bound to an assigned branch only sees their branch
+		if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && b.ID != *actor.BranchID {
 			continue
 		}
 		options = append(options, authctx.BranchOption{ID: b.ID, Name: branchName(b, lang)})
 	}
+
+	// Fallback if employee assigned branch was inactive/suspended/not found
+	if len(options) == 0 && !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 {
+		for _, b := range branches {
+			if b == nil || b.OrganizationID != actor.OrganizationID || b.Status == "inactive" || b.Status == "suspended" {
+				continue
+			}
+			options = append(options, authctx.BranchOption{ID: b.ID, Name: branchName(b, lang)})
+		}
+	}
+
 	return options
 }
 
@@ -103,20 +114,20 @@ func (h *UIHandler) SetBuyingBranchSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if actor.BranchID != nil && *actor.BranchID > 0 {
-		// Employee is strictly locked to their assigned branch; cannot switch.
-		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
-		return
-	}
-
 	id := parseBranchID(&http.Cookie{Value: r.PostFormValue("branch_id")})
 	if id <= 0 {
 		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
 		return
 	}
 
+	// Only non-owner employees strictly assigned to a different branch cannot switch
+	if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && *actor.BranchID != id {
+		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
+		return
+	}
+
 	branch, err := h.orgSvc.GetBranch(r.Context(), id)
-	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID {
+	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID || branch.Status == "inactive" || branch.Status == "suspended" {
 		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
 		return
 	}

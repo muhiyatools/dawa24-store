@@ -263,3 +263,12 @@ func (a Accuracy) FormatSamples() string {
 	}
 	return b.String()
 }
+
+// trunc shortens a name to fit a fixed-width report column.
+func trunc(s string, n int) string {
+	r := []rune(s)
+	if len(r) <= n {
+		return s
+	}
+	return string(r[:n])
+}

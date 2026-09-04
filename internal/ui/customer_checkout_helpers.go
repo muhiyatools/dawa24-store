@@ -1,11 +1,15 @@
-﻿package ui
+package ui
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -80,3 +84,56 @@ func checkoutValidationMessage(lang string, err error) (string, bool) {
 		return "", false
 	}
 }
+
+// filterCheckoutBranches returns active branches for the checkout page, filtering out
+// foreign or inactive branches, and respecting owner vs staff assignment.
+func filterCheckoutBranches(bList []*org.Branch, actor authctx.Actor) []*org.Branch {
+	var branches []*org.Branch
+	for _, b := range bList {
+		if b == nil || b.OrganizationID != actor.OrganizationID || b.Status == "inactive" || b.Status == "suspended" {
+			continue
+		}
+		if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && b.ID != *actor.BranchID {
+			continue
+		}
+		branches = append(branches, b)
+	}
+	if len(branches) == 0 && !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 {
+		for _, b := range bList {
+			if b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
+				branches = append(branches, b)
+			}
+		}
+	}
+	return branches
+}
+
+// resolveCheckoutBranch determines and validates the receiving branch for checkout.
+// Priority: explicit form choice -> top bar active branch -> actor assigned branch -> fallback to pharmacy main/active branch.
+func (h *UIHandler) resolveCheckoutBranch(ctx context.Context, actor authctx.Actor, formBranchID string) *int64 {
+	var branchID *int64
+	if bID, err := strconv.ParseInt(formBranchID, 10, 64); err == nil && bID > 0 {
+		branchID = &bID
+	} else if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil && *buying.Active > 0 {
+		branchID = buying.Active
+	} else if actor.BranchID != nil && *actor.BranchID > 0 {
+		branchID = actor.BranchID
+	}
+
+	if branchID != nil && h.orgSvc != nil {
+		b, err := h.orgSvc.GetBranch(ctx, *branchID)
+		if err != nil || b == nil || b.OrganizationID != actor.OrganizationID || b.Status == "inactive" || b.Status == "suspended" {
+			branchID = nil
+		}
+	}
+
+	if branchID == nil && actor.OrganizationID > 0 {
+		targetID := h.pharmacyBranchID(ctx, &actor)
+		if targetID > 0 {
+			branchID = &targetID
+		}
+	}
+
+	return branchID
+}
+

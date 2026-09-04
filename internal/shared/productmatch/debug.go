@@ -13,7 +13,10 @@ package productmatch
 // implementation, and moving them out of this package puts the scorer's own
 // vocabulary somewhere it cannot see.
 
-import "strings"
+import (
+	"sort"
+	"strings"
+)
 
 // DebugName is a catalogue product's label, Arabic first.
 func DebugName(p *MasterProduct) string {
@@ -178,4 +181,44 @@ func formatFloat(v float64) string {
 		frac = -frac
 	}
 	return itoa(int(whole)) + "." + itoa(frac)
+}
+
+// DebugConflicts names every disagreement the engine finds between a row and
+// one catalogue product, for the benchmark that measures how often a
+// discrimination rule fires against the correct answer.
+func DebugConflicts(idx *Index, row *Row, productID int64) []string {
+	p, ok := idx.byID[productID]
+	if !ok {
+		return nil
+	}
+	cs := idx.conflictsOf(idx.newQuery(row), p)
+	out := make([]string, 0, len(cs))
+	for _, c := range cs {
+		out = append(out, c.kind)
+	}
+	return out
+}
+
+// DebugMarks and DebugSubForm expose the two signals added most recently, so a
+// probe can say what a name produced rather than infer it from an outcome.
+func DebugMarks(text string) []string {
+	out := make([]string, 0, 2)
+	for k := range identityMarks(text) {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// DebugSubForm exposes the topical sub-form a name states.
+func DebugSubForm(text string) string { return topicalSubForm(text) }
+
+// DebugModifiers exposes the line-extension keys a name carries.
+func DebugModifiers(text string) []string {
+	out := make([]string, 0, 2)
+	for k := range modifiersIn(text) {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }

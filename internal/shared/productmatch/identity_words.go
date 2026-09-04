@@ -251,11 +251,21 @@ var variantModifiers = map[string]string{
 	"er": "er", "od": "od",
 	"ممتد": "sr", "المفعول": "sr",
 
-	// Population — the paediatric line is a different product
-	"بيبي": "baby", "baby": "baby", "infant": "baby",
-	"جونيور": "junior", "junior": "junior", "بيديا": "junior", "pedia": "junior",
-	"kids": "junior", "children": "junior",
-	"مان": "men", "men": "men", "وومن": "women", "women": "women",
+	// Population — the paediatric line is a different product.
+	//
+	// Every paediatric word folds onto ONE key. The catalogue writes "اطفال"
+	// where the supplier writes "baby" and "children" where it writes "بيبي",
+	// and three separate keys made those contradict each other: a fifth of the
+	// modifier conflicts measured against known-correct pairs were a
+	// paediatric product disagreeing with itself in the other language.
+	"بيبي": "paed", "بيبى": "paed", "baby": "paed", "infant": "paed",
+	"جونيور": "paed", "junior": "paed", "بيديا": "paed", "pedia": "paed",
+	"kids": "paed", "children": "paed", "child": "paed",
+	"اطفال": "paed", "للاطفال": "paed", "الاطفال": "paed", "اطفل": "paed",
+	"كبار": "adult", "للكبار": "adult", "adult": "adult", "adults": "adult",
+	"مان": "men", "men": "men", "رجالي": "men", "للرجال": "men", "الرجال": "men",
+	"وومن": "women", "women": "women", "حريمي": "women", "للسيدات": "women",
+	"السيدات": "women", "سيدات": "women", "نسائي": "women", "للنساء": "women",
 
 	// Formulation families sold side by side
 	"دوو": "duo", "duo": "duo",

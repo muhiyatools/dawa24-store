@@ -49,16 +49,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		if bList, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err != nil {
 			h.log.WarnContext(ctx, "checkout: list customer branches", "error", err)
 		} else {
-			if actor.BranchID != nil && *actor.BranchID > 0 {
-				for _, b := range bList {
-					if b != nil && b.ID == *actor.BranchID {
-						branches = append(branches, b)
-						break
-					}
-				}
-			} else {
-				branches = bList
-			}
+			branches = filterCheckoutBranches(bList, actor)
 		}
 	}
 
@@ -191,23 +182,10 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 
 	paymentMethod := "cod"
 
-	var branchID *int64
-	if actor, ok := authctx.From(ctx); ok && actor.BranchID != nil && *actor.BranchID > 0 {
-		branchID = actor.BranchID
-	} else if bID, err := strconv.ParseInt(r.PostFormValue("branch_id"), 10, 64); err == nil && bID > 0 {
-		branchID = &bID
-	} else if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil && *buying.Active > 0 {
-		branchID = buying.Active
-	}
-
+	branchID := h.resolveCheckoutBranch(ctx, actor, r.PostFormValue("branch_id"))
 	var targetBranchID int64
 	if branchID != nil {
 		targetBranchID = *branchID
-	} else if actor, ok := authctx.From(ctx); ok {
-		targetBranchID = h.pharmacyBranchID(ctx, &actor)
-		if targetBranchID > 0 {
-			branchID = &targetBranchID
-		}
 	}
 
 	if targetBranchID <= 0 {

@@ -57,6 +57,21 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 }
 
 // PharmacyBranchSelector is an island in the top navbar. It reads the current
+func activeBranchDisplayName(buying authctx.BuyingBranch) string {
+	if buying.Active != nil {
+		for _, b := range buying.Branches {
+			if b.ID == *buying.Active {
+				return b.Name
+			}
+		}
+	}
+	if len(buying.Branches) > 0 {
+		return buying.Branches[0].Name
+	}
+	return "الفرع المعتمد"
+}
+
+// PharmacyBranchSelector reads the customer's available branches and the
 // active branch from the request context (or session), renders a dropdown of
 // the user's pharmacy branches, and POSTs to /customer/set-branch on change.
 templ PharmacyBranchSelector(ctx context.Context) {
@@ -68,13 +83,7 @@ templ PharmacyBranchSelector(ctx context.Context) {
 						@components.IconLock("icon-xs text-amber")
 						<span class="nav-trigger-text">
 							<span class="nav-trigger-label">BRANCH</span>
-							<span class="nav-trigger-value">
-								for _, b := range buying.Branches {
-									if buying.Active != nil && *buying.Active == b.ID {
-										{ b.Name }
-									}
-								}
-							</span>
+							<span class="nav-trigger-value">{ activeBranchDisplayName(buying) }</span>
 						</span>
 					</div>
 				</div>
@@ -91,13 +100,7 @@ templ PharmacyBranchSelector(ctx context.Context) {
 						@components.IconMapPin("icon-xs")
 					<span class="nav-trigger-text">
 						<span class="nav-trigger-label">BRANCH</span>
-						<span class="nav-trigger-value">
-							for _, b := range buying.Branches {
-								if buying.Active != nil && *buying.Active == b.ID {
-									{ b.Name }
-								}
-							}
-						</span>
+						<span class="nav-trigger-value">{ activeBranchDisplayName(buying) }</span>
 					</span>
 					@components.IconChevronDown("icon-2xs nav-trigger-chevron")
 				</button>

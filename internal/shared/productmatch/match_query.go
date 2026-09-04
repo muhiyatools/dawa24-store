@@ -71,6 +71,17 @@ type query struct {
 	nums     []float64
 	nameKey  string
 	formKey  string
+	// subForm separates the semi-solid topicals formKey groups together, so a
+	// row asking for a cream is not settled on the same brand's ointment. See
+	// topicalSubForm.
+	subForm string
+	// qty is what the row's figures turned out to be: the packaging counts,
+	// each tied to what it counts, and the figures that named nothing. See
+	// readQuantities.
+	qty quantities
+	// marks are the single letters the row carries as identity: the N of
+	// Betnovate N. See identityMarks.
+	marks    map[string]struct{}
 	strength strength
 	// strengths is every dose the row states. See MasterProduct.strengths.
 	strengths []strength
@@ -89,6 +100,9 @@ func (idx *Index) newQuery(row *Row) *query {
 		nums:      numberSignature(full),
 		nameKey:   strings.Join(nameTokens, " "),
 		formKey:   formKeyOf(full + " " + row.DosageForm),
+		subForm:   topicalSubForm(full + " " + row.DosageForm),
+		qty:       readQuantities(full),
+		marks:     identityMarks(full),
 		strength:  parseStrength(full + " " + row.Concentration),
 		strengths: strengthSet(full + " " + row.Concentration),
 		packSize:  row.PackSize,

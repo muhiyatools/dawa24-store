@@ -173,10 +173,16 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 				}
 			}
 		}
-		if actor.BranchID != nil && *actor.BranchID > 0 {
-			data.ActiveBranchID = *actor.BranchID
+		activeTargetID := int64(0)
+		if buying, ok := authctx.BuyingBranchFrom(ctx); ok && buying.Active != nil && *buying.Active > 0 {
+			activeTargetID = *buying.Active
+		} else if actor.BranchID != nil && *actor.BranchID > 0 {
+			activeTargetID = *actor.BranchID
+		}
+		if activeTargetID > 0 {
+			data.ActiveBranchID = activeTargetID
 			for _, b := range data.Branches {
-				if b.ID == *actor.BranchID {
+				if b.ID == activeTargetID {
 					data.ActiveBranchName = b.Name.Get(i18n.Lang(lang))
 					if data.ActiveBranchName == "" {
 						data.ActiveBranchName = b.Code

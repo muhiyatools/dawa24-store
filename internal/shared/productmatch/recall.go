@@ -317,41 +317,63 @@ func strengthSet(text string) []strength {
 		if !parsed.known() {
 			continue
 		}
+		// The unit scaled the figure that carried it; every ratio leader must
+		// be scaled the same way before the two can be compared.
+		leads := ratioLeads(norm[:loc[0]])
+		parsed.parts = len(leads) + 1
 		add(parsed)
-		// The unit scaled the figure that carried it; the ratio leader must be
-		// scaled the same way before the two can be compared.
-		if lead, ok := ratioLead(norm[:loc[0]]); ok {
-			if head := numericHead(match); head > 0 {
-				add(strength{value: lead * (parsed.value / head), unit: parsed.unit})
+		if head := numericHead(match); head > 0 {
+			for _, lead := range leads {
+				add(strength{
+					value: lead * (parsed.value / head),
+					unit:  parsed.unit,
+					parts: parsed.parts,
+				})
 			}
 		}
 	}
 	return out
 }
 
-// ratioLead reads the "32/" out of "32/25 ملجم", given the text before the match.
-func ratioLead(before string) (float64, bool) {
-	if !strings.HasSuffix(before, "/") {
-		return 0, false
-	}
-	digits := before[:len(before)-1]
-	start := len(digits)
-	for start > 0 {
-		c := digits[start-1]
-		if (c >= '0' && c <= '9') || c == '.' || c == ',' {
-			start--
-			continue
+// ratioLeads reads the figures written before a dose as a ratio: the "32/" of
+// "32/25 ملجم", and the "5/" and "2.5/" of a three-part combination.
+//
+// It walks backwards for as long as the text keeps offering "<number>/", which
+// is what makes املوفيران بلس 10/2.5/5مجم state three components rather than
+// two. Stopping at the first one left the widest combination families
+// indistinguishable from their two-part siblings.
+//
+// A slash preceded by a UNIT rather than by a figure ends the walk, and that is
+// the whole safety of it: "250مجم/5مل" is a concentration, not a combination,
+// and the 250 is already recorded in its own unit.
+func ratioLeads(before string) []float64 {
+	var out []float64
+	for len(out) < 4 {
+		trimmed := strings.TrimRight(before, " ")
+		if !strings.HasSuffix(trimmed, "/") {
+			break
 		}
-		break
+		digits := strings.TrimRight(trimmed[:len(trimmed)-1], " ")
+		start := len(digits)
+		for start > 0 {
+			c := digits[start-1]
+			if (c >= '0' && c <= '9') || c == '.' || c == ',' {
+				start--
+				continue
+			}
+			break
+		}
+		if start == len(digits) {
+			break
+		}
+		v, err := strconv.ParseFloat(strings.Replace(digits[start:], ",", ".", 1), 64)
+		if err != nil || v <= 0 {
+			break
+		}
+		out = append(out, v)
+		before = digits[:start]
 	}
-	if start == len(digits) {
-		return 0, false
-	}
-	v, err := strconv.ParseFloat(strings.Replace(digits[start:], ",", ".", 1), 64)
-	if err != nil || v <= 0 {
-		return 0, false
-	}
-	return v, true
+	return out
 }
 
 // numericHead is the figure a matched strength was written with, before its unit

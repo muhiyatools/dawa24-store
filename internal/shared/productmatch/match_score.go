@@ -7,16 +7,20 @@ import (
 // Per-candidate scoring.
 //
 // The name gets a candidate onto the list; the attributes decide whether it
-// stays. That order matters because the name is the least reliable field a
-// supplier writes and the dose is the most: "أوجمنتين 1 جم" and "أوجمنتين 625"
-// differ by one token out of three and are different medicines, while "بانادول
-// اكسترا سعر جديد" and "Panadol Extra" differ in every token and are the same
-// one.
+// stays, and — since the rewrite this comment sits on top of — which of two
+// candidates is chosen. That order matters because the name is the least
+// reliable field a supplier writes and the dose is the most: "أوجمنتين 1 جم"
+// and "أوجمنتين 625" differ by one token out of three and are different
+// medicines, while "بانادول اكسترا سعر جديد" and "Panadol Extra" differ in
+// every token and are the same one.
 //
-// What the name may do at all is decided in match_evidence.go, and it is
-// decided before any of this runs. A candidate that agrees with the row only on
-// words the catalogue carries by the thousand never reaches here, whatever the
-// dose and the form would have said about it.
+// What the name may do at all is decided in match_evidence.go, before any of
+// this runs. What the attributes may do is decided in discriminate.go, and the
+// division is the important part: a candidate that CONTRADICTS something the
+// row states is ranked behind every candidate that does not, rather than merely
+// scoring a little lower. Subtraction let a large name similarity buy its way
+// past a small contradiction, and that is how the wrong strength, the wrong
+// tube size and the wrong pack count were applied to real files.
 
 // corroborationFloor is the share of an attribute bonus that survives when the
 // names agree not at all, and corroborationFull is the name agreement above
@@ -25,6 +29,20 @@ const (
 	corroborationFloor = 0.50
 	corroborationFull  = 0.50
 )
+
+// conflictPenalty converts a unit of conflict mass into points of score.
+//
+// It is what a contradiction costs a candidate that is offered anyway. The
+// ordering has already been settled without it — a conflicting candidate ranks
+// behind a clean one whatever their scores — so this decides only what the
+// review screen prints beside a candidate it is showing under protest, and how
+// far below the applied threshold it lands.
+//
+// Set so a disagreeing dose costs 0.45, which is what it cost when penalties
+// and evidence were summed together. The figures below it fall out of the mass
+// table in discriminate.go rather than being tuned one at a time, which is the
+// point of having the table.
+const conflictPenalty = 0.45
 
 // corroborationFactor discounts attribute agreement when the names barely
 // agree, and leaves it alone once they do.
@@ -52,6 +70,9 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 	}
 	name := ev.similarity
 
+	conflicts := idx.conflictsOf(q, p)
+	mass := conflictMass(conflicts)
+
 	weight := 0.75
 	if !q.strength.known() && !p.strength.known() {
 		// When neither side states a strength (cosmetics, OTC, supplies, devices),
@@ -59,7 +80,11 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		// prevents certain non-pharmaceutical matches from falling below the cutoff.
 		weight = 0.88
 	}
-	score := name * weight
+	score := name*weight - mass*conflictPenalty
+
+	reasons := make([]string, 0, 6)
+	reasons = append(reasons, "تشابه الاسم "+percent(name))
+
 	// Corroboration is accumulated apart from the score and applied scaled by
 	// the name, because an attribute agreeing is not evidence of identity on
 	// its own.
@@ -68,67 +93,67 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 	// 200 مل" reached 0.50 against another company's "تيلير غسول نسائي 200 مل":
 	// the names agreed on 0.20 and the bottle size, the pharmaceutical form and
 	// the figure 200 added 0.32 between them. Every one of those three is true
-	// of a hundred products. Penalties are NOT scaled — a dose that contradicts
-	// contradicts whatever the names look like.
-	var bonus float64
-	reasons := make([]string, 0, 5)
-	reasons = append(reasons, "تشابه الاسم "+percent(name))
+	// of a hundred products.
+	bonus := idx.corroboration(q, p, &reasons)
+	score += bonus * corroborationFactor(name)
 
-	// The dose. Disagreement is disqualifying rather than merely negative: two
-	// strengths of one brand are two products, and pricing one as the other is
-	// the single most expensive mistake this engine can make.
-	//
-	// Compared per unit and over every dose each side states, not first against
-	// first. Both of those were real defects. "ايفرزين 30 جم كريم" against the
-	// catalogue's "ايفرزين 1% كريم 30 جم" is one product; comparing a tube size
-	// against a concentration and calling the difference a conflict cost it
-	// 0.45 and pushed it under the threshold. "جانوميت 1000/50مجم" against
-	// "جانوميت 50/1000مجم" is one product written in the other order; taking
-	// only the leading figure made them contradict.
-	doseAgree, doseComparable := compareStrengths(q.strengths, p.strengths)
-	switch {
-	case doseComparable && doseAgree:
-		bonus += doseBonus(q.strengths, p.strengths)
-		reasons = append(reasons, "تطابق التركيز")
-	case doseComparable:
-		score -= 0.45
-		reasons = append(reasons, "اختلاف التركيز")
-	case q.strength.known() != p.strength.known():
-		// One side states a dose and the other does not. That is missing
-		// information, not a conflict, and must not be scored as either.
-		score -= 0.02
-	}
-
-	// The line-extension word, which is the whole difference between two
-	// products in one brand family.
-	//
-	// It used to be checked only on an answer the model proposed, which left
-	// the deterministic scorer unable to tell "بانادول" from "بانادول اكسترا"
-	// by anything but one token of name similarity — and one token out of four
-	// is a rounding error against a brand they genuinely share. The vocabulary
-	// is curated precisely so that its absence from a terser supplier line is
-	// not read as evidence, so it is safe to apply here on every comparison.
-	modMismatch := modifierSetsConflict(q.mods, p.mods, q.rawName, p.NameAR+" "+p.NameEN)
-	if modMismatch {
-		score -= 0.35
-		reasons = append(reasons, "اختلاف في صنف المنتج داخل نفس العلامة")
-	}
-
-	// The form. A syrup and a tablet of the same brand are different products.
-	//
-	// The guard on name similarity is there because catalogue metadata is not
-	// always consistent with the catalogue's own names: a product called
-	// "فلاى بيبى طبق لوكس + معلقه" is filed under a dosage form that reads as
-	// tablets, and penalising an otherwise identical name for its own record's
-	// bookkeeping turns a certain match into one the vendor has to confirm.
-	if name < 0.98 && q.formKey != "" && p.formKey != "" {
-		if q.formKey == p.formKey {
-			bonus += 0.10
-			reasons = append(reasons, "تطابق الشكل الصيدلي")
-		} else {
-			score -= 0.28
-			reasons = append(reasons, "اختلاف الشكل الصيدلي")
+	for _, c := range conflicts {
+		if label := conflictReason(c.kind); label != "" {
+			reasons = append(reasons, label)
 		}
+	}
+
+	// The lifts, and the one rule that governs them: nothing may be lifted over
+	// a contradiction.
+	//
+	// They used to run on a `noConflict` flag that covered the dose, the
+	// modifier and the form and nothing else, so a row whose pack count, tube
+	// size or identity letter disagreed was still clamped to 0.97 and applied
+	// as an exact match. That clamp then defeated the ambiguity check as well,
+	// because two candidates both pinned at 0.97 are not "close" — they are
+	// equal, and the tie test excluded scores at the ceiling.
+	exact := false
+	if mass == 0 {
+		exact = name >= 0.98 || (name >= 0.90 && weight == 0.88)
+		switch {
+		case exact:
+			score = maxF(score, 0.97)
+		case name >= 0.88:
+			score = maxF(score, name*0.95)
+		}
+	}
+
+	return scoredProduct{
+		product:   p,
+		score:     clamp(score),
+		conflicts: conflicts,
+		mass:      mass,
+		reason:    strings.Join(reasons, " + "),
+		exact:     exact,
+	}, true
+}
+
+// corroboration is what the attributes AGREEING are worth.
+//
+// Agreement only. Disagreement is not the negative of this and is not scored
+// here — it is a conflict, it orders the candidate behind every candidate that
+// does not have one, and discriminate.go owns it.
+func (idx *Index) corroboration(q *query, p *MasterProduct, reasons *[]string) float64 {
+	var bonus float64
+
+	if agree, comparable := compareStrengths(q.strengths, p.strengths); comparable && agree {
+		bonus += doseBonus(q.strengths, p.strengths)
+		*reasons = append(*reasons, "تطابق التركيز")
+	}
+
+	// The form. The guard on name similarity is there because catalogue
+	// metadata is not always consistent with the catalogue's own names: a
+	// product called "فلاى بيبى طبق لوكس + معلقه" is filed under a dosage form
+	// that reads as tablets, and crediting an otherwise identical name for its
+	// own record's bookkeeping is not evidence about anything.
+	if q.formKey != "" && q.formKey == p.formKey {
+		bonus += 0.10
+		*reasons = append(*reasons, "تطابق الشكل الصيدلي")
 	}
 
 	// The manufacturer corroborates but never disqualifies: supplier files write
@@ -137,7 +162,7 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		switch {
 		case q.makerKey == p.makerKey:
 			bonus += 0.10
-			reasons = append(reasons, "تطابق الشركة")
+			*reasons = append(*reasons, "تطابق الشركة")
 		case strings.Contains(p.makerKey, q.makerKey) || strings.Contains(q.makerKey, p.makerKey):
 			bonus += 0.06
 		}
@@ -146,50 +171,58 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 	// The molecule, where the file names it.
 	if q.sciKey != "" && p.sciKey != "" && q.sciKey == p.sciKey {
 		bonus += 0.08
-		reasons = append(reasons, "تطابق المادة الفعالة")
+		*reasons = append(*reasons, "تطابق المادة الفعالة")
 	}
 
-	numsAgree := true
-	if delta, compared := numberDelta(q.nums, p.nums); compared {
-		if delta {
+	for _, side := range p.sides() {
+		if countsAgree(q.qty.counts, side.qty.counts) {
 			bonus += 0.06
-		} else {
-			// Same words, different figures: a 25-wipe pack against a 50-wipe
-			// pack, or a 60-gum bottle against a 120. Nothing else in the row
-			// tells those apart, so this carries the separation.
-			score -= 0.22
-			numsAgree = false
-			reasons = append(reasons, "اختلاف الأرقام في الاسم (حجم أو عدد العبوة)")
+			break
 		}
 	}
+	if q.packSize > 0 && q.packSize == p.packSize {
+		bonus += 0.05
+	}
+	return bonus
+}
 
-	if q.packSize > 0 && p.packSize > 0 {
-		if q.packSize == p.packSize {
-			bonus += 0.05
-		} else {
-			score -= 0.12
-			numsAgree = false
+// countsAgree reports whether the two names counted the same thing and got the
+// same answer.
+func countsAgree(a, b []countUnit) bool {
+	for _, x := range a {
+		for _, y := range b {
+			if x.class == y.class && x.value == y.value {
+				return true
+			}
 		}
 	}
+	return false
+}
 
-	score += bonus * corroborationFactor(name)
-
-	noConflict := !modMismatch && (!doseComparable || doseAgree) &&
-		(q.formKey == "" || p.formKey == "" || q.formKey == p.formKey)
-
-	exact := (name >= 0.98 || (name >= 0.90 && weight == 0.88)) && numsAgree && noConflict
-	if exact {
-		score = maxF(score, 0.97)
-	} else if name >= 0.88 && numsAgree && noConflict {
-		score = maxF(score, name*0.95)
+// conflictReason renders a disagreement for the review screen, in the vocabulary
+// the vendor reads.
+func conflictReason(kind string) string {
+	switch kind {
+	case "strength":
+		return "اختلاف التركيز"
+	case "dose_parts":
+		return "اختلاف في عدد مكونات التركيز"
+	case "modifier":
+		return "اختلاف في صنف المنتج داخل نفس العلامة"
+	case "letter":
+		return "اختلاف في حرف التمييز بعد اسم العلامة"
+	case "form":
+		return "اختلاف الشكل الصيدلي"
+	case "sub_form":
+		return "اختلاف نوع المستحضر الموضعي"
+	case "count":
+		return "اختلاف عدد وحدات العبوة"
+	case "figure":
+		return "اختلاف الأرقام في الاسم"
+	case "pack":
+		return "اختلاف حجم العبوة"
 	}
-
-	return scoredProduct{
-		product: p,
-		score:   clamp(score),
-		reason:  strings.Join(reasons, " + "),
-		exact:   exact,
-	}, true
+	return ""
 }
 
 // doseBonus is what an agreeing dose is worth, which depends on what was
@@ -219,39 +252,6 @@ func doseBonus(rowDoses, prodDoses []strength) float64 {
 		}
 	}
 	return best
-}
-
-// numberDelta compares the figures in two names. compared is false when either
-// name carries none, which is missing information rather than agreement.
-func numberDelta(a, b []float64) (agree, compared bool) {
-	if len(a) == 0 || len(b) == 0 {
-		return false, false
-	}
-	// Both sorted and deduplicated at construction, so one walk settles it.
-	i, j, inter := 0, 0, 0
-	for i < len(a) && j < len(b) {
-		switch {
-		case a[i] == b[j]:
-			inter++
-			i++
-			j++
-		case a[i] < b[j]:
-			i++
-		default:
-			j++
-		}
-	}
-	// Agreement means the shorter list is wholly contained in the longer one.
-	// A supplier writing "بانادول 500 مجم 20 قرص" against a catalogue entry of
-	// "بانادول 500مجم" agrees — the extra figure is the pack count the
-	// catalogue omitted. "دوركو ايف 3 … 4 غيار" against "دوركو ايف 6 … 4 غيار"
-	// does not: one figure matches and one contradicts, and the contradicting
-	// one is the whole difference between the two products.
-	shortest := len(a)
-	if len(b) < shortest {
-		shortest = len(b)
-	}
-	return inter >= shortest, true
 }
 
 // sameStrength compares two doses, tolerating the rounding a supplier applies

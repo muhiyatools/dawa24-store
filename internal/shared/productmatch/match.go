@@ -209,7 +209,7 @@ func (idx *Index) Match(row *Row, opts MatchOptions) MatchResult {
 	if len(scored) == 0 {
 		return MatchResult{Level: MatchNone, Reason: "لم يتم العثور على صنف مشابه في الكتالوج المركزي"}
 	}
-	return decide(scored, opts)
+	return idx.decide(q, scored, opts)
 }
 
 // matchByBarcode resolves the one identifier that means the same package.
@@ -260,12 +260,18 @@ func (idx *Index) matchByCode(row *Row, q *query, opts MatchOptions) (MatchResul
 	}, true
 }
 
-// scoredProduct is one candidate and why it scored what it did.
+// scoredProduct is one candidate, what it scored, and what it contradicts.
 type scoredProduct struct {
 	product *MasterProduct
 	score   float64
-	reason  string
-	exact   bool
+	// conflicts is everything this candidate disagrees with the row about, and
+	// mass is their weight. They rank the candidate BEFORE the score does: a
+	// candidate that contradicts nothing the row states comes first, however
+	// well a contradicting one is spelled. See discriminate.go.
+	conflicts []conflict
+	mass      float64
+	reason    string
+	exact     bool
 }
 
 // score rates every plausible catalogue product for one query.
@@ -290,7 +296,17 @@ func (idx *Index) score(q *query, opts MatchOptions) []scoredProduct {
 		}
 	}
 
+	// Contradiction first, similarity second.
+	//
+	// This ordering is the change that makes "the right size is in the
+	// catalogue and the wrong one was chosen" impossible to produce by
+	// arithmetic: the wrong size contradicts a figure the row states and the
+	// right size does not, so the right size sorts ahead of it even when the
+	// wrong one is spelled more like the row.
 	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].mass != out[j].mass {
+			return out[i].mass < out[j].mass
+		}
 		if out[i].score != out[j].score {
 			return out[i].score > out[j].score
 		}
@@ -299,9 +315,24 @@ func (idx *Index) score(q *query, opts MatchOptions) []scoredProduct {
 	return out
 }
 
+// tieMargin is how close two candidates' scores have to be before the decision
+// between them is treated as one arithmetic alone should not make.
+//
+// It was three hundredths, and it was also disabled above 0.97 — the exact
+// band, where two entries of one brand family land most often, and where the
+// old score clamp put every near-identical pair at the identical value. So the
+// one situation the check existed for was the one situation it sat out.
+const tieMargin = 0.06
+
 // decide turns the ranked candidates into an answer, including the answer
 // "these two fit equally well and I will not choose between them".
-func decide(scored []scoredProduct, opts MatchOptions) MatchResult {
+//
+// Closeness alone no longer decides that. Two candidates are ambiguous when
+// they are close AND nothing the row states picks one of them — see
+// Index.separated. That distinction is what lets the engine settle "اماريل ام
+// 2/500" against a family of four confidently, while refusing to settle a row
+// that named a brand and no attribute at all against the same four.
+func (idx *Index) decide(q *query, scored []scoredProduct, opts MatchOptions) MatchResult {
 	best := scored[0]
 	res := MatchResult{
 		ProductID:  best.product.ID,
@@ -309,12 +340,16 @@ func decide(scored []scoredProduct, opts MatchOptions) MatchResult {
 		Candidates: describe(scored, opts.MaxCandidates),
 	}
 
-	tied := len(scored) > 1 && best.score-scored[1].score < 0.03 && best.score < 0.97
+	tied := len(scored) > 1 &&
+		best.score-scored[1].score < tieMargin &&
+		!idx.separated(q, best.product, scored[1].product)
+
 	switch {
 	case tied:
 		res.Level = MatchAmbiguous
 		res.Reason = fmt.Sprintf(
-			"صنفان في الكتالوج بنفس درجة التطابق (%d%%)؛ يلزم اختيار الصحيح يدوياً.",
+			"صنفان في الكتالوج بنفس درجة التطابق (%d%%) ولا يوجد في الصف ما يفرّق بينهما؛ "+
+				"يلزم اختيار الصحيح يدوياً.",
 			int(best.score*100))
 	case best.exact:
 		res.Level = MatchExact

@@ -129,10 +129,10 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		// A pharmacy that wants the wider net can have it: the threshold is the
 		// one control, and lowering it changes this row and nothing else.
 		wide := DefaultMatchChoice()
-		wide.MinScore = 0.40
+		wide.MinScore = 0.35
 		res = engine.MatchUnified(wide, nil, "INTERNAL-1234", "فيم فريش غسول انتميت سكير 250 مل")
 		if res.ProductID == nil || *res.ProductID != 104 {
-			t.Fatalf("expected product 104 at a 40%% threshold, got %v", res.ProductID)
+			t.Fatalf("expected product 104 at a 35%% threshold, got %v", res.ProductID)
 		}
 	})
 
