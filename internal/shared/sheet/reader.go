@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 )
 
 // File decoding.
@@ -163,11 +165,39 @@ type Book struct {
 	rows [][]string
 }
 
+// OpenConfig configures spreadsheet opening.
+type OpenConfig struct {
+	AllowEmails bool
+}
+
+// OpenOption modifies OpenConfig.
+type OpenOption func(*OpenConfig)
+
+// WithAllowEmails permits valid email addresses in spreadsheet cells (e.g. for team member imports).
+func WithAllowEmails(allow bool) OpenOption {
+	return func(c *OpenConfig) {
+		c.AllowEmails = allow
+	}
+}
+
 // Open decodes a file's container and index. filename is used only to improve
 // error messages; it never decides the format.
-func Open(content []byte, filename string) (*Book, error) {
+func Open(content []byte, filename string, opts ...OpenOption) (*Book, error) {
 	if len(content) == 0 {
 		return nil, fmt.Errorf("الملف المرفوع فارغ (0 بايت). يرجى التأكد من اكتمال رفع الملف ثم المحاولة مرة أخرى")
+	}
+
+	var cfg OpenConfig
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	var secOpts []filesecurity.Option
+	if cfg.AllowEmails {
+		secOpts = append(secOpts, filesecurity.WithAllowEmails(true))
+	}
+	if err := filesecurity.ValidateSpreadsheetSecurity(content, filename, secOpts...); err != nil {
+		return nil, err
 	}
 
 	b := &Book{format: Detect(content), content: content}

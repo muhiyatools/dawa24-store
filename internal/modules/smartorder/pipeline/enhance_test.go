@@ -166,8 +166,23 @@ func TestEnhancementDoesNotApplyBelowTheConfidenceFloor(t *testing.T) {
 	if e.Stats.Abstained != 1 {
 		t.Errorf("abstained = %d, want 1", e.Stats.Abstained)
 	}
-	if len(repo.saved) != 1 || repo.saved[0].ChosenProductID != nil {
-		t.Errorf("the abstention was not remembered as one: %+v", repo.saved)
+	// It is remembered as what the model actually said — the id and the
+	// confidence — rather than blanked into an abstention.
+	//
+	// The floor differs between tools: the master-catalogue import demands 0.90
+	// where the smart order demands 0.80, because a wrong match there overwrites
+	// the entry every pharmacy reads. A cache row that had already discarded the
+	// id could not serve both, and the tool with the lower floor would re-ask a
+	// question that had been paid for.
+	if len(repo.saved) != 1 {
+		t.Fatalf("the answer was not remembered: %+v", repo.saved)
+	}
+	if repo.saved[0].ChosenProductID == nil || *repo.saved[0].ChosenProductID != id {
+		t.Errorf("the remembered answer lost the product the model named: %+v", repo.saved[0])
+	}
+	if repo.saved[0].Confidence >= ceilings.MinApplyConfidence {
+		t.Errorf("the remembered answer lost the confidence that keeps it unapplied: %+v",
+			repo.saved[0])
 	}
 }
 
@@ -255,7 +270,7 @@ func TestEnhancementAppliesCachedDecisionsWithoutAsking(t *testing.T) {
 
 	r := reviewFor(1, "ابليفاى 10مجم", 101)
 	id := int64(101)
-	repo.cached[decisionKey(r)] = smartorder.CachedDecision{
+	repo.cached[keyOf(r)] = smartorder.CachedDecision{
 		ChosenProductID: &id, Confidence: 0.93, PromptVersion: PromptVersion,
 	}
 

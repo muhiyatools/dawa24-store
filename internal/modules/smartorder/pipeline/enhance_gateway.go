@@ -47,6 +47,7 @@ type GatewayItem struct {
 	CurrentGuess *int64
 	CurrentScore float64
 	Options      []int64
+	Settled      bool
 }
 
 // GatewayOutcome mirrors aicapabilities.EnhanceDecision.

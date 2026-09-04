@@ -19,6 +19,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
@@ -79,9 +80,17 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: fmt.Sprintf(i18n.T("ar", "admin.temp_warehouse.read_failed_format"), err.Error())}
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, fh.Filename); err != nil {
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: filesecurity.SecurityErrorMessage}
+	}
+
 	rawRows, err := sheet.ReadRows(fileBytes, fh.Filename)
 	if err != nil || len(rawRows) < 2 {
-		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: i18n.T("ar", "admin.temp_warehouse.insufficient_rows")}
+		msg := i18n.T("ar", "admin.temp_warehouse.insufficient_rows")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: msg}
 	}
 
 	// Row zero is not reliably the header row.

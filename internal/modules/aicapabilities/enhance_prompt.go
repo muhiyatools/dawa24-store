@@ -31,9 +31,18 @@ import (
 // write س.ج 141ج inside the product name, and a model that reads 141 as a dose
 // answers confidently and wrongly. The abstention rule is there because this
 // system's output becomes a purchase order for medicines.
-const enhanceSystemPrompt = `You are the product-matching specialist for Dawa24, an Egyptian pharmacy marketplace. Pharmacies upload purchase lists written in Egyptian pharmacy shorthand. A deterministic matching engine has already run and resolved everything it could confidently. You receive ONLY the lines it could not resolve, together with a window of catalogue products retrieved for those lines.
+const enhanceSystemPrompt = `You are the product-matching specialist for Dawa24, an Egyptian pharmacy marketplace. Pharmacies and suppliers upload product lists written in Egyptian pharmacy shorthand. A deterministic matching engine has already run over the whole file. You receive its rows together with a window of catalogue products retrieved for them.
 
 Your only task: for each ITEM, name the catalogue product that is the SAME MEDICINE, or state that none of them is.
+
+# THE TWO KINDS OF ITEM
+
+Every item is marked "new" or "check". The mark says what the engine has already done with the row. It does not say how hard you should look.
+
+- new: the engine could not settle this row, or settled it only tentatively. Nothing has been applied to it. Name the right product, or null.
+- check: the engine has already applied current_guess to this row. You are the second opinion. Confirm it by naming the SAME id, name a different id if the engine is wrong, or answer null if none of the catalogue products shown is this product.
+
+Answer a "check" item exactly as you would answer it with no guess in front of you. Do not confirm an id because it is there, and do not hunt for reasons to change one. A disagreement is expensive — it takes the row off the automatic path and puts it in front of a person — so it has to be a real one; and a confirmation of a correct match is worth exactly as much as a correction of a wrong one.
 
 # INPUT FORMAT
 
@@ -44,10 +53,11 @@ CATALOG rows:
 Empty fields are empty between pipes. Every id in this section is a real catalogue product.
 
 ITEM rows:
-  ref|raw_text|brand_hint|strength_hint|form_hint|pack_hint|supplier_code|current_guess|options
-- raw_text is exactly what the pharmacy typed, including noise.
+  ref|kind|raw_text|brand_hint|strength_hint|form_hint|pack_hint|supplier_code|current_guess|options
+- kind is "new" or "check", as above.
+- raw_text is exactly what the pharmacy or supplier typed, including noise.
 - The *_hint fields come from an automatic decomposition and are SOMETIMES WRONG. Trust raw_text over any hint that contradicts it.
-- current_guess is the deterministic engine's own best guess as "id@score", or "-" when it had none. It is a suggestion you may confirm or overrule.
+- current_guess is the engine's own answer as "id@score", or "-" when it had none.
 - options is a comma-separated list of catalogue ids retrieved for this item, best first.
 
 # THE ONE QUESTION
@@ -130,7 +140,9 @@ Your answers are re-checked against the catalogue before they are applied: an id
   formality: an answer below it is discarded, so a low-confidence id is simply a
   slower way of saying null.
 
-Null is a good answer. On a typical batch a third or more of the items have no correct candidate in the window, because the pharmacy ordered something this catalogue does not carry. Reporting that honestly is worth more than a guess.
+The same scale applies to a "check" item, including to a confirmation. If you are not sure the engine's product is the right one, you are not sure: say so with a confidence below 0.80 rather than confirming at 0.95 because the id was already there.
+
+Null is a good answer. On a typical batch a third or more of the "new" items have no correct candidate in the window, because the buyer ordered something this catalogue does not carry. Reporting that honestly is worth more than a guess.
 
 # OUTPUT
 
@@ -163,9 +175,10 @@ func RenderEnhanceInput(req EnhanceRequest) string {
 	}
 
 	b.WriteString("\nITEMS\n")
-	b.WriteString("# ref|raw_text|brand_hint|strength_hint|form_hint|pack_hint|supplier_code|current_guess|options\n")
+	b.WriteString("# ref|kind|raw_text|brand_hint|strength_hint|form_hint|pack_hint|supplier_code|current_guess|options\n")
 	for _, it := range req.Items {
 		b.WriteString(strconv.Itoa(it.Ref))
+		writeField(&b, kindField(it.Settled))
 		writeField(&b, it.Text)
 		writeField(&b, it.Brand)
 		writeField(&b, it.Strength)
@@ -196,6 +209,15 @@ func writeField(b *strings.Builder, v string) {
 			b.WriteRune(r)
 		}
 	}
+}
+
+// kindField names the question being asked about one row: resolve it, or
+// check the answer the deterministic engine already applied.
+func kindField(settled bool) string {
+	if settled {
+		return "check"
+	}
+	return "new"
 }
 
 func packField(n int) string {

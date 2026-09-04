@@ -3,352 +3,207 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
-
-			<!-- Active Weekly Coverages Table & Filters -->
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4">
-     <div class="stack-sm">
-						<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
-							<span>@components.IconFileText("icon-sm")</span>
-							<span>سجل نطاقات التغطية والتوزيع المسجلة ({ fmt.Sprintf("%d", len(data.Coverages)) })</span>
-						</h2>
-						<p class="text-xs text-muted mt-1 m-0">
-							استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.
-						</p>
-					</div>
-
-					<!-- Filter Controls -->
-					<div class="d-flex items-center gap-3 flex-wrap">
-						<!-- Filter Day -->
-						<select x-model="filterDay" class="form-control text-xs font-bold w-36">
-							<option value="all">كل الأيام</option>
-							<option value="6">السبت</option>
-							<option value="0">الأحد</option>
-							<option value="1">الاثنين</option>
-							<option value="2">الثلاثاء</option>
-							<option value="3">الأربعاء</option>
-							<option value="4">الخميس</option>
-							<option value="5">الجمعة</option>
-						</select>
-
-						<!-- Search query -->
-						<input type="text" x-model="searchQuery" placeholder="بحث بالمدينة أو المحافظة..." class="form-control text-xs w-48"/>
-					</div>
-				</div>
-
-				if len(data.Coverages) == 0 {
-					<div class="empty-state-glass p-8 text-center">
-						<div class="empty-state-icon-wrapper mx-auto mb-3">
-							<span class="text-3xl">@components.IconGlobe("icon-sm")</span>
-						</div>
-						<h3 class="text-lg font-black text-primary mb-1">لا توجد نطاقات تغطية مضافة حتى الآن</h3>
-						<p class="text-sm text-muted mb-4 max-w-md mx-auto">
-							قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.
-						</p>
-						<a href="#builder-section" class="btn btn-primary font-bold">+ إنشاء أول نطاق تغطية</a>
-					</div>
-				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
-							<thead>
-								<tr>
-									<th>يوم التغطية</th>
-									<th>المحافظة والمدينة</th>
-									<th>الإحداثيات الجغرافية (GPS)</th>
-									<th>نصف القطر (المدى)</th>
-									<th>مواعيد العمل</th>
-									<th>الفرع</th>
-									<th>الحالة</th>
-									<th class="col-actions">الإجراءات</th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, c := range data.Coverages {
-									<tr x-show={ fmt.Sprintf("(filterDay === 'all' || filterDay === '%d') && (!searchQuery || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", c.DayOfWeek, c.GovernorateNameAr, c.CityNameAr) }>
-										<!-- Day Badge -->
-										<td>
-											<span class={ "badge " + dayBadgeClass(c.DayOfWeek) }>
-												{ dayNameArabic(c.DayOfWeek) }
-											</span>
-										</td>
-
-										<!-- Governorate & City -->
-										<td>
-											<div class="font-extrabold text-sm text-primary">
-												if c.GovernorateNameAr != "" {
-													{ c.GovernorateNameAr }
-												} else if c.GovernorateName != "" {
-													{ c.GovernorateName }
-												} else {
-													مصر
-												}
-												if c.CityNameAr != "" || c.CityName != "" {
-													<span class="text-muted mx-1">›</span>
-													<span class="text-brand">
-														if c.CityNameAr != "" {
-															{ c.CityNameAr }
-														} else {
-															{ c.CityName }
-														}
-													</span>
-												}
-											</div>
-											if c.Address != "" && c.Address != c.CityNameAr {
-												<div class="text-xs text-muted mt-1">
-													{ c.Address }
-												</div>
-											}
-										</td>
-
-										<!-- GPS Coordinates & Map Link -->
-										<td class="font-mono text-xs">
-											if c.Latitude != nil && c.Longitude != nil {
-												<div class="d-flex items-center gap-2">
-													<span>{ fmt.Sprintf("%.4f, %.4f", *c.Latitude, *c.Longitude) }</span>
-													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *c.Latitude, *c.Longitude)) } target="_blank" title="معاينة على خرائط جوجل" class="text-decoration-none">
-														@components.IconGlobe("icon-sm")
-													</a>
-												</div>
-											} else {
-												<span class="text-muted text-xs">إحداثيات مركز الفرع</span>
-											}
-										</td>
-
-										<!-- Radius Distance -->
-										<td>
-											<span class="badge badge-primary">
-												{ formatDistanceKM(c.DistanceMeters) }
-											</span>
-										</td>
-
-										<!-- Coverage Time Window (Egyptian 12-hour) -->
-										<td>
-											if (c.CoverageFrom != nil && *c.CoverageFrom != "") || (c.CoverageTo != nil && *c.CoverageTo != "") {
-												<span class="badge badge-secondary font-bold">
-													{ FormatCoverageWindow(c.CoverageFrom, c.CoverageTo) }
-												</span>
-											} else {
-												<span class="text-muted text-xs">طوال اليوم</span>
-											}
-										</td>
-
-										<!-- Branch -->
-										<td class="text-sm font-semibold text-primary">
-											{ c.BranchName }
-										</td>
-
-										<!-- Status Toggle -->
-										<td>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/toggle", c.ID)) } class="d-inline">
-												<input type="hidden" name="gorilla.csrf.Token" value=""/>
-												<input type="hidden" name="id" value={ fmt.Sprintf("%d", c.ID) }/>
-												if c.IsActive {
-													<button type="submit" class="badge badge-emerald border-0 cursor-pointer font-bold" title="اضغط للتعطيل">
-														● نشط ومتاح
-													</button>
-												} else {
-													<button type="submit" class="badge badge-secondary border-0 cursor-pointer font-bold" title="اضغط للتفعيل">
-														○ معطل مؤقتاً
-													</button>
-												}
-											</form>
-										</td>
-
-										<!-- Actions -->
-										<td class="col-actions">
-											<div class="table-actions">
-												<button type="button" @click={ fmt.Sprintf("openEdit({ id: %d, branch_id: '%d', governorate_id: '%d', city_id: '%d', day_of_week: %d, distance_meters: %d, coverage_from: '%s', coverage_to: '%s', address: '%s', latitude: '%s', longitude: '%s', is_active: %t })",
-													c.ID,
-													c.BranchID,
-													func() int64 { if c.GovernorateID != nil { return *c.GovernorateID } else { return 0 } }(),
-													func() int64 { if c.CityID != nil { return *c.CityID } else { return 0 } }(),
-													c.DayOfWeek,
-													c.DistanceMeters,
-													func() string { if c.CoverageFrom != nil { return *c.CoverageFrom } else { return "" } }(),
-													func() string { if c.CoverageTo != nil { return *c.CoverageTo } else { return "" } }(),
-													c.Address,
-													func() string { if c.Latitude != nil { return fmt.Sprintf("%f", *c.Latitude) } else { return "" } }(),
-													func() string { if c.Longitude != nil { return fmt.Sprintf("%f", *c.Longitude) } else { return "" } }(),
-													c.IsActive,
-												) } class="btn btn-2xs btn-secondary" title="تعديل النطاق">
-													@components.IconEdit("icon-sm")
-												</button>
-
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');" class="d-inline">
-													<input type="hidden" name="gorilla.csrf.Token" value=""/>
-													<input type="hidden" name="id" value={ fmt.Sprintf("%d", c.ID) }/>
-													<button type="submit" class="btn btn-2xs btn-danger" title="حذف النطاق">
-														@components.IconTrash("icon-sm")
-													</button>
-												</form>
-											</div>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				}
+templ VendorCoverageTable(data VendorCoverageData, lang string) {
+	<!-- Active Weekly Coverages Table & Filters -->
+	<div class="glass-panel p-6 mb-6">
+		<div class="flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4">
+			<div class="stack-sm">
+				<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
+					<span>@components.IconFileText("icon-sm")</span>
+					<span>سجل نطاقات التغطية والتوزيع المسجلة ({ fmt.Sprintf("%d", len(data.Coverages)) })</span>
+				</h2>
+				<p class="text-xs text-muted mt-1 m-0">
+					استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.
+				</p>
 			</div>
 
-			<!-- Delivery Distance Pricing Bands -->
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3">
-     <div class="stack-sm">
-						<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
-							<span>@components.IconWallet("icon-sm")</span>
-							<span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span>
-						</h2>
-						<p class="text-xs text-muted mt-1 m-0">
-							تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).
-						</p>
-					</div>
+			<!-- Filter Controls & Actions -->
+			<div class="d-flex items-center gap-3 flex-wrap">
+				<!-- Filter Day -->
+				<select x-model="filterDay" class="form-control text-xs font-bold w-36">
+					<option value="all">كل الأيام</option>
+					<option value="6">السبت</option>
+					<option value="0">الأحد</option>
+					<option value="1">الاثنين</option>
+					<option value="2">الثلاثاء</option>
+					<option value="3">الأربعاء</option>
+					<option value="4">الخميس</option>
+					<option value="5">الجمعة</option>
+				</select>
+
+				<!-- Search query -->
+				<input type="text" x-model="searchQuery" placeholder="بحث بالمدينة أو المحافظة..." class="form-control text-xs w-48"/>
+
+				<!-- Delete All Button -->
+				if len(data.Coverages) > 0 {
+					<button type="button" @click="openDeleteAllModal()" class="btn btn-sm btn-danger font-bold d-flex items-center gap-2" title="حذف جميع نطاقات التغطية المسجلة">
+						@components.IconTrash("icon-sm")
+						<span>حذف كل التغطيات</span>
+					</button>
+				}
+			</div>
+		</div>
+
+		if len(data.Coverages) == 0 {
+			<div class="empty-state-glass p-8 text-center">
+				<div class="empty-state-icon-wrapper mx-auto mb-3">
+					<span class="text-3xl">@components.IconGlobe("icon-sm")</span>
 				</div>
+				<h3 class="text-lg font-black text-primary mb-1">لا توجد نطاقات تغطية مضافة حتى الآن</h3>
+				<p class="text-sm text-muted mb-4 max-w-md mx-auto">
+					قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.
+				</p>
+				<a href="#builder-section" class="btn btn-primary font-bold">+ إنشاء أول نطاق تغطية</a>
+			</div>
+		} else {
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
+						<tr>
+							<th>يوم التغطية</th>
+							<th>المحافظة والمدينة</th>
+							<th>الإحداثيات الجغرافية (GPS)</th>
+							<th>نصف القطر (المدى)</th>
+							<th>مواعيد العمل</th>
+							<th>الفرع</th>
+							<th>الحالة</th>
+							<th class="col-actions">الإجراءات</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, c := range data.Coverages {
+							<tr x-show={ fmt.Sprintf("(filterDay === 'all' || filterDay === '%d') && (!searchQuery || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", c.DayOfWeek, c.GovernorateNameAr, c.CityNameAr) }>
+								<!-- Day Badge -->
+								<td>
+									<span class={ "badge " + dayBadgeClass(c.DayOfWeek) }>
+										{ dayNameArabic(c.DayOfWeek) }
+									</span>
+								</td>
 
-				<div class="d-grid gap-6" class="grid-auto-fit-md">
-					<!-- Add Delivery Band Form -->
-					<form method="POST" action="/vendor/delivery-bands/create" class="bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4">
-						<input type="hidden" name="gorilla.csrf.Token" value=""/>
-						<div class="font-extrabold text-sm text-primary d-flex items-center gap-2">
-							<span>@components.IconPlus("icon-sm")</span>
-							<span>إضافة شريحة تسعير جديدة بالمتر</span>
-						</div>
-						<div class="d-grid gap-3" class="grid-cols-3">
-       <div class="stack-sm">
-								<span class="text-xs font-bold text-primary d-block mb-1">من (متر):</span>
-								<input type="number" name="from_meters" min="0" step="1" value="0" class="form-control font-bold" placeholder="0 م" required/>
-							</div>
-       <div class="stack-sm">
-								<span class="text-xs font-bold text-primary d-block mb-1">إلى (متر):</span>
-								<input type="number" name="to_meters" min="0" step="1" value="5000" class="form-control font-bold" placeholder="5000 م" required/>
-							</div>
-       <div class="stack-sm">
-								<span class="text-xs font-bold text-primary d-block mb-1">الرسوم ({ i18n.T(lang, "common.currency_egp") }):</span>
-								<input type="number" step="any" name="delivery_fee" min="0" value="30" class="form-control font-bold" placeholder="30" required/>
-							</div>
-						</div>
-						<button type="submit" class="btn btn-primary btn-sm font-bold align-self-start shadow-xs">
-							حفظ الشريحة
-						</button>
-					</form>
-
-					<!-- List of Existing Bands -->
-     <div class="stack-sm">
-						if len(data.Bands) == 0 {
-							<div class="p-8 text-center text-muted text-sm bg-surface-sunken rounded-xl border border-dashed">
-								لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).
-							</div>
-						} else {
-							<div class="d-flex flex-col gap-2">
-								for _, band := range data.Bands {
-									<div class="flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs">
-          <div class="stack-sm">
-											<div class="font-extrabold text-sm text-primary tabular-nums">
-												من { fmt.Sprintf("%d", band.FromMeters) } م إلى { fmt.Sprintf("%d", band.ToMeters) } م
-											</div>
-											<div class="text-xs text-muted mt-1">
-												(يعادل { fmt.Sprintf("%.1f", float64(band.FromMeters)/1000.0) } كم إلى { fmt.Sprintf("%.1f", float64(band.ToMeters)/1000.0) } كم)
-											</div>
-										</div>
-										<div class="d-flex items-center gap-3">
-											<span class="badge badge-primary font-bold">
-												{ band.Fee.String() + " " + i18n.T(lang, "common.currency_egp") }
+								<!-- Governorate & City -->
+								<td>
+									<div class="font-extrabold text-sm text-primary">
+										if c.GovernorateNameAr != "" {
+											{ c.GovernorateNameAr }
+										} else if c.GovernorateName != "" {
+											{ c.GovernorateName }
+										} else {
+											مصر
+										}
+										if c.CityNameAr != "" || c.CityName != "" {
+											<span class="text-muted mx-1">›</span>
+											<span class="text-brand">
+												if c.CityNameAr != "" {
+													{ c.CityNameAr }
+												} else {
+													{ c.CityName }
+												}
 											</span>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery-bands/%d/delete", band.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف شريحة التوصيل هذه؟');" class="d-inline">
-												<input type="hidden" name="gorilla.csrf.Token" value=""/>
-												<button type="submit" class="btn btn-2xs btn-danger" title="حذف الشريحة">@components.IconTrash("icon-sm")</button>
-											</form>
-										</div>
+										}
 									</div>
-								}
-							</div>
+									if c.Address != "" && c.Address != c.CityNameAr {
+										<div class="text-xs text-muted mt-1">
+											{ c.Address }
+										</div>
+									}
+								</td>
+
+								<!-- GPS Coordinates & Map Link -->
+								<td class="font-mono text-xs">
+									if c.Latitude != nil && c.Longitude != nil {
+										<div class="d-flex items-center gap-2">
+											<span>{ fmt.Sprintf("%.4f, %.4f", *c.Latitude, *c.Longitude) }</span>
+											<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *c.Latitude, *c.Longitude)) } target="_blank" title="معاينة على خرائط جوجل" class="text-decoration-none">
+												@components.IconGlobe("icon-sm")
+											</a>
+										</div>
+									} else {
+										<span class="text-muted text-xs">إحداثيات مركز الفرع</span>
+									}
+								</td>
+
+								<!-- Radius Distance -->
+								<td>
+									<span class="badge badge-primary">
+										{ formatDistanceKM(c.DistanceMeters) }
+									</span>
+								</td>
+
+								<!-- Coverage Time Window (Egyptian 12-hour) -->
+								<td>
+									if (c.CoverageFrom != nil && *c.CoverageFrom != "") || (c.CoverageTo != nil && *c.CoverageTo != "") {
+										<span class="badge badge-secondary font-bold">
+											{ FormatCoverageWindow(c.CoverageFrom, c.CoverageTo) }
+										</span>
+									} else {
+										<span class="text-muted text-xs">طوال اليوم</span>
+									}
+								</td>
+
+								<!-- Branch -->
+								<td class="text-sm font-semibold text-primary">
+									{ c.BranchName }
+								</td>
+
+								<!-- Status Toggle -->
+								<td>
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/toggle", c.ID)) } class="d-inline">
+										<input type="hidden" name="gorilla.csrf.Token" value=""/>
+										<input type="hidden" name="id" value={ fmt.Sprintf("%d", c.ID) }/>
+										if c.IsActive {
+											<button type="submit" class="badge badge-emerald border-0 cursor-pointer font-bold" title="اضغط للتعطيل">
+												● نشط ومتاح
+											</button>
+										} else {
+											<button type="submit" class="badge badge-secondary border-0 cursor-pointer font-bold" title="اضغط للتفعيل">
+												○ معطل مؤقتاً
+											</button>
+										}
+									</form>
+								</td>
+
+								<!-- Actions -->
+								<td class="col-actions">
+									<div class="table-actions">
+										<button type="button" @click={ fmt.Sprintf("openEdit({ id: %d, branch_id: '%d', governorate_id: '%d', city_id: '%d', day_of_week: %d, distance_meters: %d, coverage_from: '%s', coverage_to: '%s', address: '%s', latitude: '%s', longitude: '%s', is_active: %t })",
+											c.ID,
+											c.BranchID,
+											func() int64 { if c.GovernorateID != nil { return *c.GovernorateID } else { return 0 } }(),
+											func() int64 { if c.CityID != nil { return *c.CityID } else { return 0 } }(),
+											c.DayOfWeek,
+											c.DistanceMeters,
+											func() string { if c.CoverageFrom != nil { return *c.CoverageFrom } else { return "" } }(),
+											func() string { if c.CoverageTo != nil { return *c.CoverageTo } else { return "" } }(),
+											c.Address,
+											func() string { if c.Latitude != nil { return fmt.Sprintf("%f", *c.Latitude) } else { return "" } }(),
+											func() string { if c.Longitude != nil { return fmt.Sprintf("%f", *c.Longitude) } else { return "" } }(),
+											c.IsActive,
+										) } class="btn btn-2xs btn-secondary" title="تعديل النطاق">
+											@components.IconEdit("icon-sm")
+										</button>
+
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');" class="d-inline">
+											<input type="hidden" name="gorilla.csrf.Token" value=""/>
+											<input type="hidden" name="id" value={ fmt.Sprintf("%d", c.ID) }/>
+											<button type="submit" class="btn btn-2xs btn-danger" title="حذف النطاق">
+												@components.IconTrash("icon-sm")
+											</button>
+										</form>
+									</div>
+								</td>
+							</tr>
 						}
-					</div>
-				</div>
+					</tbody>
+				</table>
 			</div>
+		}
+	</div>
+}
 
-			<!-- Edit Coverage Modal -->
-			@components.Modal(components.ModalProps{ID: "edit-coverage-modal", Title: "إلغاء ?نوع التغطية إلغاءنوع التغطية?", Size: "md"}) {
-					<form :action="'/vendor/coverage/' + editCov.id + '/update'" method="POST" class="d-flex flex-col gap-4 m-0">
-						<input type="hidden" name="gorilla.csrf.Token" value=""/>
-						<input type="hidden" name="id" :value="editCov.id"/>
-						<input type="hidden" name="coverage_id" :value="editCov.id"/>
-
-      <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">مدة التوصيل (بالساعات)</label>
-							<select name="day_of_week" x-model="editCov.day_of_week" class="form-control font-bold">
-								<option value="6">السبت</option>
-								<option value="0">الأحد</option>
-								<option value="1">الاثنين</option>
-								<option value="2">الثلاثاء</option>
-								<option value="3">الأربعاء</option>
-								<option value="4">الخميس</option>
-								<option value="5">الجمعة</option>
-							</select>
-						</div>
-
-      <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">من (الحد الأدنى)</label>
-							<select name="branch_id" x-model="editCov.branch_id" class="form-control">
-								for _, b := range data.Branches {
-									<option value={ fmt.Sprintf("%d", b.ID) }>
-										{ b.Name.Get("ar") }
-									</option>
-								}
-							</select>
-						</div>
-
-      <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">?المحافظة / المدينة?</label>
-							<select name="city_id" x-model="editCov.city_id" class="form-control">
-								<option value="">-- ?نوع التغطية? --</option>
-								for _, c := range data.Cities {
-									<option value={ fmt.Sprintf("%d", c.ID) }>
-										{ c.Name.Get("ar") }
-									</option>
-								}
-							</select>
-						</div>
-
-						<div class="d-grid grid-cols-2 gap-3">
-       <div class="stack-sm">
-								<label class="d-block text-xs font-bold mb-1 text-primary">من (الحد الأدنى)</label>
-								<input type="time" name="coverage_from" x-model="editCov.coverage_from" class="form-control text-xs"/>
-							</div>
-       <div class="stack-sm">
-								<label class="d-block text-xs font-bold mb-1 text-primary">من (الحد الأدنى)</label>
-								<input type="time" name="coverage_to" x-model="editCov.coverage_to" class="form-control text-xs"/>
-							</div>
-						</div>
-
-      <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">نطاق التغطية المعتمد</label>
-							<div class="d-flex items-center gap-2">
-								<span class="badge badge-primary text-xs" x-text="((editCov.distance_meters || 3000) / 1000).toFixed(1) + ' كم من مركز المدينة'"></span>
-								<span class="text-xs text-muted">يتبع حدود المدينة المختارة ويتحدّث تلقائياً عند تغييرها</span>
-							</div>
-						</div>
-
-						<div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">العنوان أو النطاق الجغرافي (اختياري)</label>
-							<input type="text" name="address" x-model="editCov.address" placeholder="مثال: قطاع شرق القاهرة، مدينة نصر ومصر الجديدة" class="form-control text-xs"/>
-						</div>
-
-						<div class="d-flex items-center gap-2 mt-2">
-							<input type="checkbox" name="is_active" value="true" :checked="editCov.is_active" id="edit_is_active" class="w-4 h-4"/>
-							<label for="edit_is_active" class="text-xs font-bold text-primary cursor-pointer">تفعيل هذا النطاق ضمن خيارات التوصيل</label>
-						</div>
-
-						<div class="modal-footer pt-3 border-t mt-3 flex-between items-center">
-							<button type="button" @click="closeEdit()" class="btn btn-secondary btn-sm font-bold">إلغاء</button>
-							<button type="submit" class="btn btn-primary btn-sm font-extrabold px-6">حفظ التعديلات</button>
-						</div>
-					</form>
-				}
-
+templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
+	@VendorCoverageTable(data, lang)
+	@VendorCoverageBands(data, lang)
 }

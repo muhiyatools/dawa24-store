@@ -38,6 +38,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
@@ -122,8 +123,24 @@ type openRow struct {
 	guess      *int64
 	score      float64
 	candidates []productmatch.MatchCandidate
+	// settled says the deterministic engine applied this row's match, so the
+	// question put to the model is verification rather than resolution.
+	//
+	// The stage used to see only the residue, which means a supplier's file was
+	// checked everywhere except where the engine was confident — and a
+	// confident wrong match is the one kind this import cannot recover from,
+	// because it ties the vendor's price and stock to another medicine and
+	// nothing on the review screen says so.
+	settled bool
+	// ambiguous says the scorer found two candidates and nothing in the row to
+	// choose between them. It is the highest-priority question in any file.
+	ambiguous bool
 	// answer is set when a decision survived every guard.
 	answer *aiAnswer
+	// disputed is set when the model would not confirm a match the engine had
+	// applied. The row keeps its product and leaves the settled bucket: two
+	// methods disagreeing is what the review screen exists for.
+	disputed bool
 }
 
 // aiAnswer is one accepted decision, before it is spread over the rows that
@@ -134,13 +151,29 @@ type aiAnswer struct {
 	Reason    string
 }
 
-// AIMatch is an accepted answer bound to one staged row.
+// AIMatch is one answer bound to one staged row.
 type AIMatch struct {
 	SourceRow int
 	ProductID int64
 	Score     float64
 	Reason    string
+	// Level is the match level the row should end on.
+	//
+	// It exists because the stage now produces two kinds of answer. An
+	// acceptance settles a row the engine could not, and lands on "strong". A
+	// DISPUTE is the model declining to confirm a row the engine had already
+	// settled: the product stays — the vendor needs to see what was proposed in
+	// order to judge it — and the level drops to "review" so the row leaves the
+	// automatic path and appears on the screen with everything else that needs
+	// a decision.
+	Level string
 }
+
+// The match levels an answer can leave a row on.
+const (
+	aiLevelAccepted = "strong"
+	aiLevelDisputed = "review"
+)
 
 // AIStats is what the run records about this stage, and what the review screen
 // shows the vendor.
@@ -149,14 +182,24 @@ type AIMatch struct {
 // anything for me?" — and counts rows whose match changed, not rows the model
 // replied about.
 type AIStats struct {
-	Reviewed   int            `json:"reviewed"`
-	CacheHits  int            `json:"cache_hits"`
-	Requests   int            `json:"requests"`
-	Improved   int            `json:"improved"`
-	Abstained  int            `json:"abstained"`
-	Rejected   int            `json:"rejected"`
-	RefusedBy  map[string]int `json:"refused_by,omitempty"`
-	CeilingHit bool           `json:"ceiling_hit"`
+	Reviewed  int            `json:"reviewed"`
+	CacheHits int            `json:"cache_hits"`
+	Requests  int            `json:"requests"`
+	Improved  int            `json:"improved"`
+	Abstained int            `json:"abstained"`
+	Rejected  int            `json:"rejected"`
+	RefusedBy map[string]int `json:"refused_by,omitempty"`
+	// Verified is how many rows the engine had already settled and the model
+	// was asked to check anyway; Disputed is how many of those it would not
+	// confirm.
+	//
+	// Disputed is the most useful number this stage produces. Everything else
+	// describes what was improved; this describes what was caught, and each one
+	// is a row where two independent methods disagreed about which medicine a
+	// vendor is selling.
+	Verified   int  `json:"verified"`
+	Disputed   int  `json:"disputed"`
+	CeilingHit bool `json:"ceiling_hit"`
 	// Skipped counts rows retrieval could find no plausible candidate for, so
 	// they were never sent. It is reported rather than hidden: a vendor looking
 	// at a low match rate needs to know the difference between "the model was
@@ -223,13 +266,20 @@ func (e *Enhancement) Retrieve(rows []*openRow) []*openRow {
 	opts := productmatch.DefaultRecallOptions()
 	opts.Limit = ceilings.RecallLimit
 	askable := make([]*openRow, 0, len(rows))
+	skipped := 0
 	for _, r := range rows {
 		r.candidates = e.index.Recall(r.row, opts)
-		if plausible(r.candidates, ceilings.MinPlausible) {
+		// The plausibility gate applies only to rows with nothing decided. A
+		// settled row always has something worth asking — its own product,
+		// which is the thing being checked — and gating it on retrieval would
+		// silently exempt exactly the rows whose retrieval was poor.
+		if r.settled || plausible(r.candidates, ceilings.MinPlausible) {
 			askable = append(askable, r)
+			continue
 		}
+		skipped++
 	}
-	e.count(func(s *AIStats) { s.Skipped = len(rows) - len(askable) })
+	e.count(func(s *AIStats) { s.Skipped = skipped })
 	return askable
 }
 
@@ -265,16 +315,26 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 	runCtx, cancel := context.WithDeadline(ctx, e.now().Add(ceilings.MaxWallClock))
 	defer cancel()
 
+	for _, r := range rows {
+		if r.settled {
+			e.Stats.Verified += len(r.sourceRows)
+		}
+	}
+
 	// The cache answers first, so a remembered row never enters a request.
 	pending := e.applyCache(ctx, rows)
 	if len(pending) == 0 {
 		return collect(rows)
 	}
 
-	batches := e.plan(pending)
+	asked := byQuestion(pending)
+	requests, ceilingHit := matchflow.Plan(e.questions(pending), ceilings)
+	if ceilingHit {
+		e.Stats.CeilingHit = true
+	}
 	total := 0
-	for _, b := range batches {
-		total += b.rows
+	for _, req := range requests {
+		total += rowsIn(req, asked)
 	}
 
 	var (
@@ -283,38 +343,40 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 		saveMu sync.Mutex
 		toSave []CachedDecision
 	)
-	for _, batch := range batches {
+	for _, request := range requests {
 		wg.Add(1)
 		slots <- struct{}{}
-		go func(b plannedBatch) {
+		go func(req matchflow.Request) {
 			defer wg.Done()
 			defer func() { <-slots }()
+			rows := rowsIn(req, asked)
 			// A panic inside one batch must not take the vendor's whole import
 			// down with it.
 			defer func() {
 				if rec := recover(); rec != nil {
-					e.count(func(s *AIStats) { s.Rejected += b.rows })
+					e.count(func(s *AIStats) { s.Rejected += rows })
 				}
 			}()
 			// The batch is accounted whatever happens to it: a failed batch
-			// still leaves its rows settled, with their deterministic outcome,
-			// and a bar that stalls on failure reads as a hung run.
-			defer e.report(b.rows, total)
+			// still leaves its rows with their deterministic outcome, and a bar
+			// that stalls on failure reads as a hung run.
+			defer e.report(rows, total)
 
 			atomic.AddInt64(&e.requests, 1)
-			outcomes, err := e.ai.Enhance(runCtx, b.request)
+			req.Batch.Feature = matchflow.FeatureVendorImport
+			outcomes, err := e.ai.Enhance(runCtx, req.Batch)
 			if err != nil {
 				if errors.Is(err, context.DeadlineExceeded) {
 					e.count(func(s *AIStats) { s.CeilingHit = true })
 				}
 				return
 			}
-			if saved := e.apply(b, outcomes); len(saved) > 0 {
+			if saved := e.apply(req, asked, outcomes); len(saved) > 0 {
 				saveMu.Lock()
 				toSave = append(toSave, saved...)
 				saveMu.Unlock()
 			}
-		}(batch)
+		}(request)
 	}
 	wg.Wait()
 
@@ -323,20 +385,46 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 	return collect(rows)
 }
 
-// collect spreads each accepted answer over every staged row that asked for it.
+// rowsIn counts the vendor's spreadsheet rows one request settles.
+//
+// It exceeds the item count whenever duplicates were collapsed, and it is what
+// the progress bar counts — a bar measured in questions rather than rows would
+// stop short of the total on any file that repeats a product.
+func rowsIn(req matchflow.Request, asked map[string]*openRow) int {
+	n := 0
+	for _, key := range req.Keys {
+		if r, ok := asked[key]; ok {
+			n += len(r.sourceRows)
+		}
+	}
+	return n
+}
+
+// collect spreads each answer over every staged row that asked for it.
 func collect(rows []*openRow) []AIMatch {
 	out := make([]AIMatch, 0, len(rows))
 	for _, r := range rows {
-		if r.answer == nil {
-			continue
-		}
-		for _, n := range r.sourceRows {
-			out = append(out, AIMatch{
-				SourceRow: n,
-				ProductID: r.answer.ProductID,
-				Score:     r.answer.Score,
-				Reason:    r.answer.Reason,
-			})
+		switch {
+		case r.answer != nil:
+			for _, n := range r.sourceRows {
+				out = append(out, AIMatch{
+					SourceRow: n,
+					ProductID: r.answer.ProductID,
+					Score:     r.answer.Score,
+					Reason:    r.answer.Reason,
+					Level:     aiLevelAccepted,
+				})
+			}
+		case r.disputed && r.guess != nil:
+			for _, n := range r.sourceRows {
+				out = append(out, AIMatch{
+					SourceRow: n,
+					ProductID: *r.guess,
+					Score:     r.score,
+					Reason:    i18n.TDefault("ingest.ai_dispute"),
+					Level:     aiLevelDisputed,
+				})
+			}
 		}
 	}
 	return out

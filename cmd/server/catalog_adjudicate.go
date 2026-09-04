@@ -70,9 +70,12 @@ func (a *catalogAdjudicateAdapter) AdjudicateMatches(
 			})
 		}
 		batch.Items = append(batch.Items, matchflow.Item{
-			Ref:     len(refs),
-			Text:    it.Text,
-			Options: options,
+			Ref:          len(refs),
+			Text:         it.Text,
+			Options:      options,
+			CurrentGuess: it.CurrentGuess,
+			CurrentScore: it.CurrentScore,
+			Settled:      it.Settled,
 		})
 		refs = append(refs, it.Ref)
 	}
@@ -81,6 +84,7 @@ func (a *catalogAdjudicateAdapter) AdjudicateMatches(
 		return batch.Catalog[i].ProductID < batch.Catalog[j].ProductID
 	})
 
+	batch.Feature = matchflow.FeatureCatalogImport
 	decisions, err := a.caps.EnhanceMatches(ctx, batch)
 	if err != nil {
 		return nil, err

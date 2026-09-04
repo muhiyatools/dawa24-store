@@ -152,27 +152,71 @@ func TestSavingAISkipsRowsTheCatalogueCannotAnswer(t *testing.T) {
 	}
 }
 
-// TestSavingAINeverTouchesAlreadyLinkedRows: the deterministic engine has
-// already decided these, and FR-018's rule is that AI does not overwrite a
-// confident deterministic result.
-func TestSavingAINeverTouchesAlreadyLinkedRows(t *testing.T) {
+// 🚦 A row the deterministic engine linked IS checked, and a model that
+// disagrees may not quietly swap the product for another one.
+//
+// The rule used to be that a settled row was never sent at all, which sounds
+// safe and is not: it meant the engine's confident mistakes were the one class
+// of error in the file nobody ever looked at twice, and a pharmacy has no way
+// to see a wrong link that arrived with 100% beside it.
+//
+// So the row is sent, and the disagreement is resolved the only honest way. Two
+// independent methods each named a product and they named different ones;
+// neither wins. The link is withdrawn and the row goes to the review screen,
+// where the person whose list it is can settle it.
+func TestSavingAIChecksLinkedRowsAndWithdrawsOnDisagreement(t *testing.T) {
 	engine := savingTestEngine()
 	settled := int64(503)
 	items := []*StagedSavingItem{
 		{Index: 1, NameProduct: "بانادول اكسترا 24 قرص", ProductID: &settled, MatchType: "exact_name"},
 	}
 
+	// The model rejects the link: none of the products it was shown is this
+	// row. That is the canonical disagreement for a check, and the one a
+	// pharmacy most needs to see.
 	ai := &fakeEnhancer{answer: func(b matchflow.Batch) ([]matchflow.Decision, error) {
-		other := int64(501)
-		return []matchflow.Decision{{Ref: 0, ProductID: &other, Confidence: 1.0}}, nil
+		out := make([]matchflow.Decision, 0, len(b.Items))
+		for _, it := range b.Items {
+			if !it.Settled {
+				t.Errorf("a linked row was sent as a resolution rather than a check")
+			}
+			out = append(out, matchflow.Decision{Ref: it.Ref, Confidence: 0.95})
+		}
+		return out, nil
 	}}
 
 	_ = enhanceSavingItems(context.Background(), ai, nil, engine, items, nil)
-	if ai.calls != 0 {
-		t.Errorf("a settled row was sent for adjudication")
+	if ai.calls == 0 {
+		t.Fatalf("a linked row was never checked")
 	}
-	if *items[0].ProductID != 503 {
-		t.Errorf("a settled row was overwritten: %d", *items[0].ProductID)
+	if items[0].ProductID != nil {
+		t.Errorf("the model's product was applied over the engine's: %d", *items[0].ProductID)
+	}
+	if items[0].MatchType != savingMatchTypeDisputed {
+		t.Errorf("match type = %q, want %q — the disagreement is not visible on the screen",
+			items[0].MatchType, savingMatchTypeDisputed)
+	}
+}
+
+// A row whose link came from an identifier is not checked at all.
+//
+// A barcode is the same physical package and an id the file stated outright is
+// the pharmacy's own assertion. A model cannot improve on either, and asking
+// spends the budget the uncertain rows need.
+func TestSavingAILeavesIdentifierLinksAlone(t *testing.T) {
+	engine := savingTestEngine()
+	settled := int64(503)
+	items := []*StagedSavingItem{
+		{Index: 1, NameProduct: "بانادول اكسترا 24 قرص", ProductID: &settled, MatchType: "barcode"},
+	}
+
+	ai := &fakeEnhancer{}
+	_ = enhanceSavingItems(context.Background(), ai, nil, engine, items, nil)
+	if ai.calls != 0 {
+		t.Errorf("a barcode link was sent for adjudication")
+	}
+	if items[0].ProductID == nil || *items[0].ProductID != settled {
+		t.Errorf("a barcode link was disturbed")
 	}
 }
 

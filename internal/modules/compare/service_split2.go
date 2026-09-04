@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -137,6 +138,12 @@ func (s *Service) UploadAndProcessCompareFile(
 	ctx context.Context, userID int64, orgID *int64, supplierName, originalFilename, mimeType string,
 	sizeBytes int64, storageKey string, fileBytes []byte,
 ) (*CompareFile, []string, error) {
+	if len(fileBytes) > 0 {
+		if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, originalFilename); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	file, archived, err := s.UploadCompareFile(ctx, userID, orgID, supplierName, originalFilename, mimeType, sizeBytes, storageKey)
 	if err != nil {
 		return nil, nil, err
@@ -151,8 +158,11 @@ func (s *Service) UploadAndProcessCompareFile(
 	if err != nil || len(allRows) == 0 {
 		file.Status = FileFailed
 		file.ErrorMessage = i18n.TDefault("w4_mod.s_375_375")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			file.ErrorMessage = filesecurity.SecurityErrorMessage
+		}
 		_ = s.repo.UpdateFile(ctx, file)
-		return file, archived, nil
+		return file, archived, err
 	}
 
 	// 2. Find best header row and detect columns

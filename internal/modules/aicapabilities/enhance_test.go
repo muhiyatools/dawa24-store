@@ -42,7 +42,7 @@ func TestRenderCarriesBothSectionsAndTheColumnKeys(t *testing.T) {
 	for _, want := range []string{
 		"CATALOG\n", "\nITEMS\n",
 		"101|ابيليفاي 10مجم 10 اقراص|abilify 10 mg 10 tabs||tablet|10 mg|otsuka",
-		"1|ابليفاى 10مجم 10قرص|ابليفاى|10 مجم|أقراص|10||101@0.42|101,102",
+		"1|new|ابليفاى 10مجم 10قرص|ابليفاى|10 مجم|أقراص|10||101@0.42|101,102",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("rendered input is missing %q\n---\n%s", want, out)

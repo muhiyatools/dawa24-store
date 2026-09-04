@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -218,6 +219,12 @@ func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
 	filename := ""
 	if header != nil {
 		filename = header.Filename
+	}
+	if err := filesecurity.ValidateSpreadsheetSecurity(content, filename); err != nil {
+		return nil, "", &uploadError{
+			message: filesecurity.SecurityErrorMessage,
+			detail:  err.Error(),
+		}
 	}
 	return content, filename, nil
 }

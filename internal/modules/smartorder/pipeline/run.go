@@ -95,7 +95,7 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// The results are NOT released to the buyer while this runs: the run stays
 	// in `processing` until the whole pipeline finishes, so what they finally
 	// see already includes whatever this improved.
-	r.enhance(ctx, run, cfg, matcher, reviews)
+	r.enhance(ctx, run, cfg, matcher, lines, reviews)
 
 	if err := r.repo.UpdateLines(ctx, lines); err != nil {
 		return err
@@ -143,8 +143,8 @@ func (r *Runner) Execute(ctx context.Context, run *smartorder.Run, cfg *smartord
 // fail the run: the deterministic outcome is always there to fall back to, which
 // is what lets a pharmacy order when the Gateway is down.
 func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartorder.Config,
-	matcher *Matcher, reviews []Review) {
-	if !cfg.UseAIMatching || r.ai == nil || len(reviews) == 0 {
+	matcher *Matcher, lines []*smartorder.Line, reviews []Review) {
+	if !cfg.UseAIMatching || r.ai == nil || len(lines) == 0 {
 		return
 	}
 
@@ -153,6 +153,16 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 	// the catalogue could plausibly settle at all; the rest keep the honest
 	// deterministic outcome and are never sent.
 	askable := matcher.Retrieve(reviews)
+
+	// And the other half of the file: the rows the engine settled on a name.
+	//
+	// They are appended rather than sent separately because they share the
+	// catalogue window with everything else in the batch — checking "بانادول
+	// اكسترا 20 قرص" costs almost nothing once the panadol family is already in
+	// the request for the row above. The planner orders the combined set by how
+	// much is gained by asking, so a ceiling reached on a very large file cuts
+	// the confident verifications and never the ambiguities.
+	askable = append(askable, matcher.Verify(lines)...)
 
 	total := len(askable)
 	if total == 0 {
@@ -174,12 +184,15 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 	run.AI.LinesImproved = enh.Stats.Improved
 	run.AI.CacheHits = enh.Stats.CacheHits
 	run.AI.CeilingHit = enh.Stats.CeilingHit
+	run.AI.LinesVerified = enh.Stats.Verified
+	run.AI.LinesDisputed = enh.Stats.Disputed
 
 	r.log.InfoContext(ctx, "smart order AI enhancement finished",
 		"run_id", run.ID, "reviewed", enh.Stats.Reviewed, "cache_hits", enh.Stats.CacheHits,
 		"requests", enh.Stats.Requests, "improved", enh.Stats.Improved,
 		"confirmed", enh.Stats.Confirmed, "abstained", enh.Stats.Abstained,
 		"rejected", enh.Stats.Rejected, "refused_by", enh.Stats.RefusedBy,
+		"verified", enh.Stats.Verified, "disputed", enh.Stats.Disputed,
 		"ceiling_hit", enh.Stats.CeilingHit)
 
 	r.emit(ctx, run, smartorder.StageAIEnhance, total, total,

@@ -37,25 +37,26 @@ func (r *Repository) ApplyAIMatches(
 		return nil
 	}
 
-	const cols = 4
+	const cols = 5
 	values := make([]string, 0, len(matches))
 	args := make([]any, 0, len(matches)*cols+1)
 	args = append(args, importID)
 	for i, m := range matches {
 		base := i*cols + 1
-		values = append(values, fmt.Sprintf("($%d::int,$%d::bigint,$%d::numeric,$%d::text)",
-			base+1, base+2, base+3, base+4))
-		args = append(args, m.SourceRow, m.ProductID, clampScore(m.Score), trimTo(m.Reason, 500))
+		values = append(values, fmt.Sprintf("($%d::int,$%d::bigint,$%d::numeric,$%d::text,$%d::text)",
+			base+1, base+2, base+3, base+4, base+5))
+		args = append(args, m.SourceRow, m.ProductID, clampScore(m.Score),
+			trimTo(m.Reason, 500), matchLevel(m.Level))
 	}
 
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		_, err := tx.Exec(txCtx, `
 			UPDATE ingest.catalog_import_rows AS t
 			SET product_id  = v.product_id,
-			    match_level = 'strong',
+			    match_level = v.level,
 			    match_score = v.score,
 			    message     = v.reason
-			FROM (VALUES `+strings.Join(values, ",")+`) AS v(source_row, product_id, score, reason)
+			FROM (VALUES `+strings.Join(values, ",")+`) AS v(source_row, product_id, score, reason, level)
 			WHERE t.import_id = $1
 			  AND t.source_row = v.source_row
 			  AND NOT t.is_manually_matched;`, args...)
@@ -220,4 +221,16 @@ func (r *Repository) SaveAlias(
 			productID, alias, source, confidence)
 		return err
 	})
+}
+
+// matchLevel defaults an unset level to an acceptance.
+//
+// The stage always sets one now, and the default is here so a caller written
+// before it did — or a test constructing an AIMatch by hand — writes the level
+// the row had rather than an empty string the review screen cannot read.
+func matchLevel(level string) string {
+	if level == "" {
+		return "strong"
+	}
+	return level
 }

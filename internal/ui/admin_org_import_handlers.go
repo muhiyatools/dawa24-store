@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
@@ -113,10 +114,19 @@ func (h *UIHandler) AdminOrgImportSavingsUploadSubmit(w http.ResponseWriter, r *
 		return
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, fileHeader.Filename); err != nil {
+		h.redirectWithNotice(w, r, "/admin/organizations/import", "error", filesecurity.SecurityErrorMessage)
+		return
+	}
+
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
-		h.redirectWithNotice(w, r, "/admin/organizations/import", "error", i18n.T(lang, "customer.saving.import.parse_error_short"))
+		msg := i18n.T(lang, "customer.saving.import.parse_error_short")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		h.redirectWithNotice(w, r, "/admin/organizations/import", "error", msg)
 		return
 	}
 

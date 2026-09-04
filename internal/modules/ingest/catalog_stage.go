@@ -215,7 +215,13 @@ func (r *stagingRun) stage(ctx context.Context, batch []*productmatch.Row) error
 
 		// A row the reader rejected is not worth asking about: it will not be
 		// committed whatever the answer, and paying for it is pure waste.
-		if !bucket.settled() && outcome != OutcomeError {
+		//
+		// Everything else is remembered, settled or not. A settled row is asked
+		// a different question — "is this right?" rather than "what is this?" —
+		// and the planner spends the run's budget on the uncertain rows first,
+		// so putting the whole file in front of the model costs the confident
+		// rows only what is left over.
+		if outcome != OutcomeError {
 			r.remember(row, m)
 		}
 
@@ -269,6 +275,8 @@ func (r *stagingRun) remember(row *productmatch.Row, m productmatch.MatchResult)
 		sourceRows: []int{row.Number},
 		normName:   key,
 		score:      m.Score,
+		settled:    m.Level.Settled() && verifiable(m.Level),
+		ambiguous:  m.Level == productmatch.MatchAmbiguous,
 	}
 	if m.ProductID > 0 {
 		id := m.ProductID
@@ -278,7 +286,21 @@ func (r *stagingRun) remember(row *productmatch.Row, m productmatch.MatchResult)
 	r.open = append(r.open, q)
 }
 
-// enhance runs the AI stage over the whole residue and folds what it settled
+// verifiable reports whether a settled match rests on a NAME, and is therefore
+// worth a second opinion.
+//
+// A barcode is the same physical package and a supplier code the vendor mapped
+// themselves is their own assertion about their own numbering; a model cannot
+// improve on either, and asking spends the budget the ambiguous rows need.
+func verifiable(level productmatch.MatchLevel) bool {
+	switch level {
+	case productmatch.MatchExact, productmatch.MatchStrong:
+		return true
+	}
+	return false
+}
+
+// enhance runs the AI stage over the whole file and folds what it settled
 // back onto the staged rows.
 //
 // Every failure here is silent by design: the vendor keeps a complete,
@@ -290,9 +312,10 @@ func (r *stagingRun) enhance(ctx context.Context) {
 		return
 	}
 	if len(r.open) == 0 {
-		// Every row settled deterministically. The stage still records that it
-		// was on, because "nothing was left to ask" and "the smart matching
-		// never ran" are different things to tell a vendor.
+		// Nothing to ask about at all — an empty file, or one whose every row
+		// the reader rejected. The stage still records that it was on, because
+		// "there was nothing to ask" and "the smart matching never ran" are
+		// different things to tell a vendor.
 		r.session.AI = AIStats{Ran: true}
 		return
 	}
@@ -334,6 +357,7 @@ func (r *stagingRun) enhance(ctx context.Context) {
 		"reviewed", enh.Stats.Reviewed, "cache_hits", enh.Stats.CacheHits,
 		"requests", enh.Stats.Requests, "improved", enh.Stats.Improved,
 		"abstained", enh.Stats.Abstained, "rejected", enh.Stats.Rejected,
+		"verified", enh.Stats.Verified, "disputed", enh.Stats.Disputed,
 		"ceiling_hit", enh.Stats.CeilingHit)
 }
 
@@ -346,12 +370,24 @@ func (r *stagingRun) enhance(ctx context.Context) {
 func (r *stagingRun) recount(matches []AIMatch) {
 	for _, m := range matches {
 		bucket, ok := r.bucketOf[m.SourceRow]
-		if !ok || bucket.settled() {
+		if !ok {
+			continue
+		}
+		want := bucketMatched
+		if m.Level == aiLevelDisputed {
+			// The engine settled this row and the model would not confirm it.
+			// It moves the other way — out of the matched count and into the
+			// review count — because the vendor's screen must show it, and a
+			// counter that still called it matched would be the one place the
+			// disagreement was invisible.
+			want = bucketReview
+		}
+		if bucket == want {
 			continue
 		}
 		r.count(bucket, -1)
-		r.count(bucketMatched, 1)
-		r.bucketOf[m.SourceRow] = bucketMatched
+		r.count(want, 1)
+		r.bucketOf[m.SourceRow] = want
 	}
 }
 

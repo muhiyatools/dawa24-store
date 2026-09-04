@@ -8,18 +8,18 @@ package pipeline
 // while a refused match merely leaves a line for a human to look at. So every
 // guard here fails toward the deterministic outcome.
 //
-// Three of them, in order of how much damage they prevent:
+// The guards themselves live in matchflow.Verdict, because all four importers
+// need the same ones and the four copies had drifted. What lives here is what
+// each verdict MEANS to a purchase order:
 //
-//  1. The product must be one the model was actually shown. A product id that
-//     was not in the window is a hallucination, and this is what stops it
-//     becoming an order.
-//  2. The confidence must clear the floor. The prompt asks for abstention below
-//     it; this enforces it, because an instruction is not a guarantee.
-//  3. The product must survive productmatch.IdentityConflict — the strength, the
-//     line-extension word, the dosage form and the shared distinctive word all
-//     re-checked against the catalogue's own record. The model is instructed at
-//     length on every one of these and is usually right, but "usually" is not a
-//     standard that should decide which medicine a pharmacy receives.
+//   - keep: the deterministic result stands.
+//   - apply: the model resolved a line the engine could not.
+//   - review: the two methods disagree about a line the engine had already
+//     applied, and the buyer is asked. This is the outcome the verification
+//     pass exists to produce, and it is the only one that can take a line OFF
+//     the automatic path — which is why it lowers the confidence rather than
+//     clearing the match: the buyer needs to see what was proposed in order to
+//     judge it.
 
 import (
 	"context"
@@ -27,90 +27,130 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
-	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
-// apply validates a batch's answers and writes the ones that survive.
+// confDisputed is the confidence a line carries once the deterministic engine
+// and the model have disagreed about it.
 //
-// An answer the guards refuse is deliberately NOT written to the decision cache.
-// Caching it would save a request next time and would also freeze a judgement
-// the guards may later make differently — the modifier vocabulary grows, the
-// catalogue gains a product — and a cached wrong premise is worse than a
-// repeated question. Only what the model actually decided is remembered.
-func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []smartorder.CachedDecision {
+// Below Cutoff, so the line leaves the automatic path and reaches the review
+// screen. Above the floor at which a line is reported as unmatched, because it
+// is not unmatched: two methods each named a product and they named different
+// ones, and the buyer needs both in front of them.
+const confDisputed = 0.60
+
+// apply validates a batch's answers and writes the ones that survive.
+func (e *Enhancement) apply(req matchflow.Request, groups map[string][]Review,
+	outcomes []matchflow.Decision) []smartorder.CachedDecision {
+
 	saved := make([]smartorder.CachedDecision, 0, len(outcomes))
 
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
 	for _, out := range outcomes {
-		group, ok := b.refs[out.Ref]
-		if !ok || len(group) == 0 {
+		key, ok := req.Keys[out.Ref]
+		if !ok {
+			e.Stats.Rejected++
+			continue
+		}
+		group := groups[key]
+		if len(group) == 0 {
 			e.Stats.Rejected++
 			continue
 		}
 		lead := group[0]
 
-		if out.Confidence < 0 || out.Confidence > 1 {
-			e.Stats.Rejected += len(group)
-			continue
-		}
+		j := e.judge(req, lead, out)
+		verdict := matchflow.Verdict(j, out.ProductID)
+		e.record(verdict, group, lead, out)
 
-		decision := smartorder.CachedDecision{
-			Key:           decisionKey(lead),
-			NormName:      lead.Line.NormName,
-			Confidence:    out.Confidence,
-			Reason:        out.Reason,
-			PromptVersion: PromptVersion,
-		}
-
-		switch {
-		case out.ProductID == nil || *out.ProductID <= 0:
-			// "None of these" is a real answer and worth remembering: it stops
-			// the next import of the same file asking again.
-			e.Stats.Abstained += len(group)
-
-		case !inWindow(b.window, *out.ProductID):
-			// A product the model was not shown. This is the guard that stops a
-			// hallucinated id becoming an order.
-			e.Stats.Rejected += len(group)
-			continue
-
-		case out.Confidence < ceilings.MinApplyConfidence:
-			// Recorded as an abstention, which is what it is: the model said it
-			// was not sure enough, and the lines keep their deterministic
-			// outcome.
-			e.Stats.Abstained += len(group)
-
-		default:
-			if c := e.index.IdentityConflict(lead.Row, *out.ProductID); !c.None() {
-				e.refuse(c, lead, *out.ProductID, len(group))
-				continue
-			}
-
-			decision.ChosenProductID = out.ProductID
-			for _, r := range group {
-				before := r.Line.MatchedProductID
-				forceMatch(r.Line, *out.ProductID, smartorder.MethodAI, out.Confidence)
-				if before == nil || *before != *out.ProductID {
-					e.Stats.Improved++
-				} else {
-					e.Stats.Confirmed++
-				}
-			}
-		}
-
-		// A hesitant answer is used but not remembered. See
-		// matchflow.MinMemoryConfidence: the cache is shared with every other
-		// import tool and long-lived, and an entry written from a 0.2 answer
-		// answers the same question for months without anyone being told it was
-		// a guess.
-		if out.Confidence >= matchflow.MinMemoryConfidence {
-			saved = append(saved, decision)
+		if matchflow.Remember(j, out.ProductID) {
+			saved = append(saved, smartorder.CachedDecision{
+				Key:             key,
+				NormName:        lead.Line.NormName,
+				ChosenProductID: out.ProductID,
+				Confidence:      out.Confidence,
+				Reason:          out.Reason,
+				PromptVersion:   PromptVersion,
+			})
 		}
 	}
 	return saved
 }
+
+// judge gathers what the shared rules need to decide one answer.
+func (e *Enhancement) judge(req matchflow.Request, r Review,
+	out matchflow.Decision) matchflow.Judgement {
+
+	j := matchflow.Judgement{
+		Settled:    r.Settled,
+		Current:    r.Line.MatchedProductID,
+		Confidence: out.Confidence,
+		Floor:      ceilings.MinApplyConfidence,
+	}
+	if out.ProductID == nil || *out.ProductID <= 0 {
+		return j
+	}
+	_, j.Offered = req.Offered[*out.ProductID]
+	j.Conflicts = !e.index.IdentityConflict(r.Row, *out.ProductID).None()
+	return j
+}
+
+// record writes one verdict across every line that asked the question.
+func (e *Enhancement) record(verdict matchflow.Outcome, group []Review, lead Review,
+	out matchflow.Decision) {
+
+	switch verdict {
+	case matchflow.OutcomeApply:
+		for _, r := range group {
+			before := r.Line.MatchedProductID
+			forceMatch(r.Line, *out.ProductID, smartorder.MethodAI, out.Confidence)
+			if before == nil || *before != *out.ProductID {
+				e.Stats.Improved++
+			} else {
+				e.Stats.Confirmed++
+			}
+		}
+
+	case matchflow.OutcomeReview:
+		for _, r := range group {
+			r.Line.MatchConfidence = confDisputed
+			r.Line.OutcomeReason = disputeReason(out)
+		}
+		e.Stats.Disputed += len(group)
+		if e.log != nil {
+			e.log.Debug("AI review disagreed with an applied match",
+				"line_id", lead.Line.ID, "text", lead.Line.RawName,
+				"engine_product", lead.Line.MatchedProductID,
+				"model_product", out.ProductID, "confidence", out.Confidence)
+		}
+
+	default:
+		// Nothing changes. Which of the several reasons it was is worth
+		// counting, because "the model confirmed it" and "the model was
+		// overruled by the identity guard" are different facts about a run.
+		switch {
+		case out.ProductID == nil || *out.ProductID <= 0:
+			e.Stats.Abstained += len(group)
+		case out.Confidence < ceilings.MinApplyConfidence:
+			e.Stats.Abstained += len(group)
+		case sameProduct(lead.Line.MatchedProductID, out.ProductID):
+			e.Stats.Confirmed += len(group)
+		default:
+			e.refuse(lead, *out.ProductID, len(group))
+		}
+	}
+}
+
+// disputeReason is what the buyer is told about a line two methods disagreed on.
+func disputeReason(out matchflow.Decision) string {
+	if out.ProductID == nil || *out.ProductID <= 0 {
+		return "المراجعة الذكية لم تؤكد الصنف الذي اختاره المطابق الآلي؛ يلزم التأكيد يدوياً."
+	}
+	return "المراجعة الذكية رشّحت صنفاً مختلفاً عن اختيار المطابق الآلي؛ يلزم التأكيد يدوياً."
+}
+
+func sameProduct(a, b *int64) bool { return a != nil && b != nil && *a == *b }
 
 // refuse records a rejected decision and says why.
 //
@@ -120,9 +160,9 @@ func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []smartor
 // recoverable after the fact.
 //
 // It touches Stats directly rather than through count(), because every caller
-// already holds e.mu. Routing it through count() would deadlock on the first
-// refusal.
-func (e *Enhancement) refuse(c productmatch.MatchConflict, r Review, productID int64, lines int) {
+// already holds e.mu.
+func (e *Enhancement) refuse(r Review, productID int64, lines int) {
+	c := e.index.IdentityConflict(r.Row, productID)
 	e.Stats.Rejected += lines
 	e.Stats.RefusedBy[c.Kind]++
 	if e.log != nil {
@@ -132,19 +172,12 @@ func (e *Enhancement) refuse(c productmatch.MatchConflict, r Review, productID i
 	}
 }
 
-func inWindow(window map[int64]struct{}, id int64) bool {
-	_, ok := window[id]
-	return ok
-}
-
 // forceMatch records an AI resolution.
 //
 // Unlike setMatch it does not refuse a lower confidence, because that is exactly
 // the case this stage exists for: a line the scorer guessed at 0.42 being
 // replaced by a considered answer at 0.88 — or by a *different* product at 0.75,
 // which is still better than a guess the engine itself would not stand behind.
-// It is only ever called on lines below Cutoff, so a confident deterministic
-// result is never in reach (FR-018).
 func forceMatch(l *smartorder.Line, productID int64, method smartorder.MatchMethod, confidence float64) {
 	l.MatchedProductID = &productID
 	l.MatchMethod = method
@@ -178,61 +211,44 @@ func (e *Enhancement) flush(ctx context.Context, decisions []smartorder.CachedDe
 	}
 }
 
-// applyCache resolves what is already known and returns the remainder.
-func (e *Enhancement) applyCache(ctx context.Context, reviews []Review) []Review {
-	keys := make([]string, 0, len(reviews))
-	for _, r := range reviews {
-		keys = append(keys, decisionKey(r))
+// applyCache resolves what is already known and returns the questions still
+// worth asking.
+//
+// A remembered answer is re-checked against the catalogue's own record before it
+// is applied, exactly as a fresh one is: the catalogue moves between imports, and
+// a decision that was sound in March can conflict in June.
+func (e *Enhancement) applyCache(ctx context.Context, groups map[string][]Review) map[string][]Review {
+	keys := make([]string, 0, len(groups))
+	for k := range groups {
+		keys = append(keys, k)
 	}
 	cached, err := e.repo.LookupDecisions(ctx, keys)
 	if err != nil {
 		cached = nil // a cache miss is never fatal
 	}
 
-	pending := make([]Review, 0, len(reviews))
-	for _, r := range reviews {
-		d, ok := cached[decisionKey(r)]
-		if !ok {
-			pending = append(pending, r)
+	pending := make(map[string][]Review, len(groups))
+	for key, group := range groups {
+		d, known := cached[key]
+		if !known {
+			pending[key] = group
 			continue
 		}
-		e.Stats.CacheHits++
-		if d.ChosenProductID == nil || d.Confidence < ceilings.MinApplyConfidence {
-			continue
+		e.Stats.CacheHits += len(group)
+		lead := group[0]
+		j := matchflow.Judgement{
+			Settled:    lead.Settled,
+			Current:    lead.Line.MatchedProductID,
+			Offered:    true, // it was offered when the answer was bought
+			Confidence: d.Confidence,
+			Floor:      ceilings.MinApplyConfidence,
 		}
-		if c := e.index.IdentityConflict(r.Row, *d.ChosenProductID); !c.None() {
-			e.Stats.Rejected++
-			e.Stats.RefusedBy[c.Kind]++
-			continue
+		if d.ChosenProductID != nil && *d.ChosenProductID > 0 {
+			j.Conflicts = !e.index.IdentityConflict(lead.Row, *d.ChosenProductID).None()
 		}
-		before := r.Line.MatchedProductID
-		forceMatch(r.Line, *d.ChosenProductID, smartorder.MethodAI, d.Confidence)
-		if before == nil || *before != *d.ChosenProductID {
-			e.Stats.Improved++
-		} else {
-			e.Stats.Confirmed++
-		}
+		e.record(matchflow.Verdict(j, d.ChosenProductID), group, lead,
+			matchflow.Decision{ProductID: d.ChosenProductID, Confidence: d.Confidence, Reason: d.Reason})
 	}
 	e.Stats.Reviewed = len(pending)
 	return pending
-}
-
-// decisionKey identifies the exact question being asked.
-//
-// The retrieved candidate ids are part of it and are sorted first, so an answer
-// is only reused when the same options were on the table; a decision made
-// against a different shortlist answers a question nobody asked. PromptVersion
-// is included so a prompt change invalidates cleanly rather than silently.
-func decisionKey(r Review) string {
-	ids := make([]int64, 0, len(r.Candidates))
-	for _, c := range r.Candidates {
-		ids = append(ids, c.ProductID)
-	}
-	return matchflow.DecisionKey(r.Line.NormName, ids)
-}
-
-// DebugDecisionKey exposes the cache key for the cross-module test that asserts
-// this pipeline and the vendor import hash the same question identically.
-func DebugDecisionKey(normName string, candidateIDs []int64) string {
-	return matchflow.DecisionKey(normName, candidateIDs)
 }

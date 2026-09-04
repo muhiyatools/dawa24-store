@@ -82,6 +82,13 @@ type Review struct {
 	Line       *smartorder.Line
 	Row        *productmatch.Row
 	Candidates []productmatch.MatchCandidate
+	// Settled says the deterministic engine already applied this line's match,
+	// so the question is verification rather than resolution. See
+	// matchflow.Verdict for what the difference costs an answer.
+	Settled bool
+	// Ambiguous says the scorer found two candidates and nothing in the row to
+	// choose between them. It is the highest-priority question in any file.
+	Ambiguous bool
 }
 
 // EnhancementStats is what the run records about this stage.
@@ -97,6 +104,14 @@ type EnhancementStats struct {
 	Confirmed int
 	Abstained int
 	Rejected  int
+	// Disputed counts lines the engine had applied and the model would not
+	// confirm. They are the reason the verification pass exists: two
+	// independent methods disagreeing about one row is the strongest signal a
+	// file produces that the row is wrong, and it is invisible without asking.
+	Disputed int
+	// Verified counts the settled lines that were put to the model at all,
+	// which is what makes Disputed a rate rather than a number.
+	Verified int
 	// RefusedBy counts refusals by conflict kind — strength, modifier, form,
 	// evidence. It is the number that says whether the guards are protecting the
 	// buyer or fighting the model, and it is the first thing to look at when
@@ -158,39 +173,57 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 	runCtx, cancel := context.WithDeadline(ctx, deadline)
 	defer cancel()
 
-	// The cache answers first, so a remembered line never enters a request.
-	pending := e.applyCache(ctx, reviews)
-	if len(pending) == 0 {
+	for _, r := range reviews {
+		if r.Settled {
+			e.Stats.Verified++
+		}
+	}
+
+	// The cache answers first, so a remembered question never enters a request.
+	groups := e.applyCache(ctx, byKey(reviews))
+	if len(groups) == 0 {
 		return
 	}
 
-	batches := e.plan(pending)
+	questions := make([]matchflow.Question, 0, len(groups))
+	for key, group := range groups {
+		for _, q := range e.questions(group[:1]) {
+			q.Key = key
+			questions = append(questions, q)
+		}
+	}
+	requests, ceilingHit := matchflow.Plan(questions, ceilings)
+	if ceilingHit {
+		e.Stats.CeilingHit = true
+	}
 
 	var (
 		wg    sync.WaitGroup
 		slots = make(chan struct{}, ceilings.MaxConcurrent)
 	)
 
-	for _, batch := range batches {
+	for _, req := range requests {
 		wg.Add(1)
 		slots <- struct{}{}
-		go func(b plannedBatch) {
+		go func(r matchflow.Request) {
 			defer wg.Done()
 			defer func() { <-slots }()
+			lines := linesIn(r, groups)
 			// A panic inside one batch must not take the buyer's whole import
 			// down with it.
 			defer func() {
 				if rec := recover(); rec != nil {
-					e.count(func(s *EnhancementStats) { s.Rejected += b.lines })
+					e.count(func(s *EnhancementStats) { s.Rejected += lines })
 				}
 			}()
 			// The batch is accounted whatever happens to it: a failed batch
-			// still leaves its lines settled, with their deterministic outcome,
-			// and a bar that stalls on failure reads as a hung run.
-			defer e.report(b.lines)
+			// still leaves its lines with their deterministic outcome, and a bar
+			// that stalls on failure reads as a hung run.
+			defer e.report(lines)
 
 			atomic.AddInt64(&e.requests, 1)
-			outcomes, err := e.callWithRetry(runCtx, b.request)
+			r.Batch.Feature = matchflow.FeatureSmartOrder
+			outcomes, err := e.callWithRetry(runCtx, r.Batch)
 			if err != nil {
 				if errors.Is(err, context.DeadlineExceeded) {
 					e.count(func(s *EnhancementStats) { s.CeilingHit = true })
@@ -198,14 +231,27 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 				return
 			}
 
-			saved := e.apply(b, outcomes)
+			saved := e.apply(r, groups, outcomes)
 			e.flush(runCtx, saved)
-		}(batch)
+		}(req)
 	}
 
 	wg.Wait()
 
 	e.Stats.Requests = int(atomic.LoadInt64(&e.requests))
+}
+
+// linesIn counts the buyer's rows one request settles.
+//
+// It differs from the item count whenever duplicates were collapsed, and it is
+// what the progress bar counts — a bar measured in questions rather than rows
+// would stop short of the total on any file that repeats a product.
+func linesIn(r matchflow.Request, groups map[string][]Review) int {
+	n := 0
+	for _, key := range r.Keys {
+		n += len(groups[key])
+	}
+	return n
 }
 
 // callWithRetry executes an enhancement batch with a per-request timeout (60s)

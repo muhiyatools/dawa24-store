@@ -1,0 +1,86 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorCoverageBands(data VendorCoverageData, lang string) {
+	<!-- Delivery Distance Pricing Bands -->
+	<div class="glass-panel p-6 mb-6">
+		<div class="flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3">
+			<div class="stack-sm">
+				<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
+					<span>@components.IconWallet("icon-sm")</span>
+					<span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span>
+				</h2>
+				<p class="text-xs text-muted mt-1 m-0">
+					تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).
+				</p>
+			</div>
+		</div>
+
+		<div class="d-grid grid-auto-fit-md gap-6">
+			<!-- Add Delivery Band Form -->
+			<form method="POST" action="/vendor/delivery-bands/create" class="bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4">
+				<input type="hidden" name="gorilla.csrf.Token" value=""/>
+				<div class="font-extrabold text-sm text-primary d-flex items-center gap-2">
+					<span>@components.IconPlus("icon-sm")</span>
+					<span>إضافة شريحة تسعير جديدة بالمتر</span>
+				</div>
+				<div class="d-grid grid-cols-3 gap-3">
+					<div class="stack-sm">
+						<span class="text-xs font-bold text-primary d-block mb-1">من (متر):</span>
+						<input type="number" name="from_meters" min="0" step="1" value="0" class="form-control font-bold" placeholder="0 م" required/>
+					</div>
+					<div class="stack-sm">
+						<span class="text-xs font-bold text-primary d-block mb-1">إلى (متر):</span>
+						<input type="number" name="to_meters" min="0" step="1" value="5000" class="form-control font-bold" placeholder="5000 م" required/>
+					</div>
+					<div class="stack-sm">
+						<span class="text-xs font-bold text-primary d-block mb-1">الرسوم ({ i18n.T(lang, "common.currency_egp") }):</span>
+						<input type="number" step="any" name="delivery_fee" min="0" value="30" class="form-control font-bold" placeholder="30" required/>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary btn-sm font-bold align-self-start shadow-xs">
+					حفظ الشريحة
+				</button>
+			</form>
+
+			<!-- List of Existing Bands -->
+			<div class="stack-sm">
+				if len(data.Bands) == 0 {
+					<div class="p-8 text-center text-muted text-sm bg-surface-sunken rounded-xl border border-dashed">
+						لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).
+					</div>
+				} else {
+					<div class="d-flex flex-col gap-2">
+						for _, band := range data.Bands {
+							<div class="flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs">
+								<div class="stack-sm">
+									<div class="font-extrabold text-sm text-primary tabular-nums">
+										من { fmt.Sprintf("%d", band.FromMeters) } م إلى { fmt.Sprintf("%d", band.ToMeters) } م
+									</div>
+									<div class="text-xs text-muted mt-1">
+										(يعادل { fmt.Sprintf("%.1f", float64(band.FromMeters)/1000.0) } كم إلى { fmt.Sprintf("%.1f", float64(band.ToMeters)/1000.0) } كم)
+									</div>
+								</div>
+								<div class="d-flex items-center gap-3">
+									<span class="badge badge-primary font-bold">
+										{ band.Fee.String() + " " + i18n.T(lang, "common.currency_egp") }
+									</span>
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery-bands/%d/delete", band.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف شريحة التوصيل هذه؟');" class="d-inline">
+										<input type="hidden" name="gorilla.csrf.Token" value=""/>
+										<button type="submit" class="btn btn-2xs btn-danger" title="حذف الشريحة">@components.IconTrash("icon-sm")</button>
+									</form>
+								</div>
+							</div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}

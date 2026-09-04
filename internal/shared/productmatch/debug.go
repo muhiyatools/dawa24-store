@@ -5,59 +5,134 @@ package productmatch
 // The labelled benchmarks in test/corpus need to say WHY a wrong match was
 // wrong — whether the two products differ by a strength, a pack figure, a
 // line-extension word or a dosage form — and every one of those comparisons
-// already exists here, unexported, because the scorer is the only thing that
-// needed them.
+// already exists in this package, unexported, because the scorer is the only
+// thing that needed them.
 //
 // Exporting a thin, read-only layer is better than the alternatives: copying
 // the comparisons into the benchmark makes the benchmark measure a second
 // implementation, and moving them out of this package puts the scorer's own
 // vocabulary somewhere it cannot see.
+//
+// It is two entry points rather than a dozen, deliberately. Every exported
+// symbol here is unreachable from the running program by construction, so each
+// one is a line on the dead-code ledger a reviewer has to read past.
 
-import (
-	"sort"
-	"strings"
-)
+// Explanation is what the engine can say about a row and two candidates for it.
+type Explanation struct {
+	// Conflicts names everything the row disagrees with the CHOSEN candidate
+	// about. Empty means the chosen candidate contradicts nothing the row
+	// states.
+	Conflicts []string
+	// The rest compare the two CANDIDATES with each other rather than with the
+	// row. They answer "what separates the product that was chosen from the
+	// product that was correct", which is the question a benchmark of wrong
+	// matches asks.
+	StrengthDiffers bool
+	NumbersDiffer   bool
+	ModifierDiffers bool
+	FormDiffers     bool
+	// ExtraWord is a word one candidate's name carries and the other's does
+	// not, which is what separates them when no structured attribute does.
+	ExtraWord string
+	// GotName and WantName are the two candidates' catalogue labels.
+	GotName  string
+	WantName string
+}
 
-// DebugName is a catalogue product's label, Arabic first.
-func DebugName(p *MasterProduct) string {
-	if p == nil {
-		return ""
+// Explain compares a row against one candidate, and that candidate against
+// another.
+//
+// A product id the index does not hold yields the zero value for the
+// comparisons that needed it rather than an error: a diagnostic that fails on
+// stale input stops being run.
+func Explain(idx *Index, row *Row, gotID, wantID int64) Explanation {
+	var e Explanation
+	if idx == nil {
+		return e
 	}
+	got, hasGot := idx.byID[gotID]
+	want, hasWant := idx.byID[wantID]
+
+	if hasGot {
+		e.GotName = catalogueLabel(got)
+		if row != nil {
+			for _, c := range idx.conflictsOf(idx.newQuery(row), got) {
+				e.Conflicts = append(e.Conflicts, c.kind)
+			}
+		}
+	}
+	if hasWant {
+		e.WantName = catalogueLabel(want)
+	}
+	if !hasGot || !hasWant {
+		return e
+	}
+
+	e.StrengthDiffers = !doseSetsEqual(
+		strengthSet(productText(got)), strengthSet(productText(want)))
+	e.NumbersDiffer = !sameQuantities(got.factsAR.qty, want.factsAR.qty) ||
+		!sameQuantities(got.factsEN.qty, want.factsEN.qty)
+	_, e.ModifierDiffers = modifierSetsDiffer(
+		got.mods, want.mods, productText(got), productText(want))
+	e.FormDiffers = formClass(got.formKey) != "" && formClass(want.formKey) != "" &&
+		formClass(got.formKey) != formClass(want.formKey)
+	e.ExtraWord = firstDifferingWord(got, want)
+	return e
+}
+
+// ConflictsWith names what a row disagrees with one catalogue product about.
+//
+// Separate from Explain because the benchmark that measures FALSE conflicts —
+// how often a rule fires against the product a row genuinely is — has no second
+// candidate to compare against, and passing the same id twice would read as a
+// mistake rather than as the question being asked.
+func ConflictsWith(idx *Index, row *Row, productID int64) []string {
+	if idx == nil || row == nil {
+		return nil
+	}
+	p, ok := idx.byID[productID]
+	if !ok {
+		return nil
+	}
+	cs := idx.conflictsOf(idx.newQuery(row), p)
+	out := make([]string, 0, len(cs))
+	for _, c := range cs {
+		out = append(out, c.kind)
+	}
+	return out
+}
+
+func catalogueLabel(p *MasterProduct) string {
 	if p.NameAR != "" {
 		return p.NameAR
 	}
 	return p.NameEN
 }
 
-// DebugStrengthDiffers reports whether the two candidates state different dose
-// sets, on the units they have in common.
-func DebugStrengthDiffers(rowText string, got, want *MasterProduct) bool {
-	return !strengthSetsEqual(strengthSet(productText(got)), strengthSet(productText(want)))
+func productText(p *MasterProduct) string {
+	return p.NameAR + " " + p.NameEN + " " + p.Concentration
 }
 
-// DebugNumbersDiffer reports whether the two candidates carry different figures
-// in their names — the pack count, the bottle size, the wipe count.
-func DebugNumbersDiffer(rowText string, got, want *MasterProduct) bool {
-	return !floatsEqual(got.nums, want.nums)
+// sameQuantities compares what two names counted and what they left unexplained.
+func sameQuantities(a, b quantities) bool {
+	if len(a.counts) != len(b.counts) || len(a.residual) != len(b.residual) {
+		return false
+	}
+	for i := range a.counts {
+		if a.counts[i] != b.counts[i] {
+			return false
+		}
+	}
+	for i := range a.residual {
+		if a.residual[i] != b.residual[i] {
+			return false
+		}
+	}
+	return true
 }
 
-// DebugModifierDiffers reports whether the two candidates carry different
-// line-extension words.
-func DebugModifierDiffers(rowText string, got, want *MasterProduct) bool {
-	_, differ := modifierSetsDiffer(got.mods, want.mods, productText(got), productText(want))
-	return differ
-}
-
-// DebugFormDiffers reports whether the two candidates are filed under different
-// vetoable dosage forms.
-func DebugFormDiffers(row *Row, got, want *MasterProduct) bool {
-	a, b := vetoableForm(got.formKey), vetoableForm(want.formKey)
-	return a != "" && b != "" && a != b
-}
-
-// DebugExtraWord returns a word one candidate's name carries and the other's
-// does not, which is what separates them when no structured attribute does.
-func DebugExtraWord(rowText string, got, want *MasterProduct) string {
+// firstDifferingWord returns a word one name carries and the other does not.
+func firstDifferingWord(got, want *MasterProduct) string {
 	a := append(append([]string{}, got.coreAR...), got.coreEN...)
 	b := append(append([]string{}, want.coreAR...), want.coreEN...)
 	if w := firstMissing(b, a); w != "" {
@@ -80,171 +155,4 @@ func firstMissing(from, in []string) string {
 		}
 	}
 	return ""
-}
-
-func productText(p *MasterProduct) string {
-	return p.NameAR + " " + p.NameEN + " " + p.Concentration
-}
-
-func strengthSetsEqual(a, b []strength) bool {
-	if len(a) != len(b) {
-		return true // different counts are a difference
-	}
-	for _, x := range a {
-		hit := false
-		for _, y := range b {
-			if x.unit == y.unit && sameStrength(x, y) {
-				hit = true
-				break
-			}
-		}
-		if !hit {
-			return false
-		}
-	}
-	return true
-}
-
-func floatsEqual(a, b []float64) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-// DebugRowFacts renders what the engine extracted from a row, for a diagnostic
-// that needs to say what the scorer was actually comparing.
-func DebugRowFacts(idx *Index, row *Row) string {
-	q := idx.newQuery(row)
-	var b strings.Builder
-	b.WriteString("tokens=")
-	b.WriteString(strings.Join(q.tokens, ","))
-	b.WriteString(" form=")
-	b.WriteString(q.formKey)
-	b.WriteString(" doses=")
-	for _, s := range q.strengths {
-		b.WriteString(formatFloat(s.value))
-		b.WriteString(s.unit)
-		b.WriteByte(' ')
-	}
-	b.WriteString(" nums=")
-	for _, n := range q.nums {
-		b.WriteString(formatFloat(n))
-		b.WriteByte(' ')
-	}
-	b.WriteString(" mods=")
-	for m := range q.mods {
-		b.WriteString(m)
-		b.WriteByte(' ')
-	}
-	return b.String()
-}
-
-// DebugProductFacts renders the same for a catalogue product.
-func DebugProductFacts(p *MasterProduct) string {
-	var b strings.Builder
-	b.WriteString("tokens=")
-	b.WriteString(strings.Join(p.coreAR, ","))
-	b.WriteString(" form=")
-	b.WriteString(p.formKey)
-	b.WriteString(" doses=")
-	for _, s := range p.strengths {
-		b.WriteString(formatFloat(s.value))
-		b.WriteString(s.unit)
-		b.WriteByte(' ')
-	}
-	b.WriteString(" nums=")
-	for _, n := range p.nums {
-		b.WriteString(formatFloat(n))
-		b.WriteByte(' ')
-	}
-	b.WriteString(" mods=")
-	for m := range p.mods {
-		b.WriteString(m)
-		b.WriteByte(' ')
-	}
-	return b.String()
-}
-
-func formatFloat(v float64) string {
-	if v == float64(int64(v)) {
-		return itoa(int(v))
-	}
-	whole := int64(v)
-	frac := int((v - float64(whole)) * 100)
-	if frac < 0 {
-		frac = -frac
-	}
-	return itoa(int(whole)) + "." + itoa(frac)
-}
-
-// DebugConflicts names every disagreement the engine finds between a row and
-// one catalogue product, for the benchmark that measures how often a
-// discrimination rule fires against the correct answer.
-func DebugConflicts(idx *Index, row *Row, productID int64) []string {
-	p, ok := idx.byID[productID]
-	if !ok {
-		return nil
-	}
-	cs := idx.conflictsOf(idx.newQuery(row), p)
-	out := make([]string, 0, len(cs))
-	for _, c := range cs {
-		out = append(out, c.kind)
-	}
-	return out
-}
-
-// DebugMarks and DebugSubForm expose the two signals added most recently, so a
-// probe can say what a name produced rather than infer it from an outcome.
-func DebugMarks(text string) []string {
-	out := make([]string, 0, 2)
-	for k := range identityMarks(text) {
-		out = append(out, k)
-	}
-	sort.Strings(out)
-	return out
-}
-
-// DebugSubForm exposes the topical sub-form a name states.
-func DebugSubForm(text string) string { return topicalSubForm(text) }
-
-// DebugModifiers exposes the line-extension keys a name carries.
-func DebugModifiers(text string) []string {
-	out := make([]string, 0, 2)
-	for k := range modifiersIn(text) {
-		out = append(out, k)
-	}
-	sort.Strings(out)
-	return out
-}
-
-// DebugSides renders each of a product's name reductions, so a probe can say
-// which spelling a comparison actually agreed with.
-func DebugSides(p *MasterProduct) []string {
-	out := make([]string, 0, 2)
-	for _, f := range p.sides() {
-		s := "form=" + f.formKey + " sub=" + f.subForm + " counts="
-		for _, c := range f.qty.counts {
-			s += c.class + ":" + formatFloat(c.value) + " "
-		}
-		s += "residual="
-		for _, r := range f.qty.residual {
-			s += formatFloat(r) + " "
-		}
-		s += "marks="
-		for m := range f.marks {
-			s += m + " "
-		}
-		s += "mods="
-		for m := range f.mods {
-			s += m + " "
-		}
-		out = append(out, s)
-	}
-	return out
 }

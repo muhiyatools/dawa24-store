@@ -28,11 +28,16 @@ import (
 // similarity match is staged under its own reason so the review screen shows it
 // as a judgement rather than as a fact, and the admin commits it knowingly.
 
-// pendingMatch is a row the exact tiers missed, carried to the AI tier with its
-// shortlist already retrieved so adjudication costs no further catalogue work.
+// pendingMatch is a row carried to the AI tier with its shortlist already
+// retrieved, so adjudication costs no further catalogue work.
 type pendingMatch struct {
 	index      int
 	candidates []productmatch.MatchCandidate
+	// settled says the similarity tier already applied a match to this row, so
+	// the model is asked to check it rather than to make one.
+	settled bool
+	guess   *int64
+	score   float64
 }
 
 // resolveSimilarMatches ties the rows the exact tiers missed to the catalogue
@@ -76,6 +81,17 @@ func (s *Service) resolveSimilarMatches(
 	opts.MinReview = min(productmatch.DefaultMinReview, corroborated)
 	opts.MaxCandidates = 5
 
+	// Retrieval for the AI tier is a separate, recall-tuned pass rather than a
+	// reuse of the scorer's own candidates.
+	//
+	// By the time a row reaches the model the scorer has already decided it
+	// cannot answer, and handing over the top rows of the pool that defeated it
+	// asks a question the shortlist has answered wrongly. The other three
+	// importers have done it this way for some time; this one had not, which is
+	// why its adjudication tier could only ever re-rank.
+	recall := productmatch.DefaultRecallOptions()
+	recall.Limit = catalogCeilings.RecallLimit
+
 	var forAI []pendingMatch
 	for _, i := range residual {
 		row := matchRowFor(prods[i])
@@ -84,10 +100,25 @@ func (s *Service) resolveSimilarMatches(
 		case res.Matched() && acceptsUpdate(index, row, res, bare, corroborated):
 			matches[i] = ExistingMatch{ProductID: res.ProductID, Reason: MatchSimilar}
 			stats.Similar++
-		case len(res.Candidates) > 0:
-			forAI = append(forAI, pendingMatch{index: i, candidates: res.Candidates})
+			// And it is checked. A similarity match here overwrites the
+			// catalogue entry every pharmacy on the platform reads, so it is
+			// the one applied match on the platform most worth a second
+			// opinion — and until now it was the only one that never got one.
+			id := res.ProductID
+			forAI = append(forAI, pendingMatch{
+				index:      i,
+				candidates: withCurrent(index.Recall(row, recall), index, id),
+				settled:    true,
+				guess:      &id,
+				score:      res.Score,
+			})
 		default:
-			stats.Unmatched++
+			wide := index.Recall(row, recall)
+			if len(wide) == 0 {
+				stats.Unmatched++
+				continue
+			}
+			forAI = append(forAI, pendingMatch{index: i, candidates: wide, score: res.Score})
 		}
 	}
 
@@ -99,19 +130,30 @@ func (s *Service) resolveSimilarMatches(
 		return stats
 	}
 
+	unresolved := 0
+	for _, p := range forAI {
+		if p.settled {
+			stats.Verified++
+			continue
+		}
+		unresolved++
+	}
+
 	// The cache answers first. An administrator re-uploading the same registry
 	// extract used to pay for the whole residue again, asking the model
 	// questions the vendor import and the smart order had already bought
 	// answers to and filed in the very same table.
-	asked := len(forAI)
-	forAI = s.applyMatchMemory(ctx, index, prods, matches, forAI, &stats)
+	forAI = s.applyMatchMemory(ctx, index, prods, matches, forAI, &stats, session)
 
 	if s.adjudicator == nil {
-		stats.Unmatched += asked - stats.AI
+		stats.Unmatched += unresolved - stats.AI
 		return stats
 	}
 	s.adjudicateMatches(ctx, session, prods, matches, forAI, &stats)
-	stats.Unmatched += asked - stats.AI
+	stats.Unmatched += unresolved - stats.AI
+	if stats.Unmatched < 0 {
+		stats.Unmatched = 0
+	}
 	return stats
 }
 
@@ -169,17 +211,29 @@ func adjudicationText(p *Product) string {
 	return strings.Join(parts, " | ")
 }
 
-func summarizeCandidates(candidates []productmatch.MatchCandidate) []MatchAdjudicationCandidate {
+func summarizeCandidates(index *productmatch.Index,
+	candidates []productmatch.MatchCandidate) []MatchAdjudicationCandidate {
+
 	out := make([]MatchAdjudicationCandidate, 0, len(candidates))
 	for _, c := range candidates {
-		out = append(out, MatchAdjudicationCandidate{
+		entry := MatchAdjudicationCandidate{
 			ProductID:     c.ProductID,
 			Name:          c.Name,
 			Scientific:    c.Scientific,
 			DosageForm:    c.DosageForm,
 			Concentration: c.Concentration,
 			Manufacturer:  c.Manufacturer,
-		})
+		}
+		// The English name comes from the index rather than from the shortlist,
+		// which does not carry it — and it is what settles the transliteration
+		// cases this tier exists for.
+		if p, ok := index.Lookup(c.ProductID); ok {
+			entry.NameEN = p.NameEN
+			if entry.Name == "" {
+				entry.Name = p.NameAR
+			}
+		}
+		out = append(out, entry)
 	}
 	return out
 }
@@ -191,4 +245,28 @@ func inShortlist(candidates []productmatch.MatchCandidate, productID int64) bool
 		}
 	}
 	return false
+}
+
+// withCurrent puts a settled row's own product on its shortlist if retrieval
+// left it out.
+//
+// Without it the model is asked to confirm an id it was never shown, and the
+// answer is then refused as a hallucination — so a check could only ever fail.
+func withCurrent(candidates []productmatch.MatchCandidate, index *productmatch.Index,
+	id int64) []productmatch.MatchCandidate {
+	if inShortlist(candidates, id) {
+		return candidates
+	}
+	p, ok := index.Lookup(id)
+	if !ok {
+		return candidates
+	}
+	return append(candidates, productmatch.MatchCandidate{
+		ProductID:     p.ID,
+		Name:          p.NameAR,
+		Scientific:    p.Scientific,
+		DosageForm:    p.DosageForm,
+		Concentration: p.Concentration,
+		Manufacturer:  p.Manufacturer,
+	})
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -118,6 +119,11 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 	content, err := io.ReadAll(file)
 	if err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "vendor.ingest.read_file_error"))
+		return
+	}
+
+	if err := filesecurity.ValidateSpreadsheetSecurity(content, header.Filename); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", filesecurity.SecurityErrorMessage)
 		return
 	}
 

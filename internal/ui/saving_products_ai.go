@@ -3,7 +3,6 @@ package ui
 import (
 	"context"
 	"log/slog"
-	"sort"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -13,18 +12,26 @@ import (
 
 // The saving list's AI stage.
 //
-// It is the last of the four importers to get one, and it gets exactly the
-// stage the other three run: the same prompt version, the same ceilings, the
-// same shared decision cache, the same shared catalogue window, and the same
-// identity re-check before an answer is written. Nothing here is a second
-// implementation of the idea — the parts that could drift live in
-// internal/shared/matchflow, and this file is the plumbing between them and a
-// list of staged rows.
+// It runs exactly the stage the other three importers run: the same prompt
+// version, the same ceilings, the same shared decision cache, the same shared
+// catalogue window, the same planner, the same identity re-check before an
+// answer is written. Nothing here is a second implementation of the idea — the
+// parts that could drift live in internal/shared/matchflow, and this file is
+// the plumbing between them and a list of staged rows.
 //
-// It runs on the residue and only the residue. Everything the deterministic
-// tiers settled is already decided before this is called, and a line the
-// catalogue cannot plausibly answer is never sent: the retrieval gate that saved
-// two thirds of a smart order's requests applies here unchanged.
+// Two things changed when the planner became shared, and both were defects
+// only this importer had.
+//
+// It built ONE catalogue window for the whole file and then sent that entire
+// window with every request. A short list never noticed. A long one paid for
+// its whole catalogue window thirty times over, and past a few thousand rows
+// the request stopped being answerable at all — the byte budget the other
+// importers enforce was not enforced here, so nothing said so.
+//
+// And it asked only about rows the deterministic tiers left unlinked, which
+// means a pharmacy's own list was checked everywhere except where the engine
+// was confident. Every row whose link rests on a name now goes to the model:
+// the unlinked ones to be resolved, the linked ones to be confirmed.
 
 // enhanceSaving is the single entry point every staging path calls.
 //
@@ -45,7 +52,7 @@ func (h *UIHandler) enhanceSaving(
 // savingAIUnavailableReason explains a disabled switch.
 //
 // A toggle that ticks and then does nothing is worse than one that says why it
-// cannot: the old strategy dropdown promised i18n.TDefault("w4_ui.s_82_82") from an engine that
+// cannot: the old strategy dropdown promised smart matching from an engine that
 // had none, and nobody could tell the promise was empty.
 func savingAIUnavailableReason(e matchflow.Enhancer, lang ...string) string {
 	if e != nil {
@@ -65,12 +72,16 @@ func savingAIUnavailableReason(e matchflow.Enhancer, lang ...string) string {
 var savingAICeilings = matchflow.For(matchflow.ProfileOrder)
 
 // enhanceSavingItems asks the model about the rows the deterministic tiers left
-// unlinked, and links the ones it can verify.
+// unlinked, checks the ones they linked, and writes back what survives.
 //
 // It never returns an error and never fails the import. Every failure path —
 // no Gateway, no answer, a malformed response, an answer that does not survive
 // the re-check — leaves the row exactly as the deterministic engine left it,
 // which is a usable result the user can correct by hand.
+//
+// The returned count is rows whose link CHANGED, which is what the screen
+// reports. A confirmation changes nothing and is not counted as an improvement,
+// because it is not one.
 func enhanceSavingItems(
 	ctx context.Context,
 	enhancer matchflow.Enhancer,
@@ -83,8 +94,8 @@ func enhanceSavingItems(
 		return 0
 	}
 
-	questions, window := planSavingQuestions(engine.index, items)
-	if len(questions) == 0 {
+	asked := planSavingQuestions(engine.index, items)
+	if len(asked) == 0 {
 		return 0
 	}
 
@@ -94,72 +105,53 @@ func enhanceSavingItems(
 	// — asking the same model, through the same prompt, the questions the
 	// vendor import and the smart order had already bought answers to.
 	var remembered []matchflow.Remembered
-	questions, improved = applySavingMemory(ctx, memory, engine, questions)
+	improved += applySavingMemory(ctx, memory, engine, asked)
 
-	batches := chunkSaving(questions, savingAICeilings.MaxItemsPerRequest,
-		savingAICeilings.MaxRequestsPerRun)
-
-	for _, batch := range batches {
-		req := matchflow.Batch{Catalog: window, Items: make([]matchflow.Item, 0, len(batch))}
-		for ref, q := range batch {
-			it := q.item
-			it.Ref = ref
-			req.Items = append(req.Items, it)
+	pending := make([]matchflow.Question, 0, len(asked))
+	for _, q := range asked {
+		if !q.answered {
+			pending = append(pending, q.question)
 		}
+	}
+	requests, _ := matchflow.Plan(pending, savingAICeilings)
 
-		decisions, err := enhancer.Enhance(ctx, req)
+	for _, req := range requests {
+		req.Batch.Feature = matchflow.FeatureSavingsImport
+		decisions, err := enhancer.Enhance(ctx, req.Batch)
 		if err != nil {
 			// The deterministic outcome stands. A saving list that imports
 			// without its AI pass is a saving list; one that fails to import is
 			// nothing.
 			if log != nil {
 				log.WarnContext(ctx, "saving-list AI pass failed; deterministic outcome stands",
-					"items", len(batch), "error", err)
+					"items", len(req.Batch.Items), "error", err)
 			}
 			continue
 		}
 
 		for _, d := range decisions {
-			if d.Ref < 0 || d.Ref >= len(batch) {
+			key, ok := req.Keys[d.Ref]
+			if !ok {
 				continue
 			}
-			q := batch[d.Ref]
-			if d.ProductID == nil || d.Confidence < savingAICeilings.MinApplyConfidence {
+			q, ok := asked[key]
+			if !ok {
 				continue
 			}
-			id := *d.ProductID
-			// The answer must name a product that was actually offered, and it
-			// must survive the catalogue's own record of what that product is.
-			// An instruction in a prompt is a tendency; this is the guarantee.
-			if !engine.known[id] {
-				continue
+			j := savingJudgement(engine, q, d.Confidence, d.ProductID)
+			if applySavingVerdict(engine, q, matchflow.Verdict(j, d.ProductID), d) {
+				improved++
 			}
-			if !engine.index.IdentityConflict(q.row, id).None() {
-				continue
+			if matchflow.Remember(j, d.ProductID) {
+				remembered = append(remembered, matchflow.Remembered{
+					Key:             key,
+					NormName:        productmatch.NormalizeText(q.target.NameProduct),
+					ChosenProductID: d.ProductID,
+					Confidence:      d.Confidence,
+					Reason:          d.Reason,
+					PromptVersion:   matchflow.PromptVersion,
+				})
 			}
-			q.target.ProductID = &id
-			q.target.MatchType = "ai"
-			q.target.Confidence = d.Confidence
-			q.target.MasterProductName, q.target.MasterProductSKU = engine.Describe(id)
-			improved++
-		}
-
-		// Only what the model was confident about is remembered, and only what
-		// it actually decided — an answer the identity guard overruled is not
-		// cached, because a cached wrong premise outlives the run that made it.
-		for _, d := range decisions {
-			if d.Ref < 0 || d.Ref >= len(batch) || d.Confidence < matchflow.MinMemoryConfidence {
-				continue
-			}
-			q := batch[d.Ref]
-			remembered = append(remembered, matchflow.Remembered{
-				Key:             savingDecisionKey(q),
-				NormName:        productmatch.NormalizeText(q.target.NameProduct),
-				ChosenProductID: d.ProductID,
-				Confidence:      d.Confidence,
-				Reason:          d.Reason,
-				PromptVersion:   matchflow.PromptVersion,
-			})
 		}
 	}
 
@@ -167,49 +159,101 @@ func enhanceSavingItems(
 	return improved
 }
 
-// applySavingMemory resolves what the shared cache already knows and returns
-// the questions still worth asking.
+// savingJudgement gathers what the shared rules need to decide one answer.
+func savingJudgement(engine *SavingProductMatchEngine, q *savingQuestion,
+	confidence float64, proposed *int64) matchflow.Judgement {
+
+	j := matchflow.Judgement{
+		Settled:    q.settled,
+		Current:    q.current,
+		Confidence: confidence,
+		Floor:      savingAICeilings.MinApplyConfidence,
+	}
+	if proposed == nil || *proposed <= 0 {
+		return j
+	}
+	j.Offered = engine.known[*proposed] && q.offers(*proposed)
+	j.Conflicts = !engine.index.IdentityConflict(q.row, *proposed).None()
+	return j
+}
+
+// applySavingVerdict writes one verdict onto the staged row, and reports whether
+// the row's link changed.
+func applySavingVerdict(engine *SavingProductMatchEngine, q *savingQuestion,
+	verdict matchflow.Outcome, d matchflow.Decision) bool {
+
+	switch verdict {
+	case matchflow.OutcomeApply:
+		id := *d.ProductID
+		q.target.ProductID = &id
+		q.target.MatchType = savingMatchTypeAI
+		q.target.Confidence = d.Confidence
+		q.target.MasterProductName, q.target.MasterProductSKU = engine.Describe(id)
+		return true
+
+	case matchflow.OutcomeReview:
+		// The engine linked this row and the model would not confirm it. The
+		// link is withdrawn rather than replaced: a pharmacy's own list is
+		// theirs to correct, and an unlinked row on the review screen is a
+		// question they can answer, where a link neither method stands behind
+		// is one they would never think to check.
+		q.target.ProductID = nil
+		q.target.MatchType = savingMatchTypeDisputed
+		q.target.Confidence = 0
+		q.target.MasterProductName, q.target.MasterProductSKU = "", ""
+		return true
+	}
+	return false
+}
+
+// The match types this stage writes, in the vocabulary the review screen and
+// the stored sessions already use.
+const (
+	savingMatchTypeAI       = "ai"
+	savingMatchTypeDisputed = "ai_disputed"
+)
+
+// applySavingMemory resolves what the shared cache already knows, marking the
+// questions it answered.
 //
 // A remembered answer is re-checked against the catalogue's own record before
 // it is applied, exactly as a fresh one is: the catalogue moves between
 // imports, and a decision that was sound in March can conflict in June.
-func applySavingMemory(
-	ctx context.Context, memory matchflow.Memory,
-	engine *SavingProductMatchEngine, questions []savingQuestion,
-) (pending []savingQuestion, improved int) {
-	if memory == nil {
-		return questions, 0
+func applySavingMemory(ctx context.Context, memory matchflow.Memory,
+	engine *SavingProductMatchEngine, asked map[string]*savingQuestion) (improved int) {
+
+	if memory == nil || len(asked) == 0 {
+		return 0
 	}
-	keys := make([]string, 0, len(questions))
-	for _, q := range questions {
-		keys = append(keys, savingDecisionKey(q))
+	keys := make([]string, 0, len(asked))
+	for k := range asked {
+		keys = append(keys, k)
 	}
 	known := matchflow.Recall(ctx, memory, keys)
-	if len(known) == 0 {
-		return questions, 0
-	}
 
-	pending = make([]savingQuestion, 0, len(questions))
-	for _, q := range questions {
-		d, ok := known[savingDecisionKey(q)]
+	for key, q := range asked {
+		d, ok := known[key]
 		if !ok {
-			pending = append(pending, q)
 			continue
 		}
-		if d.ChosenProductID == nil || d.Confidence < savingAICeilings.MinApplyConfidence {
-			continue
+		q.answered = true
+		j := matchflow.Judgement{
+			Settled:    q.settled,
+			Current:    q.current,
+			Offered:    true, // it was offered when the answer was bought
+			Confidence: d.Confidence,
+			Floor:      savingAICeilings.MinApplyConfidence,
 		}
-		id := *d.ChosenProductID
-		if !engine.known[id] || !engine.index.IdentityConflict(q.row, id).None() {
-			continue
+		if d.ChosenProductID != nil && *d.ChosenProductID > 0 {
+			j.Offered = engine.known[*d.ChosenProductID]
+			j.Conflicts = !engine.index.IdentityConflict(q.row, *d.ChosenProductID).None()
 		}
-		q.target.ProductID = &id
-		q.target.MatchType = "ai"
-		q.target.Confidence = d.Confidence
-		q.target.MasterProductName, q.target.MasterProductSKU = engine.Describe(id)
-		improved++
+		if applySavingVerdict(engine, q, matchflow.Verdict(j, d.ChosenProductID),
+			matchflow.Decision{ProductID: d.ChosenProductID, Confidence: d.Confidence}) {
+			improved++
+		}
 	}
-	return pending, improved
+	return improved
 }
 
 // saveSavingMemory writes the run's decisions and the aliases they imply,
@@ -227,59 +271,68 @@ func saveSavingMemory(ctx context.Context, memory matchflow.Memory, decisions []
 	}
 }
 
-// savingDecisionKey identifies the exact question this row asks.
-//
-// Byte-identical to the key the vendor import and the smart order compute for
-// the same question, which is the whole point: the three tools file into and
-// read from one table, so an answer bought once is reused wherever the same
-// product is written the same way against the same shortlist.
-func savingDecisionKey(q savingQuestion) string {
-	return matchflow.DecisionKey(
-		productmatch.NormalizeText(q.target.NameProduct), q.item.Options)
-}
-
-// savingQuestion is one unlinked row with the retrieval that justifies asking.
+// savingQuestion is one staged row with the retrieval that justifies asking.
 type savingQuestion struct {
-	target *StagedSavingItem
-	row    *productmatch.Row
-	item   matchflow.Item
+	target   *StagedSavingItem
+	row      *productmatch.Row
+	question matchflow.Question
+	// settled says the deterministic tiers already linked this row, so the
+	// question is verification rather than resolution.
+	settled bool
+	// current is the product they linked it to.
+	current *int64
+	// answered marks a question the decision cache settled, so it is not asked
+	// again in the same run.
+	answered bool
 }
 
-// planSavingQuestions retrieves candidates for every unlinked row, drops the
-// ones nothing plausible was found for, and builds the shared catalogue window.
+// offers reports whether a product id was among this row's retrieved options.
+func (q *savingQuestion) offers(id int64) bool {
+	for _, opt := range q.question.Item.Options {
+		if opt == id {
+			return true
+		}
+	}
+	for _, e := range q.question.Window {
+		if e.ProductID == id {
+			return true
+		}
+	}
+	return false
+}
+
+// planSavingQuestions retrieves candidates for every row worth asking about and
+// builds its question.
 //
-// The window is the union of every retrieved product, de-duplicated, and every
-// item may be answered with any id in it. That costs nothing extra and repairs
-// the commonest retrieval failure there is: the right product was retrieved for
-// the row above.
-func planSavingQuestions(
-	idx *productmatch.Index, items []*StagedSavingItem,
-) ([]savingQuestion, []matchflow.CatalogEntry) {
+// Each question carries its OWN window. The planner de-duplicates those into
+// one shared catalogue block per request, which is the point: a window built
+// once for the whole file and attached to every request is the same rows sent
+// thirty times.
+func planSavingQuestions(idx *productmatch.Index, items []*StagedSavingItem) map[string]*savingQuestion {
 	recall := productmatch.DefaultRecallOptions()
 	recall.Limit = savingAICeilings.RecallLimit
 
-	questions := make([]savingQuestion, 0, len(items))
-	seen := make(map[int64]bool)
-	var window []matchflow.CatalogEntry
-
+	out := make(map[string]*savingQuestion, len(items))
 	for _, it := range items {
-		if it == nil || it.ProductID != nil || strings.TrimSpace(it.NameProduct) == "" {
+		if it == nil || strings.TrimSpace(it.NameProduct) == "" {
 			continue
 		}
+		settled := it.ProductID != nil && *it.ProductID > 0
+		if settled && !savingVerifiable(it.MatchType) {
+			continue
+		}
+
 		row := &productmatch.Row{Name: it.NameProduct, SKU: it.SKU}
 		candidates := idx.Recall(row, recall)
 
-		options := make([]int64, 0, len(candidates))
+		window := make([]matchflow.CatalogEntry, 0, len(candidates)+1)
+		options := make([]int64, 0, len(candidates)+1)
 		plausible := false
 		for _, c := range candidates {
 			if c.Score >= savingAICeilings.MinPlausible {
 				plausible = true
 			}
 			options = append(options, c.ProductID)
-			if seen[c.ProductID] {
-				continue
-			}
-			seen[c.ProductID] = true
 			if p, ok := idx.Lookup(c.ProductID); ok {
 				window = append(window, matchflow.CatalogEntry{
 					ProductID: p.ID, NameAR: p.NameAR, NameEN: p.NameEN,
@@ -288,46 +341,78 @@ func planSavingQuestions(
 				})
 			}
 		}
+		// A settled row's own product must be on the table even when retrieval
+		// did not rank it, or the model is asked to confirm an id it was never
+		// shown — and an answer naming a product outside the window is refused
+		// as a hallucination.
+		if settled && !offersID(options, *it.ProductID) {
+			if p, ok := idx.Lookup(*it.ProductID); ok {
+				options = append(options, p.ID)
+				window = append(window, matchflow.CatalogEntry{
+					ProductID: p.ID, NameAR: p.NameAR, NameEN: p.NameEN,
+					Scientific: p.Scientific, DosageForm: p.DosageForm,
+					Concentration: p.Concentration, Manufacturer: p.Manufacturer,
+				})
+				plausible = true
+			}
+		}
 		if !plausible {
-			// Nothing in the catalogue is close. i18n.TDefault("w4_ui.s_83_83") is already the
-			// honest answer and no model can improve on it.
+			// Nothing in the catalogue is close. Unlinked is already the honest
+			// answer and no model can improve on it.
 			continue
 		}
 
-		questions = append(questions, savingQuestion{
-			target: it,
-			row:    row,
-			item: matchflow.Item{
-				Text:    it.NameProduct,
-				SKU:     it.SKU,
-				Options: options,
+		key := matchflow.DecisionKey(productmatch.NormalizeText(it.NameProduct), options)
+		q := &savingQuestion{
+			target:  it,
+			row:     row,
+			settled: settled,
+			current: it.ProductID,
+			question: matchflow.Question{
+				Key:    key,
+				Window: window,
+				Item: matchflow.Item{
+					Text:         it.NameProduct,
+					SKU:          it.SKU,
+					Options:      options,
+					CurrentGuess: it.ProductID,
+					CurrentScore: it.Confidence,
+					Settled:      settled,
+				},
+				Risk: matchflow.Risk(settled, false, it.Confidence),
 			},
-		})
-	}
-
-	sort.SliceStable(window, func(i, j int) bool {
-		return window[i].ProductID < window[j].ProductID
-	})
-	return questions, window
-}
-
-// chunkSaving splits the questions into requests, under the run's ceiling.
-//
-// Questions past the ceiling keep their deterministic outcome. That is a
-// deliberate stop rather than a silent truncation: a list long enough to exceed
-// it is one whose column mapping is probably wrong, and the rows are all still
-// on the review screen.
-func chunkSaving(qs []savingQuestion, perRequest, maxRequests int) [][]savingQuestion {
-	if perRequest <= 0 {
-		perRequest = 100
-	}
-	out := make([][]savingQuestion, 0, maxRequests)
-	for i := 0; i < len(qs) && len(out) < maxRequests; i += perRequest {
-		end := i + perRequest
-		if end > len(qs) {
-			end = len(qs)
 		}
-		out = append(out, qs[i:end])
+		// Two rows asking the same question share one entry, so the answer is
+		// paid for once. The first row to ask owns it; a later duplicate keeps
+		// whatever the first is given, which is correct because the two rows
+		// carry the same name and the same shortlist.
+		if _, dup := out[key]; !dup {
+			out[key] = q
+		}
 	}
 	return out
+}
+
+// savingVerifiable reports whether a linked row's link rests on a NAME, and is
+// therefore worth a second opinion.
+//
+// A barcode is the same physical package, an id the file stated outright is the
+// pharmacy's own assertion, and a catalogue code they mapped themselves is too.
+// A model cannot improve on any of them.
+func savingVerifiable(matchType string) bool {
+	switch matchType {
+	case "fuzzy_name", "exact_name", savingMatchTypeAI:
+		return true
+	}
+	return false
+}
+
+// offersID reports whether an id is already among a row's retrieved options.
+func offersID(ids []int64, id int64) bool {
+	for _, existing := range ids {
+		if existing == id {
+			return true
+		}
+	}
+	return false
 }

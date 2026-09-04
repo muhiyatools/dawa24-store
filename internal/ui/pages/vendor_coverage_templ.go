@@ -9,151 +9,11 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
-	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-type VendorCoverageData struct {
-	Coverages           []*workflow.CoverageView
-	Branches            []*org.Branch
-	Bands               []*org.DeliveryBand
-	Governorates        []*platformadmin.Governorate
-	Cities              []*platformadmin.City
-	CoverageUnavailable bool
-	NoticeType          string
-	NoticeMessage       string
-}
-
-// cityClientItem is what the selector needs about one city.
-//
-// RadiusM is the city's own configured coverage. It used to be absent, because
-// the radius was a single number the vendor typed for every city at once; it is
-// now a property of the place and the selector shows it so a vendor can see
-// what selecting a city actually commits them to. See migration 167.
-type cityClientItem struct {
-	ID        int64   `json:"id"`
-	GovID     int64   `json:"gov_id"`
-	NameAR    string  `json:"name_ar"`
-	NameEN    string  `json:"name_en"`
-	Lat       float64 `json:"lat"`
-	Lon       float64 `json:"lon"`
-	IsCapital bool    `json:"is_capital"`
-	RadiusM   int     `json:"radius_m"`
-}
-
-func citiesToJSON(cities []*platformadmin.City) string {
-	var list []cityClientItem
-	for _, c := range cities {
-		var gID int64
-		if c.GovernorateID != nil {
-			gID = *c.GovernorateID
-		}
-		list = append(list, cityClientItem{
-			ID:        c.ID,
-			GovID:     gID,
-			NameAR:    c.Name.Get("ar"),
-			NameEN:    c.Name.Get("en"),
-			Lat:       c.Latitude,
-			Lon:       c.Longitude,
-			IsCapital: c.IsCapital,
-			RadiusM:   c.NormalizedRadius(),
-		})
-	}
-	b, err := json.Marshal(list)
-	if err != nil {
-		return "[]"
-	}
-	return string(b)
-}
-
-func dayNameArabic(day int) string {
-	switch day {
-	case 0:
-		return "الأحد"
-	case 1:
-		return "الاثنين"
-	case 2:
-		return "الثلاثاء"
-	case 3:
-		return "الأربعاء"
-	case 4:
-		return "الخميس"
-	case 5:
-		return "الجمعة"
-	case 6:
-		return "السبت"
-	default:
-		return fmt.Sprintf("يوم %d", day)
-	}
-}
-
-func dayBadgeClass(day int) string {
-	switch day {
-	case 0:
-		return "badge-primary"
-	case 1:
-		return "badge-sky"
-	case 2:
-		return "badge-indigo"
-	case 3:
-		return "badge-violet"
-	case 4:
-		return "badge-emerald"
-	case 5:
-		return "badge-amber"
-	case 6:
-		return "badge-rose"
-	default:
-		return "badge-secondary"
-	}
-}
-
-func countActiveDays(coverages []*workflow.CoverageView) int {
-	days := make(map[int]bool)
-	for _, c := range coverages {
-		if c.IsActive {
-			days[c.DayOfWeek] = true
-		}
-	}
-	return len(days)
-}
-
-func countCoveredGovernorates(coverages []*workflow.CoverageView) int {
-	govs := make(map[string]bool)
-	for _, c := range coverages {
-		if c.IsActive {
-			if c.GovernorateNameAr != "" {
-				govs[c.GovernorateNameAr] = true
-			} else if c.GovernorateName != "" {
-				govs[c.GovernorateName] = true
-			}
-		}
-	}
-	return len(govs)
-}
-
-func countVendorCoveredCities(coverages []*workflow.CoverageView) int {
-	cities := make(map[string]bool)
-	for _, c := range coverages {
-		if c.IsActive && c.CityID != nil {
-			key := fmt.Sprintf("%d_%d", c.DayOfWeek, *c.CityID)
-			cities[key] = true
-		}
-	}
-	return len(cities)
-}
-
-func formatDistanceKM(meters int) string {
-	if meters >= 1000 {
-		return fmt.Sprintf("%.1f كم (%d م)", float64(meters)/1000.0, meters)
-	}
-	return fmt.Sprintf("%d متر", meters)
-}
 
 func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -195,19 +55,19 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(citiesToJSON(data.Cities))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 153, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 13, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"d-none\"></div><div class=\"stack-sm\" x-data=\"{\n\t\t\tfilterDay: 'all',\n\t\t\tfilterGov: 'all',\n\t\t\tsearchQuery: '',\n\t\t\tselectedDays: [6, 0, 1, 2, 3, 4, 5],\n\t\t\tselectedGovId: '',\n\t\t\tselectedCities: [],\n\t\t\tallCitiesInGov: false,\n\t\t\tcitySearch: '',\n\t\t\tcoverageFrom: '09:00',\n\t\t\tcoverageTo: '17:00',\n\t\t\tallCitiesList: [],\n\t\t\tcityConfigs: {},\n\t\t\teditModalOpen: false,\n\t\t\teditCov: {\n\t\t\t\tid: 0,\n\t\t\t\tbranch_id: '',\n\t\t\t\tgovernorate_id: '',\n\t\t\t\tcity_id: '',\n\t\t\t\tday_of_week: 0,\n\t\t\t\tcoverage_from: '',\n\t\t\t\tcoverage_to: '',\n\t\t\t\taddress: '',\n\t\t\t\tlatitude: '',\n\t\t\t\tlongitude: '',\n\t\t\t\tis_active: true\n\t\t\t},\n\t\t\tinit() {\n\t\t\t\tconst el = document.getElementById('cities-dataset');\n\t\t\t\tif (el) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = el.getAttribute('data-cities') || '[]';\n\t\t\t\t\t\tthis.allCitiesList = JSON.parse(raw);\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Failed to parse cities JSON:', e);\n\t\t\t\t\t\tthis.allCitiesList = [];\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\ttoggleDay(d) {\n\t\t\t\tconst idx = this.selectedDays.indexOf(d);\n\t\t\t\tif (idx > -1) {\n\t\t\t\t\tthis.selectedDays.splice(idx, 1);\n\t\t\t\t} else {\n\t\t\t\t\tthis.selectedDays.push(d);\n\t\t\t\t}\n\t\t\t},\n\t\t\tselectAllDays() {\n\t\t\t\tthis.selectedDays = [0, 1, 2, 3, 4, 5, 6];\n\t\t\t},\n\t\t\tclearDays() {\n\t\t\t\tthis.selectedDays = [];\n\t\t\t},\n\t\t\tonGovChange() {\n\t\t\t\tthis.selectedCities = [];\n\t\t\t\tthis.allCitiesInGov = false;\n\t\t\t\tthis.citySearch = '';\n\t\t\t\tif (this.selectedGovId) {\n\t\t\t\t\tconst gId = parseInt(this.selectedGovId, 10);\n\t\t\t\t\tconst existing = this.allCitiesList.filter(c => c.gov_id === gId);\n\t\t\t\t\tif (existing.length === 0) {\n\t\t\t\t\t\tfetch('/vendor/coverage/governorates/' + gId + '/cities')\n\t\t\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t\t\t.then(items => {\n\t\t\t\t\t\t\t\tif (Array.isArray(items)) {\n\t\t\t\t\t\t\t\t\titems.forEach(item => {\n\t\t\t\t\t\t\t\t\t\tif (!this.allCitiesList.some(x => x.id === item.id)) {\n\t\t\t\t\t\t\t\t\t\t\tthis.allCitiesList.push(item);\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t})\n\t\t\t\t\t\t\t.catch(e => console.error('Failed to load cities via API:', e));\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\tget filteredCities() {\n\t\t\t\tif (!this.selectedGovId) return [];\n\t\t\t\tconst gId = parseInt(this.selectedGovId, 10);\n\t\t\t\treturn this.allCitiesList.filter(c => {\n\t\t\t\t\tconst matchGov = (c.gov_id === gId) || (String(c.gov_id) === String(this.selectedGovId));\n\t\t\t\t\tif (!matchGov) return false;\n\t\t\t\t\tif (!this.citySearch) return true;\n\t\t\t\t\tconst q = this.citySearch.toLowerCase();\n\t\t\t\t\treturn (c.name_ar && c.name_ar.toLowerCase().includes(q)) || (c.name_en && c.name_en.toLowerCase().includes(q));\n\t\t\t\t});\n\t\t\t},\n\t\t\tinitCityConfig(idStr) {\n\t\t\t\tif (!this.cityConfigs[idStr]) {\n\t\t\t\t\tthis.cityConfigs[idStr] = {\n\t\t\t\t\t\tfrom: this.coverageFrom || '09:00',\n\t\t\t\t\t\tto: this.coverageTo || '17:00'\n\t\t\t\t\t};\n\t\t\t\t}\n\t\t\t\treturn this.cityConfigs[idStr];\n\t\t\t},\n\t\t\tapplyDefaultsToAllCities() {\n\t\t\t\tthis.selectedCities.forEach(idStr => {\n\t\t\t\t\tthis.cityConfigs[idStr] = {\n\t\t\t\t\t\tfrom: this.coverageFrom || '09:00',\n\t\t\t\t\t\tto: this.coverageTo || '17:00'\n\t\t\t\t\t};\n\t\t\t\t});\n\t\t\t},\n\t\t\tgetSelectedCityDetails() {\n\t\t\t\treturn this.allCitiesList.filter(c => this.selectedCities.includes(String(c.id)));\n\t\t\t},\n\t\t\ttoggleCity(cId) {\n\t\t\t\tconst idStr = String(cId);\n\t\t\t\tconst idx = this.selectedCities.indexOf(idStr);\n\t\t\t\tif (idx > -1) {\n\t\t\t\t\tthis.selectedCities.splice(idx, 1);\n\t\t\t\t\tthis.allCitiesInGov = false;\n\t\t\t\t} else {\n\t\t\t\t\tthis.selectedCities.push(idStr);\n\t\t\t\t\tthis.initCityConfig(idStr);\n\t\t\t\t}\n\t\t\t},\n\t\t\ttoggleSelectAllCities() {\n\t\t\t\tconst gId = parseInt(this.selectedGovId, 10);\n\t\t\t\tconst available = this.allCitiesList.filter(c => c.gov_id === gId || String(c.gov_id) === String(this.selectedGovId));\n\t\t\t\tif (this.allCitiesInGov || this.selectedCities.length === available.length) {\n\t\t\t\t\tthis.selectedCities = [];\n\t\t\t\t\tthis.allCitiesInGov = false;\n\t\t\t\t} else {\n\t\t\t\t\tthis.selectedCities = available.map(c => String(c.id));\n\t\t\t\t\tthis.allCitiesInGov = true;\n\t\t\t\t\tthis.selectedCities.forEach(idStr => this.initCityConfig(idStr));\n\t\t\t\t}\n\t\t\t},\n\t\t\ttotalCoverageKm() {\n\t\t\t\treturn this.getSelectedCityDetails()\n\t\t\t\t\t.reduce((sum, c) => sum + ((c.radius_m || 0) / 1000), 0)\n\t\t\t\t\t.toFixed(1);\n\t\t\t},\n\t\t\tsetTimePreset(from, to) {\n\t\t\t\tthis.coverageFrom = from;\n\t\t\t\tthis.coverageTo = to;\n\t\t\t\tthis.applyDefaultsToAllCities();\n\t\t\t},\n\t\t\tclock12(hhmm) {\n\t\t\t\tif (!hhmm) return '';\n\t\t\t\tconst p = String(hhmm).split(':');\n\t\t\t\tif (p.length < 2) return hhmm;\n\t\t\t\tlet h = parseInt(p[0], 10);\n\t\t\t\tconst m = parseInt(p[1], 10);\n\t\t\t\tif (isNaN(h) || isNaN(m)) return hhmm;\n\t\t\t\tconst suffix = h >= 12 ? 'م' : 'ص';\n\t\t\t\th = h % 12; if (h === 0) h = 12;\n\t\t\t\treturn h + ':' + String(m).padStart(2, '0') + ' ' + suffix;\n\t\t\t},\n\t\t\tcoverageWindowLabel() {\n\t\t\t\tif (!this.coverageFrom && !this.coverageTo) return 'طوال اليوم (24 ساعة)';\n\t\t\t\tif (this.coverageFrom && this.coverageTo) return this.clock12(this.coverageFrom) + ' – ' + this.clock12(this.coverageTo);\n\t\t\t\treturn this.clock12(this.coverageFrom || this.coverageTo);\n\t\t\t},\n\t\t\topenEdit(c) {\n\t\t\t\tthis.editCov = { ...c };\n\t\t\t\tconst m = document.getElementById('edit-coverage-modal');\n\t\t\t\tif (m && typeof m.showModal === 'function') { try { m.showModal(); } catch(_) { m.setAttribute('open', ''); } }\n\t\t\t},\n\t\t\tcloseEdit() {\n\t\t\t\tconst m = document.getElementById('edit-coverage-modal');\n\t\t\t\tif (m && typeof m.close === 'function') { try { m.close(); } catch(_) { m.removeAttribute('open'); } }\n\t\t\t}\n\t\t}\" class=\"d-flex flex-col gap-6\"><!-- Notice / Toast Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"d-none\"></div><div x-data=\"{\n\t\t\tfilterDay: 'all',\n\t\t\tfilterGov: 'all',\n\t\t\tsearchQuery: '',\n\t\t\tselectedDays: [6, 0, 1, 2, 3, 4, 5],\n\t\t\tselectedGovId: '',\n\t\t\tselectedCities: [],\n\t\t\tallCitiesInGov: false,\n\t\t\tcitySearch: '',\n\t\t\tcoverageFrom: '09:00',\n\t\t\tcoverageTo: '17:00',\n\t\t\tallCitiesList: [],\n\t\t\tcityConfigs: {},\n\t\t\teditModalOpen: false,\n\t\t\teditCov: {\n\t\t\t\tid: 0,\n\t\t\t\tbranch_id: '',\n\t\t\t\tgovernorate_id: '',\n\t\t\t\tcity_id: '',\n\t\t\t\tday_of_week: 0,\n\t\t\t\tcoverage_from: '',\n\t\t\t\tcoverage_to: '',\n\t\t\t\taddress: '',\n\t\t\t\tlatitude: '',\n\t\t\t\tlongitude: '',\n\t\t\t\tis_active: true\n\t\t\t},\n\t\t\tinit() {\n\t\t\t\tconst el = document.getElementById('cities-dataset');\n\t\t\t\tif (el) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = el.getAttribute('data-cities') || '[]';\n\t\t\t\t\t\tthis.allCitiesList = JSON.parse(raw);\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Failed to parse cities JSON:', e);\n\t\t\t\t\t\tthis.allCitiesList = [];\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\ttoggleDay(d) {\n\t\t\t\tconst idx = this.selectedDays.indexOf(d);\n\t\t\t\tif (idx > -1) {\n\t\t\t\t\tthis.selectedDays.splice(idx, 1);\n\t\t\t\t} else {\n\t\t\t\t\tthis.selectedDays.push(d);\n\t\t\t\t}\n\t\t\t},\n\t\t\tselectAllDays() {\n\t\t\t\tthis.selectedDays = [0, 1, 2, 3, 4, 5, 6];\n\t\t\t},\n\t\t\tclearDays() {\n\t\t\t\tthis.selectedDays = [];\n\t\t\t},\n\t\t\tonGovChange() {\n\t\t\t\tthis.selectedCities = [];\n\t\t\t\tthis.allCitiesInGov = false;\n\t\t\t\tthis.citySearch = '';\n\t\t\t\tif (this.selectedGovId) {\n\t\t\t\t\tconst gId = parseInt(this.selectedGovId, 10);\n\t\t\t\t\tconst existing = this.allCitiesList.filter(c => c.gov_id === gId);\n\t\t\t\t\tif (existing.length === 0) {\n\t\t\t\t\t\tfetch('/vendor/coverage/governorates/' + gId + '/cities')\n\t\t\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t\t\t.then(items => {\n\t\t\t\t\t\t\t\tif (Array.isArray(items)) {\n\t\t\t\t\t\t\t\t\titems.forEach(item => {\n\t\t\t\t\t\t\t\t\t\tif (!this.allCitiesList.some(x => x.id === item.id)) {\n\t\t\t\t\t\t\t\t\t\t\tthis.allCitiesList.push(item);\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t})\n\t\t\t\t\t\t\t.catch(e => console.error('Failed to load cities via API:', e));\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\tget filteredCities() {\n\t\t\t\tif (!this.selectedGovId) return [];\n\t\t\t\tconst gId = parseInt(this.selectedGovId, 10);\n\t\t\t\treturn this.allCitiesList.filter(c => {\n\t\t\t\t\tconst matchGov = (c.gov_id === gId) || (String(c.gov_id) === String(this.selectedGovId));\n\t\t\t\t\tif (!matchGov) return false;\n\t\t\t\t\tif (!this.citySearch) return true;\n\t\t\t\t\tconst q = this.citySearch.toLowerCase();\n\t\t\t\t\treturn (c.name_ar && c.name_ar.toLowerCase().includes(q)) || (c.name_en && c.name_en.toLowerCase().includes(q));\n\t\t\t\t});\n\t\t\t},\n\t\t\tinitCityConfig(idStr) {\n\t\t\t\tif (!this.cityConfigs[idStr]) {\n\t\t\t\t\tthis.cityConfigs[idStr] = {\n\t\t\t\t\t\tfrom: this.coverageFrom || '09:00',\n\t\t\t\t\t\tto: this.coverageTo || '17:00'\n\t\t\t\t\t};\n\t\t\t\t}\n\t\t\t\treturn this.cityConfigs[idStr];\n\t\t\t},\n\t\t\tapplyDefaultsToAllCities() {\n\t\t\t\tthis.selectedCities.forEach(idStr => {\n\t\t\t\t\tthis.cityConfigs[idStr] = {\n\t\t\t\t\t\tfrom: this.coverageFrom || '09:00',\n\t\t\t\t\t\tto: this.coverageTo || '17:00'\n\t\t\t\t\t};\n\t\t\t\t});\n\t\t\t},\n\t\t\tgetSelectedCityDetails() {\n\t\t\t\treturn this.allCitiesList.filter(c => this.selectedCities.includes(String(c.id)));\n\t\t\t},\n\t\t\ttoggleCity(cId) {\n\t\t\t\tconst idStr = String(cId);\n\t\t\t\tconst idx = this.selectedCities.indexOf(idStr);\n\t\t\t\tif (idx > -1) {\n\t\t\t\t\tthis.selectedCities.splice(idx, 1);\n\t\t\t\t\tthis.allCitiesInGov = false;\n\t\t\t\t} else {\n\t\t\t\t\tthis.selectedCities.push(idStr);\n\t\t\t\t\tthis.initCityConfig(idStr);\n\t\t\t\t}\n\t\t\t},\n\t\t\ttoggleSelectAllCities() {\n\t\t\t\tconst gId = parseInt(this.selectedGovId, 10);\n\t\t\t\tconst available = this.allCitiesList.filter(c => c.gov_id === gId || String(c.gov_id) === String(this.selectedGovId));\n\t\t\t\tif (this.allCitiesInGov || this.selectedCities.length === available.length) {\n\t\t\t\t\tthis.selectedCities = [];\n\t\t\t\t\tthis.allCitiesInGov = false;\n\t\t\t\t} else {\n\t\t\t\t\tthis.selectedCities = available.map(c => String(c.id));\n\t\t\t\t\tthis.allCitiesInGov = true;\n\t\t\t\t\tthis.selectedCities.forEach(idStr => this.initCityConfig(idStr));\n\t\t\t\t}\n\t\t\t},\n\t\t\ttotalCoverageKm() {\n\t\t\t\treturn this.getSelectedCityDetails()\n\t\t\t\t\t.reduce((sum, c) => sum + ((c.radius_m || 0) / 1000), 0)\n\t\t\t\t\t.toFixed(1);\n\t\t\t},\n\t\t\tsetTimePreset(from, to) {\n\t\t\t\tthis.coverageFrom = from;\n\t\t\t\tthis.coverageTo = to;\n\t\t\t\tthis.applyDefaultsToAllCities();\n\t\t\t},\n\t\t\tclock12(hhmm) {\n\t\t\t\tif (!hhmm) return '';\n\t\t\t\tconst p = String(hhmm).split(':');\n\t\t\t\tif (p.length < 2) return hhmm;\n\t\t\t\tlet h = parseInt(p[0], 10);\n\t\t\t\tconst m = parseInt(p[1], 10);\n\t\t\t\tif (isNaN(h) || isNaN(m)) return hhmm;\n\t\t\t\tconst suffix = h >= 12 ? 'م' : 'ص';\n\t\t\t\th = h % 12; if (h === 0) h = 12;\n\t\t\t\treturn h + ':' + String(m).padStart(2, '0') + ' ' + suffix;\n\t\t\t},\n\t\t\tcoverageWindowLabel() {\n\t\t\t\tif (!this.coverageFrom && !this.coverageTo) return 'طوال اليوم (24 ساعة)';\n\t\t\t\tif (this.coverageFrom && this.coverageTo) return this.clock12(this.coverageFrom) + ' – ' + this.clock12(this.coverageTo);\n\t\t\t\treturn this.clock12(this.coverageFrom || this.coverageTo);\n\t\t\t},\n\t\t\topenEdit(c) {\n\t\t\t\tthis.editCov = { ...c };\n\t\t\t\tconst m = document.getElementById('edit-coverage-modal');\n\t\t\t\tif (m && typeof m.showModal === 'function') { try { m.showModal(); } catch(_) { m.setAttribute('open', ''); } }\n\t\t\t},\n\t\t\tcloseEdit() {\n\t\t\t\tconst m = document.getElementById('edit-coverage-modal');\n\t\t\t\tif (m && typeof m.close === 'function') { try { m.close(); } catch(_) { m.removeAttribute('open'); } }\n\t\t\t},\n\t\t\topenDeleteAllModal() {\n\t\t\t\tconst m = document.getElementById('delete-all-coverage-modal');\n\t\t\t\tif (m && typeof m.showModal === 'function') { try { m.showModal(); } catch(_) { m.setAttribute('open', ''); } }\n\t\t\t},\n\t\t\tcloseDeleteAllModal() {\n\t\t\t\tconst m = document.getElementById('delete-all-coverage-modal');\n\t\t\t\tif (m && typeof m.close === 'function') { try { m.close(); } catch(_) { m.removeAttribute('open'); } }\n\t\t\t}\n\t\t}\" class=\"d-flex flex-col gap-6\"><!-- Notice / Toast Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.NoticeMessage != "" {
 				if data.NoticeType == "error" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"alert alert-danger\" class=\"d-flex items-center gap-3 p-4 rounded-xl\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"alert alert-danger d-flex items-center gap-3 p-4 rounded-xl\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -222,7 +82,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 327, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 195, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -233,7 +93,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"alert alert-success\" class=\"d-flex items-center gap-3 p-4 rounded-xl\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"alert alert-success d-flex items-center gap-3 p-4 rounded-xl\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -248,7 +108,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 332, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 200, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -261,7 +121,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				}
 			}
 			if data.CoverageUnavailable {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"alert alert-warning\" class=\"d-flex items-center gap-3 p-4 rounded-xl\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"alert alert-warning d-flex items-center gap-3 p-4 rounded-xl\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -289,7 +149,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 372, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 240, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -302,7 +162,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countCoveredGovernorates(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 377, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 245, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -315,7 +175,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countVendorCoveredCities(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 382, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 250, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -328,212 +188,53 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 7", countActiveDays(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 387, Col: 116}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 255, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Interactive Coverage Builder (The Core Enhancement) --><div id=\"builder-section\" class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b\"><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div></div><!-- Interactive Coverage Builder Component -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconGlobe("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = VendorCoverageBuilder(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span> <span>منشئ التغطية الأسبوعية الهرمية (المحافظات والمدن)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">اختر أيام الأسبوع، ثم حدد المحافظة والمدن المستهدفة. يُطبَّق نطاق التغطية المعتمد لكل مدينة تلقائياً.</p></div></div><form method=\"POST\" action=\"/vendor/coverage\" class=\"d-flex flex-col gap-6\"><!-- CSRF & Hidden Inputs --><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><!-- Step 1: Branch Selection & Governorate Selection --><div class=\"d-grid gap-4\" class=\"grid-auto-fit-md\"><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">الفرع / وحدة التوزيع المسؤولة <span class=\"text-danger\">*</span></label> <select name=\"branch_id\" class=\"form-control\" required>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- Active Weekly Coverages Table Component -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 417, Col: 48}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(func() string {
-					return b.Name.Get("ar")
-				}())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 420, Col: 13}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "(الفرع الرئيسي)")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</option> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			if len(data.Branches) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<option value=\"1\">الفرع الرئيسي التلقائي</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">المحافظة المستهدفة <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" x-model=\"selectedGovId\" @change=\"onGovChange()\" class=\"form-control font-bold\" required><option value=\"\">-- اختر المحافظة أولاً (27 محافظة) --</option> ")
+			templ_7745c5c3_Err = VendorCoverageTable(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, g := range data.Governorates {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 439, Col: 48}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(func() string {
-					if g.Name != nil {
-						return g.Name.Get("ar") + " (" + g.Name.Get("en") + ")"
-					}
-					return fmt.Sprintf("محافظة %d", g.ID)
-				}())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 445, Col: 13}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</select></div></div><!-- Step 2: Multi-Days Selector --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><label class=\"text-sm font-bold m-0 text-primary d-flex items-center gap-2\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<!-- Delivery Distance Pricing Bands Component -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconClock("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = VendorCoverageBands(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span> <span>أيام التغطية والتوصيل الأسبوعية (اختر يوماً أو أكثر)</span> <span class=\"text-danger\">*</span></label><div class=\"d-flex gap-2\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-xs btn-secondary\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-xs btn-secondary\">مسح التحديد</button></div></div><div class=\"d-grid gap-2\" class=\"grid-auto-fit-xs\"><!-- Saturday (6) --><label :class=\"{ 'is-active': selectedDays.includes(6) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"6\" :checked=\"selectedDays.includes(6)\" @change=\"toggleDay(6)\" class=\"d-none\"> <span>السبت</span> <span x-show=\"selectedDays.includes(6)\" class=\"text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<!-- Edit Coverage Modal Component -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = VendorCoverageEditModal(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></label><!-- Sunday (0) --><label :class=\"{ 'is-active': selectedDays.includes(0) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"0\" :checked=\"selectedDays.includes(0)\" @change=\"toggleDay(0)\" class=\"d-none\"> <span>الأحد</span> <span x-show=\"selectedDays.includes(0)\" class=\"text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<!-- Delete All Coverages Confirmation Modal Component -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = VendorCoverageDeleteAllModal(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></label><!-- Monday (1) --><label :class=\"{ 'is-active': selectedDays.includes(1) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"1\" :checked=\"selectedDays.includes(1)\" @change=\"toggleDay(1)\" class=\"d-none\"> <span>الاثنين</span> <span x-show=\"selectedDays.includes(1)\" class=\"text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span></label><!-- Tuesday (2) --><label :class=\"{ 'is-active': selectedDays.includes(2) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"2\" :checked=\"selectedDays.includes(2)\" @change=\"toggleDay(2)\" class=\"d-none\"> <span>الثلاثاء</span> <span x-show=\"selectedDays.includes(2)\" class=\"text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></label><!-- Wednesday (3) --><label :class=\"{ 'is-active': selectedDays.includes(3) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"3\" :checked=\"selectedDays.includes(3)\" @change=\"toggleDay(3)\" class=\"d-none\"> <span>الأربعاء</span> <span x-show=\"selectedDays.includes(3)\" class=\"text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></label><!-- Thursday (4) --><label :class=\"{ 'is-active': selectedDays.includes(4) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"4\" :checked=\"selectedDays.includes(4)\" @change=\"toggleDay(4)\" class=\"d-none\"> <span>الخميس</span> <span x-show=\"selectedDays.includes(4)\" class=\"text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></label><!-- Friday (5) --><label :class=\"{ 'is-active': selectedDays.includes(5) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"5\" :checked=\"selectedDays.includes(5)\" @change=\"toggleDay(5)\" class=\"d-none\"> <span>الجمعة</span> <span x-show=\"selectedDays.includes(5)\" class=\"text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheck("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-3\"><div class=\"flex-between flex-wrap gap-3\"><div class=\"stack-sm\"><label class=\"text-sm font-extrabold m-0 text-primary d-flex items-center gap-2\"><span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary text-xs\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label></div><div class=\"d-flex items-center gap-3\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" class=\"form-control text-xs w-48 rounded-lg\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" class=\"btn btn-sm btn-primary font-bold text-xs rounded-lg\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Grid of cities under governorate --><div class=\"d-grid gap-2 max-h-56 overflow-y-auto p-2 bg-surface rounded-lg border\" class=\"grid-auto-fit-sm\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-sm text-primary\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en\"></div></div><span class=\"badge badge-slate badge-compact\" x-text=\"((c.radius_m || 0) / 1000).toFixed(1) + ' كم'\"></span> <span x-show=\"c.is_capital\" class=\"badge badge-amber badge-compact\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: Delivery hours. The radius is the city's own and is not\n\t\t\t\t\t     a vendor setting; it used to be a single number typed here and\n\t\t\t\t\t     applied to every selected city at once, which is how a five\n\t\t\t\t\t     kilometre default came to cover four unrelated districts from\n\t\t\t\t\t     the centre of one. --><div class=\"d-grid gap-4\" class=\"grid-auto-fit-md\"><!-- Time Window --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div class=\"d-grid gap-3 mb-2\" class=\"grid-cols-2\"><div class=\"stack-sm\"><span class=\"text-xs text-muted font-semibold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control text-xs\"></div><div class=\"stack-sm\"><span class=\"text-xs text-muted font-semibold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control text-xs\"></div></div><!-- Egyptian 12-hour readout of the chosen window --><div class=\"d-flex items-center gap-2 mb-3 text-xs\"><span class=\"text-muted font-semibold\">التوقيت المصري:</span> <span class=\"badge badge-primary font-bold\" x-text=\"coverageWindowLabel()\"></span></div><!-- Time Presets (labelled in the Egyptian 12-hour system) --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9:00 ص – 5:00 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية (4:00 م – 11:00 م)</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-city delivery hours --><div class=\"stack-sm\" x-show=\"selectedCities.length > 0\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><div class=\"flex-between items-center flex-wrap gap-3\"><div class=\"stack-sm\"><h3 class=\"text-sm font-extrabold text-primary m-0 d-flex items-center gap-2\"><span>⏱️</span> <span>مواعيد التوصيل لكل مدينة محددة</span></h3><p class=\"text-xs text-muted m-0 mt-1\">نطاق التغطية لكل مدينة معتمد مسبقاً حسب حدودها الجغرافية ويُطبَّق تلقائياً. ما تحدده هنا هو مواعيد التوصيل فقط.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-xs btn-secondary font-bold\">تطبيق الإعدادات العامة على كل المدن</button></div><div class=\"d-grid gap-3\" class=\"grid-auto-fit-md\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div class=\"bg-surface-raised p-4 rounded-xl border d-flex flex-col gap-3 shadow-xs\"><div class=\"flex-between items-start\"><div class=\"stack-sm\"><div class=\"font-extrabold text-sm text-brand\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en + (c.lat ? ' (' + c.lat.toFixed(4) + ', ' + c.lon.toFixed(4) + ')' : '')\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" class=\"btn btn-icon btn-2xs text-danger\" title=\"إزالة هذه المدينة\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div><div class=\"d-grid gap-2\" class=\"grid-cols-2\"><div class=\"stack-sm\"><label class=\"d-block text-xs font-semibold text-muted mb-1\">من (ساعة البدء):</label> <input type=\"time\" :name=\"'coverage_from_' + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control text-xs\"></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-semibold text-muted mb-1\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"'coverage_to_' + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control text-xs\"></div></div><div class=\"stack-sm\"><label class=\"d-block text-xs font-semibold text-muted mb-1\">نطاق التغطية المعتمد لهذه المدينة:</label><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-primary text-xs\" x-text=\"((c.radius_m || 0) / 1000).toFixed(1) + ' كم من مركز المدينة'\"></span> <span class=\"text-xs text-muted\">يُطبَّق تلقائياً حسب حدود المدينة</span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div class=\"glass-panel p-5 flex-between items-center flex-wrap gap-4 border\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconZap("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span><div class=\"stack-sm\"><div class=\"font-extrabold text-primary text-sm\">ملخص العملية: <span x-text=\"selectedDays.length\" class=\"text-brand\"></span> أيام × <span x-text=\"selectedCities.length > 0 ? selectedCities.length : '1'\" class=\"text-brand\"></span> مدينة = <span class=\"text-brand font-black\" x-text=\"(selectedDays.length * (selectedCities.length > 0 ? selectedCities.length : 1)) + ' نطاق تغطية أسبوعية'\"></span></div><div class=\"text-xs text-secondary mt-1\">سيتم إنشاء / تحديث جدول التوزيع ومواعيد التوصيل تلقائياً وفورياً لجميع الصيدليات ضمن هذه النطاقات.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary px-8 font-extrabold text-sm shadow-md\"><span>حفظ وجدولة التغطية الأسبوعية</span> <span>←</span></button></div></form></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = VendorCoverageActiveTableAndBands(data, lang).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

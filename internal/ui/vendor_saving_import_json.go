@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
@@ -47,10 +48,19 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, header.Filename); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", filesecurity.SecurityErrorMessage)
+		return
+	}
+
 	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", header.Filename)
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.parse_error"))
+		msg := i18n.T(langOf(r), "customer.saving.import.parse_error")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", msg)
 		return
 	}
 
@@ -199,9 +209,18 @@ func (h *UIHandler) VendorSavingProductsPreviewColumnsJSON(w http.ResponseWriter
 		return
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, header.Filename); err != nil {
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: filesecurity.SecurityErrorMessage})
+		return
+	}
+
 	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) == 0 {
-		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: i18n.T(langOf(r), "customer.saving.import.read_sheets_error")})
+		msg := i18n.T(langOf(r), "customer.saving.import.read_sheets_error")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: msg})
 		return
 	}
 

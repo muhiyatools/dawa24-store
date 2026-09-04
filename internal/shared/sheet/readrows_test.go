@@ -155,3 +155,21 @@ func TestReadRowsRejectsEmptyFile(t *testing.T) {
 		t.Fatal("expected an error for an empty file")
 	}
 }
+
+func TestReadRowsRejectsSuspiciousURLsAndDomains(t *testing.T) {
+	badCSV := "name,price,website\nPanadol,50.00,http://evil.com\n"
+	_, err := sheet.ReadRows([]byte(badCSV), "bad.csv")
+	if err == nil || err.Error() != "فشل الرفع لأسباب امنية" {
+		t.Fatalf("expected 'فشل الرفع لأسباب امنية', got: %v", err)
+	}
+
+	cleanCSV := "name,price,form\nPanadol,50.00,tablet\n"
+	rows, err := sheet.ReadRows([]byte(cleanCSV), "clean.csv")
+	if err != nil {
+		t.Fatalf("unexpected error for clean csv: %v", err)
+	}
+	if len(rows) != 2 {
+		t.Fatalf("expected 2 rows, got: %d", len(rows))
+	}
+}
+

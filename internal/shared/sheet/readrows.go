@@ -35,8 +35,8 @@ var ErrTooLarge = errors.New("sheet: file too large to read whole; stream it ins
 //
 // filename only improves error messages and delimiter hints; the format is
 // decided by the bytes.
-func ReadRows(content []byte, filename string) ([][]string, error) {
-	book, err := Open(content, filename)
+func ReadRows(content []byte, filename string, opts ...OpenOption) ([][]string, error) {
+	book, err := Open(content, filename, opts...)
 	if err != nil {
 		return nil, err
 	}

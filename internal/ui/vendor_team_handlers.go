@@ -7,11 +7,13 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
@@ -80,10 +82,19 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, fileHeader.Filename, filesecurity.WithAllowEmails(true)); err != nil {
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", filesecurity.SecurityErrorMessage)
+		return
+	}
+
+	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename, sheet.WithAllowEmails(true))
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.parse_error_short"))
+		msg := i18n.T(langOf(r), "customer.saving.import.parse_error_short")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", msg)
 		return
 	}
 

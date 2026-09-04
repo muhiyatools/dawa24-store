@@ -130,6 +130,17 @@ type MatchAdjudicationItem struct {
 	Ref        int64
 	Text       string
 	Candidates []MatchAdjudicationCandidate
+	// Settled says the similarity tier already applied CurrentGuess to this
+	// row, so the question is verification rather than resolution: is this the
+	// right catalogue entry to overwrite, not which entry is it.
+	//
+	// The tier used to be shown only the rows similarity could not settle,
+	// which means the rows it settled WRONGLY — the ones that overwrite a
+	// product every pharmacy reads, at a score high enough that nobody looks —
+	// were the only rows in the file never examined twice.
+	Settled      bool
+	CurrentGuess *int64
+	CurrentScore float64
 }
 
 // MatchAdjudicationCandidate is a catalogue product as the adjudicator sees it.
@@ -170,6 +181,12 @@ type MatchStats struct {
 	AI         int `json:"ai"`
 	Unmatched  int `json:"unmatched"`
 	AIRequests int `json:"ai_requests"`
+	// Verified counts rows the similarity tier had already settled and the
+	// model was asked to check anyway; Disputed counts the ones it would not
+	// confirm, each of which is now waiting for an administrator instead of
+	// overwriting a catalogue entry.
+	Verified int `json:"verified"`
+	Disputed int `json:"disputed"`
 	// CacheHits counts rows answered from the shared decision cache without a
 	// request. Reported because it is the difference between an import that
 	// cost money and one that did not.

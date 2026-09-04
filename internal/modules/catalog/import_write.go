@@ -28,6 +28,15 @@ const (
 	MatchName    MatchReason = "name"
 	// MatchAI is a match a model adjudicated between similar candidates.
 	MatchAI MatchReason = "ai"
+	// MatchDisputed is a match the similarity tier applied and the model would
+	// not confirm.
+	//
+	// The product is kept — the administrator needs to see which entry was
+	// proposed in order to judge it — and the row is excluded from the commit.
+	// This importer overwrites the catalogue entry every pharmacy on the
+	// platform reads, so where two independent methods disagree the right
+	// answer is neither of them: it is a person.
+	MatchDisputed MatchReason = "disputed"
 )
 
 // MatchLabels renders a match reason in the admin's language.
@@ -36,7 +45,8 @@ var MatchLabels = map[MatchReason]string{
 	MatchBarcode: i18n.TDefault("w4_mod.s_333_333"),
 	MatchName:    i18n.TDefault("w4_mod.s_334_334"),
 	MatchSimilar: i18n.TDefault("w4_mod.s_335_335"),
-	MatchAI:      i18n.TDefault("w4_mod.s_336_336"),
+	MatchAI:       i18n.TDefault("w4_mod.s_336_336"),
+	MatchDisputed: "تعارض بين المطابقة الآلية والمراجعة الذكية — يلزم القرار يدوياً",
 }
 
 // WriteFailure identifies one product the database refused, by its position in

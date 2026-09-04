@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -77,7 +78,13 @@ func (h *UIHandler) safeMessage(err error, lang string) string {
 	if err == nil {
 		return ""
 	}
+	if strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+		return filesecurity.SecurityErrorMessage
+	}
 	if appErr, ok := apperr.As(err); ok {
+		if strings.Contains(appErr.Msg, filesecurity.SecurityErrorMessage) {
+			return filesecurity.SecurityErrorMessage
+		}
 		return appErr.LocalizedMsg(lang)
 	}
 	errStr := err.Error()

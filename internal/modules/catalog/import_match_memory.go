@@ -54,6 +54,7 @@ func (s *Service) applyMatchMemory(
 	matches map[int]ExistingMatch,
 	pending []pendingMatch,
 	stats *MatchStats,
+	session *ImportSession,
 ) []pendingMatch {
 	if s.matchMemory == nil || len(pending) == 0 {
 		return pending
@@ -80,22 +81,32 @@ func (s *Service) applyMatchMemory(
 			continue
 		}
 		stats.CacheHits++
-		if d.ChosenProductID == nil || d.Confidence < aiFloor {
-			// "None of these", or an answer too hesitant for this importer.
-			// Either way the row keeps its deterministic outcome and is not
-			// re-asked: the model was asked and declined.
-			continue
+		// A remembered answer is judged by the same rules a fresh one is, so a
+		// cached rejection of a settled match takes the row off the commit
+		// exactly as a fresh rejection would. The alternative — treating a
+		// remembered "none of these" as silence — would mean an administrator
+		// who re-uploads the same file gets the wrong overwrite back, having
+		// already been warned about it once.
+		j := matchflow.Judgement{
+			Settled:    p.settled,
+			Current:    p.guess,
+			Offered:    true, // it was offered when the answer was bought
+			Confidence: d.Confidence,
+			Floor:      aiFloor,
 		}
-		id := *d.ChosenProductID
-		if !inShortlist(p.candidates, id) {
-			rest = append(rest, p)
-			continue
+		if d.ChosenProductID != nil && *d.ChosenProductID > 0 {
+			j.Offered = inShortlist(p.candidates, *d.ChosenProductID)
+			j.Conflicts = !index.IdentityConflict(matchRowFor(prods[p.index]), *d.ChosenProductID).None()
+			if !j.Offered {
+				// The remembered answer names a product this row's retrieval
+				// did not reach. Ask again rather than guess.
+				rest = append(rest, p)
+				continue
+			}
 		}
-		if !index.IdentityConflict(matchRowFor(prods[p.index]), id).None() {
-			continue
-		}
-		matches[p.index] = ExistingMatch{ProductID: id, Reason: MatchAI}
-		stats.AI++
+		s.recordMatch(matchflow.Verdict(j, d.ChosenProductID), p,
+			MatchAdjudicationResult{ProductID: d.ChosenProductID, Confidence: d.Confidence},
+			matches, stats, session)
 	}
 	return rest
 }

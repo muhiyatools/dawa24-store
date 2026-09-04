@@ -15,6 +15,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -193,6 +194,11 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		file.Close()
 		if err != nil || len(fileBytes) == 0 {
 			errorFiles = append(errorFiles, header.Filename+" ("+i18n.T(lang, "compare.upload.empty_or_unread")+")")
+			continue
+		}
+
+		if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, header.Filename); err != nil {
+			errorFiles = append(errorFiles, header.Filename+" ("+filesecurity.SecurityErrorMessage+")")
 			continue
 		}
 

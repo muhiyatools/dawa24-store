@@ -8,6 +8,7 @@ import (
 
 	"github.com/xuri/excelize/v2"
 
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -56,6 +57,9 @@ var ErrLegacyXLS = errors.New("catalog: legacy .xls workbook")
 func ReadSpreadsheet(content []byte, filename string) (*SheetData, error) {
 	if len(content) == 0 {
 		return nil, errors.New(i18n.T("ar", "err.empty_file"))
+	}
+	if err := filesecurity.ValidateSpreadsheetSecurity(content, filename); err != nil {
+		return nil, err
 	}
 
 	switch {

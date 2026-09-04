@@ -190,7 +190,21 @@ type AIUsage struct {
 	LinesAdjudicated int `json:"lines_adjudicated"`
 	// LinesImproved is how many ended the stage matched to a different product
 	// than the deterministic engine left them on.
-	LinesImproved int     `json:"lines_improved"`
+	LinesImproved int `json:"lines_improved"`
+	// LinesVerified is how many lines the deterministic engine had already
+	// settled and the model was asked to check anyway.
+	//
+	// It is reported because it is what makes LinesDisputed a rate rather than
+	// a number, and because a buyer looking at a run wants to know that the
+	// confident matches were looked at too.
+	LinesVerified int `json:"lines_verified"`
+	// LinesDisputed is how many of those the model would not confirm.
+	//
+	// Each one is a line where two independent methods disagreed, and each one
+	// is now waiting for the buyer rather than sitting in the order. It is the
+	// most useful number this stage produces: everything else describes what
+	// was improved, and this describes what was caught.
+	LinesDisputed int     `json:"lines_disputed"`
 	CacheHits     int     `json:"cache_hits"`
 	CostEstimate  float64 `json:"cost_estimate"`
 	CeilingHit    bool    `json:"ceiling_hit"`

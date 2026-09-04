@@ -10,6 +10,7 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/pagination"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
@@ -78,10 +79,19 @@ func (h *UIHandler) CustomerSavingProductsImportUploadSubmit(w http.ResponseWrit
 		return
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, fileHeader.Filename); err != nil {
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", filesecurity.SecurityErrorMessage)
+		return
+	}
+
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.parse_error_short"))
+		msg := i18n.T(langOf(r), "customer.saving.import.parse_error_short")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", msg)
 		return
 	}
 

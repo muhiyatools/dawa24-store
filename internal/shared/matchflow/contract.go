@@ -30,7 +30,7 @@ import "context"
 //
 // It is declared here and nowhere else. `make check-prompt-version` fails the
 // build if the literal appears outside this package.
-const PromptVersion = "sm-enh-v5"
+const PromptVersion = "sm-enh-v6"
 
 // CatalogEntry is one catalogue product as the model sees it.
 //
@@ -72,6 +72,18 @@ type Item struct {
 	CurrentGuess *int64
 	CurrentScore float64
 	Options      []int64
+
+	// Settled says the deterministic engine already applied CurrentGuess, so
+	// the question is verification rather than resolution: is this the right
+	// product, not which product is it.
+	//
+	// The two questions are asked in one request because they are answered
+	// against the same catalogue window and because splitting them doubled the
+	// number of requests a file cost. They are DECIDED differently — see
+	// Verdict — because the consequences differ: overruling a resolution
+	// replaces a guess, and overruling a verification replaces a decision the
+	// engine was confident enough to apply.
+	Settled bool
 }
 
 // Batch is one request: a de-duplicated catalogue window and the items to
@@ -120,6 +132,24 @@ type Decision struct {
 	Confidence float64 `json:"confidence"`
 	Reason     string  `json:"reason,omitempty"`
 }
+
+// Outcome is what a tool should do with one answer.
+type Outcome int
+
+const (
+	// OutcomeKeep leaves the deterministic result exactly as it was.
+	OutcomeKeep Outcome = iota
+	// OutcomeApply writes the model's product id.
+	OutcomeApply
+	// OutcomeReview removes an applied match and asks a person.
+	//
+	// It exists because the interesting answer from a verification pass is not
+	// "yes" and not "here is a better one" — it is "no". A row the engine
+	// settled and the model rejects is the one row in the file where two
+	// independent methods disagree, and it is worth more of a person's
+	// attention than anything either of them was merely unsure about.
+	OutcomeReview
+)
 
 // Enhancer resolves a batch against its catalogue window.
 //

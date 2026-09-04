@@ -135,6 +135,13 @@ func buildStagingRows(
 			row.Action = ActionSkip
 			row.Included = false
 		}
+		// Nor is a row the two matchers disagree about. The proposed product
+		// stays on the row so the administrator can see what was nearly done to
+		// the shared catalogue, and the row waits for them to say.
+		if row.MatchReason == MatchDisputed {
+			row.Action = ActionSkip
+			row.Included = false
+		}
 		rows = append(rows, row)
 	}
 	return rows

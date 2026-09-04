@@ -1,179 +1,96 @@
 package pipeline
 
-// Packing a run into requests.
+// Turning a run's rows into questions.
 //
-// The whole cost argument for this stage lives in this file. Each review line
-// retrieves about a dozen catalogue products, and across a few hundred lines
-// those sets overlap heavily — the same twenty antihypertensives come back for
-// every antihypertensive line. Sending each item with its own copy of its
-// candidates repeats that overlap once per item; sending ONE window that every
-// item references by id does not.
+// The packing itself — the shared catalogue window, the byte budget, the
+// de-duplication of identical questions, the order the budget is spent in —
+// lives in internal/shared/matchflow, because the smart order, the vendor
+// import, the saving list and the master-catalogue import all did it and the
+// four copies had drifted. This file is only the translation between a smart
+// order's vocabulary and that one.
 //
-// Measured on a live 1,473-row file whose deterministic pass left 1,123 lines
-// unresolved: 13,453 candidate references collapse to 10,294 catalogue rows, and
-// the file fits in eight requests instead of the fifteen the same content would
-// need one-shortlist-per-item. Files of ordinary size fit in one.
+// What it adds is the second population. The stage used to see only the rows
+// the deterministic engine could not settle, so the engine's CONFIDENT mistakes
+// were the one class of error in the file that nothing ever looked at twice.
+// Now every row whose match rests on a NAME goes to the model — the ones it
+// could not settle, to be resolved, and the ones it did settle, to be checked.
 //
-// Everything here is arithmetic on sizes rather than rendering, because
-// rendering each candidate set to measure it would double the cost of planning.
-// The estimate errs high, which is the safe direction: a request slightly under
-// budget costs nothing, a request over it fails outright.
+// Rows settled on an identifier do not go. A barcode is the same physical
+// package and the buyer's own confirmed mapping is their own assertion about
+// their own vocabulary; a model cannot improve on either, and asking costs the
+// budget that the ambiguous rows need.
 
 import (
-	"sort"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
-// plannedBatch is one request plus what is needed to validate its answers.
-type plannedBatch struct {
-	request EnhanceBatch
-	// refs maps a request-local ref to every line that asked that question.
-	// One-to-many because a file that lists the same product twice must not be
-	// two questions: identical text with an identical shortlist has an
-	// identical answer, and paying for it twice is pure waste.
-	refs map[int][]Review
-	// window is every product id the model was offered, which is the set an
-	// answer must come from. It is the whole window rather than the item's own
-	// options on purpose — see the package comment.
-	window map[int64]struct{}
-	// lines is how many of the buyer's rows this batch settles. It differs from
-	// the item count whenever duplicates were collapsed, and it is what the
-	// progress bar counts — a bar measured in questions rather than rows would
-	// stop short of the total on any file that repeats a product.
-	lines int
+// verifiable reports whether a settled line's match rests on a name, and is
+// therefore worth a second opinion.
+//
+// The identifier tiers are excluded by name rather than by confidence, because
+// confidence is what the tier asserted and every one of them asserts 1.0.
+func verifiable(l *smartorder.Line) bool {
+	switch l.MatchMethod {
+	case smartorder.MethodExactName, smartorder.MethodFuzzy,
+		smartorder.MethodIdentityKey, smartorder.MethodAlias:
+		return true
+	}
+	return false
 }
 
-// plan groups reviews into as few requests as the payload budget allows.
-//
-// Items are ordered by their normalised name first, because alphabetically
-// adjacent pharmacy lines retrieve overlapping products, and overlap is exactly
-// what the shared window converts into savings: neighbours cost almost nothing
-// to add once their catalogue rows are already in the block.
-func (e *Enhancement) plan(reviews []Review) []plannedBatch {
-	sorted := make([]Review, len(reviews))
-	copy(sorted, reviews)
-	sort.SliceStable(sorted, func(i, j int) bool {
-		if sorted[i].Line.NormName != sorted[j].Line.NormName {
-			return sorted[i].Line.NormName < sorted[j].Line.NormName
-		}
-		return sorted[i].Line.ID < sorted[j].Line.ID
-	})
-
-	// Identical text with an identical shortlist is one question, however many
-	// lines asked it. The decision cache would catch this on the *next* import;
-	// collapsing here catches it on this one.
-	groups := make([][]Review, 0, len(sorted))
-	at := make(map[string]int, len(sorted))
-	for _, r := range sorted {
-		k := decisionKey(r)
-		if i, ok := at[k]; ok {
-			groups[i] = append(groups[i], r)
-			continue
-		}
-		at[k] = len(groups)
-		groups = append(groups, []Review{r})
-	}
-
-	var (
-		batches []plannedBatch
-		cur     = newPlannedBatch()
-		size    int
-		ref     int
-	)
-	flush := func() {
-		if len(cur.request.Items) == 0 {
-			return
-		}
-		cur.request.Catalog = orderWindow(cur.request.Catalog)
-		batches = append(batches, cur)
-		cur = newPlannedBatch()
-		size = 0
-		ref = 0
-	}
-
-	for _, group := range groups {
-		r := group[0]
-		if len(batches)+1 > ceilings.MaxRequestsPerRun {
-			// Everything past the ceiling keeps its deterministic outcome and
-			// is reported honestly rather than silently dropped.
-			e.Stats.CeilingHit = true
-			break
-		}
-		cost := reviewCost(r, cur.window)
-		if len(cur.request.Items) > 0 &&
-			(size+cost > ceilings.MaxInputBytes || len(cur.request.Items) >= ceilings.MaxItemsPerRequest) {
-			flush()
-			if len(batches) >= ceilings.MaxRequestsPerRun {
-				e.Stats.CeilingHit = true
-				break
-			}
-			cost = reviewCost(r, cur.window)
-		}
-
-		ref++
-		item := ReviewLine{
-			Ref:          ref,
-			Text:         r.Line.RawName,
-			Brand:        r.Row.Name,
-			Strength:     r.Row.Concentration,
-			DosageForm:   r.Row.DosageForm,
-			PackSize:     r.Row.PackSize,
-			Manufacturer: r.Row.Manufacturer,
-			Scientific:   r.Row.Scientific,
-			SKU:          r.Line.RawSKU,
-			Barcode:      r.Line.RawBarcode,
-			CurrentGuess: r.Line.MatchedProductID,
-			CurrentScore: r.Line.MatchConfidence,
-		}
+// questions renders the run's reviews as questions for the model.
+func (e *Enhancement) questions(reviews []Review) []matchflow.Question {
+	out := make([]matchflow.Question, 0, len(reviews))
+	for _, r := range reviews {
+		window := make([]matchflow.CatalogEntry, 0, len(r.Candidates))
+		ids := make([]int64, 0, len(r.Candidates))
 		for _, c := range r.Candidates {
-			item.Options = append(item.Options, c.ProductID)
-			if _, seen := cur.window[c.ProductID]; seen {
-				continue
-			}
-			cur.window[c.ProductID] = struct{}{}
-			cur.request.Catalog = append(cur.request.Catalog, e.describe(c.ProductID))
+			window = append(window, e.describe(c.ProductID))
+			ids = append(ids, c.ProductID)
 		}
-		cur.request.Items = append(cur.request.Items, item)
-		cur.refs[ref] = group
-		cur.lines += len(group)
-		size += cost
-	}
-	flush()
-	return batches
-}
-
-func newPlannedBatch() plannedBatch {
-	return plannedBatch{
-		refs:   make(map[int][]Review),
-		window: make(map[int64]struct{}),
-	}
-}
-
-// reviewCost estimates the characters one review adds to a request: its own item
-// row, plus a catalogue row for each candidate the window does not already hold.
-//
-// An estimate rather than a rendering, because rendering every candidate set to
-// measure it would double the work of planning. It errs high, which is the safe
-// direction: a request slightly under budget costs nothing, one over it fails.
-func reviewCost(r Review, window map[int64]struct{}) int {
-	cost := len(r.Line.RawName) + 96 + len(r.Candidates)*8
-	for _, c := range r.Candidates {
-		if _, seen := window[c.ProductID]; seen {
-			continue
+		// A settled row's own product must be on the table even when retrieval
+		// did not rank it, or a "check" item asks the model to confirm an id it
+		// was never shown — and an answer naming a product outside the window
+		// is refused as a hallucination.
+		if r.Settled && r.Line.MatchedProductID != nil {
+			window, ids = includeCurrent(window, ids, *r.Line.MatchedProductID, e)
 		}
-		cost += len(c.Name) + len(c.Scientific) + len(c.Manufacturer) +
-			len(c.DosageForm) + len(c.Concentration) + 56
+
+		out = append(out, matchflow.Question{
+			Key:    matchflow.DecisionKey(r.Line.NormName, ids),
+			Window: window,
+			Item: matchflow.Item{
+				Text:         r.Line.RawName,
+				Brand:        r.Row.Name,
+				Strength:     r.Row.Concentration,
+				DosageForm:   r.Row.DosageForm,
+				PackSize:     r.Row.PackSize,
+				Manufacturer: r.Row.Manufacturer,
+				Scientific:   r.Row.Scientific,
+				SKU:          r.Line.RawSKU,
+				Barcode:      r.Line.RawBarcode,
+				CurrentGuess: r.Line.MatchedProductID,
+				CurrentScore: r.Line.MatchConfidence,
+				Settled:      r.Settled,
+			},
+			Risk: matchflow.Risk(r.Settled, r.Ambiguous, r.Line.MatchConfidence),
+		})
 	}
-	return cost
+	return out
 }
 
-// orderWindow sorts the catalogue block by id.
-//
-// Deterministic order is not cosmetic: the rendered input is the cache's
-// question, and a block whose order came from map iteration would render
-// differently on every run and make every cached answer a miss.
-func orderWindow(w []WindowProduct) []WindowProduct {
-	sort.SliceStable(w, func(i, j int) bool { return w[i].ProductID < w[j].ProductID })
-	return w
+// includeCurrent puts a settled row's own product into its window if retrieval
+// left it out.
+func includeCurrent(window []matchflow.CatalogEntry, ids []int64, id int64,
+	e *Enhancement) ([]matchflow.CatalogEntry, []int64) {
+	for _, existing := range ids {
+		if existing == id {
+			return window, ids
+		}
+	}
+	return append(window, e.describe(id)), append(ids, id)
 }
 
 // describe projects a catalogue product for the window.
@@ -181,12 +98,12 @@ func orderWindow(w []WindowProduct) []WindowProduct {
 // It reads the in-memory index rather than the shortlist entry, because the
 // index carries the English name and the shortlist does not — and the English
 // name is what settles the transliteration cases this stage exists for.
-func (e *Enhancement) describe(id int64) WindowProduct {
+func (e *Enhancement) describe(id int64) matchflow.CatalogEntry {
 	p, ok := e.index.Lookup(id)
 	if !ok {
-		return WindowProduct{ProductID: id}
+		return matchflow.CatalogEntry{ProductID: id}
 	}
-	return WindowProduct{
+	return matchflow.CatalogEntry{
 		ProductID:     id,
 		NameAR:        p.NameAR,
 		NameEN:        p.NameEN,
@@ -195,4 +112,61 @@ func (e *Enhancement) describe(id int64) WindowProduct {
 		Concentration: p.Concentration,
 		Manufacturer:  p.Manufacturer,
 	}
+}
+
+// byKey groups the run's rows by the question each of them asks, so one answer
+// settles every row that asked it.
+//
+// A file that lists the same product across three warehouses asks one question
+// and pays for it once. On the live twenty-five-thousand-row price lists this
+// stage was built for, the distinct-question count is routinely a third of the
+// row count.
+func byKey(reviews []Review) map[string][]Review {
+	out := make(map[string][]Review, len(reviews))
+	for _, r := range reviews {
+		out[keyOf(r)] = append(out[keyOf(r)], r)
+	}
+	return out
+}
+
+// keyOf identifies the exact question a row asks.
+//
+// The retrieved candidate ids are part of it, so an answer is only reused when
+// the same options were on the table; a decision made against a different
+// shortlist answers a question nobody asked. PromptVersion is folded in by
+// DecisionKey, so a prompt change invalidates cleanly rather than silently.
+func keyOf(r Review) string {
+	ids := make([]int64, 0, len(r.Candidates)+1)
+	for _, c := range r.Candidates {
+		ids = append(ids, c.ProductID)
+	}
+	if r.Settled && r.Line.MatchedProductID != nil {
+		ids = appendMissing(ids, *r.Line.MatchedProductID)
+	}
+	return matchflow.DecisionKey(r.Line.NormName, ids)
+}
+
+func appendMissing(ids []int64, id int64) []int64 {
+	for _, existing := range ids {
+		if existing == id {
+			return ids
+		}
+	}
+	return append(ids, id)
+}
+
+// DebugDecisionKey exposes the cache key for the cross-module test that asserts
+// this pipeline and the vendor import hash the same question identically.
+func DebugDecisionKey(normName string, candidateIDs []int64) string {
+	return matchflow.DecisionKey(normName, candidateIDs)
+}
+
+// candidateIDs lists a review's shortlist, for callers that need it without the
+// rest of the question.
+func candidateIDs(cs []productmatch.MatchCandidate) []int64 {
+	out := make([]int64, 0, len(cs))
+	for _, c := range cs {
+		out = append(out, c.ProductID)
+	}
+	return out
 }

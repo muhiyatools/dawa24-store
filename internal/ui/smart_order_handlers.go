@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder/pipeline"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -102,10 +103,19 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(content, header.Filename); err != nil {
+		h.smartOrderFail(w, r, filesecurity.SecurityErrorMessage)
+		return
+	}
+
 	// Inspect before creating anything: an unreadable file should not leave a
 	// half-formed run in the buyer's history.
 	parsed, err := pipeline.Inspect(content, header.Filename)
 	if err != nil {
+		if strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			h.smartOrderFail(w, r, filesecurity.SecurityErrorMessage)
+			return
+		}
 		// The reader's own message names the cause — empty file, unsupported
 		// container, no readable sheet — and is already in Arabic. Passing it
 		// through beats a generic "could not read the file", which tells the

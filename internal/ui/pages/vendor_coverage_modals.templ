@@ -1,0 +1,110 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorCoverageEditModal(data VendorCoverageData, lang string) {
+	<!-- Edit Coverage Modal -->
+	@components.Modal(components.ModalProps{ID: "edit-coverage-modal", Title: "تعديل نطاق التغطية والتوزيع", Size: "md"}) {
+		<form :action="'/vendor/coverage/' + editCov.id + '/update'" method="POST" class="d-flex flex-col gap-4 m-0">
+			<input type="hidden" name="gorilla.csrf.Token" value=""/>
+			<input type="hidden" name="id" :value="editCov.id"/>
+			<input type="hidden" name="coverage_id" :value="editCov.id"/>
+
+			<div class="stack-sm">
+				<label class="d-block text-xs font-bold mb-1 text-primary">يوم التغطية الأسبوعية</label>
+				<select name="day_of_week" x-model="editCov.day_of_week" class="form-control font-bold">
+					<option value="6">السبت</option>
+					<option value="0">الأحد</option>
+					<option value="1">الاثنين</option>
+					<option value="2">الثلاثاء</option>
+					<option value="3">الأربعاء</option>
+					<option value="4">الخميس</option>
+					<option value="5">الجمعة</option>
+				</select>
+			</div>
+
+			<div class="stack-sm">
+				<label class="d-block text-xs font-bold mb-1 text-primary">الفرع / نقطة الانطلاق</label>
+				<select name="branch_id" x-model="editCov.branch_id" class="form-control">
+					for _, b := range data.Branches {
+						<option value={ fmt.Sprintf("%d", b.ID) }>
+							{ b.Name.Get("ar") }
+						</option>
+					}
+				</select>
+			</div>
+
+			<div class="stack-sm">
+				<label class="d-block text-xs font-bold mb-1 text-primary">المدينة المستهدفة</label>
+				<select name="city_id" x-model="editCov.city_id" class="form-control">
+					<option value="">-- اختر المدينة --</option>
+					for _, c := range data.Cities {
+						<option value={ fmt.Sprintf("%d", c.ID) }>
+							{ c.Name.Get("ar") }
+						</option>
+					}
+				</select>
+			</div>
+
+			<div class="d-grid grid-cols-2 gap-3">
+				<div class="stack-sm">
+					<label class="d-block text-xs font-bold mb-1 text-primary">من (ساعة بدء التوصيل)</label>
+					<input type="time" name="coverage_from" x-model="editCov.coverage_from" class="form-control text-xs"/>
+				</div>
+				<div class="stack-sm">
+					<label class="d-block text-xs font-bold mb-1 text-primary">إلى (ساعة انتهاء التوصيل)</label>
+					<input type="time" name="coverage_to" x-model="editCov.coverage_to" class="form-control text-xs"/>
+				</div>
+			</div>
+
+			<div class="stack-sm">
+				<label class="d-block text-xs font-bold mb-1 text-primary">نطاق التغطية المعتمد</label>
+				<div class="d-flex items-center gap-2">
+					<span class="badge badge-primary text-xs" x-text="((editCov.distance_meters || 3000) / 1000).toFixed(1) + ' كم من مركز المدينة'"></span>
+					<span class="text-xs text-muted">يتبع حدود المدينة المختارة ويتحدّث تلقائياً عند تغييرها</span>
+				</div>
+			</div>
+
+			<div class="stack-sm">
+				<label class="d-block text-xs font-bold mb-1 text-primary">العنوان أو النطاق الجغرافي (اختياري)</label>
+				<input type="text" name="address" x-model="editCov.address" placeholder="مثال: قطاع شرق القاهرة، مدينة نصر ومصر الجديدة" class="form-control text-xs"/>
+			</div>
+
+			<div class="d-flex items-center gap-2 mt-2">
+				<input type="checkbox" name="is_active" value="true" :checked="editCov.is_active" id="edit_is_active" class="w-4 h-4"/>
+				<label for="edit_is_active" class="text-xs font-bold text-primary cursor-pointer">تفعيل هذا النطاق ضمن خيارات التوصيل</label>
+			</div>
+
+			<div class="modal-footer pt-3 border-t mt-3 flex-between items-center">
+				<button type="button" @click="closeEdit()" class="btn btn-secondary btn-sm font-bold">إلغاء</button>
+				<button type="submit" class="btn btn-primary btn-sm font-extrabold px-6">حفظ التعديلات</button>
+			</div>
+		</form>
+	}
+}
+
+templ VendorCoverageDeleteAllModal(data VendorCoverageData, lang string) {
+	<!-- Delete All Coverages Confirmation Modal -->
+	@components.Modal(components.ModalProps{ID: "delete-all-coverage-modal", Title: "حذف جميع نطاقات التغطية", Size: "sm"}) {
+		<form method="POST" action="/vendor/coverage/delete-all" class="d-flex flex-col gap-4 m-0">
+			<input type="hidden" name="gorilla.csrf.Token" value=""/>
+			<div class="alert alert-danger d-flex items-center gap-3 p-4 rounded-xl">
+				<span>@components.IconAlert("icon-sm")</span>
+				<div class="stack-sm">
+					<div class="font-bold">تحذير: هذا الإجراء لا يمكن التراجع عنه!</div>
+					<div class="text-xs text-secondary mt-1">
+						سيتم حذف كافة نطاقات التغطية الأسبوعية المسجلة ({ fmt.Sprintf("%d", len(data.Coverages)) } نطاق) نهائياً. لن تظهر منتجاتك للصيدليات كمنتجات متاحة للطلب حتى تضيف جداول تغطية جديدة.
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer pt-3 border-t mt-3 flex-between items-center">
+				<button type="button" @click="closeDeleteAllModal()" class="btn btn-secondary btn-sm font-bold">إلغاء</button>
+				<button type="submit" class="btn btn-danger btn-sm font-extrabold px-6">نعم، حذف الكل نهائياً</button>
+			</div>
+		</form>
+	}
+}

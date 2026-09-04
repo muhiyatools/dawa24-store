@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/filesecurity"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -41,9 +43,18 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 		return
 	}
 
+	if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, fileHeader.Filename); err != nil {
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": filesecurity.SecurityErrorMessage})
+		return
+	}
+
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) <= 1 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.file_empty_no_rows")})
+		msg := i18n.T(langOf(r), "customer.saving.import.file_empty_no_rows")
+		if err != nil && strings.Contains(err.Error(), filesecurity.SecurityErrorMessage) {
+			msg = filesecurity.SecurityErrorMessage
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": msg})
 		return
 	}
 

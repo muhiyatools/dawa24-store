@@ -113,6 +113,7 @@ func (m *Matcher) Score(lines []*smartorder.Line) []Review {
 		row := BuildRow(l)
 		res := m.index.Match(row, m.opts)
 
+		ambiguous := res.Level == productmatch.MatchAmbiguous
 		switch {
 		case res.Matched() && res.Score >= Cutoff:
 			setMatch(l, res.ProductID, methodFor(res.Level), res.Score)
@@ -121,10 +122,12 @@ func (m *Matcher) Score(lines []*smartorder.Line) []Review {
 			// Below the cutoff but plausible: record it so the buyer sees the
 			// system's best guess, and carry it into the AI stage anyway.
 			setMatch(l, res.ProductID, smartorder.MethodFuzzy, res.Score)
-			reviews = append(reviews, Review{Line: l, Row: row, Candidates: res.Candidates})
+			reviews = append(reviews, Review{
+				Line: l, Row: row, Candidates: res.Candidates, Ambiguous: ambiguous})
 
 		default:
-			reviews = append(reviews, Review{Line: l, Row: row, Candidates: res.Candidates})
+			reviews = append(reviews, Review{
+				Line: l, Row: row, Candidates: res.Candidates, Ambiguous: ambiguous})
 		}
 	}
 	return reviews
@@ -173,6 +176,47 @@ func (m *Matcher) Retrieve(reviews []Review) []Review {
 		}
 	}
 	return askable
+}
+
+// Verify prepares the rows the deterministic engine SETTLED, so the model can
+// check them.
+//
+// This is the population nothing used to look at. The stage saw only what the
+// engine could not resolve, which means the rows it resolved WRONGLY — the ones
+// where a name similarity of 0.99 hid a different pack size, and where the
+// buyer has no signal at all that anything went wrong — were the only rows in
+// the file never examined twice. Measured against labelled data the engine is
+// right about 99.3% of the time on those, and 0.7% of a twenty-five-thousand-row
+// price list is a hundred and seventy wrongly priced medicines.
+//
+// Only name-based tiers are offered. A barcode is the same physical package and
+// the buyer's own confirmed mapping is their own assertion; a model cannot
+// improve on either, and asking spends the budget the ambiguous rows need.
+//
+// Retrieval runs here as it does for the unresolved rows, because a check is
+// only useful if the alternatives are on the table: "is this the 20-tablet pack
+// or the 200?" cannot be answered from the 20-tablet pack alone.
+func (m *Matcher) Verify(lines []*smartorder.Line) []Review {
+	if m.index == nil || m.index.Size() == 0 {
+		return nil
+	}
+	opts := productmatch.DefaultRecallOptions()
+	opts.Limit = ceilings.RecallLimit
+
+	out := make([]Review, 0, len(lines))
+	for _, l := range lines {
+		if !l.Matched() || l.MatchConfidence < Cutoff || !verifiable(l) {
+			continue
+		}
+		row := BuildRow(l)
+		out = append(out, Review{
+			Line:       l,
+			Row:        row,
+			Candidates: m.index.Recall(row, opts),
+			Settled:    true,
+		})
+	}
+	return out
 }
 
 // plausible reports whether retrieval found anything worth a second opinion.
