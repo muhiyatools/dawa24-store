@@ -36,12 +36,28 @@ const (
 // AdClickTarget identifies what happens when a user clicks an ad.
 type AdClickTarget string
 
+// An advertisement may only point somewhere inside the platform. The
+// "external_url" target is gone: it let a supplier send a pharmacy to a page
+// nobody here moderates, and nothing validated the URL it carried.
 const (
-	ClickTargetVendor   AdClickTarget = "vendor_page"
-	ClickTargetProduct  AdClickTarget = "product"
-	ClickTargetOffer    AdClickTarget = "offer"
-	ClickTargetExternal AdClickTarget = "external_url"
+	ClickTargetVendor  AdClickTarget = "vendor_page"
+	ClickTargetProduct AdClickTarget = "product"
+	ClickTargetOffer   AdClickTarget = "offer"
 )
+
+// ValidClickTarget folds an untrusted click_target_type onto the three the
+// platform accepts. Removing the option from the <select> stops a person, not
+// a crafted POST; this is what stops the POST.
+func ValidClickTarget(raw string) AdClickTarget {
+	switch AdClickTarget(raw) {
+	case ClickTargetVendor:
+		return ClickTargetVendor
+	case ClickTargetOffer:
+		return ClickTargetOffer
+	default:
+		return ClickTargetProduct
+	}
+}
 
 // Standard advertisement placement positions on the storefront and platform.
 const (

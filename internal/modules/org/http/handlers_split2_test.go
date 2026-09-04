@@ -367,3 +367,21 @@ func TestUnauthorizedResponseUsesTheErrorEnvelope(t *testing.T) {
 		t.Error("error envelope has no request_id")
 	}
 }
+
+func (happyRepo) GetMember(context.Context, int64, int64) (*org.Member, error) {
+	return &org.Member{ID: 1, OrganizationID: 1, UserID: 1, IsActive: true}, nil
+}
+func (happyRepo) UpdateMember(context.Context, int64, int64, org.MemberPatch) error { return nil }
+func (happyRepo) CountMembersByBranch(context.Context, int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+func (happyRepo) MemberOrganizations(context.Context, int64) ([]int64, error) { return nil, nil }
+
+func (stubRepo) GetMember(context.Context, int64, int64) (*org.Member, error) {
+	return &org.Member{ID: 1, OrganizationID: 1, UserID: 1, IsActive: true}, nil
+}
+func (stubRepo) UpdateMember(context.Context, int64, int64, org.MemberPatch) error { return nil }
+func (stubRepo) CountMembersByBranch(context.Context, int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+func (stubRepo) MemberOrganizations(context.Context, int64) ([]int64, error) { return nil, nil }

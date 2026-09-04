@@ -265,6 +265,14 @@ func TestCompareQuickSearch_E2E(t *testing.T) {
 	}
 }
 
+// خصومات السوق العامة renders the temporary warehouses and refuses everything
+// else.
+//
+// Both halves matter and the second is the one worth a test: an ordinary
+// Compare Tool upload belongs to the supplier who uploaded it, and this board
+// is read by every other supplier on the platform. The fixture below puts one
+// of each into the repository and asserts that exactly one of them reaches the
+// page.
 func TestMarketDiscountsPage_E2E(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	repo := newMockCompareRepoE2E()
@@ -275,19 +283,31 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	)
 	h.SetCompareService(compareSvc)
 
-	file := &compare.CompareFile{
+	// A temporary warehouse: uploaded by a moderator, no organization behind it.
+	warehouse := &compare.CompareFile{
 		ID:               25,
-		UserID:           100,
-		OrganizationID:   &[]int64{200}[0],
+		UserID:           1,
 		SupplierName:     "مخزن المتحدة بلقيس",
 		OriginalFilename: "united.xlsx",
 		Status:           compare.FileReady,
+		IsTempWarehouse:  true,
 	}
-	_ = repo.CreateFile(context.Background(), file)
+	_ = repo.CreateFile(context.Background(), warehouse)
+
+	// A supplier's own Compare Tool upload, which must not appear.
+	private := &compare.CompareFile{
+		ID:               26,
+		UserID:           100,
+		OrganizationID:   &[]int64{200}[0],
+		SupplierName:     "قائمة أسعار خاصة",
+		OriginalFilename: "private.xlsx",
+		Status:           compare.FileReady,
+	}
+	_ = repo.CreateFile(context.Background(), private)
 
 	_ = repo.InsertFileRows(context.Background(), []*compare.CompareFileRow{
 		{
-			FileID:             file.ID,
+			FileID:             warehouse.ID,
 			SKU:                "9901",
 			RawName:            "اماريل 1مجم اقراص",
 			NormalizedName:     "اماريل 1مجم اقراص",
@@ -296,11 +316,20 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 			PriceAfterDiscount: money.FromMinor(2560),
 			MatchedProductID:   &[]int64{101}[0],
 		},
+		{
+			FileID:             private.ID,
+			SKU:                "7777",
+			RawName:            "صنف من قائمة خاصة",
+			NormalizedName:     "صنف من قائمة خاصة",
+			Price:              money.FromMajor(50),
+			Discount:           10.0,
+			PriceAfterDiscount: money.FromMinor(4500),
+		},
 	})
 
 	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
-	req := httptest.NewRequest("GET", "/market-discounts?q=اماريل&supplier=مخزن+المتحدة+بلقيس", nil)
+	req := httptest.NewRequest("GET", "/market-discounts", nil)
 	req = req.WithContext(authctx.WithActor(req.Context(), actor))
 	rec := httptest.NewRecorder()
 
@@ -315,17 +344,34 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 		t.Errorf("expected page title 'خصومات السوق العامة'")
 	}
 	if !strings.Contains(body, "اماريل 1مجم اقراص") {
-		t.Errorf("expected body to contain product name 'اماريل 1مجم اقراص'")
+		t.Errorf("expected the temporary warehouse's line to render")
 	}
 	if !strings.Contains(body, "مخزن المتحدة بلقيس") {
-		t.Errorf("expected body to contain supplier name 'مخزن المتحدة بلقيس'")
+		t.Errorf("expected the warehouse name to render")
 	}
-	// The discount is its own labelled cell now ("الخصم" above a "36%" pill),
-	// rather than one "36% خصم" string.
-	if !strings.Contains(body, "36%") {
-		t.Errorf("expected body to contain the 36%% discount pill")
+	if !strings.Contains(body, "36%") || !strings.Contains(body, "market-disc-pill") {
+		t.Errorf("expected the discount to render as a .market-disc-pill")
 	}
-	if !strings.Contains(body, "market-disc-pill") {
-		t.Errorf("expected the discount to render as a .market-disc-pill next to the prices")
+
+	// The supplier's own upload must not be on a board other suppliers read —
+	// not even for the supplier who owns it, because there is no per-caller
+	// slice of this page.
+	if strings.Contains(body, "صنف من قائمة خاصة") || strings.Contains(body, "قائمة أسعار خاصة") {
+		t.Error("a Compare Tool upload reached خصومات السوق العامة; only temporary warehouses belong there")
+	}
+
+	// The product code is gone from both card layouts: the uploads carry
+	// whatever the sheet's code column held, and on files mapped before the
+	// header detection was fixed that is a price.
+	if strings.Contains(body, "market-code") {
+		t.Error("the cards still render a product code")
+	}
+	// So is سعر بعد الخصم; the discount pill already says what to subtract.
+	if strings.Contains(body, "سعر بعد الخصم") {
+		t.Error("the cards still render سعر بعد الخصم")
+	}
+	// And the upload date is present, which the grid card never showed.
+	if !strings.Contains(body, "market-list-date") {
+		t.Error("the cards do not show the upload date")
 	}
 }

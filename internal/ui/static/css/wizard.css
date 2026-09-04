@@ -79,7 +79,7 @@
 	border-color: var(--primary);
 	background: var(--primary-subtle);
 	color: var(--primary);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+	box-shadow: 0 0 0 3px var(--primary-subtle); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 .wiz-node.is-done .wiz-bubble {
 	border-color: var(--success);
@@ -141,8 +141,8 @@
 .wiz-drop.is-over,
 .wiz-drop.is-dragover {
 	border-color: var(--primary);
-	background: color-mix(in srgb, var(--primary) 5%, var(--bg-surface-raised));
-	box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
+	background: var(--primary)); background: color-mix(in srgb, var(--primary) 5%, var(--bg-surface-raised));
+	box-shadow: 0 0 0 4px var(--primary-subtle); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
 	transform: translateY(-2px);
 }
 .wiz-drop input[type="file"] {
@@ -235,8 +235,8 @@
 .wiz-choice:hover .wiz-choice-body { border-color: var(--primary); transform: translateY(-2px); }
 .wiz-choice input:checked + .wiz-choice-body {
 	border-color: var(--primary);
-	background: color-mix(in srgb, var(--primary) 7%, var(--bg-surface-raised));
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+	background: var(--primary)); background: color-mix(in srgb, var(--primary) 7%, var(--bg-surface-raised));
+	box-shadow: 0 0 0 3px var(--primary-subtle); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 .wiz-choice input:focus-visible + .wiz-choice-body { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 .wiz-choice-icon { font-size: 1.4rem; line-height: 1.2; flex: 0 0 auto; }
@@ -450,7 +450,7 @@
 .wiz-phase.is-done { color: var(--success); }
 .wiz-phase.is-done .wiz-phase-dot { background: var(--success); }
 .wiz-phase.is-active { color: var(--text-primary); font-weight: 700; }
-.wiz-phase.is-active .wiz-phase-dot { background: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent); }
+.wiz-phase.is-active .wiz-phase-dot { background: var(--primary); box-shadow: 0 0 0 3px var(--primary-subtle); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent); }
 
 @media (prefers-reduced-motion: reduce) {
 	.wiz-progress-fill { transition: none; }
@@ -492,11 +492,11 @@
 }
 .import-banner--ok {
 	border-inline-start: 5px solid var(--success);
-	background: color-mix(in srgb, var(--success) 5%, var(--bg-surface-raised));
+	background: var(--success)); background: color-mix(in srgb, var(--success) 5%, var(--bg-surface-raised));
 }
 .import-banner--error {
 	border-inline-start: 5px solid var(--danger);
-	background: color-mix(in srgb, var(--danger) 5%, var(--bg-surface-raised));
+	background: var(--danger)); background: color-mix(in srgb, var(--danger) 5%, var(--bg-surface-raised));
 }
 .import-banner-title { font-size: var(--text-lg); font-weight: 800; margin: 0 0 0.35rem; color: var(--text-primary); }
 .import-banner-text { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; line-height: var(--leading-normal); }
@@ -638,4 +638,167 @@
 
 @media (max-width: 640px) {
   .import-preview-scroll { max-block-size: 16rem; }
+
+/* ==========================================================================
+   ADVERTISEMENT WIZARD
+
+   The four-step dialog for creating a promotional banner. Its previous
+   incarnation used a fixed four-column grid of labelled cells for the step
+   indicator, which does not fit four Arabic labels under about 420px, and laid
+   the placement choices out in two fixed columns.
+   ========================================================================== */
+
+.wiz-steps {
+  padding: 0.875rem 1.25rem 0.75rem;
+  border-block-end: 1px solid var(--border-subtle);
+  background: var(--bg-surface-sunken);
+  flex-shrink: 0;
+}
+
+/* Below the small breakpoint the indicator is one line and a rail; above it,
+   the four named steps. Only one of the two is ever displayed. */
+.wiz-steps-compact {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-block-end: 0.5rem;
+}
+.wiz-steps-count { font-size: 0.6875rem; font-weight: 800; color: var(--text-muted); }
+.wiz-steps-name  { font-size: 0.8125rem; font-weight: 900; color: var(--text-primary); }
+
+.wiz-steps-rail {
+  display: block;
+  block-size: 0.25rem;
+  border-radius: 999px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+.wiz-steps-fill {
+  display: block;
+  block-size: 100%;
+  background: var(--primary);
+  transition: inline-size 200ms ease;
+}
+
+.wiz-steps-list { display: none; }
+
+@media (min-width: 640px) {
+  .wiz-steps-compact,
+  .wiz-steps-rail { display: none; }
+  .wiz-steps-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .wiz-step {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-inline-size: 0;
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+  }
+  .wiz-step.is-current { background: var(--primary-subtle); color: var(--primary); }
+  .wiz-step.is-done    { color: var(--success); }
+  .wiz-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: var(--bg-surface-raised);
+    font-size: 0.625rem;
+    font-weight: 900;
+  }
+  .wiz-step.is-current .wiz-step-num { background: var(--primary); color: var(--bg-surface-raised); }
+  .wiz-step.is-done .wiz-step-num    { background: var(--success); color: var(--bg-surface-raised); }
+  .wiz-step-name {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.wiz-picked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem;
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-xl);
+  background: var(--success-subtle);
+}
+
+.wiz-placement {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-raised);
+  cursor: pointer;
+}
+.wiz-placement.is-selected { border-color: var(--primary); background: var(--primary-subtle); }
+.wiz-placement-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+
+.wiz-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px dashed var(--border-card);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-sunken);
+  text-align: center;
+}
+.wiz-dropzone-preview {
+  inline-size: 100%;
+  max-inline-size: 18rem;
+  block-size: 8rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+}
+
+.wiz-credits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-sunken);
+}
+.wiz-credit-cell {
+  padding: 0.625rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-raised);
+}
+
+.wiz-summary { display: flex; flex-direction: column; gap: 0.375rem; margin: 0; }
+.wiz-summary > div { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.wiz-summary dt { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin: 0; }
+.wiz-summary dd {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 }

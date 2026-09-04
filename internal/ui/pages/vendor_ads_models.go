@@ -2,6 +2,7 @@ package pages
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 )
@@ -133,4 +134,38 @@ func ActiveOffersToJSON(offers []*promo.Offer) string {
 		return "[]"
 	}
 	return string(b)
+}
+
+// adsWizardState is the wizard's Alpine payload.
+//
+// It carries four numbers and a label map, not the supplier's inventory. The
+// previous version serialised every in-stock variant the company owns into this
+// attribute so the browser could filter it — the whole catalogue inlined into
+// the page that exists to pick one row out of it. The picker now asks
+// /vendor/inventory/search-json instead.
+func adsWizardState(data VendorAdsData) string {
+	labels := map[string]string{}
+	for _, p := range GetStandardPlacements() {
+		labels[p.Key] = p.TitleAr
+	}
+	cfg := struct {
+		TotalSteps      int               `json:"totalSteps"`
+		StepNames       []string          `json:"stepNames"`
+		Placement       string            `json:"placement"`
+		PlacementLabels map[string]string `json:"placementLabels"`
+		TotalCredits    int               `json:"totalCredits"`
+		CreditCost      int               `json:"creditCost"`
+	}{
+		TotalSteps:      4,
+		StepNames:       []string{"الصنف", "الموضع والمدة", "الوسائط والمحتوى", "المراجعة"},
+		Placement:       promo.PositionHomeHero,
+		PlacementLabels: labels,
+		TotalCredits:    data.TotalCredits,
+		CreditCost:      promo.AdCreditCost,
+	}
+	encoded, err := json.Marshal(cfg)
+	if err != nil {
+		return "dawaAdsWizard({})"
+	}
+	return fmt.Sprintf("dawaAdsWizard(%s)", string(encoded))
 }

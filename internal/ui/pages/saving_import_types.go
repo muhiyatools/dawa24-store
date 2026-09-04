@@ -105,19 +105,19 @@ type SavingRowFilter struct {
 
 // SavingImportView is the view model passed into the SavingImportPage template.
 type SavingImportView struct {
-	Audience        string
-	TargetOrgName   string
-	TargetOrgType   string
-	BaseURL         string
-	ImportURL       string
-	Session    *SavingImportSession
-	Sessions   []*SavingImportSession
-	Filter     SavingRowFilter
-	Rows       []*StagedSavingItem
-	RowTotal   int
-	NoticeType string
-	NoticeMsg  string
-	Fatal      string
+	Audience      string
+	TargetOrgName string
+	TargetOrgType string
+	BaseURL       string
+	ImportURL     string
+	Session       *SavingImportSession
+	Sessions      []*SavingImportSession
+	Filter        SavingRowFilter
+	Rows          []*StagedSavingItem
+	RowTotal      int
+	NoticeType    string
+	NoticeMsg     string
+	Fatal         string
 
 	// AIAvailable says whether the platform can actually run the AI stage. The
 	// switch renders disabled with a reason when it cannot, rather than

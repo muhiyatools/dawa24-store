@@ -744,5 +744,8 @@ function initScrollReveal() {
   setInterval(checkIdle, 10000);
 })();
 
-
-
+// maps.js and the combobox reach for the toast through window; a top-level
+// function declaration is already a window property in a classic script, but
+// naming it here means a later move into a module or an IIFE cannot silently
+// take the toast away from them.
+window.showToast = showToast;

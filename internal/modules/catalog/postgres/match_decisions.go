@@ -2,9 +2,10 @@ package postgres
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strconv"
 	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/jackc/pgx/v5"
 

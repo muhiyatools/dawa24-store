@@ -178,6 +178,22 @@ type Member struct {
 	UpdatedAt      time.Time    `json:"updated_at"`
 }
 
+// MemberPatch names the membership fields one form submitted.
+//
+// A nil field means the form did not carry it and it must keep its stored
+// value. The team screens used to edit through AddMemberDirect — an upsert
+// built from a fresh Member — so every field the form omitted was written as
+// its zero value and an edit to a job title also cleared the branch, the
+// employee code and the role.
+type MemberPatch struct {
+	BranchID     *int64
+	RoleKey      *string
+	OrgRoleID    *int64
+	EmployeeCode *string
+	JobTitle     *string
+	IsActive     *bool
+}
+
 // EmployeeView bundles member attributes with user profile and branch assignment.
 type EmployeeView struct {
 	Member     *Member

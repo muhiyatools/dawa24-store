@@ -246,12 +246,14 @@ dialog.modal::backdrop {
   .modal-card {
     max-width: 100vw;
     width: 100%;
+    max-height: 92vh;
     max-height: 92dvh;
     border-radius: var(--radius-2xl, 1rem) var(--radius-2xl, 1rem) 0 0;
     margin: 0;
     border-bottom: none;
   }
   .modal-body {
+    max-height: calc(92vh - 8rem);
     max-height: calc(92dvh - 8rem);
   }
   /* Ad-hoc overlays built from utilities rather than the modal component —
@@ -283,6 +285,7 @@ dialog.modal::backdrop {
   box-shadow: 0 20px 38px -6px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
+  max-height: calc(100vh - 3rem);
   max-height: calc(100dvh - 3rem);
   width: 100%;
   max-width: min(94vw, 580px);
@@ -340,13 +343,37 @@ dialog.modal::backdrop {
   line-height: 1.3;
 }
 
+/* A form wrapping the body and footer is still part of the dialog's column.
+
+   Every Alpine modal that posts something puts a <form> between .modal-dialog
+   and .modal-body, and a plain block child of a flex column grows to its
+   content: .modal-body's overflow-y then measured against the form, which had
+   no bound, so the body never scrolled and the dialog's overflow:hidden clipped
+   whatever came last — which is the footer, which is where the submit button
+   is. The advertisement wizard lost its "next" and "confirm" buttons at any
+   viewport under about 900px tall for exactly this reason. */
+.modal-box > form,
+.modal-dialog > form,
+.modal-card > form,
+.modal-content > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
 .modal-body {
   padding: 1.5rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex: 1 1 auto;
-  /* dvh, not vh: on a phone vh counts the space under the browser chrome, so a
-     vh-sized modal body puts its last rows behind the address bar. */
-  max-height: calc(100dvh - 11rem);
+  min-block-size: 0;
+  /* vh first as the fallback, then dvh: on a phone vh counts the space under
+     the browser chrome, so a vh-sized modal body puts its last rows behind the
+     address bar — but a browser without dvh must still get a bound. */
+  max-height: calc(100vh - 11rem);
+  max-height: calc(100vh - 11rem); max-height: calc(100dvh - 11rem);
 }
 
 .modal-footer {
@@ -955,7 +982,7 @@ dialog.modal[open] {
    Auth, Registration & Onboarding Suite
    =========================================================================== */
 .auth-page-wrapper {
-	min-height: 100dvh;
+	min-height: 100vh; min-height: 100dvh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1037,7 +1064,7 @@ dialog.modal[open] {
 	border-color: var(--accent);
 	background: var(--accent-subtle);
 	color: var(--accent);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+	box-shadow: 0 0 0 3px var(--accent-subtle); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 .auth-step.done .auth-step-bubble {
 	border-color: var(--success, #10b981);
@@ -1144,7 +1171,7 @@ dialog.modal[open] {
 .auth-totp-input:focus {
 	border-color: var(--accent);
 	background: var(--surface-raised);
-	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+	box-shadow: 0 0 0 4px var(--accent-subtle); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
 	outline: none;
 }
 .type-card {
@@ -1162,13 +1189,13 @@ dialog.modal[open] {
 }
 .type-card:hover {
 	border-color: var(--accent);
-	background: color-mix(in srgb, var(--accent) 4%, var(--surface-raised));
+	background: var(--accent)); background: color-mix(in srgb, var(--accent) 4%, var(--surface-raised));
 	transform: translateY(-2px);
 }
 .type-card.active, .type-card.selected {
 	border-color: var(--accent);
-	background: color-mix(in srgb, var(--accent) 8%, var(--surface-raised));
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+	background: var(--accent)); background: color-mix(in srgb, var(--accent) 8%, var(--surface-raised));
+	box-shadow: 0 0 0 3px var(--accent-subtle); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 .type-card .type-icon {
 	width: 44px;
@@ -1228,7 +1255,7 @@ dialog.modal[open] {
 	border-color: var(--accent);
 	background: var(--accent);
 	color: #ffffff;
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+	box-shadow: 0 0 0 3px var(--accent-subtle); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 .onboard-step.done .step-num {
 	border-color: var(--success, #10b981);
@@ -2668,12 +2695,12 @@ input:focus {
 @layer utilities {
 /* Colour aliases still referenced by templates. Semantic tokens where one
    exists; otherwise a single oklch stop on the same ramp as the scale above. */
-.text-purple  { color: oklch(0.55 0.16 300); }
-.text-indigo  { color: oklch(0.55 0.16 275); }
-.text-cyan    { color: oklch(0.55 0.13 205); }
+.text-purple  { color: rgb(129, 86, 192); color: oklch(0.55 0.16 300); }
+.text-indigo  { color: rgb(89, 101, 205); color: oklch(0.55 0.16 275); }
+.text-cyan    { color: rgb(0, 134, 149); color: oklch(0.55 0.13 205); }
 .text-inherit { color: inherit; }
-.text-brand-700 { color: oklch(0.45 0.14 240); }
-.text-brand-900 { color: oklch(0.28 0.09 240); }
+.text-brand-700 { color: rgb(0, 91, 154); color: oklch(0.45 0.14 240); }
+.text-brand-900 { color: rgb(0, 44, 80); color: oklch(0.28 0.09 240); }
 .text-balance { text-wrap: balance; }
 .text-pretty  { text-wrap: pretty; }
 .break-words  { overflow-wrap: anywhere; }
@@ -2682,15 +2709,15 @@ input:focus {
 .min-w-full   { min-inline-size: 100%; }
 .max-w-5xl    { max-inline-size: 64rem; }
 .bg-transparent { background: transparent; }
-.bg-emerald-subtle { background: oklch(0.95 0.03 155); }
-.bg-sky-subtle     { background: oklch(0.95 0.03 230); }
+.bg-emerald-subtle { background: rgb(224, 245, 230); background: oklch(0.95 0.03 155); }
+.bg-sky-subtle     { background: rgb(219, 243, 255); background: oklch(0.95 0.03 230); }
 .border-brand-subtle   { border: 1px solid var(--primary-border); }
-.border-emerald        { border-color: oklch(0.60 0.14 155); }
+.border-emerald        { border-color: rgb(28, 152, 90); border-color: oklch(0.60 0.14 155); }
 .border-b-2 { border-block-end-width: 2px; border-block-end-style: solid; }
-.border-t-amber   { border-block-start: 2px solid oklch(0.70 0.14 75); }
-.border-t-emerald { border-block-start: 2px solid oklch(0.60 0.14 155); }
+.border-t-amber   { border-block-start: 2px solid rgb(208, 144, 30); border-block-start: 2px solid oklch(0.70 0.14 75); }
+.border-t-emerald { border-block-start: 2px solid rgb(28, 152, 90); border-block-start: 2px solid oklch(0.60 0.14 155); }
 .border-t-primary { border-block-start: 2px solid var(--primary); }
-.border-t-rose    { border-block-start: 2px solid oklch(0.60 0.16 15); }
+.border-t-rose    { border-block-start: 2px solid rgb(205, 79, 97); border-block-start: 2px solid oklch(0.60 0.16 15); }
 .border-s-accent  { border-inline-start: 3px solid var(--primary); }
 .border-s-danger  { border-inline-start: 3px solid var(--danger); }
 .border-s-success { border-inline-start: 3px solid var(--success); }
@@ -3351,7 +3378,7 @@ input:focus {
   right: auto;  /* defended: anchored to .capsule-assistant-host */
   width: 440px;
   max-width: calc(100vw - 2rem);
-  height: min(640px, calc(100dvh - 3rem));
+  height: min(640px, calc(100vh - 3rem)); height: min(640px, calc(100dvh - 3rem));
   background: var(--bg-surface-raised, var(--surface-raised, #ffffff));
   border: 1px solid var(--border-card, var(--border));
   border-radius: var(--radius-2xl, 1.25rem);
@@ -3373,7 +3400,7 @@ input:focus {
     inset: 0;
     width: 100%;
     max-width: 100%;
-    height: 100dvh;
+    height: 100vh; height: 100dvh;
     border-radius: 0;
     border: none;
   }
@@ -4499,7 +4526,6 @@ svg.flag-icon-svg {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   width: fit-content;
-  backdrop-filter: blur(8px);
 }
 
 .hero-ad-supplier-logo {
@@ -4554,8 +4580,7 @@ svg.flag-icon-svg {
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.15);
   width: fit-content;
-  backdrop-filter: blur(8px);
-  margin-top: 0.25rem;
+margin-top: 0.25rem;
 }
 
 .hero-ad-price-item {
@@ -4674,8 +4699,7 @@ svg.flag-icon-svg {
   height: 2.75rem;
   border-radius: var(--radius-full, 9999px);
   background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+border: 1px solid rgba(255, 255, 255, 0.18);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -5037,6 +5061,7 @@ form.filter-bar { margin: 0; }
   flex-direction: column;
   min-block-size: 0;
   max-block-size: calc(100vh - 3rem);
+  max-block-size: calc(100dvh - 3rem);
   overflow: hidden;
 }
 
@@ -5363,28 +5388,36 @@ form.filter-bar { margin: 0; }
   color: var(--text-muted);
   white-space: nowrap;
 }
+/* سعر الجمهور is what this board exists to show, so it is the largest number
+   on the card and it is not struck through.
+
+   It used to be 0.875rem, muted, with a line-through, sitting beside a 1.125rem
+   black "سعر بعد الخصم" — the strike-through says "this price is superseded"
+   about the very figure a reader came to compare, and the size said the other
+   number mattered more. The net price is gone from both layouts; the discount
+   pill beside it already says what to subtract. */
 .market-money-was {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
-  white-space: nowrap;
-}
-.market-money-was.is-empty { text-decoration: none; opacity: 0.55; }
-.market-money-net {
   font-size: 1.125rem;
   font-weight: 900;
   line-height: 1.15;
   color: var(--text-primary);
   white-space: nowrap;
 }
-.market-money-net small {
+.market-money-was small {
   font-size: 0.6875rem;
   font-weight: 700;
   color: var(--text-secondary);
   margin-inline-start: 0.125rem;
 }
+.market-money-was.is-empty {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+/* The lead cell gets the room the removed net-price cell freed. */
+.market-money-cell.is-lead { min-inline-size: 8rem; }
+
 .market-disc-pill {
   display: inline-flex;
   align-items: baseline;
@@ -5412,19 +5445,6 @@ form.filter-bar { margin: 0; }
   padding: 0.375rem 0.5rem;
   min-inline-size: 3.25rem;
 }
-.market-code {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.75rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-  background: var(--bg-surface-sunken, #f8fafc);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 0.0625rem 0.375rem;
-  white-space: nowrap;
-}
-.market-code.is-muted { color: var(--text-muted); }
 .market-supplier-badge {
   font-size: 0.6875rem;
   font-weight: 800;
@@ -5488,7 +5508,6 @@ form.filter-bar { margin: 0; }
   overflow: hidden;
   min-block-size: 2.35em;
 }
-.market-card-code { min-block-size: 1.25rem; }
 /* The price rail keeps the discount tag glued to the two prices it modifies. */
 .market-card-rail {
   display: flex;
@@ -5511,12 +5530,22 @@ form.filter-bar { margin: 0; }
   justify-content: space-between;
   gap: 0.5rem;
 }
-.market-card-rail .market-money-net { font-size: 1.0625rem; }
 .market-card-foot { margin-block-start: 0.125rem; }
-.market-card-foot .market-no-order {
+/* A line nobody has matched to a catalogue product yet. The board is price
+   intelligence, so a quoted figure is still worth reading; what it is not is a
+   thing to click. */
+.market-no-order {
   display: block;
   text-align: center;
   padding-block: 0.375rem;
+  padding-inline: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-surface-sunken);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
 }
 
 /* List view — one row per offer ------------------------------------------- */
@@ -5591,7 +5620,7 @@ form.filter-bar { margin: 0; }
   .market-list-action > .btn { inline-size: 100%; justify-content: center; }
   .market-money { justify-content: space-between; }
   .market-money-cell { flex: 1 1 0; min-inline-size: 0; padding-inline: 0.375rem; }
-  .market-money-net { font-size: 1rem; }
+  .market-money-was { font-size: 1rem; }
 }
 
 /* ---- Market-intelligence spread table (reference layout: product | best | highest) ---- */
@@ -6797,7 +6826,7 @@ form.filter-bar { margin: 0; }
   flex-direction: column;
   inline-size: 100%;
   max-inline-size: 46rem;
-  max-block-size: min(85dvh, 44rem);
+  max-block-size: min(85vh, 44rem); max-block-size: min(85dvh, 44rem);
   background: var(--bg-surface-raised);
   border: 1px solid var(--border-card, var(--border-subtle));
   border-radius: var(--radius-2xl, 1rem);
@@ -6921,7 +6950,7 @@ form.filter-bar { margin: 0; }
 
 @media (max-width: 640px) {
   .bmo-overlay { padding: 0; align-items: flex-end; }
-  .bmo-dialog { max-inline-size: 100%; max-block-size: 92dvh; border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; }
+  .bmo-dialog { max-inline-size: 100%; max-block-size: 92vh; max-block-size: 92dvh; border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; }
   .bmo-table thead th, .bmo-table tbody td { padding-inline: 0.75rem; }
 }
 
@@ -7046,4 +7075,125 @@ form.filter-bar { margin: 0; }
   .cmap-actions { flex-direction: column-reverse; align-items: stretch; }
   .cmap-actions-start { justify-content: space-between; }
   .cmap-actions > .btn { inline-size: 100%; justify-content: center; }
+}
+
+@layer components {
+/* ==========================================================================
+   COMBOBOX
+
+   The shared searchable single-select (components.Combobox). It replaces four
+   hand-rolled dropdowns that each invented their own surface; this one reuses
+   the form-input shell, so a combobox and a text field are the same object at
+   rest and differ only once it is open.
+   ========================================================================== */
+.combobox { display: flex; flex-direction: column; gap: 0.375rem; min-inline-size: 0; }
+
+.combobox-shell { position: relative; min-inline-size: 0; }
+
+.combobox-input {
+  inline-size: 100%;
+  padding-inline-start: 2rem;
+  padding-inline-end: 2rem;
+}
+
+.combobox-icon {
+  position: absolute;
+  inset-inline-start: 0.625rem;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: inline-flex;
+}
+
+.combobox-clear {
+  position: absolute;
+  inset-inline-end: 0.5rem;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--bg-surface-sunken);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.combobox-clear:hover { color: var(--text-primary); border-color: var(--border-card); }
+
+/* The list is absolutely positioned inside the field, so it scrolls with the
+   panel it sits in rather than detaching from it. Its own max-height keeps it
+   inside a modal body that is itself a scroll container. */
+.combobox-list {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(100% + 0.25rem);
+  z-index: var(--z-dropdown, 60);
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-block-size: 15rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.combobox-status {
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}
+.combobox-status.is-error { color: var(--danger); }
+
+.combobox-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-inline-size: 0;
+}
+.combobox-option.is-active { background: var(--primary-subtle); }
+.combobox-option[aria-selected="true"] { box-shadow: inset 0 0 0 1px var(--primary-border); }
+
+.combobox-option-main { display: flex; flex-direction: column; gap: 0.0625rem; min-inline-size: 0; }
+.combobox-option-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.combobox-option-hint {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.combobox-option-badge {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.combobox-help { margin: 0; font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .combobox-list { max-block-size: 12rem; }
+}
 }

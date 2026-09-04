@@ -52,7 +52,7 @@
     --nav-ink: var(--text-primary);
     --nav-ink-muted: var(--text-muted);
     --nav-ink-accent: var(--primary);
-    --nav-hover: color-mix(in oklch, var(--primary) 8%, transparent);
+    --nav-hover: var(--primary-subtle); --nav-hover: color-mix(in oklch, var(--primary) 8%, transparent);
     --nav-item-radius: var(--radius-md);
     --nav-gap: var(--space-sm);
 

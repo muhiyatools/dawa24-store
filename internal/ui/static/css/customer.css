@@ -779,7 +779,7 @@
 
 .wiz-chip .badge {
   padding: 0.15rem 0.45rem;
-  background: color-mix(in srgb, var(--text) 8%, transparent);
+  background: var(--text); background: color-mix(in srgb, var(--text) 8%, transparent);
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
 }

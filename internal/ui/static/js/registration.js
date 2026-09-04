@@ -428,9 +428,21 @@ function syncCityDropdownsWithCoordinates(lat, lon) {
       selectEl.value = bestOpt.value;
       const cityId = bestOpt.dataset.cityId;
       if (cityId) {
-        document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach((hi) => {
+        // The hidden branch_city_id the map used to be the only writer of.
+        // Kept for the screens whose city control is still a plain input.
+        document.querySelectorAll('[data-map-city-id]').forEach((hi) => {
           hi.value = cityId;
         });
+        // And the combobox, which is the visible control on the registration
+        // form. Going through its own setter is what keeps the text the person
+        // reads and the value the form submits from disagreeing.
+        if (typeof window.dawaComboboxSet === 'function') {
+          const label = bestOpt.dataset.nameAr || bestOpt.textContent.trim();
+          // Only the branch pickers: the map is not shown to job seekers, and
+          // their city field is a different question ("where would you like to
+          // work"), not the same answer.
+          window.dawaComboboxSet('branch_city_id', cityId, label);
+        }
       }
     }
   });

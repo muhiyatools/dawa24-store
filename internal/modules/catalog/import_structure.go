@@ -67,6 +67,15 @@ type FileStructure struct {
 	// Fields lists every product field the importer can read, whether or not
 	// this file bound one, so the mapping screen can offer all of them.
 	Fields []FieldBinding `json:"fields,omitempty"`
+	// Preview is the head of the sheet as it was read: the header row followed
+	// by the first data rows, each padded to Width.
+	//
+	// It exists because the mapping screen used to rebuild a "preview" by
+	// transposing FileColumn.Samples, and Samples holds only the distinct,
+	// non-empty, truncated values of a column. Columns skip different cells, so
+	// that table put values on one line which were never on one line in the
+	// file — the exact mis-reading the preview is there to let someone catch.
+	Preview [][]string `json:"preview,omitempty"`
 }
 
 // IsEmpty reports whether nothing has been analysed yet.
@@ -151,6 +160,7 @@ func BuildFileStructure(data *SheetData, layout SheetLayout) FileStructure {
 
 	header := headerRowCells(data, out.HeaderRow)
 	samples := columnSamples(data, layout)
+	out.Preview = structurePreview(data, layout, out.HeaderRow)
 
 	for i := range data.Width {
 		col := FileColumn{Index: i + 1, Letter: ColumnLetter(i)}
@@ -187,6 +197,39 @@ func headerRowCells(data *SheetData, oneBasedHeader int) []string {
 	}
 	return data.Rows[idx]
 }
+
+// structurePreview captures the header row and the first data rows verbatim.
+//
+// Padded to the sheet's width so a short row lines up under the right columns,
+// and capped so a wide sheet does not turn the session JSON into a copy of the
+// file.
+func structurePreview(data *SheetData, layout SheetLayout, oneBasedHeader int) [][]string {
+	if data == nil || len(data.Rows) == 0 {
+		return nil
+	}
+	start := 0
+	if len(layout.Blocks) > 0 {
+		start = layout.Blocks[0].FirstRow
+	}
+	if idx := oneBasedHeader - 1; idx >= 0 && idx < start {
+		start = idx
+	}
+	end := min(start+previewDepth, len(data.Rows))
+
+	out := make([][]string, 0, end-start)
+	for r := start; r < end; r++ {
+		row := make([]string, data.Width)
+		for c := 0; c < data.Width && c < len(data.Rows[r]); c++ {
+			row[c] = truncateSample(CleanCellString(data.Rows[r][c]))
+		}
+		out = append(out, row)
+	}
+	return out
+}
+
+// previewDepth is the header row plus five data rows: enough to spot a shifted
+// column, short enough not to become the page.
+const previewDepth = 6
 
 // columnSamples collects the first few distinct values in each column, taken
 // from the data rows rather than from the whole sheet, so a repeated header row

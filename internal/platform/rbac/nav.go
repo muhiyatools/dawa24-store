@@ -30,6 +30,15 @@ type NavItem struct {
 	// Also lists further permissions that alone are enough to reveal the item,
 	// for a page two different roles reach for different reasons.
 	Also []string
+	// AlwaysVisible marks an item every member of the scope may reach, whatever
+	// they hold.
+	//
+	// There is exactly one kind of item this is for: a page about the caller
+	// rather than about the company. Account settings is the case — a member
+	// locked out of every company screen must still be able to change their own
+	// password, and inventing a permission for that would only create a role
+	// that can be configured to forbid it.
+	AlwaysVisible bool
 }
 
 // Active reports whether activeNav refers to this item.
@@ -47,6 +56,9 @@ func (n NavItem) Active(activeNav string) bool {
 
 // Visible reports whether the holding reveals this item.
 func (n NavItem) Visible(s Set) bool {
+	if n.AlwaysVisible {
+		return true
+	}
 	if s.Has(n.Perm) {
 		return true
 	}

@@ -48,6 +48,12 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "vendor.ads.created_success", "vendor", "تم إنشاء الإعلان وسيتم مراجعته من قبل الإدارة.", "Advertisement created successfully. It will be reviewed by admin.", "Success notice")
 	addKey(e, "vendor.ads.invalid_ad_id", "vendor", "معرف الإعلان غير صحيح.", "Invalid advertisement ID.", "Validation error")
 	addKey(e, "vendor.ads.updated_success", "vendor", "تم تحديث الإعلان بنجاح.", "Advertisement updated successfully.", "Success notice")
+	addKey(e, "vendor.ads.title_required", "vendor", "عنوان الإعلان بالعربية مطلوب.", "The Arabic advertisement title is required.", "Validation error")
+	addKey(e, "vendor.ads.product_required", "vendor", "يجب اختيار الصنف الدوائي المرتبط بالإعلان.", "An advertisement must be linked to an item.", "Validation error")
+	addKey(e, "vendor.ads.product_not_yours", "vendor", "الصنف المحدد غير موجود أو لا يتبع منشأتك.", "The selected item does not exist, or does not belong to your organization.", "Validation error")
+	addKey(e, "vendor.ads.product_out_of_stock", "vendor", "لا يمكن الإعلان عن صنف لا يوجد منه رصيد بالمخزون حالياً.", "An item with no stock cannot be advertised.", "Validation error")
+	addKey(e, "vendor.ads.created_review_success", "vendor", "تم إنشاء الإعلان وخصم رصيد الرعاية، وهو الآن قيد مراجعة الإدارة.", "The advertisement was created, sponsorship credits were deducted, and it is now under review.", "Success notice")
+	addKey(e, "vendor.ads.edit_request_success", "vendor", "تم إرسال طلب تعديل الإعلان للمراجعة، ويستمر إعلانك الحالي بالظهور حتى اعتماد التعديلات.", "The edit request was submitted for review; your current advertisement keeps running until it is approved.", "Success notice")
 
 	// --- Vendor Special Offers ---
 	addKey(e, "vendor.offer.created_notification_title", "vendor", "تم إنشاء ونشر العرض الخاص", "Special Offer Created & Published", "Notification title")
@@ -56,6 +62,16 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "vendor.offer.not_found", "vendor", "لم يتم العثور على هذا العرض الخاص.", "Special offer not found.", "Not found error")
 	addKey(e, "vendor.offer.location_added_success", "vendor", "تم إضافة نطاق التغطية الجغرافي للعرض بنجاح.", "Geographic coverage location added to offer successfully.", "Success notice")
 	addKey(e, "vendor.offer.deleted_success", "vendor", "تم حذف العرض الخاص بنجاح.", "Special offer deleted successfully.", "Success notice")
+	addKey(e, "vendor.offer.updated_success", "vendor", "تم تحديث بيانات العرض بنجاح وإرساله للمراجعة والاعتماد الإداري.", "Offer updated successfully and submitted for administrative review.", "Success notice")
+	addKey(e, "vendor.offer.created_review_success", "vendor", "تم إنشاء العرض بنجاح وإرساله للمراجعة والاعتماد من قِبل الإدارة.", "Offer created successfully and submitted for administrative review.", "Success notice")
+	addKey(e, "vendor.offer.forbidden", "vendor", "العرض غير موجود أو ليس لديك صلاحية لتعديله.", "Offer not found, or you are not allowed to edit it.", "Authorization error")
+	addKey(e, "vendor.offer.title_required", "vendor", "عنوان العرض بالعربية مطلوب.", "The Arabic offer title is required.", "Validation error")
+	addKey(e, "vendor.offer.discount_range", "vendor", "نسبة الخصم يجب أن تكون بين 0 و 100.", "The discount percentage must be between 0 and 100.", "Validation error")
+	addKey(e, "vendor.offer.invalid_amount", "vendor", "قيمة مالية غير صالحة. استخدم أرقاماً فقط، مثال: 1250.00", "Invalid monetary value. Use digits only, for example 1250.00", "Validation error")
+	addKey(e, "vendor.offer.date_range", "vendor", "تاريخ بداية العرض يجب أن يسبق تاريخ نهايته.", "The offer start date must come before its end date.", "Validation error")
+	addKey(e, "vendor.offer.branch_forbidden", "vendor", "الفرع المحدد لا يتبع منشأتك.", "The selected branch does not belong to your organization.", "Validation error")
+	addKey(e, "vendor.offer.location_failed", "vendor", "تعذر إضافة نطاق التغطية الجغرافي للعرض.", "The geographic coverage area could not be added to the offer.", "Save error")
+	addKey(e, "vendor.offer.delete_failed", "vendor", "تعذر حذف العرض الخاص.", "The offer could not be deleted.", "Delete error")
 
 	// --- Compare Tool Uploads ---
 	addKey(e, "common.compare_service_unavailable", "common", "خدمة المقارنة غير متاحة حالياً.", "Comparison service is currently unavailable.", "Service unavailable error")

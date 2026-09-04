@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"time"
@@ -34,16 +35,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					<tr
 						class="vendor-variant-row"
 						data-id={ fmt.Sprintf("%d", v.Variant.ID) }
-						data-name={ v.Variant.Name.Get(i18n.AR) }
-						data-price={ v.Variant.Price.String() }
-						data-discount={ v.Variant.Discount.String() }
-						data-cost-price={ formatCostPrice(v.Variant) }
-						data-cost-discount={ fmt.Sprintf("%.2f", v.Variant.CostDiscountPercentage) }
-						data-stock={ fmt.Sprintf("%d", v.Variant.StockQty) }
-						data-min-qty={ fmt.Sprintf("%d", v.Variant.MinOrderQty) }
-						data-batch={ v.Variant.BatchNumber }
-						data-expiry={ formatExpiryDate(v.Variant.ExpiryDate) }
-						data-branch-id={ branchIDStr(v.Variant.BranchID) }
+						data-variant={ variantEditJSON(v.Variant) }
 						id={ fmt.Sprintf("variant-row-%d", v.Variant.ID) }
 					>
 						<!-- Product Info & Avatar -->
@@ -303,4 +295,59 @@ func branchIDStr(id *int64) string {
 		return fmt.Sprintf("%d", *id)
 	}
 	return ""
+}
+
+// variantEditJSON is everything the edit dialog needs, as one attribute.
+//
+// It replaced eleven separate data-* attributes that the opener read ten of.
+// The two that were missing were status and is_negotiable, so the dialog's
+// selects always showed their first option — "active" and "no" — and saving an
+// inactive variant silently reactivated it and cleared its negotiability. A
+// list of fields split across two files is a list that drifts; this is one.
+func variantEditJSON(v *catalog.ProductVariant) string {
+	if v == nil {
+		return "{}"
+	}
+	payload := struct {
+		ID           int64   `json:"id"`
+		NameAr       string  `json:"name_ar"`
+		NameEn       string  `json:"name_en"`
+		SKU          string  `json:"sku"`
+		Barcode      string  `json:"barcode"`
+		Unit         string  `json:"unit"`
+		Price        string  `json:"price"`
+		Discount     string  `json:"discount"`
+		CostPrice    string  `json:"cost_price"`
+		CostDiscount string  `json:"cost_discount_percentage"`
+		Stock        int     `json:"stock_qty"`
+		MinOrderQty  int     `json:"min_order_qty"`
+		Batch        string  `json:"batch_number"`
+		Expiry       string  `json:"expiry_date"`
+		BranchID     string  `json:"branch_id"`
+		Status       string  `json:"status"`
+		IsNegotiable bool    `json:"is_negotiable"`
+	}{
+		ID:           v.ID,
+		NameAr:       v.Name.Get(i18n.AR),
+		NameEn:       v.Name.Get(i18n.EN),
+		SKU:          v.SKU,
+		Barcode:      v.Barcode,
+		Unit:         v.Unit,
+		Price:        v.Price.String(),
+		Discount:     v.Discount.String(),
+		CostPrice:    formatCostPrice(v),
+		CostDiscount: fmt.Sprintf("%.2f", v.CostDiscountPercentage),
+		Stock:        v.StockQty,
+		MinOrderQty:  v.MinOrderQty,
+		Batch:        v.BatchNumber,
+		Expiry:       formatExpiryDate(v.ExpiryDate),
+		BranchID:     branchIDStr(v.BranchID),
+		Status:       string(v.Status),
+		IsNegotiable: v.IsNegotiable,
+	}
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
 }

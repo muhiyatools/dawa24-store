@@ -18,18 +18,18 @@ import (
 // no permission.
 var routesWithoutPermissionGate = map[string]string{
 	// Redirects to a page that is itself gated.
-	"GET /vendor/session":            "301 to /vendor/sessions, which is gated",
-	"GET /vendor/notifications":      "301 to /notifications, which is gated",
-	"GET /customer/session":          "301 to /customer/sessions, which is gated",
-	"GET /customer/notifications":    "301 to /notifications, which is gated",
+	"GET /vendor/session":         "301 to /vendor/sessions, which is gated",
+	"GET /vendor/notifications":   "301 to /notifications, which is gated",
+	"GET /customer/session":       "301 to /customer/sessions, which is gated",
+	"GET /customer/notifications": "301 to /notifications, which is gated",
 
 	// Account actions, not company actions: a member locked out of every page
 	// must still be able to secure their own credentials and pick the branch
 	// they are buying for.
-	"POST /vendor/password":           "changing your own password is an account action",
-	"POST /customer/password":         "changing your own password is an account action",
-	"POST /customer/set-branch":       "choosing your own buying branch is an account action",
-	"POST /customer/branches/active":  "choosing your own active branch is an account action",
+	"POST /vendor/password":          "changing your own password is an account action",
+	"POST /customer/password":        "changing your own password is an account action",
+	"POST /customer/set-branch":      "choosing your own buying branch is an account action",
+	"POST /customer/branches/active": "choosing your own active branch is an account action",
 }
 
 var (

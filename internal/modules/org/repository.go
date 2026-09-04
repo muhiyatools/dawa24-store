@@ -34,6 +34,10 @@ type Repository interface {
 	AssignBranchManager(ctx context.Context, orgID, branchID int64, managerUserID *int64) error
 
 	AddMember(ctx context.Context, m *Member) error
+	GetMember(ctx context.Context, orgID, memberID int64) (*Member, error)
+	UpdateMember(ctx context.Context, orgID, memberID int64, patch MemberPatch) error
+	CountMembersByBranch(ctx context.Context, orgID int64) (map[int64]int, error)
+	MemberOrganizations(ctx context.Context, userID int64) ([]int64, error)
 	UpdateMemberRole(ctx context.Context, orgID, userID int64, role string) error
 	ToggleMemberStatus(ctx context.Context, orgID, memberID int64) error
 	GetMemberByID(ctx context.Context, orgID, memberID int64) (*Member, error)

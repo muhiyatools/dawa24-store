@@ -31,17 +31,17 @@ func TestVendorAdsWizard_PageRender(t *testing.T) {
 
 	ads := []*promo.Ad{
 		{
-			ID:              1,
-			OrganizationID:  &orgID,
-			Title:           "بنر أوجمنتين الترويجي",
-			TitleAr:         "بنر أوجمنتين الترويجي",
-			Position:        promo.PositionHomeHero,
-			MediaType:       promo.MediaImage,
-			MediaURL:        "/uploads/ads/augmentin.png",
-			AdminStatus:     promo.AdminApproved,
-			Impressions:     1250,
-			Clicks:          85,
-			CTR:             6.8,
+			ID:             1,
+			OrganizationID: &orgID,
+			Title:          "بنر أوجمنتين الترويجي",
+			TitleAr:        "بنر أوجمنتين الترويجي",
+			Position:       promo.PositionHomeHero,
+			MediaType:      promo.MediaImage,
+			MediaURL:       "/uploads/ads/augmentin.png",
+			AdminStatus:    promo.AdminApproved,
+			Impressions:    1250,
+			Clicks:         85,
+			CTR:            6.8,
 		},
 	}
 
@@ -72,18 +72,17 @@ func TestVendorAdsWizard_PageRender(t *testing.T) {
 
 	html := buf.String()
 
-	// Verify Wizard Modal Elements
+	// The wizard's shell, its four steps and the placements it offers.
 	expectedSnippets := []string{
-		"معالج بناء وإنشاء الإعلان الترويجي",
-		"الصنف والمخزون",
-		"الموضع والحملة",
+		"معالج إنشاء الإعلان الترويجي",
+		"الصنف",
+		"الموضع والمدة",
 		"الوسائط والمحتوى",
-		"مراجعة الرصيد",
+		"المراجعة",
 		"معرض وبنر الواجهة الرئيسية (Hero Banner)",
 		"شريط العروض والصفقات الترويجية (Deals Banner)",
 		"بنر صدارة كتالوج وسوق الأدوية (Catalog Top Header)",
-		"تكلفة الإعلان: 2 رصيد",
-		"رصيد الرعايات المتاح",
+		"الرصيد المتاح",
 		"بنر أوجمنتين الترويجي",
 	}
 
@@ -91,6 +90,30 @@ func TestVendorAdsWizard_PageRender(t *testing.T) {
 		if !strings.Contains(html, snippet) {
 			t.Errorf("Expected VendorAdsPage HTML to contain %q, but not found", snippet)
 		}
+	}
+
+	// The picker fetches on demand rather than shipping the inventory.
+	//
+	// The wizard used to serialise every in-stock variant into its x-data
+	// attribute — the whole catalogue inlined into the page whose job is to
+	// pick one row out of it — and filter that array in the browser.
+	if !strings.Contains(html, "/vendor/inventory/search-json") {
+		t.Error("the product picker does not use the on-demand search endpoint")
+	}
+	if strings.Contains(html, "availableItems") {
+		t.Error("the wizard still inlines the supplier's inventory into its x-data attribute")
+	}
+
+	// The retired click target must not be offered.
+	if strings.Contains(html, "external_url") {
+		t.Error("the wizard still offers the external-URL click target")
+	}
+
+	// The form has to be a flex child of the dialog or its footer is clipped;
+	// that is a stylesheet rule, but the markup it needs is the form sitting
+	// directly inside .modal-dialog with the body and footer inside the form.
+	if !strings.Contains(html, "modal-footer") {
+		t.Error("the wizard renders no footer")
 	}
 }
 

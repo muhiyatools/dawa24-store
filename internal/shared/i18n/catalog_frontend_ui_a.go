@@ -135,6 +135,7 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "customer.employee.invalid_user_id", "customer", "معرف المستخدم غير صالح.", "Invalid user ID.", "User ID validation")
 	addKey(e, "customer.employee.update_success", "customer", "تم حفظ وتحديث بيانات وصلاحيات الموظف بنجاح.", "Employee data and permissions saved and updated successfully.", "Employee updated")
 	addKey(e, "customer.employee.invalid_id", "customer", "معرف الموظف غير صالح.", "Invalid employee ID.", "Employee ID validation")
+	addKey(e, "customer.employee.belongs_to_other_org", "customer", "هذا البريد الإلكتروني مسجل بالفعل كموظف لدى منشأة أخرى. اطلب من صاحبه إنهاء ارتباطه بها أولاً، أو استخدم بريداً آخر.", "This email already belongs to an employee of another organization. Ask them to leave it first, or use a different address.", "Employee already a member elsewhere")
 	addKey(e, "customer.employee.cannot_remove_self", "customer", "لا يمكنك إزالة حسابك الحالي من المؤسسة.", "You cannot remove your own account from the organization.", "Cannot remove self")
 	addKey(e, "customer.employee.delete_success", "customer", "تم حذف الموظف وإلغاء ربطه بالفرع بنجاح.", "Employee deleted and unlinked from branch successfully.", "Employee deleted")
 	addKey(e, "customer.employee.status_success", "customer", "تم تحديث حالة تفعيل الموظف بنجاح.", "Employee activation status updated successfully.", "Employee status toggled")

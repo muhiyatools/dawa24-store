@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -62,30 +61,7 @@ func (h *UIHandler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		Error: r.URL.Query().Get("error"),
 	}
 
-	h.renderPage(ctx, w, "render register page", pages.RegisterPage(lang, dir, form, h.listCities(ctx)))
-}
-
-// listCities loads the Egyptian cities for the registration form's city picker.
-func (h *UIHandler) listCities(ctx context.Context) []*platformadmin.City {
-	if h.adminSvc == nil {
-		return nil
-	}
-	countries, err := h.adminSvc.ListCountries(ctx)
-	if err != nil || len(countries) == 0 {
-		return nil
-	}
-	var countryID int64
-	for _, c := range countries {
-		if c.Code == "EG" {
-			countryID = c.ID
-			break
-		}
-	}
-	if countryID == 0 {
-		countryID = countries[0].ID
-	}
-	cities, _ := h.adminSvc.ListCities(ctx, countryID)
-	return cities
+	h.renderPage(ctx, w, "render register page", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
 }
 
 func (h *UIHandler) ForgotPasswordPage(w http.ResponseWriter, r *http.Request) {

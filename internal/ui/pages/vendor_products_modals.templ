@@ -10,19 +10,53 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 			@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: "تعديل تفاصيل ووحدات بيع الصنف", Size: "md"}) {
 				<form class="stack-md" method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
 						<div class="stack-md">
-							
-       <div class="stack-sm">
-								<label class="form-label font-bold text-primary text-sm">
-									اسم العرض / التعبئة (عربي)
+							<!-- The listing's own state, so saving returns to the page
+							     the vendor was on rather than the top of nine thousand rows. -->
+							<input type="hidden" name="page" id="edit-form-ctx-page"/>
+							<input type="hidden" name="limit" id="edit-form-ctx-limit"/>
+							<input type="hidden" name="q" id="edit-form-ctx-q"/>
+							<input type="hidden" name="status_filter" id="edit-form-ctx-status"/>
+							<input type="hidden" name="stock" id="edit-form-ctx-stock"/>
+							<input type="hidden" name="sort" id="edit-form-ctx-sort"/>
+
+							<div class="grid-2">
+								<div class="stack-sm">
+									<label class="form-label font-bold text-primary text-sm" for="edit-form-name-ar">
+										اسم العرض / التعبئة (عربي)
+									</label>
+									<input type="text" id="edit-form-name-ar" name="name_ar" required class="form-input w-full-rounded"/>
+								</div>
+								<div class="stack-sm">
+									<label class="form-label font-bold text-primary text-sm" for="edit-form-name-en">
+										اسم العرض / التعبئة (إنجليزي)
+									</label>
+									<input type="text" id="edit-form-name-en" name="name_en" class="form-input w-full-rounded" dir="ltr"/>
+								</div>
+							</div>
+
+							<!-- SKU, barcode and unit were absent from this dialog while
+							     the handler assigned all three from the missing values,
+							     so every save wrote an empty string over them. -->
+							<div class="grid-2">
+								<div class="stack-sm">
+									<label class="form-label font-bold text-primary text-sm" for="edit-form-sku">
+										كود الصنف (SKU)
+									</label>
+									<input type="text" id="edit-form-sku" name="sku" class="form-input w-full-rounded tabular-nums" dir="ltr"/>
+								</div>
+								<div class="stack-sm">
+									<label class="form-label font-bold text-primary text-sm" for="edit-form-barcode">
+										الباركود
+									</label>
+									<input type="text" id="edit-form-barcode" name="barcode" class="form-input w-full-rounded tabular-nums" dir="ltr"/>
+								</div>
+							</div>
+
+							<div class="stack-sm">
+								<label class="form-label font-bold text-primary text-sm" for="edit-form-unit">
+									وحدة البيع
 								</label>
-								<input
- type="text"
- id="edit-form-name-ar"
- name="name_ar"
- required
- class="form-input w-full-rounded"
- 
- />
+								<input type="text" id="edit-form-unit" name="unit" placeholder="علبة / شريط / زجاجة" class="form-input w-full-rounded"/>
 							</div>
 
 							<div class="grid-2">
@@ -404,30 +438,63 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 					const row = document.querySelector(`.vendor-variant-row[data-id="${id}"]`);
 					if (!row) return;
 
+					let v;
+					try { v = JSON.parse(row.dataset.variant || '{}'); } catch (e) { return; }
+
 					document.getElementById('edit-variant-form').action = `/vendor/variants/${id}/update`;
-					document.getElementById('edit-form-name-ar').value = row.dataset.name || '';
-					document.getElementById('edit-form-price').value = row.dataset.price || '';
-					document.getElementById('edit-form-discount').value = row.dataset.discount || '';
-					if (document.getElementById('edit-form-cost')) {
-						document.getElementById('edit-form-cost').value = row.dataset.costPrice || '';
-					}
-					if (document.getElementById('edit-form-cost-discount')) {
-						document.getElementById('edit-form-cost-discount').value = (row.dataset.costDiscount && row.dataset.costDiscount !== '0.00') ? row.dataset.costDiscount : '';
-					}
-					document.getElementById('edit-form-stock').value = row.dataset.stock || '';
-					document.getElementById('edit-form-min-qty').value = row.dataset.minQty || '1';
-					document.getElementById('edit-form-batch').value = row.dataset.batch || '';
-					document.getElementById('edit-form-expiry').value = row.dataset.expiry || '';
-					
+
+					// One payload, one loop. The previous opener read ten of the row's
+					// eleven data-* attributes by hand and silently skipped status and
+					// is_negotiable, so those two selects always submitted their first
+					// option: editing an inactive variant reactivated it.
+					const fields = {
+						'edit-form-name-ar': v.name_ar,
+						'edit-form-name-en': v.name_en,
+						'edit-form-sku': v.sku,
+						'edit-form-barcode': v.barcode,
+						'edit-form-unit': v.unit,
+						'edit-form-price': v.price,
+						'edit-form-discount': v.discount,
+						'edit-form-cost': v.cost_price,
+						'edit-form-cost-discount': (v.cost_discount_percentage && v.cost_discount_percentage !== '0.00') ? v.cost_discount_percentage : '',
+						'edit-form-stock': v.stock_qty,
+						'edit-form-min-qty': v.min_order_qty || 1,
+						'edit-form-batch': v.batch_number,
+						'edit-form-expiry': v.expiry_date,
+						'edit-form-status': v.status || 'active',
+						'edit-form-negotiable': v.is_negotiable ? 'true' : 'false'
+					};
+					Object.keys(fields).forEach((elID) => {
+						const el = document.getElementById(elID);
+						if (!el) return;
+						const value = fields[elID];
+						el.value = (value === null || value === undefined) ? '' : String(value);
+					});
+
 					const branchSelect = document.getElementById('edit-form-branch');
 					if (branchSelect) {
-						if (row.dataset.branchId && row.dataset.branchId !== '' && row.dataset.branchId !== '0') {
-							branchSelect.value = row.dataset.branchId;
+						if (v.branch_id && v.branch_id !== '0') {
+							branchSelect.value = String(v.branch_id);
 						}
 						if (!branchSelect.value && branchSelect.options.length > 0) {
 							branchSelect.selectedIndex = 0;
 						}
 					}
+
+					// Carry the listing's state through the round trip.
+					const params = new URLSearchParams(window.location.search);
+					const ctx = {
+						'edit-form-ctx-page': params.get('page'),
+						'edit-form-ctx-limit': params.get('limit'),
+						'edit-form-ctx-q': params.get('q'),
+						'edit-form-ctx-status': params.get('status'),
+						'edit-form-ctx-stock': params.get('stock'),
+						'edit-form-ctx-sort': params.get('sort')
+					};
+					Object.keys(ctx).forEach((elID) => {
+						const el = document.getElementById(elID);
+						if (el) el.value = ctx[elID] || '';
+					});
 
 					const el = document.getElementById('edit-variant-modal');
 					if (el && typeof el.showModal === 'function') {

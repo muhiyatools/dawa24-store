@@ -180,7 +180,13 @@ func visibleNav(ctx context.Context, scope rbac.Scope) []rbac.NavSection {
 		for _, s := range allSections {
 			var keptItems []rbac.NavItem
 			for _, item := range s.Items {
-				if item.Key == "documents" || item.Key == "notifications" || strings.Contains(item.Href, "document") || strings.Contains(item.Href, "notification") {
+				// An account-settings item is about the caller, not the
+				// company, so it survives the pending-approval filter: a member
+				// whose company is still under review must still be able to
+				// change their own password and revoke a session on a lost
+				// device. Its route sits in the pre-approval tier for the same
+				// reason.
+				if item.AlwaysVisible || item.Key == "documents" || item.Key == "notifications" || strings.Contains(item.Href, "document") || strings.Contains(item.Href, "notification") {
 					keptItems = append(keptItems, item)
 				}
 			}
@@ -213,6 +219,14 @@ func visibleNav(ctx context.Context, scope rbac.Scope) []rbac.NavSection {
 							Icon:   "bell",
 							NameAr: "مركز الإشعارات",
 							NameEn: "Notifications Center",
+						},
+						{
+							Key:           "account_settings",
+							Href:          "/settings",
+							Icon:          "settings",
+							NameAr:        "اعدادات الحساب",
+							NameEn:        "Account settings",
+							AlwaysVisible: true,
 						},
 					},
 				},

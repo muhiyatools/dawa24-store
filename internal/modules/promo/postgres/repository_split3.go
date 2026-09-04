@@ -101,34 +101,11 @@ func (r *Repository) ListAllSpecialOffersWithTotal(ctx context.Context, statusFi
 
 		// Populate products and locations for each offer
 		for _, offer := range list {
-			pRows, _ := tx.Query(txCtx, `
-				SELECT p.id, p.offer_id,
-				       COALESCE(p.product_id, pv.product_id, 0),
-				       COALESCE(p.variant_id, pv.id, 0),
-				       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
-				       COALESCE(pv.price, prod.base_price, 0),
-				       COALESCE(p.custom_price, 0),
-				       COALESCE(p.custom_discount_percentage, 0),
-				       COALESCE(p.custom_discount_amount, 0),
-				       COALESCE(NULLIF(p.custom_qty, 0), 1),
-				       p.created_at
-				FROM promo.offer_products p
-				LEFT JOIN catalog.product_variants pv ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
-				LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
-				WHERE p.offer_id = $1;
-			`, offer.ID)
-			if pRows != nil {
-				for pRows.Next() {
-					var p promo.SpecialOfferProduct
-					if err := pRows.Scan(
-						&p.ID, &p.OfferID, &p.ProductID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
-						&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
-					); err == nil {
-						offer.Products = append(offer.Products, &p)
-					}
-				}
-				pRows.Close()
+			prods, err := loadSpecialOfferProducts(txCtx, tx, offer.ID)
+			if err != nil {
+				return err
 			}
+			offer.Products = prods
 
 			lRows, _ := tx.Query(txCtx, `
 				SELECT l.id, l.offer_id, l.city_id, COALESCE(c.name->>'ar', ''),
@@ -240,16 +217,10 @@ func (r *Repository) UpdateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 			return fmt.Errorf("clear offer products: %w", err)
 		}
 
-		for _, p := range o.Products {
-			pQuery := `
-				INSERT INTO promo.offer_products (
-					offer_id, product_id, variant_id, custom_price,
-					custom_discount_percentage, custom_discount_amount, custom_qty
-				) VALUES ($1, (SELECT product_id FROM catalog.product_variants WHERE id = $2), $2, $3, $4, $5, $6);
-			`
-			if _, err := tx.Exec(txCtx, pQuery, o.ID, p.VariantID, p.CustomPrice, p.DiscountPercentage, p.DiscountAmount, p.Quantity); err != nil {
-				return fmt.Errorf("insert offer product: %w", err)
-			}
+		// A variant that is not this vendor's, or no longer exists, is skipped
+		// rather than aborting the offer with a NOT NULL violation on product_id.
+		if _, err := insertSpecialOfferProducts(txCtx, tx, o.ID, o.OrganizationID, o.Products); err != nil {
+			return err
 		}
 
 		return nil

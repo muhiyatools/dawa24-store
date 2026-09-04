@@ -97,6 +97,10 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 }
 
 // UpdateVariant updates a variant.
+//
+// Scoped by organization as well as by id. The UI handler checks ownership
+// before calling, which is right and is not enough: this method is exported and
+// the WHERE clause is the only thing that makes it safe for the next caller.
 func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVariant) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
@@ -107,7 +111,9 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 			    min_order_qty = $16,
 			    branch_id = COALESCE($17, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = catalog.product_variants.organization_id AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
 			    updated_at = now()
-			WHERE id = $1 AND deleted_at IS NULL;
+			WHERE id = $1
+			  AND deleted_at IS NULL
+			  AND ($18::bigint = 0 OR organization_id = $18);
 		`
 		minQty := v.MinOrderQty
 		if minQty <= 0 {
@@ -116,9 +122,17 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 		res, err := tx.Exec(txCtx, query,
 			v.ID, v.Name, v.SKU, v.Barcode, v.Price, v.CostPrice, v.CostDiscountPercentage, v.Discount,
 			v.Unit, v.Image, string(v.Status), v.IsFeatured, v.IsNegotiable, v.BatchNumber,
-			v.ExpiryDate, minQty, v.BranchID,
+			v.ExpiryDate, minQty, v.BranchID, v.OrganizationID,
 		)
 		if err != nil {
+			// The partial unique index on (organization_id, sku) is the only
+			// thing standing between two variants of one supplier sharing a
+			// code, and a 23505 reaching the vendor as a 500 tells them
+			// nothing about which field to change.
+			if database.IsUniqueViolation(err) {
+				return apperr.Conflict("variant.duplicate_sku",
+					"That SKU already belongs to another item in this organization.")
+			}
 			return fmt.Errorf("catalog postgres: update variant: %w", err)
 		}
 		if res.RowsAffected() == 0 {

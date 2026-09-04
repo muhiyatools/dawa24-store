@@ -82,7 +82,8 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 				COALESCE($9, now()), 
 				COALESCE($10, now() + interval '1 year'),
 				COALESCE($11, 'active') = 'active',
-				COALESCE(NULLIF($12, ''), 'approved'), COALESCE($13, ''), 'special'
+				COALESCE($11, 'active') = 'draft',
+				COALESCE(NULLIF($12, ''), 'pending'), COALESCE($13, ''), 'special'
 			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
@@ -96,17 +97,10 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 			return fmt.Errorf("create special offer: %w", err)
 		}
 
-		for _, p := range o.Products {
-			pQuery := `
-				INSERT INTO promo.offer_products (
-					offer_id, product_id, variant_id, custom_price,
-					custom_discount_percentage, custom_discount_amount, custom_qty
-				) VALUES ($1, (SELECT product_id FROM catalog.product_variants WHERE id = $2), $2, $3, $4, $5, $6);
-			`
-			_, err := tx.Exec(txCtx, pQuery, o.ID, p.VariantID, p.CustomPrice, p.DiscountPercentage, p.DiscountAmount, p.Quantity)
-			if err != nil {
-				return err
-			}
+		// A variant that is not this vendor's, or no longer exists, is skipped
+		// rather than aborting the offer with a NOT NULL violation on product_id.
+		if _, err := insertSpecialOfferProducts(txCtx, tx, o.ID, o.OrganizationID, o.Products); err != nil {
+			return err
 		}
 
 		return nil
@@ -151,35 +145,11 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			return err
 		}
 
-		// Load Products
-		pRows, _ := tx.Query(txCtx, `
-			SELECT p.id, p.offer_id,
-			       COALESCE(p.product_id, pv.product_id, 0),
-			       COALESCE(p.variant_id, pv.id, 0),
-			       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
-			       COALESCE(pv.price, prod.base_price, 0),
-			       COALESCE(p.custom_price, 0),
-			       COALESCE(p.custom_discount_percentage, 0),
-			       COALESCE(p.custom_discount_amount, 0),
-			       COALESCE(NULLIF(p.custom_qty, 0), 1),
-			       p.created_at
-			FROM promo.offer_products p
-			LEFT JOIN catalog.product_variants pv ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
-			LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
-			WHERE p.offer_id = $1;
-		`, id)
-		if pRows != nil {
-			for pRows.Next() {
-				var p promo.SpecialOfferProduct
-				if err := pRows.Scan(
-					&p.ID, &p.OfferID, &p.ProductID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
-					&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
-				); err == nil {
-					o.Products = append(o.Products, &p)
-				}
-			}
-			pRows.Close()
+		prods, err := loadSpecialOfferProducts(txCtx, tx, id)
+		if err != nil {
+			return err
 		}
+		o.Products = prods
 
 		// Load Locations
 		lRows, _ := tx.Query(txCtx, `
@@ -261,34 +231,11 @@ func (r *Repository) ListSpecialOffersByOrg(ctx context.Context, orgID int64) ([
 
 		// Load products for all retrieved offers
 		for _, o := range list {
-			pRows, err := tx.Query(txCtx, `
-				SELECT p.id, p.offer_id,
-				       COALESCE(p.product_id, pv.product_id, 0),
-				       COALESCE(p.variant_id, pv.id, 0),
-				       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
-				       COALESCE(pv.price, prod.base_price, 0),
-				       COALESCE(p.custom_price, 0),
-				       COALESCE(p.custom_discount_percentage, 0),
-				       COALESCE(p.custom_discount_amount, 0),
-				       COALESCE(NULLIF(p.custom_qty, 0), 1),
-				       p.created_at
-				FROM promo.offer_products p
-				LEFT JOIN catalog.product_variants pv ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
-				LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
-				WHERE p.offer_id = $1;
-			`, o.ID)
-			if err == nil {
-				for pRows.Next() {
-					var p promo.SpecialOfferProduct
-					if err := pRows.Scan(
-						&p.ID, &p.OfferID, &p.ProductID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
-						&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
-					); err == nil {
-						o.Products = append(o.Products, &p)
-					}
-				}
-				pRows.Close()
+			prods, err := loadSpecialOfferProducts(txCtx, tx, o.ID)
+			if err != nil {
+				return err
 			}
+			o.Products = prods
 		}
 
 		return nil

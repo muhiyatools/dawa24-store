@@ -788,7 +788,6 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   width: fit-content;
-  backdrop-filter: blur(8px);
 }
 
 .hero-ad-supplier-logo {
@@ -843,8 +842,7 @@
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.15);
   width: fit-content;
-  backdrop-filter: blur(8px);
-  margin-top: 0.25rem;
+margin-top: 0.25rem;
 }
 
 .hero-ad-price-item {
@@ -959,8 +957,7 @@
   height: 2.75rem;
   border-radius: var(--radius-full, 9999px);
   background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+border: 1px solid rgba(255, 255, 255, 0.18);
   color: #ffffff;
   display: flex;
   align-items: center;

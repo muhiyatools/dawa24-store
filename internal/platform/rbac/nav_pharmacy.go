@@ -79,6 +79,9 @@ func pharmacyNav() []NavSection {
 		{
 			Key: "account", NameAr: "الأمان والجلسات", NameEn: "Security & Sessions",
 			Items: []NavItem{
+				{Key: "account_settings", Href: "/settings", Icon: "settings",
+					NameAr: "اعدادات الحساب", NameEn: "Account settings",
+					AlwaysVisible: true},
 				{Key: "notifications", Href: "/notifications", Icon: "bell",
 					NameAr: "مركز الإشعارات والتنبيهات", NameEn: "Notifications",
 					Perm: "pharmacy.dashboard.view"},

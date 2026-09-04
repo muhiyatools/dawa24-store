@@ -42,7 +42,9 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if len(headers) > 0 && len(rows) > 0 {
+		width := previewWidth(headers, rows)
+		headers = padPreviewHeaders(headers, width)
+		if width > 0 && len(rows) > 0 {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"import-preview\"><header class=\"import-preview-head\"><h3 class=\"import-preview-title\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -59,7 +61,7 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 				var templ_7745c5c3_Var2 string
 				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(filename)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 26, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 28, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 				if templ_7745c5c3_Err != nil {
@@ -71,9 +73,9 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 				}
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("أول %d صفوف من %d عمود", len(rows), len(headers)))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("أول %d صفوف من %d عمود", len(rows), width))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 29, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 31, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -84,14 +86,14 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 				return templ_7745c5c3_Err
 			}
 			for i, h := range headers {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<th class=\"whitespace-nowrap\"><span class=\"import-preview-colnum tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<th class=\"whitespace-nowrap\" dir=\"auto\"><span class=\"import-preview-colnum tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", i+1))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 40, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 42, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -105,7 +107,7 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(h)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 42, Col: 13}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 44, Col: 13}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -134,7 +136,7 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", n+1))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 53, Col: 79}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 55, Col: 79}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -144,8 +146,8 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				for _, cell := range padPreviewRow(row, len(headers)) {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<td class=\"whitespace-nowrap\">")
+				for _, cell := range padPreviewRow(row, width) {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<td class=\"whitespace-nowrap\" dir=\"auto\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -153,7 +155,7 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(cell)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 57, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/import_preview.templ`, Line: 59, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -184,7 +186,35 @@ func ImportFilePreview(filename string, headers []string, rows [][]string) templ
 	})
 }
 
-// padPreviewRow pads a short row out to the header count so a row that ends in
+// previewWidth is the column count the table renders.
+//
+// It is the widest of the header row and every preview row, not len(headers).
+// A sheet whose header row is shorter than its data rows — a trailing column
+// nobody titled — used to have those cells truncated away by padPreviewRow,
+// which is the one thing a preview must never do: it exists so the reader can
+// see what is really in the file.
+func previewWidth(headers []string, rows [][]string) int {
+	width := len(headers)
+	for _, row := range rows {
+		if len(row) > width {
+			width = len(row)
+		}
+	}
+	return width
+}
+
+// padPreviewHeaders pads the header row out to the table width so a titleless
+// trailing column still gets a column heading.
+func padPreviewHeaders(headers []string, width int) []string {
+	if len(headers) >= width {
+		return headers[:width]
+	}
+	out := make([]string, width)
+	copy(out, headers)
+	return out
+}
+
+// padPreviewRow pads a short row out to the table width so a row that ends in
 // blank cells still lines up under the right columns instead of shifting left.
 func padPreviewRow(row []string, width int) []string {
 	if len(row) >= width {

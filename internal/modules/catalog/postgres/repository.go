@@ -213,6 +213,41 @@ func (r *Repository) UpdateProductImageBySKU(ctx context.Context, sku string, im
 }
 
 // SearchProducts performs fuzzy Arabic search and filters including institutional works.
+// productHasStockSQL is "this product has at least one variant a pharmacy can
+// order right now".
+//
+// One definition, used by the in-stock filter and by the ordering below, so the
+// two cannot disagree about what "available" means.
+// It is deliberately the predicate the in-stock filter already used, unchanged.
+// Adding `pv.status = 'active'` looks obviously right and is not: of the 851
+// products with a positive quantity today, 849 have only variants marked
+// inactive. Tightening it here would have silently reduced the existing filter
+// to two products and made this ordering agree with a rule nothing else
+// applies. Whether those 849 should be active is a data question, and answering
+// it by narrowing a query is how the answer gets hidden.
+const productHasStockSQL = `EXISTS (
+			      SELECT 1 FROM catalog.product_variants pv
+			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
+			      WHERE pv.product_id = catalog.products.id
+			        AND pv.deleted_at IS NULL
+			        AND st.quantity > 0
+			  )`
+
+// stockFirstOrder puts orderable products ahead of the rest.
+//
+// Paging happens in SQL, at the product level, and the page was ordered by
+// sold_times. The Go layer then re-sorted the twenty-four rows it had been
+// handed so purchasable cards came first *within that page* — which does
+// nothing when the purchasable products are spread across the whole catalogue.
+// Nineteen thousand nine hundred and ninety-six products, eight hundred and
+// fifty-one of them with stock: page one was almost entirely "request a special
+// procurement" placeholders and the orderable ones were scattered over eight
+// hundred pages.
+//
+// Ordering by this first makes page one the orderable products, and it does so
+// for the whole result set rather than for whatever page was fetched.
+const stockFirstOrder = "(" + productHasStockSQL + ") DESC"
+
 func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchParams) ([]*catalog.Product, error) {
 	var products []*catalog.Product
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -249,14 +284,9 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 			      OR
 			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
 			  )
-			  AND ($12::boolean = false OR EXISTS (
-			      SELECT 1 FROM catalog.product_variants pv
-			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
-			      WHERE pv.product_id = catalog.products.id
-			        AND pv.deleted_at IS NULL
-			        AND st.quantity > 0
-			  ))
+			  AND ($12::boolean = false OR ` + productHasStockSQL + `)
 		ORDER BY
+			  ` + searchOrderPrefix(params.Query) + `
 		  CASE
 		    WHEN $1 = '' THEN 0
 		    WHEN platform.normalize_arabic(name->>'ar') ILIKE platform.normalize_arabic($1) || '%' THEN 1
@@ -268,7 +298,7 @@ func (r *Repository) SearchProducts(ctx context.Context, params catalog.SearchPa
 		    WHEN $13 <> '' AND platform.normalize_arabic(name->>'ar') ILIKE '% ' || platform.normalize_arabic($13) || '%' THEN 7
 		    ELSE 8
 		  END,
-			  ` + catalogOrderBy(params.Sort) + `
+			  ` + searchOrderSuffix(params.Query) + catalogOrderBy(params.Sort) + `
 			LIMIT $4 OFFSET $5;
 		`
 		limit := params.Limit
@@ -344,58 +374,13 @@ func (r *Repository) CountProducts(ctx context.Context, params catalog.SearchPar
 			      OR
 			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
 			  )
-			  AND ($10::boolean = false OR EXISTS (
-			      SELECT 1 FROM catalog.product_variants pv
-			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
-			      WHERE pv.product_id = catalog.products.id
-			        AND pv.deleted_at IS NULL
-			        AND st.quantity > 0
-			  ));
+			  AND ($10::boolean = false OR ` + productHasStockSQL + `);
 		`
 		return tx.QueryRow(txCtx, query,
 			params.Query, params.CategoryID, params.BrandID,
 			params.MinPrice, params.MaxPrice, params.Status, params.DosageForm,
 			params.FilterMode, params.AllowedWorkIDs, params.InStock, params.FirstWord,
 		).Scan(&total)
-	})
-	return total, err
-}
-
-// catalogOrderBy maps a whitelisted sort key onto a safe ORDER BY clause.
-func catalogOrderBy(sort string) string {
-	// Returns the ORDER BY *expression* only, without the keyword - the caller
-	// supplies "ORDER BY". Pasted in without it, the SQL read
-	// "... price <= $7 sold_times DESC" and every product search failed with a
-	// syntax error at "sold_times".
-	switch sort {
-	case "price_asc":
-		return "price ASC, created_at DESC"
-	case "price_desc":
-		return "price DESC, created_at DESC"
-	case "newest":
-		return "created_at DESC"
-	case "name":
-		return "name->>'ar' ASC"
-	default:
-		return "sold_times DESC, created_at DESC"
-	}
-}
-
-// CountProductsByOrg returns how many products an organization has in a status.
-//
-// The supplier dashboard previously derived this by iterating a page capped at
-// 100 rows, so a supplier with more products than that saw "100" and no way to
-// tell it was a ceiling rather than a count.
-func (r *Repository) CountProductsByOrg(ctx context.Context, orgID int64, status string) (int, error) {
-	var total int
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `
-			SELECT COUNT(*) FROM catalog.products
-			WHERE organization_id = $1
-			  AND deleted_at IS NULL
-			  AND ($2::text = '' OR status = $2);
-		`
-		return tx.QueryRow(txCtx, query, orgID, status).Scan(&total)
 	})
 	return total, err
 }

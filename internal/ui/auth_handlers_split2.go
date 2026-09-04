@@ -110,22 +110,28 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		TaxNumber:          taxNum,
 		PharmacistLicense:  licenseNum,
 		LicenseDocumentURL: licenseURL,
-		CityID:             r.PostFormValue("city_id"),
-		BranchCount:        r.PostFormValue("branch_count"),
-		Address:            address,
-		Latitude:           r.PostFormValue("branch_lat"),
-		Longitude:          r.PostFormValue("branch_lon"),
-		GoogleMapsURL:      r.PostFormValue("branch_google_maps_url"),
-		Specialisation:     strings.TrimSpace(r.PostFormValue("specialisation")),
-		YearsExperience:    strings.TrimSpace(r.PostFormValue("years_experience")),
-		Bio:                strings.TrimSpace(r.PostFormValue("bio")),
-		ExpectedSalary:     strings.TrimSpace(r.PostFormValue("expected_salary")),
+		GovernorateID: func() string {
+			if v := r.PostFormValue("branch_governorate_id"); v != "" {
+				return v
+			}
+			return r.PostFormValue("governorate_id")
+		}(),
+		CityID:          r.PostFormValue("city_id"),
+		BranchCount:     r.PostFormValue("branch_count"),
+		Address:         address,
+		Latitude:        r.PostFormValue("branch_lat"),
+		Longitude:       r.PostFormValue("branch_lon"),
+		GoogleMapsURL:   r.PostFormValue("branch_google_maps_url"),
+		Specialisation:  strings.TrimSpace(r.PostFormValue("specialisation")),
+		YearsExperience: strings.TrimSpace(r.PostFormValue("years_experience")),
+		Bio:             strings.TrimSpace(r.PostFormValue("bio")),
+		ExpectedSalary:  strings.TrimSpace(r.PostFormValue("expected_salary")),
 	}
 
 	password := r.PostFormValue("password")
 	if err := identity.ValidatePassword(password); err != nil {
 		form.Error = err.Error()
-		h.renderPage(ctx, w, "render register page validation error", pages.RegisterPage(lang, dir, form, h.listCities(ctx)))
+		h.renderPage(ctx, w, "render register page validation error", pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
 		return
 	}
 
@@ -134,8 +140,23 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		cityIDStr = r.PostFormValue("city_id")
 	}
 
+	// The city id arrives from a form and was taken on trust. It decides which
+	// suppliers cover this pharmacy, so it has to name a real city — and, when
+	// a governorate was chosen too, a city inside it. Otherwise the two pickers
+	// can disagree and the account is created against a coverage area nobody
+	// selected.
 	var cityIDPtr *int64
 	if id, err := strconv.ParseInt(cityIDStr, 10, 64); err == nil && id > 0 {
+		govIDStr := r.PostFormValue("branch_governorate_id")
+		if govIDStr == "" {
+			govIDStr = r.PostFormValue("governorate_id")
+		}
+		if !h.cityBelongsToGovernorate(ctx, id, govIDStr) {
+			form.Error = i18n.T(lang, "auth.register.city_governorate_mismatch")
+			h.renderPage(ctx, w, "render register page validation error",
+				pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)))
+			return
+		}
 		cityIDPtr = &id
 	} else if latPtr != nil && lonPtr != nil {
 		if nearestID := h.findNearestCityID(ctx, *latPtr, *lonPtr); nearestID > 0 {
@@ -168,7 +189,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			h.log.WarnContext(ctx, "ui job seeker registration failed", "email", form.Email, "error", err)
 			form.Error = h.safeMessage(err, lang)
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			if rerr := pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w); rerr != nil {
+			if rerr := pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)).Render(ctx, w); rerr != nil {
 				h.log.ErrorContext(ctx, "render register page after error", "error", rerr)
 			}
 			return
@@ -220,23 +241,23 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		NameEn:   form.Name,
 		Phone:    form.Phone,
 		Org: identity.RegisterOrgInput{
-			Type:               form.AccountType,
-			LegalName:          form.LegalName,
-			TradeNameAr:        form.TradeNameAr,
-			TradeNameEn:        form.TradeNameEn,
-			CommercialRegister: form.CommercialRegister,
-			TaxNumber:          form.TaxNumber,
-			PharmacistLicense:  form.PharmacistLicense,
-			LicenseDocumentURL: form.LicenseDocumentURL,
+			Type:                form.AccountType,
+			LegalName:           form.LegalName,
+			TradeNameAr:         form.TradeNameAr,
+			TradeNameEn:         form.TradeNameEn,
+			CommercialRegister:  form.CommercialRegister,
+			TaxNumber:           form.TaxNumber,
+			PharmacistLicense:   form.PharmacistLicense,
+			LicenseDocumentURL:  form.LicenseDocumentURL,
 			LicenseOriginalName: licenseMeta.OriginalName,
 			LicenseMimeType:     licenseMeta.MimeType,
 			LicenseSizeBytes:    licenseMeta.SizeBytes,
-			CityID:             cityIDPtr,
-			BranchCount:        &branchCount,
-			Address:            form.Address,
-			Latitude:           latPtr,
-			Longitude:          lonPtr,
-			GoogleMapsURL:      form.GoogleMapsURL,
+			CityID:              cityIDPtr,
+			BranchCount:         &branchCount,
+			Address:             form.Address,
+			Latitude:            latPtr,
+			Longitude:           lonPtr,
+			GoogleMapsURL:       form.GoogleMapsURL,
 		},
 	})
 
@@ -244,7 +265,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		h.log.WarnContext(ctx, "ui registration failed", "email", form.Email, "error", err)
 		form.Error = h.safeMessage(err, lang)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if rerr := pages.RegisterPage(lang, dir, form, h.listCities(ctx)).Render(ctx, w); rerr != nil {
+		if rerr := pages.RegisterPage(lang, dir, form, h.listCities(ctx), h.listGovernorates(ctx)).Render(ctx, w); rerr != nil {
 			h.log.ErrorContext(ctx, "render register page after error", "error", rerr)
 		}
 		return

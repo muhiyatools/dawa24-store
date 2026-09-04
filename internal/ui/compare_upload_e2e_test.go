@@ -284,18 +284,24 @@ func (m *mockCompareRepoE2E) ListMarketDiscounts(ctx context.Context, filter com
 	var items []*compare.MarketDiscountRow
 	for fileID, rows := range m.fileRows {
 		file := m.files[fileID]
+		// The board is temporary warehouses only. A supplier's own Compare Tool
+		// upload is theirs, and this mock has to honour that or the e2e test
+		// asserts against rows the real query would never return.
+		if file == nil || !file.IsTempWarehouse {
+			continue
+		}
 		for _, r := range rows {
 			items = append(items, &compare.MarketDiscountRow{
 				ID:                 r.ID,
-				VariantID:          r.ID,
+				FileID:             file.ID,
 				SupplierName:       file.SupplierName,
 				ProductName:        r.RawName,
-				SKU:                r.SKU,
 				OriginalPrice:      r.Price,
 				DiscountPercent:    r.Discount,
 				PriceAfterDiscount: r.PriceAfterDiscount,
 				MatchedProductID:   r.MatchedProductID,
 				InCatalog:          r.MatchedProductID != nil && *r.MatchedProductID > 0,
+				UploadedAt:         file.CreatedAt,
 			})
 		}
 	}

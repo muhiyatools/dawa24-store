@@ -129,8 +129,13 @@ func TestUnapprovedOrganizationCannotMoveMoney(t *testing.T) {
 	}{
 		{http.MethodPost, "/wallet/deposit"},
 		{http.MethodPost, "/wallet/withdraw"},
-		{http.MethodPost, "/settings/employees/create"},
-		{http.MethodPost, "/settings/organization/member"},
+		// The employee write moved with its screen. /settings/employees/create
+		// and /settings/organization/member were two of the three CRUDs over
+		// org.members and org.organizations; both are gone rather than gated,
+		// and a route that does not exist answers 404 — a stronger refusal than
+		// the redirect asserted here, but not the one asserted here. What must
+		// still be gated is the surviving write, and that is what this names.
+		{http.MethodPost, "/customer/employees/new"},
 	}
 
 	for _, status := range []string{"pending", "under_review", "rejected", "suspended"} {

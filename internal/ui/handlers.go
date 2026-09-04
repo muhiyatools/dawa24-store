@@ -196,6 +196,30 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Get("/notifications/unread-badge", h.NotificationsUnreadBadgePartial)
 	r.Post("/notifications/{id}/read", h.MarkNotificationReadSubmit)
 	r.Post("/notifications/read-all", h.NotificationsReadAllSubmit)
+
+	// Account settings, for the caller's own account.
+	//
+	// These were in the approved-only tier, which meant a member of a company
+	// still under review could not change their own password or revoke a
+	// session on a lost device — the two things someone in that position is
+	// most likely to need. Nothing here reads or writes company data, so
+	// nothing here needs the company to be approved.
+	//
+	// The payment-method routes stay in the approved tier: they are money, and
+	// they belong to a company that may not trade yet.
+	r.Get("/settings", h.SettingsIndex)
+	r.Get("/settings/profile", redirectToSettingsTab("profile"))
+	r.Post("/settings/profile", h.SettingsProfileSubmit)
+	r.Post("/settings/password", h.SettingsPasswordSubmit)
+	r.Get("/settings/addresses", redirectToSettingsTab("profile"))
+	r.Get("/settings/security", redirectToSettingsTab("security"))
+	r.Get("/settings/preferences", redirectToSettingsTab("preferences"))
+	r.Post("/settings/addresses", h.SettingsAddressSubmit)
+	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
+	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
+	r.Post("/settings/sessions/revoke", h.SettingsSessionRevokeSubmit)
+	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
+	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
 }
 
 // RegisterApprovedSharedRoutes mounts Tier B shared routes restricted to approved
@@ -206,37 +230,21 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
 
 	// Settings (Approved only)
-	r.Get("/settings", h.SettingsIndex)
-	r.Get("/settings/profile", redirectToSettingsTab("profile"))
-	r.Post("/settings/profile", h.SettingsProfileSubmit)
-	r.Post("/settings/password", h.SettingsPasswordSubmit)
-	r.Get("/settings/addresses", redirectToSettingsTab("profile"))
-	r.Get("/settings/security", redirectToSettingsTab("security"))
-	r.Get("/settings/organization", redirectToSettingsTab("organization"))
-	r.Get("/settings/preferences", redirectToSettingsTab("preferences"))
 	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))
-	r.Get("/settings/employees", h.SettingsEmployeesPage)
+	// /settings/employees was a third employee CRUD over the same org.members
+	// rows, with its own create form, its own delete (which took a user id
+	// where the others took a member id) and its own branch-manager assignment.
+	// Three screens for one thing is how the three drifted apart. The team page
+	// is the one that survives; this redirects rather than 404s so anyone
+	// holding a bookmark lands somewhere useful.
+	r.Get("/settings/employees", h.SettingsEmployeesRedirect)
 
-	r.Post("/settings/addresses", h.SettingsAddressSubmit)
-	r.Post("/settings/addresses/{id}/delete", h.SettingsAddressDeleteSubmit)
-	r.Post("/settings/security/revoke", h.SettingsSessionRevokeSubmit)
-	r.Post("/settings/sessions/revoke", h.SettingsSessionRevokeSubmit)
 	r.Post("/settings/security/plan/{id}", h.SettingsSessionPlanPurchaseSubmit)
-	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
 
 	// Branch management lives at /customer/branches and /vendor/branches. The
 	// settings page used to carry a third, lower-quality write path that even
 	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
-	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
-	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
-	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
-	r.Post("/settings/employees", h.SettingsEmployeeCreateSubmit)
-	r.Post("/settings/employees/create", h.SettingsEmployeeCreateSubmit)
-	r.Post("/settings/employees/add", h.SettingsEmployeeCreateSubmit)
-	r.Post("/settings/employees/{id}/delete", h.SettingsEmployeeDeleteSubmit)
-	r.Post("/settings/employees/assign-manager", h.SettingsBranchManagerAssignSubmit)
 	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
-	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
 	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
 	r.Post("/settings/payment-methods/{id}/edit", h.SettingsPaymentMethodEditSubmit)
 	r.Post("/settings/payment-methods/{id}/default", h.SettingsPaymentMethodSetDefaultSubmit)

@@ -275,4 +275,3 @@ func (h *UIHandler) AdminSettingsPolicySubmit(w http.ResponseWriter, r *http.Req
 
 	h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "success", "تم تحديث ونشر السياسة بنجاح.")
 }
-

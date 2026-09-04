@@ -55,7 +55,6 @@ func (s *Service) BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerID *
 	return s.repo.BulkUnarchiveFiles(ctx, ids, ownerID)
 }
 
-
 // ListFiles lists files for the given tenant / user.
 func (s *Service) ListFiles(ctx context.Context, userID int64, orgID *int64, status *CompareFileStatus) ([]*CompareFile, error) {
 	return s.repo.ListFiles(ctx, userID, orgID, status)

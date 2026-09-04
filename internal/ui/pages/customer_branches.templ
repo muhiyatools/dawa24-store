@@ -11,41 +11,26 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// CustomerBranchesData is the branches screen, and only the branches.
+//
+// The employees list, its toolbar, its pagination and its two dialogs used to
+// live here behind a second tab, over the same org.members rows /customer/team
+// already showed — worse there, better here, and neither could do what the
+// other could. The tab moved to /customer/team whole; this page kept the
+// branches and a head count per branch, which is one GROUP BY rather than the
+// whole staff list.
 type CustomerBranchesData struct {
-	Branches   []*org.Branch
-	Employees  []*org.EmployeeView
-	Cities     []*platformadmin.City
-	ActiveTab  string // "branches" or "employees"
+	Branches      []*org.Branch
+	StaffPerBranch map[int64]int
+	TotalStaff    int
+	Cities        []*platformadmin.City
 	NoticeType    string
 	NoticeMsg     string
-	EmpPage       int
-	EmpPerPage    int
-	EmpTotalCount int
 }
 
-func (d CustomerBranchesData) GetBranchEmployees(branchID int64) []*org.EmployeeView {
-	var list []*org.EmployeeView
-	for _, emp := range d.Employees {
-		if emp != nil && emp.Member != nil && emp.Member.BranchID != nil && *emp.Member.BranchID == branchID {
-			list = append(list, emp)
-		}
-	}
-	return list
-}
-
-func (d CustomerBranchesData) GetBranchName(branchID *int64) string {
-	if branchID == nil || *branchID <= 0 {
-		return "غير محدد بفرع معين"
-	}
-	for _, b := range d.Branches {
-		if b != nil && b.ID == *branchID {
-			if b.Name["ar"] != "" {
-				return b.Name["ar"]
-			}
-			return b.Name["en"]
-		}
-	}
-	return fmt.Sprintf("فرع رقم #%d", *branchID)
+// BranchStaffCount is how many members are assigned to one branch.
+func (d CustomerBranchesData) BranchStaffCount(branchID int64) int {
+	return d.StaffPerBranch[branchID]
 }
 
 func (d CustomerBranchesData) GetMainBranch() *org.Branch {
@@ -143,19 +128,19 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								@components.IconBuilding("icon-sm")
 							</div>
 							<h1 class="page-title text-xl font-bold m-0">
-								إدارة الفروع ومستخدمي الصيدلية
+								فروع الصيدلية ومواقع الاستلام
 							</h1>
 						</div>
 						<p class="text-xs text-secondary m-0">
-							إدارة شبكة الفروع ومواقع الاستلام الجغرافية، وتعيين الموظفين والصيادلة لكل فرع وتحديد أدوارهم وصلاحياتهم.
+							إدارة شبكة الفروع ومواقع الاستلام الجغرافية ونطاق التوريد. تعيين الموظفين لكل فرع يتم من صفحة فريق العمل.
 						</p>
 					</div>
 					<div class="d-flex items-center gap-2 flex-wrap">
-						<button type="button" class="btn btn-secondary btn-sm font-bold gap-1" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
-							@components.IconUser("icon-xs")
-							<span>+ إضافة مستخدم / موظف</span>
-						</button>
-						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" @click="resetToAddMode(); activeTab = 'branches'; document.getElementById('new-branch-form').scrollIntoView({behavior:'smooth'});">
+						<a href="/customer/team" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconUsers("icon-xs")
+							<span>فريق العمل والموظفون</span>
+						</a>
+						<button type="button" class="btn btn-primary btn-sm font-bold gap-1" @click="resetToAddMode(); document.getElementById('new-branch-form').scrollIntoView({behavior:'smooth'});">
 							@components.IconPlus("icon-xs")
 							<span>+ إضافة فرع جديد</span>
 						</button>
@@ -188,7 +173,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				<div class="stat-card-3d">
 					<div class="stat-card-label">الموظفون والصيادلة</div>
 					<div class="stat-card-value text-primary tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Employees)) } <span class="text-xs font-normal text-muted">مستخدمين</span>
+						{ fmt.Sprintf("%d", data.TotalStaff) } <span class="text-xs font-normal text-muted">مستخدمين</span>
 					</div>
 					<div class="stat-card-sub">كادر العمل بالصيدلية</div>
 				</div>
@@ -205,30 +190,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				</div>
 			</div>
 
-			<!-- Navigation Tabs -->
-			<div class="tabs-nav">
-				<button
-					type="button"
-					class="tab-btn"
-					:class="{ 'active': activeTab === 'branches' }"
-					@click="activeTab = 'branches'"
-				>
-					@components.IconBuilding("icon-xs")
-					<span>شبكة الفروع ومواقع الاستلام ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
-				</button>
-				<button
-					type="button"
-					class="tab-btn"
-					:class="{ 'active': activeTab === 'employees' }"
-					@click="activeTab = 'employees'"
-				>
-					@components.IconUser("icon-xs")
-					<span>موظفو ومستخدمو الفروع والصلاحيات ({ fmt.Sprintf("%d", len(data.Employees)) })</span>
-				</button>
-			</div>
-
-			<!-- TAB 1: Branches Network Content -->
-			<div x-show="activeTab === 'branches'">
+			<!-- Branches network -->
+			<div>
 				<div class="cb-split-grid">
 					
 					<!-- Right Column (in RTL DOM): Existing Pharmacy Branches List -->
@@ -288,17 +251,15 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													<span>تعديل</span>
 												</button>
 
-												<!-- Add Employee to Branch Button -->
-												<button
-													type="button"
+												<!-- Assign staff to this branch: the team screen owns that -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/customer/team?branch=%d", b.ID)) }
 													class="btn btn-secondary btn-xs font-bold gap-1"
-													data-branch-id={ fmt.Sprintf("%d", b.ID) }
-													onclick="openAddEmployeeModalFromBtn(this)"
-													title="إضافة موظف لهذا الفرع"
+													title="موظفو هذا الفرع"
 												>
-													@components.IconPlus("icon-xs")
-													<span>موظف</span>
-												</button>
+													@components.IconUsers("icon-xs")
+													<span>موظفون</span>
+												</a>
 
 												<!-- Delete Branch Button -->
 												if !b.IsMain {
@@ -349,9 +310,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 											<div class="d-flex items-center gap-2">
 												<!-- Assigned Staff Pill -->
-												{{ branchEmps := data.GetBranchEmployees(b.ID) }}
 												<span class="badge badge-secondary text-2xs font-bold">
-													{ fmt.Sprintf("%d موظف بالفرع", len(branchEmps)) }
+													{ fmt.Sprintf("%d موظف بالفرع", data.BranchStaffCount(b.ID)) }
 												</span>
 
 												<!-- Google Maps Link -->
@@ -520,83 +480,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				</div>
 			</div>
 
-			<!-- TAB 2: Employees Content -->
-			<div x-show="activeTab === 'employees'">
-				@CustomerEmployeesTab(data, lang, dir, perms)
-			</div>
 		<script>
-			// switchCustomerBranchTab was removed: nothing called it, and all four
-			// elements it looked up (cb-tab-btn-branches, cb-tab-btn-employees and
-			// their panels) do not exist on this page -- the tabs are driven by
-			// Alpine's activeTab above. It was toggling classes on nulls.
-
-			function filterCustomerEmployees() {
-				const search = (document.getElementById('cb-emp-search-input')?.value || '').toLowerCase().trim();
-				const branchFilter = document.getElementById('cb-emp-branch-filter')?.value || '';
-				const rows = document.querySelectorAll('#customer-employees-table tbody tr');
-
-				rows.forEach(row => {
-					const nameStr = row.getAttribute('data-emp-name') || '';
-					const branchId = row.getAttribute('data-branch-id') || '';
-
-					const matchesSearch = !search || nameStr.includes(search);
-					const matchesBranch = !branchFilter || branchId === branchFilter;
-
-					if (matchesSearch && matchesBranch) {
-						row.classList.remove('hidden');
-					} else {
-						row.classList.add('hidden');
-					}
-				});
-			}
-
-			function openAddEmployeeModalFromBtn(btn) {
-				if (!btn) return;
-				const branchId = btn.getAttribute('data-branch-id');
-				openAddEmployeeModal(branchId);
-			}
-
-			function openAddEmployeeModal(branchId) {
-				const modal = document.getElementById('add-employee-modal');
-				if (branchId) {
-					const branchSelect = document.getElementById('add-emp-branch-select');
-					if (branchSelect) branchSelect.value = String(branchId);
-				}
-				if (modal && typeof modal.showModal === 'function') {
-					modal.showModal();
-				}
-			}
-
-			function closeAddEmployeeModal() {
-				const modal = document.getElementById('add-employee-modal');
-				if (modal && typeof modal.close === 'function') {
-					modal.close();
-				}
-			}
-
-			function openEditEmployeeModalFromBtn(btn) {
-				if (!btn) return;
-				const empId = btn.getAttribute('data-emp-id');
-				openEditEmployeeModal(empId);
-			}
-
-			function openEditEmployeeModal(empId) {
-				const modal = document.getElementById('edit-emp-modal-' + empId);
-				if (modal && typeof modal.showModal === 'function') {
-					modal.showModal();
-				}
-			}
-
-			function closeEditEmployeeModal(empId) {
-				const modal = document.getElementById('edit-emp-modal-' + empId);
-				if (modal && typeof modal.close === 'function') {
-					modal.close();
-				}
-			}
+			// The employee search, the branch filter and the add/edit dialogs
+			// moved to /customer/team with the tab they belonged to. What is left
+			// here drives the branch form and nothing else.
 
 			function customerBranchManager() {
 				return {
-					activeTab: 'branches',
 					mode: 'add',
 					editId: 0,
 					formAction: '/customer/branches/new',
@@ -618,10 +508,6 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					},
 					init() {
 						const urlParams = new URLSearchParams(window.location.search);
-						const tabParam = urlParams.get('tab');
-						if (tabParam === 'employees') {
-							this.activeTab = 'employees';
-						}
 						const editParam = urlParams.get('edit');
 						if (editParam) {
 							const btn = document.querySelector(`[data-edit-branch-btn="${editParam}"]`);

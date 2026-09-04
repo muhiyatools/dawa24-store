@@ -16,7 +16,11 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// CustomerTeamPage lists the pharmacy's employees and the role each holds.
+// CustomerTeamPage is the pharmacy's single team screen.
+//
+// It renders what the branches page used to hide behind a second tab: the
+// branch assignment, the employee code, the search and branch filters, and the
+// add and edit dialogs. /customer/branches is now branches.
 func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -28,87 +32,23 @@ func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
-	offset := (page - 1) * limit
-
-	var totalCount int
-	employees, total, err := h.orgSvc.ListEmployeesWithTotal(ctx, actor.OrganizationID, limit, offset)
-	if err != nil {
-		h.log.ErrorContext(ctx, "list pharmacy employees",
-			"error", err, "organization_id", actor.OrganizationID)
-	} else {
-		totalCount = total
-	}
 
 	view := pages.TenantTeamView{
-		Title:      i18n.T(lang, "customer.team.title"),
-		RolesPath:  "/customer/roles",
-		ActionBase: "/customer/employees",
-		CanCreate:  actor.Can("pharmacy.team.create"),
-		CanUpdate:  actor.Can("pharmacy.team.update"),
-		CanDelete:  actor.Can("pharmacy.team.delete"),
-		CanAssign:  actor.Can("pharmacy.role.assign"),
-		NoticeKind: r.URL.Query().Get("notice"),
-		Notice:     r.URL.Query().Get("msg"),
-		Page:       page,
-		PerPage:    limit,
-		TotalCount: totalCount,
+		Title:       i18n.T(lang, "customer.team.title"),
+		RolesPath:   "/customer/roles",
+		ImportPath:  "/customer/team/import",
+		ActionBase:  "/customer/employees",
+		CanCreate:   actor.Can("pharmacy.team.create"),
+		CanUpdate:   actor.Can("pharmacy.team.update"),
+		CanDelete:   actor.Can("pharmacy.team.delete"),
+		CanAssign:   actor.Can("pharmacy.role.assign"),
+		NoticeKind:  r.URL.Query().Get("notice"),
+		Notice:      r.URL.Query().Get("msg"),
+		FocusBranch: parseInt64Param(r, "branch"),
+		Page:        page,
+		PerPage:     limit,
 	}
-
-	roles, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID)
-	if err != nil {
-		h.log.ErrorContext(ctx, "list company roles for team page",
-			"error", err, "organization_id", actor.OrganizationID)
-	}
-	// roleByKey lets a member carrying only a legacy role_key still show the
-	// company's own role for it, rather than an empty cell.
-	roleByKey := map[string]int64{}
-	roleNameByID := map[int64]string{}
-	for _, role := range roles {
-		name := role.Name.Get(i18n.ParseLang(lang))
-		view.Roles = append(view.Roles, pages.TenantRoleOption{ID: role.ID, Name: name})
-		roleByKey[role.Key] = role.ID
-		roleNameByID[role.ID] = name
-	}
-
-	for _, emp := range employees {
-		if emp == nil || emp.Member == nil {
-			continue
-		}
-		roleID := int64(0)
-		if emp.Member.OrgRoleID != nil {
-			roleID = *emp.Member.OrgRoleID
-		} else if id, ok := roleByKey[emp.Member.RoleKey]; ok {
-			roleID = id
-		}
-		name := emp.UserName
-		if name == "" {
-			name = emp.UserEmail
-		}
-		view.Members = append(view.Members, pages.TenantTeamMember{
-			ID:           emp.Member.ID,
-			UserID:       emp.Member.UserID,
-			Name:         name,
-			Email:        emp.UserEmail,
-			Phone:        emp.UserPhone,
-			JobTitle:     emp.Member.JobTitle,
-			EmployeeCode: emp.Member.EmployeeCode,
-			BranchName:   emp.BranchName,
-			RoleID:       roleID,
-			RoleName:     roleNameByID[roleID],
-			IsActive:     emp.Member.IsActive,
-			JoinedAt:     emp.Member.CreatedAt.Format("2006-01-02"),
-		})
-	}
-
-	if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
-		for _, b := range branches {
-			name := b.Name.Get(i18n.AR)
-			if name == "" {
-				name = b.Name.Get(i18n.EN)
-			}
-			view.Branches = append(view.Branches, &pages.BranchOption{ID: b.ID, Name: name})
-		}
-	}
+	h.fillTenantTeamView(ctx, &view, actor.OrganizationID, actor.OrgType, lang, limit, (page-1)*limit)
 
 	h.renderPage(ctx, w, "render pharmacy team page", pages.TenantTeamPage(view, lang, dir))
 }

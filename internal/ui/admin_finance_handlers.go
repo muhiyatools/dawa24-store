@@ -327,4 +327,3 @@ func (h *UIHandler) AdminOfferOrderDetailPage(w http.ResponseWriter, r *http.Req
 
 	h.renderPage(ctx, w, "render admin offer order detail", pages.AdminOfferOrderDetailPage(order, lang, dir))
 }
-

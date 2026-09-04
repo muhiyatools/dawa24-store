@@ -143,4 +143,3 @@ func (h *UIHandler) CompareFileDeleteSubmit(w http.ResponseWriter, r *http.Reque
 	}
 	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.deleted_success"))
 }
-

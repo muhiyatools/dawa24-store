@@ -1,15 +1,22 @@
 package pages
 
 import (
-	"fmt"
-
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City) {
+// RegisterPage is the three-step signup form.
+//
+// The two location controls used to be plain <select> elements with different
+// vocabularies: a city dropdown of 351 real rows for job seekers, and, inside
+// the map picker, a governorate dropdown of 27 hard-coded name/coordinate pairs
+// with no database ids at all — so the map wrote a city id by matching names as
+// strings. Both are now the same searchable combobox over the same rows, and
+// the city list follows the governorate.
+templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City, governorates []*platformadmin.Governorate) {
+	{{ govOptions := GovernorateOptions(governorates, lang) }}
+	{{ cityOptions := CityOptions(cities, lang) }}
 	@layouts.Base("إنشاء حساب جديد", lang, dir) {
 		<div class="auth-page-wrapper">
 			<div class="auth-card-wide glass-panel">
@@ -149,17 +156,29 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</div>
 
 						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="job_seeker">
-							<div class="form-group mb-0">
-								<label class="form-label font-semibold text-xs" for="reg-city-id">المدينة / المحافظة المفضلة للعمل *</label>
-								<select id="reg-city-id" name="city_id" class="form-input form-select">
-									<option value="">اختر المدينة...</option>
-									for _, c := range cities {
-										<option value={ fmt.Sprintf("%d", c.ID) } selected?={ form.CitySelected(c.ID) }>
-											{ c.Name.Get(i18n.ParseLang(lang)) }
-										</option>
-									}
-								</select>
-							</div>
+							@components.Combobox(components.ComboboxProps{
+								Name:          "governorate_id",
+								Label:         "المحافظة المفضلة للعمل",
+								Placeholder:   "اكتب اسم المحافظة…",
+								Options:       govOptions,
+								Required:      true,
+								SelectedValue: form.GovernorateID,
+								SelectedLabel: SelectedGeoLabel(govOptions, form.GovernorateID),
+							})
+							@components.Combobox(components.ComboboxProps{
+								Name:          "city_id",
+								Label:         "المدينة",
+								Placeholder:   "اكتب اسم المدينة…",
+								Options:       cityOptions,
+								DependsOn:     "governorate_id",
+								Required:      true,
+								SelectedValue: form.CityID,
+								SelectedLabel: SelectedGeoLabel(cityOptions, form.CityID),
+								EmptyText:     "اختر المحافظة أولاً، أو جرّب اسماً آخر.",
+							})
+						</div>
+
+						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="job_seeker">
 							<div class="form-group mb-0">
 								<label class="form-label font-semibold text-xs" for="reg-expected-salary">الراتب المتوقع (ج.م / اختياري)</label>
 								<input type="text" id="reg-expected-salary" name="expected_salary" class="form-input tabular-nums" placeholder="مثال: 9000" value={ form.ExpectedSalary } />
@@ -222,6 +241,37 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							<p class="text-2xs text-secondary mt-1 m-0">
 								يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.
 							</p>
+						</div>
+
+						<!-- The branch's governorate and city.
+
+						     Business accounts used to have no picker at all: the
+						     city was whatever the map's own <select> matched by
+						     proximity, written into a hidden branch_city_id. The
+						     map still does that, but through these controls, so
+						     what was chosen is visible and can be corrected. -->
+						<div class="d-grid grid-auto-fit-sm gap-4" data-type-visibility="vendor customer">
+							@components.Combobox(components.ComboboxProps{
+								Name:          "branch_governorate_id",
+								Label:         "محافظة الفرع الرئيسي",
+								Placeholder:   "اكتب اسم المحافظة…",
+								Options:       govOptions,
+								Required:      true,
+								SelectedValue: form.GovernorateID,
+								SelectedLabel: SelectedGeoLabel(govOptions, form.GovernorateID),
+							})
+							@components.Combobox(components.ComboboxProps{
+								Name:          "branch_city_id",
+								Label:         "مدينة الفرع الرئيسي",
+								Placeholder:   "اكتب اسم المدينة…",
+								Options:       cityOptions,
+								DependsOn:     "branch_governorate_id",
+								Required:      true,
+								SelectedValue: form.CityID,
+								SelectedLabel: SelectedGeoLabel(cityOptions, form.CityID),
+								EmptyText:     "اختر المحافظة أولاً، أو جرّب اسماً آخر.",
+								Help:          "يُملأ تلقائياً عند تحديد موقعك على الخريطة، ويمكنك تعديله.",
+							})
 						</div>
 
 						<!-- Interactive Map with GPS Location & Live Reverse Geocoding -->

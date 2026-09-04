@@ -58,6 +58,11 @@ func Icon(name string, class string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		case "grid":
+			templ_7745c5c3_Err = IconGrid(class).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		case "shield":
 			templ_7745c5c3_Err = IconShield(class).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

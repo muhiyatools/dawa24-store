@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"context"
+
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -46,15 +48,14 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					</p>
 				</div>
 
-				<div class="row-center">
-					<a
-						href="/customer/wallet"
-						class="btn btn-outline-brand font-bold gap-2"
-					>
-						@components.IconWallet("icon-xs")
-						<span>{ i18n.T(lang, "billing.wallet_balance") }</span>
-					</a>
-				</div>
+				if walletHref := settingsWalletHref(ctx); walletHref != "" {
+					<div class="row-center">
+						<a href={ templ.SafeURL(walletHref) } class="btn btn-outline-brand font-bold gap-2">
+							@components.IconWallet("icon-xs")
+							<span>{ i18n.T(lang, "billing.wallet_balance") }</span>
+						</a>
+					</div>
+				}
 			</div>
 
 			<!-- Unified Tabs Navigation Bar -->
@@ -68,17 +69,6 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				>
 					@components.IconUser("icon-xs")
 					<span>{ i18n.T(lang, "settings.tab_profile") }</span>
-				</button>
-
-				<button
-					type="button"
-					class="tab-btn"
-					:class="{ 'active': activeTab === 'organization' }"
-					@click="activeTab = 'organization'; history.replaceState(null, null, '#organization')"
-					data-tab-target="organization"
-				>
-					@components.IconBuilding("icon-xs")
-					<span>{ i18n.T(lang, "settings.tab_organization") }</span>
 				</button>
 
 				<button
@@ -226,60 +216,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- Tab 2: Organization & Licenses -->
-			<div
-				id="tab-organization"
-				class="tab-pane glass-panel p-8"
-				:class="{ 'active': activeTab === 'organization' }"
-				x-show="activeTab === 'organization'"
-			>
-				<div class="flex-between items-center mb-6 flex-wrap gap-4">
-     <div class="stack-sm">
-						<h3 class="text-xl font-black text-primary m-0">
-							{ i18n.T(lang, "settings.org_title") }
-						</h3>
-						<p class="text-sm text-muted mt-1">
-							{ i18n.T(lang, "settings.org_desc") }
-						</p>
-					</div>
-
-					<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold">
-						@components.IconBuilding("icon-xs")
-						<span>{ i18n.T(lang, "settings.manage_branches") }</span>
-					</a>
-				</div>
-
-				<div class="d-grid grid-auto-fit-lg gap-5 mb-8">
-					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.legal_name") }</div>
-						<div class="text-base font-black text-primary mt-1">صيدلية معتمدة - شبكة دواء 24</div>
-					</div>
-
-					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.cr_number") }</div>
-						<div class="text-base font-black text-primary mt-1 tabular-nums">CR-9481920</div>
-					</div>
-
-					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.tax_number") }</div>
-						<div class="text-base font-black text-primary mt-1 tabular-nums">984-210-941</div>
-					</div>
-
-					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.eda_license") }</div>
-						<div class="text-base font-black text-accent mt-1 tabular-nums">EDA-LIC-2024-8842</div>
-					</div>
-				</div>
-
-				<div class="p-4 bg-success/10 border border-success/30 rounded-lg d-flex items-center gap-3">
-					<div class="text-success">@components.IconCheckCircle("icon-sm")</div>
-					<div class="text-success font-bold text-sm">
-						{ i18n.T(lang, "settings.verified_badge") }
-					</div>
-				</div>
-			</div>
-
-			<!-- Tab 3: Preferences -->
+			<!-- Tab 2: Preferences -->
 			<div
 				id="tab-preferences"
 				class="tab-pane glass-panel p-8"
@@ -366,4 +303,28 @@ func ternaryStr(cond bool, a, b string) string {
 		return a
 	}
 	return b
+}
+
+// settingsWalletHref is the wallet this caller can actually open, or nothing.
+//
+// The header used to link to /customer/wallet unconditionally. That is a 404
+// for a supplier (the route is mounted inside the customer audience group), a
+// 404 for an administrator (same reason), and a 404 for a pharmacy member
+// without pharmacy.wallet.view. Three of the four kinds of visitor this page
+// has were offered a door that does not open.
+func settingsWalletHref(ctx context.Context) string {
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.IsStaff {
+		return ""
+	}
+	if actor.IsVendor() {
+		if actor.Can("vendor.wallet.view") {
+			return "/vendor/wallet"
+		}
+		return ""
+	}
+	if actor.Can("pharmacy.wallet.view") {
+		return "/customer/wallet"
+	}
+	return ""
 }

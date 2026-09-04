@@ -209,45 +209,44 @@ func fieldSampleText(row FieldMappingRow, cols []FileColumn) string {
 // shifted column, short enough not to become the page.
 const vendorImportRawPreviewRows = 5
 
-// RawFilePreview reconstructs the head of the uploaded sheet from the samples
-// the column analysis already collected, so the mapping stage can show the file
-// as it was read — the same preview every other import wizard gives, and the
-// only place a vendor can catch a wrong file or a misdetected header row before
-// the mapping choices below are made against it.
+// RawFilePreview returns the head of the uploaded sheet exactly as it was read.
 //
-// The shortest column decides how many rows are shown: assembling a row out of
-// columns holding different numbers of samples would put values on one line
-// that were never on one line in the file.
+// It used to build the table by transposing each column's Preview slice:
+// row[c] = cols[c].Preview[r]. Column.Preview comes from ColumnProfile.Sample,
+// which only records values that are non-empty *and* not already seen. Columns
+// therefore skip different cells, so index r of column A and index r of column
+// B were cells from different spreadsheet rows and the table showed a grid of
+// values that never appeared together in the file.
+//
+// It also took the *minimum* sample depth across columns, so one entirely blank
+// column made depth zero and the preview vanished.
+//
+// Analysis.Preview is the real thing: raw rows from the header row down, each
+// padded to Layout.Width by previewSlice. Row zero is the header row when one
+// was detected, so it is dropped here rather than repeated under itself.
 func (v VendorImportView) RawFilePreview() ([]string, [][]string) {
-	cols := v.FileColumns()
-	if len(cols) == 0 {
+	if v.Analysis == nil || len(v.Analysis.Preview) == 0 {
 		return nil, nil
 	}
-	headers := make([]string, 0, len(cols))
-	depth := -1
-	for _, c := range cols {
-		label := c.Header
-		if label == "" {
-			label = fmt.Sprintf("العمود %d", c.Index+1)
+
+	headers := make([]string, 0, v.Analysis.Layout.Width)
+	for i := 0; i < v.Analysis.Layout.Width; i++ {
+		label := ""
+		if i < len(v.Analysis.Layout.Headers) {
+			label = strings.TrimSpace(v.Analysis.Layout.Headers[i])
 		}
 		headers = append(headers, label)
-		if depth < 0 || len(c.Preview) < depth {
-			depth = len(c.Preview)
-		}
 	}
-	if depth <= 0 {
+
+	rows := v.Analysis.Preview
+	if v.Analysis.Layout.HeaderRow >= 0 && len(rows) > 0 {
+		rows = rows[1:]
+	}
+	if len(rows) > vendorImportRawPreviewRows {
+		rows = rows[:vendorImportRawPreviewRows]
+	}
+	if len(rows) == 0 {
 		return nil, nil
-	}
-	if depth > vendorImportRawPreviewRows {
-		depth = vendorImportRawPreviewRows
-	}
-	rows := make([][]string, depth)
-	for r := 0; r < depth; r++ {
-		row := make([]string, len(cols))
-		for c := range cols {
-			row[c] = cols[c].Preview[r]
-		}
-		rows[r] = row
 	}
 	return headers, rows
 }

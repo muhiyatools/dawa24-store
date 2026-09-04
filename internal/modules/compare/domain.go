@@ -313,50 +313,22 @@ const (
 )
 
 // MarketDiscountsFilter contains filter and pagination parameters for the public market discounts page.
+// MarketDiscountsFilter is what a reader may narrow the board by.
+//
+// There is deliberately no organization field. The board shows the platform's
+// own temporary warehouses and nothing else, that is fixed in the query's FROM
+// clause, and a filter that could name an organization would be the beginning
+// of a way to ask it for a supplier's private upload.
 type MarketDiscountsFilter struct {
-	Query          string   `json:"query"`
-	Supplier       string   `json:"supplier"`
-	OrganizationID *int64   `json:"organization_id,omitempty"`
-	MinPrice       *float64 `json:"min_price"`
-	MaxPrice       *float64 `json:"max_price"`
-	MinDiscount    *float64 `json:"min_discount"`
-	MaxDiscount    *float64 `json:"max_discount"`
-	SortBy         string   `json:"sort_by"` // "newest", "oldest", "discount_desc", "price_asc", "price_desc"
-	Page           int      `json:"page"`
-	Limit          int      `json:"limit"`
-}
-
-// MarketDiscountRow represents a single discount item displayed on the market discounts page.
-type MarketDiscountRow struct {
-	ID int64 `json:"id"`
-	// VariantID is the catalog.product_variants row this offer is. It is what
-	// the page links to and what the cart adds; ID mirrors it.
-	VariantID int64 `json:"variant_id"`
-	// AvailableStock is the summed quantity across the vendor's warehouses. It
-	// is always positive: a variant with none never reaches this screen.
-	AvailableStock int64  `json:"available_stock"`
-	SupplierName   string `json:"supplier_name"`
-	ProductName        string       `json:"product_name"`
-	SKU                string       `json:"sku,omitempty"`
-	OriginalPrice      money.Amount `json:"original_price"`
-	DiscountPercent    float64      `json:"discount_percent"`
-	DiscountValue      money.Amount `json:"discount_value"`
-	PriceAfterDiscount money.Amount `json:"price_after_discount"`
-	MatchedProductID   *int64       `json:"matched_product_id,omitempty"`
-	InCatalog          bool         `json:"in_catalog"`
-	CreatedAt          time.Time    `json:"created_at"`
-}
-
-// MarketDiscountsResult contains the paginated result of market discounts.
-type MarketDiscountsResult struct {
-	Items              []*MarketDiscountRow `json:"items"`
-	TotalCount         int64                `json:"total_count"`
-	AvailableSuppliers []string             `json:"available_suppliers"`
-	Page               int                  `json:"page"`
-	Limit              int                  `json:"limit"`
-	TotalPages         int                  `json:"total_pages"`
-	HasPrev            bool                 `json:"has_prev"`
-	HasNext            bool                 `json:"has_next"`
+	Query       string   `json:"query"`
+	Supplier    string   `json:"supplier"`
+	MinPrice    *float64 `json:"min_price"`
+	MaxPrice    *float64 `json:"max_price"`
+	MinDiscount *float64 `json:"min_discount"`
+	MaxDiscount *float64 `json:"max_discount"`
+	SortBy      string   `json:"sort_by"` // "newest", "oldest", "discount_desc", "price_asc", "price_desc"
+	Page        int      `json:"page"`
+	Limit       int      `json:"limit"`
 }
 
 // HeadToHeadOutcome defines comparison relation for a single product between your supplier and competitor.

@@ -80,8 +80,8 @@ func loadFrontendUIKeysB(e *engine) {
 	addKey(e, "settings.delete_account_requested_success", "settings", "تم استلام طلب حذف الحساب بنجاح، وسيتم مراجعته من قبل إدارة المنصة.", "Account deletion request received successfully and will be reviewed by platform administration.", "Success notice")
 
 	// --- Unified Settings UI ---
-	addKey(e, "settings.unified_title", "settings", "إعدادات الحساب والمنشأة", "Account & Organization Settings", "Unified settings page title")
-	addKey(e, "settings.unified_desc", "settings", "إدارة البيانات الشخصية للصيدلي، التراخيص الرسمية للمنشأة، والتفضيلات", "Manage pharmacist personal details, organization licenses, and preferences", "Unified settings page subtitle")
+	addKey(e, "settings.unified_title", "settings", "اعدادات الحساب", "Account Settings", "Account settings page title")
+	addKey(e, "settings.unified_desc", "settings", "بياناتك الشخصية، كلمة المرور، الأجهزة والجلسات، وتفضيلات الإشعارات. بيانات المنشأة لها صفحتها الخاصة.", "Your personal details, password, devices and sessions, and notification preferences. Company data has its own page.", "Account settings page subtitle")
 	addKey(e, "settings.tab_profile", "settings", "الملف الشخصي", "Personal Profile", "Profile tab")
 	addKey(e, "settings.tab_organization", "settings", "المنشأة والتراخيص", "Organization & Licenses", "Organization tab")
 	addKey(e, "settings.tab_preferences", "settings", "الإشعارات والتفضيلات", "Notifications & Preferences", "Preferences tab")
@@ -249,6 +249,7 @@ func loadFrontendUIKeysB(e *engine) {
 	addKey(e, "auth.login.service_unavailable", "auth", "خدمة تسجيل الدخول غير متاحة حالياً.", "Login service is currently unavailable.", "Service error")
 	addKey(e, "auth.register.default_legal_name", "auth", "منشأة جديدة", "New Organization", "Default legal name")
 	addKey(e, "auth.register.default_address", "auth", "المقر الرئيسي", "Headquarters", "Default address")
+	addKey(e, "auth.register.city_governorate_mismatch", "auth", "المدينة المختارة لا تتبع المحافظة المحددة. اختر المحافظة ثم المدينة مرة أخرى.", "The selected city does not belong to the chosen governorate. Pick the governorate, then the city, again.", "Registration validation error")
 
 	// --- Delivery Bands ---
 	addKey(e, "delivery.band.read_error", "coverage", "تعذر قراءة بيانات الشريحة.", "Could not read delivery band data.", "Form error")

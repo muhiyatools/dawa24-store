@@ -184,4 +184,3 @@ func TestTenantSessions_SingularRedirects(t *testing.T) {
 		t.Errorf("expected redirect to /vendor/sessions, got %s", loc)
 	}
 }
-

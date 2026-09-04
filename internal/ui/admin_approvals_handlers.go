@@ -155,9 +155,9 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 
 // Platform settings keys. These live in platform_admin.system_settings.
 const (
-	settingSupportEmail        = "platform.support_email"
-	settingCommissionRate      = "platform.commission_rate"
-	settingSessionIdleTimeout  = "platform.session_idle_timeout_minutes"
+	settingSupportEmail       = "platform.support_email"
+	settingCommissionRate     = "platform.commission_rate"
+	settingSessionIdleTimeout = "platform.session_idle_timeout_minutes"
 )
 
 // Organization approval actions.

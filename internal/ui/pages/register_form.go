@@ -2,7 +2,6 @@ package pages
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // RegisterFormData carries the registration form state so a validation failure
@@ -21,6 +20,7 @@ type RegisterFormData struct {
 	TaxNumber          string
 	PharmacistLicense  string
 	LicenseDocumentURL string
+	GovernorateID      string
 	CityID             string
 	BranchCount        string
 	Address            string
@@ -46,9 +46,6 @@ func (f RegisterFormData) AlpineState() string {
 	return fmt.Sprintf("{ step: %d, accountType: %q }", step, f.AccountType)
 }
 
-// CitySelected reports whether the given city id is the one the user had picked,
-// so a validation failure re-render keeps their city selection.
-func (f RegisterFormData) CitySelected(id int64) bool {
-	v, err := strconv.ParseInt(f.CityID, 10, 64)
-	return err == nil && v == id
-}
+// CitySelected reported whether a <select> option was the chosen city. The
+// pickers are comboboxes now and carry their selection as a value and a label,
+// so there is nothing to compare per option.

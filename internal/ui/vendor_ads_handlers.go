@@ -107,6 +107,18 @@ func (h *UIHandler) VendorAdCreateSubmit(w http.ResponseWriter, r *http.Request)
 
 	ad := h.parseAdForm(r, actor.OrganizationID)
 
+	// Everything the wizard checks in the browser, checked again here.
+	//
+	// The wizard disables its own "next" and "confirm" buttons, and until now
+	// that was the only check there was: a POST could name a title-less
+	// advertisement against another supplier's variant, for a duration the
+	// pricing does not know, and it would be written. A disabled button stops a
+	// person, not a request.
+	if msg := h.validateAdSubmission(ctx, actor.OrganizationID, ad, lang); msg != "" {
+		h.redirectWithNotice(w, r, "/vendor/ads", "error", msg)
+		return
+	}
+
 	// Check if a direct file was uploaded
 	if file, header, fileErr := r.FormFile("media_file"); fileErr == nil && file != nil {
 		defer file.Close()
@@ -128,7 +140,7 @@ func (h *UIHandler) VendorAdCreateSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	_ = created
-	h.redirectWithNotice(w, r, "/vendor/ads", "success", "تم إنشاء الإعلان الترويجي بنجاح وخصم 2 رصيد رعاية، وهو الآن قيد مراجعة الإدارة.")
+	h.redirectWithNotice(w, r, "/vendor/ads", "success", i18n.T(lang, "vendor.ads.created_review_success"))
 }
 
 // VendorAdUpdateSubmit handles the update of an existing advertisement.
@@ -210,7 +222,7 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 			h.redirectWithNotice(w, r, "/vendor/ads", "error", h.safeMessage(err, lang))
 			return
 		}
-		h.redirectWithNotice(w, r, "/vendor/ads", "success", "تم إرسال طلب تعديل الإعلان للمراجعة الإدارية بنجاح، ويستمر إعلانك الحالي بالظهور حتى اعتماد التعديلات.")
+		h.redirectWithNotice(w, r, "/vendor/ads", "success", i18n.T(lang, "vendor.ads.edit_request_success"))
 		return
 	}
 
@@ -230,12 +242,13 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 	mediaURL := strings.TrimSpace(r.FormValue("media_url"))
 	thumbnailURL := strings.TrimSpace(r.FormValue("thumbnail_url"))
 	mediaType := strings.TrimSpace(r.FormValue("media_type"))
-	clickTarget := strings.TrimSpace(r.FormValue("click_target_type"))
+	// The destination is folded onto the three the platform accepts, and the
+	// placement onto the five it renders. Both used to be written through as
+	// submitted, so a crafted POST could store a click target no page knows how
+	// to resolve and a placement no slot displays.
+	clickTarget := promo.ValidClickTarget(strings.TrimSpace(r.FormValue("click_target_type")))
 	targetID := strings.TrimSpace(r.FormValue("click_target_id"))
-	position := strings.TrimSpace(r.FormValue("position"))
-	if position == "" {
-		position = promo.PositionHomeHero
-	}
+	position := validAdPosition(strings.TrimSpace(r.FormValue("position")))
 	if mediaType == "" {
 		mediaType = "image"
 	}
@@ -254,9 +267,13 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 		}
 	}
 
+	// Only the four durations the wizard offers, because each is priced.
 	durationDays := 30
-	if d, err := strconv.Atoi(r.FormValue("duration_days")); err == nil && d > 0 {
-		durationDays = d
+	if d, err := strconv.Atoi(r.FormValue("duration_days")); err == nil {
+		switch d {
+		case 7, 15, 30, 60:
+			durationDays = d
+		}
 	}
 
 	title := titleAr
@@ -264,23 +281,28 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 		title = titleEn
 	}
 
-	targetURL := strings.TrimSpace(r.FormValue("target_url"))
-	if targetURL == "" {
-		switch clickTarget {
-		case string(promo.ClickTargetVendor):
+	// The destination is derived, never submitted.
+	//
+	// target_url used to be read straight from the form and, because
+	// ResolveClickURL prefers it over the click target, a posted URL won
+	// outright — which is how an "external link" survived removing the option
+	// that offered it. Ads point inside the platform, so the platform builds
+	// the path.
+	var targetURL string
+	switch clickTarget {
+	case promo.ClickTargetVendor:
+		targetURL = fmt.Sprintf("/suppliers/%d", orgID)
+	case promo.ClickTargetOffer:
+		if clickTargetID != nil {
+			targetURL = fmt.Sprintf("/offers/%d", *clickTargetID)
+		} else {
+			targetURL = fmt.Sprintf("/suppliers/%d#offers", orgID)
+		}
+	default:
+		if clickTargetID != nil {
+			targetURL = fmt.Sprintf("/catalog/%d", *clickTargetID)
+		} else {
 			targetURL = fmt.Sprintf("/suppliers/%d", orgID)
-		case string(promo.ClickTargetOffer):
-			if clickTargetID != nil {
-				targetURL = fmt.Sprintf("/offers/%d", *clickTargetID)
-			} else {
-				targetURL = fmt.Sprintf("/suppliers/%d#offers", orgID)
-			}
-		default:
-			if clickTargetID != nil {
-				targetURL = fmt.Sprintf("/products?variant_id=%d", *clickTargetID)
-			} else {
-				targetURL = fmt.Sprintf("/suppliers/%d", orgID)
-			}
 		}
 	}
 
@@ -296,9 +318,62 @@ func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {
 		ThumbnailURL:    thumbnailURL,
 		TargetURL:       targetURL,
 		Position:        position,
-		ClickTargetType: promo.AdClickTarget(clickTarget),
+		ClickTargetType: clickTarget,
 		ClickTargetID:   clickTargetID,
 		DurationDays:    durationDays,
 		IsActive:        false,
 	}
+}
+
+// validAdPosition folds an untrusted placement onto the five slots the
+// storefront actually renders.
+func validAdPosition(raw string) string {
+	switch raw {
+	case promo.PositionHomeHero, promo.PositionHomeBanner, promo.PositionHomeDeals,
+		promo.PositionHomeBottom, promo.PositionCatalogTop:
+		return raw
+	default:
+		return promo.PositionHomeHero
+	}
+}
+
+// validateAdSubmission refuses an advertisement the platform cannot run.
+//
+// It returns a translated message, or the empty string when the submission is
+// acceptable. Everything here was previously enforced only by a disabled button
+// in the wizard.
+func (h *UIHandler) validateAdSubmission(
+	ctx context.Context, orgID int64, ad *promo.Ad, lang string,
+) string {
+	if ad == nil {
+		return i18n.T(lang, "common.invalid_form_data")
+	}
+	if strings.TrimSpace(ad.TitleAr) == "" {
+		return i18n.T(lang, "vendor.ads.title_required")
+	}
+
+	// An advertisement must point at something this supplier can ship. The
+	// wizard only offers their own in-stock variants; this is what makes that
+	// true of the request as well.
+	if ad.ClickTargetType == promo.ClickTargetProduct {
+		if ad.ClickTargetID == nil || *ad.ClickTargetID <= 0 {
+			return i18n.T(lang, "vendor.ads.product_required")
+		}
+		if h.catSvc == nil {
+			return i18n.T(lang, "common.service_unavailable")
+		}
+		variant, err := h.catSvc.GetVariant(ctx, *ad.ClickTargetID)
+		if err != nil || variant == nil || variant.OrganizationID != orgID {
+			return i18n.T(lang, "vendor.ads.product_not_yours")
+		}
+		if variant.StockQty <= 0 {
+			return i18n.T(lang, "vendor.ads.product_out_of_stock")
+		}
+	}
+
+	// Credits are deliberately not checked here. CreateAd deducts them inside
+	// its own transaction and refuses with ad.insufficient_credits; checking
+	// first would be a second answer to the same question, and the two could
+	// disagree under concurrency.
+	return ""
 }

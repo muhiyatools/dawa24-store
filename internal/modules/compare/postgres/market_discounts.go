@@ -12,84 +12,94 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
-// خصومات السوق العامة — supplier stock, not the drug catalogue.
+// خصومات السوق العامة — the temporary warehouses, and nothing else.
 //
-// This screen used to read compare.file_rows: whatever a moderator had uploaded
-// as a temporary warehouse. That is a spreadsheet of prices, not inventory —
-// nothing in it says a product exists, is approved, or can be bought, which is
-// why the page showed forty-six thousand rows at "100% خصم / 0.00 ج.م" that no
-// pharmacy could order.
+// This screen shows the price lists moderators and administrators upload as
+// **temporary warehouses**: rows of compare.file_rows belonging to a
+// compare.files row with is_temp_warehouse = TRUE. That is the board's whole
+// purpose — a market-wide view of what the trade is quoting — and it is what
+// the people who maintain it put into it.
 //
-// It now reads the thing it claims to show: **approved vendors' product
-// variants that are actually in stock**. Every row here is a real variant, of a
-// real catalogue product, from an approved supplier, with a positive quantity
-// in inventory.stocks.
+// Two things are deliberately excluded and both are load-bearing:
+//
+//   - **Ordinary Compare Tool uploads.** A supplier's own price list is theirs.
+//     is_temp_warehouse = TRUE is the only gate, it lives in the FROM clause
+//     rather than in a WHERE the caller can influence, and no request parameter
+//     reaches it. TestMarketDiscountsShowsOnlyTemporaryWarehouses pins that.
+//   - **Archived and deleted files.** A warehouse someone withdrew stops being
+//     part of the market the moment they withdraw it.
+//
+// It is worth being explicit about what this board is not: it is price
+// intelligence, not a catalogue. A row here is a line from a spreadsheet, not a
+// variant a pharmacy can add to a basket, and it is only orderable when the
+// matching pipeline has bound it to a catalogue product. The card says so
+// rather than offering a button that goes nowhere.
 
-// marketStockCTE is the availability gate, and the reason it is a CTE rather
-// than a WHERE clause: stock lives one row per warehouse, so it has to be
-// summed per variant before it can be compared to zero. A variant whose
-// warehouses sum to zero is not in the CTE, so it cannot appear in the results
-// at all — there is no flag, no filter and no request parameter that can bring
-// it back. That is the whole point of doing it here rather than in the page.
-const marketStockCTE = `
-	WITH variant_stock AS (
-		SELECT s.product_variant_id, SUM(s.quantity)::bigint AS qty
-		FROM inventory.stocks s
-		WHERE s.deleted_at IS NULL
-		GROUP BY s.product_variant_id
-		HAVING SUM(s.quantity) > 0
-	)`
+// marketWarehouseFrom is the source, shared by the listing and the supplier
+// filter so the two can never disagree about what "the market" contains.
+const marketWarehouseFrom = `
+	FROM compare.file_rows r
+	JOIN compare.files f ON f.id = r.file_id
+	WHERE f.is_temp_warehouse = TRUE
+	  AND f.deleted_at IS NULL
+	  AND f.archived_at IS NULL
+	  AND f.status = 'ready'
+	  AND r.price > 0
+	  AND COALESCE(TRIM(r.raw_name), '') <> ''`
 
-// marketSupplierNameSQL prefers the Arabic trade name, then the English one,
-// then the registered legal name — the same order org.Organization uses in Go.
-const marketSupplierNameSQL = `
-	COALESCE(
-		NULLIF(TRIM(o.trade_name->>'ar'), ''),
-		NULLIF(TRIM(o.trade_name->>'en'), ''),
-		o.legal_name
-	)`
+// marketWarehouseSupplierSQL is the uploading warehouse's name. A temporary
+// warehouse has no organization_id — it is a moderator's upload — so there is
+// no org.organizations row to read a trade name from.
+const marketWarehouseSupplierSQL = `COALESCE(NULLIF(TRIM(f.supplier_name), ''), f.original_filename)`
 
-// marketBaseFrom is shared by the listing and the supplier filter so the two can
-// never disagree about what "the market" contains.
-const marketBaseFrom = `
-	FROM catalog.product_variants v
-	JOIN variant_stock st ON st.product_variant_id = v.id
-	JOIN catalog.products p ON p.id = v.product_id AND p.deleted_at IS NULL
-	JOIN org.organizations o ON o.id = v.organization_id
-	WHERE v.deleted_at IS NULL
-	  AND v.status = 'active'
-	  AND v.price > 0
-	  AND o.status = 'approved'
-	  AND o.deleted_at IS NULL`
+// marketWarehouseDiscountSQL is the discount a card may show.
+//
+// It is clamped to 0 outside 0..100, and that is not defensive tidying: 6,182
+// of the 46,862 live rows carry exactly 100.00, which is a column that was
+// mapped to the wrong place rather than a supplier giving stock away. Those
+// rows are what produced the "46,000 lines at 100% خصم / 0.00 ج.م" this board
+// was once abandoned over.
+//
+// Every use goes through this — the column, the sort and the range filter — so
+// the board cannot rank by a number it refuses to print. Sorting by the raw
+// column put all 6,182 of them on page one of "الأعلى خصماً", each showing 0%.
+const marketWarehouseDiscountSQL = `
+	CASE WHEN COALESCE(r.discount, 0) > 0 AND COALESCE(r.discount, 0) < 100
+	     THEN r.discount ELSE 0 END`
 
-// marketNetPriceSQL is the price a pharmacy pays. catalog.product_variants
-// stores `discount` as a percentage (26.40 meaning 26.40%), matching
-// catalog.ProductVariant.EffectiveSellingPrice; a value outside 0..100 is
-// treated as no discount rather than as a nonsensical price.
-const marketNetPriceSQL = `
-	CASE WHEN v.discount > 0 AND v.discount < 100
-	     THEN ROUND(v.price * (100.0 - v.discount) / 100.0, 2)
-	     ELSE v.price END`
+// marketWarehouseNetSQL is the price after the sheet's discount.
+//
+// price_after_discount is trusted when the upload carried one and recomputed
+// from the percentage otherwise, because the two disagree on files whose
+// columns were mapped before the mapping was corrected.
+const marketWarehouseNetSQL = `
+	CASE
+	  WHEN COALESCE(r.price_after_discount, 0) > 0 THEN r.price_after_discount
+	  WHEN COALESCE(r.discount, 0) > 0 AND COALESCE(r.discount, 0) < 100
+	    THEN ROUND(r.price * (100.0 - r.discount) / 100.0, 2)
+	  ELSE r.price
+	END`
 
-// ListDistinctSuppliers names the approved vendors that have something in stock
-// right now, for the supplier filter. A vendor whose stock ran out drops off the
-// list, because every one of their rows has dropped off the page.
+// ListDistinctSuppliers names the temporary warehouses currently on the board.
 func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error) {
 	var suppliers []string
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		sql := marketStockCTE + `
-			SELECT DISTINCT TRIM(` + marketSupplierNameSQL + `) AS supplier_name
-			` + marketBaseFrom + `
-			  AND TRIM(COALESCE(` + marketSupplierNameSQL + `, '')) <> ''
+		sql := `
+			SELECT DISTINCT TRIM(` + marketWarehouseSupplierSQL + `) AS supplier_name
+			` + marketWarehouseFrom + `
+			  AND TRIM(COALESCE(` + marketWarehouseSupplierSQL + `, '')) <> ''
 			ORDER BY 1 ASC;`
 		rows, err := tx.Query(txCtx, sql)
 		if err != nil {
-			return err
+			return fmt.Errorf("compare postgres: list market suppliers: %w", err)
 		}
 		defer rows.Close()
 		for rows.Next() {
 			var sup string
-			if err := rows.Scan(&sup); err == nil && strings.TrimSpace(sup) != "" {
+			if err := rows.Scan(&sup); err != nil {
+				return err
+			}
+			if strings.TrimSpace(sup) != "" {
 				suppliers = append(suppliers, sup)
 			}
 		}
@@ -98,7 +108,7 @@ func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error
 	return suppliers, err
 }
 
-// ListMarketDiscounts returns one page of in-stock supplier offers.
+// ListMarketDiscounts returns one page of temporary-warehouse rows.
 func (r *Repository) ListMarketDiscounts(
 	ctx context.Context, filter compare.MarketDiscountsFilter,
 ) (*compare.MarketDiscountsResult, error) {
@@ -121,26 +131,23 @@ func (r *Repository) ListMarketDiscounts(
 		for rows.Next() {
 			var (
 				item       compare.MarketDiscountRow
-				productID  int64
+				matchedID  *int64
 				totalCount int64
 			)
 			if err := rows.Scan(
-				&item.VariantID, &productID, &item.SupplierName, &item.ProductName,
-				&item.SKU, &item.OriginalPrice, &item.DiscountPercent,
-				&item.PriceAfterDiscount, &item.AvailableStock, &item.CreatedAt,
-				&totalCount,
+				&item.ID, &item.FileID, &item.SupplierName, &item.ProductName,
+				&item.OriginalPrice, &item.DiscountPercent, &item.PriceAfterDiscount,
+				&matchedID, &item.UploadedAt, &totalCount,
 			); err != nil {
 				return err
 			}
 			result.TotalCount = totalCount
 
-			item.ID = item.VariantID
-			pid := productID
-			item.MatchedProductID = &pid
-			// Every row is a catalogue product by construction now — the join
-			// to catalog.products is what put it here — so it is always
-			// orderable, unlike a spreadsheet row that merely resembled one.
-			item.InCatalog = true
+			item.MatchedProductID = matchedID
+			// Orderable only once the matching pipeline has bound this line to a
+			// catalogue product. Until then it is a quoted price, and the card
+			// says so instead of offering a button that leads nowhere.
+			item.InCatalog = matchedID != nil && *matchedID > 0
 			if item.OriginalPrice.Minor() > item.PriceAfterDiscount.Minor() {
 				item.DiscountValue = money.FromMinor(
 					item.OriginalPrice.Minor() - item.PriceAfterDiscount.Minor())

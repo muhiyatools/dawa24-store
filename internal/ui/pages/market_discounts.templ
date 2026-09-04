@@ -12,7 +12,28 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// MarketDiscountsPage renders market-wide approved discounts with responsive views, filters, and pagination.
+// MarketDiscountsPage renders the temporary-warehouse price board.
+//
+// Both card layouts carry the same three decisions, and each replaced something
+// that was actively misleading:
+//
+//   - **No product code.** The uploads carry whatever the sheet's code column
+//     held, and on files mapped before the header detection was corrected that
+//     is a price or a discount. A number presented as an identifier is worse
+//     than no identifier.
+//   - **سعر الجمهور leads, and is not struck through.** It is the figure this
+//     board exists to compare, and it was rendered small, muted and with a
+//     line-through — which says "superseded" about the one number a reader came
+//     for — beside a larger, bolder net price.
+//   - **The net price column is gone.** The discount pill beside the public
+//     price already says what to subtract, and on this data the net price was
+//     frequently just the public price again.
+//
+// The grid card also gains the upload date, which it never showed: on a price
+// board, when a quote was taken is half of what it means.
+//
+// These are markup comments deliberately kept out of the markup — an HTML
+// comment ships to every reader.
 templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.MarketDiscountsResult, filter compare.MarketDiscountsFilter, currentView string) {
 	@layouts.ShellFor("خصومات السوق العامة | دواء 24", "market-discounts", lang, dir, actor) {
 		<div
@@ -27,17 +48,17 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						<span>خصومات السوق العامة</span>
 					</h1>
 					<p class="md-subtitle">
-						أصناف الموردين المتوفرة فعلياً في المخازن، بأسعار التوريد والخصومات اللحظية.
+						كشوف أسعار المستودعات المؤقتة التي ترفعها إدارة المنصة — أسعار الجمهور ونسب الخصم كما وردت من السوق.
 					</p>
 				</div>
 
 				<dl class="md-stats">
 					<div class="md-stat">
-						<dt>عروض متاحة</dt>
+						<dt>أصناف مرصودة</dt>
 						<dd class="tabular-nums">{ fmt.Sprintf("%d", result.TotalCount) }</dd>
 					</div>
 					<div class="md-stat">
-						<dt>الشركات</dt>
+						<dt>المستودعات</dt>
 						<dd class="tabular-nums">{ fmt.Sprintf("%d", len(result.AvailableSuppliers)) }</dd>
 					</div>
 					<div class="md-stat is-accent">
@@ -59,12 +80,12 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							name="q"
 							value={ filter.Query }
 							class="form-input md-search"
-							placeholder="بحث باسم الدواء، المادة الفعالة، أو الكود..."
+							placeholder="بحث باسم الصنف أو باسم المستودع..."
 							aria-label="بحث في خصومات السوق"
 						/>
 
-						<select name="supplier" class="form-select md-select" onchange="this.form.submit()" aria-label="الشركة الموردة">
-							<option value="">كافة الشركات ({ fmt.Sprintf("%d", len(result.AvailableSuppliers)) })</option>
+						<select name="supplier" class="form-select md-select" onchange="this.form.submit()" aria-label="المستودع المؤقت">
+							<option value="">كافة المستودعات ({ fmt.Sprintf("%d", len(result.AvailableSuppliers)) })</option>
 							for _, sup := range result.AvailableSuppliers {
 								<option value={ sup } selected?={ filter.Supplier == sup }>{ sup }</option>
 							}
@@ -127,7 +148,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					<!-- Advanced ranges, collapsed until asked for -->
 					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="md-ranges">
 						<div class="md-range">
-							<span class="md-range-label">السعر بعد الخصم (ج.م)</span>
+							<span class="md-range-label">نطاق السعر (ج.م)</span>
 							<div class="md-range-pair">
 								<input type="number" step="0.5" name="min_price" value={ formatOptionalFloat(filter.MinPrice) } class="form-input" placeholder="من" aria-label="أقل سعر"/>
 								<span class="md-range-dash">—</span>
@@ -157,114 +178,78 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						لم نجد أي خصومات مطابقة
 					</h3>
 					<p class="text-sm text-secondary max-w-md mx-auto mb-6">
-						الصفحة تعرض أصناف الموردين المتوفرة في المخازن فقط. جرب كلمات بحث أخرى، أو غيّر الشركة الموردة ونطاقات السعر والخصم.
+						الصفحة تعرض المستودعات المؤقتة المرفوعة من إدارة المنصة فقط. جرّب كلمات بحث أخرى، أو غيّر المستودع ونطاقات السعر والخصم.
 					</p>
 					<a href="/market-discounts" class="btn btn-primary font-bold text-xs">
 						عرض كافة خصومات السوق
 					</a>
 				</div>
 			} else {
-				<!-- 1. LIST VIEW — one scannable row per offer -->
+				<!-- List view -->
 				<div class="market-list" x-show="currentView === 'list'" x-cloak>
 					for _, item := range result.Items {
 						<article class="glass-panel market-list-row">
-							<!-- Zone 1: identity -->
 							<div class="market-list-identity">
-								<h3 class="market-list-title">{ item.ProductName }</h3>
+								<h3 class="market-list-title" dir="auto">{ item.ProductName }</h3>
 								<div class="market-list-meta">
-									if item.SKU != "" {
-										<span class="market-code">{ item.SKU }</span>
-									} else {
-										<span class="market-code is-muted">#{ fmt.Sprintf("%d", item.ID) }</span>
-									}
 									<span class="badge badge-primary market-supplier-badge">{ item.SupplierName }</span>
-									<span class="market-stock tabular-nums" title="الرصيد المتاح لدى المورد">
-										{ fmt.Sprintf("متاح: %d", item.AvailableStock) }
+									<span class="market-list-date tabular-nums" title="تاريخ رفع المستودع">
+										{ item.UploadedAt.Format("2006-01-02") }
 									</span>
-									<span class="market-list-date tabular-nums">{ item.CreatedAt.Format("2006-01-02") }</span>
 								</div>
 							</div>
 
-							<!-- Zone 2: the money — public price, discount, net price side by side -->
 							<div class="market-money">
-								<div class="market-money-cell">
+								<div class="market-money-cell is-lead">
 									<span class="market-money-label">سعر الجمهور</span>
 									if item.OriginalPrice.Minor() > 0 {
-										<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } ج.م</span>
+										<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
 									} else {
 										<span class="market-money-was is-empty">—</span>
 									}
 								</div>
 
-								<div class="market-money-cell">
-									<span class="market-money-label">الخصم</span>
-									if item.DiscountPercent >= 40 {
-										<span class="market-disc-pill is-hot tabular-nums">{ formatDiscount(item.DiscountPercent) }%</span>
-									} else {
-										<span class="market-disc-pill tabular-nums">{ formatDiscount(item.DiscountPercent) }%</span>
-									}
-								</div>
-
-								<div class="market-money-cell is-net">
-									<span class="market-money-label">سعر بعد الخصم</span>
-									<span class="market-money-net tabular-nums">
-										{ formatDiscountPrice(item.PriceAfterDiscount) } <small>ج.م</small>
-									</span>
-								</div>
+								if item.DiscountPercent > 0 {
+									<div class="market-money-cell">
+										<span class="market-money-label">الخصم</span>
+										if item.DiscountPercent >= 40 {
+											<span class="market-disc-pill is-hot tabular-nums">{ formatDiscount(item.DiscountPercent) }%</span>
+										} else {
+											<span class="market-disc-pill tabular-nums">{ formatDiscount(item.DiscountPercent) }%</span>
+										}
+									</div>
+								}
 							</div>
 
-							<!-- Zone 3: action -->
 							<div class="market-list-action">
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", item.VariantID)) }
-									class="btn btn-primary btn-sm font-bold"
-									title="عرض الصنف والشراء"
-								>
-									@components.IconCart("icon-xs")
-									<span>طلب</span>
-								</a>
+								@marketRowAction(item)
 							</div>
 						</article>
 					}
 				</div>
 
-				<!-- 2. GRID VIEW — four compact cards per row -->
+				<!-- Grid view -->
 				<div class="market-grid" x-show="currentView === 'grid'" x-cloak>
 					for _, item := range result.Items {
 						<article class="glass-panel market-card">
 							<header class="market-card-head">
 								<span class="badge badge-primary market-supplier-badge">{ item.SupplierName }</span>
-								<span class="market-stock tabular-nums" title="الرصيد المتاح لدى المورد">
-									{ fmt.Sprintf("متاح: %d", item.AvailableStock) }
+								<span class="market-list-date tabular-nums" title="تاريخ رفع المستودع">
+									{ item.UploadedAt.Format("2006-01-02") }
 								</span>
 							</header>
 
-							<h3 class="market-card-title">{ item.ProductName }</h3>
+							<h3 class="market-card-title" dir="auto">{ item.ProductName }</h3>
 
-							<div class="market-card-code">
-								if item.SKU != "" {
-									<span class="market-code">{ item.SKU }</span>
-								} else {
-									<span class="market-code is-muted">#{ fmt.Sprintf("%d", item.ID) }</span>
-								}
-							</div>
-
-							<!-- Price rail: public price, net price and the discount tag together -->
 							<div class="market-card-rail">
 								<div class="market-card-rail-prices">
 									<div class="market-card-rail-row">
 										<span class="market-money-label">سعر الجمهور</span>
 										if item.OriginalPrice.Minor() > 0 {
-											<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) }</span>
+											<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
 										} else {
 											<span class="market-money-was is-empty">—</span>
 										}
-									</div>
-									<div class="market-card-rail-row">
-										<span class="market-money-label">سعر بعد الخصم</span>
-										<span class="market-money-net tabular-nums">
-											{ formatDiscountPrice(item.PriceAfterDiscount) } <small>ج.م</small>
-										</span>
 									</div>
 								</div>
 								if item.DiscountPercent >= 40 {
@@ -272,7 +257,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 										{ formatDiscount(item.DiscountPercent) }%
 										<small>خصم</small>
 									</span>
-								} else {
+								} else if item.DiscountPercent > 0 {
 									<span class="market-disc-pill is-block tabular-nums">
 										{ formatDiscount(item.DiscountPercent) }%
 										<small>خصم</small>
@@ -281,13 +266,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 
 							<footer class="market-card-foot">
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", item.VariantID)) }
-									class="btn btn-primary btn-sm font-bold w-full justify-center"
-								>
-									@components.IconCart("icon-xs")
-									<span>شراء</span>
-								</a>
+								@marketCardAction(item)
 							</footer>
 						</article>
 					}
@@ -308,6 +287,46 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				}
 			}
 		</div>
+	}
+}
+
+// marketRowAction and marketCardAction offer the catalogue only when this line
+// has actually been matched to a product.
+//
+// The buttons used to link to /catalog/{id} using the row's own id, which is a
+// compare.file_rows primary key and names no product at all. Every one of them
+// led to a 404. A quoted price that has not been matched yet is still worth
+// reading — that is what this board is for — so it says so instead.
+templ marketRowAction(item *compare.MarketDiscountRow) {
+	if item.InCatalog && item.MatchedProductID != nil {
+		<a
+			href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
+			class="btn btn-primary btn-sm font-bold"
+			title="عرض الصنف في الكتالوج"
+		>
+			@components.IconCart("icon-xs")
+			<span>عرض بالكتالوج</span>
+		</a>
+	} else {
+		<span class="market-no-order" title="لم يُربط هذا السطر بصنف في الكتالوج بعد">
+			سعر استرشادي
+		</span>
+	}
+}
+
+templ marketCardAction(item *compare.MarketDiscountRow) {
+	if item.InCatalog && item.MatchedProductID != nil {
+		<a
+			href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *item.MatchedProductID)) }
+			class="btn btn-primary btn-sm font-bold w-full justify-center"
+		>
+			@components.IconCart("icon-xs")
+			<span>عرض بالكتالوج</span>
+		</a>
+	} else {
+		<span class="market-no-order" title="لم يُربط هذا السطر بصنف في الكتالوج بعد">
+			سعر استرشادي
+		</span>
 	}
 }
 

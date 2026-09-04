@@ -10,17 +10,20 @@ import (
 
 // The account menu.
 //
-// It renders on the shared .nav-menu surface, so it, the notifications panel
-// and the branch selector are one object. What changed beyond the styling:
+// Its contents come from rbac.AccountMenu, which is the same registry the
+// sidebar and the route gates read. Before that, this file hand-wrote eleven
+// links and asked nothing about any of them: a supplier was offered /orders,
+// which is registered inside the customer audience group and answers 404 to
+// every supplier; a warehouse clerk was offered the wallet, the orders list and
+// the followed-suppliers list, all three of which their route gates refuse; and
+// platform staff were offered nothing at all.
 //
-//   - The items are grouped and each group carries a mono label. The menu had
-//     grown to eleven undifferentiated rows, and a reader looking for "الطلبات"
-//     had to read all of them.
-//   - Theme and language keep their segmented controls at the foot, where
-//     settings belong, and sign-out is last and alone.
+// Hiding a link is not authorization — every route below is independently
+// gated. The point is that the two now agree, because there is one list.
 templ UserMenu(lang string, inDashboard ...bool) {
 	if actor, ok := authctx.From(ctx); ok {
 		{{ isDash := len(inDashboard) > 0 && inDashboard[0] }}
+		{{ groups := rbac.AccountMenu(actor.DashboardScope(), rbac.NewSet(actor.Permissions), actor.IsOrgApproved()) }}
 		<div class="nav-pop" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
 			<button
 				type="button"
@@ -54,80 +57,30 @@ templ UserMenu(lang string, inDashboard ...bool) {
 					</span>
 				</div>
 				<div class="nav-menu-body">
-					<div class="nav-menu-group">
-						if isDash {
+					if isDash {
+						<div class="nav-menu-group">
 							<a href="/" class="nav-menu-item nav-menu-item--primary" role="menuitem">
 								@IconHome("icon-xs")
 								<span>الخروج من صفحة الداشبورد</span>
 							</a>
-						} else {
-							<a href={ templ.SafeURL(dashboardURL(actor)) } class="nav-menu-item nav-menu-item--primary" role="menuitem">
-								@IconGrid("icon-xs")
-								<span>دخول اللوحة</span>
-							</a>
-						}
-					</div>
-
-					if actor.IsOrgApproved() {
-						if actor.IsCustomer() || actor.IsVendor() {
-							<div class="nav-menu-group">
-								<span class="nav-menu-label">الحساب التجاري</span>
-								if actor.IsCustomer() {
-									<a href="/orders" class="nav-menu-item" role="menuitem">
-										@IconPackage("icon-xs")
-										<span>طلباتي</span>
-									</a>
-									<a href="/customer/wallet" class="nav-menu-item" role="menuitem">
-										@IconWallet("icon-xs")
-										<span>المحفظة والرصيد</span>
-									</a>
-									<a href="/suppliers/followed" class="nav-menu-item" role="menuitem">
-										@IconHeartFilled("icon-xs")
-										<span>الموردون المتابعون</span>
-									</a>
-								} else {
-									<a href="/orders" class="nav-menu-item" role="menuitem">
-										@IconPackage("icon-xs")
-										<span>طلبات التوريد</span>
-									</a>
-									<a href="/vendor/wallet" class="nav-menu-item" role="menuitem">
-										@IconWallet("icon-xs")
-										<span>المحفظة والرصيد</span>
-									</a>
-								}
-							</div>
-						}
-
-						<div class="nav-menu-group">
-							<a href="/settings" class="nav-menu-item" role="menuitem">
-								@IconSettings("icon-xs")
-								<span>{ i18n.T(lang, "common.settings") }</span>
-							</a>
-							if orgLink(actor) != "" {
-								<a href={ templ.SafeURL(orgLink(actor)) } class="nav-menu-item" role="menuitem">
-									@IconBuilding("icon-xs")
-									<span>{ i18n.T(lang, "nav.linked_organizations") }</span>
-								</a>
-							}
 						</div>
-					} else {
+					}
+					for gi, group := range groups {
 						<div class="nav-menu-group">
-							<span class="nav-menu-label">قيد المراجعة</span>
-							if actor.IsVendor() {
-								<a href="/vendor/documents" class="nav-menu-item" role="menuitem">
-									@IconFile("icon-xs")
-									<span>المستندات والتراخيص</span>
-								</a>
-							} else {
-								<a href="/customer/documents" class="nav-menu-item" role="menuitem">
-									@IconFile("icon-xs")
-									<span>المستندات والتراخيص</span>
+							if !(gi == 0 && group.Key == "dashboard") {
+								<span class="nav-menu-label">{ group.Label(lang) }</span>
+							}
+							for _, item := range group.Items {
+								<a
+									href={ templ.SafeURL(item.Href) }
+									class={ "nav-menu-item",
+										templ.KV("nav-menu-item--primary", !isDash && group.Key == "dashboard") }
+									role="menuitem"
+								>
+									@Icon(item.Icon, "icon-xs")
+									<span>{ item.Label(lang) }</span>
 								</a>
 							}
-							<a href="/notifications" class="nav-menu-item" role="menuitem">
-								@IconBell("icon-xs")
-								<span>مركز الإشعارات</span>
-							</a>
 						</div>
 					}
 				</div>
@@ -164,23 +117,6 @@ templ UserMenu(lang string, inDashboard ...bool) {
 	}
 }
 
-func dashboardURL(actor authctx.Actor) string {
-	if !actor.IsOrgApproved() && !actor.IsStaff {
-		if actor.IsVendor() {
-			return "/vendor/documents"
-		}
-		return "/customer/documents"
-	}
-	switch actor.DashboardScope() {
-	case rbac.ScopeAdmin:
-		return "/admin/dashboard"
-	case rbac.ScopeVendor:
-		return "/vendor/dashboard"
-	default:
-		return "/customer/dashboard"
-	}
-}
-
 // accountEyebrow is the mono descriptor above the name in the trigger. It says
 // which of the three audiences the caller is signed in as, which is the one
 // piece of context that decides what every other control in the bar does.
@@ -209,17 +145,4 @@ func Initials(name string) string {
 		out += string(second[:1])
 	}
 	return strings.ToUpper(out)
-}
-
-func orgLink(actor authctx.Actor) string {
-	switch {
-	case actor.IsStaff:
-		return ""
-	case actor.IsVendor() && actor.Can("vendor.user_org.view"):
-		return "/vendor/user-organization"
-	case actor.IsCustomer() && actor.Can("pharmacy.user_org.view"):
-		return "/customer/user-organization"
-	default:
-		return ""
-	}
 }

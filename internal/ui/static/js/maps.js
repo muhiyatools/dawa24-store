@@ -180,7 +180,11 @@ function initMapPickers() {
     const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]') || parentScope.querySelector('[data-map-coords-badge]');
     const gmapsLinks = container.querySelectorAll('[data-google-maps-link]');
     const citySelect = container.querySelector('[data-city-selector], [data-map-city], select[name="city_id"], select[name="governorate_id"]') || parentScope.querySelector('[data-map-city], select[name="governorate_id"]');
-    const locateBtn = container.querySelector('[data-locate-me-btn], [data-map-locate], .btn-locate') || parentScope.querySelector('[data-map-locate]');
+    // The "my location" button is bound once, globally, at the foot of this
+    // file. It used to be resolved here — a single element per map, looked up
+    // when the map initialised — which meant a button rendered later (inside a
+    // modal, an Alpine template) never got a listener, and a page with four
+    // pickers could bind the first button to the wrong map.
 
     let initialLat = parseFloat(canvas.dataset.lat || container.dataset.defaultLat || (latInput ? latInput.value : '30.0444')) || 30.0444;
     let initialLon = parseFloat(canvas.dataset.lon || container.dataset.defaultLon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
@@ -378,45 +382,6 @@ function initMapPickers() {
       gmapsInput.addEventListener('paste', () => setTimeout(onGmapsUrlInput, 50));
     }
 
-    // GPS Locate Me Button (High Accuracy)
-    if (locateBtn) {
-      locateBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!navigator.geolocation) {
-          showToast('خاصية تحديد الموقع غير مدعومة في متصفحك.', 'warning');
-          return;
-        }
-
-        locateBtn.disabled = true;
-        locateBtn.innerHTML = '<span>⏳ جاري التحديد بدقة...</span>';
-
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            locateBtn.disabled = false;
-            locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
-            const userLat = pos.coords.latitude;
-            const userLon = pos.coords.longitude;
-            updateCoordinates(userLat, userLon, 16);
-            const nearest = (typeof window.syncCityDropdownsWithCoordinates === 'function')
-              ? window.syncCityDropdownsWithCoordinates(userLat, userLon)
-              : null;
-            if (nearest) {
-              showToast('تم تحديد موقعك بدقة عالية وتحديث المنطقة إلى: ' + nearest.name + ' 📍', 'success');
-            } else {
-              showToast('تم تحديد موقعك الجغرافي بدقة.', 'success');
-            }
-          },
-          (err) => {
-            locateBtn.disabled = false;
-            locateBtn.innerHTML = '<span>📍 موقعي الحالي</span>';
-            console.warn('Geolocation error:', err.message);
-            showToast('تعذر جلب موقع GPS. يرجى تفعيل إذن الوصول للموقع في المتصفح.', 'warning');
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      });
-    }
-
     // Auto Invalidate Size for Modals and Tabs with Debounce
     const modalParent = container.closest('dialog, .modal, .tab-pane');
     if (modalParent) {
@@ -460,3 +425,152 @@ if (document.readyState === 'loading') {
 } else {
   initMapPickers();
 }
+
+/* --------------------------------------------------------------------------
+   "موقعي الحالي" — one delegated handler for the eight buttons that ask for it.
+
+   The markup is duplicated across map_picker.templ, admin_cities.templ (four
+   of them), customer_branches.templ, customer_branch_form.templ,
+   vendor_branches.templ, vendor_branch_form.templ and
+   vendor_offer_locations.templ. The behaviour never was: there is one
+   implementation, and it used to be bound per map at initialisation. Three
+   things followed, and all three read to a user as "the button does nothing":
+
+     - A button rendered after initMapPickers ran — inside a modal, an Alpine
+       template, an htmx swap — never got a listener at all.
+     - A page with several pickers resolved the button through a document-wide
+       fallback, so the first button could drive the wrong map.
+     - The failure messages did not distinguish "your browser will not do this
+       over plain HTTP" from "you denied permission" from "the fix timed out",
+       and the label was overwritten with a hard-coded string that then replaced
+       whatever that particular button said.
+
+   Delegation fixes the first two: the listener is on the document, so it does
+   not care when the button appeared.
+   -------------------------------------------------------------------------- */
+(function () {
+  'use strict';
+
+  var LOCATE_SELECTOR = '[data-map-locate], [data-locate-me-btn], .btn-locate';
+
+  function toast(message, kind) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(message, kind || 'info');
+    } else {
+      console.warn('[locate]', message);
+    }
+  }
+
+  function setBusy(btn, busy) {
+    if (busy) {
+      if (btn.dataset.originalLabel === undefined) {
+        btn.dataset.originalLabel = btn.innerHTML;
+      }
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      btn.textContent = 'جارٍ التحديد…';
+      return;
+    }
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    if (btn.dataset.originalLabel !== undefined) {
+      // Restore this button's own wording. Overwriting it with one hard-coded
+      // string made every locate button on the page say the same thing after
+      // the first click.
+      btn.innerHTML = btn.dataset.originalLabel;
+    }
+  }
+
+  function applyPosition(btn, pos) {
+    var container = btn.closest('[data-map-picker]');
+    var setCoords = container && container._updateCoords;
+    var lat = pos.coords.latitude;
+    var lon = pos.coords.longitude;
+
+    if (typeof setCoords === 'function') {
+      setCoords(lat, lon, 16);
+    } else {
+      // No map beside this button: still fill whatever coordinate inputs the
+      // surrounding form has, so the button is not simply inert.
+      var scope = btn.closest('form') || document;
+      var latInput = scope.querySelector('[data-map-input="lat"], input[name="latitude"]');
+      var lonInput = scope.querySelector('[data-map-input="lon"], input[name="longitude"]');
+      if (latInput) { latInput.value = lat.toFixed(8); latInput.dispatchEvent(new Event('input', { bubbles: true })); }
+      if (lonInput) { lonInput.value = lon.toFixed(8); lonInput.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
+
+    var nearest = (typeof window.syncCityDropdownsWithCoordinates === 'function')
+      ? window.syncCityDropdownsWithCoordinates(lat, lon)
+      : null;
+    if (nearest && nearest.name) {
+      toast('تم تحديد موقعك وتحديث المنطقة إلى: ' + nearest.name, 'success');
+    } else {
+      toast('تم تحديد موقعك الجغرافي.', 'success');
+    }
+  }
+
+  function describeError(err) {
+    if (!err) return 'تعذّر تحديد موقعك. حاول مرة أخرى.';
+    switch (err.code) {
+      case 1: // PERMISSION_DENIED
+        return 'تم رفض إذن الوصول للموقع. فعّل إذن الموقع لهذا الموقع من إعدادات المتصفح ثم حاول مجدداً.';
+      case 2: // POSITION_UNAVAILABLE
+        return 'خدمة تحديد الموقع غير متاحة على هذا الجهاز حالياً. تأكد من تفعيل GPS أو خدمات الموقع.';
+      case 3: // TIMEOUT
+        return 'استغرق تحديد الموقع وقتاً أطول من المتوقع. حاول مرة أخرى في مكان مكشوف.';
+      default:
+        return 'تعذّر تحديد موقعك. حاول مرة أخرى.';
+    }
+  }
+
+  /* Two stages, deliberately.
+   *
+   * A single high-accuracy request with maximumAge: 0 is what the previous
+   * version sent, and on Safari — macOS and iOS both — a cold receiver
+   * routinely spends longer than its ten-second timeout getting a first fix,
+   * so the button reported failure on a device that would have answered. A
+   * coarse fix arrives in about a second and is accurate enough to place a
+   * pharmacy branch; the precise one then refines it if it arrives. */
+  function locate(btn) {
+    if (!window.isSecureContext) {
+      toast('تحديد الموقع يتطلب اتصالاً آمناً (HTTPS). افتح الموقع عبر رابط آمن ثم حاول مجدداً.', 'warning');
+      return;
+    }
+    if (!navigator.geolocation) {
+      toast('متصفحك لا يدعم خاصية تحديد الموقع. أدخل الإحداثيات يدوياً أو الصق رابط خرائط Google.', 'warning');
+      return;
+    }
+
+    setBusy(btn, true);
+    var settled = false;
+
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        settled = true;
+        setBusy(btn, false);
+        applyPosition(btn, pos);
+        // Refine quietly. A failure here is not a failure of the button: the
+        // coarse fix is already applied and reported.
+        navigator.geolocation.getCurrentPosition(
+          function (precise) { applyPosition(btn, precise); },
+          function () {},
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+      },
+      function (err) {
+        if (settled) return;
+        setBusy(btn, false);
+        console.warn('geolocation:', err && err.message);
+        toast(describeError(err), 'warning');
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    );
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest(LOCATE_SELECTOR) : null;
+    if (!btn || btn.disabled) return;
+    e.preventDefault();
+    locate(btn);
+  });
+})();

@@ -164,15 +164,14 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	var orgIDPtr *int64
-	if actor.OrganizationID > 0 {
-		orgIDPtr = &actor.OrganizationID
-	}
-
+	// The board is the same board for everyone who may read it: the temporary
+	// warehouses the platform's own moderators uploaded. There is no
+	// per-organization slice of it, and the filter no longer carries the
+	// caller's organization — the source clause is a constant, so nothing a
+	// request sends can widen it to include a supplier's private upload.
 	filter := compare.MarketDiscountsFilter{
 		Query:          query,
 		Supplier:       supplier,
-		OrganizationID: orgIDPtr,
 		MinPrice:       minPricePtr,
 		MaxPrice:       maxPricePtr,
 		MinDiscount:    minDiscPtr,

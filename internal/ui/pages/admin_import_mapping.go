@@ -196,43 +196,43 @@ func NewImportMappingView(
 	return view
 }
 
-// rawFilePreview reconstructs the head of the spreadsheet from the per-column
-// samples the structure analysis already collected, so the mapping screen can
-// show the file as it was read without re-opening it.
+// rawFilePreview returns the head of the uploaded sheet as it was read.
 //
-// Columns can carry different numbers of samples; the shortest one sets how
-// many rows are shown, because a row assembled from columns of unequal length
-// would put values on the same line that were never on the same line in the
-// file — a preview that invents data is worse than no preview.
+// It used to assemble the table by transposing FileColumn.Samples —
+// row[c] = col.Samples[r] — and Samples holds only the distinct, non-empty,
+// truncated values of a column. Columns skip different cells, so index r of one
+// column and index r of another were cells from different sheet rows: the
+// preview showed a grid of values that never appeared together in the file,
+// which is precisely the mis-reading it exists to reveal. It also took the
+// minimum sample depth across columns, so one blank column erased the preview.
+//
+// FileStructure.Preview is the real thing, captured at analysis time.
 func rawFilePreview(structure catalog.FileStructure) ([]string, [][]string) {
-	if len(structure.Columns) == 0 {
+	if len(structure.Preview) == 0 {
 		return nil, nil
 	}
-	headers := make([]string, 0, len(structure.Columns))
-	depth := -1
-	for _, col := range structure.Columns {
-		label := col.Header
-		if label == "" {
-			label = col.Letter
-		}
-		headers = append(headers, label)
-		if depth < 0 || len(col.Samples) < depth {
-			depth = len(col.Samples)
-		}
+
+	width := structure.Width
+	if width <= 0 {
+		width = len(structure.Columns)
 	}
-	if depth <= 0 {
+	headers := make([]string, width)
+	for i, col := range structure.Columns {
+		if i >= width {
+			break
+		}
+		headers[i] = col.Header
+	}
+
+	rows := structure.Preview
+	if structure.HeaderRow > 0 && len(rows) > 0 {
+		rows = rows[1:]
+	}
+	if len(rows) > importRawPreviewRows {
+		rows = rows[:importRawPreviewRows]
+	}
+	if len(rows) == 0 {
 		return nil, nil
-	}
-	if depth > importRawPreviewRows {
-		depth = importRawPreviewRows
-	}
-	rows := make([][]string, depth)
-	for r := 0; r < depth; r++ {
-		row := make([]string, len(structure.Columns))
-		for c, col := range structure.Columns {
-			row[c] = col.Samples[r]
-		}
-		rows[r] = row
 	}
 	return headers, rows
 }

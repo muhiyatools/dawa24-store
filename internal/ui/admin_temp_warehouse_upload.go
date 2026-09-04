@@ -21,6 +21,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -83,7 +84,30 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: i18n.T("ar", "admin.temp_warehouse.insufficient_rows")}
 	}
 
-	headers := rawRows[0]
+	// Row zero is not reliably the header row.
+	//
+	// This used to read `rawRows[0]` and hand it straight to the column
+	// detector. Warehouse exports routinely carry a title band above the
+	// header — the warehouse's name, an export date, a blank spacer — so the
+	// detector was matching against those and binding the code column to
+	// whatever happened to sit in that position. The live data shows the
+	// result: rows whose "code" is 24.5 or 21, which are prices, and a
+	// discount column that stayed at zero because it was never found.
+	//
+	// AnalyzeLayout is what every other importer in the platform uses to find
+	// the header row and the first data row, and this one was the outlier.
+	layout, _ := productmatch.AnalyzeLayout(rawRows)
+	headers := layout.Headers
+	dataStart := layout.FirstDataRow
+	if layout.HeaderRow < 0 || len(headers) == 0 {
+		headers = rawRows[0]
+		dataStart = 1
+	}
+	if dataStart < 1 || dataStart > len(rawRows) {
+		dataStart = 1
+	}
+	dataRows := rawRows[dataStart:]
+
 	codeCol, nameCol, priceCol, discountCol := detectTempWarehouseCols(headers, customCode, customName, customPrice, customDiscount)
 
 	supplierName := defaultSupplierName
@@ -120,8 +144,8 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 		return tempWarehouseUploadResult{Filename: fh.Filename, SupplierName: supplierName, Success: false, Error: fmt.Sprintf(i18n.T("ar", "admin.temp_warehouse.create_record_failed_format"), err.Error())}
 	}
 
-	fileRows := make([]*compare.CompareFileRow, 0, len(rawRows)-1)
-	for idx, row := range rawRows[1:] {
+	fileRows := make([]*compare.CompareFileRow, 0, len(dataRows))
+	for idx, row := range dataRows {
 		if len(row) == 0 {
 			continue
 		}
@@ -163,7 +187,7 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 		fileRows = append(fileRows, &compare.CompareFileRow{
 			FileID:             compareFile.ID,
 			OrganizationID:     orgID,
-			RowNumber:          idx + 2,
+			RowNumber:          dataStart + idx + 1,
 			RawName:            rawName,
 			NormalizedName:     strings.ToLower(rawName),
 			SKU:                sku,

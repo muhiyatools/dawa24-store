@@ -395,8 +395,3 @@ func (s *Service) ListPolicies(ctx context.Context, orgID int64) ([]*Policy, err
 func (s *Service) SavePolicies(ctx context.Context, orgID int64, policies []*Policy) error {
 	return s.repo.SavePolicies(ctx, orgID, policies)
 }
-
-// ListSocialMedia returns an organization's social media accounts.
-func (s *Service) ListSocialMedia(ctx context.Context, orgID int64) ([]*SocialMedia, error) {
-	return s.repo.ListSocialMediaByOrg(ctx, orgID)
-}

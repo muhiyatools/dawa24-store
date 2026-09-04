@@ -249,7 +249,7 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 		Warehouse:       wh,
 		OtherWarehouses: otherWhs,
 		Stocks:          paged,
-		Stats:     stats,
+		Stats:           stats,
 		Filter: pages.VendorWarehouseStockFilter{
 			Query:        q,
 			StockStatus:  stockStatus,

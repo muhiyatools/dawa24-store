@@ -15,7 +15,18 @@ import (
 
 func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 	lang := langOf(r)
+	// Two field names, deliberately.
+	//
+	// The wallet modal posts "provider" and this function only ever read
+	// "type", so every add from /customer/wallet and /vendor/wallet fell
+	// through to the default arm and answered "نوع وسيلة الدفع غير صالح" —
+	// the form was never invalid, it was never read. Both names are accepted
+	// permanently: three handlers call this, and a page cached in a browser
+	// may still post either.
 	payType := strings.TrimSpace(r.PostFormValue("type"))
+	if payType == "" {
+		payType = strings.TrimSpace(r.PostFormValue("provider"))
+	}
 	switch payType {
 	case "bank":
 		bankName := strings.TrimSpace(r.PostFormValue("bank_name"))

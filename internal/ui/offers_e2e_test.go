@@ -228,8 +228,12 @@ func (m *mockPromoRepo) ListAdsByOrg(ctx context.Context, orgID int64, limit, of
 func (m *mockPromoRepo) ListAllAds(ctx context.Context, limit, offset int) ([]*promo.Ad, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) ListAdsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*promo.Ad, int, error) { return nil, 0, nil }
-func (m *mockPromoRepo) ListAllAdsWithTotal(ctx context.Context, limit, offset int) ([]*promo.Ad, int, error) { return nil, 0, nil }
+func (m *mockPromoRepo) ListAdsByOrgWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*promo.Ad, int, error) {
+	return nil, 0, nil
+}
+func (m *mockPromoRepo) ListAllAdsWithTotal(ctx context.Context, limit, offset int) ([]*promo.Ad, int, error) {
+	return nil, 0, nil
+}
 func (m *mockPromoRepo) UpdateAdAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error {
 	return nil
 }
@@ -531,4 +535,3 @@ func TestVendorOfferEditAndAdminModerationWorkflow(t *testing.T) {
 		t.Fatalf("expected AdminStatus approved, got %s", mockRepo.spec.AdminStatus)
 	}
 }
-

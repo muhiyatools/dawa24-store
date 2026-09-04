@@ -63,17 +63,16 @@ func (m *mockCompareRepo) ListMarketDiscounts(ctx context.Context, filter compar
 
 			allItems = append(allItems, &compare.MarketDiscountRow{
 				ID:                 r.ID,
-				VariantID:          r.ID,
+				FileID:             file.ID,
 				SupplierName:       file.SupplierName,
 				ProductName:        r.RawName,
-				SKU:                r.SKU,
 				OriginalPrice:      r.Price,
 				DiscountPercent:    r.Discount,
 				DiscountValue:      discVal,
 				PriceAfterDiscount: netPrice,
 				MatchedProductID:   r.MatchedProductID,
 				InCatalog:          r.MatchedProductID != nil && *r.MatchedProductID > 0,
-				CreatedAt:          r.CreatedAt,
+				UploadedAt:         file.CreatedAt,
 			})
 		}
 	}

@@ -90,20 +90,20 @@ func TestSupplierSeesNoPharmacyNavigationAndViceVersa(t *testing.T) {
 	if got := countNavItems(rbac.VisibleNav(rbac.ScopeVendor, vendorOwner)); got == 0 {
 		t.Error("a vendor owner sees no vendor navigation at all")
 	}
-	if got := countNavItems(rbac.VisibleNav(rbac.ScopePharmacy, vendorOwner)); got != 0 {
+	if got := countGrantedNavItems(rbac.VisibleNav(rbac.ScopePharmacy, vendorOwner)); got != 0 {
 		t.Errorf("a vendor owner sees %d pharmacy navigation items", got)
 	}
-	if got := countNavItems(rbac.VisibleNav(rbac.ScopeAdmin, vendorOwner)); got != 0 {
+	if got := countGrantedNavItems(rbac.VisibleNav(rbac.ScopeAdmin, vendorOwner)); got != 0 {
 		t.Errorf("a vendor owner sees %d admin navigation items", got)
 	}
 
 	if got := countNavItems(rbac.VisibleNav(rbac.ScopePharmacy, pharmacyOwner)); got == 0 {
 		t.Error("a pharmacy owner sees no pharmacy navigation at all")
 	}
-	if got := countNavItems(rbac.VisibleNav(rbac.ScopeVendor, pharmacyOwner)); got != 0 {
+	if got := countGrantedNavItems(rbac.VisibleNav(rbac.ScopeVendor, pharmacyOwner)); got != 0 {
 		t.Errorf("a pharmacy owner sees %d vendor navigation items", got)
 	}
-	if got := countNavItems(rbac.VisibleNav(rbac.ScopeAdmin, pharmacyOwner)); got != 0 {
+	if got := countGrantedNavItems(rbac.VisibleNav(rbac.ScopeAdmin, pharmacyOwner)); got != 0 {
 		t.Errorf("a pharmacy owner sees %d admin navigation items", got)
 	}
 }
@@ -139,6 +139,23 @@ func TestSupplierOnlyFeaturesAreNotOfferedToPharmacies(t *testing.T) {
 			}
 		}
 	}
+}
+
+// countGrantedNavItems counts only the items a holding actually earns.
+//
+// An always-visible item — account settings — appears in every scope by
+// construction and says nothing about whether one dashboard is leaking into
+// another, which is the only thing the separation tests are asking about.
+func countGrantedNavItems(sections []rbac.NavSection) int {
+	n := 0
+	for _, sec := range sections {
+		for _, item := range sec.Items {
+			if !item.AlwaysVisible {
+				n++
+			}
+		}
+	}
+	return n
 }
 
 func countNavItems(sections []rbac.NavSection) int {

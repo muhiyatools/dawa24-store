@@ -21,6 +21,10 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 		g.Get("/vendor/variants/new", h.VendorVariantNewPage)
 		g.Get("/vendor/catalog/select", h.VendorCatalogSelectPage)
 		g.Get("/vendor/catalog/search-json", h.VendorCatalogSearchJSON)
+		// The supplier's own stock, searched one query at a time. The
+		// advertisement wizard used to inline the whole inventory into its
+		// x-data attribute instead.
+		g.Get("/vendor/inventory/search-json", h.VendorStockSearchJSON)
 		g.Get("/vendor/catalog/product-json/{id}", h.VendorProductDetailJSON)
 	})
 	r.Group(func(g chi.Router) {

@@ -39,6 +39,19 @@ func TestEverySidebarItemHasAGrantablePermission(t *testing.T) {
 		}
 		for _, sec := range rbac.Nav(scope) {
 			for _, item := range sec.Items {
+				// An AlwaysVisible item is the one deliberate exception: it is
+				// about the caller, not about the company, so there is no
+				// permission to grant and inventing one would only create a
+				// role that can be configured to lock someone out of their own
+				// password. TestAlwaysVisibleItemsAreTheSameEverywhere holds
+				// that category to its own rule.
+				if item.AlwaysVisible {
+					if item.Perm != "" {
+						t.Errorf("%s: sidebar item %q is AlwaysVisible and also names permission %q; it must be one or the other",
+							scope, item.Key, item.Perm)
+					}
+					continue
+				}
 				if item.Perm == "" {
 					t.Errorf("%s: sidebar item %q declares no permission", scope, item.Key)
 					continue
@@ -204,4 +217,45 @@ func contains(hay []string, needle string) bool {
 		}
 	}
 	return false
+}
+
+// TestAlwaysVisibleItemsAreTheSameEverywhere is the rule that keeps
+// NavItem.AlwaysVisible from becoming a way to smuggle a company page past the
+// permission registry.
+//
+// An item every member sees whatever they hold can only be a page about the
+// caller themselves. Such a page is the same page for a pharmacist, a supplier
+// and a platform administrator, so the same key must resolve to the same URL in
+// every scope that declares it. A supplier-only destination marked
+// AlwaysVisible would fail here rather than quietly appearing in the pharmacy
+// sidebar.
+func TestAlwaysVisibleItemsAreTheSameEverywhere(t *testing.T) {
+	hrefs := map[string]string{}
+	scopes := map[string]string{}
+	for _, scope := range rbac.Scopes() {
+		for _, sec := range rbac.Nav(scope) {
+			for _, item := range sec.Items {
+				if !item.AlwaysVisible {
+					continue
+				}
+				if item.Href == "" {
+					t.Errorf("%s: always-visible item %q has no href", scope, item.Key)
+					continue
+				}
+				if seen, ok := hrefs[item.Key]; ok && seen != item.Href {
+					t.Errorf("always-visible item %q points at %q in %s but %q in %s; it must be one destination",
+						item.Key, seen, scopes[item.Key], item.Href, scope)
+					continue
+				}
+				hrefs[item.Key] = item.Href
+				scopes[item.Key] = string(scope)
+			}
+		}
+	}
+	if len(hrefs) == 0 {
+		t.Fatal("no always-visible navigation items; account settings should be one")
+	}
+	if hrefs["account_settings"] != "/settings" {
+		t.Errorf("account settings should be always-visible at /settings, got %q", hrefs["account_settings"])
+	}
 }

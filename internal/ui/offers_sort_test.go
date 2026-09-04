@@ -42,11 +42,11 @@ func equalIDs(got []int64, want ...int64) bool {
 // The order a pharmacy reads: orderable, covered, in stock, nearest, cheapest.
 func TestSortSupplierOffersRanksAvailabilityThenProximity(t *testing.T) {
 	offers := []pages.SupplierOffer{
-		offer(1, false, false, 0, 1, 1000),  // unreachable, cheapest, nearest
-		offer(2, true, true, 0, 2, 1100),    // covered but out of stock
-		offer(3, true, true, 40, 90, 3000),  // in stock, far, dearest
-		offer(4, true, true, 25, 5, 2500),   // in stock, near
-		offer(5, false, true, 10, 1, 900),   // covered, in stock, not orderable
+		offer(1, false, false, 0, 1, 1000), // unreachable, cheapest, nearest
+		offer(2, true, true, 0, 2, 1100),   // covered but out of stock
+		offer(3, true, true, 40, 90, 3000), // in stock, far, dearest
+		offer(4, true, true, 25, 5, 2500),  // in stock, near
+		offer(5, false, true, 10, 1, 900),  // covered, in stock, not orderable
 	}
 	sortSupplierOffers(offers)
 

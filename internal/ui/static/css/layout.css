@@ -741,7 +741,6 @@ body.sidebar-mobile-open {
   /* …except where breaking mid-token would be wrong. */
   .page-container code,
   .page-container .tabular-nums,
-  .page-container .market-code { overflow-wrap: normal; }
 }
 
 /* --- Tap highlight -------------------------------------------------------

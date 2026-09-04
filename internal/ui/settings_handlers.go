@@ -20,10 +20,13 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
 		return
 	}
-	if actor.IsVendor() {
-		http.Redirect(w, r, "/vendor/organization", http.StatusSeeOther)
-		return
-	}
+	// A supplier used to be redirected from here to /vendor/organization.
+	//
+	// Those are two different things: this page is the caller's own account —
+	// their name, their password, their devices — and that one is the company's
+	// commercial profile. The redirect meant a supplier had no way to reach
+	// their own account settings at all, and landed instead on a page that
+	// answers 404 without vendor.organization.view.
 
 	var user *identity.User
 	var sessions []*identity.Session
@@ -104,36 +107,4 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.renderPage(ctx, w, "render unified settings page", pages.UnifiedSettingsPage(data, lang, dir))
-}
-
-// SettingsOrgUpdateSubmit saves organization profile fields.
-func (h *UIHandler) SettingsOrgUpdateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang := langOf(r)
-	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
-		return
-	}
-
-	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", i18n.T(lang, "settings.emp.service_unavailable"))
-		return
-	}
-
-	o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
-	if err != nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, lang))
-		return
-	}
-	o.LegalName = r.PostFormValue("legal_name")
-	o.TradeName = i18n.New(r.PostFormValue("trade_name_ar"), r.PostFormValue("trade_name_en"))
-	o.TaxNumber = r.PostFormValue("tax_number")
-	o.CommercialRegister = r.PostFormValue("commercial_register")
-
-	if err := h.orgSvc.UpdateOrganization(ctx, o); err != nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, lang))
-		return
-	}
-	h.redirectWithNotice(w, r, "/settings/organization", "success", i18n.T(lang, "settings.org.saved_success"))
 }

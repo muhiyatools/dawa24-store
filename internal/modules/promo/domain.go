@@ -250,8 +250,6 @@ func (a *Ad) ResolveClickURL() string {
 		if a.ClickTargetID != nil {
 			return "/offers/" + fmtInt64(*a.ClickTargetID)
 		}
-	case ClickTargetExternal:
-		return a.TargetURL
 	default:
 		if a.OrganizationID != nil {
 			return "/suppliers/" + fmtInt64(*a.OrganizationID)
