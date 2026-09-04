@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -12,13 +13,15 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/pagination"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 const pageControlBase = "/admin/system-pages"
 
 // AdminSystemPagesPage lists every managed route root and its enable/disable
-// state. The write actions below are gated separately in the route table.
+// state, with search filtering and rows-per-page pagination.
 func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -37,24 +40,40 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	filter := strings.TrimSpace(r.URL.Query().Get("resource"))
-	view := pages.SystemPagesView{
-		Filter:     filter,
-		Counts:     map[string]int{},
-		Total:      len(all),
-		CanCreate:  actor.Can("platform.page_control.create"),
-		CanUpdate:  actor.Can("platform.page_control.update"),
-		CanDelete:  actor.Can("platform.page_control.delete"),
-		NoticeKind: r.URL.Query().Get("notice"),
-		Notice:     r.URL.Query().Get("msg"),
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	lowerQ := strings.ToLower(q)
+
+	page := pagination.PageNumber(r)
+	limit := pagination.RowsPerPage(r)
+	if limit <= 0 {
+		limit = 25
 	}
+
+	counts := make(map[string]int)
+	var matchedRows []pages.SystemPageRow
+
 	for _, p := range all {
-		view.Counts[string(p.Resource)]++
+		counts[string(p.Resource)]++
+
 		if filter != "" && string(p.Resource) != filter {
 			continue
 		}
-		view.Rows = append(view.Rows, pages.SystemPageRow{
+
+		label := p.Label(lang)
+		if q != "" {
+			matchPath := strings.Contains(strings.ToLower(p.Path), lowerQ)
+			matchLabel := strings.Contains(strings.ToLower(label), lowerQ)
+			matchDesc := strings.Contains(strings.ToLower(p.Description), lowerQ)
+			matchLabelAr := strings.Contains(strings.ToLower(p.LabelAr), lowerQ)
+			matchLabelEn := strings.Contains(strings.ToLower(p.LabelEn), lowerQ)
+			if !matchPath && !matchLabel && !matchDesc && !matchLabelAr && !matchLabelEn {
+				continue
+			}
+		}
+
+		matchedRows = append(matchedRows, pages.SystemPageRow{
 			ID:           p.ID,
-			Label:        p.Label(lang),
+			Label:        label,
 			Path:         p.Path,
 			MatchMode:    string(p.MatchMode),
 			Resource:     string(p.Resource),
@@ -65,6 +84,51 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 			PatternCount: len(p.RoutePatterns),
 			UpdatedAt:    p.UpdatedAt.Format("2006-01-02 15:04"),
 		})
+	}
+
+	totalFiltered := len(matchedRows)
+	var pagedRows []pages.SystemPageRow
+	if limit > 0 {
+		start := (page - 1) * limit
+		if start < totalFiltered {
+			end := start + limit
+			if end > totalFiltered {
+				end = totalFiltered
+			}
+			pagedRows = matchedRows[start:end]
+		}
+	} else {
+		pagedRows = matchedRows
+	}
+
+	qVals := url.Values{}
+	if filter != "" {
+		qVals.Set("resource", filter)
+	}
+	if q != "" {
+		qVals.Set("q", q)
+	}
+
+	view := pages.SystemPagesView{
+		Rows:          pagedRows,
+		Filter:        filter,
+		SearchQuery:   q,
+		Counts:        counts,
+		Total:         len(all),
+		TotalFiltered: totalFiltered,
+		CanCreate:     actor.Can("platform.page_control.create"),
+		CanUpdate:     actor.Can("platform.page_control.update"),
+		CanDelete:     actor.Can("platform.page_control.delete"),
+		NoticeKind:    r.URL.Query().Get("notice"),
+		Notice:        r.URL.Query().Get("msg"),
+		Pagination: components.PaginationProps{
+			CurrentPage:     page,
+			PageSize:        limit,
+			TotalCount:      totalFiltered,
+			BaseURL:         pageControlBase,
+			QueryValues:     qVals,
+			PageSizeOptions: []int{10, 25, 50, 100},
+		},
 	}
 
 	h.renderPage(ctx, w, "render system pages", pages.AdminSystemPagesPage(view, lang, dir))

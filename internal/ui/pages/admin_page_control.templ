@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -32,15 +33,18 @@ type SystemPageRow struct {
 
 // SystemPagesView is everything the page renders.
 type SystemPagesView struct {
-	Rows       []SystemPageRow
-	Filter     string // active resource filter, "" for all
-	Counts     map[string]int
-	Total      int
-	CanCreate  bool
-	CanUpdate  bool
-	CanDelete  bool
-	Notice     string
-	NoticeKind string
+	Rows          []SystemPageRow
+	Filter        string // active resource filter, "" for all
+	SearchQuery   string
+	Counts        map[string]int
+	Total         int
+	TotalFiltered int
+	CanCreate     bool
+	CanUpdate     bool
+	CanDelete     bool
+	Notice        string
+	NoticeKind    string
+	Pagination    components.PaginationProps
 }
 
 var pageControlResources = []struct{ Key, Label string }{
@@ -142,23 +146,67 @@ templ pageControlAddForm() {
 }
 
 templ pageControlFilters(v SystemPagesView) {
-	<div class="glass-panel p-3 mb-4 d-flex items-center gap-2 flex-wrap">
-		for _, res := range pageControlResources {
-			<a
-				href={ templ.SafeURL(pageControlFilterHref(res.Key)) }
-				class={ "btn btn-sm font-bold", templ.KV("btn-primary", v.Filter == res.Key), templ.KV("btn-secondary", v.Filter != res.Key) }
-			>
-				<span>{ res.Label }</span>
-				<span class="text-xs opacity-75">{ strconv.Itoa(pageControlCount(v, res.Key)) }</span>
-			</a>
-		}
+	<div class="glass-panel p-4 mb-4">
+		<div class="flex-between items-center flex-wrap gap-3">
+			<!-- Search Form -->
+			<form method="GET" action="/admin/system-pages" class="d-flex items-center gap-2 flex-grow max-w-md m-0">
+				if v.Filter != "" {
+					<input type="hidden" name="resource" value={ v.Filter } />
+				}
+				if v.Pagination.PageSize > 0 {
+					<input type="hidden" name="limit" value={ strconv.Itoa(v.Pagination.PageSize) } />
+				}
+				<div class="search-input-wrap flex-grow">
+					<input
+						type="text"
+						name="q"
+						value={ v.SearchQuery }
+						placeholder="ابحث بالمسار أو اسم الصفحة..."
+						class="form-input text-sm w-full"
+					/>
+				</div>
+				<button type="submit" class="btn btn-secondary btn-sm font-bold gap-1.5 shrink-0">
+					@components.IconSearch("icon-xs")
+					<span>بحث</span>
+				</button>
+				if v.SearchQuery != "" {
+					<a
+						href={ templ.SafeURL(pageControlFilterHref(v, v.Filter, true)) }
+						class="btn btn-ghost btn-sm text-xs font-bold text-muted shrink-0"
+						title="إلغاء البحث"
+					>
+						@components.IconClose("icon-xs")
+						<span>مسح</span>
+					</a>
+				}
+			</form>
+
+			<!-- Resource Filter Buttons -->
+			<div class="d-flex items-center gap-2 flex-wrap">
+				for _, res := range pageControlResources {
+					<a
+						href={ templ.SafeURL(pageControlFilterHref(v, res.Key, false)) }
+						class={ "btn btn-sm font-bold", templ.KV("btn-primary", v.Filter == res.Key), templ.KV("btn-secondary", v.Filter != res.Key) }
+					>
+						<span>{ res.Label }</span>
+						<span class="text-xs opacity-75">{ strconv.Itoa(pageControlCount(v, res.Key)) }</span>
+					</a>
+				}
+			</div>
+		</div>
 	</div>
 }
 
 templ pageControlTable(v SystemPagesView) {
 	if len(v.Rows) == 0 {
 		<div class="glass-panel p-6 text-center">
-			<p class="text-sm text-secondary m-0">لا توجد صفحات في هذا التصنيف بعد.</p>
+			<p class="text-sm text-secondary m-0">
+				if v.SearchQuery != "" {
+					لا توجد صفحات مطابقة لبحثك "{ v.SearchQuery }".
+				} else {
+					لا توجد صفحات في هذا التصنيف بعد.
+				}
+			</p>
 		</div>
 	} else {
 		<div class="glass-panel p-0 overflow-x-auto">
@@ -182,6 +230,11 @@ templ pageControlTable(v SystemPagesView) {
 				</tbody>
 			</table>
 		</div>
+		if v.Pagination.TotalCount > 0 {
+			<div class="mt-4">
+				@components.B2BPagination(v.Pagination)
+			</div>
+		}
 	}
 }
 
@@ -282,11 +335,21 @@ templ pageControlNotice(kind, message string) {
 	}
 }
 
-func pageControlFilterHref(key string) string {
-	if key == "" {
+func pageControlFilterHref(v SystemPagesView, key string, clearSearch bool) string {
+	vals := url.Values{}
+	if key != "" {
+		vals.Set("resource", key)
+	}
+	if !clearSearch && v.SearchQuery != "" {
+		vals.Set("q", v.SearchQuery)
+	}
+	if v.Pagination.PageSize > 0 && v.Pagination.PageSize != 25 {
+		vals.Set("limit", strconv.Itoa(v.Pagination.PageSize))
+	}
+	if len(vals) == 0 {
 		return "/admin/system-pages"
 	}
-	return "/admin/system-pages?resource=" + key
+	return "/admin/system-pages?" + vals.Encode()
 }
 
 func pageControlCount(v SystemPagesView, key string) int {

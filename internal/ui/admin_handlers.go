@@ -9,6 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -23,6 +24,15 @@ import (
 func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
+	actor := authctx.FromContext(ctx)
+
+	// Non-super-admin platform staff (moderators, employees) receive a dedicated
+	// overview and system guide dashboard, completely separating them from executive financials.
+	if !actor.IsSuperAdmin() {
+		h.renderPage(ctx, w, "render admin staff dashboard page",
+			pages.AdminStaffDashboard(actor, lang, dir))
+		return
+	}
 
 	snap := adminDashboard.get(ctx, h.computeDashboardSnapshot)
 	if snap == nil {

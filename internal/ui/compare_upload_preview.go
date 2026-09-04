@@ -27,6 +27,11 @@ func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare
 		candidates := []string{
 			file.StorageKey,
 			filepath.Join("data", cleanKey),
+			filepath.Join(UploadBaseDir, "temp_warehouses", filepath.Base(file.StorageKey)),
+			filepath.Join("data", "uploads", "temp_warehouses", filepath.Base(file.StorageKey)),
+			filepath.Join(UploadBaseDir, "temp_warehouses", filepath.Base(file.OriginalFilename)),
+			filepath.Join("data", "uploads", "temp_warehouses", filepath.Base(file.OriginalFilename)),
+			filepath.Join(UploadBaseDir, filepath.FromSlash(strings.TrimPrefix(file.StorageKey, "/uploads/"))),
 			filepath.Join(UploadBaseDir, "compare", filepath.Base(file.StorageKey)),
 			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
 			filepath.Join(UploadBaseDir, "compare", filepath.Base(file.OriginalFilename)),

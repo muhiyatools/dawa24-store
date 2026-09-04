@@ -286,8 +286,19 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					this.mappingQueue = queue || [];
 					this.mappingStep = step || 1;
 					this.mappingTotal = total || (this.mappingQueue.length + 1);
+					const base = (this.$root && this.$root.dataset && this.$root.dataset.base) || window.location.pathname.replace(/\/$/, '') || '/admin/temporary-warehouses';
 					try {
-						const res = await fetch(this.$root.dataset.base + '/' + id + '/mapping-json');
+						let res = await fetch(base + '/' + id + '/mapping-json', {
+							headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+						});
+						if (!res.ok && base !== '/admin/temporary-warehouses') {
+							res = await fetch('/admin/temporary-warehouses/' + id + '/mapping-json', {
+								headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+							});
+						}
+						if (!res.ok) {
+							throw new Error('HTTP ' + res.status);
+						}
 						const json = await res.json();
 						if (json.success) {
 							this.mappingFile = {
@@ -308,7 +319,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						}
 					} catch(e) {
 						console.error('Mapping load error:', e);
-						alert('فشل الاتصال بالخادم لتحميل تفاصيل الأعمدة');
+						alert('تعذر تحميل تفاصيل الأعمدة، يرجى المحاولة مرة أخرى');
 						this.mappingModal = false;
 					} finally {
 						this.mappingLoading = false;
@@ -317,6 +328,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				async submitMapping(form) {
 					if (!this.mappingFile || !this.mappingFile.id) return;
 					this.mappingSubmitting = true;
+					const base = (this.$root && this.$root.dataset && this.$root.dataset.base) || window.location.pathname.replace(/\/$/, '') || '/admin/temporary-warehouses';
 					try {
 						const formData = new FormData();
 						formData.append('supplier_name', this.mappingFile.supplier_name || '');
@@ -328,7 +340,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						formData.append('step', this.mappingStep);
 						formData.append('total', this.mappingTotal);
 
-						const res = await fetch(this.$root.dataset.base + '/' + this.mappingFile.id + '/mapping', {
+						let res = await fetch(base + '/' + this.mappingFile.id + '/mapping', {
 							method: 'POST',
 							body: formData,
 							headers: {
@@ -336,6 +348,16 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								'X-Requested-With': 'XMLHttpRequest'
 							}
 						});
+						if (!res.ok && base !== '/admin/temporary-warehouses') {
+							res = await fetch('/admin/temporary-warehouses/' + this.mappingFile.id + '/mapping', {
+								method: 'POST',
+								body: formData,
+								headers: {
+									'Accept': 'application/json',
+									'X-Requested-With': 'XMLHttpRequest'
+								}
+							});
+						}
 						const json = await res.json();
 						if (json.success) {
 							if (this.mappingQueue && this.mappingQueue.length > 0) {

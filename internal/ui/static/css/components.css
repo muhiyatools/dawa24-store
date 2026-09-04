@@ -1410,13 +1410,14 @@ select.form-control:focus-visible {
 }
 
 .data-table th {
-  padding: 0.85rem 1.15rem;
+  padding: 0.75rem 0.85rem;
   font-size: var(--text-xs, 0.75rem);
   font-weight: 800;
   color: var(--text-muted, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.35;
   vertical-align: middle;
   border-bottom: 1px solid var(--border-card, #e2e8f0);
   text-align: start;
@@ -1440,7 +1441,7 @@ select.form-control:focus-visible {
 }
 
 .data-table td {
-  padding: 0.85rem 1.15rem;
+  padding: 0.75rem 0.85rem;
   vertical-align: middle;
   color: var(--text-primary, #0f172a);
   font-size: var(--text-sm, 0.8125rem);
@@ -1448,6 +1449,13 @@ select.form-control:focus-visible {
      table wider than the viewport. */
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+@media (min-width: 1440px) {
+  .data-table th,
+  .data-table td {
+    padding: 0.85rem 1rem;
+  }
 }
 
 /* Rows whose cells run to multiple lines read better top-aligned. */

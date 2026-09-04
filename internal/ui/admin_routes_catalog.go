@@ -145,10 +145,20 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Get("/admin/temporary-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
 		g.Get("/admin/temporary-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
 		g.Get("/admin/temporary-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
+
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)
+		g.Get("/admin/user/temparte-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
+		g.Get("/admin/user/temparte-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
+		g.Get("/admin/user/temparte-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
 		g.Get("/admin/user/temparte-warehouses/{id}", h.AdminTempWarehousesPage)
+
 		g.Get("/admin/admins/temparte-warehouses", h.AdminTempWarehousesPage)
+		g.Get("/admin/admins/temparte-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
+		g.Get("/admin/admins/temparte-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
+
 		g.Get("/admin/plan/temparte-warehouses", h.AdminTempWarehousesPage)
+		g.Get("/admin/plan/temparte-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
+		g.Get("/admin/plan/temparte-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
 		g.Get("/admin/plan/temparte-warehouses/{id}", h.AdminTempWarehousesPage)
 		g.Get("/admin/user-plan/temparte-warehouses", h.AdminTempWarehousesPage)
 	})
@@ -157,8 +167,17 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.warehouse.update"))
 		g.Post("/admin/temporary-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
 		g.Post("/admin/user/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+		g.Post("/admin/admins/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+		g.Post("/admin/plan/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+
 		g.Post("/admin/temporary-warehouses/{id}/mapping", h.AdminTempWarehouseMappingSubmit)
+		g.Post("/admin/user/temparte-warehouses/{id}/mapping", h.AdminTempWarehouseMappingSubmit)
+		g.Post("/admin/admins/temparte-warehouses/{id}/mapping", h.AdminTempWarehouseMappingSubmit)
+		g.Post("/admin/plan/temparte-warehouses/{id}/mapping", h.AdminTempWarehouseMappingSubmit)
+
 		g.Post("/admin/temporary-warehouses/{id}/toggle-archive", h.AdminTempWarehouseToggleArchiveSubmit)
+		g.Post("/admin/user/temparte-warehouses/{id}/toggle-archive", h.AdminTempWarehouseToggleArchiveSubmit)
+
 		g.Post("/admin/temporary-warehouses/bulk", h.AdminTempWarehouseBulkSubmit)
 		g.Post("/admin/user/temparte-warehouses/bulk", h.AdminTempWarehouseBulkSubmit)
 	})

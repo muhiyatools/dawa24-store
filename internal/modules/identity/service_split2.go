@@ -73,12 +73,23 @@ func (s *Service) GetIdleTimeout() time.Duration {
 	return 30 * time.Minute
 }
 
-// ValidateSession verifies a session token.
+// ValidateSession verifies a session token and confirms the user still exists and is active.
 func (s *Service) ValidateSession(ctx context.Context, token string) (*Session, error) {
 	if s.sessionStore == nil {
 		return nil, apperr.Unauthorized()
 	}
-	return s.sessionStore.Get(ctx, token)
+	sess, err := s.sessionStore.Get(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+	if s.repo != nil {
+		user, uerr := s.repo.GetUserByID(ctx, sess.UserID)
+		if uerr != nil || user == nil || user.DeletedAt != nil || user.Status != StatusActive {
+			_ = s.sessionStore.Delete(ctx, token)
+			return nil, apperr.Unauthorized()
+		}
+	}
+	return sess, nil
 }
 
 // ValidateSessionWithoutTouch validates a session without recording the request
@@ -88,7 +99,18 @@ func (s *Service) ValidateSessionWithoutTouch(ctx context.Context, token string)
 	if s.sessionStore == nil {
 		return nil, apperr.Unauthorized()
 	}
-	return s.sessionStore.GetWithoutTouch(ctx, token)
+	sess, err := s.sessionStore.GetWithoutTouch(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+	if s.repo != nil {
+		user, uerr := s.repo.GetUserByID(ctx, sess.UserID)
+		if uerr != nil || user == nil || user.DeletedAt != nil || user.Status != StatusActive {
+			_ = s.sessionStore.Delete(ctx, token)
+			return nil, apperr.Unauthorized()
+		}
+	}
+	return sess, nil
 }
 
 // GetUserByID looks up a user by ID.

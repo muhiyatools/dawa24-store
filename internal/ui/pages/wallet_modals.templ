@@ -11,7 +11,9 @@ templ WalletModals(data WalletViewData) {
 	<div
 		class="modal-backdrop"
 		x-show="isDepositModalOpen"
+		x-cloak
 		x-transition.opacity
+		@keydown.escape.window="isDepositModalOpen = false"
 	>
 		<div
 			class="modal-container"
@@ -183,7 +185,9 @@ templ WalletModals(data WalletViewData) {
 	<div
 		class="modal-backdrop"
 		x-show="isWithdrawModalOpen"
+		x-cloak
 		x-transition.opacity
+		@keydown.escape.window="isWithdrawModalOpen = false"
 	>
 		<div
 			class="modal-container"
