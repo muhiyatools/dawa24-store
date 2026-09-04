@@ -297,11 +297,11 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 	// The wallet moves the company's money. Reading the balance and moving it
 	// are separate grants, and neither is implied by ordinary membership.
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.view", "vendor.dashboard.view", "vendor.payment.view", "vendor.earnings.view"))
 		g.Get("/vendor/wallet", h.TenantWalletPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.manage"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.manage", "vendor.wallet.view", "vendor.payment.view"))
 		g.Post("/vendor/wallet/deposit", h.TenantWalletDepositSubmit)
 		g.Post("/vendor/wallet/withdraw", h.TenantWalletWithdrawSubmit)
 		g.Post("/vendor/wallet/payment-methods", h.TenantPaymentMethodAddSubmit)

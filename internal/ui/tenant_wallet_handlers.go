@@ -80,8 +80,20 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 	var paymentMethods []*billing.UserPaymentMethod
 	var platformPaymentMethods []*billing.PlatformPaymentMethod
 
+	walletUserID := actor.UserID
+	if actor.OrganizationID > 0 && h.orgSvc != nil {
+		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
+			for _, emp := range emps {
+				if emp != nil && emp.Member != nil && (emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "owner" || emp.Member.RoleKey == "org_admin") {
+					walletUserID = emp.Member.UserID
+					break
+				}
+			}
+		}
+	}
+
 	if h.billSvc != nil {
-		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err == nil {
+		if pms, err := h.billSvc.ListPaymentMethods(ctx, walletUserID); err == nil {
 			paymentMethods = pms
 		}
 		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
@@ -97,11 +109,11 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 			if txStatus == "pending" || txStatus == "rejected" {
 				depStatus = txStatus
 			}
-			if deps, err := h.billSvc.ListUserDepositsWithStatus(ctx, actor.UserID, depStatus, 50, 0); err == nil {
+			if deps, err := h.billSvc.ListUserDepositsWithStatus(ctx, walletUserID, depStatus, 50, 0); err == nil {
 				depositRequests = deps
 			}
 		}
-		if wItem, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && wItem != nil {
+		if wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP"); err == nil && wItem != nil {
 			wallet = wItem
 			// Ledger rows back the type filter (billing.wallet_transactions.type).
 			// A status of pending/rejected shows requests only, no ledger rows.

@@ -280,7 +280,13 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 								if orgDocs != nil && len(orgDocs[o.ID]) > 0 {
 									<div class="table-actions">
 										for _, doc := range orgDocs[o.ID] {
-											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-xs font-bold text-accent gap-1.5 px-2 py-1">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
+												data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+												data-title={ docTypeLabelAr(string(doc.DocumentType)) }
+												data-filename={ doc.OriginalName }
+												class="btn btn-secondary btn-xs font-bold text-accent gap-1.5 px-2 py-1"
+											>
 												@components.IconFile("icon-xs")
 												<span>{ docTypeLabelAr(string(doc.DocumentType)) }</span>
 											</a>
@@ -406,23 +412,29 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 															<div class="mb-2 rounded-xl border overflow-hidden">
 																<div class="d-flex items-center justify-between gap-2 p-2 px-3 bg-surface-sunken flex-wrap">
 																	<span class="text-xs font-bold text-primary">{ docTypeLabelAr(string(doc.DocumentType)) }</span>
-																	<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-ghost btn-xs font-bold text-muted">
-																		فتح في نافذة جديدة ↗
+																	<a
+																		href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
+																		data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+																		data-title={ docTypeLabelAr(string(doc.DocumentType)) }
+																		data-filename={ doc.OriginalName }
+																		class="btn btn-ghost btn-xs font-bold text-muted"
+																	>
+																		معاينة ↗
 																	</a>
 																</div>
 																if docPreviewIsImage(doc) {
 																	<img
 																		src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
 																		alt="معاينة المستند"
-																		class="w-full object-contain bg-white"
-																		style="max-height: 320px;"
+																		data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+																		data-title={ docTypeLabelAr(string(doc.DocumentType)) }
+																		class="w-full object-contain bg-white doc-preview-max-height cursor-pointer"
 																		loading="lazy"
 																	/>
 																} else {
 																	<iframe
 																		src={ fmt.Sprintf("/documents/%d/view", doc.ID) }
-																		class="w-full bg-white"
-																		style="min-height: 320px; border: 0;"
+																		class="w-full bg-white border-0 doc-preview-min-height"
 																		loading="lazy"
 																		title="معاينة المستند"
 																 ></iframe>
@@ -641,9 +653,15 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 													<strong>الملف:</strong> { doc.OriginalName } ({ format.Bytes(doc.SizeBytes) })
 												</div>
             <div class="table-actions">
-													<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent">
+													<a
+														href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
+														data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+														data-title={ doc.OriginalName }
+														data-filename={ doc.OriginalName }
+														class="btn btn-secondary btn-sm w-full justify-center font-bold text-accent"
+													>
 														@components.IconFile("icon-xs")
-														<span>فتح الملف في نافذة جديدة للمعاينة والتدقيق ↗</span>
+														<span>معاينة الملف والتدقيق</span>
 													</a>
 												</div>
 											</div>

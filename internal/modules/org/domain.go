@@ -1,6 +1,7 @@
 package org
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -324,7 +325,11 @@ func (b *Branch) Validate() error {
 		return apperr.Validation("branch.org_required", "Organization ID is required.", nil)
 	}
 	if b.Code == "" {
-		return apperr.Validation("branch.code_required", "Branch code is required.", nil)
+		if b.ID > 0 {
+			b.Code = "BR-" + strconv.FormatInt(b.ID, 10)
+		} else {
+			b.Code = "BR-" + strconv.FormatInt(time.Now().Unix(), 10)
+		}
 	}
 	return nil
 }

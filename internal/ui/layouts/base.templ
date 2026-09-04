@@ -104,9 +104,12 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			// four different shells and each used to ship its own copy of the
 			// same three bugs. See import-progress.js.
 			<script defer src={ Asset("/static/js/import-progress.js") }></script>
+			// Universal file & image in-window lightbox previewer.
+			<script defer src={ Asset("/static/js/preview.js") }></script>
 		</head>
 		<body>
 			{ children... }
+			@components.UniversalFilePreviewModal()
 			// The floating assistant is a permanent companion for all authenticated users
 			// across all platform dashboards and workflows.
 			if actor := authctx.FromContext(ctx); actor.UserID > 0 {

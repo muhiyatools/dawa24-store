@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -68,7 +69,10 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 	if nameEn == "" {
 		nameEn = nameAr
 	}
-	code := r.PostFormValue("code")
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	if code == "" {
+		code = fmt.Sprintf("BR-%d", time.Now().Unix())
+	}
 	warehouseType := r.PostFormValue("warehouse_type")
 	address := r.PostFormValue("address")
 	phone := r.PostFormValue("phone")
@@ -214,12 +218,27 @@ func (h *UIHandler) VendorBranchEditSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	code := strings.TrimSpace(r.PostFormValue("code"))
+	if code == "" {
+		code = existing.Code
+	}
+	if code == "" {
+		code = fmt.Sprintf("BR-%d", branchID)
+	}
 	warehouseType := strings.TrimSpace(r.PostFormValue("warehouse_type"))
+	if warehouseType == "" {
+		warehouseType = existing.WarehouseType
+	}
 	if warehouseType == "" {
 		warehouseType = "warehouse"
 	}
 	address := strings.TrimSpace(r.PostFormValue("address"))
+	if address == "" {
+		address = existing.Address
+	}
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	if phone == "" {
+		phone = existing.Phone
+	}
 	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
 	hours := strings.TrimSpace(r.PostFormValue("operating_hours"))
 	hasCold := r.PostFormValue("has_cold_storage") == "true"

@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -112,6 +114,9 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 		nameEn = nameAr
 	}
 	code := strings.TrimSpace(r.PostFormValue("code"))
+	if code == "" {
+		code = fmt.Sprintf("BR-%d", time.Now().Unix())
+	}
 	address := strings.TrimSpace(r.PostFormValue("address"))
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
 	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
@@ -203,8 +208,20 @@ func (h *UIHandler) CustomerBranchEditSubmit(w http.ResponseWriter, r *http.Requ
 		nameEn = nameAr
 	}
 	code := strings.TrimSpace(r.PostFormValue("code"))
+	if code == "" {
+		code = existing.Code
+	}
+	if code == "" {
+		code = fmt.Sprintf("BR-%d", id)
+	}
 	address := strings.TrimSpace(r.PostFormValue("address"))
+	if address == "" {
+		address = existing.Address
+	}
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	if phone == "" {
+		phone = existing.Phone
+	}
 	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
 	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
 	status := strings.TrimSpace(r.PostFormValue("status"))

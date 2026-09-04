@@ -208,6 +208,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.invoice.view", "vendor.activity.view",
 			"vendor.document.view", "vendor.policy.view",
 			"vendor.review.view", "vendor.review.reply",
+			"vendor.wallet.view", "vendor.wallet.manage",
 			"vendor.job.view", "vendor.job.manage", "vendor.session.view",
 			"vendor.decision_memory.view", "vendor.decision_memory.delete",
 		},
@@ -252,6 +253,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"pharmacy.offer.view", "pharmacy.saving_product.view", "pharmacy.saving_product.manage",
 			"pharmacy.decision_memory.view", "pharmacy.decision_memory.delete", "pharmacy.supplier.view", "pharmacy.supplier.follow",
 			"pharmacy.document.view",
+			"pharmacy.wallet.view", "pharmacy.wallet.manage",
 			"pharmacy.job.view", "pharmacy.job.manage", "pharmacy.session.view",
 		},
 		"org_accountant": {
@@ -275,6 +277,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"pharmacy.order.view", "pharmacy.order.create", "pharmacy.order.update",
 			"pharmacy.cart.use", "pharmacy.offer.view", "pharmacy.supplier.view",
 			"pharmacy.saving_product.view", "pharmacy.favorite.view", "pharmacy.favorite.manage",
+			"pharmacy.wallet.view", "pharmacy.wallet.manage",
 			"pharmacy.session.view",
 		},
 		"org_employee": {"pharmacy.dashboard.view", "pharmacy.order.view", "pharmacy.session.view"},

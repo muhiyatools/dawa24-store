@@ -196,12 +196,12 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th class="cell-nowrap">اسم الصنف للصيدلية</th>
-									<th>الربط بالكتالوج العام</th>
-									<th class="col-min p-md text-center">الكمية</th>
-									<th class="col-min p-md text-center">سعر الشراء</th>
-									<th class="col-min p-md text-center">عروض الموردين</th>
-									<th class="col-actions">الإجراءات</th>
+									<th class="text-start">اسم الصنف للصيدلية</th>
+									<th class="text-start">الربط بالكتالوج العام</th>
+									<th class="col-min text-center">الكمية</th>
+									<th class="col-min text-center">سعر الشراء</th>
+									<th class="col-min text-center">عروض الموردين</th>
+									<th class="col-actions text-center">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -215,22 +215,21 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										data-price={ it.Price.String() }
 										data-product-id={ savingProductIDStr(it.ProductID) }
 										data-product-name={ it.LinkedProductName.Get(i18n.AR) }
-									
 									>
 										<!-- Name & SKU -->
-										<td class="p-card-sm">
+										<td class="text-start">
 											<div class="fw-800 text-primary text-base">
 												{ it.NameProduct }
 											</div>
 											if it.SKU != "" {
-            <div class="stack-sm">
+												<div class="text-xs text-muted mt-1">
 													<code>{ it.SKU }</code>
 												</div>
 											}
 										</td>
 
 										<!-- Linked Product -->
-										<td class="p-md">
+										<td class="text-start">
 											if it.ProductID != nil && *it.ProductID > 0 {
 												<div class="d-flex items-center gap-2">
 													<span
@@ -251,22 +250,21 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Quantity -->
-										<td class="col-min p-md text-center tabular-nums">
+										<td class="col-min text-center tabular-nums">
 											<strong>{ fmt.Sprintf("%v", it.Quantity) }</strong>
 										</td>
 
 										<!-- Price -->
-										<td class="col-min p-md text-center tabular-nums">
+										<td class="col-min text-center tabular-nums">
 											<strong class="text-primary">{ it.Price.String() } ج.م</strong>
 										</td>
 
 										<!-- Providers & Market Offers -->
-										<td class="col-min p-md text-center">
+										<td class="col-min text-center">
 											if it.ProductID != nil && *it.ProductID > 0 {
 												<button
 													type="button"
 													class="btn btn-secondary btn-sm"
-												
 													data-open-providers-id={ fmt.Sprintf("%d", *it.ProductID) }
 													data-open-providers-name={ it.NameProduct }
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)} }
@@ -279,11 +277,11 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 										</td>
 
 										<!-- Actions -->
-										<td class="col-actions">
-           <div class="table-actions">
+										<td class="col-actions text-center">
+											<div class="table-actions justify-center">
 												<button
 													type="button"
-													class="btn btn-secondary btn-icon size-8"
+													class="btn btn-secondary btn-icon"
 													title="تعديل الصنف والربط"
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)} }
 												>
@@ -291,8 +289,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 												</button>
 												<button
 													type="button"
-													class="btn btn-secondary btn-icon"
-												
+													class="btn btn-secondary btn-icon text-danger"
 													title="حذف من قائمة التوفير"
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("confirmPharmacyDeleteSavingProduct(%d)", it.ID)} }
 												>

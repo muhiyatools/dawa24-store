@@ -198,18 +198,20 @@ templ OrganizationDocumentsModals() {
 
 			if (isImage) {
 				if (iframe) {
-					iframe.style.display = 'none';
+					iframe.classList.add('hidden');
 					iframe.src = 'about:blank';
 				}
 				if (img && imgContainer) {
 					img.src = viewUrl;
-					imgContainer.style.display = 'flex';
+					imgContainer.classList.remove('hidden');
 				}
 			} else {
-				if (imgContainer) imgContainer.style.display = 'none';
+				if (imgContainer) {
+					imgContainer.classList.add('hidden');
+				}
 				if (iframe) {
 					iframe.src = viewUrl;
-					iframe.style.display = 'block';
+					iframe.classList.remove('hidden');
 				}
 			}
 

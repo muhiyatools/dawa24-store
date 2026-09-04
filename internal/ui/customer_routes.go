@@ -112,11 +112,11 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.view", "pharmacy.dashboard.view", "pharmacy.order.view"))
 		g.Get("/customer/wallet", h.TenantWalletPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.manage"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.manage", "pharmacy.wallet.view", "pharmacy.order.update"))
 		g.Post("/customer/wallet/deposit", h.TenantWalletDepositSubmit)
 		g.Post("/customer/wallet/withdraw", h.TenantWalletWithdrawSubmit)
 		g.Post("/customer/wallet/payment-methods", h.TenantPaymentMethodAddSubmit)

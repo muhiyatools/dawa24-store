@@ -132,8 +132,14 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 										</td>
 										<td class="col-actions">
 											<div class="table-actions">
-												<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm font-bold text-xs">
-													<span>معاينة ↗</span>
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) }
+													data-preview-file={ fmt.Sprintf("/documents/%d/view", doc.ID) }
+													data-title={ doc.Title }
+													data-filename={ doc.OriginalName }
+													class="btn btn-secondary btn-sm font-bold text-xs"
+												>
+													<span>معاينة</span>
 												</a>
 												if doc.Status == attachments.StatusPending {
 													<button type="button"

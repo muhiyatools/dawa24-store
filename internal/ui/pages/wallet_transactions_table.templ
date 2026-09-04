@@ -181,8 +181,13 @@ templ WalletTransactionsTable(txs []*billing.WalletTransaction, deps []*billing.
 											</span>
 										}
 										if item.AttachmentURL != "" {
-											<a href={ templ.SafeURL(item.AttachmentURL) } target="_blank" rel="noopener" class="text-2xs text-brand font-bold text-decoration-none">
-												[عرض إيصال التحويل ↗]
+											<a
+												href={ templ.SafeURL(item.AttachmentURL) }
+												data-preview-file={ item.AttachmentURL }
+												data-title="إيصال التحويل"
+												class="text-2xs text-brand font-bold text-decoration-none cursor-pointer"
+											>
+												[معاينة إيصال التحويل]
 											</a>
 										}
 									</div>

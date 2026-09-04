@@ -179,7 +179,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 						إجمالي النتائج: <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong>
 					</div>
 
-					<div class="position-relative" class="w-80 max-w-full">
+					<div class="position-relative w-80 max-w-full">
 						<input
 							type="text"
 							id="saving-products-search"
@@ -202,16 +202,16 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					<div class="table-container m-0">
 						<table class="data-table m-0" id="saving-products-table">
 							<thead>
-								<tr class="bg-surface-sunken border-b-2 text-start text-xs text-muted uppercase">
-									<th class="w-14">#</th>
-									<th class="font-extrabold">ORG PRODUCT NAME</th>
-									<th class="font-extrabold">رمز SKU</th>
-									<th class="font-extrabold text-center">المنتج المرتبط بالنظام</th>
-									<th class="font-extrabold text-center">PROVIDING ORGS COUNT</th>
-									<th class="font-extrabold text-center">الكمية</th>
-									<th class="font-extrabold text-center">السعر</th>
-									<th class="font-extrabold text-end">الإجمالي</th>
-									<th class="font-extrabold text-center">العمليات</th>
+								<tr>
+									<th class="w-14 text-center">#</th>
+									<th class="text-start">اسم الصنف لدى المورد</th>
+									<th class="text-start">رمز SKU</th>
+									<th class="text-center">المنتج المرتبط بالنظام</th>
+									<th class="text-center">عروض الموردين</th>
+									<th class="col-min text-center">الكمية</th>
+									<th class="col-min text-center">السعر</th>
+									<th class="col-min text-end">الإجمالي</th>
+									<th class="col-actions text-center">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -225,20 +225,19 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 										data-price={ item.Price.String() }
 										data-product-id={ savingProductIDStr(item.ProductID) }
 										data-product-name={ item.LinkedProductName.Get(i18n.Lang(lang)) }
-										class="border-b text-sm"
 									>
 										<!-- # ID -->
-										<td class="font-bold text-muted" class="tabular-nums">
+										<td class="w-14 text-center font-bold text-muted tabular-nums">
 											#{ fmt.Sprintf("%d", item.ID) }
 										</td>
 
 										<!-- Org Product Name -->
-										<td class="p-sm">
+										<td class="text-start">
 											<strong class="text-primary font-bold">{ item.NameProduct }</strong>
 										</td>
 
 										<!-- SKU -->
-										<td class="text-secondary" class="tabular-nums">
+										<td class="text-start tabular-nums">
 											if item.SKU != "" {
 												<code>{ item.SKU }</code>
 											} else {
@@ -252,7 +251,6 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 												<button
 													type="button"
 													class="badge badge-emerald"
-													
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
 													title="انقر لتعديل الصنف المرتبط"
 												>
@@ -263,7 +261,6 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 												<button
 													type="button"
 													class="badge badge-amber"
-													
 													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditModalFromRow(%d)", item.ID)} }
 													title="انقر للبحث والربط بصنف معتمد في الكتالوج"
 												>
@@ -280,7 +277,6 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 													<button
 														type="button"
 														class="badge badge-indigo"
-														
 														onclick={ templ.ComponentScript{Call: fmt.Sprintf("openProvidersModal(%d, '%s')", *item.ProductID, item.LinkedProductName.Get(i18n.Lang(lang)))} }
 													>
 														<span>@components.IconBuilding("icon-sm")</span>
@@ -295,7 +291,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 										</td>
 
 										<!-- Qty -->
-										<td class="text-center" class="tabular-nums">
+										<td class="col-min text-center tabular-nums">
 											if item.Quantity > 0 {
 												<strong class="text-primary">{ fmt.Sprintf("%.0f", item.Quantity) }</strong>
 											} else {
@@ -304,26 +300,26 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 										</td>
 
 										<!-- Price -->
-										<td class="text-center" class="tabular-nums">
+										<td class="col-min text-center tabular-nums">
 											if item.Price.IsPositive() {
-												<span >{ item.Price.String() } EGP</span>
+												<span>{ item.Price.String() } ج.م</span>
 											} else {
 												<span class="text-muted">-</span>
 											}
 										</td>
 
 										<!-- Total Value -->
-										<td class="text-end" class="tabular-nums">
+										<td class="col-min text-end tabular-nums">
 											if item.TotalValue.IsPositive() {
-												<strong >{ item.TotalValue.String() } EGP</strong>
+												<strong class="text-primary">{ item.TotalValue.String() } ج.م</strong>
 											} else {
 												<span class="text-muted">-</span>
 											}
 										</td>
 
 										<!-- Actions (View Providers / Edit / Delete) -->
-										<td class="col-actions">
-											<div class="table-actions" >
+										<td class="col-actions text-center">
+											<div class="table-actions justify-center">
 												if item.ProductID != nil && *item.ProductID > 0 {
 													<button
 														type="button"
@@ -448,7 +444,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							
 							<div id="selected-product-box" class="d-none flex-between items-center bg-surface-raised p-2.5 rounded-lg border">
 								<span id="selected-product-label" class="font-extrabold text-accent text-sm"></span>
-								<button type="button" class="btn btn-secondary btn-sm" onclick="clearSelectedProduct()" class="btn btn-secondary btn-sm text-xs text-danger font-bold">
+								<button type="button" class="btn btn-secondary btn-sm text-xs text-danger font-bold" onclick="clearSelectedProduct()">
 									إلغاء الربط 
 								</button>
 							</div>
@@ -458,8 +454,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 									type="text"
 									id="product-search-input"
 									placeholder="ابحث بالاسم أو SKU لربط الصنف بالكتالوج..."
-									class="form-input"
-									class="w-full rounded-lg text-sm"
+									class="form-input w-full rounded-lg text-sm"
 									oninput="searchCatalogProductsLive(this.value)"
 								/>
 								<div id="product-search-dropdown" class="d-none absolute top-full start-0 end-0 z-50 max-h-48 overflow-y-auto bg-surface-raised border rounded-lg shadow-xl mt-1"></div>
