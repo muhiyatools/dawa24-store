@@ -38,12 +38,21 @@ templ WalletModals(data WalletViewData) {
 				</div>
 
 				<div class="form-group mb-2">
-					<label class="form-label text-xs">وسيلة التحويل أو الإيداع *</label>
+					<div class="flex-between items-center mb-1">
+						<label class="form-label text-xs m-0">وسيلة التحويل أو الإيداع *</label>
+						<button
+							type="button"
+							class="btn-link text-2xs font-bold text-brand"
+							@click="isDepositModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
+						>
+							+ إضافة وسيلة دفع جديدة وحفظها بحسابك
+						</button>
+					</div>
 					<select name="payment_method" required class="form-select form-select-sm">
 						if len(data.PaymentMethods) > 0 {
 							<optgroup label="وسائل الدفع وحساباتك المسجلة">
 								for _, pm := range data.PaymentMethods {
-									<option value={ pm.AccountIdentifier }>{ pm.AccountIdentifier }</option>
+									<option value={ pm.AccountIdentifier } selected?={ pm.IsDefault }>{ pm.AccountIdentifier }</option>
 								}
 							</optgroup>
 						}
@@ -63,16 +72,7 @@ templ WalletModals(data WalletViewData) {
 							<option value="credit_card">بطاقة دفع إلكتروني (Visa / Mastercard)</option>
 						</optgroup>
 					</select>
-					<div class="mt-1 d-flex items-center justify-between">
-						<span class="text-2xs text-muted">اختر الحساب الذي قمت بالتحويل منه أو إليه</span>
-						<button
-							type="button"
-							class="btn-link text-2xs font-bold text-brand"
-							@click="isDepositModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
-						>
-							+ إضافة وسيلة دفع جديدة
-						</button>
-					</div>
+					<span class="text-2xs text-muted mt-1 d-block">اختر وسيلة الدفع التي قمت بالتحويل منها أو الحساب المعتمد</span>
 				</div>
 
 				<div class="form-group mb-2">
@@ -129,12 +129,21 @@ templ WalletModals(data WalletViewData) {
 				</div>
 
 				<div class="form-group mb-2">
-					<label class="form-label text-xs">الحساب البنكي أو المحفظة المستلمة *</label>
+					<div class="flex-between items-center mb-1">
+						<label class="form-label text-xs m-0">الحساب البنكي أو المحفظة المستلمة *</label>
+						<button
+							type="button"
+							class="btn-link text-2xs font-bold text-brand"
+							@click="isWithdrawModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
+						>
+							+ إضافة وسيلة دفع جديدة لحسابك
+						</button>
+					</div>
 					if len(data.PaymentMethods) > 0 {
 						<select name="destination_id" required class="form-select form-select-sm">
 							<option value="">-- اختر وسيلة الدفع أو الحساب المستلم --</option>
 							for _, pm := range data.PaymentMethods {
-								<option value={ pm.AccountIdentifier }>
+								<option value={ pm.AccountIdentifier } selected?={ pm.IsDefault }>
 									{ pm.AccountIdentifier }
 									if pm.IsDefault {
 										{" (الافتراضي)"}
@@ -142,32 +151,25 @@ templ WalletModals(data WalletViewData) {
 								</option>
 							}
 						</select>
-						<div class="mt-1 d-flex items-center justify-between">
-							<span class="text-2xs text-muted">سيتم تحويل المبالغ المسحوبة إلى هذا الحساب المسجل</span>
-							<button
-								type="button"
-								class="btn-link text-2xs font-bold text-brand"
-								@click="isWithdrawModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
-							>
-								+ إضافة حساب جديد
-							</button>
-						</div>
+						<span class="text-2xs text-muted mt-1 d-block">سيتم تحويل المبالغ المسحوبة إلى هذا الحساب المسجل لديك</span>
 					} else {
-						<div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 stack-xs">
-							<div class="d-flex items-center gap-1.5 font-bold">
-								@components.IconAlert("icon-xs text-amber-600")
-								<span>لم تسجل أي وسيلة دفع بعد</span>
+						<div class="stack-xs">
+							<select name="destination_id" required class="form-select form-select-sm">
+								<option value="">-- اختر طريقة الاستلام أو اكتب بياناتها --</option>
+								<option value="تحويل بنكي">تحويل بنكي رسمي (Bank Transfer)</option>
+								<option value="إنستاباي">إنستاباي (InstaPay)</option>
+								<option value="محفظة فودافون كاش">محفظة إلكترونية (فودافون كاش / أورنج)</option>
+							</select>
+							<input
+								type="text"
+								name="destination_details"
+								class="form-input form-input-sm mt-1"
+								placeholder="أدخل رقم الحساب أو الآيبان أو رقم المحفظة / إنستاباي بدقة..."
+							/>
+							<div class="d-flex items-center gap-1 text-2xs text-amber-600 mt-1">
+								@components.IconInfo("icon-2xs")
+								<span>نوصي بحفظ وسيلة دفع في تبويب 'طرق الدفع' لتظهر هنا دائماً تلقائياً</span>
 							</div>
-							<p class="m-0 text-2xs">
-								يجب تسجيل وتأكيد حساب بنكي أو محفظة إلكترونية واحدة على الأقل قبل تقديم طلب سحب رصيد.
-							</p>
-							<button
-								type="button"
-								class="btn btn-secondary btn-xs font-bold mt-1 self-start"
-								@click="isWithdrawModalOpen = false; isAddPaymentModalOpen = true; paymentEditID = 0"
-							>
-								+ إضافة وسيلة دفع الآن
-							</button>
 						</div>
 					}
 				</div>
@@ -182,9 +184,6 @@ templ WalletModals(data WalletViewData) {
 					<button
 						type="submit"
 						class="btn btn-danger btn-sm font-bold"
-						if len(data.PaymentMethods) == 0 {
-							disabled
-						}
 					>
 						تأكيد طلب السحب
 					</button>

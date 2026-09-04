@@ -35,7 +35,7 @@ func VendorWarehouseDetailModals(data VendorWarehouseDetailData) templ.Component
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Quick Stock Adjustment Modal --><div class=\"stack-sm\" x-show=\"adjustModal\" x-cloak @keydown.escape.window=\"adjustModal = false\" @click.self=\"adjustModal = false\"><div class=\"glass-panel p-6\"><div class=\"flex-between items-center mb-4 pb-2 border-b\"><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">تعديل رصيد الصنف بالمخزن</h3><p class=\"text-xs text-secondary m-0 mt-1\">تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً</p></div><button type=\"button\" @click=\"adjustModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">&times;</button></div><form :action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Quick Stock Adjustment Modal --><div x-show=\"adjustModal\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"adjustModal = false\" @click.self=\"adjustModal = false\"><div class=\"glass-panel p-6 max-w-lg w-full\"><div class=\"flex-between items-center mb-4 pb-2 border-b\"><div class=\"stack-sm\"><h3 class=\"text-base font-black text-primary m-0\">تعديل رصيد الصنف بالمخزن</h3><p class=\"text-xs text-secondary m-0 mt-1\">تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً</p></div><button type=\"button\" @click=\"adjustModal = false\" class=\"btn btn-secondary btn-icon btn-sm\">&times;</button></div><form :action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

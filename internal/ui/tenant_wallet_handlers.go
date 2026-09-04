@@ -80,21 +80,19 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 	var paymentMethods []*billing.UserPaymentMethod
 	var platformPaymentMethods []*billing.PlatformPaymentMethod
 
-	walletUserID := actor.UserID
-	if actor.OrganizationID > 0 && h.orgSvc != nil {
-		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
-			for _, emp := range emps {
-				if emp != nil && emp.Member != nil && (emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "owner" || emp.Member.RoleKey == "org_admin") {
-					walletUserID = emp.Member.UserID
-					break
-				}
-			}
-		}
-	}
+	walletUserID, candidateUIDs := resolveTenantUserIDs(ctx, h, actor)
 
 	if h.billSvc != nil {
-		if pms, err := h.billSvc.ListPaymentMethods(ctx, walletUserID); err == nil {
-			paymentMethods = pms
+		seenPM := make(map[int64]bool)
+		for _, uid := range candidateUIDs {
+			if pms, err := h.billSvc.ListPaymentMethods(ctx, uid); err == nil {
+				for _, pm := range pms {
+					if pm != nil && !seenPM[pm.ID] {
+						seenPM[pm.ID] = true
+						paymentMethods = append(paymentMethods, pm)
+					}
+				}
+			}
 		}
 		if ppms, err := h.billSvc.ListPlatformPaymentMethods(ctx, true); err == nil {
 			platformPaymentMethods = ppms
@@ -196,14 +194,15 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 		orgPtr = &actor.OrganizationID
 	}
 
-	if _, err := h.billSvc.RequestDeposit(ctx, actor.UserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes); err != nil {
+	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
+	if _, err := h.billSvc.RequestDeposit(ctx, walletUserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes); err != nil {
 		h.log.ErrorContext(ctx, "failed to submit deposit request", "error", err)
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
 	// Dispatch in-app notification
-	go h.notifyWalletDeposit(context.Background(), actor.UserID, actor.OrganizationID, amt, "pending")
+	go h.notifyWalletDeposit(context.Background(), walletUserID, actor.OrganizationID, amt, "pending")
 
 	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.deposit.pending_success"))
 }
@@ -229,6 +228,13 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	destAcc := strings.TrimSpace(r.PostFormValue("destination_id"))
+	if details := strings.TrimSpace(r.PostFormValue("destination_details")); details != "" {
+		if destAcc != "" {
+			destAcc = destAcc + " - " + details
+		} else {
+			destAcc = details
+		}
+	}
 	if destAcc == "" {
 		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.destination_required"))
 		return
@@ -245,7 +251,8 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if _, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
+	walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
+	if _, err := h.billSvc.Withdraw(ctx, walletUserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
 		h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
@@ -317,12 +324,50 @@ func (h *UIHandler) TenantPaymentMethodDeleteSubmit(w http.ResponseWriter, r *ht
 	}
 
 	if h.billSvc != nil {
-		if err := h.billSvc.DeletePaymentMethod(ctx, actor.UserID, id); err != nil {
-			h.log.ErrorContext(ctx, "failed to delete payment method", "error", err)
-			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
+		_, candidateUIDs := resolveTenantUserIDs(ctx, h, actor)
+		deleted := false
+		for _, uid := range candidateUIDs {
+			if err := h.billSvc.DeletePaymentMethod(ctx, uid, id); err == nil {
+				deleted = true
+				break
+			}
+		}
+		if !deleted {
+			h.log.ErrorContext(ctx, "failed to delete payment method", "id", id)
+			h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
 			return
 		}
 	}
 
 	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.deleted_success"))
+}
+
+// resolveTenantUserIDs returns the primary wallet user ID and all candidate user IDs for the tenant org.
+func resolveTenantUserIDs(ctx context.Context, h *UIHandler, actor authctx.Actor) (int64, []int64) {
+	walletUserID := actor.UserID
+	seen := make(map[int64]bool)
+	var list []int64
+
+	addUID := func(uid int64) {
+		if uid > 0 && !seen[uid] {
+			seen[uid] = true
+			list = append(list, uid)
+		}
+	}
+	addUID(actor.UserID)
+
+	if actor.OrganizationID > 0 && h.orgSvc != nil {
+		if emps, err := h.orgSvc.ListEmployees(ctx, actor.OrganizationID); err == nil {
+			for _, emp := range emps {
+				if emp != nil && emp.Member != nil {
+					if emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "owner" || emp.Member.RoleKey == "org_admin" {
+						walletUserID = emp.Member.UserID
+					}
+					addUID(emp.Member.UserID)
+				}
+			}
+		}
+	}
+	addUID(walletUserID)
+	return walletUserID, list
 }

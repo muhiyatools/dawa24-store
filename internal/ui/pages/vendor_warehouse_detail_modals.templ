@@ -9,13 +9,13 @@ import (
 templ VendorWarehouseDetailModals(data VendorWarehouseDetailData) {
 	<!-- Quick Stock Adjustment Modal -->
 	<div
-		class="stack-sm"
 		x-show="adjustModal"
 		x-cloak
+		class="modal-backdrop"
 		@keydown.escape.window="adjustModal = false"
 		@click.self="adjustModal = false"
 	>
-		<div class="glass-panel p-6">
+		<div class="glass-panel p-6 max-w-lg w-full">
 			<div class="flex-between items-center mb-4 pb-2 border-b">
 				<div class="stack-sm">
 					<h3 class="text-base font-black text-primary m-0">
