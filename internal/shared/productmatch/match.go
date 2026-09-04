@@ -276,8 +276,13 @@ type scoredProduct struct {
 	// still shown to the reviewer with the contradiction named, rather than
 	// vanishing and leaving "no similar product found" as the only explanation.
 	evidence float64
-	reason   string
-	exact    bool
+	// name is the name similarity alone, and agreed is which attributes
+	// corroborated. They are kept rather than the rendered explanation because
+	// only the handful of candidates that reach the review screen need one —
+	// see scoredProduct.describeReason.
+	name   float64
+	agreed agreements
+	exact  bool
 }
 
 // score rates every plausible catalogue product for one query.
@@ -358,7 +363,8 @@ func (idx *Index) decide(q *query, scored []scoredProduct, opts MatchOptions) Ma
 		// of them disagrees about the dose" are different things to be told.
 		res.ProductID = 0
 		res.Level = MatchNone
-		res.Reason = "أقرب الأصناف في الكتالوج تختلف في خصائص أساسية عن هذا الصف: " + best.reason
+		res.Reason = "أقرب الأصناف في الكتالوج تختلف في خصائص أساسية عن هذا الصف: " +
+			best.describeReason()
 	case tied:
 		res.Level = MatchAmbiguous
 		res.Reason = fmt.Sprintf(
@@ -370,10 +376,11 @@ func (idx *Index) decide(q *query, scored []scoredProduct, opts MatchOptions) Ma
 		res.Reason = "تطابق تام لاسم الصنف بعد المعايرة مع توافق الخصائص"
 	case best.score >= opts.MinStrong:
 		res.Level = MatchStrong
-		res.Reason = fmt.Sprintf("%s (%d%%)", best.reason, int(best.score*100))
+		res.Reason = fmt.Sprintf("%s (%d%%)", best.describeReason(), int(best.score*100))
 	default:
 		res.Level = MatchReview
-		res.Reason = fmt.Sprintf("%s (%d%%) — يحتاج تأكيداً", best.reason, int(best.score*100))
+		res.Reason = fmt.Sprintf("%s (%d%%) — يحتاج تأكيداً",
+			best.describeReason(), int(best.score*100))
 	}
 	return res
 }
@@ -398,7 +405,7 @@ func describe(scored []scoredProduct, limit int) []MatchCandidate {
 			Manufacturer:  s.product.Manufacturer,
 			PublicPrice:   s.product.PublicPrice,
 			Score:         s.score,
-			Reason:        s.reason,
+			Reason:        s.describeReason(),
 		})
 	}
 	return out

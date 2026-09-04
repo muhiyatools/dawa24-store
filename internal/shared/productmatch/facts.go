@@ -64,21 +64,33 @@ func (f nameFacts) empty() bool {
 		len(f.qty.counts) == 0 && len(f.qty.residual) == 0
 }
 
-// sides returns the name descriptions a candidate may be compared against,
-// widest first.
+// sideCount and sideAt give the name descriptions a candidate may be compared
+// against.
 //
 // A record with one usable name is compared against that one. A record with two
-// is compared against both and keeps the better answer — see conflictsOf. A
-// record with neither is compared against the pooled facts, which is what a
-// name too terse to state anything reduces to anyway.
-func (p *MasterProduct) sides() []nameFacts {
-	switch {
-	case p.factsEN.empty():
-		return []nameFacts{p.factsAR}
-	case p.factsAR.empty():
-		return []nameFacts{p.factsEN}
+// is compared against both and keeps the better answer — see conflictsOf.
+//
+// They are an index rather than a slice because this is the hot loop: a
+// twenty-five-thousand-row file scores a few hundred million pairs and consults
+// the sides several times per pair, and a slice literal there is one heap
+// allocation per consultation. The first version of this file returned
+// []nameFacts and cost more in garbage than the comparison cost in arithmetic.
+func (p *MasterProduct) sideCount() int {
+	if p.factsAR.empty() || p.factsEN.empty() {
+		return 1
 	}
-	return []nameFacts{p.factsAR, p.factsEN}
+	return 2
+}
+
+// sideAt returns one of the candidate's name reductions.
+func (p *MasterProduct) sideAt(i int) *nameFacts {
+	if i == 0 {
+		if p.factsAR.empty() && !p.factsEN.empty() {
+			return &p.factsEN
+		}
+		return &p.factsAR
+	}
+	return &p.factsEN
 }
 
 // formOf is the form a side states, falling back to the record's own dosage-form
@@ -90,7 +102,7 @@ func (p *MasterProduct) sides() []nameFacts {
 // than by a person and it is wrong often enough to matter: eight hundred
 // products in the live catalogue carry a dosage form their own name
 // contradicts.
-func (p *MasterProduct) formOf(f nameFacts) string {
+func (p *MasterProduct) formOf(f *nameFacts) string {
 	if f.formKey != "" {
 		return f.formKey
 	}
@@ -102,7 +114,7 @@ func (p *MasterProduct) formOf(f nameFacts) string {
 //
 // Same order as formOf, for the same reason and on the same evidence: the name
 // is what a person wrote and the column is what an importer filled in.
-func (p *MasterProduct) dosesOf(f nameFacts) []strength {
+func (p *MasterProduct) dosesOf(f *nameFacts) []strength {
 	if len(f.strengths) > 0 {
 		return f.strengths
 	}

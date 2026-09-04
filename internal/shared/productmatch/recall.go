@@ -274,7 +274,7 @@ func (idx *Index) rateForRecall(q *query, p *MasterProduct) scoredProduct {
 	return scoredProduct{
 		product: p,
 		score:   clamp(score),
-		reason:  "ترشيح موسّع " + percent(name),
+		name:    name,
 	}
 }
 

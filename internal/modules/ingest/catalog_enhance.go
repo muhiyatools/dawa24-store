@@ -265,10 +265,20 @@ func NewEnhancement(ai Enhancer, memory MatchMemory, index *productmatch.Index,
 func (e *Enhancement) Retrieve(rows []*openRow) []*openRow {
 	opts := productmatch.DefaultRecallOptions()
 	opts.Limit = ceilings.RecallLimit
+
+	// Retrieval divides across cores exactly as matching does, and on a large
+	// file it costs about as much: three posting lists read per row and a pool
+	// six hundred wide scored against it.
+	queries := make([]*productmatch.Row, len(rows))
+	for i, r := range rows {
+		queries[i] = r.row
+	}
+	found := productmatch.RecallAll(e.index, queries, opts, 0)
+
 	askable := make([]*openRow, 0, len(rows))
 	skipped := 0
-	for _, r := range rows {
-		r.candidates = e.index.Recall(r.row, opts)
+	for i, r := range rows {
+		r.candidates = found[i]
 		// The plausibility gate applies only to rows with nothing decided. A
 		// settled row always has something worth asking — its own product,
 		// which is the thing being checked — and gating it on retrieval would

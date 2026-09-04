@@ -98,9 +98,8 @@ func survival(cs []conflict) float64 {
 // would refuse the commonest correct match in the file.
 func (idx *Index) conflictsOf(q *query, p *MasterProduct) []conflict {
 	var out []conflict
-	sides := p.sides()
 
-	switch doseVerdict(q, p, sides) {
+	switch doseVerdict(q, p) {
 	case dosesConflict:
 		out = append(out, conflict{"strength", massDose})
 	case dosesPartsDiffer:
@@ -117,12 +116,12 @@ func (idx *Index) conflictsOf(q *query, p *MasterProduct) []conflict {
 	// f.c. tabs" parsed to no pack count at all — so the uninformative side won
 	// every comparison and switched the count check off for the entire
 	// catalogue. Silence is not agreement.
-	if conflictsOnEverySide(sides, func(f nameFacts) bool {
+	if conflictsOnEverySide(p, func(f *nameFacts) bool {
 		return modifierSetsConflict(q.mods, f.mods, q.rawName, p.NameAR+" "+p.NameEN)
 	}) {
 		out = append(out, conflict{"modifier", massModifier})
 	}
-	if conflictsOnEverySide(sides, func(f nameFacts) bool {
+	if conflictsOnEverySide(p, func(f *nameFacts) bool {
 		return !markSetsAgree(q.marks, f.marks)
 	}) {
 		out = append(out, conflict{"letter", massLetter})
@@ -131,25 +130,25 @@ func (idx *Index) conflictsOf(q *query, p *MasterProduct) []conflict {
 	switch {
 	case q.formKey == "":
 		// The row named no form. It cannot be contradicted about one.
-	case conflictsOnStatingSide(sides,
-		func(f nameFacts) bool { return p.formOf(f) != "" },
-		func(f nameFacts) bool { return formClass(q.formKey) != formClass(p.formOf(f)) }):
+	case conflictsOnStatingSide(p,
+		func(f *nameFacts) bool { return p.formOf(f) != "" },
+		func(f *nameFacts) bool { return formClass(q.formKey) != formClass(p.formOf(f)) }):
 		out = append(out, conflict{"form", massForm})
-	case q.subForm != "" && conflictsOnStatingSide(sides,
-		func(f nameFacts) bool { return f.subForm != "" },
-		func(f nameFacts) bool { return q.subForm != f.subForm }):
+	case q.subForm != "" && conflictsOnStatingSide(p,
+		func(f *nameFacts) bool { return f.subForm != "" },
+		func(f *nameFacts) bool { return q.subForm != f.subForm }):
 		out = append(out, conflict{"sub_form", massSubForm})
 	}
 
-	countConflict := conflictsOnStatingSide(sides,
-		func(f nameFacts) bool { return sharesCountClass(q.qty.counts, f.qty.counts) },
-		func(f nameFacts) bool { return countsDisagree(q.qty.counts, f.qty.counts) })
+	countConflict := conflictsOnStatingSide(p,
+		func(f *nameFacts) bool { return sharesCountClass(q.qty.counts, f.qty.counts) },
+		func(f *nameFacts) bool { return countsDisagree(q.qty.counts, f.qty.counts) })
 	switch {
 	case countConflict:
 		out = append(out, conflict{"count", massCount})
-	case conflictsOnStatingSide(sides,
-		func(f nameFacts) bool { return len(f.qty.residual) > 0 },
-		func(f nameFacts) bool { return residualsDisagree(q.qty.residual, f.qty.residual) }):
+	case conflictsOnStatingSide(p,
+		func(f *nameFacts) bool { return len(f.qty.residual) > 0 },
+		func(f *nameFacts) bool { return residualsDisagree(q.qty.residual, f.qty.residual) }):
 		out = append(out, conflict{"figure", massFigure})
 	}
 
@@ -174,11 +173,11 @@ const (
 // A spelling that measures nothing the row also measured does not vote, which
 // is the same rule the other attributes follow: silence is missing information,
 // not agreement and not contradiction.
-func doseVerdict(q *query, p *MasterProduct, sides []nameFacts) int {
+func doseVerdict(q *query, p *MasterProduct) int {
 	verdict := dosesAgree
 	compared := false
-	for _, f := range sides {
-		doses := p.dosesOf(f)
+	for i, n := 0, p.sideCount(); i < n; i++ {
+		doses := p.dosesOf(p.sideAt(i))
 		agree, comparable := compareStrengths(q.strengths, doses)
 		if !comparable {
 			continue
@@ -211,13 +210,14 @@ func doseVerdict(q *query, p *MasterProduct, sides []nameFacts) int {
 // Used for the checks that are symmetric — a modifier or a letter present on
 // one side and absent on the other is a difference either way round — where an
 // empty side is a real answer rather than a missing one.
-func conflictsOnEverySide(sides []nameFacts, differs func(nameFacts) bool) bool {
-	for _, f := range sides {
-		if !differs(f) {
+func conflictsOnEverySide(p *MasterProduct, differs func(*nameFacts) bool) bool {
+	n := p.sideCount()
+	for i := 0; i < n; i++ {
+		if !differs(p.sideAt(i)) {
 			return false
 		}
 	}
-	return len(sides) > 0
+	return n > 0
 }
 
 // conflictsOnStatingSide reports a disagreement among the spellings that have
@@ -225,9 +225,10 @@ func conflictsOnEverySide(sides []nameFacts, differs func(nameFacts) bool) bool 
 //
 // Used for the checks where absence is silence: a catalogue name that omits the
 // pack count has not contradicted a row that states one.
-func conflictsOnStatingSide(sides []nameFacts, states, differs func(nameFacts) bool) bool {
+func conflictsOnStatingSide(p *MasterProduct, states, differs func(*nameFacts) bool) bool {
 	stated := false
-	for _, f := range sides {
+	for i, n := 0, p.sideCount(); i < n; i++ {
+		f := p.sideAt(i)
 		if !states(f) {
 			continue
 		}

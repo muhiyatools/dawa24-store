@@ -68,9 +68,6 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 	}
 	score := name * weight
 
-	reasons := make([]string, 0, 6)
-	reasons = append(reasons, "تشابه الاسم "+percent(name))
-
 	// Corroboration is accumulated apart from the score and applied scaled by
 	// the name, because an attribute agreeing is not evidence of identity on
 	// its own.
@@ -80,14 +77,9 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 	// the names agreed on 0.20 and the bottle size, the pharmaceutical form and
 	// the figure 200 added 0.32 between them. Every one of those three is true
 	// of a hundred products.
-	bonus := idx.corroboration(q, p, &reasons)
+	var agreed agreements
+	bonus := idx.corroboration(q, p, &agreed)
 	score += bonus * corroborationFactor(name)
-
-	for _, c := range conflicts {
-		if label := conflictReason(c.kind); label != "" {
-			reasons = append(reasons, label)
-		}
-	}
 
 	// The lifts, and the one rule that governs them: nothing may be lifted over
 	// a contradiction.
@@ -121,9 +113,52 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		evidence:  evidence,
 		conflicts: conflicts,
 		mass:      mass,
-		reason:    strings.Join(reasons, " + "),
+		name:      name,
+		agreed:    agreed,
 		exact:     exact,
 	}, true
+}
+
+// agreements is which attributes corroborated a candidate, as a bitmask.
+//
+// A bitmask rather than the list of Arabic phrases it renders to, because this
+// is the hot loop. The scorer used to build a []string and strings.Join it for
+// EVERY candidate — several hundred per row, a few hundred million on a large
+// import — and then throw all but the five that reach the review screen away.
+// The phrases are assembled in describeReason instead, on the handful that are
+// actually shown.
+type agreements uint8
+
+const (
+	agreedDose agreements = 1 << iota
+	agreedForm
+	agreedMaker
+	agreedMolecule
+)
+
+// describeReason renders why a candidate scored what it did, for the review
+// screen.
+func (s scoredProduct) describeReason() string {
+	parts := make([]string, 0, 8)
+	parts = append(parts, "تشابه الاسم "+percent(s.name))
+	if s.agreed&agreedDose != 0 {
+		parts = append(parts, "تطابق التركيز")
+	}
+	if s.agreed&agreedForm != 0 {
+		parts = append(parts, "تطابق الشكل الصيدلي")
+	}
+	if s.agreed&agreedMaker != 0 {
+		parts = append(parts, "تطابق الشركة")
+	}
+	if s.agreed&agreedMolecule != 0 {
+		parts = append(parts, "تطابق المادة الفعالة")
+	}
+	for _, c := range s.conflicts {
+		if label := conflictReason(c.kind); label != "" {
+			parts = append(parts, label)
+		}
+	}
+	return strings.Join(parts, " + ")
 }
 
 // corroboration is what the attributes AGREEING are worth.
@@ -131,12 +166,12 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 // Agreement only. Disagreement is not the negative of this and is not scored
 // here — it is a conflict, it orders the candidate behind every candidate that
 // does not have one, and discriminate.go owns it.
-func (idx *Index) corroboration(q *query, p *MasterProduct, reasons *[]string) float64 {
+func (idx *Index) corroboration(q *query, p *MasterProduct, agreed *agreements) float64 {
 	var bonus float64
 
 	if agree, comparable := compareStrengths(q.strengths, p.strengths); comparable && agree {
 		bonus += doseBonus(q.strengths, p.strengths)
-		*reasons = append(*reasons, "تطابق التركيز")
+		*agreed |= agreedDose
 	}
 
 	// The form. The guard on name similarity is there because catalogue
@@ -146,7 +181,7 @@ func (idx *Index) corroboration(q *query, p *MasterProduct, reasons *[]string) f
 	// own record's bookkeeping is not evidence about anything.
 	if q.formKey != "" && q.formKey == p.formKey {
 		bonus += 0.10
-		*reasons = append(*reasons, "تطابق الشكل الصيدلي")
+		*agreed |= agreedForm
 	}
 
 	// The manufacturer corroborates but never disqualifies: supplier files write
@@ -155,7 +190,7 @@ func (idx *Index) corroboration(q *query, p *MasterProduct, reasons *[]string) f
 		switch {
 		case q.makerKey == p.makerKey:
 			bonus += 0.10
-			*reasons = append(*reasons, "تطابق الشركة")
+			*agreed |= agreedMaker
 		case strings.Contains(p.makerKey, q.makerKey) || strings.Contains(q.makerKey, p.makerKey):
 			bonus += 0.06
 		}
@@ -164,11 +199,11 @@ func (idx *Index) corroboration(q *query, p *MasterProduct, reasons *[]string) f
 	// The molecule, where the file names it.
 	if q.sciKey != "" && p.sciKey != "" && q.sciKey == p.sciKey {
 		bonus += 0.08
-		*reasons = append(*reasons, "تطابق المادة الفعالة")
+		*agreed |= agreedMolecule
 	}
 
-	for _, side := range p.sides() {
-		if countsAgree(q.qty.counts, side.qty.counts) {
+	for i, n := 0, p.sideCount(); i < n; i++ {
+		if countsAgree(q.qty.counts, p.sideAt(i).qty.counts) {
 			bonus += 0.06
 			break
 		}

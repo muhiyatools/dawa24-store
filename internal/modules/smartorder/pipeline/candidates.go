@@ -102,16 +102,23 @@ func (m *Matcher) Score(lines []*smartorder.Line) []Review {
 		return nil
 	}
 
-	var reviews []Review
+	// The rows are decomposed first — strength, form and pack move into the
+	// structured fields the scorer compares separately, and therapeutic prose is
+	// dropped (see query.go) — and then scored together, across every core.
+	open := make([]*smartorder.Line, 0, len(lines))
+	rows := make([]*productmatch.Row, 0, len(lines))
 	for _, l := range lines {
 		if l.Matched() && l.MatchConfidence >= Cutoff {
 			continue
 		}
-		// The line is decomposed first: strength, form and pack move into the
-		// structured fields the scorer compares separately, and therapeutic
-		// prose is dropped. See query.go for what happens without this.
-		row := BuildRow(l)
-		res := m.index.Match(row, m.opts)
+		open = append(open, l)
+		rows = append(rows, BuildRow(l))
+	}
+	results := productmatch.MatchAll(m.index, rows, m.opts, 0)
+
+	var reviews []Review
+	for i, l := range open {
+		row, res := rows[i], results[i]
 
 		ambiguous := res.Level == productmatch.MatchAmbiguous
 		switch {
@@ -167,10 +174,15 @@ func (m *Matcher) Retrieve(reviews []Review) []Review {
 	opts := productmatch.DefaultRecallOptions()
 	opts.Limit = ceilings.RecallLimit
 
+	rows := make([]*productmatch.Row, len(reviews))
+	for i := range reviews {
+		rows[i] = reviews[i].Row
+	}
+	wide := productmatch.RecallAll(m.index, rows, opts, 0)
+
 	askable := make([]Review, 0, len(reviews))
 	for i := range reviews {
-		wide := m.index.Recall(reviews[i].Row, opts)
-		reviews[i].Candidates = mergeCandidates(reviews[i].Candidates, wide, ceilings.RecallLimit)
+		reviews[i].Candidates = mergeCandidates(reviews[i].Candidates, wide[i], ceilings.RecallLimit)
 		if plausible(reviews[i].Candidates, ceilings.MinPlausible) {
 			askable = append(askable, reviews[i])
 		}
@@ -203,16 +215,23 @@ func (m *Matcher) Verify(lines []*smartorder.Line) []Review {
 	opts := productmatch.DefaultRecallOptions()
 	opts.Limit = ceilings.RecallLimit
 
-	out := make([]Review, 0, len(lines))
+	settled := make([]*smartorder.Line, 0, len(lines))
+	rows := make([]*productmatch.Row, 0, len(lines))
 	for _, l := range lines {
 		if !l.Matched() || l.MatchConfidence < Cutoff || !verifiable(l) {
 			continue
 		}
-		row := BuildRow(l)
+		settled = append(settled, l)
+		rows = append(rows, BuildRow(l))
+	}
+	found := productmatch.RecallAll(m.index, rows, opts, 0)
+
+	out := make([]Review, 0, len(settled))
+	for i, l := range settled {
 		out = append(out, Review{
 			Line:       l,
-			Row:        row,
-			Candidates: m.index.Recall(row, opts),
+			Row:        rows[i],
+			Candidates: found[i],
 			Settled:    true,
 		})
 	}

@@ -92,10 +92,16 @@ func (s *Service) resolveSimilarMatches(
 	recall := productmatch.DefaultRecallOptions()
 	recall.Limit = catalogCeilings.RecallLimit
 
+	rows := make([]*productmatch.Row, len(residual))
+	for n, i := range residual {
+		rows[n] = matchRowFor(prods[i])
+	}
+	scored := productmatch.MatchAll(index, rows, opts, 0)
+	retrieved := productmatch.RecallAll(index, rows, recall, 0)
+
 	var forAI []pendingMatch
-	for _, i := range residual {
-		row := matchRowFor(prods[i])
-		res := index.Match(row, opts)
+	for n, i := range residual {
+		row, res := rows[n], scored[n]
 		switch {
 		case res.Matched() && acceptsUpdate(index, row, res, bare, corroborated):
 			matches[i] = ExistingMatch{ProductID: res.ProductID, Reason: MatchSimilar}
@@ -107,13 +113,13 @@ func (s *Service) resolveSimilarMatches(
 			id := res.ProductID
 			forAI = append(forAI, pendingMatch{
 				index:      i,
-				candidates: withCurrent(index.Recall(row, recall), index, id),
+				candidates: withCurrent(retrieved[n], index, id),
 				settled:    true,
 				guess:      &id,
 				score:      res.Score,
 			})
 		default:
-			wide := index.Recall(row, recall)
+			wide := retrieved[n]
 			if len(wide) == 0 {
 				stats.Unmatched++
 				continue
