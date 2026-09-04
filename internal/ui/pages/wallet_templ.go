@@ -9,34 +9,12 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
 
-	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
-
-type WalletViewData struct {
-	IsVendor               bool
-	Wallet                 *billing.Wallet
-	Transactions           []*billing.WalletTransaction
-	DepositRequests        []*billing.WalletDeposit
-	PaymentMethods         []*billing.UserPaymentMethod
-	PlatformPaymentMethods []*billing.PlatformPaymentMethod
-	NoticeType             string
-	NoticeMessage          string
-	// TxStatus filters billing.wallet_deposits.status: pending|completed|rejected.
-	TxStatus string
-	// TxType filters billing.wallet_transactions.type: deposit|withdrawal|purchase.
-	TxType     string
-	Page       int
-	PerPage    int
-	TotalCount int
-}
 
 func WalletPage(data WalletViewData, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -116,7 +94,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(walletState(data))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 47, Col: 28}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 25, Col: 28}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -167,7 +145,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 87, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 65, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -193,7 +171,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 92, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 70, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -234,7 +212,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(walletBalance(data.Wallet))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 103, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 81, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -247,7 +225,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", pendingCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 114, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 92, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -260,7 +238,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", completedCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 125, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 103, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -273,7 +251,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", totalOpsCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 136, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 114, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -294,7 +272,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", totalOpsCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 153, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 131, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -315,7 +293,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.PaymentMethods)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 163, Col: 93}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 141, Col: 93}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -328,7 +306,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		var templ_7745c5c3_Var15 templ.SafeURL
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(walletBaseURL(data.IsVendor)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 170, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 148, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -406,7 +384,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var16 templ.SafeURL
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(walletBaseURL(data.IsVendor)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 188, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 166, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -503,7 +481,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(paymentProviderTitle(pm.Provider))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 259, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 237, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -526,7 +504,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(pm.AccountIdentifier)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 266, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 244, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -544,7 +522,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 					var templ_7745c5c3_Var19 templ.SafeURL
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/default", walletBaseURL(data.IsVendor), pm.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 273, Col: 120}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 251, Col: 120}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -570,7 +548,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(paymentMethodJSON(pm))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 283, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 261, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
@@ -591,7 +569,7 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 				var templ_7745c5c3_Var21 templ.SafeURL
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("%s/payment-methods/%d/delete", walletBaseURL(data.IsVendor), pm.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 288, Col: 118}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/wallet.templ`, Line: 266, Col: 118}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -637,188 +615,6 @@ func walletContent(data WalletViewData, lang, dir string) templ.Component {
 		}
 		return nil
 	})
-}
-
-func walletBaseURL(isVendor bool) string {
-	if isVendor {
-		return "/vendor/wallet"
-	}
-	return "/customer/wallet"
-}
-
-func walletTxQueryValues(data WalletViewData) url.Values {
-	q := url.Values{}
-	if data.TxStatus != "" {
-		q.Set("status", data.TxStatus)
-	}
-	if data.TxType != "" {
-		q.Set("type", data.TxType)
-	}
-	return q
-}
-
-func walletBalance(w *billing.Wallet) string {
-	if w == nil {
-		return "0.00 ج.م"
-	}
-	return w.Balance.String() + " ج.م"
-}
-
-func walletBalanceClass(w *billing.Wallet) string {
-	if w == nil || w.Balance.Minor() == 0 {
-		return "text-primary"
-	}
-	if w.Balance.Minor() < 0 {
-		return "text-rose text-danger"
-	}
-	return "text-emerald text-success"
-}
-
-func computePendingDepositsCount(deps []*billing.WalletDeposit) int {
-	count := 0
-	for _, d := range deps {
-		if d != nil && d.Status != "approved" {
-			count++
-		}
-	}
-	return count
-}
-
-func txTypeBadgeClass(t billing.TransactionType) string {
-	switch t {
-	case billing.TxDeposit:
-		return "badge-emerald"
-	case billing.TxWithdrawal:
-		return "badge-amber"
-	case billing.TxPurchase:
-		return "badge-purple"
-	case billing.TxRefund:
-		return "badge-cyan"
-	case billing.TxBonus:
-		return "badge-indigo"
-	case billing.TxTransferIn:
-		return "badge-teal"
-	case billing.TxTransferOut:
-		return "badge-orange"
-	case billing.TxPenalty:
-		return "badge-pink"
-	default:
-		return "badge-gray"
-	}
-}
-
-func txTypeLabel(t billing.TransactionType) string {
-	switch t {
-	case billing.TxDeposit:
-		return "إيداع رصيد"
-	case billing.TxWithdrawal:
-		return "سحب رصيد"
-	case billing.TxPurchase:
-		return "سداد فاتورة/طلب"
-	case billing.TxRefund:
-		return "استرداد أموال"
-	case billing.TxBonus:
-		return "مكافأة / بونص"
-	case billing.TxTransferIn:
-		return "تحويل وارد"
-	case billing.TxTransferOut:
-		return "تحويل صادر"
-	case billing.TxPenalty:
-		return "غرامة/خصم"
-	default:
-		return "معاملة مالية"
-	}
-}
-
-func paymentProviderTitle(provider string) string {
-	switch strings.ToLower(provider) {
-	case "instapay":
-		return "إنستاباي (InstaPay)"
-	case "vodafone_cash", "wallet":
-		return "محفظة هاتف ذكي"
-	case "card":
-		return "بطاقة بنكية"
-	case "bank", "bank_transfer":
-		return "تحويل بنكي رسمي"
-	default:
-		return provider
-	}
-}
-
-// walletState is the wallet page's Alpine payload, including the payment
-// dialog's mode.
-//
-// paymentEditID is what makes one dialog serve both add and edit: zero posts to
-// the add endpoint, an id posts to that method's edit endpoint. There was no
-// edit dialog at all before — the route existed and nothing could open it.
-func walletState(data WalletViewData) string {
-	cfg := struct {
-		Base string `json:"base"`
-	}{Base: walletBaseURL(data.IsVendor)}
-	encoded, err := json.Marshal(cfg)
-	if err != nil {
-		encoded = []byte(`{"base":"/customer/wallet"}`)
-	}
-	return fmt.Sprintf("dawaWallet(%s)", string(encoded))
-}
-
-// paymentMethodJSON is one saved method's structured fields, for the edit
-// dialog to reopen.
-//
-// Only what the form can put back: the card number is not here because it is
-// not stored anywhere.
-func paymentMethodJSON(pm *billing.UserPaymentMethod) string {
-	if pm == nil {
-		return "{}"
-	}
-	payload := struct {
-		ID             int64  `json:"id"`
-		Type           string `json:"type"`
-		IsDefault      bool   `json:"is_default"`
-		AccountHolder  string `json:"account_holder"`
-		BankName       string `json:"bank_name"`
-		IBAN           string `json:"iban"`
-		AccountNumber  string `json:"account_number"`
-		InstapayHandle string `json:"instapay_handle"`
-		WalletProvider string `json:"wallet_provider"`
-		WalletPhone    string `json:"wallet_phone"`
-		CardBrand      string `json:"card_brand"`
-		CardLast4      string `json:"card_last4"`
-	}{
-		ID:             pm.ID,
-		Type:           PaymentMethodFormValue(pm.Provider),
-		IsDefault:      pm.IsDefault,
-		AccountHolder:  pm.Details.AccountHolder,
-		BankName:       pm.Details.BankName,
-		IBAN:           pm.Details.IBAN,
-		AccountNumber:  pm.Details.AccountNumber,
-		InstapayHandle: pm.Details.InstapayHandle,
-		WalletProvider: pm.Details.WalletProvider,
-		WalletPhone:    pm.Details.WalletPhone,
-		CardBrand:      pm.Details.CardBrand,
-		CardLast4:      pm.Details.CardLast4,
-	}
-	b, err := json.Marshal(payload)
-	if err != nil {
-		return "{}"
-	}
-	return string(b)
-}
-
-// PaymentMethodFormValue maps a stored provider onto the dialog's option value.
-//
-// The column holds "wallet" while the dialog offers "vodafone_cash", so
-// reopening a saved wallet without this showed the first option — a bank
-// account — over a wallet's fields.
-func PaymentMethodFormValue(stored string) string {
-	switch stored {
-	case "wallet":
-		return "vodafone_cash"
-	case "bank", "instapay", "card":
-		return stored
-	default:
-		return "bank"
-	}
 }
 
 var _ = templruntime.GeneratedTemplate
