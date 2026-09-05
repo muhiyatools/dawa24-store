@@ -12,14 +12,16 @@ import (
 // stubProbe answers the cross-module questions with fixtures. Each field can be
 // overridden per test; the zero value is a healthy in-stock, covered line.
 type stubProbe struct {
-	variant    VariantAvailability
-	vendor     VendorAvailability
-	branch     BranchAvailability
-	covers     bool
-	variantErr error
-	vendorErr  error
-	branchErr  error
-	coverErr   error
+	variant       VariantAvailability
+	vendor        VendorAvailability
+	branch        BranchAvailability
+	covers        bool
+	instConnected bool
+	variantErr    error
+	vendorErr     error
+	branchErr     error
+	coverErr      error
+	instErr       error
 }
 
 func (p *stubProbe) Variant(context.Context, int64) (VariantAvailability, error) {
@@ -34,14 +36,18 @@ func (p *stubProbe) CustomerBranch(context.Context, int64) (BranchAvailability, 
 func (p *stubProbe) VendorCovers(context.Context, int64, float64, float64, time.Weekday, *int64, ...time.Time) (bool, error) {
 	return p.covers, p.coverErr
 }
+func (p *stubProbe) VendorInstitutionalConnection(context.Context, int64, int64, int64) (bool, error) {
+	return p.instConnected, p.instErr
+}
 
 func healthyProbe() *stubProbe {
 	lat, lon := 30.0444, 31.2357
 	return &stubProbe{
-		variant: VariantAvailability{ID: 10, OrganizationID: 7, StockQty: 5, Active: true},
-		vendor:  VendorAvailability{ID: 7, IsVendor: true, Approved: true},
-		branch:  BranchAvailability{ID: 3, OrganizationID: 99, Latitude: &lat, Longitude: &lon, InstitutionalWorks: []string{"retail"}},
-		covers:  true,
+		variant:       VariantAvailability{ID: 10, OrganizationID: 7, StockQty: 5, Active: true},
+		vendor:        VendorAvailability{ID: 7, IsVendor: true, Approved: true},
+		branch:        BranchAvailability{ID: 3, OrganizationID: 99, Latitude: &lat, Longitude: &lon, InstitutionalWorks: []string{"retail"}},
+		covers:        true,
+		instConnected: true,
 	}
 }
 
@@ -179,6 +185,14 @@ func TestCheckAvailability(t *testing.T) {
 			wantReason: ReasonBranchNoInstitutionalWorks,
 			wantMax:    5,
 		},
+		{
+			name: "a branch whose institutional works are not connected to vendor is refused",
+			probe: func(p *stubProbe) {
+				p.instConnected = false
+			},
+			wantReason: ReasonBranchInstitutionalMismatch,
+			wantMax:    5,
+		},
 	}
 
 	for _, tc := range cases {
@@ -226,6 +240,7 @@ func TestCheckAvailability_ProbeErrorsSurface(t *testing.T) {
 		{"variant lookup fails", func(p *stubProbe) { p.variantErr = boom }},
 		{"branch lookup fails", func(p *stubProbe) { p.branchErr = boom }},
 		{"coverage lookup fails", func(p *stubProbe) { p.coverErr = boom }},
+		{"institutional connection lookup fails", func(p *stubProbe) { p.instErr = boom }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			p := healthyProbe()

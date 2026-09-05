@@ -151,7 +151,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 									canAddToCart = (availStock > 0)
 								} else {
 									covReason = res.MessageAr
-									if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
+									if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
 										isCovered = false
 										canAddToCart = false
 									} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {

@@ -11,12 +11,27 @@ import (
 )
 
 type VendorBranchesData struct {
-	Branches   []*org.Branch
-	Cities     []*platformadmin.City
-	Employees  []*org.EmployeeView
-	Page       int
-	PerPage    int
-	TotalCount int
+	Branches           []*org.Branch
+	Cities             []*platformadmin.City
+	Employees          []*org.EmployeeView
+	InstitutionalWorks []*org.InstitutionalWork
+	Page               int
+	PerPage            int
+	TotalCount         int
+}
+
+func (d VendorBranchesData) WorkLabel(key string) string {
+	for _, w := range d.InstitutionalWorks {
+		if fmt.Sprintf("%d", w.ID) == key || w.Slug == key {
+			if title := w.Title["ar"]; title != "" {
+				return title
+			}
+			if title := w.Title["en"]; title != "" {
+				return title
+			}
+		}
+	}
+	return formatInstitutionalWorkLabel(key)
 }
 
 func formatVendorBranchJSON(b *org.Branch) string {
@@ -247,7 +262,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 											<div class="d-flex flex-wrap gap-1">
 												for _, cat := range b.InstitutionalWorks {
 													<span class="badge badge-slate text-xs font-bold">
-														{ formatInstitutionalWorkLabel(cat) }
+														{ data.WorkLabel(cat) }
 													</span>
 												}
 											</div>

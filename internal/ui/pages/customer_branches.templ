@@ -3,7 +3,6 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -20,12 +19,13 @@ import (
 // branches and a head count per branch, which is one GROUP BY rather than the
 // whole staff list.
 type CustomerBranchesData struct {
-	Branches      []*org.Branch
-	StaffPerBranch map[int64]int
-	TotalStaff    int
-	Cities        []*platformadmin.City
-	NoticeType    string
-	NoticeMsg     string
+	Branches           []*org.Branch
+	StaffPerBranch     map[int64]int
+	TotalStaff         int
+	Cities             []*platformadmin.City
+	InstitutionalWorks []*org.InstitutionalWork
+	NoticeType         string
+	NoticeMsg          string
 }
 
 // BranchStaffCount is how many members are assigned to one branch.
@@ -45,41 +45,18 @@ func (d CustomerBranchesData) GetMainBranch() *org.Branch {
 	return nil
 }
 
-func cbRoleLabelArabic(key string) string {
-	switch key {
-	case "org_admin", "admin", "org_owner", "owner":
-		return "مدير عام المؤسسة"
-	case "org_manager", "manager":
-		return "مدير فرع / صيدلية"
-	case "org_pharmacist", "pharmacist":
-		return "صيدلي مسؤول"
-	case "org_accountant", "accountant":
-		return "محاسب / مسؤول مشتريات"
-	case "org_warehouse", "warehouse":
-		return "أمين مخزن / استلام"
-	case "org_employee", "employee":
-		return "موظف صيدلية / فرع"
-	default:
-		if strings.HasPrefix(key, "org_") {
-			return strings.TrimPrefix(key, "org_")
+func (d CustomerBranchesData) WorkLabel(key string) string {
+	for _, w := range d.InstitutionalWorks {
+		if fmt.Sprintf("%d", w.ID) == key || w.Slug == key {
+			if title := w.Title["ar"]; title != "" {
+				return title
+			}
+			if title := w.Title["en"]; title != "" {
+				return title
+			}
 		}
-		return key
 	}
-}
-
-func cbRoleBadgeClass(key string) string {
-	switch key {
-	case "org_admin", "admin", "org_owner", "owner":
-		return "badge-primary"
-	case "org_manager", "manager":
-		return "badge-emerald"
-	case "org_pharmacist", "pharmacist":
-		return "badge-sky"
-	case "org_accountant", "accountant":
-		return "badge-amber"
-	default:
-		return "badge-slate"
-	}
+	return formatBranchCategoryLabel(key)
 }
 
 // institutionalWorkCategories lives in institutional_categories.go — shared with
@@ -332,7 +309,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												<div class="d-flex flex-wrap gap-1">
 													for _, cat := range b.InstitutionalWorks {
 														<span class="badge badge-slate text-2xs font-bold">
-															{ formatBranchCategoryLabel(cat) }
+															{ data.WorkLabel(cat) }
 														</span>
 													}
 												</div>

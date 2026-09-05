@@ -60,9 +60,9 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 				})
 				if err == nil {
 					if !res.Allowed {
-						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
+						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
 							it.IsCovered = false
-							if res.Reason == commerce.ReasonBranchNoInstitutionalWorks {
+							if res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
 								it.CoverageReason = res.MessageAr
 							} else {
 								it.CoverageReason = i18n.T(langOf(r), "customer.cart.coverage_outside")

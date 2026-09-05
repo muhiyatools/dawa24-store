@@ -21,8 +21,9 @@ func (r *Repository) AssignBranchInstitutionalWorks(ctx context.Context, branchI
 		for _, wID := range workIDs {
 			if wID > 0 {
 				if _, err := tx.Exec(txCtx, `
-					INSERT INTO org.branch_institutional_works (branch_id, institutional_work_id)
-					VALUES ($1, $2) ON CONFLICT (branch_id, institutional_work_id) DO NOTHING;
+					INSERT INTO org.branch_institutional_works (branch_id, institutional_work_id, work_category)
+					VALUES ($1, $2, $2::text)
+					ON CONFLICT (branch_id, work_category) DO UPDATE SET institutional_work_id = EXCLUDED.institutional_work_id;
 				`, branchID, wID); err != nil {
 					return err
 				}
@@ -43,7 +44,7 @@ func (r *Repository) GetBranchInstitutionalWorks(ctx context.Context, branchID i
 			SELECT iw.id, iw.public_id, iw.title, iw.description, iw.icon, iw.pricing_type,
 			       iw.is_active, iw.view_type, iw.slug, iw.parent_id, '', 0, iw.created_at, iw.updated_at
 			FROM org.institutional_works iw
-			JOIN org.branch_institutional_works biw ON iw.id = biw.institutional_work_id
+			JOIN org.branch_institutional_works biw ON (biw.institutional_work_id = iw.id OR biw.work_category = iw.id::text OR biw.work_category = iw.slug)
 			WHERE biw.branch_id = $1 AND iw.deleted_at IS NULL;
 		`
 		rows, err := tx.Query(txCtx, query, branchID)

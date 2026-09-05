@@ -33,19 +33,22 @@ func (h *UIHandler) VendorBranchesPage(w http.ResponseWriter, r *http.Request) {
 
 	var branches []*org.Branch
 	var employees []*org.EmployeeView
+	var instWorks []*org.InstitutionalWork
 	var total int
 	if h.orgSvc != nil && actor.OrganizationID > 0 {
 		branches, total, _ = h.orgSvc.ListBranchesWithTotal(ctx, org.BranchFilter{OrganizationID: actor.OrganizationID}, limit, offset)
 		employees, _ = h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
+		instWorks, _ = h.orgSvc.ListAllFlatInstitutionalWorks(ctx, true)
 	}
 
 	data := pages.VendorBranchesData{
-		Branches:   branches,
-		Cities:     h.listCities(ctx),
-		Employees:  employees,
-		Page:       page,
-		PerPage:    limit,
-		TotalCount: total,
+		Branches:           branches,
+		Cities:             h.listCities(ctx),
+		Employees:          employees,
+		InstitutionalWorks: instWorks,
+		Page:               page,
+		PerPage:            limit,
+		TotalCount:         total,
 	}
 
 	h.renderPage(ctx, w, "render vendor branches page", pages.VendorBranchesPage(data, lang, dir))

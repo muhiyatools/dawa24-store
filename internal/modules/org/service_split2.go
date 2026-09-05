@@ -177,6 +177,11 @@ func (s *Service) GetBranchInstitutionalWorks(ctx context.Context, branchID int6
 	return s.repo.GetBranchInstitutionalWorks(ctx, branchID)
 }
 
+// GetConnectedInstitutionalWorkIDs returns connected target institutional work IDs for given source work IDs.
+func (s *Service) GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWorkIDs []int64) ([]int64, error) {
+	return s.repo.GetConnectedInstitutionalWorkIDs(ctx, fromWorkIDs)
+}
+
 // AllowedWorkIDs returns the institutional work ids a user may see products for.
 // Implements the two Laravel institutional filter modes documented in institutional_work_filter.md.
 func (s *Service) AllowedWorkIDs(ctx context.Context, userID int64, mode InstitutionalFilterMode) ([]int64, error) {

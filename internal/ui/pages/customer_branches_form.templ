@@ -123,17 +123,26 @@ templ CustomerBranchesForm(data CustomerBranchesData) {
 				<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-control text-xs font-semibold" dir="ltr"/>
 			</div>
 
-			<!-- Section: Institutional Works (12 Categories) -->
+			<!-- Section: Institutional Works -->
 			<div class="bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2">
 				<label class="text-xs font-black text-primary m-0 d-block">
 					الأعمال المؤسسية المغطاة (Institutional Works)
 				</label>
 
 				<div class="d-grid grid-cols-2 gap-1.5 mt-1">
-					for _, cat := range institutionalWorkCategories {
+					for _, work := range data.InstitutionalWorks {
 						<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded">
-							<input type="checkbox" name="institutional_works" value={ cat.Key } x-model="form.institutional_works" class="form-checkbox"/>
-							<span>{ cat.LabelAr }</span>
+							<input type="checkbox" name="institutional_works" value={ fmt.Sprintf("%d", work.ID) } x-model="form.institutional_works" class="form-checkbox"/>
+							<span>
+								if work.Icon != "" {
+									{ work.Icon } 
+								}
+								if title := work.Title["ar"]; title != "" {
+									{ title }
+								} else {
+									{ work.Title["en"] }
+								}
+							</span>
 						</label>
 					}
 				</div>

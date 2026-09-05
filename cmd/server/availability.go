@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -143,6 +144,100 @@ func (p *availabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64,
 		return false, err
 	}
 	return served, nil
+}
+
+// VendorInstitutionalConnection verifies that the customer branch has institutional
+// works that are permitted to connect to at least one institutional work of the vendor's branches.
+func (p *availabilityProbe) VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error) {
+	if p.org == nil {
+		return false, nil
+	}
+
+	// 1. Customer branch institutional works
+	custWorks, err := p.org.GetBranchInstitutionalWorks(database.AsSystem(ctx), customerBranchID)
+	if err != nil {
+		return false, err
+	}
+	var custWorkIDs []int64
+	for _, w := range custWorks {
+		if w != nil && w.ID > 0 {
+			custWorkIDs = append(custWorkIDs, w.ID)
+		}
+	}
+	if len(custWorkIDs) == 0 {
+		b, err := p.org.GetBranch(database.AsSystem(ctx), customerBranchID)
+		if err == nil && b != nil {
+			for _, cat := range b.InstitutionalWorks {
+				if id, err := strconv.ParseInt(cat, 10, 64); err == nil && id > 0 {
+					custWorkIDs = append(custWorkIDs, id)
+				}
+			}
+		}
+	}
+	if len(custWorkIDs) == 0 {
+		return false, nil
+	}
+
+	// 2. Allowed target institutional work IDs for customer's works
+	allowedWorkIDs, err := p.org.GetConnectedInstitutionalWorkIDs(database.AsSystem(ctx), custWorkIDs)
+	if err != nil {
+		return false, err
+	}
+	if len(allowedWorkIDs) == 0 {
+		return false, nil
+	}
+	allowedMap := make(map[int64]bool, len(allowedWorkIDs))
+	for _, id := range allowedWorkIDs {
+		allowedMap[id] = true
+	}
+
+	// 3. Determine vendor branches
+	var vendorBranchIDs []int64
+	if variantID > 0 && p.catalog != nil {
+		v, err := p.catalog.GetVariant(database.AsSystem(ctx), variantID)
+		if err == nil && v != nil && v.BranchID != nil && *v.BranchID > 0 {
+			vendorBranchIDs = append(vendorBranchIDs, *v.BranchID)
+		}
+	}
+
+	if len(vendorBranchIDs) == 0 {
+		vBranches, err := p.org.ListBranches(database.AsSystem(ctx), vendorOrgID)
+		if err != nil {
+			return false, err
+		}
+		for _, vb := range vBranches {
+			if vb != nil && vb.Status != "inactive" {
+				vendorBranchIDs = append(vendorBranchIDs, vb.ID)
+			}
+		}
+	}
+
+	if len(vendorBranchIDs) == 0 {
+		return false, nil
+	}
+
+	// 4. Verify connection intersection
+	for _, bID := range vendorBranchIDs {
+		vWorks, err := p.org.GetBranchInstitutionalWorks(database.AsSystem(ctx), bID)
+		if err != nil {
+			return false, err
+		}
+		for _, vw := range vWorks {
+			if vw != nil && allowedMap[vw.ID] {
+				return true, nil
+			}
+		}
+		vb, err := p.org.GetBranch(database.AsSystem(ctx), bID)
+		if err == nil && vb != nil {
+			for _, cat := range vb.InstitutionalWorks {
+				if id, err := strconv.ParseInt(cat, 10, 64); err == nil && allowedMap[id] {
+					return true, nil
+				}
+			}
+		}
+	}
+
+	return false, nil
 }
 
 // isNotFound distinguishes "this row does not exist (or is not visible to this

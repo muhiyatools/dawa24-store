@@ -59,6 +59,7 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	var branches []*org.Branch
 	staff := map[int64]int{}
 	total := 0
+	var instWorks []*org.InstitutionalWork
 	if h.orgSvc != nil {
 		var err error
 		if branches, err = h.orgSvc.ListBranches(ctx, orgID); err != nil {
@@ -70,6 +71,9 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 		}
 		for _, n := range staff {
 			total += n
+		}
+		if instWorks, err = h.orgSvc.ListAllFlatInstitutionalWorks(ctx, true); err != nil {
+			h.log.ErrorContext(ctx, "list pharmacy institutional works", "error", err)
 		}
 	}
 
@@ -83,12 +87,13 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	data := pages.CustomerBranchesData{
-		Branches:       branches,
-		StaffPerBranch: staff,
-		TotalStaff:     total,
-		Cities:         h.listCities(ctx),
-		NoticeType:     noticeType,
-		NoticeMsg:      noticeMsg,
+		Branches:           branches,
+		StaffPerBranch:     staff,
+		TotalStaff:         total,
+		Cities:             h.listCities(ctx),
+		InstitutionalWorks: instWorks,
+		NoticeType:         noticeType,
+		NoticeMsg:          noticeMsg,
 	}
 
 	h.renderPage(ctx, w, "render customer branches page", pages.CustomerBranches(data, lang, dir, actor.Permissions))

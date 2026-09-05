@@ -109,19 +109,19 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" x-model=\"form.address\" required placeholder=\"شارع النصر، أمام مستشفى المعادي\" class=\"form-control font-semibold\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" x-model=\"form.phone\" placeholder=\"01012345678\" class=\"form-control tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">ساعات العمل</label> <input type=\"text\" name=\"operating_hours\" x-model=\"form.operating_hours\" placeholder=\"9 صباحاً - 11 مساءً\" class=\"form-control font-semibold\"></div></div><!-- Leaflet Map Picker with Auto-Pan --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)</label><div id=\"customer-branch-map-picker\" class=\"d-flex flex-col gap-2\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\"><div class=\"map-container map-canvas map-canvas-sm rounded-lg border\"></div><div class=\"d-flex items-center justify-between text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-primary\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\">موقعي الحالي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط خرائط Google (اختياري)</label> <input type=\"url\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-google-url placeholder=\"https://maps.google.com/?q=30.0444,31.2357\" class=\"form-control text-xs font-semibold\" dir=\"ltr\"></div><!-- Section: Institutional Works (12 Categories) --><div class=\"bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2\"><label class=\"text-xs font-black text-primary m-0 d-block\">الأعمال المؤسسية المغطاة (Institutional Works)</label><div class=\"d-grid grid-cols-2 gap-1.5 mt-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">العنوان التفصيلي <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"address\" x-model=\"form.address\" required placeholder=\"شارع النصر، أمام مستشفى المعادي\" class=\"form-control font-semibold\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" x-model=\"form.phone\" placeholder=\"01012345678\" class=\"form-control tabular-nums\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">ساعات العمل</label> <input type=\"text\" name=\"operating_hours\" x-model=\"form.operating_hours\" placeholder=\"9 صباحاً - 11 مساءً\" class=\"form-control font-semibold\"></div></div><!-- Leaflet Map Picker with Auto-Pan --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)</label><div id=\"customer-branch-map-picker\" class=\"d-flex flex-col gap-2\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\"><div class=\"map-container map-canvas map-canvas-sm rounded-lg border\"></div><div class=\"d-flex items-center justify-between text-xs\"><span data-map-coords-badge class=\"tabular-nums font-bold text-primary\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold\">موقعي الحالي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" x-model=\"form.latitude\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" x-model=\"form.longitude\"></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط خرائط Google (اختياري)</label> <input type=\"url\" name=\"google_maps_url\" x-model=\"form.google_maps_url\" data-map-google-url placeholder=\"https://maps.google.com/?q=30.0444,31.2357\" class=\"form-control text-xs font-semibold\" dir=\"ltr\"></div><!-- Section: Institutional Works --><div class=\"bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2\"><label class=\"text-xs font-black text-primary m-0 d-block\">الأعمال المؤسسية المغطاة (Institutional Works)</label><div class=\"d-grid grid-cols-2 gap-1.5 mt-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, cat := range institutionalWorkCategories {
+		for _, work := range data.InstitutionalWorks {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<label class=\"d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded\"><input type=\"checkbox\" name=\"institutional_works\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(cat.Key)
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", work.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 135, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 135, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -131,21 +131,48 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(cat.LabelAr)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 136, Col: 26}
+			if work.Icon != "" {
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(work.Icon)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 138, Col: 20}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if title := work.Title["ar"]; title != "" {
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 141, Col: 16}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(work.Title["en"])
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_branches_form.templ`, Line: 143, Col: 27}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></label>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></label>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"d-flex flex-col gap-2 pt-1\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"has_cold_storage\" value=\"true\" x-model=\"form.has_cold_storage\" class=\"form-checkbox\"> <span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" x-model=\"form.is_main\" class=\"form-checkbox\"> <span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span></label></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold w-full justify-center mt-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div><div class=\"d-flex flex-col gap-2 pt-1\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"has_cold_storage\" value=\"true\" x-model=\"form.has_cold_storage\" class=\"form-checkbox\"> <span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"is_main\" value=\"true\" x-model=\"form.is_main\" class=\"form-checkbox\"> <span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span></label></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold w-full justify-center mt-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -153,7 +180,7 @@ func CustomerBranchesForm(data CustomerBranchesData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span x-text=\"mode === 'edit' ? 'حفظ تعديلات الفرع' : 'حفظ وإضافة فرع الصيدلية'\"></span></button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span x-text=\"mode === 'edit' ? 'حفظ تعديلات الفرع' : 'حفظ وإضافة فرع الصيدلية'\"></span></button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -177,12 +204,12 @@ func CustomerBranchesScript() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
+		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var11 == nil {
+			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<script>\n\t\tfunction customerBranchManager() {\n\t\t\treturn {\n\t\t\t\tmode: 'add',\n\t\t\t\teditId: 0,\n\t\t\t\tformAction: '/customer/branches/new',\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tcode: '',\n\t\t\t\t\tcity_id: '',\n\t\t\t\t\taddress: '',\n\t\t\t\t\tphone: '',\n\t\t\t\t\toperating_hours: '',\n\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\tis_main: false,\n\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\tinstitutional_works: []\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst editParam = urlParams.get('edit');\n\t\t\t\t\tif (editParam) {\n\t\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-branch-btn=\"${editParam}\"]`);\n\t\t\t\t\t\t\tif (btn) {\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditModeFromElement(btnEl) {\n\t\t\t\t\tif (!btnEl) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = btnEl.getAttribute('data-branch-data');\n\t\t\t\t\t\tif (!raw) return;\n\t\t\t\t\t\tconst b = JSON.parse(raw);\n\t\t\t\t\t\tthis.setEditMode(b);\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('Failed to parse branch data for editing:', e);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditMode(b) {\n\t\t\t\t\tif (!b || !b.id) return;\n\t\t\t\t\tthis.mode = 'edit';\n\t\t\t\t\tthis.editId = b.id;\n\t\t\t\t\tthis.formAction = '/customer/branches/' + b.id + '/edit';\n\t\t\t\t\tconst latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;\n\t\t\t\t\tconst lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: b.id,\n\t\t\t\t\t\tname_ar: b.name_ar || '',\n\t\t\t\t\t\tname_en: b.name_en || '',\n\t\t\t\t\t\tcode: b.code || '',\n\t\t\t\t\t\tcity_id: b.city_id ? String(b.city_id) : '',\n\t\t\t\t\t\taddress: b.address || '',\n\t\t\t\t\t\tphone: b.phone || '',\n\t\t\t\t\t\toperating_hours: b.operating_hours || '',\n\t\t\t\t\t\tgoogle_maps_url: b.google_maps_url || '',\n\t\t\t\t\t\thas_cold_storage: !!b.has_cold_storage,\n\t\t\t\t\t\tis_main: !!b.is_main,\n\t\t\t\t\t\tlatitude: latVal,\n\t\t\t\t\t\tlongitude: lonVal,\n\t\t\t\t\t\tinstitutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []\n\t\t\t\t\t};\n\t\t\t\t\tconst formEl = document.getElementById('new-branch-form');\n\t\t\t\t\tif (formEl) {\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t}\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#customer-branch-map-picker', latVal, lonVal, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tresetToAddMode() {\n\t\t\t\t\tthis.mode = 'add';\n\t\t\t\t\tthis.editId = 0;\n\t\t\t\t\tthis.formAction = '/customer/branches/new';\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tcode: '',\n\t\t\t\t\t\tcity_id: '',\n\t\t\t\t\t\taddress: '',\n\t\t\t\t\t\tphone: '',\n\t\t\t\t\t\toperating_hours: '',\n\t\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\t\tis_main: false,\n\t\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\t\tinstitutional_works: []\n\t\t\t\t\t};\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#customer-branch-map-picker', 30.0444, 31.2357, 13);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\n\t\t// Global modal open/close delegation\n\t\tdocument.addEventListener('click', function(e) {\n\t\t\tconst openBtn = e.target.closest('[data-modal-open]');\n\t\t\tif (openBtn) {\n\t\t\t\tconst modalId = openBtn.getAttribute('data-modal-open');\n\t\t\t\tconst modal = document.getElementById(modalId);\n\t\t\t\tif (modal && typeof modal.showModal === 'function') {\n\t\t\t\t\tmodal.showModal();\n\t\t\t\t}\n\t\t\t}\n\t\t\tconst closeBtn = e.target.closest('[data-modal-close]');\n\t\t\tif (closeBtn) {\n\t\t\t\tconst modalId = closeBtn.getAttribute('data-modal-close');\n\t\t\t\tconst modal = document.getElementById(modalId);\n\t\t\t\tif (modal && typeof modal.close === 'function') {\n\t\t\t\t\tmodal.close();\n\t\t\t\t}\n\t\t\t}\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<script>\n\t\tfunction customerBranchManager() {\n\t\t\treturn {\n\t\t\t\tmode: 'add',\n\t\t\t\teditId: 0,\n\t\t\t\tformAction: '/customer/branches/new',\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tcode: '',\n\t\t\t\t\tcity_id: '',\n\t\t\t\t\taddress: '',\n\t\t\t\t\tphone: '',\n\t\t\t\t\toperating_hours: '',\n\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\tis_main: false,\n\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\tinstitutional_works: []\n\t\t\t\t},\n\t\t\t\tinit() {\n\t\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\t\tconst editParam = urlParams.get('edit');\n\t\t\t\t\tif (editParam) {\n\t\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\t\tconst btn = document.querySelector(`[data-edit-branch-btn=\"${editParam}\"]`);\n\t\t\t\t\t\t\tif (btn) {\n\t\t\t\t\t\t\t\tthis.setEditModeFromElement(btn);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditModeFromElement(btnEl) {\n\t\t\t\t\tif (!btnEl) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst raw = btnEl.getAttribute('data-branch-data');\n\t\t\t\t\t\tif (!raw) return;\n\t\t\t\t\t\tconst b = JSON.parse(raw);\n\t\t\t\t\t\tthis.setEditMode(b);\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tconsole.error('Failed to parse branch data for editing:', e);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tsetEditMode(b) {\n\t\t\t\t\tif (!b || !b.id) return;\n\t\t\t\t\tthis.mode = 'edit';\n\t\t\t\t\tthis.editId = b.id;\n\t\t\t\t\tthis.formAction = '/customer/branches/' + b.id + '/edit';\n\t\t\t\t\tconst latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;\n\t\t\t\t\tconst lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: b.id,\n\t\t\t\t\t\tname_ar: b.name_ar || '',\n\t\t\t\t\t\tname_en: b.name_en || '',\n\t\t\t\t\t\tcode: b.code || '',\n\t\t\t\t\t\tcity_id: b.city_id ? String(b.city_id) : '',\n\t\t\t\t\t\taddress: b.address || '',\n\t\t\t\t\t\tphone: b.phone || '',\n\t\t\t\t\t\toperating_hours: b.operating_hours || '',\n\t\t\t\t\t\tgoogle_maps_url: b.google_maps_url || '',\n\t\t\t\t\t\thas_cold_storage: !!b.has_cold_storage,\n\t\t\t\t\t\tis_main: !!b.is_main,\n\t\t\t\t\t\tlatitude: latVal,\n\t\t\t\t\t\tlongitude: lonVal,\n\t\t\t\t\t\tinstitutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []\n\t\t\t\t\t};\n\t\t\t\t\tconst formEl = document.getElementById('new-branch-form');\n\t\t\t\t\tif (formEl) {\n\t\t\t\t\t\tformEl.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t}\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#customer-branch-map-picker', latVal, lonVal, 14);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tresetToAddMode() {\n\t\t\t\t\tthis.mode = 'add';\n\t\t\t\t\tthis.editId = 0;\n\t\t\t\t\tthis.formAction = '/customer/branches/new';\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tcode: '',\n\t\t\t\t\t\tcity_id: '',\n\t\t\t\t\t\taddress: '',\n\t\t\t\t\t\tphone: '',\n\t\t\t\t\t\toperating_hours: '',\n\t\t\t\t\t\tgoogle_maps_url: '',\n\t\t\t\t\t\thas_cold_storage: false,\n\t\t\t\t\t\tis_main: false,\n\t\t\t\t\t\tlatitude: 30.0444,\n\t\t\t\t\t\tlongitude: 31.2357,\n\t\t\t\t\t\tinstitutional_works: []\n\t\t\t\t\t};\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (typeof window.dawaSetMapLocation === 'function') {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#customer-branch-map-picker', 30.0444, 31.2357, 13);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t};\n\t\t}\n\n\t\t// Global modal open/close delegation\n\t\tdocument.addEventListener('click', function(e) {\n\t\t\tconst openBtn = e.target.closest('[data-modal-open]');\n\t\t\tif (openBtn) {\n\t\t\t\tconst modalId = openBtn.getAttribute('data-modal-open');\n\t\t\t\tconst modal = document.getElementById(modalId);\n\t\t\t\tif (modal && typeof modal.showModal === 'function') {\n\t\t\t\t\tmodal.showModal();\n\t\t\t\t}\n\t\t\t}\n\t\t\tconst closeBtn = e.target.closest('[data-modal-close]');\n\t\t\tif (closeBtn) {\n\t\t\t\tconst modalId = closeBtn.getAttribute('data-modal-close');\n\t\t\t\tconst modal = document.getElementById(modalId);\n\t\t\t\tif (modal && typeof modal.close === 'function') {\n\t\t\t\t\tmodal.close();\n\t\t\t\t}\n\t\t\t}\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

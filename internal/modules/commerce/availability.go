@@ -38,6 +38,7 @@ const (
 	ReasonBranchNotOwned    Reason = "branch_not_owned"
 	ReasonBranchNoLocation           Reason = "branch_no_location"
 	ReasonBranchNoInstitutionalWorks Reason = "branch_no_institutional_works"
+	ReasonBranchInstitutionalMismatch Reason = "branch_institutional_mismatch"
 	ReasonNotCovered                 Reason = "not_covered"
 	ReasonQuantityInvalid            Reason = "quantity_invalid"
 )
@@ -77,6 +78,7 @@ type AvailabilityProbe interface {
 	Vendor(ctx context.Context, orgID int64) (VendorAvailability, error)
 	CustomerBranch(ctx context.Context, branchID int64) (BranchAvailability, error)
 	VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error)
+	VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error)
 }
 
 // AvailabilityRequest describes one prospective purchase line.
@@ -212,6 +214,17 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 		return denied(ReasonBranchNoInstitutionalWorks, variant.StockQty,
 			"الفرع غير مرتبط بأي أعمال مؤسسية. يرجى تفعيل عمل مؤسسي للفرع للتمكن من الطلب.",
 			"No institutional works are associated with this branch. Please enable institutional works to place orders."), nil
+	}
+
+	// 5b. The vendor's branches must have institutional works connected to the customer branch's institutional works.
+	connected, err := s.availability.VendorInstitutionalConnection(ctx, req.VendorOrgID, req.CustomerBranchID, req.VariantID)
+	if err != nil {
+		return AvailabilityResult{}, fmt.Errorf("availability: vendor institutional connection: %w", err)
+	}
+	if !connected {
+		return denied(ReasonBranchInstitutionalMismatch, variant.StockQty,
+			"العمل المؤسسي لفرع الصيدلية غير متصل بالأعمال المؤسسية المعتمدة لفروع هذا المورد وفقاً لإعدادات المنصة.",
+			"The customer branch's institutional work is not connected to the vendor's branch institutional works according to platform settings."), nil
 	}
 
 	// 6. The supplier must cover that branch's location on the relevant weekday.

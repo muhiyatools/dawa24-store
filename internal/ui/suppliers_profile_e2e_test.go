@@ -260,6 +260,9 @@ func (m *mockAvailabilityProbe) CustomerBranch(ctx context.Context, branchID int
 func (m *mockAvailabilityProbe) VendorCovers(ctx context.Context, vendorOrgID int64, lat, lon float64, day time.Weekday, cityID *int64, optWhen ...time.Time) (bool, error) {
 	return true, nil
 }
+func (m *mockAvailabilityProbe) VendorInstitutionalConnection(ctx context.Context, vendorOrgID int64, customerBranchID int64, variantID int64) (bool, error) {
+	return true, nil
+}
 
 // TestSupplierProfileData_AvailabilityAndStock verifies view model helpers.
 func TestSupplierProfileData_AvailabilityAndStock(t *testing.T) {

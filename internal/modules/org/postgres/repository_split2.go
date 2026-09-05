@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -33,16 +35,7 @@ func (r *Repository) CreateBranch(ctx context.Context, b *org.Branch) error {
 			return err
 		}
 
-		if len(b.InstitutionalWorks) > 0 {
-			for _, cat := range b.InstitutionalWorks {
-				if cat != "" {
-					_, _ = tx.Exec(txCtx, `
-						INSERT INTO org.branch_institutional_works (branch_id, work_category)
-						VALUES ($1, $2) ON CONFLICT DO NOTHING;
-					`, b.ID, cat)
-				}
-			}
-		}
+		saveBranchInstitutionalWorksTx(txCtx, tx, b.ID, b.InstitutionalWorks)
 		return nil
 	})
 }
@@ -85,16 +78,7 @@ func (r *Repository) UpdateBranch(ctx context.Context, b *org.Branch) error {
 		}
 
 		_, _ = tx.Exec(txCtx, `DELETE FROM org.branch_institutional_works WHERE branch_id = $1;`, b.ID)
-		if len(b.InstitutionalWorks) > 0 {
-			for _, cat := range b.InstitutionalWorks {
-				if cat != "" {
-					_, _ = tx.Exec(txCtx, `
-						INSERT INTO org.branch_institutional_works (branch_id, work_category)
-						VALUES ($1, $2) ON CONFLICT DO NOTHING;
-					`, b.ID, cat)
-				}
-			}
-		}
+		saveBranchInstitutionalWorksTx(txCtx, tx, b.ID, b.InstitutionalWorks)
 		return nil
 	})
 }
@@ -174,11 +158,11 @@ func (r *Repository) GetBranchByID(ctx context.Context, id int64) (*org.Branch, 
 			return err
 		}
 
-		iwRows, _ := tx.Query(txCtx, `SELECT work_category FROM org.branch_institutional_works WHERE branch_id = $1`, b.ID)
+		iwRows, _ := tx.Query(txCtx, `SELECT DISTINCT COALESCE(institutional_work_id::text, work_category) FROM org.branch_institutional_works WHERE branch_id = $1`, b.ID)
 		if iwRows != nil {
 			for iwRows.Next() {
 				var cat string
-				if err := iwRows.Scan(&cat); err == nil {
+				if err := iwRows.Scan(&cat); err == nil && cat != "" {
 					b.InstitutionalWorks = append(b.InstitutionalWorks, cat)
 				}
 			}
@@ -209,7 +193,7 @@ func (r *Repository) ListBranchesByOrg(ctx context.Context, orgID int64) ([]*org
 			       COALESCE(b.warehouse_type, 'warehouse'), COALESCE(b.has_cold_storage, false),
 			       COALESCE(b.capacity_sqm, 0), COALESCE(b.operating_hours, ''),
 			       COALESCE(b.status, 'active'), b.is_main, COALESCE(b.phone, ''), b.created_at, b.updated_at,
-			       COALESCE((SELECT array_agg(w.work_category)
+			       COALESCE((SELECT array_agg(DISTINCT COALESCE(w.institutional_work_id::text, w.work_category))
 			                 FROM org.branch_institutional_works w
 			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b
@@ -276,4 +260,31 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 			m.EmployeeCode, m.JobTitle, m.BaseSalary, m.VariableSalary, m.IsActive,
 		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	})
+}
+
+func saveBranchInstitutionalWorksTx(ctx context.Context, tx pgx.Tx, branchID int64, works []string) {
+	if len(works) == 0 {
+		return
+	}
+	for _, cat := range works {
+		cat = strings.TrimSpace(cat)
+		if cat == "" {
+			continue
+		}
+		wID, _ := strconv.ParseInt(cat, 10, 64)
+		tag, _ := tx.Exec(ctx, `
+			INSERT INTO org.branch_institutional_works (branch_id, work_category, institutional_work_id)
+			SELECT $1, $2, iw.id
+			FROM org.institutional_works iw
+			WHERE (iw.id = $3 OR iw.slug = $2) AND iw.deleted_at IS NULL
+			LIMIT 1
+			ON CONFLICT (branch_id, work_category) DO UPDATE SET institutional_work_id = EXCLUDED.institutional_work_id;
+		`, branchID, cat, wID)
+		if tag.RowsAffected() == 0 {
+			_, _ = tx.Exec(ctx, `
+				INSERT INTO org.branch_institutional_works (branch_id, work_category)
+				VALUES ($1, $2) ON CONFLICT (branch_id, work_category) DO NOTHING;
+			`, branchID, cat)
+		}
+	}
 }
