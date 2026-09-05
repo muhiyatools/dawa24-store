@@ -288,7 +288,7 @@ func reviewSortHeader(view VendorImportView, colKey, label string) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"row-center-xs gap-xs text-secondary hover-text-primary\" title=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"row-center-xs gap-xs text-secondary hover-text-primary font-extrabold\" title=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

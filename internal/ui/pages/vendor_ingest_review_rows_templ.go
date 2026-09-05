@@ -104,7 +104,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " onchange=\"this.form.submit()\" title=\"استيراد هذا الصنف\"></form></td><!-- Row Number --><td class=\"review-col-num text-center align-middle tabular-nums text-muted font-bold text-xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " onchange=\"this.form.submit()\" title=\"استيراد هذا الصنف\"></form></td><!-- Row Number --><td class=\"review-col-num text-center align-middle tabular-nums text-muted font-bold text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -143,7 +143,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"form-input text-xs font-bold py-1 px-2 h-7\" placeholder=\"اسم الصنف بالملف...\"> <button type=\"submit\" class=\"btn btn-secondary btn-icon btn-xs h-7 w-7 flex-shrink-0\" title=\"حفظ تعديل الاسم\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"form-input text-sm font-bold py-1 px-2.5 h-8\" placeholder=\"اسم الصنف بالملف...\"> <button type=\"submit\" class=\"btn btn-secondary btn-icon btn-xs h-8 w-8 flex-shrink-0\" title=\"حفظ تعديل الاسم\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -883,7 +883,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</button></form></td><!-- Net Price (السعر بعد الخصم) --><td class=\"review-col-net text-center align-middle tabular-nums\"><span class=\"fw-800 text-primary text-xs whitespace-nowrap\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</button></form></td><!-- Net Price (السعر بعد الخصم) --><td class=\"review-col-net text-center align-middle tabular-nums\"><span class=\"fw-800 text-primary text-sm whitespace-nowrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -896,7 +896,7 @@ func reviewTableRow(view VendorImportView, row *ingest.RowOutcome) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, " <span class=\"text-2xs text-muted font-semibold\">ج.م</span></span></td><!-- Quantity (Editable Inline) --><td class=\"review-col-qty text-center align-middle tabular-nums\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, " <span class=\"text-xs text-muted font-semibold\">ج.م</span></span></td><!-- Quantity (Editable Inline) --><td class=\"review-col-qty text-center align-middle tabular-nums\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

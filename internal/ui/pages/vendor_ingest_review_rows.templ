@@ -26,7 +26,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Row Number -->
-		<td class="review-col-num text-center align-middle tabular-nums text-muted font-bold text-xs">
+		<td class="review-col-num text-center align-middle tabular-nums text-muted font-bold text-sm">
 			{ fmt.Sprint(row.SourceRow) }
 		</td>
 
@@ -35,9 +35,9 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="d-flex items-center gap-1 mb-1">
 				<input type="text" name="display_name" value={ row.DisplayName }
-					class="form-input text-xs font-bold py-1 px-2 h-7"
+					class="form-input text-sm font-bold py-1 px-2.5 h-8"
 					placeholder="اسم الصنف بالملف..."/>
-				<button type="submit" class="btn btn-secondary btn-icon btn-xs h-7 w-7 flex-shrink-0" title="حفظ تعديل الاسم">
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs h-8 w-8 flex-shrink-0" title="حفظ تعديل الاسم">
 					@components.IconCheck("icon-2xs")
 				</button>
 			</form>
@@ -216,8 +216,8 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 
 		<!-- Net Price (السعر بعد الخصم) -->
 		<td class="review-col-net text-center align-middle tabular-nums">
-			<span class="fw-800 text-primary text-xs whitespace-nowrap">
-				{ rowNetPriceValue(row) } <span class="text-2xs text-muted font-semibold">ج.م</span>
+			<span class="fw-800 text-primary text-sm whitespace-nowrap">
+				{ rowNetPriceValue(row) } <span class="text-xs text-muted font-semibold">ج.م</span>
 			</span>
 		</td>
 

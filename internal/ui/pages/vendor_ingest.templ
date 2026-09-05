@@ -17,53 +17,44 @@ import (
 
 templ VendorIngestPage(view VendorImportView, lang, dir string) {
 	@layouts.VendorShell("استيراد الكتالوج الذكي | Dawa24", "ingest", lang, dir) {
-		<style>
-			.page-container:has(.wizard-fluid) {
-				max-width: 100% !important;
-				padding-inline: 1.5rem !important;
+		<div class="vendor-ingest-container">
+			@components.PageHeader(components.PageHeaderProps{
+				Title:    "استيراد الكتالوج الذكي",
+				Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
+			}) {
+				<div class="row-center">
+					<a href="/vendor/products" class="btn btn-secondary btn-sm font-bold">
+						@components.IconPackage("icon-xs")
+						<span>أصناف المورد</span>
+					</a>
+				</div>
 			}
-			@supports not (selector(:has(*))) {
-				.page-container {
-					max-width: 100% !important;
+			<div class="wizard">
+				@WizardRail(VendorRail(view.WizardStep()))
+				if view.NoticeMessage != "" {
+					@importNotice(view.NoticeType, view.NoticeMessage)
 				}
-			}
-		</style>
-		@components.PageHeader(components.PageHeaderProps{
-			Title:    "استيراد الكتالوج الذكي",
-			Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
-		}) {
-			<div class="row-center">
-				<a href="/vendor/products" class="btn btn-secondary btn-sm font-bold">
-					@components.IconPackage("icon-xs")
-					<span>أصناف المورد</span>
-				</a>
+				if view.Fatal != "" {
+					@importFatal(view.Fatal, view.Session)
+				} else if !view.Started() {
+					@importUploadStage(view)
+				} else {
+					switch view.Phase() {
+						case ingest.PhaseMapping:
+							@importMappingStage(view)
+						case ingest.PhaseSettings:
+							@importSettingsStage(view)
+						case ingest.PhaseReview:
+							@importReviewStage(view)
+						case ingest.PhaseConfirm:
+							@importConfirmStage(view)
+						case ingest.PhaseProcessing:
+							@importProcessingStage(view)
+						default:
+							@importResultsStage(view)
+					}
+				}
 			</div>
-		}
-		<div class="wizard wizard-fluid">
-			@WizardRail(VendorRail(view.WizardStep()))
-			if view.NoticeMessage != "" {
-				@importNotice(view.NoticeType, view.NoticeMessage)
-			}
-			if view.Fatal != "" {
-				@importFatal(view.Fatal, view.Session)
-			} else if !view.Started() {
-				@importUploadStage(view)
-			} else {
-				switch view.Phase() {
-					case ingest.PhaseMapping:
-						@importMappingStage(view)
-					case ingest.PhaseSettings:
-						@importSettingsStage(view)
-					case ingest.PhaseReview:
-						@importReviewStage(view)
-					case ingest.PhaseConfirm:
-						@importConfirmStage(view)
-					case ingest.PhaseProcessing:
-						@importProcessingStage(view)
-					default:
-						@importResultsStage(view)
-				}
-			}
 		</div>
 	}
 }

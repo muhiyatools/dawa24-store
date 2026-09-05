@@ -2,7 +2,7 @@ package pages
 
 import (
 	"fmt"
-	"net/url"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -51,9 +51,17 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 
 		<!-- Card 2: Recipient Pharmacy Info Card -->
 		<div class="courier-card">
-			<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
-				@components.IconMapPin("icon-xs text-brand")
-				<h3 class="text-xs font-black m-0">بيانات الصيدلية المستلمة</h3>
+			<div class="flex-between items-center mb-3 pb-2 border-b text-primary">
+				<div class="d-flex items-center gap-2">
+					@components.IconMapPin("icon-xs text-brand")
+					<h3 class="text-xs font-black m-0">بيانات الصيدلية وموقع التسليم</h3>
+				</div>
+				if data.Shipment.HasExactCoordinates() {
+					<span class="badge badge-emerald text-2xs font-bold font-mono py-0.5 px-2 gap-1 shadow-2xs">
+						@components.IconCheckCircle("icon-3xs")
+						<span>موقع GPS دقيق</span>
+					</span>
+				}
 			</div>
 
 			<div class="d-flex flex-col gap-2.5 text-xs text-start">
@@ -64,7 +72,7 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 
 				if data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) != "" {
 					<div class="flex-between items-baseline flex-wrap gap-1">
-						<span class="text-secondary font-medium">الفرع:</span>
+						<span class="text-secondary font-medium">الفرع المستلم:</span>
 						<span class="text-primary font-bold">{ data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) }</span>
 					</div>
 				}
@@ -78,7 +86,40 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 					</div>
 				}
 
-				<!-- Pharmacist Contact, Phone Call & Maps Navigation -->
+				if data.Shipment.HasExactCoordinates() {
+					<!-- GPS Coordinates Indicator & Copy -->
+					<div
+						class="d-flex items-center justify-between gap-2 p-2 px-3 rounded-lg bg-emerald-50/60 border border-emerald-200 text-emerald-950 flex-wrap"
+						x-data="{ copied: false }"
+					>
+						<div class="d-flex items-center gap-1.5 font-mono text-2xs">
+							@components.IconMapPin("icon-2xs text-emerald-600 shrink-0")
+							<span class="font-bold">إحداثيات الفرع:</span>
+							<span class="tabular-nums font-black">{ fmt.Sprintf("%.6f, %.6f", *data.Shipment.CustomerBranchLatitude, *data.Shipment.CustomerBranchLongitude) }</span>
+						</div>
+						<button
+							type="button"
+							class="btn btn-ghost btn-xs text-emerald-700 font-bold py-0.5 px-2 hover:bg-emerald-100/50"
+							@click={ fmt.Sprintf("navigator.clipboard.writeText('%.6f,%.6f'); copied = true; setTimeout(() => copied = false, 2000)", *data.Shipment.CustomerBranchLatitude, *data.Shipment.CustomerBranchLongitude) }
+						>
+							<span x-text="copied ? 'تم النسخ ✓' : 'نسخ الإحداثيات'">نسخ الإحداثيات</span>
+						</button>
+					</div>
+
+					<!-- Embedded Mini-Map Preview -->
+					<div
+						id="courier-branch-map"
+						class="courier-map-preview"
+						data-lat={ fmt.Sprintf("%.6f", *data.Shipment.CustomerBranchLatitude) }
+						data-lon={ fmt.Sprintf("%.6f", *data.Shipment.CustomerBranchLongitude) }
+						data-name={ data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)) }
+						data-branch={ data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) }
+					>
+						<div class="courier-map-canvas"></div>
+					</div>
+				}
+
+				<!-- Pharmacist Contact & Phone Call -->
 				<div class="pt-2 border-t flex-between items-center gap-2 flex-wrap">
 					<div class="stack-2xs text-start">
 						<span class="text-2xs text-muted font-medium">المسؤول بالفرع:</span>
@@ -91,30 +132,42 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 						</span>
 					</div>
 
-					<div class="d-flex items-center gap-2 flex-wrap">
-						if data.Shipment.CustomerBranchPhone != "" {
-							<a
-								href={ templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone) }
-								class="courier-action-btn-call"
-								title="اتصال هاتفي بالصيدلي"
-							>
-								@components.IconPhone("icon-2xs")
-								<span class="tabular-nums font-mono">{ data.Shipment.CustomerBranchPhone }</span>
-							</a>
-						}
-						if data.Shipment.CustomerBranchAddress != "" {
-							<a
-								href={ templ.SafeURL("https://www.google.com/maps/search/?api=1&query=" + url.QueryEscape(data.Shipment.CustomerBranchAddress)) }
-								target="_blank"
-								rel="noopener noreferrer"
-								class="courier-action-btn-map"
-								title="فتح العنوان على خرائط جوجل"
-							>
-								@components.IconMapPin("icon-2xs")
-								<span>الخريطة</span>
-							</a>
-						}
-					</div>
+					if data.Shipment.CustomerBranchPhone != "" {
+						<a
+							href={ templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone) }
+							class="courier-action-btn-call"
+							title="اتصال هاتفي بالصيدلي"
+						>
+							@components.IconPhone("icon-2xs")
+							<span class="tabular-nums font-mono">{ data.Shipment.CustomerBranchPhone }</span>
+						</a>
+					}
+				</div>
+
+				<!-- Prominent Courier Action Buttons (GPS Navigation & Calling) -->
+				<div class="d-flex flex-col gap-2 pt-2 border-t">
+					if locURL := data.Shipment.BranchLocationURL(); locURL != "" {
+						<a
+							href={ templ.SafeURL(locURL) }
+							target="_blank"
+							rel="noopener noreferrer"
+							class="courier-btn-navigate"
+							title="فتح الملاحة المباشرة عبر خرائط جوجل"
+						>
+							@components.IconMapPin("icon-xs")
+							<span>بدء الملاحة عبر خرائط Google (GPS) ↗</span>
+						</a>
+					}
+					if data.Shipment.CustomerBranchPhone != "" {
+						<a
+							href={ templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone) }
+							class="courier-btn-call"
+							title="اتصال هاتفي بالفرع"
+						>
+							@components.IconPhone("icon-xs")
+							<span>اتصال بالصيدلية ({ data.Shipment.CustomerBranchPhone })</span>
+						</a>
+					}
 				</div>
 			</div>
 		</div>
@@ -152,23 +205,63 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 			}
 		</div>
 
-		<!-- Card 4: Items Summary Table -->
-		<div class="courier-card">
-			<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
-				@components.IconPackage("icon-xs text-brand")
-				<h3 class="text-xs font-black m-0">
-					محتويات وأصناف الشحنة ({ fmt.Sprintf("%d", len(data.Shipment.Lines)) } صنف)
-				</h3>
+		<!-- Card 4: Items Summary Table with Pagination -->
+		<div
+			class="courier-card"
+			x-data={ courierItemsAlpineData(len(data.Shipment.Lines)) }
+		>
+			<div class="flex-between items-center mb-3 pb-2 border-b">
+				<div class="d-flex items-center gap-2 text-primary">
+					@components.IconPackage("icon-xs text-brand")
+					<h3 class="text-xs font-black m-0">
+						محتويات وأصناف الشحنة ({ fmt.Sprintf("%d", len(data.Shipment.Lines)) } صنف)
+					</h3>
+				</div>
+				<div>
+					<span class="badge badge-secondary font-bold text-2xs tabular-nums">
+						إجمالي: { fmt.Sprintf("%d", data.Shipment.TotalUnitsCount()) } عبوة
+					</span>
+				</div>
 			</div>
 
+			<!-- Quick Search Box if more than 3 items -->
+			if len(data.Shipment.Lines) > 3 {
+				<div class="mb-3">
+					<input
+						type="text"
+						x-model="search"
+						@input="page = 1"
+						placeholder="🔍 بحث سريع في الأصناف المسلمة..."
+						class="form-input text-xs w-full rounded-xl py-2 px-3 border border-slate-300"
+					/>
+				</div>
+			}
+
+			<!-- Items List -->
 			<div class="d-flex flex-col gap-2">
-				for _, line := range data.Shipment.Lines {
-					<div class="courier-item-row">
-						<div class="flex-1 min-w-0 text-start">
-							<div class="text-xs font-bold text-primary truncate">{ line.ProductName.Get(i18n.ParseLang(lang)) }</div>
-							if line.VariantName.Get(i18n.ParseLang(lang)) != "" {
-								<div class="text-2xs text-muted truncate">{ line.VariantName.Get(i18n.ParseLang(lang)) }</div>
-							}
+				for lineIdx, line := range data.Shipment.Lines {
+					<div
+						class="courier-item-row"
+						data-item-name={ strings.ToLower(line.ProductName.Get(i18n.ParseLang(lang)) + " " + line.VariantName.Get(i18n.ParseLang(lang))) }
+						x-show={ fmt.Sprintf("(search === '' || $el.dataset.itemName.includes(search.toLowerCase())) && (pageSize === -1 || (%d >= (page - 1) * pageSize && %d < page * pageSize))", lineIdx, lineIdx) }
+					>
+						<div class="d-flex items-center gap-2.5 flex-1 min-w-0 text-start">
+							<!-- Checklist toggle for courier verification -->
+							<input
+								type="checkbox"
+								class="form-checkbox w-4 h-4 rounded text-emerald-600 cursor-pointer shrink-0"
+								title="تأشير فحص ومطابقة الصنف"
+							/>
+							<div class="min-w-0">
+								<div class="text-xs font-bold text-primary truncate">
+									{ line.ProductName.Get(i18n.ParseLang(lang)) }
+								</div>
+								if line.VariantName.Get(i18n.ParseLang(lang)) != "" {
+									<div class="text-2xs text-muted truncate">
+										{ line.VariantName.Get(i18n.ParseLang(lang)) }
+									</div>
+								}
+							</div>
 						</div>
 						<div class="text-end flex-shrink-0">
 							<span class="badge badge-secondary font-black text-xs tabular-nums">
@@ -178,6 +271,48 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 					</div>
 				}
 			</div>
+
+			<!-- Pagination Controls Bar -->
+			if len(data.Shipment.Lines) > 5 {
+				<div class="courier-pagination-bar mt-3 pt-3 border-t text-xs">
+					<div class="d-flex items-center gap-2">
+						<span class="text-secondary text-2xs font-bold">
+							صفحة <span x-text="page" class="tabular-nums font-black"></span> من <span x-text="totalPages" class="tabular-nums font-black"></span>
+						</span>
+						<label class="d-flex items-center gap-1 text-2xs text-muted">
+							<span>عرض:</span>
+							<select
+								class="form-select form-select-xs py-0.5 px-1.5 text-2xs font-bold"
+								@change="changePageSize($event.target.value)"
+							>
+								<option value="5">5</option>
+								<option value="10" selected>10</option>
+								<option value="25">25</option>
+								<option value="-1">الكل</option>
+							</select>
+						</label>
+					</div>
+
+					<div class="d-flex items-center gap-1">
+						<button
+							type="button"
+							class="btn btn-secondary btn-xs font-bold px-2.5 py-1"
+							:disabled="page <= 1"
+							@click="prevPage()"
+						>
+							‹ السابق
+						</button>
+						<button
+							type="button"
+							class="btn btn-secondary btn-xs font-bold px-2.5 py-1"
+							:disabled="page >= totalPages"
+							@click="nextPage()"
+						>
+							التالي ›
+						</button>
+					</div>
+				</div>
+			}
 		</div>
 
 		<!-- Card 5: Handover Verification Form / Success Card -->
@@ -289,5 +424,65 @@ templ CourierShipmentDetails(data CourierDeliveryData, lang, dir string) {
 				<span>← البحث عن شحنة أخرى</span>
 			</a>
 		</div>
+
+		if data.Shipment.HasExactCoordinates() {
+			@CourierMiniMapScript()
+		}
 	}
+}
+
+func courierItemsAlpineData(count int) string {
+	return fmt.Sprintf(`{
+		search: '',
+		page: 1,
+		pageSize: 10,
+		total: %d,
+		get totalPages() {
+			const size = this.pageSize > 0 ? this.pageSize : this.total;
+			return Math.max(1, Math.ceil(this.total / (size || 1)));
+		},
+		nextPage() { if (this.page < this.totalPages) this.page++ },
+		prevPage() { if (this.page > 1) this.page-- },
+		setPage(p) { if (p >= 1 && p <= this.totalPages) this.page = p },
+		changePageSize(s) { this.pageSize = parseInt(s, 10); this.page = 1 }
+	}`, count)
+}
+
+templ CourierMiniMapScript() {
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const el = document.getElementById('courier-branch-map');
+			if (!el) return;
+			const lat = parseFloat(el.getAttribute('data-lat'));
+			const lon = parseFloat(el.getAttribute('data-lon'));
+			const name = el.getAttribute('data-name') || 'الصيدلية';
+			const branch = el.getAttribute('data-branch') || '';
+			if (!lat || !lon || isNaN(lat) || isNaN(lon)) return;
+
+			function renderMiniMap() {
+				if (typeof L === 'undefined') return;
+				const canvas = el.querySelector('.courier-map-canvas');
+				if (!canvas) return;
+				try {
+					const miniMap = L.map(canvas, {
+						zoomControl: false,
+						attributionControl: false
+					}).setView([lat, lon], 15);
+					L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+						maxZoom: 19
+					}).addTo(miniMap);
+					const label = branch ? '<b>' + name + '</b><br><small>' + branch + '</small>' : '<b>' + name + '</b>';
+					L.marker([lat, lon]).addTo(miniMap).bindPopup(label).openPopup();
+				} catch (e) {
+					console.warn('courier mini-map init error:', e);
+				}
+			}
+
+			if (typeof ensureLeaflet === 'function') {
+				ensureLeaflet().then(renderMiniMap).catch(function(err) { console.warn('leaflet error:', err); });
+			} else if (typeof L !== 'undefined') {
+				renderMiniMap();
+			}
+		});
+	</script>
 }

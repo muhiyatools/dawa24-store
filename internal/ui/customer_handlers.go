@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -193,10 +195,10 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// Fetch active sponsored products so they are guaranteed to appear on page 1 at the top
+	// Fetch active sponsored products so they are guaranteed to appear on page 1 at the top of search/catalog
 	var activeSponsoredRankings []*promo.RankedSponsorship
 	if page == 1 && h.promoSvc != nil && h.catSvc != nil {
-		if rsList, err := h.promoSvc.ListActiveRankedSponsorships(ctx, promo.SponsorItemProduct); err == nil && len(rsList) > 0 {
+		if rsList, err := h.promoSvc.ListActiveRankedSponsorships(ctx, ""); err == nil && len(rsList) > 0 {
 			activeSponsoredRankings = rsList
 			existingProductIDs := make(map[int64]bool)
 			for _, p := range products {
@@ -206,28 +208,45 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			}
 			var extraSponsoredProds []*catalog.Product
 			for _, rs := range rsList {
-				if rs != nil && !existingProductIDs[rs.ItemID] {
-					if sp, _, err := h.catSvc.GetProduct(ctx, rs.ItemID); err == nil && sp != nil {
-						if query != "" {
-							qLower := strings.ToLower(query)
-							arMatch := strings.Contains(strings.ToLower(sp.Name.Get(i18n.AR)), qLower)
-							enMatch := strings.Contains(strings.ToLower(sp.Name.Get(i18n.EN)), qLower)
-							if !arMatch && !enMatch {
-								continue
-							}
-						}
-						if categoryID != nil && (sp.CategoryID == nil || *sp.CategoryID != *categoryID) {
-							continue
-						}
-						if brandID != nil && (sp.BrandID == nil || *sp.BrandID != *brandID) {
-							continue
-						}
-						if dosageForm != "" && !strings.Contains(strings.ToLower(sp.DosageForm), strings.ToLower(dosageForm)) {
-							continue
-						}
-						extraSponsoredProds = append(extraSponsoredProds, sp)
-						existingProductIDs[rs.ItemID] = true
+				if rs == nil {
+					continue
+				}
+				resolvedProds := h.resolveProductsForSponsorship(ctx, rs)
+				for _, sp := range resolvedProds {
+					if sp == nil || existingProductIDs[sp.ID] {
+						continue
 					}
+					if query != "" {
+						qNorm := arabic.Normalize(query)
+						qLower := strings.ToLower(query)
+						nameArNorm := arabic.Normalize(sp.Name.Get(i18n.AR))
+						nameEnNorm := strings.ToLower(sp.Name.Get(i18n.EN))
+						sciNorm := strings.ToLower(sp.ScientificName)
+						skuNorm := strings.ToLower(sp.SKU)
+						mfgNorm := arabic.Normalize(sp.ManufacturingCompanies)
+
+						matches := strings.Contains(nameArNorm, qNorm) ||
+							strings.Contains(nameEnNorm, qLower) ||
+							strings.Contains(sciNorm, qLower) ||
+							strings.Contains(skuNorm, qLower) ||
+							strings.Contains(mfgNorm, qNorm) ||
+							arabic.Similarity(nameArNorm, qNorm) >= 0.25
+
+						if !matches {
+							continue
+						}
+					}
+					if categoryID != nil && (sp.CategoryID == nil || *sp.CategoryID != *categoryID) {
+						continue
+					}
+					if brandID != nil && (sp.BrandID == nil || *sp.BrandID != *brandID) {
+						continue
+					}
+					if dosageForm != "" && !strings.Contains(strings.ToLower(sp.DosageForm), strings.ToLower(dosageForm)) {
+						continue
+					}
+					extraSponsoredProds = append(extraSponsoredProds, sp)
+					existingProductIDs[sp.ID] = true
 				}
 			}
 			if len(extraSponsoredProds) > 0 {
@@ -362,4 +381,48 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.renderPage(ctx, w, "render catalog page", pages.CustomerCatalog(viewData, lang, dir, h.isHTMX(r)))
+}
+
+func (h *UIHandler) resolveProductsForSponsorship(ctx context.Context, rs *promo.RankedSponsorship) []*catalog.Product {
+	if rs == nil || rs.ItemID <= 0 || h.catSvc == nil {
+		return nil
+	}
+	var results []*catalog.Product
+	// 1. Try as direct Master Product ID
+	if p, _, err := h.catSvc.GetProduct(ctx, rs.ItemID); err == nil && p != nil {
+		results = append(results, p)
+		return results
+	}
+	// 2. Try as Product Variant ID
+	if v, err := h.catSvc.GetVariant(ctx, rs.ItemID); err == nil && v != nil && v.ProductID > 0 {
+		if p, _, err := h.catSvc.GetProduct(ctx, v.ProductID); err == nil && p != nil {
+			results = append(results, p)
+			return results
+		}
+	}
+	// 3. Try as Special Offer / Offer ID
+	if h.promoSvc != nil {
+		if sp, err := h.promoSvc.GetSpecialOffer(ctx, rs.ItemID); err == nil && sp != nil {
+			seen := make(map[int64]bool)
+			for _, op := range sp.Products {
+				if op != nil && op.ProductID > 0 && !seen[op.ProductID] {
+					seen[op.ProductID] = true
+					if p, _, err := h.catSvc.GetProduct(ctx, op.ProductID); err == nil && p != nil {
+						results = append(results, p)
+					}
+				}
+			}
+		} else if off, err := h.promoSvc.GetOffer(ctx, rs.ItemID); err == nil && off != nil {
+			seen := make(map[int64]bool)
+			for _, prodID := range off.ProductIDs {
+				if prodID > 0 && !seen[prodID] {
+					seen[prodID] = true
+					if p, _, err := h.catSvc.GetProduct(ctx, prodID); err == nil && p != nil {
+						results = append(results, p)
+					}
+				}
+			}
+		}
+	}
+	return results
 }
