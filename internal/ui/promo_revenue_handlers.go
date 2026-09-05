@@ -211,6 +211,7 @@ func (h *UIHandler) VendorOffersPackagesPage(w http.ResponseWriter, r *http.Requ
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers-packages", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	var packages []*promo.OfferPackage
 	var purchases []*promo.SponsorshipPurchase

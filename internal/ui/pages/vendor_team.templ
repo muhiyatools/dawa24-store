@@ -43,6 +43,7 @@ type VendorTeamData struct {
 	// CanAssignRole gates the selector. Whoever may assign a role can hand
 	// themselves everything that role holds, so it is its own permission.
 	CanAssignRole bool
+	CurrentUserID int64
 	Page          int
 	PerPage       int
 	TotalCount    int
@@ -362,36 +363,42 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 														<span>تعديل</span>
 													</button>
 
-													<!-- Toggle Active Status Form -->
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)) } class="m-0">
-														<button
-															type="submit"
-															class="btn btn-secondary btn-sm text-xs font-bold"
-															title={ ifElseStr(m.IsActive, "تعطيل حساب الموظف", "تفعيل حساب الموظف") }
-														>
-															if m.IsActive {
-																<span>تعطيل</span>
-															} else {
-																<span class="text-success font-bold">تفعيل</span>
-															}
-														</button>
-													</form>
+													if m.UserID != data.CurrentUserID {
+														<!-- Toggle Active Status Form -->
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/toggle", m.ID)) } class="m-0">
+															<button
+																type="submit"
+																class="btn btn-secondary btn-sm text-xs font-bold"
+																title={ ifElseStr(m.IsActive, "تعطيل حساب الموظف", "تفعيل حساب الموظف") }
+															>
+																if m.IsActive {
+																	<span>تعطيل</span>
+																} else {
+																	<span class="text-success font-bold">تفعيل</span>
+																}
+															</button>
+														</form>
 
-													<!-- Delete Member Form -->
-													<form
-														method="POST"
-														action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/delete", m.ID)) }
-														class="m-0"
-														onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف من المنشأة نهائياً؟');"
-													>
-														<button
-															type="submit"
-															class="btn btn-secondary btn-sm btn-icon text-danger"
-															title="حذف الموظف"
+														<!-- Delete Member Form -->
+														<form
+															method="POST"
+															action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/delete", m.ID)) }
+															class="m-0"
+															onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف من المنشأة نهائياً؟');"
 														>
-															@components.IconTrash("icon-xs")
-														</button>
-													</form>
+															<button
+																type="submit"
+																class="btn btn-secondary btn-sm btn-icon text-danger"
+																title="حذف الموظف"
+															>
+																@components.IconTrash("icon-xs")
+															</button>
+														</form>
+													} else {
+														<span class="badge badge-sky text-2xs font-bold">
+															حسابك الحالي
+														</span>
+													}
 												} else {
 													<span class="badge badge-slate text-xs font-bold">
 														الحساب الرئيسي

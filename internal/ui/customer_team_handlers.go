@@ -46,9 +46,10 @@ func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 		CanAssign:   actor.Can("pharmacy.role.assign"),
 		NoticeKind:  r.URL.Query().Get("notice"),
 		Notice:      r.URL.Query().Get("msg"),
-		FocusBranch: parseInt64Param(r, "branch"),
-		Page:        page,
-		PerPage:     limit,
+		FocusBranch:   parseInt64Param(r, "branch"),
+		CurrentUserID: actor.UserID,
+		Page:          page,
+		PerPage:       limit,
 	}
 	h.fillTenantTeamView(ctx, &view, actor.OrganizationID, actor.OrgType, lang, limit, (page-1)*limit)
 

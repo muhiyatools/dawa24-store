@@ -127,151 +127,167 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>4. سجلات الأنشطة والتدقيق</span></button></div></div><!-- ========================================== --><!-- TAB 1: SQL Console & Query Log             --><!-- ========================================== --><div x-show=\"activeTab === 'sql'\" class=\"stack-lg\" x-data=\"adminSQLManager()\" x-cloak><div class=\"glass-panel mb-0\"><div class=\"flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2\"><div class=\"stack-sm\"><h3 class=\"m-0 text-lg font-black\">وحدة استعلامات SQL التفاعلية</h3><p class=\"text-xs text-secondary mt-0.5 mb-0\">تنفيذ استعلامات قواعد البيانات المباشرة وعرض النتائج ومعدل زمن الاستجابة</p></div><!-- Quick Query Presets --><div class=\"d-flex gap-1.5 flex-wrap\"><button type=\"button\" @click=\"setQuery('SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;')\" class=\"btn btn-secondary btn-xs\">منظمات</button> <button type=\"button\" @click=\"setQuery('SELECT id, name, generic_name, dosage_form, status FROM catalog.products LIMIT 10;')\" class=\"btn btn-secondary btn-xs\">أصناف</button> <button type=\"button\" @click=\"setQuery('SELECT id, status, total_amount, currency, created_at FROM commerce.orders ORDER BY id DESC LIMIT 10;')\" class=\"btn btn-secondary btn-xs\">طلبيات</button> <button type=\"button\" @click=\"setQuery('SELECT count(*) AS total_users FROM identity.users;')\" class=\"btn btn-secondary btn-xs\">المستخدمين</button></div></div><form @submit.prevent=\"runQuery()\" class=\"stack\"><div class=\"form-group m-0\"><textarea x-model=\"sqlQuery\" rows=\"5\" required class=\"form-input font-mono text-sm leading-relaxed bg-slate-900 text-sky-400 border-slate-700\" dir=\"ltr\" placeholder=\"SELECT * FROM catalog.products LIMIT 10;\"></textarea></div><div class=\"flex-between flex-wrap gap-3\"><div class=\"text-xs text-muted\">الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.</div><div class=\"row-center-sm\"><button type=\"button\" @click=\"sqlQuery = ''\" class=\"btn btn-secondary btn-sm\">مسح</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2\" :disabled=\"isRunning\"><span x-show=\"!isRunning\">▶ تنفيذ الاستعلام (Execute)</span> <span x-show=\"isRunning\">جاري التنفيذ...</span></button></div></div></form><!-- Query Output Area --><div x-show=\"queryExecuted\" class=\"mt-6 pt-5 border-t\"><!-- Execution Summary Pill --><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><div class=\"row-center-sm\"><template x-if=\"!queryResult.error\"><span class=\"badge badge-emerald\">نجاح التنفيذ</span></template><template x-if=\"queryResult.error\"><span class=\"badge badge-rose\">خطأ في الاستعلام</span></template><span class=\"text-sm text-muted tabular-nums\" x-text=\"'المدة: ' + queryResult.duration_ms + ' ms'\"></span> <span class=\"text-sm text-muted tabular-nums\" x-text=\"'الصفوف: ' + queryResult.rows_affected\"></span></div></div><!-- Error Display if any --><template x-if=\"queryResult.error\"><div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-danger font-mono text-sm text-start overflow-x-auto\" dir=\"ltr\" x-text=\"queryResult.error\"></div></template><!-- Results Table --><template x-if=\"!queryResult.error && queryResult.columns && queryResult.columns.length > 0\"><div class=\"table-container m-0 max-h-96 overflow-y-auto\"><table class=\"data-table m-0 font-mono text-xs\"><thead><tr class=\"sticky top-0 z-1\"><template x-for=\"col in queryResult.columns\" :key=\"col\"><th x-text=\"col\"></th></template></tr></thead> <tbody><template x-for=\"(row, rIdx) in queryResult.rows\" :key=\"rIdx\"><tr><template x-for=\"(cell, cIdx) in row\" :key=\"cIdx\"><td class=\"max-w-xs truncate nowrap\" x-text=\"cell\"></td></template></tr></template></tbody></table></div></template></div></div><!-- SQL Execution History Table --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><h4 class=\"text-sm font-black text-primary m-0\">سجل الاستعلامات السابقة (Query Execution History)</h4><span class=\"badge badge-slate text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>4. سجلات الأنشطة والتدقيق</span></button></div></div><!-- ========================================== --><!-- TAB 1: SQL Console & Query Log             --><!-- ========================================== --><div x-show=\"activeTab === 'sql'\" class=\"stack-lg\" x-data=\"adminSQLManager()\" x-cloak><div class=\"glass-panel mb-0\"><div class=\"flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2\"><div class=\"stack-sm\"><h3 class=\"m-0 text-lg font-black\">وحدة استعلامات SQL التفاعلية</h3><p class=\"text-xs text-secondary mt-0.5 mb-0\">تنفيذ استعلامات قواعد البيانات المباشرة وعرض النتائج ومعدل زمن الاستجابة</p></div></div><!-- Categorized Quick SQL Templates --><div class=\"bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3.5 mb-4\"><div class=\"d-flex items-center justify-between flex-wrap gap-2 mb-2.5 pb-2 border-b border-slate-200/60\"><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-primary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconDatabase("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>نماذج واستعلامات جاهزة ومختبرة:</span></div><!-- Category Selector Pills --><div class=\"d-flex items-center gap-1 flex-wrap\"><template x-for=\"cat in categories\" :key=\"cat.id\"><button type=\"button\" class=\"badge text-2xs font-extrabold cursor-pointer transition-all border\" :class=\"activeCategory === cat.id ? 'bg-brand text-white border-brand shadow-2xs' : 'bg-white text-secondary border-slate-200 hover:bg-slate-100'\" @click=\"activeCategory = cat.id\" x-text=\"cat.name\"></button></template></div></div><!-- Preset Query Buttons for Active Category --><div class=\"d-flex items-center gap-1.5 flex-wrap\"><template x-for=\"q in presetQueries[activeCategory]\" :key=\"q.name\"><button type=\"button\" @click=\"setQuery(q.sql)\" class=\"btn btn-secondary btn-2xs font-bold gap-1 shadow-2xs\" :title=\"q.sql\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconTerminal("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span x-text=\"q.name\"></span></button></template></div></div><form @submit.prevent=\"runQuery()\" class=\"stack\"><div class=\"form-group m-0\"><textarea x-model=\"sqlQuery\" rows=\"5\" required class=\"form-input font-mono text-sm leading-relaxed bg-slate-900 text-sky-400 border-slate-700\" dir=\"ltr\" placeholder=\"SELECT * FROM catalog.products LIMIT 10;\"></textarea></div><div class=\"flex-between flex-wrap gap-3\"><div class=\"text-xs text-muted\">الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.</div><div class=\"row-center-sm\"><button type=\"button\" @click=\"sqlQuery = ''\" class=\"btn btn-secondary btn-sm\">مسح</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2\" :disabled=\"isRunning\"><span x-show=\"!isRunning\">▶ تنفيذ الاستعلام (Execute)</span> <span x-show=\"isRunning\">جاري التنفيذ...</span></button></div></div></form><!-- Query Output Area --><div x-show=\"queryExecuted\" class=\"mt-6 pt-5 border-t\"><!-- Execution Summary Pill --><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><div class=\"row-center-sm\"><template x-if=\"!queryResult.error\"><span class=\"badge badge-emerald\">نجاح التنفيذ</span></template><template x-if=\"queryResult.error\"><span class=\"badge badge-rose\">خطأ في الاستعلام</span></template><span class=\"text-sm text-muted tabular-nums\" x-text=\"'المدة: ' + queryResult.duration_ms + ' ms'\"></span> <span class=\"text-sm text-muted tabular-nums\" x-text=\"'الصفوف: ' + queryResult.rows_affected\"></span></div></div><!-- Error Display if any --><template x-if=\"queryResult.error\"><div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-danger font-mono text-sm text-start overflow-x-auto\" dir=\"ltr\" x-text=\"queryResult.error\"></div></template><!-- Results Table --><template x-if=\"!queryResult.error && queryResult.columns && queryResult.columns.length > 0\"><div class=\"table-container m-0 max-h-96 overflow-y-auto\"><table class=\"data-table m-0 font-mono text-xs\"><thead><tr class=\"sticky top-0 z-1\"><template x-for=\"col in queryResult.columns\" :key=\"col\"><th x-text=\"col\"></th></template></tr></thead> <tbody><template x-for=\"(row, rIdx) in queryResult.rows\" :key=\"rIdx\"><tr><template x-for=\"(cell, cIdx) in row\" :key=\"cIdx\"><td class=\"max-w-xs truncate nowrap\" x-text=\"cell\"></td></template></tr></template></tbody></table></div></template></div></div><!-- SQL Execution History Table --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><h4 class=\"text-sm font-black text-primary m-0\">سجل الاستعلامات السابقة (Query Execution History)</h4><span class=\"badge badge-slate text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d استعلام مسجل", len(values.SQLLogs)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 204, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 234, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(values.SQLLogs) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"p-6 text-center text-muted text-xs\">لم يتم تنفيذ أي استعلامات بعد.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-6 text-center text-muted text-xs\">لم يتم تنفيذ أي استعلامات بعد.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"table-container m-0\"><table class=\"data-table m-0 text-xs\"><thead><tr><th class=\"w-1/5\">التوقيت والمستخدم</th><th class=\"w-1/2\">نص الاستعلام (SQL Query)</th><th class=\"text-center w-24\">المدة (ms)</th><th class=\"text-center w-20\">الصفوف</th><th class=\"text-center w-24\">الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"table-container m-0\"><table class=\"data-table m-0 text-xs\"><thead><tr><th class=\"w-1/5\">التوقيت والمستخدم</th><th class=\"w-1/2\">نص الاستعلام (SQL Query)</th><th class=\"text-center w-24\">المدة (ms)</th><th class=\"text-center w-20\">الصفوف</th><th class=\"text-center w-24\">الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, log := range values.SQLLogs {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr><td class=\"text-start\"><div class=\"tabular-nums font-bold text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<tr><td class=\"text-start\"><div class=\"tabular-nums font-bold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(log.CreatedAt.Format("2006-01-02 03:04:05 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 227, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 257, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"text-xs text-muted\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"text-xs text-muted\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(log.ActorName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 228, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 258, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></td><td class=\"text-start\"><code class=\"bg-surface-sunken p-1 rounded font-mono block max-w-lg truncate\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></td><td class=\"text-start\"><code class=\"bg-surface-sunken p-1 rounded font-mono block max-w-lg truncate\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(log.Query)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 231, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 261, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</code></td><td class=\"text-center tabular-nums\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</code></td><td class=\"text-center tabular-nums\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.DurationMS))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 234, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 264, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " ms</span></td><td class=\"text-center tabular-nums\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " ms</span></td><td class=\"text-center tabular-nums\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.RowsAffected))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 237, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 267, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></td><td class=\"text-center\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><td class=\"text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if log.ErrorMessage == "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"badge badge-emerald\">نجاح</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-emerald\">نجاح</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-rose\" title=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-rose\" title=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(log.ErrorMessage)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 243, Col: 68}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 273, Col: 68}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">خطأ</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">خطأ</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div><!-- ========================================== --><!-- TAB 2: AI Gateway & Live Model Fetcher     --><!-- ========================================== --><div x-show=\"activeTab === 'ai'\" class=\"stack-lg\" x-data=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><!-- ========================================== --><!-- TAB 2: AI Gateway & Live Model Fetcher     --><!-- ========================================== --><div x-show=\"activeTab === 'ai'\" class=\"stack-lg\" x-data=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, values.GatewaySettings.APIKey))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 262, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 292, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" x-cloak><div class=\"glass-panel mb-0\"><div class=\"flex-between items-center mb-5 pb-3 border-b\"><div class=\"row-center\"><div class=\"b2b-icon-box\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" x-cloak><div class=\"glass-panel mb-0\"><div class=\"flex-between items-center mb-5 pb-3 border-b\"><div class=\"row-center\"><div class=\"b2b-icon-box\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -279,106 +295,106 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"stack-sm\"><h3 class=\"m-0 text-lg font-black\">بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)</h3><p class=\"text-xs text-secondary mt-0.5 mb-0\">إدارة نقطة النهاية (Endpoint)، ومزامنة باقات الذكاء الاصطناعي مع خطط الاشتراك الموحدة.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"stack-sm\"><h3 class=\"m-0 text-lg font-black\">بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)</h3><p class=\"text-xs text-secondary mt-0.5 mb-0\">إدارة نقطة النهاية (Endpoint)، ومزامنة باقات الذكاء الاصطناعي مع خطط الاشتراك الموحدة.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if values.GatewaySettings.IsActive {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-emerald\">البوابة نشطة ومتصلة</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-emerald\">البوابة نشطة ومتصلة</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-slate\">معطلة</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-slate\">معطلة</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if values.GatewaySettings.CredentialLooksMisconfigured() {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!--\n\t\t\t\t\t\t  The stored administrator credential looks like a database\n\t\t\t\t\t\t  connection secret. It is sent as Basic auth to the Gateway\n\t\t\t\t\t\t  host on every management call, so the operator has to be\n\t\t\t\t\t\t  told even though they are not the one who typed it.\n\t\t\t\t\t\t--> <div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-sm leading-relaxed\"><strong class=\"text-danger block mb-1\">بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong> <span class=\"text-secondary\">القيمة المحفوظة في حقل بيانات اعتماد المدير تطابق شكل بيانات اتصال قاعدة بيانات، وليست بيانات اعتماد بوابة الذكاء الاصطناعي. <strong>تُرسل هذه القيمة إلى خادم البوابة الخارجي عند كل عملية مزامنة أو استعلام.</strong> يرجى تغيير كلمة مرور قاعدة البيانات فوراً، ثم إدخال بيانات اعتماد مدير البوابة الصحيحة هنا.</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!--\n\t\t\t\t\t\t  The stored administrator credential looks like a database\n\t\t\t\t\t\t  connection secret. It is sent as Basic auth to the Gateway\n\t\t\t\t\t\t  host on every management call, so the operator has to be\n\t\t\t\t\t\t  told even though they are not the one who typed it.\n\t\t\t\t\t\t--> <div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-sm leading-relaxed\"><strong class=\"text-danger block mb-1\">بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong> <span class=\"text-secondary\">القيمة المحفوظة في حقل بيانات اعتماد المدير تطابق شكل بيانات اتصال قاعدة بيانات، وليست بيانات اعتماد بوابة الذكاء الاصطناعي. <strong>تُرسل هذه القيمة إلى خادم البوابة الخارجي عند كل عملية مزامنة أو استعلام.</strong> يرجى تغيير كلمة مرور قاعدة البيانات فوراً، ثم إدخال بيانات اعتماد مدير البوابة الصحيحة هنا.</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<!-- Informational Architecture Alert --><div class=\"bg-sky-subtle border border-sky-500/20 rounded-xl p-4 text-xs leading-relaxed\"><strong class=\"text-primary block mb-1\">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong> <span class=\"text-secondary\">مفتاح الربط والمصادقة هنا يُستخدم فقط من قِبل إدارة منصة دوا 24 لمزامنة الباقات وتوليد مفاتيح المنشآت. جميع طلبات الذكاء الاصطناعي للمنشآت والمستخدمين تعمل تلقائياً باستخدام <strong>المفتاح الافتراضي المخصص لكل منشأة (Organization Virtual Key)</strong> وبناءً على خطة اشتراكها وحصتها المحددة في باقات الاشتراك الموحدة.</span></div><form action=\"/admin/developers/ai\" method=\"POST\" class=\"stack-lg\"><!-- Gateway Endpoint --><div class=\"d-grid grid-cols-2 gap-4\"><div class=\"form-group m-0\"><label class=\"form-label\">رابط بوابة الذكاء الاصطناعي (Gateway Endpoint URL) *</label> <input type=\"url\" name=\"endpoint_url\" x-model=\"gatewayURL\" required class=\"form-input\" dir=\"ltr\" placeholder=\"https://api.muhiya.com\"></div><div class=\"form-group m-0\"><label class=\"form-label\">حالة البوابة</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<!-- Informational Architecture Alert --><div class=\"bg-sky-subtle border border-sky-500/20 rounded-xl p-4 text-xs leading-relaxed\"><strong class=\"text-primary block mb-1\">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong> <span class=\"text-secondary\">مفتاح الربط والمصادقة هنا يُستخدم فقط من قِبل إدارة منصة دوا 24 لمزامنة الباقات وتوليد مفاتيح المنشآت. جميع طلبات الذكاء الاصطناعي للمنشآت والمستخدمين تعمل تلقائياً باستخدام <strong>المفتاح الافتراضي المخصص لكل منشأة (Organization Virtual Key)</strong> وبناءً على خطة اشتراكها وحصتها المحددة في باقات الاشتراك الموحدة.</span></div><form action=\"/admin/developers/ai\" method=\"POST\" class=\"stack-lg\"><!-- Gateway Endpoint --><div class=\"d-grid grid-cols-2 gap-4\"><div class=\"form-group m-0\"><label class=\"form-label\">رابط بوابة الذكاء الاصطناعي (Gateway Endpoint URL) *</label> <input type=\"url\" name=\"endpoint_url\" x-model=\"gatewayURL\" required class=\"form-input\" dir=\"ltr\" placeholder=\"https://api.muhiya.com\"></div><div class=\"form-group m-0\"><label class=\"form-label\">حالة البوابة</label> <select name=\"is_active\" class=\"form-select\"><option value=\"true\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if values.GatewaySettings.IsActive {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, " selected")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, ">مفعلة (Active)</option> <option value=\"false\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if !values.GatewaySettings.IsActive {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, ">معطلة (Disabled)</option></select></div></div><!-- Admin Credentials (Username & Password) --><div class=\"d-grid grid-cols-2 gap-4\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم مستخدم مدير البوابة (Admin Username) *</label> <input type=\"text\" name=\"admin_username\" x-model=\"gatewayUser\" required class=\"form-input\" dir=\"ltr\" placeholder=\"admin\"></div><div class=\"form-group m-0\"><label class=\"form-label\">كلمة مرور مدير البوابة (ADMIN_PASSWORD) *</label><div class=\"relative d-flex items-center\"><input :type=\"showKey ? 'text' : 'password'\" name=\"api_key\" x-model=\"gatewayKey\" class=\"form-input pe-12\" dir=\"ltr\" placeholder=\"أدخل كلمة مرور تسجيل الدخول للوحة البوابة...\"> <button type=\"button\" @click=\"showKey = !showKey\" class=\"absolute end-3 bg-transparent border-0 text-muted cursor-pointer text-xs font-bold\" x-text=\"showKey ? 'إخفاء' : 'إظهار'\"></button></div></div></div><p class=\"text-xs text-muted -mt-2 mb-0\">أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).</p><!-- Models and the provisioned admin-panel identity --><div class=\"grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">نموذج المهام السريعة (Fast)</label> <input type=\"text\" name=\"fast_model\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, ">مفعلة (Active)</option> <option value=\"false\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !values.GatewaySettings.IsActive {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " selected")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ">معطلة (Disabled)</option></select></div></div><!-- Admin Credentials (Username & Password) --><div class=\"d-grid grid-cols-2 gap-4\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم مستخدم مدير البوابة (Admin Username) *</label> <input type=\"text\" name=\"admin_username\" x-model=\"gatewayUser\" required class=\"form-input\" dir=\"ltr\" placeholder=\"admin\"></div><div class=\"form-group m-0\"><label class=\"form-label\">كلمة مرور مدير البوابة (ADMIN_PASSWORD) *</label><div class=\"relative d-flex items-center\"><input :type=\"showKey ? 'text' : 'password'\" name=\"api_key\" x-model=\"gatewayKey\" class=\"form-input pe-12\" dir=\"ltr\" placeholder=\"أدخل كلمة مرور تسجيل الدخول للوحة البوابة...\"> <button type=\"button\" @click=\"showKey = !showKey\" class=\"absolute end-3 bg-transparent border-0 text-muted cursor-pointer text-xs font-bold\" x-text=\"showKey ? 'إخفاء' : 'إظهار'\"></button></div></div></div><p class=\"text-xs text-muted -mt-2 mb-0\">أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).</p><!-- Models and the provisioned admin-panel identity --><div class=\"grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">نموذج المهام السريعة (Fast)</label> <input type=\"text\" name=\"fast_model\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.GatewaySettings.FastModel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 385, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 415, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"qwen3.7-flash\"> <span class=\"text-xs text-muted\">يُستخدم في مطابقة الأصناف وتوسيع البحث.</span></div><div class=\"form-group m-0\"><label class=\"form-label\">نموذج المهام الدقيقة (Quality)</label> <input type=\"text\" name=\"quality_model\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"qwen3.7-flash\"> <span class=\"text-xs text-muted\">يُستخدم في مطابقة الأصناف وتوسيع البحث.</span></div><div class=\"form-group m-0\"><label class=\"form-label\">نموذج المهام الدقيقة (Quality)</label> <input type=\"text\" name=\"quality_model\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.GatewaySettings.QualityModel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 399, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 429, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"qwen3.7-flash\"> <span class=\"text-xs text-muted\">يُستخدم في استكمال بيانات الأصناف أثناء الاستيراد.</span></div></div><p class=\"text-xs text-muted -mt-2 mb-0\">اتركهما فارغين لاستخدام النموذج الافتراضي. يجب أن يكون الاسم مطابقاً لما تنشره البوابة.</p><div class=\"p-4 border rounded-lg bg-surface-sunken\"><div class=\"text-sm font-bold mb-1\">مفتاح لوحة التحكم (Admin Panel Key)</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"form-input\" dir=\"ltr\" placeholder=\"qwen3.7-flash\"> <span class=\"text-xs text-muted\">يُستخدم في استكمال بيانات الأصناف أثناء الاستيراد.</span></div></div><p class=\"text-xs text-muted -mt-2 mb-0\">اتركهما فارغين لاستخدام النموذج الافتراضي. يجب أن يكون الاسم مطابقاً لما تنشره البوابة.</p><div class=\"p-4 border rounded-lg bg-surface-sunken\"><div class=\"text-sm font-bold mb-1\">مفتاح لوحة التحكم (Admin Panel Key)</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if values.GatewaySettings.VirtualKey != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"text-xs text-success font-bold\">تم إنشاؤه تلقائياً — المستخدم: <code dir=\"ltr\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"text-xs text-success font-bold\">تم إنشاؤه تلقائياً — المستخدم: <code dir=\"ltr\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(values.GatewaySettings.AIUserID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 420, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 450, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</code></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</code></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"text-xs text-muted\">سيتم إنشاؤه تلقائياً من بيانات مدير البوابة أعلاه عند أول استخدام للذكاء الاصطناعي.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"text-xs text-muted\">سيتم إنشاؤه تلقائياً من بيانات مدير البوابة أعلاه عند أول استخدام للذكاء الاصطناعي.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"text-xs text-muted mt-1\">هذا المفتاح مستقل عن مفاتيح المنشآت، ويُستخدم لعمليات المنصة نفسها مثل استيراد الكتالوج.</div></div><!-- Test Connection & Role Breakdown --><div class=\"d-grid grid-cols-2 gap-4 items-start\"><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary w-full font-bold h-11 justify-center gap-1.5\" @click=\"testConnection()\" :disabled=\"isTesting\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"text-xs text-muted mt-1\">هذا المفتاح مستقل عن مفاتيح المنشآت، ويُستخدم لعمليات المنصة نفسها مثل استيراد الكتالوج.</div></div><!-- Test Connection & Role Breakdown --><div class=\"d-grid grid-cols-2 gap-4 items-start\"><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary w-full font-bold h-11 justify-center gap-1.5\" @click=\"testConnection()\" :disabled=\"isTesting\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -386,35 +402,35 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span x-show=\"!isTesting\">اختبار الاتصال بالبوابة (Live Test)</span> <span x-show=\"isTesting\">جاري فحص الاتصال...</span></button><div x-show=\"testResult\" class=\"mt-2\" x-cloak><div :class=\"testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : badge-rose'\" class=\"w-full p-2 justify-center font-bold\" x-text=\"testResult ? testResult.message : ''\"></div></div></div><div class=\"bg-surface-sunken border rounded-xl p-3 text-xs\"><div class=\"font-bold text-primary mb-1\">أدوار النماذج المعتمدة بالمنظومة:</div><div class=\"d-flex flex-col gap-1 text-secondary\"><div class=\"stack-sm\">• <strong>المحادثة الأساسية:</strong> <code>assistant.primary</code></div><div class=\"stack-sm\">• <strong>تحليل المرفقات:</strong> <code>assistant.attachment</code></div><div class=\"stack-sm\">• <strong>التفريغ الصوتي:</strong> <code>assistant.transcribe</code></div></div></div></div><div class=\"form-group m-0\"><label class=\"form-label\">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span x-show=\"!isTesting\">اختبار الاتصال بالبوابة (Live Test)</span> <span x-show=\"isTesting\">جاري فحص الاتصال...</span></button><div x-show=\"testResult\" class=\"mt-2\" x-cloak><div :class=\"testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : badge-rose'\" class=\"w-full p-2 justify-center font-bold\" x-text=\"testResult ? testResult.message : ''\"></div></div></div><div class=\"bg-surface-sunken border rounded-xl p-3 text-xs\"><div class=\"font-bold text-primary mb-1\">أدوار النماذج المعتمدة بالمنظومة:</div><div class=\"d-flex flex-col gap-1 text-secondary\"><div class=\"stack-sm\">• <strong>المحادثة الأساسية:</strong> <code>assistant.primary</code></div><div class=\"stack-sm\">• <strong>تحليل المرفقات:</strong> <code>assistant.attachment</code></div><div class=\"stack-sm\">• <strong>التفريغ الصوتي:</strong> <code>assistant.transcribe</code></div></div></div></div><div class=\"form-group m-0\"><label class=\"form-label\">التعليمات التوجيهية للذكاء الاصطناعي (System Prompt)</label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if values.AISettings != nil && values.AISettings.SystemPrompt != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<textarea name=\"system_prompt\" rows=\"3\" class=\"form-input\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<textarea name=\"system_prompt\" rows=\"3\" class=\"form-input\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(values.AISettings.SystemPrompt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 463, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 493, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</textarea>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</textarea>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<textarea name=\"system_prompt\" rows=\"3\" class=\"form-input\">أنت المساعد الذكي لمنصة دوا 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<textarea name=\"system_prompt\" rows=\"3\" class=\"form-input\">أنت المساعد الذكي لمنصة دوا 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.</textarea>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><div class=\"d-flex justify-end border-t pt-4\"><button type=\"submit\" class=\"btn btn-primary font-bold px-8 py-2.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><div class=\"d-flex justify-end border-t pt-4\"><button type=\"submit\" class=\"btn btn-primary font-bold px-8 py-2.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -422,7 +438,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>حفظ إعدادات بوابة الذكاء الاصطناعي</span></button></div></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>حفظ إعدادات بوابة الذكاء الاصطناعي</span></button></div></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -430,7 +446,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<script>\n\t\t\tfunction adminDevelopersManager(initialTab) {\n\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\tconst storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';\n\n\t\t\t\treturn {\n\t\t\t\t\tactiveTab: storedTab,\n\n\t\t\t\t\tsetTab(tab) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t\tlocalStorage.setItem('dawa24-dev-tab', tab);\n\t\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminSQLManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsqlQuery: 'SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;',\n\t\t\t\t\tisRunning: false,\n\t\t\t\t\tqueryExecuted: false,\n\t\t\t\t\tqueryResult: {\n\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\trows: [],\n\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\terror: ''\n\t\t\t\t\t},\n\n\t\t\t\t\tsetQuery(q) {\n\t\t\t\t\t\tthis.sqlQuery = q;\n\t\t\t\t\t},\n\n\t\t\t\t\tasync runQuery() {\n\t\t\t\t\t\tif (!this.sqlQuery.trim()) return;\n\t\t\t\t\t\tthis.isRunning = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('query', this.sqlQuery);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/sql', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.queryResult = data;\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.queryResult = {\n\t\t\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\t\t\trows: [],\n\t\t\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\t\t\terror: 'Network / server error: ' + e.message\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isRunning = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAIManager(initURL, initKey) {\n\t\t\t\tlet user = 'admin';\n\t\t\t\tlet key = initKey || '';\n\t\t\t\tif (key.includes(':')) {\n\t\t\t\t\tconst parts = key.split(':');\n\t\t\t\t\tuser = parts[0];\n\t\t\t\t\tkey = parts[1];\n\t\t\t\t}\n\t\t\t\treturn {\n\t\t\t\t\tshowKey: false,\n\t\t\t\t\tgatewayURL: initURL || 'https://api.muhiya.com',\n\t\t\t\t\tgatewayUser: user,\n\t\t\t\t\tgatewayKey: key,\n\t\t\t\t\tisTesting: false,\n\t\t\t\t\ttestResult: null,\n\n\t\t\t\t\tasync testConnection() {\n\t\t\t\t\t\tthis.isTesting = true;\n\t\t\t\t\t\tthis.testResult = null;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('endpoint_url', this.gatewayURL);\n\t\t\t\t\t\t\tform.append('admin_username', this.gatewayUser);\n\t\t\t\t\t\t\tform.append('api_key', this.gatewayKey);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/test', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.testResult = data;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.testResult = { status: 'error', message: 'تعذر الاتصال بالخادم: ' + e.message };\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isTesting = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminErrorsManager() {\n\t\t\t\treturn {\n\t\t\t\t\tselectedError: null,\n\n\t\t\t\t\topenErrorDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('err-data-' + id);\n\t\t\t\t\t\tif (!script) return;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = script.textContent.trim();\n\t\t\t\t\t\t\tthis.selectedError = JSON.parse(raw);\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.warn('Error JSON parse fallback for id ' + id + ':', e);\n\t\t\t\t\t\t\tthis.selectedError = {\n\t\t\t\t\t\t\t\tid: id,\n\t\t\t\t\t\t\t\terror_message: 'تفاصيل الخطأ المسجل #' + id,\n\t\t\t\t\t\t\t\terror_level: 'ERROR'\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst modal = document.getElementById('dev-error-modal');\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAuditManager() {\n\t\t\t\treturn {\n\t\t\t\t\tselected: null,\n\n\t\t\t\t\topenDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('audit-data-' + id);\n\t\t\t\t\t\tif (!script) {\n\t\t\t\t\t\t\tconsole.warn('Script element not found: audit-data-' + id);\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = script.textContent.trim();\n\t\t\t\t\t\t\tthis.selected = JSON.parse(raw);\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.warn('Audit JSON parse fallback for id ' + id + ':', e);\n\t\t\t\t\t\t\tthis.selected = {\n\t\t\t\t\t\t\t\tid: id,\n\t\t\t\t\t\t\t\ttitle: 'سجل العملية #' + id,\n\t\t\t\t\t\t\t\tdescription: 'تفاصيل العملية مسجلة بالنظام',\n\t\t\t\t\t\t\t\taction: 'audit_log',\n\t\t\t\t\t\t\t\taction_label_ar: 'سجل تدقيق',\n\t\t\t\t\t\t\t\tactor_name: 'مدير المنصة',\n\t\t\t\t\t\t\t\torganization_name: 'المنصة الرئيسية'\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst modal = document.getElementById('dev-audit-modal');\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<script>\n\t\t\tfunction adminDevelopersManager(initialTab) {\n\t\t\t\tconst urlParams = new URLSearchParams(window.location.search);\n\t\t\t\tconst storedTab = urlParams.get('tab') || localStorage.getItem('dawa24-dev-tab') || initialTab || 'sql';\n\n\t\t\t\treturn {\n\t\t\t\t\tactiveTab: storedTab,\n\n\t\t\t\t\tsetTab(tab) {\n\t\t\t\t\t\tthis.activeTab = tab;\n\t\t\t\t\t\tlocalStorage.setItem('dawa24-dev-tab', tab);\n\t\t\t\t\t\tconst u = new URL(window.location);\n\t\t\t\t\t\tu.searchParams.set('tab', tab);\n\t\t\t\t\t\twindow.history.replaceState({}, '', u);\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminSQLManager() {\n\t\t\t\treturn {\n\t\t\t\t\tsqlQuery: \"SELECT id, name->>'ar' AS name_ar, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 15;\",\n\t\t\t\t\tisRunning: false,\n\t\t\t\t\tqueryExecuted: false,\n\t\t\t\t\tactiveCategory: 'users',\n\t\t\t\t\tcategories: [\n\t\t\t\t\t\t{ id: 'users', name: 'المستخدمين' },\n\t\t\t\t\t\t{ id: 'orgs', name: 'المنظمات' },\n\t\t\t\t\t\t{ id: 'catalog', name: 'الكتالوج والمخزون' },\n\t\t\t\t\t\t{ id: 'commerce', name: 'الطلبيات' },\n\t\t\t\t\t\t{ id: 'billing', name: 'الفوترة والمحافظ' },\n\t\t\t\t\t\t{ id: 'promo', name: 'الرعايات' },\n\t\t\t\t\t\t{ id: 'system', name: 'النظام والتدقيق' }\n\t\t\t\t\t],\n\t\t\t\t\tpresetQueries: {\n\t\t\t\t\t\tusers: [\n\t\t\t\t\t\t\t{ name: 'أحدث المستخدمين', sql: 'SELECT id, name, email, phone, status, created_at FROM identity.users ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الجلسات المسجلة', sql: 'SELECT id, user_id, device_name, ip_address, is_active, last_activity_at FROM identity.user_sessions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'إحصائيات الحالات', sql: 'SELECT status, count(*) AS count FROM identity.users GROUP BY status;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\torgs: [\n\t\t\t\t\t\t\t{ name: 'أحدث المنظمات', sql: \"SELECT id, name->>'ar' AS name_ar, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'الصيدليات المعتمدة', sql: \"SELECT id, name->>'ar' AS name, legal_name, status FROM org.organizations WHERE type = 'pharmacy' AND status = 'approved' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'الموردين المعتمدين', sql: \"SELECT id, name->>'ar' AS name, legal_name, status FROM org.organizations WHERE type = 'vendor' AND status = 'approved' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'فروع المنشآت', sql: 'SELECT id, organization_id, name, address, status, is_main FROM org.branches ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tcatalog: [\n\t\t\t\t\t\t\t{ name: 'أحدث المنتجات', sql: \"SELECT id, name->>'ar' AS name_ar, sku, barcode, price, status, created_at FROM catalog.products ORDER BY id DESC LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'أصناف بمخزون نشط', sql: \"SELECT p.id, p.name->>'ar' AS name, pv.sku, st.quantity, pv.status FROM catalog.products p JOIN catalog.product_variants pv ON pv.product_id = p.id JOIN inventory.stocks st ON st.product_variant_id = pv.id WHERE st.quantity > 0 AND pv.status = 'active' LIMIT 15;\" },\n\t\t\t\t\t\t\t{ name: 'المستودعات', sql: 'SELECT id, organization_id, name, code, is_active, created_at FROM inventory.warehouses ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'إجمالي كميات المخزون', sql: 'SELECT warehouse_id, count(*) AS total_items, sum(quantity) AS total_qty FROM inventory.stocks WHERE deleted_at IS NULL GROUP BY warehouse_id;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tcommerce: [\n\t\t\t\t\t\t\t{ name: 'أحدث الطلبيات', sql: 'SELECT id, order_number, customer_id, organization_id, total_amount, status, created_at FROM commerce.orders ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الطلبات حسب الحالة', sql: 'SELECT status, count(*) AS total_orders, sum(total_amount) AS gmv FROM commerce.orders GROUP BY status;' },\n\t\t\t\t\t\t\t{ name: 'عناصر الطلبيات الأخيرة', sql: 'SELECT id, order_id, product_name, quantity, unit_price, total_price FROM commerce.order_lines ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tbilling: [\n\t\t\t\t\t\t\t{ name: 'حسابات المحافظ', sql: 'SELECT id, user_id, organization_id, currency, created_at FROM billing.wallets ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'حركات المحافظ الأخيرة', sql: 'SELECT id, wallet_id, type, amount, balance_after, description, created_at FROM billing.wallet_transactions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الاشتراكات النشطة', sql: 'SELECT id, organization_id, plan_id, status, starts_at, expires_at FROM billing.subscriptions ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'وسائل دفع المنصة', sql: 'SELECT id, name_ar, provider_type, account_name, is_active FROM billing.platform_payment_methods;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tpromo: [\n\t\t\t\t\t\t\t{ name: 'باقات الرعاية المتاحة', sql: \"SELECT id, name->>'ar' AS name, tier_level, price, credits, duration_days, is_active FROM promo.offer_packages;\" },\n\t\t\t\t\t\t\t{ name: 'باقات الرعاية المشتراة', sql: 'SELECT id, organization_id, package_id, credits_total, credits_used, status, expires_at FROM promo.sponsorship_purchases ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'طلبات الرعاية', sql: 'SELECT id, organization_id, item_type, item_id, admin_status, status, created_at FROM promo.sponsorship_requests ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'الإعلانات المعروضة', sql: 'SELECT id, organization_id, title, position, media_type, admin_status, is_active FROM promo.ads ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t],\n\t\t\t\t\t\tsystem: [\n\t\t\t\t\t\t\t{ name: 'سجلات التدقيق', sql: 'SELECT id, organization_id, actor_user_id, action, entity_type, entity_id, created_at FROM platform.audit_log ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'سجلات استعلامات SQL', sql: 'SELECT id, actor_name, query, duration_ms, rows_affected, error_message, created_at FROM platform_admin.sql_logs ORDER BY id DESC LIMIT 15;' },\n\t\t\t\t\t\t\t{ name: 'سجلات أخطاء النظام', sql: 'SELECT id, error_level, error_message, http_method, url_path, created_at FROM platform_admin.error_logs ORDER BY id DESC LIMIT 15;' }\n\t\t\t\t\t\t]\n\t\t\t\t\t},\n\t\t\t\t\tqueryResult: {\n\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\trows: [],\n\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\terror: ''\n\t\t\t\t\t},\n\n\t\t\t\t\tsetQuery(q) {\n\t\t\t\t\t\tthis.sqlQuery = q;\n\t\t\t\t\t},\n\n\t\t\t\t\tasync runQuery() {\n\t\t\t\t\t\tif (!this.sqlQuery.trim()) return;\n\t\t\t\t\t\tthis.isRunning = true;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('query', this.sqlQuery);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/sql', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.queryResult = data;\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.queryResult = {\n\t\t\t\t\t\t\t\tcolumns: [],\n\t\t\t\t\t\t\t\trows: [],\n\t\t\t\t\t\t\t\tduration_ms: 0,\n\t\t\t\t\t\t\t\trows_affected: 0,\n\t\t\t\t\t\t\t\terror: 'Network / server error: ' + e.message\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t\tthis.queryExecuted = true;\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isRunning = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAIManager(initURL, initKey) {\n\t\t\t\tlet user = 'admin';\n\t\t\t\tlet key = initKey || '';\n\t\t\t\tif (key.includes(':')) {\n\t\t\t\t\tconst parts = key.split(':');\n\t\t\t\t\tuser = parts[0];\n\t\t\t\t\tkey = parts[1];\n\t\t\t\t}\n\t\t\t\treturn {\n\t\t\t\t\tshowKey: false,\n\t\t\t\t\tgatewayURL: initURL || 'https://api.muhiya.com',\n\t\t\t\t\tgatewayUser: user,\n\t\t\t\t\tgatewayKey: key,\n\t\t\t\t\tisTesting: false,\n\t\t\t\t\ttestResult: null,\n\n\t\t\t\t\tasync testConnection() {\n\t\t\t\t\t\tthis.isTesting = true;\n\t\t\t\t\t\tthis.testResult = null;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst form = new FormData();\n\t\t\t\t\t\t\tform.append('endpoint_url', this.gatewayURL);\n\t\t\t\t\t\t\tform.append('admin_username', this.gatewayUser);\n\t\t\t\t\t\t\tform.append('api_key', this.gatewayKey);\n\t\t\t\t\t\t\tconst resp = await fetch('/admin/developers/ai/test', {\n\t\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\t\tbody: form\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tconst data = await resp.json();\n\t\t\t\t\t\t\tthis.testResult = data;\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tthis.testResult = { status: 'error', message: 'تعذر الاتصال بالخادم: ' + e.message };\n\t\t\t\t\t\t} finally {\n\t\t\t\t\t\t\tthis.isTesting = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminErrorsManager() {\n\t\t\t\treturn {\n\t\t\t\t\tselectedError: null,\n\n\t\t\t\t\topenErrorDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('err-data-' + id);\n\t\t\t\t\t\tif (!script) return;\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = script.textContent.trim();\n\t\t\t\t\t\t\tthis.selectedError = JSON.parse(raw);\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.warn('Error JSON parse fallback for id ' + id + ':', e);\n\t\t\t\t\t\t\tthis.selectedError = {\n\t\t\t\t\t\t\t\tid: id,\n\t\t\t\t\t\t\t\terror_message: 'تفاصيل الخطأ المسجل #' + id,\n\t\t\t\t\t\t\t\terror_level: 'ERROR'\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst modal = document.getElementById('dev-error-modal');\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tfunction adminAuditManager() {\n\t\t\t\treturn {\n\t\t\t\t\tselected: null,\n\n\t\t\t\t\topenDetails(id) {\n\t\t\t\t\t\tconst script = document.getElementById('audit-data-' + id);\n\t\t\t\t\t\tif (!script) {\n\t\t\t\t\t\t\tconsole.warn('Script element not found: audit-data-' + id);\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tconst raw = script.textContent.trim();\n\t\t\t\t\t\t\tthis.selected = JSON.parse(raw);\n\t\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\t\tconsole.warn('Audit JSON parse fallback for id ' + id + ':', e);\n\t\t\t\t\t\t\tthis.selected = {\n\t\t\t\t\t\t\t\tid: id,\n\t\t\t\t\t\t\t\ttitle: 'سجل العملية #' + id,\n\t\t\t\t\t\t\t\tdescription: 'تفاصيل العملية مسجلة بالنظام',\n\t\t\t\t\t\t\t\taction: 'audit_log',\n\t\t\t\t\t\t\t\taction_label_ar: 'سجل تدقيق',\n\t\t\t\t\t\t\t\tactor_name: 'مدير المنصة',\n\t\t\t\t\t\t\t\torganization_name: 'المنصة الرئيسية'\n\t\t\t\t\t\t\t};\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst modal = document.getElementById('dev-audit-modal');\n\t\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\t\t</script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

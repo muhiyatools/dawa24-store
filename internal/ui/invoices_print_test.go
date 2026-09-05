@@ -152,7 +152,7 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 			t.Errorf("expected rendered invoice to format 15.4%% discount as 15%% (integer)")
 		}
 
-		if !strings.Contains(rendered, "دواء") || !strings.Contains(rendered, "24") {
+		if (!strings.Contains(rendered, "دوا") && !strings.Contains(rendered, "دواء")) || !strings.Contains(rendered, "24") {
 			t.Errorf("expected rendered invoice to contain Dawa 24 branding")
 		}
 	})

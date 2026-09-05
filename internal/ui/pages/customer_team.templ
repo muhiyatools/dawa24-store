@@ -71,6 +71,7 @@ type TenantTeamView struct {
 	Notice      string
 	NoticeKind  string
 	FocusBranch int64
+	CurrentUserID int64
 	Page        int
 	PerPage     int
 	TotalCount  int
@@ -240,17 +241,19 @@ templ teamTable(v TenantTeamView) {
 												@components.IconEdit("icon-xs")
 												<span>تعديل</span>
 											</button>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/status", v.ActionBase, m.ID)) } class="m-0">
-												<button type="submit" class="btn btn-secondary btn-xs" title="تبديل حالة التفعيل">
-													if m.IsActive {
-														<span class="text-secondary">تعطيل</span>
-													} else {
-														<span class="text-success font-bold">تفعيل</span>
-													}
-												</button>
-											</form>
+											if m.UserID != v.CurrentUserID {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/status", v.ActionBase, m.ID)) } class="m-0">
+													<button type="submit" class="btn btn-secondary btn-xs" title="تبديل حالة التفعيل">
+														if m.IsActive {
+															<span class="text-secondary">تعطيل</span>
+														} else {
+															<span class="text-success font-bold">تفعيل</span>
+														}
+													</button>
+												</form>
+											}
 										}
-										if v.CanDelete {
+										if v.CanDelete && m.UserID != v.CurrentUserID {
 											<form
 												method="POST"
 												action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", v.ActionBase, m.ID)) }

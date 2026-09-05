@@ -27,6 +27,7 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/sponsorship-requests", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	page := pagination.PageNumber(r)
 	limit := pagination.RowsPerPage(r)
@@ -94,6 +95,7 @@ func (h *UIHandler) VendorSponsorshipRequestSubmit(w http.ResponseWriter, r *htt
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	if h.promoSvc == nil {
 		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "common.service_unavailable"))
@@ -154,6 +156,7 @@ func (h *UIHandler) VendorSponsorshipRequestCancelSubmit(w http.ResponseWriter, 
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	if h.promoSvc == nil {
 		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "common.service_unavailable"))
@@ -183,6 +186,7 @@ func (h *UIHandler) VendorSponsorshipPackagePurchaseSubmit(w http.ResponseWriter
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
+	ctx = database.WithTenant(ctx, actor.OrganizationID)
 
 	redirectURL := r.PostFormValue("redirect_url")
 	if redirectURL == "" {

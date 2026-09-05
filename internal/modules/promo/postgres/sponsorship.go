@@ -293,6 +293,10 @@ func (r *Repository) ActivateSponsorshipRequest(ctx context.Context, id int64, r
 		}
 
 		// Create the offer_sponsorship row for ranking.
+		var offerID *int64
+		if sr.ItemType == "offer" {
+			offerID = &sr.ItemID
+		}
 		_, err = tx.Exec(txCtx, `
 			INSERT INTO promo.offer_sponsorships (
 				organization_id, offer_id, package_id, starts_at, expires_at,
@@ -300,7 +304,7 @@ func (r *Repository) ActivateSponsorshipRequest(ctx context.Context, id int64, r
 				reviewed_by, reviewed_at, sponsorship_request_id
 			) VALUES ($1, $2, $3, $4, $5, 'active', $6, $7, $8, 'approved', $9, now(), $10)
 			ON CONFLICT DO NOTHING;
-		`, sr.OrganizationID, sr.ItemID, sr.PackageID, sr.StartsAt, sr.ExpiresAt,
+		`, sr.OrganizationID, offerID, sr.PackageID, sr.StartsAt, sr.ExpiresAt,
 			string(sr.ItemType), sr.ItemID, sr.CreditsUsed, reviewerID, id)
 		return err
 	})

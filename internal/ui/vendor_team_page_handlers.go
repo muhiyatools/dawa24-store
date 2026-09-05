@@ -166,6 +166,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 		Members:       memberViews,
 		Branches:      branchOptions,
 		CanAssignRole: actor.Can("vendor.role.assign"),
+		CurrentUserID: actor.UserID,
 		Page:          page,
 		PerPage:       limit,
 		TotalCount:    totalCount,
@@ -403,6 +404,19 @@ func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.org_service_unavailable"))
 		return
 	}
+	member, err := h.orgSvc.GetMemberByID(ctx, actor.OrganizationID, id)
+	if err != nil || member == nil {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
+		return
+	}
+	if member.UserID == actor.UserID {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "لا يمكنك تغيير حالة تفعيل حسابك الخاص")
+		return
+	}
+	if member.RoleKey == "org_owner" {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.cannot_edit_owner"))
+		return
+	}
 	if err := h.orgSvc.ToggleMemberStatus(ctx, actor.OrganizationID, id); err != nil {
 		h.log.ErrorContext(ctx, "toggle member status", "error", err, "member", id, "org", actor.OrganizationID)
 		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
@@ -434,7 +448,11 @@ func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
 		return
 	}
-	if member.RoleKey == "org_owner" || member.UserID == actor.UserID {
+	if member.UserID == actor.UserID {
+		h.redirectWithNotice(w, r, "/vendor/team", "error", "لا يمكنك حذف حسابك الخاص من المنشأة")
+		return
+	}
+	if member.RoleKey == "org_owner" {
 		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.cannot_edit_owner"))
 		return
 	}

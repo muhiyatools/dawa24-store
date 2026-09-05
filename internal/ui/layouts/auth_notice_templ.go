@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/muhiya/dawa24-store/internal/ui/components"
 
-// AuthNoticeBanner renders an in-app flash banner if an unauthorized access attempt
-// redirected the user to their dashboard.
+// AuthNoticeBanner renders a prominent modal dialog if an unauthorized access attempt
+// redirected the user to their dashboard due to lack of permissions.
 func AuthNoticeBanner() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -34,23 +34,31 @@ func AuthNoticeBanner() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if notice := GetAuthNotice(ctx); notice != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ show: true }\" x-show=\"show\" x-transition class=\"alert alert-warning mb-4 d-flex items-center justify-between gap-3 p-3 rounded-2xl border\" role=\"alert\"><div class=\"d-flex items-center gap-2.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ showModal: true }\" x-show=\"showModal\" x-cloak class=\"modal-backdrop\" x-transition.opacity @keydown.escape.window=\"showModal = false\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-dialog modal-md bg-surface p-0 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden\" @click.outside=\"showModal = false\"><!-- Modal Header --><div class=\"modal-header flex-between items-center p-4 border-b border-slate-100 bg-slate-50/50\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-8 h-8 rounded-full bg-amber-100 text-amber-600 d-flex items-center justify-center font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconLock("alert-icon icon-sm text-amber-600 flex-shrink-0").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconLock("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span class=\"alert-message text-sm font-bold\">عذراً، ليس لديك الصلاحيات الكافية للوصول إلى الصفحة المطلوبة. تم توجيهك إلى لوحتك الرئيسية.</span></div><button type=\"button\" @click=\"show = false\" class=\"btn btn-icon btn-ghost btn-xs\" aria-label=\"إغلاق\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h3 class=\"modal-title text-base font-black text-primary m-0\">تنبيه صلاحيات الوصول</h3></div><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-icon btn-ghost btn-sm text-secondary hover:text-primary rounded-xl\" aria-label=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconClose("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</button></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</button></div><!-- Modal Body --><div class=\"modal-body p-6 text-center\"><div class=\"w-16 h-16 rounded-full bg-amber-50 text-amber-500 border border-amber-200/60 d-flex items-center justify-center mx-auto mb-4 shadow-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconLock("icon-lg").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><h4 class=\"text-lg font-black text-primary mb-2\">غير مصرح لك بالوصول إلى هذه الصفحة</h4><p class=\"text-sm text-secondary leading-relaxed max-w-md mx-auto mb-0\">عذراً، حسابك الحالي لا يمتلك الصلاحيات الإدارية أو التشغيلية الكافية لفتح هذه الصفحة. تم توجيهك بأمان إلى لوحة التحكم لحماية البيانات وتطبيق معايير أمان المنظومة.</p></div><!-- Modal Footer --><div class=\"modal-footer p-4 bg-slate-50/50 border-t border-slate-100 d-flex justify-end gap-2\"><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-primary btn-sm px-6 font-bold\">فهمت ذلك</button></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

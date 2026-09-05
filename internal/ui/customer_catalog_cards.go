@@ -132,44 +132,57 @@ func (h *UIHandler) buildCatalogVariantCards(
 	}
 
 	// Sponsorship ranking
-	sponsoredProductIDs := make(map[int64]bool)
-	if h.promoSvc != nil && len(productIDs) > 0 {
-		rankings, err := h.promoSvc.RankedSponsorshipsForProducts(ctx, productIDs)
-		if err == nil {
-			for _, rs := range rankings {
-				if rs != nil {
-					sponsoredProductIDs[rs.ItemID] = true
+	sponsoredItemIDs := make(map[int64]bool)
+	if h.promoSvc != nil {
+		var allIDs []int64
+		for _, pID := range productIDs {
+			if pID > 0 {
+				allIDs = append(allIDs, pID)
+			}
+		}
+		for _, vc := range variantCards {
+			if vc != nil && vc.VariantID > 0 {
+				allIDs = append(allIDs, vc.VariantID)
+			}
+		}
+		if len(allIDs) > 0 {
+			rankings, err := h.promoSvc.RankedSponsorshipsForProducts(ctx, allIDs)
+			if err == nil {
+				for _, rs := range rankings {
+					if rs != nil {
+						sponsoredItemIDs[rs.ItemID] = true
+					}
 				}
 			}
 		}
 	}
 	for _, vc := range variantCards {
-		if vc != nil && sponsoredProductIDs[vc.ProductID] {
+		if vc != nil && (sponsoredItemIDs[vc.ProductID] || sponsoredItemIDs[vc.VariantID]) {
 			vc.IsSponsored = true
 		}
 	}
 
-	// 3. Prioritize variant cards: purchasable + in-stock first, then
-	// sponsored among actionable, then covered/proximity. A sponsored but
-	// unavailable card must never outrank an orderable one.
+	// 3. Prioritize variant cards:
+	// - First: Eligible sponsored products (IsSponsored && CanAddToCart && AvailableStock > 0 && IsCovered) always at the absolute top!
+	// - Second: Actionable and orderable products (CanAddToCart && AvailableStock > 0 && IsCovered) ahead of unavailable products.
+	// - Third: User sort preference (price_asc, price_desc, discount, name, newest, nearby).
 	sort.SliceStable(variantCards, func(i, j int) bool {
-		aActionable := variantCards[i].CanAddToCart && variantCards[i].AvailableStock > 0
-		bActionable := variantCards[j].CanAddToCart && variantCards[j].AvailableStock > 0
-		if aActionable != bActionable {
-			return aActionable
+		aEligibleSponsored := variantCards[i].IsSponsored && variantCards[i].CanAddToCart && variantCards[i].AvailableStock > 0 && variantCards[i].IsCovered
+		bEligibleSponsored := variantCards[j].IsSponsored && variantCards[j].CanAddToCart && variantCards[j].AvailableStock > 0 && variantCards[j].IsCovered
+		if aEligibleSponsored != bEligibleSponsored {
+			return aEligibleSponsored
 		}
-		// Tier 1: Actionable (In-stock & Covered)
-		if variantCards[i].CanAddToCart != variantCards[j].CanAddToCart {
-			return variantCards[i].CanAddToCart
+
+		aOrderable := variantCards[i].CanAddToCart && variantCards[i].AvailableStock > 0 && variantCards[i].IsCovered
+		bOrderable := variantCards[j].CanAddToCart && variantCards[j].AvailableStock > 0 && variantCards[j].IsCovered
+		if aOrderable != bOrderable {
+			return aOrderable
 		}
-		if (variantCards[i].AvailableStock > 0) != (variantCards[j].AvailableStock > 0) {
-			return variantCards[i].AvailableStock > 0
-		}
-		if variantCards[i].IsSponsored != variantCards[j].IsSponsored {
-			return variantCards[i].IsSponsored
-		}
-		if variantCards[i].IsCovered != variantCards[j].IsCovered {
-			return variantCards[i].IsCovered
+
+		aInStock := variantCards[i].AvailableStock > 0
+		bInStock := variantCards[j].AvailableStock > 0
+		if aInStock != bInStock {
+			return aInStock
 		}
 
 		// Tier 2: User sort or Proximity to Client

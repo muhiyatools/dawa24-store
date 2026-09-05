@@ -162,6 +162,9 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 			})
 		case "price_asc":
 			sort.SliceStable(offerCards, func(i, j int) bool {
+				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
+					return offerCards[i].IsSponsored
+				}
 				priceI := offerCards[i].TotalPrice.Minor()
 				if priceI == 0 {
 					priceI = offerCards[i].MinOrderAmount.Minor()
@@ -180,6 +183,9 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 			})
 		case "price_desc":
 			sort.SliceStable(offerCards, func(i, j int) bool {
+				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
+					return offerCards[i].IsSponsored
+				}
 				priceI := offerCards[i].TotalPrice.Minor()
 				if priceI == 0 {
 					priceI = offerCards[i].MinOrderAmount.Minor()

@@ -201,7 +201,7 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang := langOf(r)
-	_, orgID, ok := h.teamActor(r)
+	actor, orgID, ok := h.teamActor(r)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect="+teamBack, http.StatusSeeOther)
 		return
@@ -209,6 +209,10 @@ func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.
 
 	member, ok := h.loadTeamMember(w, r, orgID, lang)
 	if !ok {
+		return
+	}
+	if member.UserID == actor.UserID {
+		h.redirectWithNotice(w, r, teamBack, "error", "لا يمكنك تغيير حالة تفعيل حسابك الخاص.")
 		return
 	}
 	if err := h.orgSvc.ToggleMemberStatus(database.AsSystem(ctx), orgID, member.ID); err != nil {
