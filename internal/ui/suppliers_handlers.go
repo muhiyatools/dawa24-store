@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -173,9 +174,23 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 		viewTab = "list"
 	}
 
+	page := 1
+	if p, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil && p >= 1 {
+		page = p
+	}
+	pageSize := 12
+	if ps, err := strconv.Atoi(r.URL.Query().Get("page_size")); err == nil {
+		switch ps {
+		case 6, 12, 24, 48:
+			pageSize = ps
+		}
+	}
+
 	data := pages.SupplierDirectoryData{
 		Query:     q,
 		ActiveTab: viewTab,
+		Page:      page,
+		PageSize:  pageSize,
 	}
 
 	if h.orgSvc != nil {
@@ -264,7 +279,19 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 
 			items = append(items, item)
 		}
-		data.Suppliers = items
+
+		totalCount := len(items)
+		start := (page - 1) * pageSize
+		if start > totalCount {
+			start = totalCount
+		}
+		end := start + pageSize
+		if end > totalCount {
+			end = totalCount
+		}
+
+		data.Suppliers = items[start:end]
+		data.TotalCount = totalCount
 	}
 
 	h.renderPage(ctx, w, "render suppliers directory", pages.SuppliersDirectory(lang, dir, data))

@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -37,7 +38,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 
 				<div class="d-flex items-center gap-2.5 flex-wrap">
 					<span class="badge badge-primary text-xs font-bold tabular-nums px-3 py-1.5">
-						{ fmt.Sprintf("%d مورد معتمد", len(data.Suppliers)) }
+						{ fmt.Sprintf("%d مورد معتمد", data.TotalCount) }
 					</span>
 					<a href="/suppliers/followed" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
 						@components.IconHeart("icon-xs")
@@ -207,6 +208,19 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 						</div>
 					}
 				</div>
+
+				if data.TotalCount > 0 {
+					<div class="glass-panel p-4 mb-6 rounded-2xl border bg-surface-sunken">
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage:     data.Page,
+							PageSize:        data.PageSize,
+							TotalCount:      data.TotalCount,
+							BaseURL:         "/suppliers",
+							QueryValues:     suppliersQueryValues(data),
+							PageSizeOptions: []int{12, 24, 48},
+						})
+					</div>
+				}
 			}
 		</div>
 
@@ -214,4 +228,15 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		@SuppliersMap(lang, dir, data)
 
 	</div>
+}
+
+func suppliersQueryValues(data SupplierDirectoryData) url.Values {
+	q := url.Values{}
+	if data.Query != "" {
+		q.Set("q", data.Query)
+	}
+	if data.ActiveTab != "" && data.ActiveTab != "list" {
+		q.Set("view", data.ActiveTab)
+	}
+	return q
 }

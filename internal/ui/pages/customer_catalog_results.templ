@@ -57,16 +57,6 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 							if v.IsSponsored {
 								@components.SponsoredBadge(lang)
 							}
-							if v.DiscountPercent > 0 {
-								<span class="badge badge-emerald font-black text-xs shadow-xs">
-									خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
-								</span>
-							}
-							if v.DosageForm != "" {
-								<span class="badge badge-sky font-bold text-xs shadow-xs">
-									{ v.DosageForm }
-								</span>
-							}
 						</div>
 
 						<!-- Favorite Button -->
@@ -103,20 +93,27 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						}
 					</div>
 
-					<!-- Manufacturer & Active Ingredient -->
-					if v.BrandName != "" || v.Manufacturer != "" {
-						<div class="d-flex items-center gap-1.5 text-xs text-secondary mb-1">
-							@components.IconBuilding("icon-xs text-muted flex-shrink-0")
-							<span class="text-muted font-medium">الشركة:</span>
-							<strong class="text-primary text-truncate">
-								if v.BrandName != "" {
-									{ v.BrandName }
-								} else {
-									{ v.Manufacturer }
-								}
-							</strong>
-						</div>
-					}
+					<!-- Manufacturer & Dosage Form Meta -->
+					<div class="d-flex items-center gap-1.5 text-xs text-secondary mb-1 flex-wrap">
+						if v.BrandName != "" || v.Manufacturer != "" {
+							<div class="d-flex items-center gap-1 min-w-0">
+								@components.IconBuilding("icon-xs text-muted flex-shrink-0")
+								<span class="text-muted font-medium">الشركة:</span>
+								<strong class="text-primary text-truncate">
+									if v.BrandName != "" {
+										{ v.BrandName }
+									} else {
+										{ v.Manufacturer }
+									}
+								</strong>
+							</div>
+						}
+						if v.DosageForm != "" {
+							<span class="badge badge-sky text-2xs font-bold py-0.5 px-2">
+								{ v.DosageForm }
+							</span>
+						}
+					</div>
 
 					if v.ScientificName != "" {
 						<div class="text-xs text-secondary mb-2 text-truncate font-medium">
@@ -187,25 +184,47 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 				<!-- Pricing & Action Footer -->
 				<div class="border-t pt-3 mt-auto">
-					<div class="flex-between items-baseline mb-2.5">
-						<div>
-							<span class="text-xs text-muted font-bold d-block">سعر التوريد:</span>
-							if v.OriginalPrice.IsPositive() && v.OriginalPrice.Minor() > v.Price.Minor() {
-								<span class="text-xs text-muted line-through tabular-nums font-semibold">
-									{ v.OriginalPrice.String() } ج.م
-								</span>
-							} else if v.PublicPrice.IsPositive() && v.PublicPrice.Minor() > v.Price.Minor() {
-								<span class="text-xs text-muted line-through tabular-nums font-semibold" title="سعر الجمهور">
-									{ v.PublicPrice.String() } ج.م
-								</span>
+					<div class="catalog-card-pricing-block mb-3">
+						<!-- سعر الجمهور مع نسبة الخصم بجوارها -->
+						<div class="flex-between items-center mb-1.5 flex-wrap gap-1">
+							<div class="d-flex items-center gap-1.5 flex-wrap">
+								<span class="text-xs text-secondary font-bold">سعر الجمهور:</span>
+								if v.PublicPrice.IsPositive() {
+									<span class="text-sm font-black text-primary tabular-nums">
+										{ v.PublicPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
+									</span>
+								} else if v.OriginalPrice.IsPositive() {
+									<span class="text-sm font-black text-primary tabular-nums">
+										{ v.OriginalPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
+									</span>
+								} else {
+									<span class="text-sm font-bold text-muted tabular-nums">—</span>
+								}
+							</div>
+
+							if v.DiscountPercent > 0 {
+								if v.DiscountPercent >= 40 {
+									<span class="market-disc-pill is-hot text-xs py-0.5 px-2 tabular-nums">
+										خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
+									</span>
+								} else {
+									<span class="market-disc-pill text-xs py-0.5 px-2 tabular-nums">
+										خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
+									</span>
+								}
 							}
 						</div>
-						<div class="text-base font-black text-brand tabular-nums">
-							if v.Price.IsPositive() {
-								{ v.Price.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
-							} else {
-								<span class="text-xs text-secondary font-bold">حسب الكمية</span>
-							}
+
+						<!-- سعر بعد الخصم -->
+						<div class="flex-between items-center">
+							<span class="text-xs text-secondary font-bold">سعر بعد الخصم:</span>
+							<div class="text-sm font-black text-brand tabular-nums">
+								if v.Price.IsPositive() {
+									{ v.Price.String() } <small class="text-2xs text-secondary font-bold">ج.م</small>
+								} else {
+									<span class="text-xs text-secondary font-bold">حسب الكمية</span>
+								}
+							</div>
 						</div>
 					</div>
 

@@ -32,7 +32,7 @@ templ NotificationsBell(lang string) {
 		<span
 			class="nav-count-slot"
 			hx-get="/notifications/unread-badge"
-			hx-trigger="load, every 60s"
+			hx-trigger="load, every 60s, notificationRead from:body"
 			hx-swap="innerHTML"
 			hx-target="this"
 		></span>

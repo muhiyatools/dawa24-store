@@ -76,7 +76,7 @@ func NotificationsBell(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button> <span class=\"nav-count-slot\" hx-get=\"/notifications/unread-badge\" hx-trigger=\"load, every 60s\" hx-swap=\"innerHTML\" hx-target=\"this\"></span><div class=\"nav-menu nav-menu--wide\" id=\"notif-dropdown-content\" role=\"menu\" x-show=\"open\" x-cloak x-transition.origin.top.duration.150ms><div class=\"nav-menu-head\"><span class=\"nav-menu-eyebrow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button> <span class=\"nav-count-slot\" hx-get=\"/notifications/unread-badge\" hx-trigger=\"load, every 60s, notificationRead from:body\" hx-swap=\"innerHTML\" hx-target=\"this\"></span><div class=\"nav-menu nav-menu--wide\" id=\"notif-dropdown-content\" role=\"menu\" x-show=\"open\" x-cloak x-transition.origin.top.duration.150ms><div class=\"nav-menu-head\"><span class=\"nav-menu-eyebrow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

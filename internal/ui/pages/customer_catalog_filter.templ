@@ -3,7 +3,6 @@ package pages
 import (
 	"strconv"
 
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -38,9 +37,6 @@ templ CustomerCatalogFilter(data CatalogPageData) {
 			if data.PageSize > 0 {
 				<input type="hidden" name="page_size" value={ strconv.Itoa(data.PageSize) } />
 			}
-			if data.DosageForm != "" {
-				<input type="hidden" name="dosage_form" value={ data.DosageForm } />
-			}
 
 			<!-- Categories Tree -->
 			<div>
@@ -74,34 +70,27 @@ templ CustomerCatalogFilter(data CatalogPageData) {
 				</div>
 			</div>
 
-			<!-- Manufacturers / Brands -->
-			if len(data.Brands) > 0 {
-				<div class="pt-3 border-t">
-					<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
-						@components.IconBuilding("icon-xs text-muted")
-						<span>الشركة المصنعة / الماركة</span>
-					</label>
-					<select
-						name="brand_id"
-						class="form-select text-xs w-full"
-						onchange="document.getElementById('catalog-filter-form').submit()"
-					>
-						<option value="">كافة الشركات والمصانع</option>
-						for _, b := range data.Brands {
-							<option
-								value={ strconv.FormatInt(b.ID, 10) }
-								selected?={ data.BrandID != nil && *data.BrandID == b.ID }
-							>
-								if b.Name.Get(i18n.AR) != "" {
-									{ b.Name.Get(i18n.AR) }
-								} else {
-									{ b.Name.Get(i18n.EN) }
-								}
-							</option>
-						}
-					</select>
-				</div>
-			}
+			<!-- Dosage Form Filter -->
+			<div class="pt-3 border-t">
+				<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
+					@components.IconPill("icon-xs text-muted")
+					<span>الشكل الدوائي</span>
+				</label>
+				<select
+					name="dosage_form"
+					class="form-select text-xs w-full"
+					onchange="document.getElementById('catalog-filter-form').submit()"
+				>
+					<option value="" selected?={ data.DosageForm == "" }>كافة الأشكال الدوائية</option>
+					<option value="أقراص" selected?={ data.DosageForm == "أقراص" || data.DosageForm == "tablet" }>أقراص</option>
+					<option value="كبسولات" selected?={ data.DosageForm == "كبسولات" || data.DosageForm == "capsule" }>كبسولات</option>
+					<option value="شراب" selected?={ data.DosageForm == "شراب" || data.DosageForm == "syrup" }>شراب وسوائل</option>
+					<option value="حقن" selected?={ data.DosageForm == "حقن" || data.DosageForm == "ampoule" }>حقن وأمبولات</option>
+					<option value="مرهم" selected?={ data.DosageForm == "مرهم" || data.DosageForm == "cream" || data.DosageForm == "ointment" }>مراهم وكريمات</option>
+					<option value="فوار" selected?={ data.DosageForm == "فوار" || data.DosageForm == "sachet" }>فوار وأكياس</option>
+					<option value="قطرة" selected?={ data.DosageForm == "قطرة" || data.DosageForm == "drops" }>قطرات ومحاليل</option>
+				</select>
+			</div>
 
 			<!-- Price Range -->
 			<div class="pt-3 border-t">

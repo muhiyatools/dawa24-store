@@ -185,59 +185,6 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 					</div>
 				}
 
-				<!-- Quick Dosage Form Pills Strip -->
-				<div class="dosage-pills-strip mb-5">
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == ""), templ.KV("btn-secondary", data.DosageForm != "") }
-					>
-						@components.IconPill("icon-xs")
-						<span>كافة الأشكال الدوائية</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "أقراص", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "أقراص" || data.DosageForm == "tablet"), templ.KV("btn-secondary", data.DosageForm != "أقراص" && data.DosageForm != "tablet") }
-					>
-						<span>أقراص</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "كبسولات", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "كبسولات" || data.DosageForm == "capsule"), templ.KV("btn-secondary", data.DosageForm != "كبسولات" && data.DosageForm != "capsule") }
-					>
-						<span>كبسولات</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "شراب", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "شراب" || data.DosageForm == "syrup"), templ.KV("btn-secondary", data.DosageForm != "شراب" && data.DosageForm != "syrup") }
-					>
-						<span>شراب وسوائل</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "حقن", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "حقن" || data.DosageForm == "ampoule"), templ.KV("btn-secondary", data.DosageForm != "حقن" && data.DosageForm != "ampoule") }
-					>
-						<span>حقن وأمبولات</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "مرهم", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "مرهم" || data.DosageForm == "cream" || data.DosageForm == "ointment"), templ.KV("btn-secondary", data.DosageForm != "مرهم" && data.DosageForm != "cream" && data.DosageForm != "ointment") }
-					>
-						<span>مراهم وكريمات</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "فوار", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "فوار" || data.DosageForm == "sachet"), templ.KV("btn-secondary", data.DosageForm != "فوار" && data.DosageForm != "sachet") }
-					>
-						<span>فوار وأكياس</span>
-					</a>
-					<a
-						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: "قطرة", InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == "قطرة" || data.DosageForm == "drops"), templ.KV("btn-secondary", data.DosageForm != "قطرة" && data.DosageForm != "drops") }
-					>
-						<span>قطرات ومحاليل</span>
-					</a>
-				</div>
-
 				<!-- Main 2-Column Grid Layout -->
 				<div class="catalog-main-layout">
 					

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -43,5 +44,19 @@ func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Re
 	if h.notifSvc != nil && id > 0 {
 		_ = h.notifSvc.MarkRead(ctx, id, userID)
 	}
+
+	w.Header().Set("HX-Trigger", "notificationRead")
+
+	if r.URL.Query().Get("format") == "dropdown" || r.Header.Get("HX-Target") == "notif-dropdown-content" {
+		var logs []*notifications.NotificationLog
+		unread := 0
+		if h.notifSvc != nil {
+			logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 8, 0)
+			unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
+		}
+		h.renderPage(ctx, w, "render notifications dropdown", pages.NotificationsDropdownPanel(logs, unread))
+		return
+	}
+
 	http.Redirect(w, r, "/notifications", http.StatusSeeOther)
 }

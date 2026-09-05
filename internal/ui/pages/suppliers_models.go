@@ -39,9 +39,12 @@ type SupplierDirectoryItem struct {
 
 // SupplierDirectoryData is the /suppliers directory view model.
 type SupplierDirectoryData struct {
-	Suppliers []*SupplierDirectoryItem
-	Query     string
-	ActiveTab string // "list" or "map"
+	Suppliers  []*SupplierDirectoryItem
+	Query      string
+	ActiveTab  string // "list" or "map"
+	Page       int
+	PageSize   int
+	TotalCount int
 }
 
 // SupplierVariantMeta holds live availability, stock, and coverage state for a variant.

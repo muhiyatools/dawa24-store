@@ -4348,17 +4348,25 @@ input:focus {
 }
 
 .cart-stepper-input {
-  width: 56px;
-  min-width: 56px;
+  width: 68px;
+  min-width: 68px;
   height: 100%;
   border: none;
   background: transparent;
   text-align: center;
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
+  padding: 0 4px;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   -moz-appearance: textfield;
+}
+
+.catalog-card-pricing-block {
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 0.75rem;
 }
 
 .cart-stepper-input::-webkit-outer-spin-button,
@@ -5382,15 +5390,22 @@ form.filter-bar { margin: 0; }
 /* ---- Supplier Cards Responsive Grid System ---- */
 .supplier-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 1.25rem;
   align-items: stretch;
+}
+.supplier-cards-grid > * {
+  min-inline-size: 0;
+  max-inline-size: 520px;
 }
 
 @media (max-width: 640px) {
   .supplier-cards-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+  .supplier-cards-grid > * {
+    max-inline-size: 100%;
   }
 }
 
