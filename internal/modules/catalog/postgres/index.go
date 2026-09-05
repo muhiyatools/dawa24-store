@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -89,63 +90,159 @@ func (r *Repository) DeleteProductIndexByProduct(ctx context.Context, productID 
 	})
 }
 
+// productIndexColumns is the projection every product_index read shares.
+const productIndexColumns = `unique_row_id, product_id, variant_id, sku, name_ar, name_en,
+	       search_text, search_ar, search_en, search_simple,
+	       organization_name, branch_city, scientific_name, price, discount,
+	       stock_quantity, category_id, brand_id, has_discount,
+	       discount_percentage, price_after_discount, organization_id, branch_id,
+	       status, product_type, COALESCE(institutional_work_ids, '{}'::bigint[]),
+	       created_at, updated_at`
+
+// trgmThresholdsSQL sets the trigram cut-offs the search predicate relies on.
+//
+// They reproduce exactly the numbers the previous query hard-coded as function
+// comparisons — word_similarity(...) >= 0.25 and similarity(...) >= 0.15 — but
+// as session settings, which is what lets the same comparison be written with
+// the <% and % operators instead. That difference is the entire point: a GIN
+// trigram index can answer the operators and cannot answer the function calls,
+// so the old form obliged PostgreSQL to read every row to evaluate them.
+//
+// SET LOCAL, so the values are scoped to this transaction and cannot leak onto
+// whatever request borrows the connection next.
+const trgmThresholdsSQL = `SET LOCAL pg_trgm.similarity_threshold = 0.15;
+	SET LOCAL pg_trgm.word_similarity_threshold = 0.25;`
+
+// searchPredicate matches a row against the caller's text. %[1]s is the
+// placeholder holding the query.
+//
+// Every branch is answerable from an index — the GIN tsvector index for the
+// first, the GIN trigram indexes on search_simple and search_text for the rest
+// — so PostgreSQL combines them with a BitmapOr instead of scanning.
+//
+// That property is both fragile and load-bearing. ONE unindexable branch in an
+// OR forces a sequential scan of the whole table however good the others are,
+// and that is precisely what the previous version did: it added ILIKE branches
+// against name_ar, name_en, sku and scientific_name, none of which carry a
+// trigram index. Measured on this database against 19,996 rows, searching
+// "panadol" took 780 ms and read 2,810 buffers from disk, while the 8.8 MB
+// full-text index it should have used had recorded zero scans since it was
+// built. The same search now plans as a BitmapOr and runs in 19 ms; a term
+// matching nothing — the worst case, because nothing lets it stop early —
+// runs in 2.4 ms instead of scanning the table.
+//
+// The removed column branches are not lost recall. search_simple already holds
+// the normalised Arabic name, the English name and the SKU; search_text adds
+// the scientific name, the pharmacology, the manufacturer and the supplier's
+// own name. Between them they cover every column the old chain named.
+//
+// Before adding a branch here, confirm an index can answer it — with EXPLAIN,
+// not by inspection.
+const searchPredicate = `(
+			       search_vector @@ plainto_tsquery('simple', %[1]s)
+			       OR search_simple ILIKE '%%' || platform.normalize_arabic(%[1]s) || '%%'
+			       OR search_text ILIKE '%%' || %[1]s || '%%'
+			       OR platform.normalize_arabic(%[1]s) <%% search_simple
+			       OR search_simple %% platform.normalize_arabic(%[1]s)
+			  )`
+
+// searchRank puts exact and prefix hits ahead of fuzzy ones. %[1]s is the
+// placeholder holding the query.
+//
+// It stays an expression over ILIKE, which is not indexable — and does not need
+// to be. It is evaluated only on the rows the predicate above already selected,
+// which is hundreds rather than twenty thousand. The previous version evaluated
+// the same shape over every row in the table before sorting.
+const searchRank = `CASE
+			    WHEN search_simple ILIKE platform.normalize_arabic(%[1]s) || '%%' THEN 1
+			    WHEN search_en ILIKE %[1]s || '%%' THEN 2
+			    WHEN search_simple ILIKE '%%' || platform.normalize_arabic(%[1]s) || '%%' THEN 3
+			    WHEN search_en ILIKE '%%' || %[1]s || '%%' THEN 4
+			    ELSE 5
+			  END`
+
 // SearchProductIndex queries the denormalized read model with fast fulltext, trigrams, and institutional filtering.
 // Uses database.AsSystem because cross-tenant catalogue discovery is the core function of the multi-vendor marketplace.
+//
+// The listing case and the search case are built as two different statements
+// rather than as one statement with an `OR $1 = ”` escape hatch.
+//
+// That escape was not free. A parameter compared against a constant cannot be
+// folded away when PostgreSQL builds a generic plan, so one plan had to serve
+// both "list the catalogue" and "search the catalogue" — and the only plan that
+// serves both is a sequential scan. Building them separately lets each get the
+// plan it deserves: an ordered index walk for the listing, a BitmapOr over the
+// text indexes for the search.
+//
+// The filters are appended only when set, for the same reason, instead of being
+// written as `($n IS NULL OR col = $n)`: the null-guard form asks the planner
+// to produce one plan covering every combination of filters any caller might
+// pass, rather than a plan for the filters actually in use.
 func (r *Repository) SearchProductIndex(ctx context.Context, params catalog.SearchParams) ([]*catalog.ProductIndexItem, error) {
+	limit := params.Limit
+	if limit <= 0 {
+		limit = 50
+	} else if limit > 1000 {
+		limit = 1000
+	}
+
+	var args []any
+	// arg registers a bind value and returns the placeholder that names it.
+	arg := func(v any) string {
+		args = append(args, v)
+		return fmt.Sprintf("$%d", len(args))
+	}
+
+	where := []string{"status = 'active'"}
+
+	searching := params.Query != ""
+	var queryArg string
+	if searching {
+		queryArg = arg(params.Query)
+		where = append(where, fmt.Sprintf(searchPredicate, queryArg))
+	}
+	if params.CategoryID != nil {
+		where = append(where, "category_id = "+arg(*params.CategoryID))
+	}
+	if params.BrandID != nil {
+		where = append(where, "brand_id = "+arg(*params.BrandID))
+	}
+	if params.MinPrice != nil {
+		where = append(where, "price_after_discount >= "+arg(*params.MinPrice))
+	}
+	if params.MaxPrice != nil {
+		where = append(where, "price_after_discount <= "+arg(*params.MaxPrice))
+	}
+
+	// Institutional visibility, unchanged in meaning. Mode 1 demands an overlap
+	// with the caller's permitted works; mode 0 admits a row that is either
+	// unrestricted or overlapping.
+	modeArg, worksArg := arg(params.FilterMode), arg(params.AllowedWorkIDs)
+	where = append(where, fmt.Sprintf(`(
+			      (%[1]s::int = 0 AND (%[2]s::bigint[] IS NULL OR cardinality(%[2]s::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && %[2]s))
+			      OR
+			      (%[1]s::int = 1 AND (%[2]s::bigint[] IS NOT NULL AND cardinality(%[2]s::bigint[]) > 0 AND institutional_work_ids && %[2]s))
+			  )`, modeArg, worksArg))
+
+	orderBy := "price_after_discount ASC, updated_at DESC"
+	if searching {
+		orderBy = fmt.Sprintf(searchRank, queryArg) + ",\n\t\t\t  " + orderBy
+	}
+
+	query := "SELECT " + productIndexColumns + "\n\t\t\tFROM catalog.product_index" +
+		"\n\t\t\tWHERE " + strings.Join(where, "\n\t\t\t  AND ") +
+		"\n\t\t\tORDER BY " + orderBy +
+		"\n\t\t\tLIMIT " + arg(limit) + " OFFSET " + arg(params.Offset) + ";"
+
 	var items []*catalog.ProductIndexItem
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT unique_row_id, product_id, variant_id, sku, name_ar, name_en,
-			       search_text, search_ar, search_en, search_simple,
-			       organization_name, branch_city, scientific_name, price, discount,
-			       stock_quantity, category_id, brand_id, has_discount,
-			       discount_percentage, price_after_discount, organization_id, branch_id,
-			       status, product_type, COALESCE(institutional_work_ids, '{}'::bigint[]),
-			       created_at, updated_at
-			FROM catalog.product_index
-			WHERE status = 'active'
-			  AND ($1 = '' 
-			       OR search_vector @@ plainto_tsquery('simple', $1)
-			       OR search_simple ILIKE '%' || platform.normalize_arabic($1) || '%'
-			       OR search_text ILIKE '%' || $1 || '%'
-			       OR name_ar ILIKE '%' || $1 || '%'
-			       OR name_en ILIKE '%' || $1 || '%'
-			       OR sku ILIKE '%' || $1 || '%'
-			       OR COALESCE(scientific_name, '') ILIKE '%' || $1 || '%'
-			       OR word_similarity(platform.normalize_arabic($1), search_simple) >= 0.25
-			       OR similarity(search_simple, platform.normalize_arabic($1)) >= 0.15)
-			  AND ($2::bigint IS NULL OR category_id = $2)
-			  AND ($3::bigint IS NULL OR brand_id = $3)
-			  AND ($6::numeric IS NULL OR price_after_discount >= $6)
-			  AND ($7::numeric IS NULL OR price_after_discount <= $7)
-			  AND (
-			      ($8::int = 0 AND ($9::bigint[] IS NULL OR cardinality($9::bigint[]) = 0 OR cardinality(institutional_work_ids) = 0 OR institutional_work_ids && $9))
-			      OR
-			      ($8::int = 1 AND ($9::bigint[] IS NOT NULL AND cardinality($9::bigint[]) > 0 AND institutional_work_ids && $9))
-			  )
-			ORDER BY 
-			  CASE 
-			    WHEN $1 = '' THEN 0
-			    WHEN search_simple ILIKE platform.normalize_arabic($1) || '%' THEN 1
-			    WHEN search_en ILIKE $1 || '%' THEN 2
-			    WHEN search_simple ILIKE '%' || platform.normalize_arabic($1) || '%' THEN 3
-			    WHEN search_en ILIKE '%' || $1 || '%' THEN 4
-			    ELSE 5
-			  END,
-			  price_after_discount ASC, updated_at DESC
-			LIMIT $4 OFFSET $5;
-		`
-		limit := params.Limit
-		if limit <= 0 {
-			limit = 50
-		} else if limit > 1000 {
-			limit = 1000
+		if searching {
+			if _, err := tx.Exec(txCtx, trgmThresholdsSQL); err != nil {
+				return fmt.Errorf("catalog postgres: set trigram thresholds: %w", err)
+			}
 		}
 
-		rows, err := tx.Query(txCtx, query,
-			params.Query, params.CategoryID, params.BrandID, limit, params.Offset,
-			params.MinPrice, params.MaxPrice, params.FilterMode, params.AllowedWorkIDs,
-		)
+		rows, err := tx.Query(txCtx, query, args...)
 		if err != nil {
 			return fmt.Errorf("catalog postgres: search product_index: %w", err)
 		}

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -37,7 +38,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							</div>
 
 							if product.Image != "" {
-								<img src={ product.Image } alt={ productTitle(product) } class="max-h-60 max-w-full object-contain my-3" />
+								@components.ProductImage(imageurl.Full(product.Image, productTitle(product), "max-h-60 max-w-full object-contain my-3"))
 							} else {
 								<div class="w-24 h-24 rounded-2xl bg-primary-subtle text-primary flex-center text-3xl mb-3 mt-4">
 									@components.IconPill("icon-lg")

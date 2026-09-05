@@ -5,6 +5,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"net/http"
 	"sync"
+
+	"golang.org/x/sync/singleflight"
 	"time"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
@@ -17,6 +19,9 @@ var (
 	cachedSettings *platformadmin.SiteSettings
 	cachedAt       time.Time
 	cacheMu        sync.RWMutex
+	// siteSettingsGroup collapses concurrent refreshes into one query. See
+	// siteSettingsMiddleware.
+	siteSettingsGroup singleflight.Group
 )
 
 // InvalidateSiteSettingsCache clears the cached settings so next request fetches fresh from DB.
@@ -58,18 +63,48 @@ func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 		}
 		cacheMu.RUnlock()
 
-		var s *platformadmin.SiteSettings
-		if h.adminSvc != nil {
-			s, _ = h.adminSvc.GetSiteSettings(ctx)
-		}
+		// One reader refreshes; the rest wait for its answer.
+		//
+		// Without this, every request in flight at the moment the ten-second
+		// window expired saw the miss and queried independently. That is a
+		// cache stampede, and it is worst exactly when it hurts most: under
+		// load there are more concurrent requests to pile on, so the busier the
+		// platform the more duplicate queries one expiry produced. singleflight
+		// collapses them into a single query whose result they all receive.
+		v, _, _ := siteSettingsGroup.Do("site-settings", func() (any, error) {
+			// Re-check under the group: by the time a queued caller runs this,
+			// the leader may already have refreshed the cache.
+			cacheMu.RLock()
+			if cachedSettings != nil && time.Since(cachedAt) < 10*time.Second {
+				s := cachedSettings
+				cacheMu.RUnlock()
+				return s, nil
+			}
+			cacheMu.RUnlock()
+
+			var s *platformadmin.SiteSettings
+			if h.adminSvc != nil {
+				// Deliberately NOT the request's context. A caller that
+				// disconnects mid-flight would otherwise cancel the query every
+				// other caller is waiting on, turning one abandoned request into
+				// a failure for all of them.
+				s, _ = h.adminSvc.GetSiteSettings(context.WithoutCancel(ctx))
+			}
+			if s == nil {
+				s = DefaultSiteSettings()
+			}
+
+			cacheMu.Lock()
+			cachedSettings = s
+			cachedAt = time.Now()
+			cacheMu.Unlock()
+			return s, nil
+		})
+
+		s, _ := v.(*platformadmin.SiteSettings)
 		if s == nil {
 			s = DefaultSiteSettings()
 		}
-
-		cacheMu.Lock()
-		cachedSettings = s
-		cachedAt = time.Now()
-		cacheMu.Unlock()
 
 		if s != nil && s.SessionIdleTimeoutMinutes > 0 && h.idSvc != nil {
 			h.idSvc.SetIdleTimeout(time.Duration(s.SessionIdleTimeoutMinutes) * time.Minute)

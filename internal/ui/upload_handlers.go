@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/media"
 )
 
 func init() {
@@ -103,7 +104,15 @@ func RegisterUploadRoutes(r chi.Router) {
 	}
 
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		// Immutable, not 24 hours.
+		//
+		// Every filename this application writes is "<category>_<16 random hex
+		// characters><ext>" — see saveUploadedFile. A stored file's content
+		// therefore never changes: replacing an image mints a new name and the
+		// old URL stops being referenced. Telling browsers it might change in a
+		// day made every returning visitor revalidate every product thumbnail
+		// on the page, daily, to be told nothing had changed.
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		w.Header().Set("Accept-Ranges", "bytes")
 		rctx := chi.RouteContext(r.Context())
 		path := rctx.URLParam("*")
@@ -123,8 +132,17 @@ func RegisterUploadRoutes(r chi.Router) {
 			w.Header().Set("Content-Type", "video/quicktime")
 		}
 
-		fullPath := filepath.Join(baseDir, cleanPath)
+		// ?s=thumb|card|full selects a rendition; anything else, or a
+		// rendition that was never produced, serves the original.
+		size := r.URL.Query().Get("s")
+		fullPath := resolveRendition(baseDir, cleanPath, size)
 		if _, err := os.Stat(fullPath); err == nil {
+			// The rendition may be a different type from the original — a WebP
+			// upload derives to JPEG — so the Content-Type set from the request
+			// path above would be wrong. Clear it and let ServeFile sniff.
+			if fullPath != filepath.Join(baseDir, cleanPath) {
+				w.Header().Del("Content-Type")
+			}
 			http.ServeFile(w, r, fullPath)
 			return
 		}
@@ -138,6 +156,67 @@ func RegisterUploadRoutes(r chi.Router) {
 		}
 		http.NotFound(w, r)
 	})
+}
+
+// deriveAndStore writes the scaled renditions of an uploaded image next to the
+// original, named "<base>_<size><ext>".
+//
+// It is best-effort by design. A PDF licence, a spreadsheet or an image in a
+// format we cannot decode simply has no renditions, and that must not fail the
+// upload — the original is still stored and still served, which is exactly what
+// happened for every upload before this existed. Failures are returned so the
+// caller can log them; no caller should treat one as fatal.
+//
+// Note what is NOT here: no image is ever re-encoded in place, and the original
+// is never replaced. Deriving is additive, so an upload that predates this code
+// keeps working and a bad derivation can be deleted and regenerated.
+func deriveAndStore(destDir, uniqueName string, data []byte) error {
+	derivatives, err := media.Derive(data)
+	if err != nil {
+		// Not an image, or one we cannot read. Not an error for the upload.
+		return nil
+	}
+	base := strings.TrimSuffix(uniqueName, filepath.Ext(uniqueName))
+	for _, d := range derivatives {
+		path := filepath.Join(destDir, base+"_"+d.Size.Name+d.Ext)
+		if err := os.WriteFile(path, d.Bytes, 0o644); err != nil {
+			return fmt.Errorf("write %s rendition: %w", d.Size.Name, err)
+		}
+	}
+	return nil
+}
+
+// resolveRendition maps a requested size onto a file on disk.
+//
+// It returns the original's path when the rendition does not exist, so a
+// missing derivative degrades to a correct-but-larger image rather than to a
+// broken one.
+func resolveRendition(baseDir, cleanPath, size string) string {
+	full := filepath.Join(baseDir, cleanPath)
+	if size == "" {
+		return full
+	}
+	known := false
+	for _, s := range media.Sizes {
+		if s.Name == size {
+			known = true
+			break
+		}
+	}
+	if !known {
+		return full
+	}
+	ext := filepath.Ext(cleanPath)
+	base := strings.TrimSuffix(full, ext)
+	// A photograph derives to .jpg and anything with transparency to .png.
+	// Trying both is cheaper than recording which, and self-correcting if the
+	// rule ever changes.
+	for _, candidate := range []string{base + "_" + size + ".jpg", base + "_" + size + ".png"} {
+		if st, err := os.Stat(candidate); err == nil && !st.IsDir() {
+			return candidate
+		}
+	}
+	return full
 }
 
 var allowedUploadCategories = map[string]bool{
@@ -205,10 +284,22 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 	if err != nil {
 		return "", fmt.Errorf("failed to create target file: %w", err)
 	}
-	defer dst.Close()
+	// A safety net for the error paths below. The success path closes dst
+	// explicitly before reading the file back, so this second call returns
+	// os.ErrClosed and is deliberately discarded.
+	defer func() { _ = dst.Close() }()
 
 	if _, err := io.Copy(dst, src); err != nil {
 		return "", fmt.Errorf("failed to save uploaded file: %w", err)
+	}
+	// The file has to be closed before it is read back to derive renditions:
+	// on Windows an open handle blocks the read, and on every platform the
+	// last buffered bytes may not have reached the disk yet.
+	if err := dst.Close(); err != nil {
+		return "", fmt.Errorf("failed to save uploaded file: %w", err)
+	}
+	if data, rErr := os.ReadFile(targetPath); rErr == nil {
+		_ = deriveAndStore(destDir, uniqueName, data)
 	}
 
 	// Return public URL path
@@ -261,11 +352,20 @@ func saveUploadedFileFull(r *http.Request, fieldName, category string) (uploaded
 	if err != nil {
 		return meta, fmt.Errorf("failed to create target file: %w", err)
 	}
-	defer dst.Close()
+	// A safety net for the error paths below. The success path closes dst
+	// explicitly before reading the file back, so this second call returns
+	// os.ErrClosed and is deliberately discarded.
+	defer func() { _ = dst.Close() }()
 
 	written, err := io.Copy(dst, src)
 	if err != nil {
 		return meta, fmt.Errorf("failed to save uploaded file: %w", err)
+	}
+	if err := dst.Close(); err != nil {
+		return meta, fmt.Errorf("failed to save uploaded file: %w", err)
+	}
+	if data, rErr := os.ReadFile(targetPath); rErr == nil {
+		_ = deriveAndStore(destDir, uniqueName, data)
 	}
 
 	meta.URL = fmt.Sprintf("/uploads/%s/%s", category, uniqueName)
@@ -304,6 +404,7 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 	if err := os.WriteFile(targetPath, data, 0644); err != nil {
 		return "", fmt.Errorf("failed to save file: %w", err)
 	}
+	_ = deriveAndStore(targetDir, safeFilename, data)
 
 	return fmt.Sprintf("/uploads/%s/%s", category, safeFilename), nil
 }

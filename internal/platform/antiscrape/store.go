@@ -23,7 +23,36 @@ type store interface {
 	Penalize(ctx context.Context, key string, ttl time.Duration)
 	// Penalized reports whether a key is currently marked.
 	Penalized(ctx context.Context, key string) bool
+	// Meter answers the whole budget question in one call: is this caller
+	// penalised, and what are its two window counters after this request?
+	//
+	// Protect used to ask that as four separate calls — EXISTS on the penalty
+	// key, then INCR and possibly EXPIRE for each of the two windows — and each
+	// was its own network round trip to Redis, in series, on the request path
+	// of the two busiest public pages on the platform. They are one question
+	// about one caller and they are now one round trip.
+	//
+	// A penalised caller short-circuits: the counters are not touched, which is
+	// also what the sequential version did.
+	Meter(ctx context.Context, penaltyKey, burstKey, sustainedKey string,
+		burstWindow, sustainedWindow time.Duration) (penalized bool, burst, sustained int64)
 }
+
+// meterScript is the whole budget decision, evaluated inside Redis.
+//
+// Redis runs a script atomically, so the two counters cannot be incremented by
+// this request and read by another halfway through — which the four-call
+// version could not promise either, but now does not need to.
+var meterScript = redis.NewScript(`
+	if redis.call('EXISTS', KEYS[1]) == 1 then
+		return {1, 0, 0}
+	end
+	local b = redis.call('INCR', KEYS[2])
+	if b == 1 then redis.call('PEXPIRE', KEYS[2], ARGV[1]) end
+	local s = redis.call('INCR', KEYS[3])
+	if s == 1 then redis.call('PEXPIRE', KEYS[3], ARGV[2]) end
+	return {0, b, s}
+`)
 
 // hybridStore prefers Redis and falls back to memory.
 //
@@ -85,6 +114,44 @@ func (s *hybridStore) Penalized(ctx context.Context, key string) bool {
 		return s.mem.Penalized(ctx, key)
 	}
 	return n > 0
+}
+
+// Meter runs the whole decision in one round trip, falling back to the
+// in-process store — call by call, as before — when Redis cannot answer.
+func (s *hybridStore) Meter(
+	ctx context.Context,
+	penaltyKey, burstKey, sustainedKey string,
+	burstWindow, sustainedWindow time.Duration,
+) (bool, int64, int64) {
+	rdb := s.client()
+	if rdb == nil {
+		return s.meterInMemory(ctx, penaltyKey, burstKey, sustainedKey, burstWindow, sustainedWindow)
+	}
+
+	res, err := meterScript.Run(ctx, rdb,
+		[]string{penaltyKey, burstKey, sustainedKey},
+		burstWindow.Milliseconds(), sustainedWindow.Milliseconds(),
+	).Int64Slice()
+	if err != nil || len(res) != 3 {
+		// Redis is unreachable or answered something unexpected. Counting in
+		// memory is a weaker guarantee than counting centrally, and a far
+		// better one than not counting.
+		return s.meterInMemory(ctx, penaltyKey, burstKey, sustainedKey, burstWindow, sustainedWindow)
+	}
+	return res[0] == 1, res[1], res[2]
+}
+
+func (s *hybridStore) meterInMemory(
+	ctx context.Context,
+	penaltyKey, burstKey, sustainedKey string,
+	burstWindow, sustainedWindow time.Duration,
+) (bool, int64, int64) {
+	if s.mem.Penalized(ctx, penaltyKey) {
+		return true, 0, 0
+	}
+	return false,
+		s.mem.Hit(ctx, burstKey, burstWindow),
+		s.mem.Hit(ctx, sustainedKey, sustainedWindow)
 }
 
 // memStore is the in-process fallback.

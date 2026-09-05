@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -99,7 +100,7 @@ templ FavoritesPage(lang, dir string, products []*catalog.Product) {
 								<!-- Media Box -->
 								<div class="product-card-media">
 									if p.Image != "" {
-										<img src={ p.Image } alt={ p.Name["ar"] } class="product-card-img" loading="lazy" />
+										@components.ProductImage(imageurl.Card(p.Image, p.Name["ar"], "product-card-img"))
 									} else {
 										<div class="product-card-placeholder">
 											@components.IconPill("icon-lg")

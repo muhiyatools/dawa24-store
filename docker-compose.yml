@@ -103,7 +103,7 @@ services:
       disable: true
     logging:
       driver: json-file
-      options: { max-size: "10m", max-file: "3" }
+      options: { max-size: "50m", max-file: "5" }
 
   server:
     image: dawa24-store:local
@@ -119,6 +119,23 @@ services:
     environment:
       <<: *app-env
       PORT: "8070"
+      # Go's garbage collector sizes itself against the whole machine unless it
+      # is told otherwise, and this container shares that machine with the
+      # worker and (on a single-VM deployment) with PostgreSQL. Without a
+      # limit, a large import in one process pushed the box into swap and every
+      # OTHER request slowed down with it - which is why the slowness reports
+      # were never confined to the person doing the uploading.
+      #
+      # Set to roughly 75% of the container's memory ceiling below, which is
+      # what leaves the GC room to work before the kernel's OOM killer does it
+      # for us.
+      GOMEMLIMIT: ${SERVER_GOMEMLIMIT:-1500MiB}
+      GOMAXPROCS: ${SERVER_GOMAXPROCS:-2}
+    deploy:
+      resources:
+        limits:
+          memory: ${SERVER_MEMORY_LIMIT:-2G}
+          cpus: "${SERVER_CPU_LIMIT:-2}"
     healthcheck:
       # Liveness only - deliberately dependency-free, so a brief database blip
       # does not restart a healthy container and turn an outage into a crash
@@ -136,7 +153,7 @@ services:
       - uploads:/app/data
     logging:
       driver: json-file
-      options: { max-size: "10m", max-file: "3" }
+      options: { max-size: "50m", max-file: "5" }
 
   worker:
     image: dawa24-store:local
@@ -159,9 +176,20 @@ services:
       WORKER_PROJECTIONS: ${WORKER_PROJECTIONS:-2}
       WORKER_MAINTENANCE: ${WORKER_MAINTENANCE:-1}
       WORKER_SHUTDOWN_TIMEOUT: ${WORKER_SHUTDOWN_TIMEOUT:-60s}
+      # The worker is CPU-bound: parsing a twenty-thousand-row workbook and
+      # matching it against the catalogue is arithmetic, not waiting. Capping it
+      # at one core is deliberate - it is what stops a bulk import from starving
+      # the HTTP server of the CPU it needs to answer everyone else.
+      GOMEMLIMIT: ${WORKER_GOMEMLIMIT:-1000MiB}
+      GOMAXPROCS: ${WORKER_GOMAXPROCS:-1}
+    deploy:
+      resources:
+        limits:
+          memory: ${WORKER_MEMORY_LIMIT:-1500M}
+          cpus: "${WORKER_CPU_LIMIT:-1}"
     logging:
       driver: json-file
-      options: { max-size: "10m", max-file: "3" }
+      options: { max-size: "50m", max-file: "5" }
 
 volumes:
   # Durable store for user uploads. A named volume lives on the host and is

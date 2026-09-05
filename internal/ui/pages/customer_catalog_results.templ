@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -51,7 +52,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 					<!-- Top Visual Media Box -->
 					<div class="product-card-media">
 						if v.ProductImage != "" {
-							<img src={ v.ProductImage } alt={ v.ProductNameAr } class="product-card-img" loading="lazy" />
+							@components.ProductImage(imageurl.Card(v.ProductImage, v.ProductNameAr, "product-card-img"))
 						} else {
 							<div class="product-card-placeholder">
 								@components.IconPill("icon-lg")

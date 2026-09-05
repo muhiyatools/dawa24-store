@@ -6,8 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
@@ -114,15 +112,21 @@ func (r *Resolver) Resolve(ctx context.Context, userID, orgID int64) (Grant, err
 		return Grant{}, fmt.Errorf("rbac: resolve requires a user")
 	}
 
-	platformVer, err := r.version(ctx, PlatformVersionKey)
+	// Both counters in one call. They used to be read one at a time, each in
+	// its own read transaction, so a signed-in user cost EIGHT network round
+	// trips every five seconds just to be told nothing had changed.
+	keys := []string{PlatformVersionKey}
+	if orgID > 0 {
+		keys = append(keys, OrgVersionKey(orgID))
+	}
+	vers, err := r.versionsFor(ctx, keys)
 	if err != nil {
 		return Grant{}, err
 	}
+	platformVer := vers[PlatformVersionKey]
 	var orgVer int64
 	if orgID > 0 {
-		if orgVer, err = r.version(ctx, OrgVersionKey(orgID)); err != nil {
-			return Grant{}, err
-		}
+		orgVer = vers[OrgVersionKey(orgID)]
 	}
 
 	key := fmt.Sprintf("%d:%d", userID, orgID)
@@ -174,32 +178,75 @@ func (r *Resolver) InvalidateAll() {
 	r.mu.Unlock()
 }
 
-func (r *Resolver) version(ctx context.Context, scopeKey string) (int64, error) {
+// versions returns the current counter for each scope key, reading only the
+// ones whose cached copy has expired.
+//
+// Two changes from the per-key version() this replaced, and both are about
+// round trips rather than about correctness.
+//
+// It reads every stale key in ONE query instead of one query per key. Resolve
+// needs two counters — the platform's and the organisation's — and asking for
+// them separately doubled the cost of the check for no benefit; they are two
+// rows of the same three-column table.
+//
+// And it reads them outside a transaction. identity.rbac_version has no
+// row-level security policy (see database.UnscopedTables, and the test that
+// holds that claim to the live schema), so the BEGIN, the set_config and the
+// COMMIT that wrapped this read were three round trips protecting nothing.
+// Together the two changes take the steady-state cost of an authenticated
+// request from eight round trips per five seconds to one.
+func (r *Resolver) versionsFor(ctx context.Context, keys []string) (map[string]int64, error) {
 	now := time.Now()
+	out := make(map[string]int64, len(keys))
+
+	var stale []string
 	r.mu.RLock()
-	v, ok := r.versions[scopeKey]
+	for _, k := range keys {
+		if v, ok := r.versions[k]; ok && now.Sub(v.fetched) < versionTTL {
+			out[k] = v.value
+			continue
+		}
+		stale = append(stale, k)
+	}
 	r.mu.RUnlock()
-	if ok && now.Sub(v.fetched) < versionTTL {
-		return v.value, nil
+
+	if len(stale) == 0 {
+		return out, nil
 	}
 
-	var value int64
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		err := tx.QueryRow(txCtx,
-			`SELECT version FROM identity.rbac_version WHERE scope_key = $1;`, scopeKey).Scan(&value)
-		if err == pgx.ErrNoRows {
-			// A company that has never had a role change has no row. Zero is a
-			// valid version: it changes the moment anything is written.
-			value = 0
-			return nil
-		}
-		return err
-	})
-	if err != nil {
-		return 0, fmt.Errorf("rbac: read version %s: %w", scopeKey, err)
+	// A key with no row has never had a role change. Zero is a valid version —
+	// it moves the moment anything is written — so seed every requested key and
+	// let the query overwrite the ones that exist.
+	for _, k := range stale {
+		out[k] = 0
 	}
+
+	rows, err := r.db.QueryUnscoped(ctx,
+		`SELECT scope_key, version FROM identity.rbac_version WHERE scope_key = ANY($1);`,
+		stale)
+	if err != nil {
+		return nil, fmt.Errorf("rbac: read versions %v: %w", stale, err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			key   string
+			value int64
+		)
+		if err := rows.Scan(&key, &value); err != nil {
+			return nil, fmt.Errorf("rbac: scan version: %w", err)
+		}
+		out[key] = value
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rbac: read versions %v: %w", stale, err)
+	}
+
 	r.mu.Lock()
-	r.versions[scopeKey] = versionEntry{value: value, fetched: now}
+	for _, k := range stale {
+		r.versions[k] = versionEntry{value: out[k], fetched: now}
+	}
 	r.mu.Unlock()
-	return value, nil
+	return out, nil
 }

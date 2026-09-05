@@ -59,34 +59,39 @@ func (r *Repository) CreateUser(ctx context.Context, u *identity.User) error {
 }
 
 // GetUserByID retrieves an active user by primary key.
+// GetUserByID reads one user.
+//
+// Outside a transaction: identity.users carries no row-level security policy
+// (see database.UnscopedTables and the test that checks that against the live
+// schema), so the BEGIN, the set_config and the COMMIT that used to wrap this
+// were three network round trips guarding nothing. It matters here more than
+// almost anywhere else because session validation calls this on EVERY
+// authenticated request — pg_stat_user_tables recorded 42,300 scans of a
+// seventeen-row table — so the saving is three round trips per request.
 func (r *Repository) GetUserByID(ctx context.Context, id int64) (*identity.User, error) {
-	var u identity.User
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT id, public_id, email, password_hash, name, role, status, language, timezone,
-			       phone, COALESCE(avatar_url, ''), email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
-			FROM identity.users
-			WHERE id = $1 AND deleted_at IS NULL;
-		`
-		var statusStr, langStr string
-		err := tx.QueryRow(txCtx, query, id).Scan(
-			&u.ID, &u.PublicID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
-			&statusStr, &langStr, &u.Timezone, &u.Phone, &u.AvatarURL, &u.EmailVerifiedAt,
-			&u.PhoneVerifiedAt, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt,
-		)
-		if err != nil {
-			if database.IsNotFound(err) {
-				return apperr.NotFound("user")
-			}
-			return fmt.Errorf("identity postgres: get user by id: %w", err)
-		}
-		u.Status = identity.UserStatus(statusStr)
-		u.Language = i18n.Lang(langStr)
-		return nil
-	})
+	const query = `
+		SELECT id, public_id, email, password_hash, name, role, status, language, timezone,
+		       phone, COALESCE(avatar_url, ''), email_verified_at, phone_verified_at, created_at, updated_at, deleted_at
+		FROM identity.users
+		WHERE id = $1 AND deleted_at IS NULL;
+	`
+	var (
+		u                  identity.User
+		statusStr, langStr string
+	)
+	err := r.db.QueryRowUnscoped(ctx, query, id).Scan(
+		&u.ID, &u.PublicID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
+		&statusStr, &langStr, &u.Timezone, &u.Phone, &u.AvatarURL, &u.EmailVerifiedAt,
+		&u.PhoneVerifiedAt, &u.CreatedAt, &u.UpdatedAt, &u.DeletedAt,
+	)
 	if err != nil {
-		return nil, err
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("user")
+		}
+		return nil, fmt.Errorf("identity postgres: get user by id: %w", err)
 	}
+	u.Status = identity.UserStatus(statusStr)
+	u.Language = i18n.Lang(langStr)
 	return &u, nil
 }
 

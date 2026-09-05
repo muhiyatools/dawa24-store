@@ -140,6 +140,23 @@ func headersSent(w http.ResponseWriter) bool {
 	return ok && sw.wrote
 }
 
+// isAssetPath reports whether this request is for a static asset or an
+// uploaded file rather than for an application endpoint.
+//
+// Those requests are logged only when they fail. A catalogue page pulls
+// nineteen stylesheets and scripts and up to twenty-four product images, so
+// every page view wrote forty-odd lines that said "200" about a file that has
+// not changed since the last deploy. With Docker's log rotation set to three
+// files of ten megabytes, that is a retention window measured in minutes:
+// the noise was not merely wasteful, it was evicting the lines somebody would
+// actually want during an incident.
+//
+// A non-2xx asset request is still logged. A missing image or a 500 from the
+// upload handler is a real fault and is exactly what this exists to catch.
+func isAssetPath(p string) bool {
+	return strings.HasPrefix(p, "/static/") || strings.HasPrefix(p, "/uploads/")
+}
+
 func Logger(log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -147,6 +164,10 @@ func Logger(log *slog.Logger) func(http.Handler) http.Handler {
 			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
 
 			next.ServeHTTP(sw, r)
+
+			if sw.status < 400 && isAssetPath(r.URL.Path) {
+				return
+			}
 
 			level := slog.LevelInfo
 			switch {
@@ -197,25 +218,34 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		// rewriting the expressions it can no longer evaluate. Until both are
 		// done this policy stops cross-origin script injection but not inline
 		// injection, and saying so here is more useful than implying otherwise.
-		h.Set("Content-Security-Policy", strings.Join([]string{
-			"default-src 'self'",
-			"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-			// Remote images are product and organization media held on object
-			// storage, plus OpenStreetMap tiles.
-			"img-src 'self' data: blob: https:",
-			"font-src 'self' data: https://fonts.gstatic.com",
-			"connect-src 'self' https:",
-			"frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com https://*.openstreetmap.org",
-			"child-src 'self' blob:",
-			"object-src 'none'",
-			"base-uri 'self'",
-			"form-action 'self'",
-			"frame-ancestors 'self'",
-		}, "; "))
+		h.Set("Content-Security-Policy", contentSecurityPolicy)
 		next.ServeHTTP(w, r)
 	})
 }
+
+// contentSecurityPolicy is assembled once at start-up rather than on every
+// request.
+//
+// The join is cheap in isolation and was not in aggregate: it ran for every
+// stylesheet, script and product image as well as every page, so a catalogue
+// page with twenty-four thumbnails rebuilt the same fourteen-element string
+// twenty-five times to produce twenty-five identical results.
+var contentSecurityPolicy = strings.Join([]string{
+	"default-src 'self'",
+	"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+	// Remote images are product and organization media held on object
+	// storage, plus OpenStreetMap tiles.
+	"img-src 'self' data: blob: https:",
+	"font-src 'self' data: https://fonts.gstatic.com",
+	"connect-src 'self' https:",
+	"frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com https://*.openstreetmap.org",
+	"child-src 'self' blob:",
+	"object-src 'none'",
+	"base-uri 'self'",
+	"form-action 'self'",
+	"frame-ancestors 'self'",
+}, "; ")
 
 // Locale resolves the request language and writes it into the context.
 //

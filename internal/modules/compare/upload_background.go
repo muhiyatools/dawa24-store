@@ -58,19 +58,25 @@ type StagedFile struct {
 // status — FileReady or FileFailed — rather than to this caller, who is by then
 // a request that has long since been answered.
 //
-// fileBytes are validated here, synchronously, because a file that is not a
-// spreadsheet at all should be refused while somebody is still looking at the
-// screen that refused it.
+// The payload arrives already scanned, as a filesecurity.Scanned that only the
+// scan can produce.
+//
+// It used to arrive as a plain []byte and be scanned HERE — after the handler
+// had already scanned the identical bytes a few lines earlier. Both calls were
+// real: the handler refuses a bad file before writing it to disk, and this one
+// existed so the service could not be handed something unchecked. Together they
+// cost a full extra parse of every workbook in the batch, in the request, and a
+// twenty-thousand-row file measured 2.3 seconds a pass.
+//
+// Taking the proof rather than the bytes settles it without giving anything up:
+// the scan still cannot be skipped, because a Scanned cannot be built without
+// it, and it can no longer be run twice, because holding one means it is done.
 func (s *Service) RegisterAndStage(
 	ctx context.Context, userID int64, orgID *int64,
 	supplierName, originalFilename, mimeType string,
-	sizeBytes int64, storageKey string, fileBytes []byte,
+	sizeBytes int64, storageKey string, scanned filesecurity.Scanned,
 ) (*StagedFile, error) {
-	if len(fileBytes) > 0 {
-		if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, originalFilename); err != nil {
-			return nil, err
-		}
-	}
+	fileBytes := scanned.Bytes()
 
 	file, archived, err := s.UploadCompareFile(ctx, userID, orgID,
 		supplierName, originalFilename, mimeType, sizeBytes, storageKey)

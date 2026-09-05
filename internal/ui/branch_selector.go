@@ -9,6 +9,10 @@ package ui
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -54,9 +58,86 @@ func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 	})
 }
 
+// branchCacheTTL bounds how stale the selector's option list may be.
+//
+// The list was read from the database on EVERY request a customer made: the
+// selector is shell chrome, so it renders on the catalogue, the cart, every
+// order screen and every htmx fragment within them. pg_stat_user_tables
+// recorded 46,272 sequential scans of org.branches, a table with four rows in
+// it, and each one cost a full read transaction — four network round trips.
+//
+// A branch is created or renamed perhaps a few times in a company's life, and
+// the cost of being thirty seconds late to notice is that a dropdown shows a
+// stale name for half a minute. The cost of not caching it is four round trips
+// on every page view.
+//
+// Thirty seconds rather than a longer window because there is no cross-process
+// invalidation here: the ceiling IS the staleness bound. branchOptionsCache is
+// also cleared directly by the branch write paths in this process, so the
+// person who just renamed a branch sees it immediately.
+const branchCacheTTL = 30 * time.Second
+
+type branchOptionsEntry struct {
+	options []authctx.BranchOption
+	fetched time.Time
+}
+
+var (
+	branchOptionsMu    sync.RWMutex
+	branchOptionsCache = map[string]branchOptionsEntry{}
+)
+
+// InvalidateBranchOptionsCache drops the cached selector list for one
+// organisation. Call it from anything that creates, renames, deactivates or
+// deletes a branch.
+func InvalidateBranchOptionsCache(orgID int64) {
+	branchOptionsMu.Lock()
+	defer branchOptionsMu.Unlock()
+	for k := range branchOptionsCache {
+		if strings.HasPrefix(k, strconv.FormatInt(orgID, 10)+":") {
+			delete(branchOptionsCache, k)
+		}
+	}
+}
+
 // customerBranchOptions lists the actor's active branches for the selector.
 func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) []authctx.BranchOption {
 	lang := langOf(r)
+
+	// Keyed by organisation, language AND the actor's branch binding, because
+	// all three change what the list contains: names are localised, and an
+	// employee bound to one branch sees only that branch.
+	var bound int64
+	if actor.BranchID != nil {
+		bound = *actor.BranchID
+	}
+	key := strconv.FormatInt(actor.OrganizationID, 10) + ":" + lang +
+		":" + strconv.FormatInt(bound, 10) + ":" + strconv.FormatBool(actor.IsOwner)
+
+	branchOptionsMu.RLock()
+	if e, ok := branchOptionsCache[key]; ok && time.Since(e.fetched) < branchCacheTTL {
+		branchOptionsMu.RUnlock()
+		return e.options
+	}
+	branchOptionsMu.RUnlock()
+
+	options := h.loadCustomerBranchOptions(r, actor, lang)
+
+	branchOptionsMu.Lock()
+	// Per-process and otherwise unbounded; a large estate would grow it without
+	// limit. Clearing wholesale past a ceiling costs one re-read per company
+	// and is cheaper than tracking eviction order.
+	if len(branchOptionsCache) > 5000 {
+		branchOptionsCache = map[string]branchOptionsEntry{}
+	}
+	branchOptionsCache[key] = branchOptionsEntry{options: options, fetched: time.Now()}
+	branchOptionsMu.Unlock()
+
+	return options
+}
+
+// loadCustomerBranchOptions is the uncached read.
+func (h *UIHandler) loadCustomerBranchOptions(r *http.Request, actor authctx.Actor, lang string) []authctx.BranchOption {
 	branches, err := h.orgSvc.ListBranches(r.Context(), actor.OrganizationID)
 	if err != nil {
 		return nil

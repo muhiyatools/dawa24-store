@@ -218,6 +218,71 @@ func (db *DB) Pool() *pgxpool.Pool {
 	return db.pool
 }
 
+// UnscopedTables is every table this package will read outside a transaction.
+//
+// A read through QueryUnscoped costs one network round trip. The same read
+// through InReadTx costs four — BEGIN, the set_config that arms row-level
+// security, the query itself, and COMMIT — because the isolation contract at
+// the top of this file requires the GUC to be set inside the transaction that
+// reads. On a database reached over a network that is three round trips of
+// latency bought for nothing, and it is bought on the hottest reads in the
+// platform: the session's user row and the RBAC version counter are read on
+// every authenticated request, and pg_stat_user_tables recorded 225,611
+// sequential scans of org.organizations, a table with three rows in it.
+//
+// None of these tables has a row-level security policy, so there is nothing for
+// the GUC to arm and nothing the transaction protects. That is a fact about the
+// schema rather than a judgement about the query, which is why it is written
+// down as data here and checked against the live catalogue by
+// TestUnscopedTablesHaveNoRLS rather than left to reviewers to remember.
+//
+// Adding a table here is only correct if `\d+` shows no policy on it. Enabling
+// RLS on a table already listed here MUST remove it from this list in the same
+// change; the test fails loudly if it does not.
+var UnscopedTables = map[string]bool{
+	"identity.users":                 true,
+	"identity.roles":                 true,
+	"identity.permissions":           true,
+	"identity.role_permissions":      true,
+	"identity.rbac_version":          true,
+	"org.organizations":              true,
+	"catalog.brands":                 true,
+	"catalog.categories":             true,
+	"platform_admin.cities":          true,
+	"platform_admin.managed_pages":   true,
+	"platform_admin.system_settings": true,
+}
+
+// QueryUnscoped runs a read with no transaction and no tenant GUC.
+//
+// One round trip instead of four. See UnscopedTables for when this is legal:
+// the SQL must touch only tables listed there. A query that reaches a
+// tenant-owned table through this method bypasses nothing — row-level security
+// still applies — but with no organisation set it will return zero rows, which
+// is a silent wrong answer rather than an error. Read the list before using it.
+func (db *DB) QueryUnscoped(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+	pool, err := db.getPool()
+	if err != nil {
+		return nil, err
+	}
+	return pool.Query(ctx, sql, args...)
+}
+
+// QueryRowUnscoped is QueryUnscoped for a single row. The same rules apply.
+func (db *DB) QueryRowUnscoped(ctx context.Context, sql string, args ...any) pgx.Row {
+	pool, err := db.getPool()
+	if err != nil {
+		return errRow{err}
+	}
+	return pool.QueryRow(ctx, sql, args...)
+}
+
+// errRow lets QueryRowUnscoped report a pool that is not connected yet through
+// the pgx.Row it must return, rather than panicking on a nil pool.
+type errRow struct{ err error }
+
+func (r errRow) Scan(...any) error { return r.err }
+
 // InTx runs fn inside a read-write transaction with tenant isolation applied.
 //
 // The transaction commits if fn returns nil and rolls back otherwise, including

@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"bytes"
+	"compress/gzip"
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
@@ -24,6 +26,40 @@ type staticAsset struct {
 	content     []byte
 	etag        string
 	contentType string
+	// gzipped is the same bytes compressed once, at start-up, or nil when
+	// compressing them was not worth it.
+	//
+	// The router's generic Compress middleware re-ran gzip on every response it
+	// had not already sent: 385 KB of stylesheets and 188 KB of script, level 5,
+	// recompressed for every cold visitor to produce a byte-for-byte identical
+	// result each time. These files change only when the binary is rebuilt, so
+	// the work belongs at start-up, where it happens once for the life of the
+	// process.
+	gzipped []byte
+}
+
+// compressibleAsset reports whether gzip is worth storing for this type.
+//
+// Text compresses to roughly a fifth; PNG, WOFF2 and JPEG are already
+// compressed and gzip makes them marginally larger while costing CPU.
+func compressibleAsset(contentType string) bool {
+	switch {
+	case strings.HasPrefix(contentType, "text/"),
+		strings.HasPrefix(contentType, "application/javascript"),
+		strings.HasPrefix(contentType, "application/json"),
+		strings.HasPrefix(contentType, "image/svg+xml"):
+		return true
+	}
+	return false
+}
+
+// acceptsGzip reports whether the caller advertised gzip.
+//
+// A substring test is enough here and a full Accept-Encoding parse is not
+// warranted: the only risk it carries is "gzip;q=0", which no browser sends,
+// and the fallback for a wrong answer is an uncompressed response.
+func acceptsGzip(req *http.Request) bool {
+	return strings.Contains(req.Header.Get("Accept-Encoding"), "gzip")
 }
 
 var (
@@ -73,11 +109,29 @@ func initStaticAssetCache() {
 			relPath = "/" + relPath
 		}
 
-		assetCache[relPath] = &staticAsset{
+		a := &staticAsset{
 			content:     data,
 			etag:        etag,
 			contentType: cType,
 		}
+		// Compress once, now. Level 9 rather than the middleware's 5: this runs
+		// a single time per process, so the slower setting costs nothing per
+		// request and buys a few per cent on every one of them.
+		if compressibleAsset(cType) {
+			var buf bytes.Buffer
+			zw, zErr := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+			if zErr == nil {
+				if _, wErr := zw.Write(data); wErr == nil && zw.Close() == nil {
+					// Keep it only if it actually helped. A tiny file can come
+					// out larger than it went in once the gzip header is added.
+					if buf.Len() < len(data) {
+						a.gzipped = buf.Bytes()
+					}
+				}
+			}
+		}
+
+		assetCache[relPath] = a
 		return nil
 	})
 }
@@ -103,12 +157,22 @@ func AssetURL(path string) string {
 	if !ok {
 		return path
 	}
-	// etag is a quoted hex digest; eight characters distinguish any build.
-	digest := strings.Trim(asset.etag, `"`)
+	return path + "?v=" + assetVersion(asset.etag)
+}
+
+// assetVersion is the short digest AssetURL puts in the ?v= parameter.
+func assetVersion(etag string) string {
+	digest := strings.Trim(etag, `"`)
 	if len(digest) > 8 {
 		digest = digest[:8]
 	}
-	return path + "?v=" + digest
+	return digest
+}
+
+// matchesAssetVersion reports whether the request named the build we hold.
+func matchesAssetVersion(req *http.Request, asset *staticAsset) bool {
+	v := req.URL.Query().Get("v")
+	return v != "" && v == assetVersion(asset.etag)
 }
 
 // RegisterStaticRoutes mounts embedded static assets with in-RAM caching, strong ETags, and 304 Not Modified support.
@@ -127,10 +191,24 @@ func RegisterStaticRoutes(r chi.Router) {
 		w.Header().Set("ETag", asset.etag)
 		w.Header().Set("Vary", "Accept-Encoding")
 
-		// Long-term immutable caching for fonts & vendor assets; 24h with stale-while-revalidate for app assets
-		if strings.Contains(urlPath, "vendor") || strings.Contains(urlPath, "fonts") || strings.HasSuffix(urlPath, ".woff2") {
+		// Immutable when the caller asked for a specific build of this file.
+		//
+		// AssetURL appends ?v=<content hash>, so a request carrying a v that
+		// matches the asset we hold is asking for content that cannot change:
+		// editing the file changes the hash, which changes the URL. Serving
+		// that with max-age=86400 made every returning visitor revalidate all
+		// nineteen stylesheets and scripts once a day to be told nothing had
+		// changed.
+		//
+		// A request with no v — a hand-typed URL, an old bookmark — keeps the
+		// conservative window, because nothing then ties the URL to a build.
+		switch {
+		case matchesAssetVersion(req, asset):
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-		} else {
+		case strings.Contains(urlPath, "vendor"), strings.Contains(urlPath, "fonts"),
+			strings.HasSuffix(urlPath, ".woff2"):
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		default:
 			w.Header().Set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800")
 		}
 
@@ -142,9 +220,18 @@ func RegisterStaticRoutes(r chi.Router) {
 			}
 		}
 
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(asset.content)))
+		body := asset.content
+		if asset.gzipped != nil && acceptsGzip(req) {
+			// Setting Content-Encoding here also stops the router's Compress
+			// middleware from touching the response: it declines to compress a
+			// body that is already encoded. That is the point — without it the
+			// stored copy would be gzipped a second time.
+			w.Header().Set("Content-Encoding", "gzip")
+			body = asset.gzipped
+		}
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(body)))
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(asset.content)
+		_, _ = w.Write(body)
 	})
 
 	r.Get("/robots.txt", func(w http.ResponseWriter, req *http.Request) {

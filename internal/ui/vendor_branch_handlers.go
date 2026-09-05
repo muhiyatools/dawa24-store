@@ -165,6 +165,10 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 			h.redirectWithNotice(w, r, "/vendor/branches", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
+		// The selector's option list is cached per organisation for a few seconds
+		// (see branchCacheTTL); drop it so the person who just made this change
+		// sees it on the next page rather than up to thirty seconds later.
+		InvalidateBranchOptionsCache(actor.OrganizationID)
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", i18n.T(langOf(r), "vendor.branch.create_success"))
@@ -328,6 +332,10 @@ func (h *UIHandler) VendorBranchEditSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/branches/%d/edit", branchID), "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+	// The selector's option list is cached per organisation for a few seconds
+	// (see branchCacheTTL); drop it so the person who just made this change
+	// sees it on the next page rather than up to thirty seconds later.
+	InvalidateBranchOptionsCache(actor.OrganizationID)
 
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", i18n.T(langOf(r), "vendor.branch.update_success"))
 }
@@ -363,5 +371,9 @@ func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Requ
 		h.redirectWithNotice(w, r, "/vendor/branches", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+	// The selector's option list is cached per organisation for a few seconds
+	// (see branchCacheTTL); drop it so the person who just made this change
+	// sees it on the next page rather than up to thirty seconds later.
+	InvalidateBranchOptionsCache(actor.OrganizationID)
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", i18n.T(langOf(r), "customer.branch.delete_success"))
 }

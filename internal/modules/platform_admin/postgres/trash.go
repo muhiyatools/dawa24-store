@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -49,19 +50,55 @@ func (r *Repository) ListSoftDeletableTables(ctx context.Context) ([]*platformad
 			return err
 		}
 
+		if len(models) == 0 {
+			return nil
+		}
+
 		// Counts are real queries. The screen used to display invented numbers
 		// (1240 products, 14200 orders) that no query produced.
-		for _, m := range models {
-			// Identifiers come from information_schema above, never from user
-			// input, so quoting them is safe here.
-			q := fmt.Sprintf(
-				`SELECT COUNT(*), COUNT(*) FILTER (WHERE deleted_at IS NOT NULL) FROM %q.%q`,
-				m.Schema, m.Table)
-			if err := tx.QueryRow(txCtx, q).Scan(&m.TotalCount, &m.TrashedRows); err != nil {
-				return fmt.Errorf("count %s: %w", m.Key, err)
+		//
+		// All of them in ONE statement rather than one statement per table.
+		// This schema has a hundred tables carrying deleted_at, so the loop this
+		// replaces issued a hundred sequential round trips to render a single
+		// admin page — and each one was a full COUNT(*), so the page also read
+		// every row of every table in the database, one table at a time, with a
+		// network round trip between each.
+		//
+		// UNION ALL of a hundred small aggregates is one round trip and lets
+		// PostgreSQL run the counts back to back without waiting for us.
+		// Identifiers come from information_schema above, never from user input,
+		// so quoting them with %q is safe.
+		var b strings.Builder
+		for i, m := range models {
+			if i > 0 {
+				b.WriteString("\nUNION ALL\n")
 			}
+			fmt.Fprintf(&b,
+				`SELECT %d AS idx, COUNT(*) AS total, COUNT(*) FILTER (WHERE deleted_at IS NOT NULL) AS trashed FROM %q.%q`,
+				i, m.Schema, m.Table)
 		}
-		return nil
+
+		countRows, err := tx.Query(txCtx, b.String())
+		if err != nil {
+			return fmt.Errorf("count trash models: %w", err)
+		}
+		defer countRows.Close()
+
+		for countRows.Next() {
+			var idx int
+			var total, trashed int64
+			if err := countRows.Scan(&idx, &total, &trashed); err != nil {
+				return fmt.Errorf("scan trash counts: %w", err)
+			}
+			// Defensive: a UNION ALL has no ordering guarantee, so the row is
+			// placed by the index it carries rather than by arrival order.
+			if idx < 0 || idx >= len(models) {
+				continue
+			}
+			models[idx].TotalCount = total
+			models[idx].TrashedRows = trashed
+		}
+		return countRows.Err()
 	})
 	return models, err
 }

@@ -178,7 +178,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		supplierName string
 		contentType  string
 		size         int64
-		fileBytes    []byte
+		scanned      filesecurity.Scanned
 		localURL     string
 	}
 
@@ -213,7 +213,11 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			continue
 		}
 
-		if err := filesecurity.ValidateSpreadsheetSecurity(fileBytes, header.Filename); err != nil {
+		// Scanned once, here, before a byte of it reaches the disk. The proof
+		// travels with the payload so the staging service cannot scan it again
+		// and cannot forget to.
+		scanned, err := filesecurity.Scan(fileBytes, header.Filename)
+		if err != nil {
 			errorFiles = append(errorFiles, header.Filename+" ("+filesecurity.SecurityErrorMessage+")")
 			continue
 		}
@@ -242,7 +246,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			supplierName: supplierName,
 			contentType:  header.Header.Get("Content-Type"),
 			size:         header.Size,
-			fileBytes:    fileBytes,
+			scanned:      scanned,
 			localURL:     localURL,
 		})
 	}
@@ -285,7 +289,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 					// exempted from the request deadline in the first place.
 					staged, err := h.compareSvc.RegisterAndStage(
 						ctx, actor.UserID, orgPtr, itm.supplierName, itm.filename,
-						itm.contentType, itm.size, itm.localURL, itm.fileBytes,
+						itm.contentType, itm.size, itm.localURL, itm.scanned,
 					)
 					res := fileResult{index: itm.index, err: err}
 					if staged != nil {

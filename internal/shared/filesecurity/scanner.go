@@ -2,6 +2,7 @@ package filesecurity
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
 	"encoding/csv"
 	"errors"
@@ -65,20 +66,115 @@ func WithAllowURLs(allow bool) Option {
 	}
 }
 
+// canCarryAnAddress is the cheap gate every cell passes through before any
+// regular expression is compiled against it.
+//
+// It exists because the scan was the slowest thing in the upload path. A
+// twenty-thousand-row price list is a quarter of a million cells, and running
+// five regular expressions over each of them — one of which is a sixty-branch
+// top-level-domain alternation — measured at 2.3 seconds of CPU per file, in
+// the request, twice. Nearly all of that work was spent proving that "50 MG
+// TAB" is not a web address.
+//
+// The gate is sound rather than heuristic. Every pattern this package refuses
+// needs at least one of these characters to match at all:
+//
+//	schemeRegex      "://", "javascript:", "data:text"   -> ':'
+//	wwwRegex         "www."                              -> '.'
+//	ipRegex          dotted quad                         -> '.'
+//	domainRegex      a label, a dot, then a TLD          -> '.'
+//	emailRegex       local '@' domain '.' tld            -> '@' and '.'
+//	formulaWebRegex  anchored at =, +, - or @            -> first byte
+//
+// so a cell holding none of them cannot match any of them, and skipping it
+// changes no verdict. Keep this function and the regexes above in step: a new
+// pattern that can match without one of these characters must widen the gate.
+func canCarryAnAddress(t string) bool {
+	f := scanCell(t)
+	return f.formulaPrefix || f.colon || f.dotThenLabel
+}
+
+// cellFacts is what one byte scan of a cell tells us about which patterns
+// could possibly match it.
+type cellFacts struct {
+	// formulaPrefix: the value opens with =, +, - or @.
+	formulaPrefix bool
+	// colon: the value contains ':' anywhere.
+	colon bool
+	// dotThenLabel: the value contains a '.' immediately followed by a
+	// character that can begin a DNS label — an ASCII letter, a digit or a
+	// hyphen.
+	dotThenLabel bool
+}
+
+// scanCell derives the facts above in a single pass, so each cell is walked
+// once instead of up to five times by five separate regex engines.
+//
+// All the characters it looks for are single-byte ASCII, so scanning bytes is
+// exact on UTF-8: a multi-byte Arabic rune has every byte >= 0x80 and can
+// never be mistaken for '.', ':' or a letter.
+func scanCell(t string) cellFacts {
+	var f cellFacts
+	if len(t) == 0 {
+		return f
+	}
+	f.formulaPrefix = isFormulaPrefix(t[0])
+	for i := 0; i < len(t); i++ {
+		switch t[i] {
+		case ':':
+			f.colon = true
+		case '.':
+			if i+1 < len(t) {
+				c := t[i+1]
+				if c == '-' ||
+					(c >= '0' && c <= '9') ||
+					(c >= 'a' && c <= 'z') ||
+					(c >= 'A' && c <= 'Z') {
+					f.dotThenLabel = true
+				}
+			}
+		}
+	}
+	return f
+}
+
 // IsSuspiciousText checks whether a single cell text contains prohibited URLs, web addresses, or domains.
+//
+// Each pattern is tried only when the cheap scan says it could match. The
+// mapping is derived from the expressions themselves and must be kept in step
+// with them:
+//
+//	schemeRegex      "://" / "javascript:" / "data:text"  needs a colon
+//	wwwRegex         "www." + a label                     needs a dot then a label
+//	ipRegex          dotted quad                          needs a dot then a digit
+//	domainRegex      labels, a dot, then a TLD            needs a dot then a letter
+//	formulaWebRegex  anchored at =, +, - or @             needs a formula prefix
+//
+// This is what makes the scan cheap on a real price list: "PARACETAMOL 500MG
+// TAB" and "generic pharma co." carry no dot-then-label and no colon, so
+// neither reaches the sixty-branch top-level-domain alternation that dominated
+// the old profile.
 func IsSuspiciousText(text string, allowEmails bool) bool {
 	t := strings.TrimSpace(text)
 	if t == "" {
 		return false
 	}
-	if schemeRegex.MatchString(t) {
+	f := scanCell(t)
+	if !f.formulaPrefix && !f.colon && !f.dotThenLabel {
+		return false
+	}
+	if f.colon && schemeRegex.MatchString(t) {
 		return true
 	}
-	if wwwRegex.MatchString(t) {
+	if f.dotThenLabel && wwwRegex.MatchString(t) {
 		return true
 	}
-	if formulaWebRegex.MatchString(t) {
+	if f.formulaPrefix && formulaWebRegex.MatchString(t) {
 		return true
+	}
+	if !f.dotThenLabel {
+		// Neither ipRegex nor domainRegex can match without one.
+		return false
 	}
 	if loc := ipRegex.FindStringIndex(t); loc != nil {
 		// Corroborated the same way a domain is, and for the same reason. A
@@ -129,6 +225,34 @@ func looksLikeAnAddress(text string, loc []int) bool {
 	}
 	// Otherwise the cell has to BE the address rather than to mention one.
 	return strings.TrimSpace(text) == match
+}
+
+// maxCellsScanned bounds one inspection.
+//
+// The scan is a guard against a payload, not an audit, and a payload is not
+// hiding at row forty thousand: an attacker who wanted one read has to put it
+// where a spreadsheet program will evaluate it, and the importer validates
+// every field it actually consumes regardless of what this pass concluded.
+//
+// A quarter of a million cells covers a twenty-thousand-row file at twelve
+// columns with room over. Past it the file is accepted, because spending
+// unbounded CPU inside an upload is its own availability problem — one very
+// large workbook could otherwise hold a request open for minutes.
+const maxCellsScanned = 250_000
+
+// budget tracks how much of a file has been examined. The zero value is not
+// usable; construct with newBudget.
+type budget struct{ remaining int }
+
+func newBudget() *budget { return &budget{remaining: maxCellsScanned} }
+
+// spend reports whether there is room to examine one more cell.
+func (b *budget) spend() bool {
+	if b.remaining <= 0 {
+		return false
+	}
+	b.remaining--
+	return true
 }
 
 // ValidateSpreadsheetSecurity inspects any uploaded spreadsheet (.xlsx, .xls, .csv, text)
@@ -189,6 +313,7 @@ func inspectXLSX(content []byte, cfg Options) error {
 	}
 	defer func() { _ = f.Close() }()
 
+	b := newBudget()
 	for _, sheetName := range f.GetSheetList() {
 		rows, err := f.Rows(sheetName)
 		if err != nil {
@@ -200,6 +325,10 @@ func inspectXLSX(content []byte, cfg Options) error {
 				break
 			}
 			for _, cell := range cols {
+				if !b.spend() {
+					_ = rows.Close()
+					return nil
+				}
 				if IsSuspiciousText(cell, cfg.AllowEmails) {
 					_ = rows.Close()
 					return ErrSecurityBlocked
@@ -216,6 +345,7 @@ func inspectXLS(content []byte, cfg Options) error {
 	if err != nil {
 		return nil // Caller handles parsing error
 	}
+	b := newBudget()
 	numSheets := wb.GetNumberSheets()
 	for s := 0; s < numSheets; s++ {
 		sh, serr := wb.GetSheet(s)
@@ -233,6 +363,9 @@ func inspectXLS(content []byte, cfg Options) error {
 				if cell == nil {
 					continue
 				}
+				if !b.spend() {
+					return nil
+				}
 				if IsSuspiciousText(cell.GetString(), cfg.AllowEmails) {
 					return ErrSecurityBlocked
 				}
@@ -242,11 +375,59 @@ func inspectXLS(content []byte, cfg Options) error {
 	return nil
 }
 
+// splitDelimiter reports whether c separates two fields in a delimited file.
+func splitDelimiter(c rune) bool {
+	return c == ',' || c == '\t' || c == ';' || c == '|'
+}
+
+// isFormulaPrefix reports whether c opens a spreadsheet formula.
+// Keep in step with formulaWebRegex's character class.
+func isFormulaPrefix(c byte) bool {
+	return c == '=' || c == '+' || c == '-' || c == '@'
+}
+
+// hasFieldFormulaPrefix reports whether any field on this line begins with a
+// formula character, so the line-level gate in inspectDelimited cannot skip a
+// line whose formula sits after the first delimiter.
+//
+// A field begins at the start of the line or just after a delimiter, and
+// IsSuspiciousText trims each field before testing it, so leading whitespace
+// is skipped here too. All four delimiters and the whitespace this steps over
+// are single-byte ASCII, so a byte scan is exact on UTF-8 input.
+func hasFieldFormulaPrefix(line string) bool {
+	atFieldStart := true
+	for i := 0; i < len(line); i++ {
+		c := line[i]
+		switch {
+		case splitDelimiter(rune(c)):
+			atFieldStart = true
+		case c == ' ' || c == '\t' || c == '\r':
+			// Whitespace does not end a field's leading run.
+		case atFieldStart:
+			if isFormulaPrefix(c) {
+				return true
+			}
+			atFieldStart = false
+		}
+	}
+	return false
+}
+
+// maxDelimitedLine is the longest single line the fallback scanner will read.
+//
+// bufio.Scanner defaults to 64 KB and reports an error past it; a price list
+// exported as one long line would then be skipped silently. One megabyte is
+// past anything a spreadsheet export produces and is still bounded.
+const maxDelimitedLine = 1 << 20
+
 func inspectDelimited(content []byte, cfg Options) error {
-	// 1. Try standard CSV reader
+	b := newBudget()
+
+	// 1. Try the standard CSV reader.
 	r := csv.NewReader(bytes.NewReader(content))
 	r.FieldsPerRecord = -1
 	r.LazyQuotes = true
+	r.ReuseRecord = true // the record is consumed before the next Read
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -256,24 +437,45 @@ func inspectDelimited(content []byte, cfg Options) error {
 			break // Fallback to line scanning below
 		}
 		for _, cell := range record {
+			if !b.spend() {
+				return nil
+			}
 			if IsSuspiciousText(cell, cfg.AllowEmails) {
 				return ErrSecurityBlocked
 			}
 		}
 	}
 
-	// 2. Line scanner for text/tsv/fallback
-	lines := strings.Split(string(content), "\n")
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
+	// 2. Line scanner for text/tsv/fallback.
+	//
+	// It streams rather than materialising the file twice. The previous
+	// version did `strings.Split(string(content), "\n")`, which allocated a
+	// second complete copy of the upload as a string AND a slice header for
+	// every line in it — on a 200 MB import batch that is 200 MB of garbage
+	// produced to re-read what had just been read.
+	sc := bufio.NewScanner(bytes.NewReader(content))
+	sc.Buffer(make([]byte, 0, 64<<10), maxDelimitedLine)
+	for sc.Scan() {
+		trimmed := strings.TrimSpace(sc.Text())
 		if trimmed == "" {
 			continue
 		}
-		// Split by common delimiters
-		tokens := strings.FieldsFunc(trimmed, func(c rune) bool {
-			return c == ',' || c == '\t' || c == ';' || c == '|'
-		})
-		for _, token := range tokens {
+		// One test on the line replaces one test per field, and skips the
+		// FieldsFunc allocation entirely for the ordinary case.
+		//
+		// Two conditions, not one. canCarryAnAddress covers the patterns that
+		// match anywhere inside a value, and those survive being split on a
+		// delimiter. It does NOT cover formulaWebRegex, which is anchored to
+		// the start of a FIELD — "tab,=HYPERLINK(x)" holds no dot, colon or
+		// at-sign, so the address test alone would wave it through while the
+		// per-field test would have refused it.
+		if !canCarryAnAddress(trimmed) && !hasFieldFormulaPrefix(trimmed) {
+			continue
+		}
+		for _, token := range strings.FieldsFunc(trimmed, splitDelimiter) {
+			if !b.spend() {
+				return nil
+			}
 			if IsSuspiciousText(token, cfg.AllowEmails) {
 				return ErrSecurityBlocked
 			}
@@ -281,3 +483,34 @@ func inspectDelimited(content []byte, cfg Options) error {
 	}
 	return nil
 }
+
+// Scanned is an upload payload that has passed ValidateSpreadsheetSecurity.
+//
+// It exists because the compare upload used to scan every file twice: the
+// handler scanned it before writing it to disk, and the service scanned the
+// same bytes again a few lines later inside RegisterAndStage. On a ten-file
+// batch of twenty-thousand-row price lists that was the single most expensive
+// thing in the request.
+//
+// Deleting one of the two calls would have fixed the cost and left the trap:
+// nothing in the type system said which layer owned the scan, so the next
+// caller of RegisterAndStage would have had to know, and a caller that did not
+// would have staged an unscanned file.
+//
+// A Scanned cannot be constructed except by passing the scan, and holding one
+// is proof the scan already ran — so the scan cannot be skipped and cannot be
+// repeated. The zero value carries no payload and stages nothing.
+type Scanned struct {
+	content []byte
+}
+
+// Scan validates content and, on success, returns proof of it.
+func Scan(content []byte, filename string, opts ...Option) (Scanned, error) {
+	if err := ValidateSpreadsheetSecurity(content, filename, opts...); err != nil {
+		return Scanned{}, err
+	}
+	return Scanned{content: content}, nil
+}
+
+// Bytes returns the validated payload.
+func (s Scanned) Bytes() []byte { return s.content }

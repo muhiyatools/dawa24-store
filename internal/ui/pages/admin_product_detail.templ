@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 	"net/url"
 
@@ -32,7 +33,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					<div class="d-flex items-start gap-4">
 						<div class="w-20 h-20 rounded-2xl overflow-hidden bg-surface-sunken border flex-center shrink-0">
 							if p.Image != "" {
-								<img src={ p.Image } alt={ p.Name.Get("ar") } class="w-full h-full object-contain p-1" />
+								@components.ProductImage(imageurl.Full(p.Image, p.Name.Get("ar"), "w-full h-full object-contain p-1"))
 							} else {
 								<span class="text-3xl">@components.IconPill("icon-sm")</span>
 							}
@@ -396,7 +397,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 										<!-- 1. الصورة -->
 										<td class="w-12">
 											if item.DisplayImage != "" {
-												<img src={ item.DisplayImage } alt={ v.Name.Get("ar") } class="w-11 h-11 object-contain rounded-md border bg-surface-raised p-0.5" />
+												@components.ProductImage(imageurl.Thumb(item.DisplayImage, v.Name.Get("ar"), "w-11 h-11 object-contain rounded-md border bg-surface-raised p-0.5"))
 											} else {
 												<div class="w-11 h-11 rounded-md bg-surface-sunken flex-center text-muted border">
 													@components.IconPill("icon-xs")

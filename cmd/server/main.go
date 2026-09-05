@@ -22,7 +22,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
-	"github.com/jackc/pgx/v5"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -108,44 +107,21 @@ func run() error {
 		}
 	}()
 
-	// Ensure orphaned variants, warehouses, and offers are linked to real vendor branches
-	go func() {
-		for i := 0; i < 30; i++ {
-			time.Sleep(2000 * time.Millisecond)
-			dbHandle := deps.Handle()
-			if dbHandle != nil && dbHandle.Connected() {
-				_ = dbHandle.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
-					_, _ = tx.Exec(txCtx, `
-						UPDATE catalog.product_variants v
-						SET branch_id = (
-							SELECT b.id FROM org.branches b
-							WHERE b.organization_id = v.organization_id AND b.deleted_at IS NULL
-							ORDER BY b.is_main DESC, b.id ASC LIMIT 1
-						)
-						WHERE v.branch_id IS NULL;
-
-						UPDATE inventory.warehouses w
-						SET branch_id = (
-							SELECT b.id FROM org.branches b
-							WHERE b.organization_id = w.organization_id AND b.deleted_at IS NULL
-							ORDER BY b.is_main DESC, b.id ASC LIMIT 1
-						)
-						WHERE w.branch_id IS NULL;
-
-						UPDATE promo.offers o
-						SET branch_id = (
-							SELECT b.id FROM org.branches b
-							WHERE b.organization_id = o.organization_id AND b.deleted_at IS NULL
-							ORDER BY b.is_main DESC, b.id ASC LIMIT 1
-						)
-						WHERE o.branch_id IS NULL;
-					`)
-					return nil
-				})
-				break
-			}
-		}
-	}()
+	// The orphaned-branch repair that used to run here has moved to a
+	// migration: db/migrations/186_backfill_orphaned_branch_ids.up.sql.
+	//
+	// It was three unbounded UPDATEs over catalog.product_variants,
+	// inventory.warehouses and promo.offers, executed in a goroutine in the
+	// HTTP process, on every single start of every replica, for ever. That is a
+	// one-time data repair wearing the costume of a background task: it did
+	// real work exactly once, then re-scanned three tables to find nothing on
+	// every deploy and every restart thereafter — competing with request
+	// serving to do it, and racing the other replicas starting alongside it.
+	//
+	// A migration runs once, in its own container before the server accepts
+	// traffic, under the advisory lock that already serialises migrations
+	// across replicas. See docker-compose.yml: the `migrate` service must
+	// complete before `server` starts.
 
 	// The admin panel's Gateway identity is provisioned on demand from the
 	// administrator credentials in إعدادات النظام, so an operator never has to

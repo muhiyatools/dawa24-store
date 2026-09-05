@@ -78,7 +78,7 @@ func TestXLSX_RejectsHTTPAndDomains(t *testing.T) {
 
 func TestAllowEmailsOption_ForTeamImport(t *testing.T) {
 	teamCSV := "name,email,phone\nAhmed Ali,ahmed@example.com,01012345678\n"
-	
+
 	// Default mode rejects email as containing domain
 	err := filesecurity.ValidateSpreadsheetSecurity([]byte(teamCSV), "team.csv")
 	assert.ErrorIs(t, err, filesecurity.ErrSecurityBlocked)

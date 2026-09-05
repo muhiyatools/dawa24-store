@@ -1,8 +1,89 @@
-# Dawa24 Store — Performance Audit & Overhaul Plan
+# Dawa24 Store — Performance Audit & Overhaul
 
-**Date:** 2026-09-05
+**Audit:** 2026-09-05 · **Implementation:** 2026-09-06
 **Scope:** `dawa24-store` (Go 1.26 / chi / templ / pgx / River / Redis), production DB `postgres-u74003.vm.elestio.app`
 **Method:** static audit of 1,569 Go files + 261 templ files, live `EXPLAIN ANALYZE` against the production database, live latency measurement, and a CPU benchmark of the upload security scanner.
+
+---
+
+## STATUS — what has shipped
+
+Everything in this section is implemented, builds, and passes the test suite. Every number is measured, not estimated.
+
+| Area | Before | After | Where |
+|---|---|---|---|
+| Catalogue search (`product_index`) | **780 ms**, seq scan | **2.4–19 ms**, BitmapOr over 4 GIN indexes | `catalog/postgres/index.go` |
+| Product search (`products`) | **584 ms**, seq scan | **3.3 ms**, BitmapOr over 8 indexes | `catalog/postgres/repository.go` |
+| Spreadsheet security scan | **2.28 s**, run **twice** | **1.18 s**, run **once** (951 ms of that is the unavoidable parse) | `shared/filesecurity` |
+| Product thumbnails | original served (1 MB+) | **175× smaller** (5.9 KB) | `platform/media` (new) |
+| RBAC check per request | 2 transactions = **8 round trips** / 5 s | 1 unscoped query = **1 round trip** | `platform/rbac/resolver.go` |
+| Session user lookup | 4 round trips/request | **1 round trip** | `identity/postgres/repository.go` |
+| Branch selector | 1 transaction **per customer request** | cached 30 s + explicit invalidation | `ui/branch_selector.go` |
+| Anti-scrape guard | 4 sequential Redis round trips | **1** (Lua script) | `platform/antiscrape` |
+| Admin trash page | **~100 sequential** `COUNT(*)` round trips | **1** (`UNION ALL`) | `platform_admin/postgres/trash.go` |
+| Page-control reload | full table read every **20 s** + a permanently-held pool connection | every **5 min** + a dedicated connection | `platform/pagecontrol/engine.go` |
+| Static assets | gzipped per request; `max-age=86400` | gzipped **once at startup**; `immutable` | `ui/static.go` |
+| Uploaded files | `max-age=86400` | `immutable` (filenames are content-unique) | `ui/upload_handlers.go` |
+| Request logging | one line per asset + image (~40/page) | app endpoints + asset **failures** only | `platform/httpx/middleware.go` |
+| Google Fonts | render-blocking third-party stylesheet | preloaded, non-blocking, `noscript` fallback | `ui/layouts/base.templ` |
+| Boot-time repair | 3 unbounded `UPDATE`s in the **web process, every start** | migration 186, runs once | `cmd/server/main.go` |
+| Runtime limits | none | `GOMEMLIMIT` / `GOMAXPROCS` / cgroup caps | `docker-compose.yml` |
+
+**Proof the search rewrite worked.** `idx_product_index_search_vector` is 8.8 MB of GIN index that had recorded **zero scans since the day it was created**. After the rewrite, on the live database:
+
+```
+idx_product_index_search_simple_trgm   77
+products_name_ar_trgm_idx              67
+idx_product_index_search_vector        25   <-- was 0, forever
+idx_products_name_en_trgm              25
+idx_product_index_search_text_trgm     23
+idx_products_scientific_trgm           21
+idx_products_manufacturer_trgm         20
+idx_products_name_ar_devowel_trgm      20
+```
+
+**Migrations applied to production:** 185 (search/listing indexes, 329 ms) and 186 (orphaned-branch backfill moved out of `main()`, 256 ms).
+
+**New packages, all pure Go with no cgo** — they build and behave identically on macOS, Linux and Windows, and the Docker build keeps `CGO_ENABLED=0`:
+
+- `internal/platform/media` — image derivatives (`golang.org/x/image` + stdlib codecs). 6 tests including a correctly-CRC'd decompression bomb.
+- `internal/ui/imageurl` — rendition selection for templates. 8 tests, including one that asserts the slot names still match `media.Sizes`.
+- `internal/ui/components/ProductImage` — one `<img>` component with `srcset`, `width`, `height`, `loading` and `decoding`. 9 call sites converted.
+
+**Test suite:** all `./internal/...` and `./cmd/...` tests pass. Three failures remain in `./test/`, all pre-existing and verified against a clean baseline: `TestTenantGatesUseTenantScopedPermissions`, `TestEverySidebarPermissionGatesARoute`, and `TestDeadcodeRatchet` (**326 both before and after** — this work added zero dead code; the ceiling of 303 was already exceeded).
+
+---
+
+## What was deliberately NOT done, and why
+
+**Splitting the JavaScript bundle (§E2).** I built it, then reverted it. The seven page-specific scripts (~67 KB) cannot be lazy-loaded as they stand:
+
+- `combobox.js` and `ads-wizard.js` are Alpine `x-data` roots — the expression is generated in Go (`comboboxState`, `vendor_ads_models.go`), so a literal grep for `x-data="dawaCombobox` finds nothing and the dependency is invisible. Loading them after Alpine boots breaks every combobox and the ads wizard.
+- `import-progress.js` and `upload-progress.js` are consumed by inline page scripts that run on `DOMContentLoaded`. Deferred scripts execute *before* that event; a dynamically injected one resolves *after* it. The pages already guard with `if (typeof window.ImportProgress !== 'function')` and **silently do nothing** — and `internal/ui/pages/progress_bootstrap_test.go` exists specifically because this has bitten before.
+
+The correct fix is a per-page `extraJS` parameter on `layouts.Base`, mirroring the existing `extraCSS`. That is a wide change across page handlers whose failure mode is silent, and it needs a browser to verify. It should be done deliberately, not blind.
+
+**Moving imports onto the River queue (§C4).** The eleven `go func()` sites are the right call architecturally and the plan below still stands, but it is a multi-day change touching every import tool, and the `openStoredUpload` path bug (§C4) must be fixed first or the worker reads from the wrong directory. Not safe to rush.
+
+**Splitting `components.css` (238 KB) and adding a minifier (§E).** Mechanical but wide; the pre-compression and immutable caching already landed, which removes the per-request CPU and the daily revalidation.
+
+**Database server tuning (§A5).** `shared_buffers` is still the 128 MB default and `pg_stat_statements` is still absent. Both need a Postgres restart on the Elestio panel — an operator action, not a code change. **Do these; they are the cheapest remaining wins on this list.**
+
+**§B1, the 4-round-trip transaction.** Partly addressed: reads against the eleven tables with no RLS policy now cost one round trip instead of four. The general `BEGIN`+`set_config` batching for tenant-scoped reads is still open, and **its value depends entirely on the colocation check below.**
+
+---
+
+## Do this first, before anything else on this list
+
+Run this **on the Elestio app VM**, not from a laptop:
+
+```bash
+docker compose exec server sh -c 'apk add --no-cache postgresql-client 2>/dev/null || apt-get install -y postgresql-client >/dev/null 2>&1; psql "$DATABASE_URL" -c "\timing" -c "SELECT 1" -c "SELECT 1" -c "SELECT 1"'
+```
+
+From my machine the round trip to `postgres-u74003.vm.elestio.app` measured **63 ms**, making one wrapped read **252 ms**. If the app container sees < 1 ms, the transaction overhead is a few milliseconds and §B1 is a low priority. If it sees > 5 ms, the DSN is crossing the public internet and **that single fact outweighs everything else in this document** — check whether Elestio exposes a private address for the Postgres service and switch the DSN to it.
+
+---
 
 Everything marked **MEASURED** below is a number I produced in this audit. Everything marked **INFERRED** is a conclusion from reading code that I could not measure without production access. Everything marked **VERIFY** is something you must check on the production host before acting — I flag them rather than guess.
 

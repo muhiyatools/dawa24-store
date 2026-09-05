@@ -1,7 +1,6 @@
 package antiscrape
 
 import (
-	"context"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -124,11 +123,10 @@ func (g *Guard) Protect(next http.Handler) http.Handler {
 		ctx := r.Context()
 		id, authenticated := g.identify(r)
 
-		if g.store.Penalized(ctx, g.prefix+"penalty:"+id) {
-			g.refuse(w, r, reasonPenalty, ClassUnknown)
-			return
-		}
-
+		// Classification is a handful of string comparisons on the User-Agent
+		// and costs nothing, so it happens before the one network call rather
+		// than after it: an automated caller that is signed out is refused
+		// without touching Redis at all.
 		class := Classify(r)
 		if class == ClassAutomation && !authenticated {
 			g.refuse(w, r, reasonAutomation, class)
@@ -141,8 +139,19 @@ func (g *Guard) Protect(next http.Handler) http.Handler {
 			b.sustained *= authenticatedFactor
 		}
 
-		if !g.within(ctx, id, "burst", burstWindow, b.burst) ||
-			!g.within(ctx, id, "sustained", sustainedWindow, b.sustained) {
+		// One round trip for the penalty check and both counters. See
+		// store.Meter — this was four sequential calls to Redis.
+		penalized, burst, sustained := g.store.Meter(ctx,
+			g.prefix+"penalty:"+id,
+			g.prefix+"rl:burst:"+id,
+			g.prefix+"rl:sustained:"+id,
+			burstWindow, sustainedWindow,
+		)
+		if penalized {
+			g.refuse(w, r, reasonPenalty, ClassUnknown)
+			return
+		}
+		if exceeds(burst, b.burst) || exceeds(sustained, b.sustained) {
 			g.refuse(w, r, reasonBudget, class)
 			return
 		}
@@ -169,13 +178,10 @@ func (g *Guard) Penalize(r *http.Request, reason string) {
 	)
 }
 
-// within reports whether one more request fits in the caller's allowance.
-func (g *Guard) within(ctx context.Context, id, window string, d time.Duration, limit int) bool {
-	if limit <= 0 {
-		return true
-	}
-	key := g.prefix + "rl:" + window + ":" + id
-	return g.store.Hit(ctx, key, d) <= int64(limit)
+// exceeds reports whether a counter has passed its allowance. A limit of zero
+// or less means no ceiling, which is how a class opts out of metering.
+func exceeds(count int64, limit int) bool {
+	return limit > 0 && count > int64(limit)
 }
 
 // identify returns the counting key for a caller and whether it is signed in.

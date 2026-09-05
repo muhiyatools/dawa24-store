@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
@@ -29,7 +31,18 @@ type Engine struct {
 }
 
 const (
-	reloadInterval = 20 * time.Second
+	// reloadInterval is the safety net behind LISTEN/NOTIFY, not the primary
+	// propagation path.
+	//
+	// It was twenty seconds, which meant a full read of platform_admin.managed_pages
+	// three times a minute in every process for the life of the deployment —
+	// pg_stat_user_tables recorded 21,856 sequential scans of that table
+	// totalling 12.1 million rows read. The NOTIFY below already propagates a
+	// change in milliseconds; this only has to cover a dropped listen
+	// connection or a missed notification, and five minutes is a generous
+	// ceiling for how long a page may stay enabled after an operator disabled
+	// it in the one case where the notification never arrived.
+	reloadInterval = 5 * time.Minute
 	channelName    = "pagecontrol_changed"
 )
 
@@ -173,6 +186,19 @@ func (e *Engine) refreshLoop(db *database.DB) {
 
 // listen waits on Postgres NOTIFY and nudges the loop. Any failure falls back to
 // the timer; it retries the listen after a short pause.
+//
+// The connection is dialled directly rather than taken from the pool.
+//
+// A LISTEN has to hold its connection for as long as it wants to hear anything,
+// so acquiring one from the pool removed it from circulation permanently. With
+// DB_MAX_CONNS at its default of twenty that is five per cent of the pool spent
+// on a listener that transmits a handful of bytes a day — and it is worse than
+// the arithmetic suggests, because the connection is gone from the moment the
+// process starts, so the pool's effective ceiling under load is nineteen while
+// its configuration says twenty.
+//
+// A listener is not pool-shaped work. It is one long-lived connection with one
+// job, which is what pgx.ConnectConfig gives us.
 func (e *Engine) listen(ctx context.Context, db *database.DB, out chan<- struct{}) {
 	if db == nil {
 		return
@@ -184,18 +210,33 @@ func (e *Engine) listen(ctx context.Context, db *database.DB, out chan<- struct{
 				time.Sleep(5 * time.Second)
 				return
 			}
-			conn, err := pool.Acquire(ctx)
+			// The pool's config carries the credentials, the TLS settings and
+			// the runtime parameters this connection needs; copying it keeps
+			// the listener configured identically to every other connection
+			// without repeating any of it here.
+			cfg := pool.Config().ConnConfig.Copy()
+			conn, err := pgx.ConnectConfig(ctx, cfg)
 			if err != nil {
 				time.Sleep(5 * time.Second)
 				return
 			}
-			defer conn.Release()
+			defer func() {
+				// A detached context: the connection must still be closed when
+				// the process is shutting down and ctx is already cancelled.
+				closeCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+				defer cancel()
+				_ = conn.Close(closeCtx)
+			}()
+
 			if _, err := conn.Exec(ctx, "LISTEN "+channelName); err != nil {
 				time.Sleep(5 * time.Second)
 				return
 			}
 			for {
-				if _, err := conn.Conn().WaitForNotification(ctx); err != nil {
+				if _, err := conn.WaitForNotification(ctx); err != nil {
+					if ctx.Err() != nil {
+						return
+					}
 					time.Sleep(2 * time.Second)
 					return
 				}
@@ -205,5 +246,8 @@ func (e *Engine) listen(ctx context.Context, db *database.DB, out chan<- struct{
 				}
 			}
 		}()
+		if ctx.Err() != nil {
+			return
+		}
 	}
 }

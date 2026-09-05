@@ -19,7 +19,7 @@ func (r *Repository) AssignBranchInstitutionalWorks(ctx context.Context, branchI
 			if wID > 0 {
 				if _, err := tx.Exec(txCtx, `
 					INSERT INTO org.branch_institutional_works (branch_id, institutional_work_id, work_category)
-					VALUES ($1, $2, $2::text)
+					VALUES ($1, $2::bigint, $2::bigint::text)
 					ON CONFLICT (branch_id, work_category) DO UPDATE SET institutional_work_id = EXCLUDED.institutional_work_id;
 				`, branchID, wID); err != nil {
 					return err

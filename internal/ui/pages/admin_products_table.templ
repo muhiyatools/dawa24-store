@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
@@ -30,7 +31,7 @@ templ AdminProductsTable(products []*catalog.Product, brands []*catalog.Brand, c
 						<td class="text-center align-middle">
 							<div class="product-thumb-box mx-auto">
 								if p.Image != "" {
-									<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } loading="lazy" class="product-thumb-img" />
+									@components.ProductImage(imageurl.Thumb(p.Image, p.Name.Get(i18n.Lang(lang)), "product-thumb-img"))
 								} else {
 									<span class="text-muted">@components.IconPill("icon-xs")</span>
 								}

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/imageurl"
 	"fmt"
 	"net/url"
 	"strings"
@@ -164,7 +165,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 										<td class="text-center">
 											<div class="user-avatar-badge text-sm">
 												if item.Brand.Image != "" {
-													<img src={ item.Brand.Image } alt={ item.Brand.Name.Get("ar") } />
+													@components.ProductImage(imageurl.Thumb(item.Brand.Image, item.Brand.Name.Get("ar"), ""))
 												} else {
 													@components.IconTag("icon-xs")
 												}
