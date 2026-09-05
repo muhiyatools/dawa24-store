@@ -211,8 +211,12 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 							fill: shim, percent: label, label: caption,
 							onDone: function () { window.location.reload(); },
 						});
-						const pollTarget = window.location.pathname.replace(/\/+$/, '') + '.json';
-						bar.poll(pollTarget, 500);
+						const base = window.location.pathname.replace(/\/+$/, '');
+						// Live, not polled twice a second. The stream is written
+						// to when a stage moves; the .json poll beside it is the
+						// fallback the shared bar takes by itself when the
+						// stream cannot be established.
+						bar.follow(base + '/stream', base + '.json', 1000);
 					})();
 				</script>
 			}

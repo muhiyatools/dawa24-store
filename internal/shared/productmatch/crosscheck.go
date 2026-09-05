@@ -285,12 +285,6 @@ func CheckOrdering(m *Mapping, grid NumericGrid) []Conflict {
 	return out
 }
 
-// CheckMissing reports the fields the import depends on that nothing supplied.
-//
-// A price list imported without a price is the failure this whole stage exists
-// to prevent, and it is silent unless something says so out loud.
-func CheckMissing(m *Mapping) []Conflict { return CheckMissingWith(m, nil) }
-
 // CheckMissingWith reports only the absences that matter to this importer.
 //
 // A pharmacy's shopping list has no price column and never will; telling the

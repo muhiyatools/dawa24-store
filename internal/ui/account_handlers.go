@@ -46,7 +46,7 @@ func (h *UIHandler) WalletDepositEditSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	_ = r.ParseMultipartForm(MaxUploadBytes)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 	amountStr := r.PostFormValue("amount")
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.IsZero() || amt.IsNegative() {

@@ -25,7 +25,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
-	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.read_error"))
 		return
 	}
@@ -191,7 +191,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 func (h *UIHandler) VendorSavingProductsPreviewColumnsJSON(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: i18n.T(langOf(r), "customer.saving.import.file_too_large")})
 		return
 	}

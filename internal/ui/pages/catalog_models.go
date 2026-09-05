@@ -191,4 +191,3 @@ func ActiveBranchName(buying authctx.BuyingBranch) string {
 	}
 	return "الفرع المعتمد"
 }
-

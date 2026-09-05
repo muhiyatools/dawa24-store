@@ -57,7 +57,7 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", i18n.T(lang, "admin.image_import.file_too_large"))
 		return
 	}

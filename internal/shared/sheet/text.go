@@ -35,6 +35,17 @@ var arabicLetterFolds = map[rune]rune{
 	'چ': 'ج', // چ -> ج
 	'گ': 'ج', // گ -> ج
 	'پ': 'ب', // پ -> ب
+	// The Persian/Urdu letter forms, which arrive from files typed on a
+	// non-Arabic keyboard layout and from PDFs converted to spreadsheets. They
+	// sit OUTSIDE the ء..ي range this function keeps, so before they were
+	// folded they were dropped entirely — and a dropped letter does not merely
+	// weaken a word, it splits it: "کيتوفان" became "يتوفان" with a word break
+	// where the letter had been, and matched nothing.
+	'ک': 'ك', // Persian kaf
+	'ی': 'ي', // Persian yeh
+	'ې': 'ي',
+	'ۀ': 'ه',
+	'ں': 'ن',
 }
 
 // isMark reports whether r is a diacritic, a tatweel, or an invisible control

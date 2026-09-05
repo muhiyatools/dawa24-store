@@ -31,6 +31,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -108,6 +109,11 @@ type UIHandler struct {
 	importRunRepo       importrun.Repository
 	importStageEnqueue  ImportStageEnqueueFunc
 	importCommitEnqueue ImportCommitEnqueueFunc
+	// progressHub fans an import's live progress out to the screens watching
+	// it. Nil is allowed and means the stream endpoint reports itself
+	// unavailable, which the browser handles by polling — the behaviour every
+	// bar had before the stream existed.
+	progressHub *progress.Hub
 }
 
 // ImportStageEnqueueFunc hands a prepared import run to the background worker.
@@ -241,6 +247,7 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Get("/components/capsule-assistant", h.CapsuleAssistantPanel)
 	r.Get("/org/switch/{id}", h.OrgSwitchSubmit)
 	r.Get("/imports/{id}/progress", h.ImportProgressJSON)
+	r.Get("/imports/{id}/stream", h.ImportProgressStream)
 
 	// Settings (Approved only)
 	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))

@@ -240,7 +240,7 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		if perr := r.ParseForm(); perr != nil {
 			h.redirectWithNotice(w, r, "/vendor/offers/new", "error", i18n.T(lang, "common.invalid_form_data"))
 			return
@@ -304,7 +304,7 @@ func (h *UIHandler) VendorOfferEditSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		if perr := r.ParseForm(); perr != nil {
 			h.redirectWithNotice(w, r, "/vendor/offers", "error", i18n.T(lang, "common.invalid_form_data"))
 			return

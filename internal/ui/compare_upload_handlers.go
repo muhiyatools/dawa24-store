@@ -105,7 +105,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 128 MB max memory for multi-file batch uploads
-	if err := r.ParseMultipartForm(128 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.upload.read_failed"))
 		return
 	}
@@ -135,6 +135,19 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	// A batch larger than the plan allows takes what fits rather than refusing.
+	//
+	// It used to refuse the whole thing: a pharmacy that dragged twelve files in
+	// with room for eight got an error and eight empty slots, and had to work
+	// out for themselves which four to remove and drop the rest again. The files
+	// are already uploaded by the time anyone can count them, so throwing all
+	// twelve away to punish four is the one outcome that helps nobody.
+	//
+	// Now the first `remaining` files are accepted and the rest are named in a
+	// warning, in the same list every other rejected file appears in — so the
+	// result reads "these went in, these did not, and here is why" instead of
+	// "no".
+	var quotaSkipped []string
 	if maxAllowedFiles > 0 {
 		activeFiles, err := h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 		if err == nil {
@@ -144,14 +157,17 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 					activeCount++
 				}
 			}
-			if activeCount >= maxAllowedFiles {
+			remaining := maxAllowedFiles - activeCount
+			if remaining <= 0 {
 				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_exceeded"), maxAllowedFiles))
 				return
 			}
-			if activeCount+len(fileHeaders) > maxAllowedFiles {
-				remaining := maxAllowedFiles - activeCount
-				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_overflow"), len(fileHeaders), remaining, maxAllowedFiles))
-				return
+			if len(fileHeaders) > remaining {
+				for _, skipped := range fileHeaders[remaining:] {
+					quotaSkipped = append(quotaSkipped,
+						skipped.Filename+" ("+fmt.Sprintf(i18n.T(lang, "compare.upload.quota_skipped"), maxAllowedFiles)+")")
+				}
+				fileHeaders = fileHeaders[:remaining]
 			}
 		}
 	}
@@ -176,7 +192,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 
 	// 1. Read and validate all uploaded file payloads into memory/disk
 	var validItems []fileItem
-	var errorFiles []string
+	errorFiles := quotaSkipped
 
 	for idx, header := range fileHeaders {
 		if !SupportedUploadName(header.Filename) {

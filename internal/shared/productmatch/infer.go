@@ -69,8 +69,28 @@ const DefaultDosageForm = "مستحضر صيدلاني"
 // The alternation is longest-first: Go's regexp prefers the leftmost-first
 // branch, so "مج" listed before "مجم" would match the first two letters of
 // "مجم" and leave a stray "م" behind.
+//
+// Two units were missing from it while being present in doseUnits, which is
+// worse than either being absent from both:
+//
+//   - "ملجم" is the commonest Arabic spelling of a milligram in supplier files.
+//     Absent from the alternation, it matched its first two letters as "مل" and
+//     the engine read "اتاكاند بلس 32/25 ملجم" as thirty-two MILLILITRES. A
+//     strength recorded in the wrong dimension cannot contradict anything: it
+//     compares against bottle sizes and is invisible to every real dose.
+//   - "لتر" was simply not readable, so "1 لتر" stated no strength at all.
+//
+// The list is kept in step with doseUnits deliberately: a unit in one and not
+// the other is silently wrong rather than loudly missing.
+//
+// The numeric head repeats (`*`, not `?`) so that a whole combination reaches
+// strengthSet in one piece. With `?` the pattern could hold two figures at
+// most, and "املوسازايد 5/12.5/40مجم" matched from the middle — the engine read
+// a three-component combination as a single figure and could not tell it from
+// its 5/12.5/20 sibling. Every figure of the ratio is expanded by
+// numericComponents; nothing here decides what they mean.
 var strengthPattern = regexp.MustCompile(
-	`(?i)(\d+(?:[./]\d+)?\s*(?:ملجرام|مليجرام|مجم|مكجم|محم|جرام|مج|مغ|جم|مللي|ملي|مل|وحدة|وحده|mg|mcg|gm|g|ml|l|iu|%|spf[+\d]*))`)
+	`(?i)(\d+(?:[./]\d+)*\s*(?:مليجرام|ملجرام|جرام|مكجم|ملجم|مللي|وحدة|وحده|مجم|محم|ملي|لتر|مج|مغ|جم|مل|mcg|spf[+\d]*|mg|gm|ml|iu|%|g|l))`)
 
 // InferDosageForm reads the pharmaceutical form out of a product name.
 func InferDosageForm(name string) string {
@@ -94,7 +114,7 @@ func InferConcentration(name string) string {
 	if name == "" {
 		return ""
 	}
-	if m := strengthPattern.FindString(sheet.NormalizeDigits(name)); m != "" {
+	if m := strengthPattern.FindString(FoldDoseText(sheet.NormalizeDigits(name))); m != "" {
 		return sheet.CleanCell(m)
 	}
 	return ""

@@ -496,7 +496,7 @@ templ importProgressCard(view ImportReviewView) {
 					count:   document.getElementById('import-progress-count'),
 					onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
 				});
-				bar.poll('/admin/products/import/' + sessionID + '/progress', 1500);
+				bar.follow('/admin/products/import/' + sessionID + '/stream', '/admin/products/import/' + sessionID + '/progress', 1500);
 			})();
 		</script>
 	</div>

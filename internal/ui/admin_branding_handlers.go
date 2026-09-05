@@ -76,7 +76,7 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 		curr = &platformadmin.SiteSettings{}
 	}
 
-	_ = r.ParseMultipartForm(10 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	logoURL := strings.TrimSpace(r.FormValue("logo_url"))
 	faviconURL := strings.TrimSpace(r.FormValue("favicon_url"))

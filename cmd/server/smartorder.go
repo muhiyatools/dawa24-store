@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui"
@@ -35,19 +36,22 @@ func wireSmartOrder(
 	wfCoverage *workflow.CoverageService,
 	commSvc *commerce.Service,
 	ai gateway.Client,
+	publisher *progress.Publisher,
 	log *slog.Logger,
 ) *smartorder.Service {
 	if db == nil || uiHandler == nil {
 		return nil
 	}
 
-	repo := smartorderPG.New(db)
+	// Decorated so every event and status change announces itself. The buyer's
+	// screen used to ask for the number twice a second for the whole run.
+	repo := smartorder.WithProgressNotifications(smartorderPG.New(db), publisher)
 	svc := smartorder.NewService(repo, log)
 
 	// Process in this process. The River worker stays registered for
 	// deployments that run it, and the two cannot collide: the runner only
 	// claims a run that is still `queued`. See smartorder_runner.go.
-	uiHandler.SetSmartOrder(svc, inlineSmartOrderRunner(db, orgSvc, ai, log))
+	uiHandler.SetSmartOrder(svc, inlineSmartOrderRunner(db, orgSvc, ai, publisher, log))
 
 	if commSvc != nil {
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(

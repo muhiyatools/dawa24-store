@@ -27,7 +27,7 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_ = r.ParseMultipartForm(10 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	name := r.PostFormValue("name")
 	nameAr := r.PostFormValue("name_ar")

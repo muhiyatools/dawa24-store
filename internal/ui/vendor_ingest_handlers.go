@@ -103,7 +103,7 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxImportUpload)
-	if err := r.ParseMultipartForm(8 << 20); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest", "error",
 			i18n.T(langOf(r), "vendor.ingest.file_too_large"))
 		return

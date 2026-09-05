@@ -10,24 +10,28 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/riverqueue/river"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
+	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	comparePostgres "github.com/muhiya/dawa24-store/internal/modules/compare/postgres"
 	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
+	"github.com/muhiya/dawa24-store/internal/platform/cache"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/importjobs"
+	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	importrunPostgres "github.com/muhiya/dawa24-store/internal/platform/importrun/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 )
 
@@ -50,10 +54,23 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	db, err := database.Open(ctx, cfg.Database)
+	// The worker gets its own statement ceiling.
+	//
+	// statement_timeout is a RuntimeParam on every connection in the pool, and
+	// this process opens its pool from the same Database config the web process
+	// does — so the web's thirty-second ceiling silently became the ceiling on
+	// every statement inside a background import too, however long River's
+	// JobTimeout was. A bulk write of a large catalogue was cancelled by
+	// Postgres mid-job.
+	workerDB := cfg.Database
+	if workerDB.WorkerStatementTimeout > 0 {
+		workerDB.StatementTimeout = workerDB.WorkerStatementTimeout
+	}
+	db, err := database.Open(ctx, workerDB)
 	if err != nil {
 		return err
 	}
+	log.Info("worker database ready", "statement_timeout", workerDB.StatementTimeout)
 	defer db.Close()
 
 	workers := river.NewWorkers()
@@ -85,7 +102,25 @@ func run() error {
 	// file; commit persists the reviewed rows into their destination tables.
 	// Both run from the "imports" queue, which cfg.Worker.Queues already
 	// provisions with 2 workers.
-	importRunRepo := importrunPostgres.New(db)
+	// Live progress out of the worker.
+	//
+	// An import runs here and the person watching it is on the web process, so
+	// without a channel between them every bar in the product falls back to
+	// asking the database twice a second. Redis is that channel; when it is not
+	// reachable the worker simply does not announce, the browser keeps polling,
+	// and nothing breaks — which is the same trade the cache makes everywhere
+	// else on this platform.
+	var progressRedis *redis.Client
+	if progressCache, cacheErr := cache.Open(ctx, cfg.Redis, cfg.Env); cacheErr == nil {
+		defer func() { _ = progressCache.Close() }()
+		progressRedis = progressCache.Redis()
+	} else {
+		log.Warn("progress channel unavailable; import bars will poll", "error", cacheErr)
+	}
+	importRunRepo := importrun.WithProgress(
+		importrunPostgres.New(db),
+		progress.NewPublisher(progressRedis, progress.NewHub(), log),
+	)
 	catRepo := catalogPostgres.NewRepository(db)
 	catSvcWorker := catalog.NewService(catRepo, log)
 	river.AddWorker(workers, importjobs.NewStageWorker(db, importRunRepo, catSvcWorker, log))

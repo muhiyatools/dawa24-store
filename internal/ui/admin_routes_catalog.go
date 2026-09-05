@@ -76,6 +76,7 @@ func (h *UIHandler) registerAdminImportRoutes(r chi.Router) {
 		g.Get("/admin/products/import/{id}", h.AdminProductsImportReviewPage)
 		g.Get("/admin/products/import/{id}/mapping", h.AdminProductsImportMappingPage)
 		g.Get("/admin/products/import/{id}/progress", h.AdminProductsImportProgress)
+		g.Get("/admin/products/import/{id}/stream", h.AdminProductsImportProgressStream)
 		g.Get("/admin/import", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/products/import", http.StatusMovedPermanently)
 		})

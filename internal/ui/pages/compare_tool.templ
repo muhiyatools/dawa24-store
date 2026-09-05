@@ -265,6 +265,17 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 							<span id="upload-btn-text">رفع ومعالجة الملفات فورياً</span>
 						</button>
 					</form>
+
+					<!-- Live upload and processing progress. Before this the
+					     button simply greyed out and the page sat still for as
+					     long as the batch took, which is indistinguishable from
+					     a dead connection — so people reloaded and lost the
+					     upload they were waiting for. -->
+					@components.UploadProgressModal(components.UploadProgressProps{
+						ID:       "compare-upload-progress",
+						Title:    "رفع كشوف الموردين",
+						Subtitle: "يتم رفع الملفات ثم قراءتها ومطابقة أصنافها بالكتالوج المركزي",
+					})
 				</div>
 
 				<!-- Column 3: Instant Search Box -->

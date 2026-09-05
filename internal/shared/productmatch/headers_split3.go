@@ -94,18 +94,3 @@ func headerEvidence(header string) map[Field]HeaderEvidence {
 	}
 	return out
 }
-
-// HeaderLooksLikeAField reports whether a cell names any known field at all. It
-// is how a header row is told from a data row.
-func HeaderLooksLikeAField(cell string) bool {
-	key := sheet.NormalizeKey(cell)
-	if key == "" {
-		return false
-	}
-	for _, spec := range foldedSpecs {
-		if score, blocked := scoreHeader(spec, key); score >= scoreFloor && !blocked {
-			return true
-		}
-	}
-	return false
-}

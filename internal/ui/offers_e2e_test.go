@@ -184,7 +184,7 @@ func (m *mockPromoRepo) ListCreditEntries(context.Context, int64, int, int) ([]*
 func (m *mockPromoRepo) ListOrgCreditEntries(context.Context, int64, int, int) ([]*promo.CreditEntry, int, error) {
 	return nil, 0, nil
 }
-func (m *mockPromoRepo) CreditTotals(context.Context, int64) (int, int, error) { return 0, 0, nil }
+func (m *mockPromoRepo) CreditTotals(context.Context, int64) (int, int, error)         { return 0, 0, nil }
 func (m *mockPromoRepo) ExpireSponsorshipPurchases(ctx context.Context) (int64, error) { return 0, nil }
 
 func (m *mockPromoRepo) CreateSponsorshipRequest(ctx context.Context, r *promo.SponsorshipRequest) error {

@@ -293,7 +293,7 @@ var doseUnits = map[string]struct {
 
 // parseStrength reads the first dose written in a text.
 func parseStrength(text string) strength {
-	m := strengthPattern.FindString(sheet.NormalizeDigits(text))
+	m := strengthPattern.FindString(FoldDoseText(sheet.NormalizeDigits(text)))
 	if m == "" {
 		return strength{}
 	}

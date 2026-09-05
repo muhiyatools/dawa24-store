@@ -182,6 +182,10 @@
 				.then(function (data) {
 					failures = 0;
 					self.update(data);
+					// The same hook the stream calls. A client that fell back to
+					// polling must still hear about the states it reacts to, or
+					// the fallback is a fallback in name only.
+					if (self.onSnapshot) self.onSnapshot(data);
 					if (!self.done) setTimeout(tick, pollInterval);
 				})
 				.catch(function () {
@@ -194,6 +198,114 @@
 				});
 		};
 		tick();
+	};
+
+	/**
+	 * follow drives the bar from a live stream, falling back to the poll.
+	 *
+	 * The poll it replaces asked twice a second for as long as the tab was
+	 * open, and the two endpoints that already streamed ran a database query
+	 * per second PER CONNECTION. This opens one EventSource and is written to
+	 * when a number actually changes.
+	 *
+	 * The fallback is not a nicety. EventSource is unavailable in a few
+	 * environments, a reverse proxy can buffer a stream into uselessness, and a
+	 * server without the live channel answers 503 on purpose. In every one of
+	 * those cases the bar has to keep working, so a stream that fails to
+	 * deliver its FIRST snapshot within a short grace period is abandoned and
+	 * the poll takes over — once, permanently, without flapping between them.
+	 *
+	 * streamUrl  SSE endpoint
+	 * pollUrl    JSON endpoint, used if the stream cannot be established
+	 */
+	ImportProgress.prototype.follow = function (streamUrl, pollUrl, pollIntervalMs, onSnapshot) {
+		var self = this;
+		var notify = onSnapshot || function () {};
+
+		if (typeof window.EventSource !== 'function' || !streamUrl) {
+			this.onSnapshot = notify;
+			this.poll(pollUrl, pollIntervalMs);
+			return;
+		}
+
+		var fellBack = false;
+		var gotFirst = false;
+		var source;
+
+		var fallBack = function () {
+			if (fellBack) return;
+			fellBack = true;
+			if (source) {
+				try { source.close(); } catch (e) { /* already closed */ }
+			}
+			if (!self.done) self.poll(pollUrl, pollIntervalMs);
+		};
+
+		try {
+			source = new EventSource(streamUrl);
+		} catch (e) {
+			this.poll(pollUrl, pollIntervalMs);
+			return;
+		}
+
+		this.start();
+
+		// A stream that has not said anything within this window is not a
+		// stream. Generous enough to cover a slow first query, short enough
+		// that nobody watches a still bar wondering.
+		var GRACE_MS = 4000;
+		var grace = setTimeout(function () {
+			if (!gotFirst) fallBack();
+		}, GRACE_MS);
+
+		var apply = function (event) {
+			var data;
+			try {
+				data = JSON.parse(event.data);
+			} catch (e) {
+				return;
+			}
+			gotFirst = true;
+			clearTimeout(grace);
+			self.update(data);
+			notify(data);
+			if (data && data.error) self.fail(data.error);
+			if (self.done || (data && data.error)) {
+				try { source.close(); } catch (e) { /* already closed */ }
+			}
+		};
+
+		source.addEventListener('progress', apply);
+
+		// The run is gone, or the connection has been open long enough that the
+		// server would rather the client reconnected. Either way the poll is
+		// the honest answer: it re-reads the run and reports what is true.
+		source.addEventListener('gone', function () { fallBack(); });
+		source.addEventListener('timeout', function () { fallBack(); });
+
+		source.onerror = function () {
+			// EventSource retries by itself, which is right while the run is
+			// live. It is wrong once we have finished, and wrong if we never
+			// connected at all — those are the two cases handled here.
+			if (self.done) {
+				try { source.close(); } catch (e) { /* already closed */ }
+				return;
+			}
+			if (!gotFirst) fallBack();
+		};
+	};
+
+	/**
+	 * watch follows an import run by its public id, using the platform's
+	 * standard endpoints. This is the call every tool should make.
+	 */
+	ImportProgress.prototype.watch = function (runId, pollIntervalMs, onSnapshot) {
+		this.follow(
+			'/imports/' + runId + '/stream',
+			'/imports/' + runId + '/progress',
+			pollIntervalMs,
+			onSnapshot
+		);
 	};
 
 	window.ImportProgress = ImportProgress;

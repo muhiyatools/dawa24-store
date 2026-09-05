@@ -91,6 +91,7 @@ func (h *UIHandler) registerVendorIngestRoutes(r chi.Router) {
 		g.Get("/vendor/ingest/inventory.csv", h.VendorIngestExport)
 		g.Get("/vendor/ingest/{id}", h.VendorIngestSessionPage)
 		g.Get("/vendor/ingest/{id}/progress", h.VendorIngestProgress)
+		g.Get("/vendor/ingest/{id}/stream", h.VendorIngestProgressStream)
 		g.Get("/vendor/ingest/{id}/export", h.VendorIngestRowsExport)
 		g.Get("/vendor/ingest/{id}/catalog-search", h.VendorIngestCatalogSearchJSON)
 	})

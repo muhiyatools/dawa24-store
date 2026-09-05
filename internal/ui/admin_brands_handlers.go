@@ -53,7 +53,7 @@ func (h *UIHandler) AdminBrandCreateSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_ = r.ParseMultipartForm(10 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
@@ -110,7 +110,7 @@ func (h *UIHandler) AdminBrandEditSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_ = r.ParseMultipartForm(10 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	brand, err := h.catSvc.GetBrand(database.AsSystem(ctx), brandID)
 	if err != nil || brand == nil {

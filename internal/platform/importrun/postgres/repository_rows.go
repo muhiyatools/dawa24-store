@@ -55,12 +55,20 @@ func scanRunRows(rows pgx.Rows, run *importrun.Run) error {
 // ──────────────────────────────────────────────────────────────────────
 
 // InsertRows bulk-inserts staged rows for a run.
+//
+// InLongTx, not InTx. This is the write that stages a whole spreadsheet — a
+// vendor's price list is routinely twenty-five thousand rows — and the pool's
+// ordinary statement_timeout is thirty seconds, which is the right ceiling for
+// a web request and the wrong one for this. When the import ran in the web
+// process (cmd/server runs the stage worker inline) a large file was cancelled
+// by Postgres partway through, and the vendor was shown an import that failed
+// on "statement timeout" naming nothing they could act on.
 func (r *Repository) InsertRows(ctx context.Context, runID int64, rows []importrun.Row) error {
 	if len(rows) == 0 {
 		return nil
 	}
 
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InLongTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		// Build a multi-row INSERT in batches of 500 to keep the
 		// statement size manageable.
 		const batchSize = 500

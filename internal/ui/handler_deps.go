@@ -24,6 +24,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -141,6 +142,14 @@ func (h *UIHandler) SetCompareService(s *compare.Service) {
 // SetImportRunRepo wires the durable import run repository.
 func (h *UIHandler) SetImportRunRepo(repo importrun.Repository) {
 	h.importRunRepo = repo
+}
+
+// SetProgressHub wires the live-progress fan-out.
+//
+// Optional on purpose: a deployment without it, or a process that failed to
+// reach Redis, simply serves the JSON poll and every bar keeps working.
+func (h *UIHandler) SetProgressHub(hub *progress.Hub) {
+	h.progressHub = hub
 }
 
 // SetImportQueue wires background queue dispatch functions for imports.

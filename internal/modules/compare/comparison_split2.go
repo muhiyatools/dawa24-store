@@ -34,6 +34,10 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 	byCore := make(map[string]*ProductComparisonRow)
 	bySorted := make(map[string]*ProductComparisonRow)
 
+	// keyOfRow remembers what each comparison row IS, so a SKU collision cannot
+	// merge two products. See the guard below.
+	keyOfRow := make(map[*ProductComparisonRow]string)
+
 	supplierBestCounts := make(map[string]int)
 	var suppliersList []string
 
@@ -55,9 +59,27 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 
 			var compRow *ProductComparisonRow
 
-			// 1. Match across vendor files by clean SKU
+			// 1. Match across vendor files by clean SKU — but never against a
+			//    row that is demonstrably a different product.
+			//
+			// These are two SUPPLIERS' internal item numbers, not a shared
+			// catalogue code. Supplier A's "951" and supplier B's "951" are the
+			// same string by coincidence far more often than by agreement, and
+			// this index merged them with no check on the name at all: one
+			// comparison line, two unrelated medicines, and a "best price" that
+			// was simply the cheaper of the two drugs.
+			//
+			// The guard is deliberately narrow. A code hit is still accepted
+			// when either row's name could not be read — that is the case the
+			// code index exists for — and refused only when both names read
+			// clearly and say different products.
 			if cleanSKU != "" {
-				compRow = bySKU[cleanSKU]
+				if candidate := bySKU[cleanSKU]; candidate != nil {
+					existing := keyOfRow[candidate]
+					if existing == "" || coreKey == "" || existing == coreKey {
+						compRow = candidate
+					}
+				}
 			}
 			// 2. Match across vendor files by exact normalized Arabic/English name
 			if compRow == nil && normText != "" {
@@ -95,6 +117,7 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 					BestSupplier: f.SupplierName,
 				}
 				resultRows = append(resultRows, compRow)
+				keyOfRow[compRow] = coreKey
 
 				// Register in all lookup indices
 				if cleanSKU != "" {

@@ -136,4 +136,3 @@ func (h *UIHandler) resolveCheckoutBranch(ctx context.Context, actor authctx.Act
 
 	return branchID
 }
-

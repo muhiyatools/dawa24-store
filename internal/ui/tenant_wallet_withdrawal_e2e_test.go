@@ -428,4 +428,3 @@ func TestTenantWallet_SavedPaymentMethods_AutoWiring_E2E(t *testing.T) {
 		t.Errorf("expected withdrawal status 'pending', got: %q", withStat)
 	}
 }
-

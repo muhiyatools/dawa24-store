@@ -59,7 +59,7 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.file_too_large_short"))
 		return
 	}

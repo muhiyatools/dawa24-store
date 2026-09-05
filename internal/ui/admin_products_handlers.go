@@ -112,7 +112,7 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	_ = r.ParseMultipartForm(32 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
@@ -195,7 +195,7 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_ = r.ParseMultipartForm(32 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	prod, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), id)
 	if err != nil || prod == nil {

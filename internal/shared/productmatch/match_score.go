@@ -116,6 +116,7 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		name:      name,
 		agreed:    agreed,
 		exact:     exact,
+		blind:     ev.distinctHits == 0,
 	}, true
 }
 
@@ -329,13 +330,6 @@ func itoa(n int) string {
 
 func maxF(a, b float64) float64 {
 	if a > b {
-		return a
-	}
-	return b
-}
-
-func minF(a, b float64) float64 {
-	if a < b {
 		return a
 	}
 	return b

@@ -84,7 +84,18 @@ function handleFileSelect(input) {
 	});
 })();
 
+/*
+ * The batch upload, with the two things it never had: a measured progress bar,
+ * and a limit that takes what fits instead of refusing everything.
+ *
+ * It used to grey the button out and submit the form normally. A normal submit
+ * gives the browser no way to report how far the transfer has got, so ten price
+ * lists went up over a minute and a half with the page showing nothing - which
+ * looks exactly like a dead connection, and people reloaded, which abandoned
+ * the upload and started it over.
+ */
 function handleUploadSubmit(event) {
+	const form = document.getElementById('compare-upload-form');
 	const fileInput = document.getElementById('file-upload-input');
 	const dropZone = document.getElementById('drop-zone-box');
 
@@ -95,16 +106,37 @@ function handleUploadSubmit(event) {
 		return false;
 	}
 
-	const count = fileInput.files.length;
+	event.preventDefault();
 
+	let selected = Array.from(fileInput.files);
+	let skipped = [];
+
+	// Over the plan limit: take the ones that fit and say which did not.
+	//
+	// This used to be an alert that refused the whole batch and left the files
+	// on the user's desk to sort out by hand. The server does the same trimming
+	// authoritatively - this is here so the dialog can NAME the files that will
+	// not be taken before anything is sent, rather than reporting it afterwards.
 	if (dropZone) {
 		const currentCount = parseInt(dropZone.dataset.currentCount || '0', 10);
 		const maxLimit = parseInt(dropZone.dataset.maxLimit || '0', 10);
-		if (maxLimit > 0 && (currentCount + count > maxLimit)) {
-			alert('عذراً، باقة اشتراكك الحالية تسمح بحد أقصى ' + maxLimit + ' ملفات موردين.\\nلديك حالياً ' + currentCount + ' ملفات، ومحاولة رفع ' + count + ' ملفات إضافية ستتجاوز الحد المسموح (' + (currentCount + count) + ' / ' + maxLimit + ').\\nيرجى تقليل عدد الملفات المرفوعة، أو حذف/أرشفة ملفات قديمة، أو ترقية باقتك.');
-			event.preventDefault();
+		const room = maxLimit > 0 ? maxLimit - currentCount : selected.length;
+		if (maxLimit > 0 && room <= 0) {
+			alert('باقتك الحالية تسمح بحد أقصى ' + maxLimit + ' كشوف، وجميعها مستخدمة. احذف أو أرشف كشفاً قديماً، أو رقِّ الباقة، ثم أعد المحاولة.');
 			return false;
 		}
+		if (maxLimit > 0 && selected.length > room) {
+			skipped = selected.slice(room);
+			selected = selected.slice(0, room);
+		}
+	}
+
+	// Hand the trimmed selection back to the input so FormData sends exactly
+	// what the dialog says it is sending.
+	if (skipped.length && typeof DataTransfer === 'function') {
+		const keep = new DataTransfer();
+		selected.forEach((f) => keep.items.add(f));
+		fileInput.files = keep.files;
 	}
 
 	const btn = document.getElementById('upload-submit-btn');
@@ -112,10 +144,30 @@ function handleUploadSubmit(event) {
 	if (btn && btnText) {
 		btn.disabled = true;
 		btn.style.opacity = '0.75';
-		btnText.textContent = '⏳ جاري رفع ومعالجة (' + count + ') كشوف موردين...';
+		btnText.textContent = 'جارٍ رفع (' + selected.length + ') كشوف…';
 	}
 
-	return true;
+	// No dialog available (an older browser, or the component was not rendered):
+	// fall back to the ordinary submit rather than doing nothing at all.
+	if (typeof window.UploadProgress !== 'function' || !document.getElementById('compare-upload-progress')) {
+		form.submit();
+		return false;
+	}
+
+	const bar = new window.UploadProgress('compare-upload-progress');
+	const listed = selected.map((f) => ({ name: f.name }))
+		.concat(skipped.map((f) => ({ name: f.name, state: 'skipped', label: 'يتجاوز حد الباقة' })));
+
+	bar.submit(form, {
+		files: listed,
+		uploadingCaption: 'جارٍ رفع (' + selected.length + ') من كشوف الموردين…',
+		processingCaption: 'تم الرفع. جارٍ قراءة الكشوف ومطابقة الأصناف بالكتالوج…',
+	});
+
+	if (skipped.length) {
+		bar.setDetail(skipped.length + ' ملف لم يُرفع لتجاوز حد الباقة');
+	}
+	return false;
 }
 
 function openRenameModal(fileId, currentName) {

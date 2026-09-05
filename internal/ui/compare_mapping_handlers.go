@@ -320,4 +320,3 @@ func parseCompareQueue(queueParam string, currentID int64) (int64, string) {
 	nextID, _ := strconv.ParseInt(cleaned[0], 10, 64)
 	return nextID, strings.Join(cleaned, ",")
 }
-

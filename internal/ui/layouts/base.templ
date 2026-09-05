@@ -98,6 +98,11 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			// four different shells and each used to ship its own copy of the
 			// same three bugs. See import-progress.js.
 			<script defer src={ Asset("/static/js/import-progress.js") }></script>
+			// The other half of the same story: the bytes leaving the machine.
+			// import-progress.js renders what the SERVER reports; this renders
+			// what the browser can measure exactly, which is the phase that used
+			// to take the longest and show nothing. See upload-progress.js.
+			<script defer src={ Asset("/static/js/upload-progress.js") }></script>
 			// Universal file & image in-window lightbox previewer.
 			<script defer src={ Asset("/static/js/preview.js") }></script>
 		</head>

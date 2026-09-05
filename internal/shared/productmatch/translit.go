@@ -50,12 +50,15 @@ var arabicSkeleton = map[rune]string{
 
 // latinSkeleton maps a Latin letter onto the same alphabet.
 //
-// The vowels drop for the same reason they do above. c, q and x are folded onto
-// the sounds Arabic actually has, and the digraph rules in skeletonOf handle
-// the pairs — ph, sh, ch, th — that a letter-by-letter fold would get wrong.
+// The vowels drop for the same reason they do above. q and x are folded onto
+// the sounds Arabic actually has, and latinFold handles the letters whose sound
+// depends on what follows them — c and the digraphs ph, sh, ch, th, gh, kh —
+// before this map is consulted. c is therefore absent here on purpose: an entry
+// for it could only ever be one of its two sounds, and choosing either one
+// unconditionally is the bug latinFold exists to fix.
 var latinSkeleton = map[rune]string{
 	'a': "", 'e': "", 'i': "", 'o': "", 'u': "", 'y': "", 'h': "h", 'w': "",
-	'b': "b", 'c': "k", 'd': "d", 'f': "f", 'g': "g", 'j': "g", 'k': "k",
+	'b': "b", 'd': "d", 'f': "f", 'g': "g", 'j': "g", 'k': "k",
 	'l': "l", 'm': "m", 'n': "n", 'p': "b", 'q': "k", 'r': "r", 's': "s",
 	't': "t", 'v': "f", 'x': "ks", 'z': "z",
 }
@@ -83,19 +86,10 @@ func Skeleton(s string) string {
 	for i := 0; i < len(runes); i++ {
 		r := runes[i]
 
-		// Latin digraphs first: read letter by letter, "ph" becomes "bh" and
-		// "sh" becomes "sh", neither of which is the sound Arabic writes.
-		if i+1 < len(runes) {
-			if fold, ok := latinDigraph(r, runes[i+1]); ok {
-				last = writeSkeleton(&b, fold, last)
-				i++
-				continue
-			}
-		}
-
 		fold, known := arabicSkeleton[r]
+		width := 1
 		if !known {
-			fold, known = latinSkeleton[r]
+			fold, width, known = latinFold(runes, i)
 		}
 		if !known {
 			// Digits and punctuation carry no sound. Figures are compared
@@ -104,29 +98,91 @@ func Skeleton(s string) string {
 			continue
 		}
 		last = writeSkeleton(&b, fold, last)
+		i += width - 1
 	}
 	return b.String()
 }
 
-// latinDigraph folds the two-letter spellings of single Arabic sounds.
-func latinDigraph(a, b rune) (string, bool) {
-	switch {
-	case a == 'p' && b == 'h':
-		return "f", true
-	case a == 's' && b == 'h':
-		return "s", true
-	case a == 'c' && b == 'h':
-		return "s", true
-	case a == 't' && b == 'h':
-		return "s", true
-	case a == 'g' && b == 'h':
-		return "g", true
-	case a == 'k' && b == 'h':
-		return "k", true
-	case a == 'c' && b == 'k':
-		return "k", true
+// latinFold reads one Latin sound, which may be spelled with one letter or two.
+//
+// It replaced a context-free digraph table, and the context is the whole point:
+// c and ch each spell two different sounds in this vocabulary, and folding
+// either one of them unconditionally merged brands that are not related.
+//
+//	cisplatin   folded to ksbltn and collided with اوكسابلاتين (oxaliplatin);
+//	            سيسبلاتين, which is what it actually is, folds to sbltn.
+//	cefidime    folded to kfdm and matched كيفاديم instead of سيفيديم.
+//	chromax     folded to srmks and collided with سيرومكس;
+//	            كروماكس, which is what it actually is, folds to krmks.
+//
+// Every one of those was an applied match in the labelled corpus — a wrong
+// product, priced, with "86% name similarity" printed beside it as the reason.
+//
+// The rules are the ordinary English ones, which is what a transliterating
+// pharmacist is following:
+//
+//   - c before e, i or y is soft (/s/); elsewhere it is hard (/k/).
+//   - ch before a consonant is the Greek /k/ — chlor-, chrom-, chron- — and
+//     before a vowel it is the everyday /ʃ/: charcoal, chocolate.
+//
+// width is how many runes the sound consumed, so the caller can advance.
+func latinFold(runes []rune, i int) (fold string, width int, ok bool) {
+	r := runes[i]
+	next, after := rune(0), rune(0)
+	if i+1 < len(runes) {
+		next = runes[i+1]
 	}
-	return "", false
+	if i+2 < len(runes) {
+		after = runes[i+2]
+	}
+
+	switch r {
+	case 'p':
+		if next == 'h' {
+			return "f", 2, true
+		}
+	case 's', 't':
+		if next == 'h' {
+			return "s", 2, true
+		}
+	case 'g':
+		if next == 'h' {
+			return "g", 2, true
+		}
+	case 'k':
+		if next == 'h' {
+			return "k", 2, true
+		}
+	case 'c':
+		switch {
+		case next == 'h' && !isLatinVowel(after):
+			return "k", 2, true
+		case next == 'h':
+			return "s", 2, true
+		case next == 'k':
+			return "k", 2, true
+		case isSoftening(next):
+			return "s", 1, true
+		}
+		return "k", 1, true
+	}
+
+	f, known := latinSkeleton[r]
+	return f, 1, known
+}
+
+// isSoftening reports whether a following letter makes a preceding c soft.
+func isSoftening(r rune) bool { return r == 'e' || r == 'i' || r == 'y' }
+
+// isLatinVowel reports whether r is a written vowel, which is what decides
+// whether a "ch" is Greek or English. A word ending in "ch" counts as followed
+// by a consonant, which is right: "-tech" is /k/.
+func isLatinVowel(r rune) bool {
+	switch r {
+	case 'a', 'e', 'i', 'o', 'u', 'y':
+		return true
+	}
+	return false
 }
 
 // writeSkeleton appends a fold, collapsing a repeat of the previous sound.

@@ -53,6 +53,13 @@ func (idx *Index) decide(q *query, scored []scoredProduct, opts MatchOptions) Ma
 			"صنفان في الكتالوج بنفس درجة التطابق (%d%%) ولا يوجد في الصف ما يفرّق بينهما؛ "+
 				"يلزم اختيار الصحيح يدوياً.",
 			int(best.score*100))
+	case !best.settleable():
+		// The letters line up and no word does. Offered, never applied — see
+		// scoredProduct.settleable.
+		res.Level = MatchReview
+		res.Reason = fmt.Sprintf(
+			"%s (%d%%) — التشابه في حروف الاسم فقط، ولا تتطابق أي كلمة مميزة؛ يلزم التأكيد",
+			best.describeReason(), int(best.score*100))
 	case best.exact:
 		res.Level = MatchExact
 		res.Reason = "تطابق تام لاسم الصنف بعد المعايرة مع توافق الخصائص"

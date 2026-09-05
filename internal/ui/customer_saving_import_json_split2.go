@@ -25,7 +25,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 		return
 	}
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.file_too_large")})
 		return
 	}

@@ -1878,23 +1878,37 @@ input:focus {
 
 .review-table-scroll {
   inline-size: 100%;
-  /* Both axes explicitly: a scroller with `overflow-y: visible` and
-     `overflow-x: auto` has its `visible` silently computed to `auto` anyway,
-     and saying so is the difference between a header that can be made sticky
-     and one that cannot. */
-  overflow: auto;
-  max-block-size: min(70vh, 46rem);
+  /* No vertical scroller. The page is paginated, so the number of rows is
+     already bounded — putting a second scrollbar inside the first gives the
+     reader two things to scroll and a header that pins to the wrong one. It
+     also meant the last row of a page sat below a fold nobody expected, on a
+     screen with plenty of room for it.
+
+     Horizontally it still scrolls, because ten columns of prices genuinely do
+     not fit a small laptop. Above reviewTableFits (below) the table fits and
+     the container stops scrolling altogether, which is what lets the header
+     stick to the VIEWPORT rather than to a box the size of the table. */
+  overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
-  scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
 
 .review-table {
-  /* The sum of the column widths below (1414px), rounded up. Declaring less
-     than the columns actually need is what made the last ones overlap and
-     clip: the table could not shrink to the figure it was given, so the
-     browser resolved the conflict by compressing cells instead of scrolling. */
-  min-inline-size: 1420px;
+  /* The sum of the column widths below, rounded up. Declaring less than the
+     columns actually need is what made the last ones overlap and clip: the
+     table could not shrink to the figure it was given, so the browser resolved
+     the conflict by compressing cells instead of scrolling.
+
+     It was 1420px, which no laptop has ever had room for once the sidebar is
+     accounted for — so the review screen shipped with a horizontal scrollbar
+     for everybody. The columns below were measured against their actual
+     contents instead of their most generous case: a price is five or six
+     digits, not eight; a row number is four; the identity columns get what is
+     left. 1120px fits a 1280px screen with the sidebar, and inline-size:100%
+     spends anything wider on the two columns that can use it. */
+  min-inline-size: 1120px;
+  inline-size: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -1939,15 +1953,17 @@ input:focus {
 .review-table tbody tr:hover td.review-col-flag { background: var(--bg-surface-sunken, #f8fafc); }
 
 .review-col-pick { inline-size: 42px; min-inline-size: 42px; }
-.review-col-flag { inline-size: 60px; min-inline-size: 60px; }
-.review-col-num { inline-size: 58px; min-inline-size: 58px; }
-.review-col-name { min-inline-size: 260px; }
-.review-col-catalog { min-inline-size: 290px; }
-.review-col-score { inline-size: 104px; min-inline-size: 104px; }
+.review-col-flag { inline-size: 52px; min-inline-size: 52px; }
+.review-col-num { inline-size: 46px; min-inline-size: 46px; }
+.review-col-name { min-inline-size: 210px; }
+.review-col-catalog { min-inline-size: 250px; }
+.review-col-score { inline-size: 88px; min-inline-size: 88px; }
 /* Wide enough for "1234.56" plus its save button. At 120px the field was about
-   seventy pixels and truncated every price over three digits. */
-.review-col-money { inline-size: 160px; min-inline-size: 160px; }
-.review-col-qty { inline-size: 120px; min-inline-size: 120px; }
+   seventy pixels and truncated every price over three digits; 132 keeps the
+   whole figure visible and gives back 84px across the three money columns,
+   which is most of what the horizontal scrollbar cost. */
+.review-col-money { inline-size: 132px; min-inline-size: 132px; }
+.review-col-qty { inline-size: 96px; min-inline-size: 96px; }
 
 /* The inline edit: a field that shows its whole number, and a compact square
    save button that never steals width from it. */
@@ -1989,8 +2005,7 @@ input:focus {
 .review-money-form .btn svg { inline-size: 0.875rem; block-size: 0.875rem; }
 
 @media (max-width: 640px) {
-  .review-table-scroll { max-block-size: none; }
-  .review-table { min-inline-size: 1200px; }
+  .review-table { min-inline-size: 980px; }
 }
 
 .review-table input[type="checkbox"] {
@@ -2221,8 +2236,6 @@ input:focus {
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.45rem;
   margin-bottom: 0.45rem;
-  max-height: 190px;
-  overflow-y: auto;
 }
 
 .review-suggestion {
@@ -2243,7 +2256,7 @@ input:focus {
 
 .review-suggestion:hover { border-color: var(--primary); }
 
-.review-suggestion-name { font-weight: 700; flex: 1 1 auto; }
+.review-suggestion-name { font-weight: 700; flex: 1 1 auto; min-inline-size: 0; }
 
 .review-suggestion-meta {
   font-size: 0.7rem;
@@ -3881,9 +3894,81 @@ input:focus {
 .active-item { background: var(--bg-surface-raised); color: var(--primary); font-weight: 700; }
 .catalog-cell-container { position: relative; }
 .catalog-cell-match { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs); min-height: 2.25rem; }
-.catalog-dropdown-menu { display: none; position: absolute; top: calc(100% + 4px); inset-inline-start: 0; z-index: 100; width: min(28rem, calc(100vw - 2rem)); max-width: 28rem; max-height: 22rem; overflow-y: auto; padding: 0.75rem; background: var(--surface-raised, #1e293b); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); }
+/* The catalogue link dialog ("ربط").
+   ---------------------------------------------------------------------------
+   It used to be an absolutely positioned box inside a <td>, which gave it three
+   problems at once and all of them were visible:
+
+     1. It was CLIPPED. Its table sits in a container with `overflow: auto`, and
+        an absolutely positioned child of a scroll container is cut off at the
+        container's edge. On the last rows and the last columns the dialog was
+        simply not there.
+     2. It was 28rem wide with THREE nested scroll regions inside it — the box
+        itself at 22rem, the suggestions at 190px, the results at 12rem. Three
+        scrollbars inside four hundred pixels, and a product name, a strength
+        and a form competing for one line.
+     3. It was painted on `--surface-raised` with a fallback of #1e293b, so in
+        light mode any page that had not defined that token got a dark panel.
+
+   It is now what it always was in intent: a modal dialog. Fixed to the viewport
+   so nothing can clip it, wide enough to read a full product name, and with ONE
+   scroll region — the body — so there is never a question about which
+   scrollbar moves what. */
+.catalog-dropdown-menu {
+  display: none;
+  position: fixed;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(50%, -50%); /* RTL: inline-start is the right edge */
+  z-index: 1200;
+  inline-size: min(46rem, calc(100vw - 2rem));
+  max-block-size: min(80vh, 42rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 1rem 1rem;
+  background: var(--bg-surface-raised, #fff);
+  color: var(--text);
+  border: 1px solid var(--border-card, var(--border));
+  border-radius: var(--radius-xl, 1rem);
+  box-shadow: var(--shadow-2xl, var(--shadow-xl));
+}
+[dir="ltr"] .catalog-dropdown-menu { transform: translate(-50%, -50%); }
 .catalog-dropdown-menu.is-open { display: block; }
-.catalog-dropdown-results { display: flex; flex-direction: column; gap: 0.35rem; max-height: 12rem; overflow-y: auto; }
+
+/* The backdrop is created by the script that opens the dialog, so a dialog can
+   never be left open behind a page the reader thinks they returned to. */
+.catalog-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1199;
+  background: var(--bg-overlay, rgba(0, 0, 0, 0.6));
+}
+
+/* The search field stays put while the results move under it, which is the
+   whole reason a dialog this tall is usable at all. */
+.catalog-dialog-head {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.875rem 0.625rem;
+  background: var(--bg-surface-raised, #fff);
+  border-block-end: 1px solid var(--border-subtle, var(--border));
+  margin-block-end: 0.75rem;
+}
+.catalog-dialog-title {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-weight: 800;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.catalog-dialog-search { position: sticky; inset-block-start: 3.25rem; z-index: 1; background: var(--bg-surface-raised, #fff); padding-block-end: 0.625rem; }
+.catalog-dropdown-results { display: flex; flex-direction: column; gap: 0.35rem; }
 .catalog-search-card { background: var(--surface-sunken); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.55rem 0.75rem; margin-bottom: 0.4rem; transition: all 0.15s ease; }
 .catalog-search-card:hover { border-color: var(--primary); background: var(--surface-raised); }
 .catalog-search-card-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0; color: var(--text); background: transparent; border: none; cursor: pointer; text-align: start; }
@@ -7330,3 +7415,159 @@ form.filter-bar { margin: 0; }
 
 .doc-preview-max-height { max-height: 320px; }
 .doc-preview-min-height { min-height: 320px; }
+
+/* ===========================================================================
+   Upload progress
+   ---------------------------------------------------------------------------
+   One treatment for every tool that uploads a file and then works on it, used
+   identically on a page and inside a modal. Before this each importer drew its
+   own bar — different height, different colour, some with a number and some
+   without — and the compare tool, which takes the largest files on the
+   platform, drew nothing at all.
+
+   The bar is deliberately plain. A progress indicator is read, not admired,
+   and the only two questions it has to answer are "is it moving" and "how far
+   along". Everything here serves one of those.
+   =========================================================================== */
+
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.upload-progress-phase {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.upload-progress-caption {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The number is always shown. A bar without one answers "is it working?" and
+   never "how much longer?", which is the only question the person watching
+   actually has. Tabular figures so it does not jitter as it counts up. */
+.upload-progress-percent {
+  flex: 0 0 auto;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+}
+
+.upload-progress-track {
+  position: relative;
+  block-size: 0.5rem;
+  inline-size: 100%;
+  overflow: hidden;
+  background: var(--bg-surface-sunken, #f1f5f9);
+  border-radius: var(--radius-full, 999px);
+}
+
+.upload-progress-fill {
+  block-size: 100%;
+  inline-size: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--primary-hover, var(--primary)));
+  /* Eases between the values the driver sets rather than stepping to them, so
+     a bar fed once a second still looks continuous. Width only: transitioning
+     everything would animate the colour change on failure too. */
+  transition: inline-size 220ms ease-out;
+}
+
+/* A bar that has stopped because the work failed keeps its position — the
+   reader can see how far it got — and says so in colour. */
+.upload-progress-fill.is-failed {
+  background: var(--danger, #dc2626);
+}
+
+/* Before the first measurement there is nothing honest to show, so the bar
+   sweeps instead of claiming a figure. */
+/* The driver CLEARS the inline width before adding this class, so the rule has
+   no inline style to outrank and needs no !important — which matters, because
+   an !important here would be one more entry on a list this project is trying
+   to shorten rather than lengthen. */
+.upload-progress-fill.is-indeterminate {
+  inline-size: 35%;
+  animation: upload-progress-sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes upload-progress-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-progress-fill { transition: none; }
+  .upload-progress-fill.is-indeterminate { animation: none; inline-size: 100%; opacity: 0.45; }
+}
+
+.upload-progress-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.upload-progress-count { font-variant-numeric: tabular-nums; font-weight: 700; }
+.upload-progress-detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The per-file list for a batch. It is the answer to "which of my ten files is
+   it on", which a single bar cannot give. */
+.upload-progress-files {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-block-size: 11rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.upload-progress-file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3125rem 0.5rem;
+  font-size: 0.75rem;
+  background: var(--bg-surface-sunken, #f8fafc);
+  border: 1px solid var(--border-subtle, var(--border));
+  border-radius: var(--radius-md, 0.5rem);
+}
+
+.upload-progress-file-name {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-progress-file-state { flex: 0 0 auto; font-weight: 700; font-size: 0.6875rem; }
+.upload-progress-file.is-done .upload-progress-file-state { color: var(--success, #16a34a); }
+.upload-progress-file.is-failed .upload-progress-file-state { color: var(--danger, #dc2626); }
+.upload-progress-file.is-skipped { opacity: 0.6; }
+
+.upload-progress-note {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* The dialog itself must not be dismissable while work is in flight: closing it
+   does not stop the upload, and a reader who dismisses it has no way back to
+   the progress they were watching. The driver removes this once the run ends. */
+.upload-progress-modal.is-busy .modal-close { display: none; }

@@ -181,7 +181,7 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 
 	dest := walletDestFor(actor)
 
-	_ = r.ParseMultipartForm(MaxUploadBytes)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 	amountStr := r.PostFormValue("amount")
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.IsZero() || amt.IsNegative() {

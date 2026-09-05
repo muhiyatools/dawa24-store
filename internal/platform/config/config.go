@@ -68,6 +68,11 @@ type Database struct {
 	MaxConnLifetime  time.Duration
 	MaxConnIdleTime  time.Duration
 	StatementTimeout time.Duration
+	// WorkerStatementTimeout is the same ceiling for the background worker,
+	// which needs its own: statement_timeout is a RuntimeParam on every pooled
+	// connection, so the web's thirty seconds also capped every statement
+	// inside a background import — however long River's JobTimeout was.
+	WorkerStatementTimeout time.Duration
 }
 
 type Redis struct {
@@ -191,6 +196,9 @@ func load(cliOnly bool) (*Config, error) {
 			MaxConnLifetime:  getDuration("DB_MAX_CONN_LIFETIME", time.Hour),
 			MaxConnIdleTime:  getDuration("DB_MAX_CONN_IDLE", 30*time.Minute),
 			StatementTimeout: getDuration("DB_STATEMENT_TIMEOUT", 30*time.Second),
+			// Long enough for the largest real import statement, short enough
+			// that a runaway background query still lets go of its connection.
+			WorkerStatementTimeout: getDuration("DB_WORKER_STATEMENT_TIMEOUT", 10*time.Minute),
 		},
 
 		Redis: Redis{
@@ -245,6 +253,11 @@ func load(cliOnly bool) (*Config, error) {
 				"notifications": getInt("WORKER_NOTIFICATIONS", 4),
 				"projections":   getInt("WORKER_PROJECTIONS", 2),
 				"maintenance":   getInt("WORKER_MAINTENANCE", 1),
+				// River polls ONLY the queues named here, and jobs.go inserts
+				// SmartOrderRunArgs into "smartorder" — absent from this map, a
+				// job there sat in river_job for ever while its registered
+				// worker idled. Guarded by TestEveryInsertedQueueIsConfigured.
+				"smartorder": getInt("WORKER_SMARTORDER", 2),
 			},
 			ShutdownTimeout: getDuration("WORKER_SHUTDOWN_TIMEOUT", 60*time.Second),
 		},

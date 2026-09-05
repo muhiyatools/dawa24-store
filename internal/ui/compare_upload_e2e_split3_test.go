@@ -208,4 +208,3 @@ func TestCompareWizard_MultiFileQueueProgression(t *testing.T) {
 		t.Errorf("step 4 expected final submit button text, got body:\n%s", body4)
 	}
 }
-

@@ -25,7 +25,54 @@ func init() {
 const (
 	UploadBaseDir  = "data/uploads"
 	MaxUploadBytes = 50 * 1024 * 1024 // 50 MB
+
+	// uploadMemoryBudget is how much of a multipart request is held in RAM.
+	//
+	// It is the argument to r.ParseMultipartForm, and that argument is not a
+	// size limit — it is how much Go keeps in memory before spilling the rest
+	// to a temp file it deletes when the request ends. Passing the ALLOWED
+	// UPLOAD SIZE there, which is what every handler on this platform did,
+	// reads as "accept files up to 500 MB" and means "hold 500 MB of heap per
+	// concurrent request".
+	//
+	// On the VPS this runs on that is the whole machine. Two vendors uploading
+	// price lists at once was enough to push the process into swap, and once it
+	// is swapping every OTHER request slows down too — which is why the reports
+	// were never limited to the person doing the uploading.
+	//
+	// Four megabytes. Large enough that ordinary form fields and small images
+	// never touch the disk, small enough that a hundred concurrent uploads cost
+	// less memory than one used to. The size limit is a separate thing and is
+	// enforced with http.MaxBytesReader, which is what actually rejects an
+	// oversized file.
+	uploadMemoryBudget = 4 << 20
+
+	// maxImportBatchBytes bounds a whole spreadsheet-import request.
+	//
+	// This is the limit that was missing. The figure the handlers used to pass
+	// to ParseMultipartForm looked like one and was not — it governed memory,
+	// never size — so the import endpoints accepted a request of ANY length and
+	// then held all of it. A cap has to exist somewhere, and the body is where
+	// it costs nothing: an oversized request is refused before a byte of it is
+	// parsed, rather than after the machine has swallowed it.
+	//
+	// Two hundred megabytes covers the largest real batch by a wide margin: the
+	// compare tool takes at most ten files and a twenty-thousand-row price list
+	// is a few megabytes.
+	maxImportBatchBytes int64 = 200 << 20
 )
+
+// parseImportUpload reads a spreadsheet-import request: size bounded at the
+// body, memory bounded at the form.
+//
+// Both halves matter and they are different limits. MaxBytesReader refuses an
+// oversized request outright; uploadMemoryBudget decides how much of an
+// acceptable one is held in RAM rather than spilled to a temp file the server
+// deletes when the request ends.
+func parseImportUpload(w http.ResponseWriter, r *http.Request) error {
+	r.Body = http.MaxBytesReader(w, r.Body, maxImportBatchBytes)
+	return r.ParseMultipartForm(uploadMemoryBudget)
+}
 
 // GetUploadBaseDir returns the configured uploads directory, respecting the
 // UPLOAD_DIR and DATA_DIR environment variables.

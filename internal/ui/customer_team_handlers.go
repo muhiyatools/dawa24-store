@@ -36,16 +36,16 @@ func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 	limit := pagination.RowsPerPage(r)
 
 	view := pages.TenantTeamView{
-		Title:       i18n.T(lang, "customer.team.title"),
-		RolesPath:   "/customer/roles",
-		ImportPath:  "/customer/team/import",
-		ActionBase:  "/customer/employees",
-		CanCreate:   actor.Can("pharmacy.team.create"),
-		CanUpdate:   actor.Can("pharmacy.team.update"),
-		CanDelete:   actor.Can("pharmacy.team.delete"),
-		CanAssign:   actor.Can("pharmacy.role.assign"),
-		NoticeKind:  r.URL.Query().Get("notice"),
-		Notice:      r.URL.Query().Get("msg"),
+		Title:         i18n.T(lang, "customer.team.title"),
+		RolesPath:     "/customer/roles",
+		ImportPath:    "/customer/team/import",
+		ActionBase:    "/customer/employees",
+		CanCreate:     actor.Can("pharmacy.team.create"),
+		CanUpdate:     actor.Can("pharmacy.team.update"),
+		CanDelete:     actor.Can("pharmacy.team.delete"),
+		CanAssign:     actor.Can("pharmacy.role.assign"),
+		NoticeKind:    r.URL.Query().Get("notice"),
+		Notice:        r.URL.Query().Get("msg"),
 		FocusBranch:   parseInt64Param(r, "branch"),
 		CurrentUserID: actor.UserID,
 		Page:          page,
@@ -95,7 +95,7 @@ func (h *UIHandler) CustomerTeamImportUploadSubmit(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		h.redirectWithNotice(w, r, "/customer/team/import", "error", i18n.T(langOf(r), "customer.saving.import.file_too_large_short"))
 		return
 	}

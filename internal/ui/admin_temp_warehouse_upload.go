@@ -230,7 +230,7 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 	lang := langOf(r)
 
 	// 500MB max limit to comfortably allow 60-100+ bulk files
-	if err := r.ParseMultipartForm(500 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		if isJSONOrAJAX(r) {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusBadRequest)

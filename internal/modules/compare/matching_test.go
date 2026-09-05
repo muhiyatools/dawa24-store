@@ -63,8 +63,14 @@ func TestMatchLadder_AllStrategies(t *testing.T) {
 		t.Errorf("expected 100%% confidence, got %f", match.Confidence)
 	}
 
-	// Strategy 1: SKU Match
-	match, err = svc.MatchLadder(ctx, &orgID, "عنصر غير معروف الاسم", "SKU-CATAFLAM-50", "", candidates)
+	// Strategy 1: SKU Match, seconded by the name.
+	//
+	// The code tier is not authoritative in this tool, and that is deliberate:
+	// a compare upload is a SUPPLIER's price list, so its code column holds the
+	// supplier's own numbering, which collides with a دوا 24 code by accident
+	// more often than by design. productmatch therefore requires a unique
+	// catalogue hit AND a name that agrees before a code settles anything.
+	match, err = svc.MatchLadder(ctx, &orgID, "كتافلام 50 مجم", "SKU-CATAFLAM-50", "", candidates)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -73,6 +79,20 @@ func TestMatchLadder_AllStrategies(t *testing.T) {
 	}
 	if match.Method != compare.MatchMethodSKU {
 		t.Errorf("expected method sku, got %s", match.Method)
+	}
+
+	// And the other half of that rule: a code that hits while the name says
+	// something else entirely must NOT settle the row. This tool used to return
+	// it at confidence 100, which is the failure mode identifiers.go exists to
+	// prevent — a wrongly linked row prices the wrong medicine and nothing
+	// downstream catches it.
+	match, err = svc.MatchLadder(ctx, &orgID, "عنصر غير معروف الاسم", "SKU-CATAFLAM-50", "", candidates)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if match.ProductID != nil {
+		t.Errorf("a bare code collision must not settle a row; got product %v at %v%%",
+			*match.ProductID, match.Confidence)
 	}
 
 	// Strategy 2: Exact Name Match

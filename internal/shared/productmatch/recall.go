@@ -2,11 +2,8 @@ package productmatch
 
 import (
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
 // Retrieval for the AI enhancement stage.
@@ -276,121 +273,4 @@ func (idx *Index) rateForRecall(q *query, p *MasterProduct) scoredProduct {
 		score:   clamp(score),
 		name:    name,
 	}
-}
-
-// strengthSet is every dose a text states, not merely the first.
-//
-// parseStrength answers "what is this product strength", which is the right
-// question for scoring and the wrong one for a veto. A catalogue entry written
-// "اتاكاند بلس 32/25 ملجم" states two doses, and a pharmacy line that says 32
-// agrees with it — but parseStrength reads only the 25, so a first-figure
-// comparison would block the correct match as a conflict. Blocking correct
-// matches is the failure this guard exists to prevent, not to cause.
-//
-// The leading figure of a ratio is recovered by looking behind each match,
-// because the pattern itself only ever captures the figure that carries the
-// unit. Ratios of *different* units ("250مجم/5مل") do not have this shape and
-// are left alone, which is correct: those are concentrations, not combinations.
-func strengthSet(text string) []strength {
-	norm := sheet.NormalizeDigits(text)
-	locs := strengthPattern.FindAllStringIndex(norm, -1)
-	if len(locs) == 0 {
-		return nil
-	}
-
-	out := make([]strength, 0, len(locs)*2)
-	add := func(s strength) {
-		if !s.known() {
-			return
-		}
-		for _, have := range out {
-			if have == s {
-				return
-			}
-		}
-		out = append(out, s)
-	}
-
-	for _, loc := range locs {
-		match := norm[loc[0]:loc[1]]
-		parsed := parseStrength(match)
-		if !parsed.known() {
-			continue
-		}
-		// The unit scaled the figure that carried it; every ratio leader must
-		// be scaled the same way before the two can be compared.
-		leads := ratioLeads(norm[:loc[0]])
-		parsed.parts = len(leads) + 1
-		add(parsed)
-		if head := numericHead(match); head > 0 {
-			for _, lead := range leads {
-				add(strength{
-					value: lead * (parsed.value / head),
-					unit:  parsed.unit,
-					parts: parsed.parts,
-				})
-			}
-		}
-	}
-	return out
-}
-
-// ratioLeads reads the figures written before a dose as a ratio: the "32/" of
-// "32/25 ملجم", and the "5/" and "2.5/" of a three-part combination.
-//
-// It walks backwards for as long as the text keeps offering "<number>/", which
-// is what makes املوفيران بلس 10/2.5/5مجم state three components rather than
-// two. Stopping at the first one left the widest combination families
-// indistinguishable from their two-part siblings.
-//
-// A slash preceded by a UNIT rather than by a figure ends the walk, and that is
-// the whole safety of it: "250مجم/5مل" is a concentration, not a combination,
-// and the 250 is already recorded in its own unit.
-func ratioLeads(before string) []float64 {
-	var out []float64
-	for len(out) < 4 {
-		trimmed := strings.TrimRight(before, " ")
-		if !strings.HasSuffix(trimmed, "/") {
-			break
-		}
-		digits := strings.TrimRight(trimmed[:len(trimmed)-1], " ")
-		start := len(digits)
-		for start > 0 {
-			c := digits[start-1]
-			if (c >= '0' && c <= '9') || c == '.' || c == ',' {
-				start--
-				continue
-			}
-			break
-		}
-		if start == len(digits) {
-			break
-		}
-		v, err := strconv.ParseFloat(strings.Replace(digits[start:], ",", ".", 1), 64)
-		if err != nil || v <= 0 {
-			break
-		}
-		out = append(out, v)
-		before = digits[:start]
-	}
-	return out
-}
-
-// numericHead is the figure a matched strength was written with, before its unit
-// scaled it.
-func numericHead(match string) float64 {
-	end := 0
-	for end < len(match) {
-		c := match[end]
-		if (c >= '0' && c <= '9') || c == '.' || c == ',' {
-			end++
-			continue
-		}
-		break
-	}
-	v, err := strconv.ParseFloat(strings.Replace(match[:end], ",", ".", 1), 64)
-	if err != nil || v <= 0 {
-		return 0
-	}
-	return v
 }

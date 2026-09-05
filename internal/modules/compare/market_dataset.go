@@ -51,14 +51,39 @@ type MarketOffer struct {
 
 // GroupKey identifies the product an offer is about.
 //
-// A catalogue id where one is known, and the normalised name otherwise. The
+// A catalogue id where one is known, and the shared product key otherwise. The
 // prefixes keep the two spaces apart: without them a product whose name folds
 // to "104" would collide with catalogue product 104.
+//
+// The fallback was the EXACT normalised name, which is the same thing as saying
+// two suppliers only count as offering the same product when they spell it
+// identically. They do not: one writes "زيرتك 10 مجم" and the next writes
+// "Zyrtec 10mg", and the market benchmark counted those as two products with
+// one offer each — so "how many suppliers carry this" and "what does the market
+// charge" were both computed over a fragment of the market. productKeyOf folds
+// the spelling, the alphabet and the way the dose is written, and still refuses
+// to fold two different strengths together.
 func (o MarketOffer) GroupKey() string {
 	if o.ProductID != nil && *o.ProductID > 0 {
 		return "p:" + itoa(*o.ProductID)
 	}
-	if n := normalizeProductText(o.ProductName); n != "" {
+	if k := productKeyOf(o.ProductName); k != "" {
+		return k
+	}
+	return ""
+}
+
+// productKeyOf is the name-side group key, prefixed so it cannot collide with
+// the catalogue-id space.
+func productKeyOf(name string) string {
+	if k := getCoreDrugMatchKey(name); k != "" {
+		return "k:" + k
+	}
+	// Nothing identifying in the name. Fall back to the exact normalised form
+	// rather than dropping the offer: a row this engine cannot read still has a
+	// price somebody wants to see, and grouping it with its own exact duplicates
+	// is better than grouping it with nothing.
+	if n := normalizeProductText(name); n != "" {
 		return "n:" + n
 	}
 	return ""
@@ -287,6 +312,13 @@ func (d *MarketDataset) Lookup(productID *int64, name string) (*MarketProduct, b
 			return p, true
 		}
 	}
+	if k := productKeyOf(name); k != "" {
+		if p, ok := d.Products[k]; ok {
+			return p, true
+		}
+	}
+	// The exact-name space is still consulted for offers whose names this
+	// engine could not read, which productKeyOf files under "n:".
 	if n := normalizeProductText(name); n != "" {
 		if p, ok := d.Products["n:"+n]; ok {
 			return p, true

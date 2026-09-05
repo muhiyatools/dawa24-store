@@ -6,56 +6,60 @@ templ CustomerSavingReviewScript() {
 			if (pharmacyPollInterval) { clearInterval(pharmacyPollInterval); pharmacyPollInterval = null; }
 			if (pharmacyProgressBar) { pharmacyProgressBar.stop(); }
 
-			if (window.ImportProgress) {
-				pharmacyProgressBar = new window.ImportProgress({
-					fill:    document.getElementById('pharmacy-progress-bar'),
-					label:   document.getElementById('pharmacy-progress-phase'),
-					percent: document.getElementById('pharmacy-progress-percent'),
-					count:   document.getElementById('pharmacy-progress-counter'),
-				});
-				pharmacyProgressBar.start();
-			}
+			// Constructed unconditionally, as the vendor side is. import-progress.js
+			// is loaded on every page by the base layout, and the constructor
+			// tolerates a missing element — so the old `if (window.ImportProgress)`
+			// guard only ever hid a missing script, and hid it by silently doing
+			// nothing at all.
+			pharmacyProgressBar = new window.ImportProgress({
+				fill:    document.getElementById('pharmacy-progress-bar'),
+				label:   document.getElementById('pharmacy-progress-phase'),
+				percent: document.getElementById('pharmacy-progress-percent'),
+				count:   document.getElementById('pharmacy-progress-counter'),
+			});
+			pharmacyProgressBar.start();
 
-			const step = () => {
+			// Live, not polled.
+			//
+			// This used to ask the server twice a second for as long as the
+			// import ran — a few hundred requests for a large file, almost all
+			// of them returning a number that had not changed. It now opens one
+			// stream and is written to when the work moves. See
+			// static/js/import-progress.js and internal/platform/progress.
+			//
+			// The staged rows are fetched ONCE, when the run reports itself
+			// ready, because they are megabytes and the bar never needed them.
+			pharmacyProgressBar.watch(sessionId, 1500, (snap) => {
+				if (!snap) return;
+
+				if (snap.state === 'failed' || snap.error) {
+					const message = snap.error || 'خطأ غير معروف';
+					pharmacyProgressBar.fail(message);
+					alert('فشلت المعالجة: ' + message);
+					showPharmacyImportStep('config');
+					return;
+				}
+
+				if (snap.state !== 'ready' && !snap.done) return;
+
 				fetch('/customer/saving-products/import/session/' + sessionId + '/progress')
 				.then(r => r.json())
 				.then(sess => {
 					if (!sess || !sess.success) {
-						if (pharmacyProgressBar) pharmacyProgressBar.fail(sess && sess.error ? sess.error : 'فشلت معالجة الجلسة.');
-						alert((sess && sess.error) || 'فشلت معالجة الجلسة.');
+						const message = (sess && sess.error) || 'فشلت معالجة الجلسة.';
+						pharmacyProgressBar.fail(message);
+						alert(message);
 						showPharmacyImportStep('config');
 						return;
 					}
-					if (sess.status === 'failed') {
-						if (pharmacyProgressBar) pharmacyProgressBar.fail(sess.error_message || 'خطأ غير معروف');
-						alert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));
-						showPharmacyImportStep('config');
-						return;
-					}
-
-					if (pharmacyProgressBar) {
-						pharmacyProgressBar.update({
-							percent: sess.progress,
-							message: sess.progress_phase,
-							current: sess.processed_rows,
-							total:   sess.total_rows,
-							done:    sess.status === 'ready',
-						});
-					}
-
-					if (sess.status === 'ready') {
-						pharmacyStagedData = sess;
-						renderPharmacyStagedReview(sess);
-						return;
-					}
-					setTimeout(step, 500);
+					pharmacyStagedData = sess;
+					renderPharmacyStagedReview(sess);
 				})
 				.catch(err => {
-					console.error('poll progress error', err);
-					setTimeout(step, 2000);
+					console.error('staged rows fetch failed', err);
+					pharmacyProgressBar.fail('تعذّر تحميل الأصناف بعد المعالجة. أعد تحميل الصفحة.');
 				});
-			};
-			step();
+			});
 		}
 
 		function showPharmacyImportStep(step) {

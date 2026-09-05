@@ -1,0 +1,79 @@
+package components
+
+// One progress dialog, for every tool that uploads a file and then works on it.
+//
+// The tools each had their own idea of what "working" looks like — a disabled
+// button, a spinner, a bar with no number, or nothing at all — and the compare
+// tool, which takes the largest files on the platform, had nothing at all. A
+// vendor dragged ten price lists in, pressed the button, and watched a page
+// that did not move for a minute and a half.
+//
+// The two phases are shown separately because they fail differently and a
+// reader needs to know which one they are in:
+//
+//   - Uploading is measured. xhr.upload.onprogress reports bytes sent, so the
+//     percentage is a real one and the answer to "how much longer" is honest.
+//     This is the phase that used to take the longest and report nothing.
+//   - Processing is not measured from the browser. The bar drifts toward the
+//     end of its band without arriving, and the caption names the file being
+//     worked on — which says "still going, and this far" rather than either
+//     freezing or inventing a number.
+//
+// It is driven by window.UploadProgress (static/js/upload-progress.js) and is
+// deliberately markup-only: any page can drop it in and any script can drive
+// it, which is what makes the treatment identical everywhere.
+
+// UploadProgressProps identifies one dialog on a page.
+type UploadProgressProps struct {
+	// ID is the dialog's element id. Scripts address everything inside it by
+	// this prefix, so it must be unique on the page.
+	ID string
+	// Title is shown in the header, e.g. "رفع كشوف الموردين".
+	Title string
+	// Subtitle explains what will happen when it finishes.
+	Subtitle string
+}
+
+templ UploadProgressModal(props UploadProgressProps) {
+	@Modal(ModalProps{
+		ID:       props.ID,
+		Title:    props.Title,
+		Subtitle: props.Subtitle,
+		Icon:     "upload",
+		Size:     "md",
+		Class:    "upload-progress-modal",
+	}) {
+		<div class="upload-progress" data-upload-progress={ props.ID }>
+			<div class="upload-progress-phase">
+				<span class="upload-progress-caption" id={ props.ID + "-caption" }>
+					جارٍ التحضير…
+				</span>
+				<span class="upload-progress-percent" id={ props.ID + "-percent" }>0%</span>
+			</div>
+
+			<div
+				class="upload-progress-track"
+				role="progressbar"
+				aria-valuemin="0"
+				aria-valuemax="100"
+				aria-valuenow="0"
+				aria-labelledby={ props.ID + "-caption" }
+			>
+				<div class="upload-progress-fill" id={ props.ID + "-fill"}></div>
+			</div>
+
+			<div class="upload-progress-meta">
+				<span id={ props.ID + "-count" } class="upload-progress-count"></span>
+				<span id={ props.ID + "-detail" } class="upload-progress-detail"></span>
+			</div>
+
+			<!-- Per-file rows, filled in by the driver for a batch upload. A
+			     single-file upload leaves this empty and shows only the bar. -->
+			<ul class="upload-progress-files" id={ props.ID + "-files" }></ul>
+
+			<p class="upload-progress-note" id={ props.ID + "-note" }>
+				لا تُغلق هذه النافذة حتى تكتمل المعالجة.
+			</p>
+		</div>
+	}
+}

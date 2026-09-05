@@ -181,7 +181,7 @@ func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
 	// the read itself still fails past the cap.
 	r.Body = http.MaxBytesReader(nil, r.Body, maxImportRequestBytes)
 
-	if err := r.ParseMultipartForm(maxImportUploadBytes); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		return nil, "", &uploadError{
 			message: fmt.Sprintf(i18n.T(lang, "admin.import.upload_max_bytes_format"),
 				maxImportUploadBytes>>20),

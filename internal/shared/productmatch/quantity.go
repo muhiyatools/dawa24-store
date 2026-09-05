@@ -58,7 +58,7 @@ type quantities struct {
 // together and compared the bags by containment, which made a 30-tablet pack
 // and half a combination dose interchangeable evidence.
 func readQuantities(text string) quantities {
-	words := strings.Fields(sheet.NormalizeDigits(sheet.NormalizeName(text)))
+	words := strings.Fields(sheet.NormalizeName(foldPackMultipliers(sheet.NormalizeDigits(text))))
 	if len(words) == 0 {
 		return quantities{}
 	}
@@ -196,6 +196,118 @@ func countClassOf(word string) string {
 func isDoseUnitWord(word string) bool {
 	_, ok := doseUnits[word]
 	return ok
+}
+
+// foldPackMultipliers turns a written multiplication into the number it means.
+//
+// Egyptian price lists state a carton as its factors: "20*10 tabs" is twenty
+// strips of ten and the catalogue records it as "200 قرص". Read literally the
+// row states a pack of twenty AND a pack of ten, neither of which is true, and
+// the catalogue's 200 contradicts both — so اليرجيل 4 مجم 20 قرص was applied to
+// a row asking for اليرجيل 4مجم 200 قرص, with the pack-count check actively
+// voting for the wrong one.
+//
+// Only the product is recorded. The factors are deliberately dropped rather
+// than kept alongside it: a row stating 10, 20 and 200 agrees with every
+// sibling in the family, which is the same as having no pack count at all.
+//
+// The separator may be *, × or x, and x is the delicate one — it is also a
+// letter. It counts only between two bare figures, so "b12 x 30" and "vitax 10"
+// are left alone: neither has a pure number on the left of the x.
+func foldPackMultipliers(text string) string {
+	if !strings.ContainsAny(text, "*×xX") {
+		return text
+	}
+	runes := []rune(text)
+	var b strings.Builder
+	b.Grow(len(text))
+
+	for i := 0; i < len(runes); i++ {
+		r := runes[i]
+		if r != '*' && r != '×' && r != 'x' && r != 'X' {
+			b.WriteRune(r)
+			continue
+		}
+		left, leftStart := trailingNumber(runes[:i])
+		right, rightEnd := leadingNumber(runes[i+1:])
+		product := left * right
+		if left <= 0 || right <= 0 || product > maxPackUnits {
+			b.WriteRune(r)
+			continue
+		}
+		// Drop the left factor already written, and skip the right one.
+		out := []rune(b.String())
+		b.Reset()
+		b.WriteString(string(out[:leftStart]))
+		b.WriteString(strconv.Itoa(product))
+		i += rightEnd
+	}
+	return b.String()
+}
+
+// maxPackUnits bounds what a multiplication may be believed to produce. Above
+// it the two figures were not a pack: they are a lot number, a barcode split
+// across a separator, or a size in millimetres.
+const maxPackUnits = 100000
+
+// trailingNumber reads the figure a multiplication sign was applied to, and
+// where in the buffer it began. It refuses a figure that is part of a word
+// ("vitax"), which is what keeps the letter x from being read as an operator.
+func trailingNumber(before []rune) (value, start int) {
+	end := len(before)
+	for end > 0 && before[end-1] == ' ' {
+		end--
+	}
+	start = end
+	for start > 0 && before[start-1] >= '0' && before[start-1] <= '9' {
+		start--
+	}
+	if start == end {
+		return 0, 0
+	}
+	if start > 0 {
+		if prev := before[start-1]; isNameLetter(prev) {
+			return 0, 0
+		}
+	}
+	v, err := strconv.Atoi(string(before[start:end]))
+	if err != nil {
+		return 0, 0
+	}
+	return v, start
+}
+
+// leadingNumber reads the figure after a multiplication sign, and how many
+// runes it consumed including any space before it.
+func leadingNumber(after []rune) (value, width int) {
+	i := 0
+	for i < len(after) && after[i] == ' ' {
+		i++
+	}
+	start := i
+	for i < len(after) && after[i] >= '0' && after[i] <= '9' {
+		i++
+	}
+	if i == start {
+		return 0, 0
+	}
+	v, err := strconv.Atoi(string(after[start:i]))
+	if err != nil {
+		return 0, 0
+	}
+	return v, i
+}
+
+// isNameLetter reports whether a rune would make an adjacent figure part of a
+// word rather than a standalone count.
+func isNameLetter(r rune) bool {
+	switch {
+	case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z':
+		return true
+	case r >= 'ء' && r <= 'ي':
+		return true
+	}
+	return false
 }
 
 // splitLeadingNumber separates "30قرص" into 30 and "قرص".

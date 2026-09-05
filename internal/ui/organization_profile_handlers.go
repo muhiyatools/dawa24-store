@@ -185,7 +185,7 @@ func organizationProfileNotice(
 // cannot blank a column it does not display.
 func (h *UIHandler) readProfileSectionForm(r *http.Request, section org.ProfileSection) (org.ProfileFields, error) {
 	if section == org.SectionMedia {
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
+		if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 			return nil, err
 		}
 	} else if err := r.ParseForm(); err != nil {

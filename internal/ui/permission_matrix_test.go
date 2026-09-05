@@ -171,7 +171,7 @@ func TestRoleRoutePermissionMatrix(t *testing.T) {
 				"super_admin":       http.StatusSeeOther, // non-vendor redirects to admin dashboard
 				"platform_support":  http.StatusSeeOther,
 				"vendor_approved":   http.StatusOK,
-				"vendor_pending":    http.StatusFound, // redirects to /onboarding/pending
+				"vendor_pending":    http.StatusFound,    // redirects to /onboarding/pending
 				"customer_approved": http.StatusSeeOther, // redirects to /customer/dashboard
 				"customer_pending":  http.StatusSeeOther,
 			},

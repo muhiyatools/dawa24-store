@@ -85,7 +85,7 @@ func (h *UIHandler) AdminOrgImportSavingsUploadSubmit(w http.ResponseWriter, r *
 	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		h.redirectWithNotice(w, r, "/admin/organizations/import", "error", i18n.T(lang, "customer.saving.import.file_too_large_short"))
 		return
 	}
@@ -187,7 +187,7 @@ func (h *UIHandler) AdminOrgImportTempWarehouseUploadSubmit(w http.ResponseWrite
 	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
-	if err := r.ParseMultipartForm(500 << 20); err != nil {
+	if err := parseImportUpload(w, r); err != nil {
 		h.redirectWithNotice(w, r, "/admin/organizations/import", "error", i18n.T(lang, "admin.temp_warehouse.upload_too_large"))
 		return
 	}

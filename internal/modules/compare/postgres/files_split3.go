@@ -18,12 +18,17 @@ func (r *Repository) FindCandidateProducts(ctx context.Context, orgID *int64, qu
 
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		// Try catalog.product_index first
+		// The barcode is joined in rather than read from the index, which has no
+		// barcode column. Without it the match ladder had nothing to compare a
+		// row's barcode against and compared it to the SKU instead — two
+		// unrelated numbering schemes tested for equality.
 		sql := `
-			SELECT product_id, COALESCE(sku, ''), COALESCE(name_ar, ''), COALESCE(name_en, ''),
-			       COALESCE(scientific_name, ''), COALESCE(search_simple, '')
-			FROM catalog.product_index
-			WHERE ($1 = '' OR sku = $1)
-			   OR ($2 != '' AND (search_simple ILIKE '%' || $2 || '%' OR name_ar ILIKE '%' || $2 || '%' OR name_en ILIKE '%' || $2 || '%'))
+			SELECT i.product_id, COALESCE(i.sku, ''), COALESCE(i.name_ar, ''), COALESCE(i.name_en, ''),
+			       COALESCE(i.scientific_name, ''), COALESCE(i.search_simple, ''), COALESCE(p.barcode, '')
+			FROM catalog.product_index i
+			LEFT JOIN catalog.products p ON p.id = i.product_id
+			WHERE ($1 = '' OR i.sku = $1)
+			   OR ($2 != '' AND (i.search_simple ILIKE '%' || $2 || '%' OR i.name_ar ILIKE '%' || $2 || '%' OR i.name_en ILIKE '%' || $2 || '%'))
 			LIMIT $3;
 		`
 		rows, err := tx.Query(txCtx, sql, sku, query, limit)
@@ -31,7 +36,7 @@ func (r *Repository) FindCandidateProducts(ctx context.Context, orgID *int64, qu
 			// Fall back to catalog.products
 			fallbackSQL := `
 				SELECT id, COALESCE(sku, ''), COALESCE(name->>'ar', ''), COALESCE(name->>'en', ''),
-				       COALESCE(scientific_name, ''), ''
+				       COALESCE(scientific_name, ''), '', COALESCE(barcode, '')
 				FROM catalog.products
 				WHERE deleted_at IS NULL
 				  AND (($1 = '' OR sku = $1)
@@ -45,7 +50,7 @@ func (r *Repository) FindCandidateProducts(ctx context.Context, orgID *int64, qu
 			defer fbRows.Close()
 			for fbRows.Next() {
 				var c compare.CandidateProduct
-				if err := fbRows.Scan(&c.ID, &c.SKU, &c.NameAr, &c.NameEn, &c.ScientificName, &c.SearchSimple); err != nil {
+				if err := fbRows.Scan(&c.ID, &c.SKU, &c.NameAr, &c.NameEn, &c.ScientificName, &c.SearchSimple, &c.Barcode); err != nil {
 					return err
 				}
 				candidates = append(candidates, &c)
@@ -56,7 +61,7 @@ func (r *Repository) FindCandidateProducts(ctx context.Context, orgID *int64, qu
 
 		for rows.Next() {
 			var c compare.CandidateProduct
-			if err := rows.Scan(&c.ID, &c.SKU, &c.NameAr, &c.NameEn, &c.ScientificName, &c.SearchSimple); err != nil {
+			if err := rows.Scan(&c.ID, &c.SKU, &c.NameAr, &c.NameEn, &c.ScientificName, &c.SearchSimple, &c.Barcode); err != nil {
 				return err
 			}
 			candidates = append(candidates, &c)

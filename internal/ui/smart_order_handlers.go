@@ -85,7 +85,7 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes)
 	// The in-memory portion is capped well below the body limit so a large
 	// upload spills to a temp file instead of being held whole in RAM.
-	if err := r.ParseMultipartForm(8 << 20); err != nil {
+	if err := r.ParseMultipartForm(uploadMemoryBudget); err != nil {
 		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.upload_size_limit"))
 		return
 	}

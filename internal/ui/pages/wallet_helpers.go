@@ -22,10 +22,10 @@ type WalletViewData struct {
 	// TxStatus filters billing.wallet_deposits.status: pending|completed|rejected.
 	TxStatus string
 	// TxType filters billing.wallet_transactions.type: deposit|withdrawal|purchase.
-	TxType       string
-	Page         int
-	PerPage      int
-	TotalCount   int
+	TxType     string
+	Page       int
+	PerPage    int
+	TotalCount int
 }
 
 func walletBaseURL(isVendor bool) string {

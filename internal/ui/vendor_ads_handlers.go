@@ -103,7 +103,7 @@ func (h *UIHandler) VendorAdCreateSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Max 20MB for direct image/video uploads
-	_ = r.ParseMultipartForm(20 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 
 	ad := h.parseAdForm(r, actor.OrganizationID)
 
@@ -178,7 +178,7 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_ = r.ParseMultipartForm(20 << 20)
+	_ = r.ParseMultipartForm(uploadMemoryBudget)
 	ad := h.parseAdForm(r, actor.OrganizationID)
 	ad.ID = id
 

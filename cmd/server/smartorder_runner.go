@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
@@ -47,9 +48,12 @@ func inlineSmartOrderRunner(
 	db *database.DB,
 	orgSvc *org.Service,
 	ai gateway.Client,
+	publisher *progress.Publisher,
 	log *slog.Logger,
 ) ui.SmartOrderEnqueueFunc {
-	repo := smartorderPG.New(db)
+	// The same decorated repository the service uses: this is the half that
+	// actually writes the events a watching screen is waiting for.
+	repo := smartorder.WithProgressNotifications(smartorderPG.New(db), publisher)
 	coverage := workflow.NewCoverageService(db)
 
 	// AI is optional; a nil enhancer makes the pipeline skip the stage, which

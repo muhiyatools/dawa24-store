@@ -40,19 +40,19 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * limit
 
 	var (
-		invoices             []*billing.AdminInvoiceView
-		payments             []*billing.AdminPaymentView
-		wallets              []*billing.AdminWalletView
-		transactions         []*billing.AdminWalletTransactionView
-		deposits             []*billing.AdminWalletDepositView
-		withdrawals          []*billing.AdminWalletWithdrawalView
-		totalInvoices        int
-		totalPayments        int
-		totalWallets         int
-		totalTransactions    int
-		totalDeposits        int
-		pendingDepositsCount int
-		totalWithdrawals     int
+		invoices                []*billing.AdminInvoiceView
+		payments                []*billing.AdminPaymentView
+		wallets                 []*billing.AdminWalletView
+		transactions            []*billing.AdminWalletTransactionView
+		deposits                []*billing.AdminWalletDepositView
+		withdrawals             []*billing.AdminWalletWithdrawalView
+		totalInvoices           int
+		totalPayments           int
+		totalWallets            int
+		totalTransactions       int
+		totalDeposits           int
+		pendingDepositsCount    int
+		totalWithdrawals        int
 		pendingWithdrawalsCount int
 	)
 

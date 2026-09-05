@@ -50,6 +50,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -84,6 +85,17 @@ func buildUIHandler(
 
 	orgSvcUI := org.NewService(orgRepoUI, log)
 
+	// Live progress, established before the import stores are wired because
+	// each of them is decorated with it.
+	//
+	// One hub per process, fed locally by whatever is doing the work and across
+	// processes by Redis. Every import store below publishes through it, so a
+	// screen watching a run is written to when a number moves instead of asking
+	// twice a second for one that has not.
+	progressHub := progress.NewHub()
+	uiProgress := progress.NewPublisher(redisHandle(deps), progressHub, log)
+	go progress.Bridge(context.Background(), redisHandle(deps), progressHub, log)
+
 	instGate := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
 	})
@@ -93,7 +105,7 @@ func buildUIHandler(
 	// The staged catalogue import: the admin reviews a parsed file before any of
 	// it is written. Without a store the wizard reports itself unavailable
 	// rather than falling back to writing blind.
-	catSvcUI.SetImportStore(catRepoUI)
+	catSvcUI.SetImportStore(catalog.WithProgressNotifications(catRepoUI, uiProgress))
 	if cacheHandle := deps.CacheHandle(); cacheHandle != nil {
 		catSvcUI.SetCache(cacheHandle)
 	}
@@ -153,7 +165,7 @@ func buildUIHandler(
 	// screen to be offered: without the store there is nowhere to hold a review,
 	// and without the catalogue there is nothing to match against. Wiring them
 	// here keeps the module free of the composition root.
-	ingSvcUI.SetImportStore(ingRepoUI)
+	ingSvcUI.SetImportStore(ingest.WithProgressNotifications(ingRepoUI, uiProgress))
 	// The decision cache the AI stage reads before it asks anything. Shared
 	// with the smart order, on purpose: both ask the same question through the
 	// same prompt, so an answer either bought is free to the other.
@@ -226,7 +238,6 @@ func buildUIHandler(
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
-
 
 		// The catalogue import's three mapping calls: which column is which
 		// field, and which existing category and pharmaceutical form each of the
@@ -301,14 +312,27 @@ func buildUIHandler(
 	})
 
 	// Smart ordering (specs/001-smart-ordering-system).
-	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, ai, log)
+	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, ai, uiProgress, log)
 
 	// Unified durable imports (Task 18).
-	wireImports(db, uiHandler, catSvcUI, log)
+	wireImports(db, uiHandler, catSvcUI, progressHub, uiProgress, log)
 
 	// Audience-gated UI groups (Rebuild V2 Â§1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is
 	// reachable by anyone regardless of account type â€” test/route_audience_test.go
 	// walks the app the same way admin_guard_test.go does and forbids that.
 	return uiHandler
+}
+
+// redisHandle resolves the cache client, which may not be dialled yet.
+//
+// The HTTP listener opens before Redis is connected, so a client captured at
+// wiring time would be nil for the life of the process. Progress degrades to
+// the JSON poll when it comes back nil, which is the same trade the rest of the
+// platform makes with the cache.
+func redisHandle(deps *dependencies) *redis.Client {
+	if c := deps.CacheHandle(); c != nil {
+		return c.Redis()
+	}
+	return nil
 }

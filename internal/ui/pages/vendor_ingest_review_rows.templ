@@ -100,7 +100,16 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				data-limit={ fmt.Sprint(view.PerPage) }
 				data-search={ view.Filter.Search }>
 				
-				<div class="mb-2">
+				<div class="catalog-dialog-head">
+					<span class="catalog-dialog-title" title={ row.DisplayName }>
+						ربط بالكتالوج: { row.DisplayName }
+					</span>
+					<button type="button" class="btn btn-ghost btn-icon shrink-0"
+						aria-label="إغلاق"
+						onclick="closeAllCatalogDropdowns()">✕</button>
+				</div>
+
+				<div class="catalog-dialog-search">
 					<input type="text" placeholder="ابحث بالاسم أو SKU في الكتالوج المركزي..."
 						data-row-id={ fmt.Sprint(row.ID) }
 						class="form-input"
@@ -132,7 +141,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				</div>
 
 				if row.ProductID != nil && *row.ProductID > 0 {
-					<div class="mt-2 pt-2 border-top">
+					<div class="mt-2 pt-2 border-t">
 						<form class="stack-md" method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
 								إلغاء الربط (جعله غير مطابق)

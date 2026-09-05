@@ -282,7 +282,51 @@ type scoredProduct struct {
 	name   float64
 	agreed agreements
 	exact  bool
+	// blind means not one distinctive word agreed: the whole likeness comes
+	// from a wordless channel — character trigrams, or the cross-script
+	// consonant skeleton. See settleable.
+	blind bool
 }
+
+// settleable reports whether a candidate may be APPLIED rather than merely
+// offered.
+//
+// A blind candidate is one whose entire case is that the letters line up. The
+// skeleton channel discards every vowel and folds both alphabets onto one
+// alphabet, which is what lets an Arabic row find its Latin catalogue entry —
+// and also what let these through, each applied silently at "تشابه الاسم 86%"
+// with nothing else to say for itself:
+//
+//	chromax 60 capsules   ->  سيرومكس 10 اقراص      (want كروماكس 60 كبسولة)
+//	alkasilon 200ml       ->  لوكاسالين مرهم 10جم   (want الكازيلون معلق 200 مل)
+//	c zinc 30 caps        ->  زنك 50مجم 100 قرص     (want سي زنك 30 كبسولة)
+//
+// Letters lining up is real evidence and it stays worth what it is worth: the
+// row is still scored, still shortlisted, still one click from acceptance. What
+// it may no longer do is decide. That is the whole of the difference between a
+// suggestion and a silent write into a vendor's catalogue.
+//
+// Two exceptions, and both are measured rather than assumed:
+//
+//   - A dose stated on both sides and agreeing. Two products spelled alike by
+//     coincidence do not also agree on 500 mg by coincidence.
+//   - A name similarity at or above blindNearIdentical. The skeleton channel is
+//     capped at 0.86 and cannot reach it, so this is the trigram channel saying
+//     the two strings are all but the same string — one transposed letter in a
+//     brand somebody typed twice. That is the case this whole channel exists
+//     for, and refusing it costs the transliteration matches without buying any
+//     precision back.
+//
+// Without the exceptions the rule removes 8 wrong matches and 124 right ones.
+// With them it removes the same 8 and 3 right ones. The exceptions are not a
+// softening of the rule; they are what makes it pay.
+func (s scoredProduct) settleable() bool {
+	return !s.blind || s.agreed&agreedDose != 0 || s.name >= blindNearIdentical
+}
+
+// blindNearIdentical is the name similarity at which letters alone are allowed
+// to settle a match. See settleable.
+const blindNearIdentical = 0.90
 
 // score rates every plausible catalogue product for one query.
 func (idx *Index) score(q *query, opts MatchOptions) []scoredProduct {

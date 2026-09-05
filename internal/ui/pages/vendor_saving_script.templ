@@ -326,44 +326,42 @@ templ VendorSavingScript() {
 				});
 				vendorProgressBar.start();
 
-				const step = () => {
+				// Live, not polled. This used to ask twice a second for the whole
+				// run — hundreds of requests, almost all returning an unchanged
+				// number. One stream now, written to when the work moves; the
+				// staged rows are fetched once, on ready. See
+				// static/js/import-progress.js and internal/platform/progress.
+				vendorProgressBar.watch(sessionId, 1500, (snap) => {
+					if (!snap) return;
+
+					if (snap.state === 'failed' || snap.error) {
+						const message = snap.error || 'خطأ غير معروف';
+						vendorProgressBar.fail(message);
+						alert('فشلت المعالجة: ' + message);
+						showVendorImportStep('config');
+						return;
+					}
+
+					if (snap.state !== 'ready' && !snap.done) return;
+
 					fetch('/vendor/saving-products/import/session/' + sessionId + '/progress')
 					.then(r => r.json())
 					.then(sess => {
 						if (!sess || !sess.success) {
-							vendorProgressBar.fail(sess && sess.error ? sess.error : 'فشلت معالجة الجلسة.');
-							alert((sess && sess.error) || 'فشلت معالجة الجلسة.');
+							const message = (sess && sess.error) || 'فشلت معالجة الجلسة.';
+							vendorProgressBar.fail(message);
+							alert(message);
 							showVendorImportStep('config');
 							return;
 						}
-						if (sess.status === 'failed') {
-							vendorProgressBar.fail(sess.error_message || 'خطأ غير معروف');
-							alert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));
-							showVendorImportStep('config');
-							return;
-						}
-
-						vendorProgressBar.update({
-							percent: sess.progress,
-							message: sess.progress_phase,
-							current: sess.processed_rows,
-							total:   sess.total_rows,
-							done:    sess.status === 'ready',
-						});
-
-						if (sess.status === 'ready') {
-							vendorStagedData = sess;
-							renderVendorStagedReview(sess);
-							return;
-						}
-						setTimeout(step, 500);
+						vendorStagedData = sess;
+						renderVendorStagedReview(sess);
 					})
 					.catch(err => {
-						console.error('poll progress error', err);
-						setTimeout(step, 2000);
+						console.error('staged rows fetch failed', err);
+						vendorProgressBar.fail('تعذّر تحميل الأصناف بعد المعالجة. أعد تحميل الصفحة.');
 					});
-				};
-				step();
+				});
 			}
 
 			function showVendorImportStep(step) {

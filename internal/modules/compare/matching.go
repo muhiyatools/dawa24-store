@@ -14,16 +14,20 @@ import (
 
 // CandidateProduct represents a catalog product candidate evaluated during matching.
 type CandidateProduct struct {
-	ID                     int64        `json:"id"`
-	SKU                    string       `json:"sku"`
-	NameAr                 string       `json:"name_ar"`
-	NameEn                 string       `json:"name_en"`
-	ScientificName         string       `json:"scientific_name"`
-	ManufacturingCompanies string       `json:"manufacturing_companies"`
-	Pharmacology           string       `json:"pharmacology"`
-	Price                  money.Amount `json:"price"`
-	Image                  string       `json:"image"`
-	SearchSimple           string       `json:"search_simple"`
+	ID                     int64  `json:"id"`
+	SKU                    string `json:"sku"`
+	NameAr                 string `json:"name_ar"`
+	NameEn                 string `json:"name_en"`
+	ScientificName         string `json:"scientific_name"`
+	ManufacturingCompanies string `json:"manufacturing_companies"`
+	Pharmacology           string `json:"pharmacology"`
+	// Barcode is the catalogue's GTIN, and it exists because the ladder used
+	// to compare a row's barcode against this struct's SKU for want of
+	// anywhere else to look.
+	Barcode      string       `json:"barcode"`
+	Price        money.Amount `json:"price"`
+	Image        string       `json:"image"`
+	SearchSimple string       `json:"search_simple"`
 }
 
 // MatchResult encapsulates the resolved product match and confidence score.
@@ -76,32 +80,28 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 	}
 
 	// -----------------------------------------------------------------------
-	// Strategy 1: SKU / Barcode Match
+	// Strategy 1: identifiers — handled by the shared engine, not here
 	// -----------------------------------------------------------------------
-	if cleanSKU != "" && cleanSKU != "0" {
-		for _, c := range candidates {
-			if strings.ToLower(strings.TrimSpace(c.SKU)) == cleanSKU {
-				return &MatchResult{
-					ProductID:   &c.ID,
-					Confidence:  100.0,
-					Method:      MatchMethodSKU,
-					MethodLabel: i18n.TDefault("w4_mod.sku_161"),
-				}, nil
-			}
-		}
-	}
-	if cleanBarcode != "" && cleanBarcode != "0" {
-		for _, c := range candidates {
-			if strings.ToLower(strings.TrimSpace(c.SKU)) == cleanBarcode {
-				return &MatchResult{
-					ProductID:   &c.ID,
-					Confidence:  100.0,
-					Method:      MatchMethodBarcode,
-					MethodLabel: i18n.TDefault("w4_mod.s_372_372"),
-				}, nil
-			}
-		}
-	}
+	//
+	// This tool used to run its own code and barcode tiers, and both broke the
+	// rule internal/shared/productmatch/identifiers.go exists to state.
+	//
+	// The barcode tier compared the ROW'S BARCODE against the CANDIDATE'S SKU.
+	// CandidateProduct carries no barcode at all, so there was nothing else it
+	// could compare against — it was not a near miss, it was two different
+	// numbering schemes tested for equality and returned at confidence 100.
+	//
+	// The code tier accepted a bare SKU collision with no corroboration from
+	// the name, which is exactly what every other importer refuses: a supplier's
+	// "951" coincides with a catalogue code by accident more often than by
+	// design, and a wrongly linked row prices the wrong medicine with no
+	// downstream check to catch it.
+	//
+	// Both now go through Index.Match, under the same options the vendor
+	// import, the admin catalogue import, the saving list and the smart order
+	// use. The code tier is allowed only where the file actually carries a code,
+	// and never authoritatively, so productmatch demands a unique catalogue hit
+	// AND an agreeing name before it settles anything.
 
 	// -----------------------------------------------------------------------
 	// Strategy 2: Exact Name Match
@@ -140,7 +140,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 	// import do: the same rarity weighting, the same dose and form and
 	// line-extension discrimination, the same refusal to choose between two
 	// products the row cannot separate.
-	if res, ok := s.matchAgainst(rawName, sku, barcode, candidates); ok {
+	if res, ok := s.matchAgainst(rawName, cleanSKU, cleanBarcode, candidates); ok {
 		return res, nil
 	}
 
@@ -210,11 +210,6 @@ func (s *Service) SaveManualCorrection(ctx context.Context, orgID *int64, rowID 
 
 func normalizeProductText(s string) string { return productmatch.NormalizeText(s) }
 
-func extractFirstMeaningfulWord(s string) string { return productmatch.FirstMeaningfulWord(s) }
-
-// CalculateTextSimilarity computes string similarity between two normalized strings.
-func CalculateTextSimilarity(s1, s2 string) float64 { return productmatch.TextSimilarity(s1, s2) }
-
 // matchAgainst scores one row against its candidates with the shared engine.
 //
 // The index is built per call because the ladder's signature is per row and its
@@ -243,6 +238,7 @@ func (s *Service) matchAgainst(
 			NameAR:       c.NameAr,
 			NameEN:       c.NameEn,
 			SKU:          c.SKU,
+			Barcode:      c.Barcode,
 			Scientific:   c.ScientificName,
 			Manufacturer: c.ManufacturingCompanies,
 		})
@@ -251,12 +247,25 @@ func (s *Service) matchAgainst(
 		return nil, false
 	}
 
+	// The identifier tiers are enabled from what the file actually carries.
+	//
+	// A value in the code slot means the wizard bound a code column to it, and
+	// that is the "mapped" half of the consent rule in identifiers.go. It is
+	// never authoritative here, so a code hit still has to survive
+	// Index.matchByCode's two guards: exactly one catalogue product carries
+	// that code, and its name agrees with the row. A barcode has to be a real
+	// GTIN — eight digits or more, one hit — before it settles anything.
+	opts := productmatch.DefaultMatchOptions().WithIdentifiers(
+		productmatch.MappedColumns{Code: sku != "", Barcode: barcode != ""},
+		productmatch.IdentifierChoices{ByCode: sku != "", ByBarcode: barcode != ""},
+	)
+
 	idx := productmatch.NewIndex(masters)
 	res := idx.Match(&productmatch.Row{
 		Name:    strings.TrimSpace(rawName),
 		SKU:     strings.TrimSpace(sku),
 		Barcode: strings.TrimSpace(barcode),
-	}, productmatch.DefaultMatchOptions())
+	}, opts)
 
 	if !res.Matched() || !res.Level.Settled() {
 		// Ambiguity and review both come back unmatched. Two products that fit

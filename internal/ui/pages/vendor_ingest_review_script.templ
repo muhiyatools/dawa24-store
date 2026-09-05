@@ -64,54 +64,92 @@ templ reviewStageScript() {
 			onDropdownSearchInput(input, rowId);
 		}
 
+		// The link dialog is moved to <body> while it is open, and put back
+		// where it came from when it closes.
+		//
+		// It lives inside a <td>, and a table cell is the one place this dialog
+		// cannot be shown from: the table sits in a scroll container, and a
+		// positioned child of a scroll container is clipped at its edge. On the
+		// last rows of a page the dialog was cut in half, and on the last
+		// columns it was off the side entirely — which reads as "the button
+		// does nothing".
+		//
+		// Moving the element rather than rebuilding it keeps every form inside
+		// it intact, along with the data- attributes the search reads. A form
+		// posts to its action; where it sits in the document does not matter.
+		var dropdownHome = null;   // { parent, next } to restore on close
+		var dropdownBackdrop = null;
+
+		function portalDropdownOut(dropdown) {
+			if (dropdownHome) return;
+			dropdownHome = { parent: dropdown.parentNode, next: dropdown.nextSibling };
+			dropdownBackdrop = document.createElement('div');
+			dropdownBackdrop.className = 'catalog-dialog-backdrop';
+			dropdownBackdrop.addEventListener('click', closeAllCatalogDropdowns);
+			document.body.appendChild(dropdownBackdrop);
+			document.body.appendChild(dropdown);
+		}
+
+		function portalDropdownBack(dropdown) {
+			if (dropdownBackdrop) {
+				dropdownBackdrop.remove();
+				dropdownBackdrop = null;
+			}
+			if (dropdownHome && dropdown) {
+				dropdownHome.parent.insertBefore(dropdown, dropdownHome.next);
+			}
+			dropdownHome = null;
+		}
+
 		function toggleCatalogDropdown(btn, rowId, defaultQuery) {
 			var dropdown = document.getElementById('catalog-dropdown-' + rowId);
 			if (!dropdown) return;
 
-			// Close any previously opened dropdown
-			if (activeDropdownRowId && activeDropdownRowId !== rowId) {
-				var prev = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
-				if (prev) {
-					prev.style.display = 'none';
-					prev.classList.remove('is-open');
-				}
-			}
+			var wasOpen = activeDropdownRowId === rowId;
+			closeAllCatalogDropdowns();
+			if (wasOpen) return;
 
-			var isOpen = dropdown.classList.contains('is-open') || dropdown.style.display === 'block';
-			if (isOpen) {
-				dropdown.style.display = 'none';
-				dropdown.classList.remove('is-open');
-				activeDropdownRowId = null;
-			} else {
-				dropdown.style.display = 'block';
-				dropdown.classList.add('is-open');
-				activeDropdownRowId = rowId;
-				var input = dropdown.querySelector('input[type="text"]');
-				if (input) {
-					if (!input.value.trim()) {
-						input.value = defaultQuery;
-					}
-					input.focus();
-					searchCatalogForDropdown(rowId, input.value.trim());
+			portalDropdownOut(dropdown);
+			dropdown.style.display = 'block';
+			dropdown.classList.add('is-open');
+			activeDropdownRowId = rowId;
+
+			var input = dropdown.querySelector('input[type="text"]');
+			if (input) {
+				if (!input.value.trim()) {
+					input.value = defaultQuery;
 				}
+				input.focus();
+				searchCatalogForDropdown(rowId, input.value.trim());
 			}
 		}
 
 		function closeAllCatalogDropdowns() {
-			if (activeDropdownRowId) {
-				var el = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
-				if (el) {
-					el.style.display = 'none';
-					el.classList.remove('is-open');
-				}
-				activeDropdownRowId = null;
+			if (!activeDropdownRowId) {
+				portalDropdownBack(null);
+				return;
 			}
+			var el = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
+			if (el) {
+				el.style.display = 'none';
+				el.classList.remove('is-open');
+			}
+			portalDropdownBack(el);
+			activeDropdownRowId = null;
 		}
 
+		// A click outside closes it. The dialog is no longer inside the cell, so
+		// the test has to name the dialog itself as well as the cell that opened
+		// it — otherwise clicking anything inside the dialog closed it.
 		document.addEventListener('click', function(e) {
-			if (!e.target.closest('.catalog-cell-container')) {
-				closeAllCatalogDropdowns();
-			}
+			if (!activeDropdownRowId) return;
+			if (e.target.closest('.catalog-cell-container')) return;
+			if (e.target.closest('.catalog-dropdown-menu')) return;
+			closeAllCatalogDropdowns();
+		});
+
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') closeAllCatalogDropdowns();
 		});
 
 		function onDropdownSearchInput(input, rowId) {

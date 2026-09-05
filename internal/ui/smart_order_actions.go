@@ -245,6 +245,12 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 	r.Post("/customer/smart-order/{id}/mapping", h.SmartOrderMappingSubmit)
 	r.Get("/customer/smart-order/{id}/progress", h.SmartOrderProgressPage)
 	r.Get("/customer/smart-order/{id}/progress.json", h.SmartOrderProgressJSON)
+	// Both shapes, mirroring the two .json routes above: the progress page and
+	// the run page each derive the stream URL from their own path, and a client
+	// asking for a route that does not exist falls silently back to polling —
+	// which looks like the stream simply never helping.
+	r.Get("/customer/smart-order/{id}/progress/stream", h.SmartOrderProgressStream)
+	r.Get("/customer/smart-order/{id}/stream", h.SmartOrderProgressStream)
 	r.Get("/customer/smart-order/{id}.json", h.SmartOrderProgressJSON)
 	r.Get("/customer/smart-order/{id}/results", h.SmartOrderResultsPage)
 	r.Get("/customer/smart-order/{id}/catalog-search", h.SmartOrderCatalogSearch)

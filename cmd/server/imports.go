@@ -9,7 +9,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/importjobs"
+	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	importrunPostgres "github.com/muhiya/dawa24-store/internal/platform/importrun/postgres"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
@@ -25,13 +27,21 @@ func wireImports(
 	db *database.DB,
 	uiHandler *ui.UIHandler,
 	catSvc *catalog.Service,
+	hub *progress.Hub,
+	publisher *progress.Publisher,
 	log *slog.Logger,
 ) {
 	if db == nil || uiHandler == nil {
 		return
 	}
 
-	repo := importrunPostgres.New(db)
+	// The hub and publisher are built by the caller, because the import STORES
+	// are decorated with the same publisher and they are wired before this runs.
+	// One hub per process, or two screens watching the same run would subscribe
+	// to different fan-outs and only one of them would be fed.
+	uiHandler.SetProgressHub(hub)
+
+	repo := importrun.WithProgress(importrunPostgres.New(db), publisher)
 	uiHandler.SetImportRunRepo(repo)
 
 	stageWorker := importjobs.NewStageWorker(db, repo, catSvc, log)

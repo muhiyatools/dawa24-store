@@ -245,16 +245,5 @@ func (f Field) Need() Need {
 	return NeedOptional
 }
 
-// FieldsInGroup lists the catalogue entries of one group, in catalogue order.
-func FieldsInGroup(g Group) []Spec {
-	var out []Spec
-	for _, s := range Specs {
-		if s.Group == g {
-			out = append(out, s)
-		}
-	}
-	return out
-}
-
 // Groups is the display order of the review screen's sections.
 var Groups = []Group{GroupIdentity, GroupPricing, GroupStock, GroupAttribute}
