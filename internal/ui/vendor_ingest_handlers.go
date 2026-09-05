@@ -330,7 +330,7 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	}
 	settings.RejectExpired = checked(r, "reject_expired")
 	settings.MarkNegotiable = checked(r, "mark_negotiable")
-	settings.PublishImmediately = checked(r, "publish_immediately")
+	settings.PublishImmediately = true
 	// A vendor cannot switch on a tier the platform cannot run: the checkbox is
 	// disabled in that case and submits nothing, and honouring an absent value
 	// as "on" would make the results screen claim AI work that never happened.

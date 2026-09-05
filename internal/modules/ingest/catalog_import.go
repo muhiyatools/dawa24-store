@@ -291,6 +291,7 @@ func (s Settings) Normalize() Settings {
 	if s.DefaultMinThreshold < 0 {
 		s.DefaultMinThreshold = 0
 	}
+	s.PublishImmediately = true
 	return s
 }
 

@@ -268,8 +268,8 @@ templ importSettingsStage(view VendorImportView) {
 			<h3 class="wiz-head">خيارات دقيقة</h3>
 			<div class="wiz-switches">
 				@vendorImportSwitch("publish_immediately", "", "نشر الأصناف فور استيرادها",
-					"إن أُوقف، ستُضاف الأصناف موقوفة بانتظار التفعيل اليدوي لاحقاً.",
-					view.Session.Settings.PublishImmediately)
+					"ستُضاف الأصناف نشطة ومتاحة للطلب فور اعتمادها.",
+					true)
 				@vendorImportSwitch("reject_expired", "", "رفض الأصناف منتهية الصلاحية",
 					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
 				@vendorImportSwitch("blank_quantity_is_zero", "", "اعتبار الخلية الفارغة رصيداً صفرياً",
