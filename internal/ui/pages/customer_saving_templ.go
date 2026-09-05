@@ -261,7 +261,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>إضافة صنف جديد</span></button> <button type=\"button\" class=\"btn btn-secondary font-bold text-xs px-4\" onclick=\"openPharmacyImportModal()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>إضافة صنف جديد</span></button> <a href=\"/customer/saving-products/import\" class=\"btn btn-secondary font-bold text-xs px-4 text-decoration-none\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -269,7 +269,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>استيراد ملف Excel</span></button></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>استيراد ملف Excel</span></a></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -286,7 +286,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", it.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 211, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 214, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -299,7 +299,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(it.NameProduct)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 212, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 215, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 					if templ_7745c5c3_Err != nil {
@@ -312,7 +312,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(it.SKU)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 213, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 216, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 					if templ_7745c5c3_Err != nil {
@@ -325,7 +325,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%v", it.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 214, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 217, Col: 51}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
@@ -338,7 +338,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(it.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 215, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 218, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 					if templ_7745c5c3_Err != nil {
@@ -351,7 +351,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(savingProductIDStr(it.ProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 216, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 219, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
@@ -364,7 +364,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(it.LinkedProductName.Get(i18n.AR))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 217, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 220, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -377,7 +377,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 222, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 225, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -395,7 +395,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(it.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 226, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 229, Col: 27}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -418,7 +418,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(it.LinkedProductName.Get(i18n.AR))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 237, Col: 55}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 240, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 						if templ_7745c5c3_Err != nil {
@@ -431,7 +431,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(it.LinkedProductName.Get(i18n.AR))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 239, Col: 49}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 242, Col: 49}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -444,7 +444,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var22 templ.SafeURL
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 241, Col: 79}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 244, Col: 79}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -500,7 +500,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", it.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 265, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 268, Col: 51}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -513,7 +513,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(it.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 270, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 273, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -535,7 +535,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", *it.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 279, Col: 70}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 282, Col: 70}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 						if templ_7745c5c3_Err != nil {
@@ -548,7 +548,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(it.NameProduct)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 280, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 283, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 						if templ_7745c5c3_Err != nil {
@@ -570,7 +570,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						var templ_7745c5c3_Var29 string
 						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d موردين", it.ProvidingOrgsCount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 283, Col: 74}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 286, Col: 74}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 						if templ_7745c5c3_Err != nil {
@@ -665,22 +665,6 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = CustomerSavingScript().Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = CustomerSavingImportScript().Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = CustomerSavingReviewScript().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

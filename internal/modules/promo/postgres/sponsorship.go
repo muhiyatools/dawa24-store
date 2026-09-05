@@ -164,7 +164,7 @@ func (r *Repository) CreateSponsorshipRequest(ctx context.Context, sr *promo.Spo
 func (r *Repository) GetSponsorshipRequestByID(ctx context.Context, id int64) (*promo.SponsorshipRequest, error) {
 	var sr promo.SponsorshipRequest
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		return scanSponsorshipRequest(tx.QueryRow(txCtx, sponsorshipRequestColumns+` WHERE id = $1;`, id), &sr)
+		return scanSponsorshipRequest(tx.QueryRow(txCtx, sponsorshipRequestColumns+` WHERE sr.id = $1;`, id), &sr)
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
@@ -177,7 +177,7 @@ func (r *Repository) GetSponsorshipRequestByID(ctx context.Context, id int64) (*
 
 // ListSponsorshipRequestsByOrg returns pagated requests for an organization.
 func (r *Repository) ListSponsorshipRequestsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*promo.SponsorshipRequest, error) {
-	return r.listSponsorshipRequests(ctx, `WHERE organization_id = $1`, orgID, limit, offset)
+	return r.listSponsorshipRequests(ctx, `WHERE sr.organization_id = $1`, orgID, limit, offset)
 }
 
 // ListAllSponsorshipRequests returns all requests for admin moderation.
@@ -187,7 +187,7 @@ func (r *Repository) ListAllSponsorshipRequests(ctx context.Context, limit, offs
 
 // ListPendingSponsorshipRequests returns only pending requests.
 func (r *Repository) ListPendingSponsorshipRequests(ctx context.Context, limit, offset int) ([]*promo.SponsorshipRequest, error) {
-	return r.listSponsorshipRequests(database.AsSystem(ctx), `WHERE admin_status = 'pending'`, int64(0), limit, offset)
+	return r.listSponsorshipRequests(database.AsSystem(ctx), `WHERE sr.admin_status = 'pending'`, int64(0), limit, offset)
 }
 
 func (r *Repository) listSponsorshipRequests(ctx context.Context, where string, orgID int64, limit, offset int) ([]*promo.SponsorshipRequest, error) {
@@ -196,7 +196,7 @@ func (r *Repository) listSponsorshipRequests(ctx context.Context, where string, 
 	}
 	var list []*promo.SponsorshipRequest
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := sponsorshipRequestColumns + ` ` + where + ` ORDER BY created_at DESC LIMIT $` + whereParam(orgID) + ` OFFSET $` + whereParam2(orgID) + `;`
+		query := sponsorshipRequestColumns + ` ` + where + ` ORDER BY sr.created_at DESC, sr.id DESC LIMIT $` + whereParam(orgID) + ` OFFSET $` + whereParam2(orgID) + `;`
 		var rows pgx.Rows
 		var err error
 		if orgID > 0 {
@@ -256,7 +256,7 @@ func (r *Repository) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id
 func (r *Repository) ActivateSponsorshipRequest(ctx context.Context, id int64, reviewerID int64) (*promo.SponsorshipRequest, error) {
 	var sr *promo.SponsorshipRequest
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		row := tx.QueryRow(txCtx, sponsorshipRequestColumns+` WHERE id = $1 FOR UPDATE;`, id)
+		row := tx.QueryRow(txCtx, sponsorshipRequestColumns+` WHERE sr.id = $1 FOR UPDATE OF sr;`, id)
 		sr = &promo.SponsorshipRequest{}
 		if err := scanSponsorshipRequest(row, sr); err != nil {
 			if database.IsNotFound(err) {

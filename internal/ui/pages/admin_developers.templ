@@ -190,6 +190,9 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								</template>
 								<span class="text-sm text-muted tabular-nums" x-text="'المدة: ' + queryResult.duration_ms + ' ms'"></span>
 								<span class="text-sm text-muted tabular-nums" x-text="'الصفوف: ' + queryResult.rows_affected"></span>
+								<template x-if="queryResult.truncated">
+									<span class="badge badge-amber text-xs" x-text="queryResult.message || 'تم تقييد النتائج بـ 1000 صف'"></span>
+								</template>
 							</div>
 						</div>
 
@@ -200,21 +203,30 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<!-- Results Table -->
 						<template x-if="!queryResult.error && queryResult.columns && queryResult.columns.length > 0">
-							<div class="table-container m-0 max-h-96 overflow-y-auto">
-								<table class="data-table m-0 font-mono text-xs">
+							<div class="table-container m-0 max-h-96 overflow-auto border rounded-lg">
+								<table class="data-table m-0 font-mono text-xs w-full">
 									<thead>
-										<tr class="sticky top-0 z-1">
-											<template x-for="col in queryResult.columns" :key="col">
-												<th x-text="col"></th>
+										<tr class="sticky top-0 z-1 bg-surface-raised">
+											<template x-for="(col, cIdx) in queryResult.columns" :key="'col_' + cIdx">
+												<th class="whitespace-nowrap font-bold px-3 py-2 text-start" x-text="col"></th>
 											</template>
 										</tr>
 									</thead>
 									<tbody>
-										<template x-for="(row, rIdx) in queryResult.rows" :key="rIdx">
+										<template x-if="queryResult.rows && queryResult.rows.length > 0">
+											<template x-for="(row, rIdx) in queryResult.rows" :key="'row_' + rIdx">
+												<tr>
+													<template x-for="(cell, cIdx) in row" :key="'cell_' + rIdx + '_' + cIdx">
+														<td class="whitespace-nowrap px-3 py-2 max-w-sm truncate" :title="String(cell)" x-text="cell"></td>
+													</template>
+												</tr>
+											</template>
+										</template>
+										<template x-if="!queryResult.rows || queryResult.rows.length === 0">
 											<tr>
-												<template x-for="(cell, cIdx) in row" :key="cIdx">
-													<td class="max-w-xs truncate nowrap" x-text="cell"></td>
-												</template>
+												<td :colspan="queryResult.columns.length" class="text-center p-6 text-muted text-xs">
+													تم تنفيذ الاستعلام بنجاح ولكن لم يتم إرجاع أي صفوف (0 صفوف).
+												</td>
 											</tr>
 										</template>
 									</tbody>

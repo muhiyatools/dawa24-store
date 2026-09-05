@@ -155,11 +155,11 @@ func (s *Service) RunMarketBenchmark(
 		return nil, fmt.Errorf("compare: load file rows: %w", err)
 	}
 
-	// The market, with this file taken out of it. Left in, every row would find
-	// itself as its own best offer and the whole screen would read "مماثل".
+	// The market, with this file and supplier taken out of it.
 	offers, err := s.repo.LoadMarketOffers(ctx, MarketScanOptions{
-		OrganizationID: filter.OrganizationID,
-		ExcludeFileID:  filter.FileID,
+		OrganizationID:      filter.OrganizationID,
+		ExcludeFileID:       filter.FileID,
+		ExcludeSupplierName: file.SupplierName,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("compare: load market offers: %w", err)
@@ -188,7 +188,7 @@ func (s *Service) RunMarketBenchmark(
 		if r == nil || !r.Price.IsPositive() {
 			continue
 		}
-		row := benchmarkRow(r, ds)
+		row := benchmarkRow(r, ds, file.SupplierName)
 		all = append(all, row)
 
 		yourDiscountSum += r.Discount
@@ -224,7 +224,7 @@ func (s *Service) RunMarketBenchmark(
 }
 
 // benchmarkRow places one of the supplier's rows against the market.
-func benchmarkRow(r *CompareFileRow, ds *MarketDataset) *BenchmarkRow {
+func benchmarkRow(r *CompareFileRow, ds *MarketDataset, supplierName string) *BenchmarkRow {
 	net := r.PriceAfterDiscount
 	if net.IsZero() && r.Price.IsPositive() {
 		net = CalculatePriceAfterDiscount(r.Price, r.Discount)
@@ -247,14 +247,14 @@ func benchmarkRow(r *CompareFileRow, ds *MarketDataset) *BenchmarkRow {
 		return row
 	}
 
-	row.MarketSuppliers = p.SupplierCount()
-	row.BestSupplier = p.Best.SupplierName
-	row.BestNet = p.Best.NetPrice
-	row.BestDiscount = round2(p.Best.Discount)
-
 	tolerance := int64(float64(net.Minor()) * equalTolerancePercent / 100)
 	seen := map[string]bool{}
+	var validOffers []MarketOffer
 	for _, o := range p.Offers {
+		// Never benchmark against the supplier itself
+		if supplierName != "" && strings.EqualFold(strings.TrimSpace(o.SupplierName), strings.TrimSpace(supplierName)) {
+			continue
+		}
 		// One vote per supplier: a house that uploaded the same list twice must
 		// not count as two better offers.
 		if o.SupplierName != "" {
@@ -263,6 +263,7 @@ func benchmarkRow(r *CompareFileRow, ds *MarketDataset) *BenchmarkRow {
 			}
 			seen[o.SupplierName] = true
 		}
+		validOffers = append(validOffers, o)
 		switch d := o.NetPrice.Minor() - net.Minor(); {
 		case d < -tolerance:
 			row.BetterOffers++
@@ -273,16 +274,34 @@ func benchmarkRow(r *CompareFileRow, ds *MarketDataset) *BenchmarkRow {
 		}
 	}
 
-	gap := net.Minor() - p.Best.NetPrice.Minor()
+	if len(validOffers) == 0 {
+		return row
+	}
+
+	row.MarketSuppliers = len(validOffers)
+	// Find best competitor offer
+	best := validOffers[0]
+	for _, o := range validOffers[1:] {
+		if cheaper(o, best) {
+			best = o
+		}
+	}
+	row.BestSupplier = best.SupplierName
+	row.BestNet = best.NetPrice
+	row.BestDiscount = round2(best.Discount)
+
+	gap := net.Minor() - best.NetPrice.Minor()
 	if gap > 0 {
 		row.PriceGap = money.FromMinor(gap)
 		if net.Minor() > 0 {
 			row.PriceGapPercent = round2(float64(gap) / float64(net.Minor()) * 100)
 		}
 	}
-	row.DiscountGap = round2(r.Discount - p.Best.Discount)
+	row.DiscountGap = round2(r.Discount - best.Discount)
 
 	switch {
+	case row.BetterOffers == 0 && row.WorseOffers == 0 && row.EqualOffers == 0:
+		row.Classification = BenchExclusive
 	case row.BetterOffers > 0:
 		row.Classification = BenchHigher
 	case row.WorseOffers > 0 && row.EqualOffers == 0:

@@ -143,14 +143,14 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span x-text=\"q.name\"></span></button></template></div></div><form @submit.prevent=\"runQuery()\" class=\"stack\"><div class=\"form-group m-0\"><textarea x-model=\"sqlQuery\" rows=\"5\" required class=\"form-input font-mono text-sm leading-relaxed bg-slate-900 text-sky-400 border-slate-700\" dir=\"ltr\" placeholder=\"SELECT * FROM catalog.products LIMIT 10;\"></textarea></div><div class=\"flex-between flex-wrap gap-3\"><div class=\"text-xs text-muted\">الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.</div><div class=\"row-center-sm\"><button type=\"button\" @click=\"sqlQuery = ''\" class=\"btn btn-secondary btn-sm\">مسح</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2\" :disabled=\"isRunning\"><span x-show=\"!isRunning\">▶ تنفيذ الاستعلام (Execute)</span> <span x-show=\"isRunning\">جاري التنفيذ...</span></button></div></div></form><!-- Query Output Area --><div x-show=\"queryExecuted\" class=\"mt-6 pt-5 border-t\"><!-- Execution Summary Pill --><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><div class=\"row-center-sm\"><template x-if=\"!queryResult.error\"><span class=\"badge badge-emerald\">نجاح التنفيذ</span></template><template x-if=\"queryResult.error\"><span class=\"badge badge-rose\">خطأ في الاستعلام</span></template><span class=\"text-sm text-muted tabular-nums\" x-text=\"'المدة: ' + queryResult.duration_ms + ' ms'\"></span> <span class=\"text-sm text-muted tabular-nums\" x-text=\"'الصفوف: ' + queryResult.rows_affected\"></span></div></div><!-- Error Display if any --><template x-if=\"queryResult.error\"><div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-danger font-mono text-sm text-start overflow-x-auto\" dir=\"ltr\" x-text=\"queryResult.error\"></div></template><!-- Results Table --><template x-if=\"!queryResult.error && queryResult.columns && queryResult.columns.length > 0\"><div class=\"table-container m-0 max-h-96 overflow-y-auto\"><table class=\"data-table m-0 font-mono text-xs\"><thead><tr class=\"sticky top-0 z-1\"><template x-for=\"col in queryResult.columns\" :key=\"col\"><th x-text=\"col\"></th></template></tr></thead> <tbody><template x-for=\"(row, rIdx) in queryResult.rows\" :key=\"rIdx\"><tr><template x-for=\"(cell, cIdx) in row\" :key=\"cIdx\"><td class=\"max-w-xs truncate nowrap\" x-text=\"cell\"></td></template></tr></template></tbody></table></div></template></div></div><!-- SQL Execution History Table --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><h4 class=\"text-sm font-black text-primary m-0\">سجل الاستعلامات السابقة (Query Execution History)</h4><span class=\"badge badge-slate text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span x-text=\"q.name\"></span></button></template></div></div><form @submit.prevent=\"runQuery()\" class=\"stack\"><div class=\"form-group m-0\"><textarea x-model=\"sqlQuery\" rows=\"5\" required class=\"form-input font-mono text-sm leading-relaxed bg-slate-900 text-sky-400 border-slate-700\" dir=\"ltr\" placeholder=\"SELECT * FROM catalog.products LIMIT 10;\"></textarea></div><div class=\"flex-between flex-wrap gap-3\"><div class=\"text-xs text-muted\">الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.</div><div class=\"row-center-sm\"><button type=\"button\" @click=\"sqlQuery = ''\" class=\"btn btn-secondary btn-sm\">مسح</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2\" :disabled=\"isRunning\"><span x-show=\"!isRunning\">▶ تنفيذ الاستعلام (Execute)</span> <span x-show=\"isRunning\">جاري التنفيذ...</span></button></div></div></form><!-- Query Output Area --><div x-show=\"queryExecuted\" class=\"mt-6 pt-5 border-t\"><!-- Execution Summary Pill --><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><div class=\"row-center-sm\"><template x-if=\"!queryResult.error\"><span class=\"badge badge-emerald\">نجاح التنفيذ</span></template><template x-if=\"queryResult.error\"><span class=\"badge badge-rose\">خطأ في الاستعلام</span></template><span class=\"text-sm text-muted tabular-nums\" x-text=\"'المدة: ' + queryResult.duration_ms + ' ms'\"></span> <span class=\"text-sm text-muted tabular-nums\" x-text=\"'الصفوف: ' + queryResult.rows_affected\"></span><template x-if=\"queryResult.truncated\"><span class=\"badge badge-amber text-xs\" x-text=\"queryResult.message || 'تم تقييد النتائج بـ 1000 صف'\"></span></template></div></div><!-- Error Display if any --><template x-if=\"queryResult.error\"><div class=\"bg-danger-subtle border border-danger rounded-xl p-4 text-danger font-mono text-sm text-start overflow-x-auto\" dir=\"ltr\" x-text=\"queryResult.error\"></div></template><!-- Results Table --><template x-if=\"!queryResult.error && queryResult.columns && queryResult.columns.length > 0\"><div class=\"table-container m-0 max-h-96 overflow-auto border rounded-lg\"><table class=\"data-table m-0 font-mono text-xs w-full\"><thead><tr class=\"sticky top-0 z-1 bg-surface-raised\"><template x-for=\"(col, cIdx) in queryResult.columns\" :key=\"'col_' + cIdx\"><th class=\"whitespace-nowrap font-bold px-3 py-2 text-start\" x-text=\"col\"></th></template></tr></thead> <tbody><template x-if=\"queryResult.rows && queryResult.rows.length > 0\"><template x-for=\"(row, rIdx) in queryResult.rows\" :key=\"'row_' + rIdx\"><tr><template x-for=\"(cell, cIdx) in row\" :key=\"'cell_' + rIdx + '_' + cIdx\"><td class=\"whitespace-nowrap px-3 py-2 max-w-sm truncate\" :title=\"String(cell)\" x-text=\"cell\"></td></template></tr></template></template><template x-if=\"!queryResult.rows || queryResult.rows.length === 0\"><tr><td :colspan=\"queryResult.columns.length\" class=\"text-center p-6 text-muted text-xs\">تم تنفيذ الاستعلام بنجاح ولكن لم يتم إرجاع أي صفوف (0 صفوف).</td></tr></template></tbody></table></div></template></div></div><!-- SQL Execution History Table --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><h4 class=\"text-sm font-black text-primary m-0\">سجل الاستعلامات السابقة (Query Execution History)</h4><span class=\"badge badge-slate text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d استعلام مسجل", len(values.SQLLogs)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 234, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 246, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -178,7 +178,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(log.CreatedAt.Format("2006-01-02 03:04:05 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 257, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 269, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -191,7 +191,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(log.ActorName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 258, Col: 59}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 270, Col: 59}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(log.Query)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 261, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 273, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -217,7 +217,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.DurationMS))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 264, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 276, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -230,7 +230,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.RowsAffected))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 267, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 279, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -253,7 +253,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(log.ErrorMessage)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 273, Col: 68}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 285, Col: 68}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 						if templ_7745c5c3_Err != nil {
@@ -281,7 +281,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, values.GatewaySettings.APIKey))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 292, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 304, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.GatewaySettings.FastModel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 415, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 427, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -360,7 +360,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(values.GatewaySettings.QualityModel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 429, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 441, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(values.GatewaySettings.AIUserID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 450, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 462, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -414,7 +414,7 @@ func AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) templ.C
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(values.AISettings.SystemPrompt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 493, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_developers.templ`, Line: 505, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {

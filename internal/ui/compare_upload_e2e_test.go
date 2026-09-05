@@ -367,12 +367,20 @@ func (m *mockCompareRepoE2E) LoadMarketOffers(
 		if opts.ExcludeFileID > 0 && fileID == opts.ExcludeFileID {
 			continue
 		}
-		supplier := ""
+		var file *compare.CompareFile
 		for _, f := range m.files {
 			if f != nil && f.ID == fileID {
-				supplier = f.SupplierName
+				file = f
+				break
 			}
 		}
+		if file == nil || file.IsTempWarehouse {
+			continue
+		}
+		if opts.ExcludeSupplierName != "" && file.SupplierName == opts.ExcludeSupplierName {
+			continue
+		}
+		supplier := file.SupplierName
 		for _, r := range rows {
 			if r == nil || !r.Price.IsPositive() {
 				continue

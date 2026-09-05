@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // ExpireSponsorshipRequests marks requests past their expiry as expired.
@@ -38,7 +39,7 @@ func (r *Repository) ExpireSponsorshipRequests(ctx context.Context) (int64, erro
 
 const sponsorshipRequestColumns = `
 SELECT sr.id, sr.public_id, sr.organization_id, sr.purchase_id, sr.package_id,
-       sr.item_type, sr.item_id, sr.credits_used, sr.admin_status, sr.admin_notes,
+       sr.item_type, sr.item_id, sr.credits_used, sr.admin_status, COALESCE(sr.admin_notes, ''),
        sr.reviewed_by, sr.reviewed_at, sr.starts_at, sr.expires_at, sr.status,
        sr.created_at, sr.updated_at,
        op.tier_level, op.name, op.credits, op.duration_days
@@ -48,7 +49,7 @@ LEFT JOIN promo.offer_packages op ON op.id = sr.package_id`
 func scanSponsorshipRequest(row pgx.Row, sr *promo.SponsorshipRequest) error {
 	var (
 		pkgTier    *int
-		pkgName    *[]byte
+		pkgName    i18n.Text
 		pkgCredits *int
 		pkgDur     *int
 	)
@@ -64,7 +65,11 @@ func scanSponsorshipRequest(row pgx.Row, sr *promo.SponsorshipRequest) error {
 	}
 	if pkgTier != nil {
 		sr.Package = &promo.OfferPackage{
-			ID: sr.PackageID, TierLevel: *pkgTier, Credits: derefInt(pkgCredits), DurationDays: derefInt(pkgDur),
+			ID:           sr.PackageID,
+			TierLevel:    *pkgTier,
+			Name:         pkgName,
+			Credits:      derefInt(pkgCredits),
+			DurationDays: derefInt(pkgDur),
 		}
 	}
 	return nil

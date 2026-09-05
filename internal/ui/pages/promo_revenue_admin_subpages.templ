@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -115,7 +116,13 @@ templ AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPa
 												}
 											</td>
 											<td class="tabular-nums font-mono py-3">{ fmt.Sprintf("#%d", req.ItemID) }</td>
-											<td class="tabular-nums font-bold py-3">{ fmt.Sprintf("#%d", req.PackageID) }</td>
+											<td class="tabular-nums font-bold py-3">
+												if req.Package != nil && req.Package.Name.Get(i18n.ParseLang(lang)) != "" {
+													<span>{ req.Package.Name.Get(i18n.ParseLang(lang)) }</span>
+												} else {
+													<span>باقة #{ fmt.Sprintf("%d", req.PackageID) }</span>
+												}
+											</td>
 											<td class="text-center py-3">
 												if req.Package != nil {
 													<span class="badge badge-amber font-extrabold text-xs shadow-2xs">

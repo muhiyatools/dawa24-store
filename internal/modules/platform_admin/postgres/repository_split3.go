@@ -2,10 +2,12 @@ package postgres
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 
@@ -28,8 +30,31 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 		return result, nil
 	}
 
-	upper := strings.ToUpper(trimmed)
-	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") && !strings.HasPrefix(upper, "EXPLAIN") {
+	cleaned := trimmed
+	for {
+		if strings.HasPrefix(cleaned, "--") {
+			idx := strings.Index(cleaned, "\n")
+			if idx == -1 {
+				cleaned = ""
+				break
+			}
+			cleaned = strings.TrimSpace(cleaned[idx+1:])
+			continue
+		}
+		if strings.HasPrefix(cleaned, "/*") {
+			idx := strings.Index(cleaned, "*/")
+			if idx == -1 {
+				cleaned = ""
+				break
+			}
+			cleaned = strings.TrimSpace(cleaned[idx+2:])
+			continue
+		}
+		break
+	}
+	cleaned = strings.TrimLeft(cleaned, "(\r\n\t ")
+	upper := strings.ToUpper(cleaned)
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") && !strings.HasPrefix(upper, "EXPLAIN") && !strings.HasPrefix(upper, "SHOW") {
 		result.Error = i18n.TDefault("w4_mod.select_explain_239")
 		return result, nil
 	}
@@ -77,9 +102,19 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 				} else {
 					switch val := v.(type) {
 					case []byte:
-						rowVals[i] = string(val)
+						if utf8.Valid(val) {
+							rowVals[i] = string(val)
+						} else {
+							rowVals[i] = "\\x" + hex.EncodeToString(val)
+						}
 					case time.Time:
 						rowVals[i] = val.Format("2006-01-02 15:04:05")
+					case map[string]any, []any:
+						if b, err := json.Marshal(val); err == nil {
+							rowVals[i] = string(b)
+						} else {
+							rowVals[i] = fmt.Sprintf("%v", val)
+						}
 					default:
 						rowVals[i] = fmt.Sprintf("%v", val)
 					}

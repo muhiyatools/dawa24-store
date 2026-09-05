@@ -18,15 +18,17 @@ func (m *mockCompareRepo) LoadMarketOffers(
 		if f == nil || f.DeletedAt != nil || f.Status != compare.FileReady {
 			continue
 		}
+		if f.IsTempWarehouse {
+			continue
+		}
 		if opts.ExcludeFileID > 0 && f.ID == opts.ExcludeFileID {
 			continue
 		}
-		visible := f.IsTempWarehouse
-		if !visible && opts.OrganizationID != nil && f.OrganizationID != nil &&
-			*f.OrganizationID == *opts.OrganizationID {
-			visible = true
+		if opts.ExcludeSupplierName != "" && f.SupplierName == opts.ExcludeSupplierName {
+			continue
 		}
-		if !visible {
+		if opts.OrganizationID != nil && f.OrganizationID != nil &&
+			*f.OrganizationID != *opts.OrganizationID {
 			continue
 		}
 		for _, r := range m.fileRows[f.ID] {

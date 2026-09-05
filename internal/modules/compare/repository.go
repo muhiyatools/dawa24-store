@@ -111,4 +111,7 @@ type MarketScanOptions struct {
 	// ExcludeFileID drops one file from the market — the file being compared
 	// against it, which would otherwise be its own best and worst offer.
 	ExcludeFileID int64
+	// ExcludeSupplierName drops any offers from the compared supplier itself,
+	// ensuring a supplier is never benchmarked against itself.
+	ExcludeSupplierName string
 }

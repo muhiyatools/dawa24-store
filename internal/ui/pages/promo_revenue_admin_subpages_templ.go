@@ -12,6 +12,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -121,7 +122,7 @@ func AdminOfferPackageDetailPage(pkgID int64, lang, dir string) templ.Component 
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", pkgID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 44, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 45, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -229,7 +230,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", req.OrganizationID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 109, Col: 109}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 110, Col: 109}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -257,7 +258,7 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", req.ItemID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 117, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 118, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -267,39 +268,39 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var10 string
-						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", req.PackageID))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 118, Col: 86}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td class=\"text-center py-3\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if req.Package != nil {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-amber font-extrabold text-xs shadow-2xs\">مستوى ")
+						if req.Package != nil && req.Package.Name.Get(i18n.ParseLang(lang)) != "" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var10 string
+							templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(req.Package.Name.Get(i18n.ParseLang(lang)))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 121, Col: 63}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>باقة #")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var11 string
-							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", req.Package.TierLevel))
+							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", req.PackageID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 122, Col: 67}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 123, Col: 63}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"text-muted text-xs\">—</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -308,54 +309,82 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						if req.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"badge badge-sky font-extrabold text-xs\">قيد المراجعة</span>")
+						if req.Package != nil {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span class=\"badge badge-amber font-extrabold text-xs shadow-2xs\">مستوى ")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-						} else if req.AdminStatus == "approved" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span class=\"badge badge-emerald font-extrabold text-xs\">معتمد</span>")
+							var templ_7745c5c3_Var12 string
+							templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", req.Package.TierLevel))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 129, Col: 67}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-rose font-extrabold text-xs\">مرفوض</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"text-muted text-xs\">—</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td class=\"text-center text-xs tabular-nums text-secondary py-3\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var12 string
-						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 03:04 PM"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 137, Col: 121}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"col-actions py-3 pe-4\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</td><td class=\"text-center py-3\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if req.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-sky font-extrabold text-xs\">قيد المراجعة</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var13 templ.SafeURL
-							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 141, Col: 127}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+						} else if req.AdminStatus == "approved" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-emerald font-extrabold text-xs\">معتمد</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-xs font-bold gap-1 shadow-2xs\">")
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span class=\"badge badge-rose font-extrabold text-xs\">مرفوض</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td><td class=\"text-center text-xs tabular-nums text-secondary py-3\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var13 string
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 03:04 PM"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 144, Col: 121}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</td><td class=\"col-actions py-3 pe-4\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if req.AdminStatus == "pending" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"table-actions\"><form method=\"POST\" action=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var14 templ.SafeURL
+							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 148, Col: 127}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-xs font-bold gap-1 shadow-2xs\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -363,20 +392,20 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>اعتماد</span></button></form><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>اعتماد</span></button></form><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var14 templ.SafeURL
-							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/reject", req.ID)))
+							var templ_7745c5c3_Var15 templ.SafeURL
+							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/reject", req.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 147, Col: 126}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/promo_revenue_admin_subpages.templ`, Line: 154, Col: 126}
 							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الطلب؟')\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الطلب؟')\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -384,23 +413,23 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>رفض</span></button></form></div>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>رفض</span></button></form></div>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"text-muted text-xs font-medium\">مكتمل</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"text-muted text-xs font-medium\">مكتمل</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td></tr>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td></tr>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -415,12 +444,12 @@ func AdminOfferSponsorshipsPage(lang, dir string, data AdminOfferSponsorshipsPag
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -451,12 +480,12 @@ func AdminOfferPromotionsPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var15 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var15 == nil {
-			templ_7745c5c3_Var15 = templ.NopComponent
+		templ_7745c5c3_Var16 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var16 == nil {
+			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var16 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var17 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -468,7 +497,7 @@ func AdminOfferPromotionsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">الحملات الترويجية المخصصة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إدارة الحملات الترويجية الموجهة حسب المحافظات والقطاعات الجغرافية</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">الحملات الترويجية المخصصة</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">إدارة الحملات الترويجية الموجهة حسب المحافظات والقطاعات الجغرافية</p></div><a href=\"/admin/offers-packages\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -476,7 +505,7 @@ func AdminOfferPromotionsPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>العودة</span></a></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span>العودة</span></a></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -484,13 +513,13 @@ func AdminOfferPromotionsPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">الحملات الترويجية الموسمية</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">تسمح المنظومة بإنشاء حملات خصومات موجهة حسب المحافظات والقطاعات الحيوية.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">الحملات الترويجية الموسمية</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">تسمح المنظومة بإنشاء حملات خصومات موجهة حسب المحافظات والقطاعات الحيوية.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("الحملات الترويجية", "offers_packages", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("الحملات الترويجية", "offers_packages", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -515,12 +544,12 @@ func AdminAdPlansPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var17 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var17 == nil {
-			templ_7745c5c3_Var17 = templ.NopComponent
+		templ_7745c5c3_Var18 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var18 == nil {
+			templ_7745c5c3_Var18 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var18 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var19 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -532,7 +561,7 @@ func AdminAdPlansPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">خطط ومواضع الإعلانات</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحديد تسعير ومواضع الإعلانات والبنرات ومدة ظهور كل مساحة ترويجية</p></div><a href=\"/admin/ads\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm flex-between items-center flex-wrap gap-4\"><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">خطط ومواضع الإعلانات</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحديد تسعير ومواضع الإعلانات والبنرات ومدة ظهور كل مساحة ترويجية</p></div><a href=\"/admin/ads\" class=\"btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -540,7 +569,7 @@ func AdminAdPlansPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span>العودة للإعلانات</span></a></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>العودة للإعلانات</span></a></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -548,13 +577,13 @@ func AdminAdPlansPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">خطط ومواضع البنرات</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">تحديد مواضع البنرات الرئيسية (Hero)، البنرات العريضة بين الأقسام، وبنرات الكتالوج الجانبية.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">خطط ومواضع البنرات</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">تحديد مواضع البنرات الرئيسية (Hero)، البنرات العريضة بين الأقسام، وبنرات الكتالوج الجانبية.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("خطط وباقات الإعلانات", "ad_plans", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("خطط وباقات الإعلانات", "ad_plans", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -579,12 +608,12 @@ func AdminOfferAnalyticsViewsPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
+		templ_7745c5c3_Var20 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var20 == nil {
+			templ_7745c5c3_Var20 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var20 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var21 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -596,7 +625,7 @@ func AdminOfferAnalyticsViewsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm\"><h1 class=\"text-xl font-black text-primary m-0\">تقرير مشاهدات وزيارات العروض الترويجية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تتبع معدل المشاهدات اليومية والأسبوعية لكل عرض ترويجي وبنر معلن</p></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm\"><h1 class=\"text-xl font-black text-primary m-0\">تقرير مشاهدات وزيارات العروض الترويجية</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تتبع معدل المشاهدات اليومية والأسبوعية لكل عرض ترويجي وبنر معلن</p></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -604,13 +633,13 @@ func AdminOfferAnalyticsViewsPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">إحصائيات المشاهدات النشطة</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">لوحة بيانية دقيقة لتحليل عدد مرات ظهور العروض للعملاء والمشتريات المنفذة عبرها.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">إحصائيات المشاهدات النشطة</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">لوحة بيانية دقيقة لتحليل عدد مرات ظهور العروض للعملاء والمشتريات المنفذة عبرها.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("إحصائيات مشاهدات العروض", "analytics", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("إحصائيات مشاهدات العروض", "analytics", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -635,12 +664,12 @@ func AdminOfferAnalyticsClicksPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var22 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var23 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -652,7 +681,7 @@ func AdminOfferAnalyticsClicksPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm\"><h1 class=\"text-xl font-black text-primary m-0\">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحليل كفاءة العروض والبنرات ونسبة النقر للطلب المباشر</p></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm\"><h1 class=\"text-xl font-black text-primary m-0\">تقرير النقرات ومعدلات التحويل (CTR) للعروض</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">تحليل كفاءة العروض والبنرات ونسبة النقر للطلب المباشر</p></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -660,13 +689,13 @@ func AdminOfferAnalyticsClicksPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">تحليل معدل التحويل (CTR)</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">مقارنة أداء الحملات الإعلانية ومعدل وصول الصيدليات لصفحات تفاصيل العروض.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">تحليل معدل التحويل (CTR)</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">مقارنة أداء الحملات الإعلانية ومعدل وصول الصيدليات لصفحات تفاصيل العروض.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("إحصائيات النقرات والتحويل", "analytics", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("إحصائيات النقرات والتحويل", "analytics", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -691,12 +720,12 @@ func AdminOfferLocationsPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var23 == nil {
-			templ_7745c5c3_Var23 = templ.NopComponent
+		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var24 == nil {
+			templ_7745c5c3_Var24 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var24 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -708,7 +737,7 @@ func AdminOfferLocationsPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm\"><h1 class=\"text-xl font-black text-primary m-0\">نطاق التغطية الجغرافية للعروض والصفقات</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">استعراض المحافظات والمدن المشمولة في العروض الترويجية الحالية</p></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"page-container py-6\"><div class=\"glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-sm\"><h1 class=\"text-xl font-black text-primary m-0\">نطاق التغطية الجغرافية للعروض والصفقات</h1><p class=\"text-xs text-secondary m-0 mt-0.5 font-medium\">استعراض المحافظات والمدن المشمولة في العروض الترويجية الحالية</p></div><div class=\"glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -716,13 +745,13 @@ func AdminOfferLocationsPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">تغطية المحافظات</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">خارطة التوزيع الجغرافي للعروض ونطاق التوريد المعتمد للمستودعات وشركات التوزيع.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><h3 class=\"text-base font-extrabold text-primary mb-1.5\">تغطية المحافظات</h3><p class=\"text-xs text-secondary max-w-md mx-auto\">خارطة التوزيع الجغرافي للعروض ونطاق التوريد المعتمد للمستودعات وشركات التوزيع.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("التوزيع الجغرافي للعروض", "offer_locations", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("التوزيع الجغرافي للعروض", "offer_locations", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

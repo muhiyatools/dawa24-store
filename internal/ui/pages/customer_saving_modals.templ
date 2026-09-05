@@ -110,10 +110,7 @@ templ CustomerSavingModals(lang string) {
 		</form>
 	}
 
-	<!-- MODAL 2: Bulk Import & Staged Review Wizard Modal -->
-	@CustomerSavingImportModal(lang)
-
-	<!-- MODAL 3: Providing Organizations & Offers Modal -->
+	<!-- MODAL 2: Providing Organizations & Offers Modal -->
 	@components.Modal(components.ModalProps{
 		ID:       "pharmacy-providers-modal",
 		Title:    "عروض الموردين والأسعار المتاحة بالكتالوج",

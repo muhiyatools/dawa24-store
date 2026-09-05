@@ -849,7 +849,13 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 												}
 											</td>
 											<td class="tabular-nums font-mono py-3 font-bold">{ fmt.Sprintf("#%d", req.ItemID) }</td>
-											<td class="tabular-nums font-bold py-3">{ fmt.Sprintf("#%d", req.PackageID) }</td>
+											<td class="tabular-nums font-bold py-3">
+												if req.Package != nil && req.Package.Name.Get(i18n.ParseLang(lang)) != "" {
+													<span>{ req.Package.Name.Get(i18n.ParseLang(lang)) }</span>
+												} else {
+													<span>باقة #{ fmt.Sprintf("%d", req.PackageID) }</span>
+												}
+											</td>
 											<td class="text-center py-3">
 												if req.AdminStatus == "pending" {
 													<span class="badge badge-sky font-extrabold text-xs">قيد المراجعة</span>
@@ -860,10 +866,10 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 												}
 											</td>
 											<td class="text-center py-3">
-												if req.AdminStatus == "pending" {
-													<span class="text-muted text-xs">—</span>
-												} else {
+												if req.ReviewedAt != nil {
 													<span class="text-xs tabular-nums text-secondary font-semibold">{ req.ReviewedAt.Format("2006-01-02") }</span>
+												} else {
+													<span class="text-muted text-xs">—</span>
 												}
 											</td>
 											<td class="text-center text-xs tabular-nums text-secondary font-semibold py-3">{ req.ExpiresAt.Format("2006-01-02") }</td>

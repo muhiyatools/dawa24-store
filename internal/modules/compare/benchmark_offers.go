@@ -119,8 +119,9 @@ func (s *Service) BenchmarkRowOffers(
 	}
 
 	offers, err := s.repo.LoadMarketOffers(ctx, MarketScanOptions{
-		OrganizationID: orgID,
-		ExcludeFileID:  fileID,
+		OrganizationID:      orgID,
+		ExcludeFileID:       fileID,
+		ExcludeSupplierName: file.SupplierName,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("compare: load market offers: %w", err)
@@ -135,6 +136,9 @@ func (s *Service) BenchmarkRowOffers(
 	tolerance := int64(float64(net.Minor()) * equalTolerancePercent / 100)
 	seen := map[string]bool{}
 	for _, o := range p.Offers {
+		if file.SupplierName != "" && strings.EqualFold(strings.TrimSpace(o.SupplierName), strings.TrimSpace(file.SupplierName)) {
+			continue
+		}
 		// One vote per supplier, exactly as the count was made.
 		if name := strings.TrimSpace(o.SupplierName); name != "" {
 			if seen[name] {

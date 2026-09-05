@@ -63,15 +63,7 @@ func CustomerSavingModals(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- MODAL 2: Bulk Import & Staged Review Wizard Modal -->")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = CustomerSavingImportModal(lang).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<!-- MODAL 3: Providing Organizations & Offers Modal -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- MODAL 2: Providing Organizations & Offers Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -87,7 +79,7 @@ func CustomerSavingModals(lang string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div id=\"pharmacy-providers-modal-content\" class=\"modal-body p-4\"><div class=\"text-center text-muted p-8\">⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"pharmacy-providers-modal-content\" class=\"modal-body p-4\"><div class=\"text-center text-muted p-8\">⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

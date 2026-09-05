@@ -121,13 +121,13 @@ templ savingReviewStage(view SavingImportView) {
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th class="saving-review-col-index text-center">#</th>
-							@savingThSort(view, "name", "اسم الصنف بالملف المرفوع")
-							<th class="saving-review-col-product">الصنف المطابق بالكتالوج المركزي</th>
-							@savingThSort(view, "score", "حالة التطابق")
-							@savingThSort(view, "qty", "الكمية المطلوبة")
-							@savingThSort(view, "price", "سعر الجمهور")
-							@savingThSort(view, "total", "القيمة الإجمالية")
+							<th class="saving-review-col-pick text-center">#</th>
+							@savingThSort(view, "name", "اسم الصنف بالملف المرفوع", "saving-review-col-name text-start")
+							<th class="saving-review-col-product text-start">الصنف المطابق بالكتالوج المركزي</th>
+							@savingThSort(view, "score", "حالة التطابق", "saving-review-col-score text-center")
+							@savingThSort(view, "qty", "الكمية المطلوبة", "saving-review-col-qty text-center")
+							@savingThSort(view, "price", "سعر الجمهور", "saving-review-col-price text-center")
+							@savingThSort(view, "total", "القيمة الإجمالية", "saving-review-col-total text-center")
 						</tr>
 					</thead>
 					<tbody>
@@ -338,7 +338,7 @@ templ savingReviewStage(view SavingImportView) {
 	</script>
 }
 
-templ savingThSort(view SavingImportView, colKey, label string) {
+templ savingThSort(view SavingImportView, colKey, label, colClass string) {
 	{{
 		isCurrent := view.Filter.SortBy == colKey
 		nextOrder := "asc"
@@ -347,17 +347,17 @@ templ savingThSort(view SavingImportView, colKey, label string) {
 		}
 		sortURL := buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, colKey, nextOrder, 1, view.Filter.Limit, view.Filter.Search)
 	}}
-	<th>
-		<a href={ templ.SafeURL(sortURL) } class="row-center-xs gap-xs">
+	<th class={ colClass, "whitespace-nowrap" }>
+		<a href={ templ.SafeURL(sortURL) } class="d-inline-flex items-center justify-center gap-1 text-inherit no-underline font-bold">
 			<span>{ label }</span>
 			if isCurrent {
 				if view.Filter.SortOrder == "desc" {
-					<span>▼</span>
+					<span class="text-2xs">▼</span>
 				} else {
-					<span>▲</span>
+					<span class="text-2xs">▲</span>
 				}
 			} else {
-				<span>⇅</span>
+				<span class="text-2xs text-muted opacity-50">⇅</span>
 			}
 		</a>
 	</th>
@@ -381,49 +381,61 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 		searchURL := view.BaseURL + "/search-products"
 	}}
 	<tr id={ fmt.Sprintf("saving-row-%d", row.Index) } class={ templ.KV("opacity-50", !row.Included) }>
-		<td class="text-center align-middle">
-			<form class="stack-md" method="POST" action={ templ.SafeURL(actionBase + "/toggle" + querySuffix) }>
-				<input type="checkbox" checked?={ row.Included } onchange="this.form.submit()" title="تضمين / استثناء" />
-			</form>
+		<!-- 1. Selection & Index -->
+		<td class="saving-review-col-pick align-middle text-center">
+			<div class="d-flex items-center justify-center gap-1.5">
+				<form method="POST" action={ templ.SafeURL(actionBase + "/toggle" + querySuffix) } class="m-0 d-inline-flex">
+					<input type="checkbox" checked?={ row.Included } onchange="this.form.submit()" title="تضمين / استثناء الصنف من القائمة" />
+				</form>
+				<span class="text-2xs font-bold text-muted tabular-nums">{ fmt.Sprint(row.Index + 1) }</span>
+			</div>
 		</td>
 
-		<td class="col-actions align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="stack-2xs m-0">
-				<div class="table-actions">
-					<input type="text" name="name" value={ row.NameProduct } class="form-input text-xs font-bold"
-					 />
-					<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الاسم">@components.IconCheck("icon-sm")</button>
+		<!-- 2. Product Name from Uploaded File -->
+		<td class="saving-review-col-name align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="saving-inline-form w-full">
+				<input type="text" name="name" value={ row.NameProduct } class="saving-name-field"
+					placeholder="اسم الصنف بالملف المرفوع..." />
+				<button type="submit" class="btn btn-ghost btn-xs p-1 shrink-0 text-emerald" title="حفظ تعديل الاسم">
+					@components.IconCheck("icon-sm")
+				</button>
+			</form>
+			if row.SKU != "" {
+				<div class="mt-1 d-flex items-center gap-1">
+					<span class="badge badge-secondary text-2xs font-mono">كود: { row.SKU }</span>
 				</div>
-				if row.SKU != "" {
-					<span class="text-2xs text-muted font-mono">{ row.SKU }</span>
-				}
-			</form>
+			}
 		</td>
 
-		<td class="col-actions align-middle saving-catalog-cell">
-			<div class="table-actions">
-				if row.ProductID != nil && *row.ProductID > 0 {
-					<div class="stack-2xs flex-1">
-						<span class="text-xs font-black text-primary">{ row.MasterProductName }</span>
+		<!-- 3. Central Catalog Matched Product -->
+		<td class="saving-review-col-product align-middle">
+			if row.ProductID != nil && *row.ProductID > 0 {
+				<div class="saving-catalog-card">
+					<div class="stack-2xs flex-1 min-w-0">
+						<span class="text-xs font-black text-primary truncate block" title={ row.MasterProductName }>{ row.MasterProductName }</span>
 						if row.MasterProductSKU != "" {
-							<span class="text-2xs text-muted font-mono">{ row.MasterProductSKU }</span>
+							<span class="text-2xs text-muted font-mono block">كود: { row.MasterProductSKU }</span>
 						}
 					</div>
-					<button type="button" class="btn btn-secondary btn-xs font-bold"
+					<button type="button" class="btn btn-secondary btn-xs font-bold shrink-0"
 						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', true)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)} }>
 						تغيير
 					</button>
-				} else {
-					<button type="button" class="btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1"
+				</div>
+			} else {
+				<div class="saving-catalog-card-empty">
+					<span class="text-xs text-muted">غير مرتبط بالكتالوج</span>
+					<button type="button" class="btn btn-primary btn-xs font-bold shrink-0 d-inline-flex items-center gap-1"
 						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', false)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)} }>
 						@components.IconPlus("icon-xxs")
 						<span>ربط بالكتالوج</span>
 					</button>
-				}
-			</div>
+				</div>
+			}
 		</td>
 
-		<td class="text-center align-middle">
+		<!-- 4. Match Status Badge -->
+		<td class="saving-review-col-score text-center align-middle whitespace-nowrap">
 			if row.ProductID != nil && *row.ProductID > 0 {
 				if row.MatchType == "manual" {
 					<span class="badge badge-emerald text-xs font-bold">مطابقة يدوية</span>
@@ -437,24 +449,31 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			}
 		</td>
 
-		<td class="col-actions align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
+		<!-- 5. Quantity Input -->
+		<td class="saving-review-col-qty text-center align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="saving-inline-form justify-center">
 				<input type="number" step="1" min="1" name="quantity" value={ fmt.Sprintf("%.0f", row.Quantity) }
-					class="form-input text-center tabular-nums text-xs" />
-				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الكمية">@components.IconCheck("icon-sm")</button>
+					class="saving-num-field tabular-nums text-xs font-bold" />
+				<button type="submit" class="btn btn-ghost btn-xs p-1 shrink-0 text-emerald" title="حفظ الكمية">
+					@components.IconCheck("icon-sm")
+				</button>
 			</form>
 		</td>
 
-		<td class="col-actions align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
+		<!-- 6. Public Price Input -->
+		<td class="saving-review-col-price text-center align-middle">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="saving-inline-form justify-center">
 				<input type="number" step="0.01" min="0" name="price" value={ row.Price.String() }
-					class="form-input text-center tabular-nums text-xs" />
-				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ السعر">@components.IconCheck("icon-sm")</button>
+					class="saving-num-field tabular-nums text-xs font-bold" style="width: 82px;" />
+				<button type="submit" class="btn btn-ghost btn-xs p-1 shrink-0 text-emerald" title="حفظ السعر">
+					@components.IconCheck("icon-sm")
+				</button>
 			</form>
 		</td>
 
-		<td class="text-center align-middle tabular-nums font-black text-xs text-primary">
-			{ row.TotalValue.String() } ج.م
+		<!-- 7. Total Value -->
+		<td class="saving-review-col-total text-center align-middle tabular-nums font-black text-xs text-primary whitespace-nowrap">
+			{ row.TotalValue.String() } <span class="text-2xs font-normal text-muted">ج.م</span>
 		</td>
 	</tr>
 }

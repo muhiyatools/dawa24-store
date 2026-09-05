@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -35,11 +36,9 @@ const marketScanLimit = 250000
 func (r *Repository) LoadMarketOffers(
 	ctx context.Context, opts compare.MarketScanOptions,
 ) ([]compare.MarketOffer, error) {
-	// "The market", for aggregation, is the temporary warehouses plus the
-	// caller's own organisation's uploads — the latter so a vendor can price
-	// against their own file. No upload is ever visible to another tenant here;
-	// خصومات السوق العامة (ListMarketDiscounts) is narrower still: temp
-	// warehouses only.
+	// The market for comparison is strictly compare files (is_temp_warehouse = FALSE)
+	// belonging to the organization (or all compare files if no organization specified).
+	// Temporary warehouses of supervisors/admins are never included here.
 	const sql = `
 		SELECT r.id, r.file_id, COALESCE(f.supplier_name, ''), r.raw_name,
 		       COALESCE(r.sku, ''), r.price, COALESCE(r.discount, 0),
@@ -50,16 +49,18 @@ func (r *Repository) LoadMarketOffers(
 		JOIN compare.files f ON f.id = r.file_id
 		WHERE f.deleted_at IS NULL
 		  AND f.status = 'ready'
+		  AND f.is_temp_warehouse = FALSE
 		  AND r.price > 0
-		  AND (f.is_temp_warehouse = TRUE
-		       OR ($1::bigint IS NOT NULL AND f.organization_id = $1))
+		  AND ($1::bigint IS NULL OR f.organization_id = $1)
 		  AND ($2::bigint IS NULL OR r.file_id <> $2)
+		  AND ($4::text IS NULL OR LOWER(TRIM(f.supplier_name)) <> LOWER(TRIM($4)))
 		ORDER BY r.id
 		LIMIT $3;`
 
 	var (
-		orgID    *int64
-		excludeF *int64
+		orgID      *int64
+		excludeF   *int64
+		excludeSup *string
 	)
 	if opts.OrganizationID != nil && *opts.OrganizationID > 0 {
 		orgID = opts.OrganizationID
@@ -68,10 +69,13 @@ func (r *Repository) LoadMarketOffers(
 		id := opts.ExcludeFileID
 		excludeF = &id
 	}
+	if s := strings.TrimSpace(opts.ExcludeSupplierName); s != "" {
+		excludeSup = &s
+	}
 
 	var offers []compare.MarketOffer
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		rows, err := tx.Query(txCtx, sql, orgID, excludeF, marketScanLimit)
+		rows, err := tx.Query(txCtx, sql, orgID, excludeF, marketScanLimit, excludeSup)
 		if err != nil {
 			return err
 		}

@@ -185,10 +185,13 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								@components.IconPlus("icon-xs")
 								<span>إضافة صنف جديد</span>
 							</button>
-							<button type="button" class="btn btn-secondary font-bold text-xs px-4" onclick="openPharmacyImportModal()">
+							<a
+								href="/customer/saving-products/import"
+								class="btn btn-secondary font-bold text-xs px-4 text-decoration-none"
+							>
 								@components.IconUpload("icon-xs")
 								<span>استيراد ملف Excel</span>
-							</button>
+							</a>
 						</div>
 					</div>
 				} else {
@@ -323,7 +326,5 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 		@CustomerSavingModals(lang)
 		@CustomerSavingScript()
-		@CustomerSavingImportScript()
-		@CustomerSavingReviewScript()
 	}
 }

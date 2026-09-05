@@ -479,3 +479,50 @@ synchronous version and is bounded by the request-body cap.
 (mtime 19:02, three new undefined CSS classes) — another session or tooling is
 editing this working tree. Not mine, not touched.
 
+---
+
+## The actual cause of "stuck forever" — a script-ordering bug, not the transport
+
+The report was a vendor import frozen at **1%** on
+`.../vendor/ingest/9b47e732-…`. I queried the deployed database rather than
+guessing:
+
+```
+id  public_id                             phase   pct  rows   updated
+89  9b47e732-2b3e-4e0f-9888-e332d5c9d583  review  100  1135   09-05 19:38:02
+```
+
+The import had **finished** — 1,135 rows staged, moved to review. The server was
+never the problem. The screen simply never learned.
+
+**Why.** `import-progress.js` is loaded with `defer` in the head, so it executes
+*after* the document is parsed. The page's inline `<script>` runs *during*
+parsing — so at that moment `window.ImportProgress` does not exist, and every
+call site guarded itself with:
+
+```js
+if (typeof window.ImportProgress !== 'function') return;
+```
+
+which did exactly what it says. It returned. Silently, on every page load, with
+nothing in the console. The bar then kept the percentage the server had rendered
+into the HTML — 1%, written by `StageInBackground` before its goroutine starts —
+and nothing ever polled to find out otherwise.
+
+This predates all of this work: the same guard defeated the old `bar.poll` too,
+so the bar had never been live on these three screens. It affected the vendor
+import, the admin catalogue import and the smart-order ring — every progress bar
+started from an immediately-invoked inline block.
+
+**Fixed** by a readiness fence at each site: `DOMContentLoaded` fires only after
+every deferred script has executed, and an already-parsed document runs the
+initialiser at once. The silent `return` is now a `console.error`, so if it ever
+does happen it says so.
+
+**Guarded** by `internal/ui/pages/progress_bootstrap_test.go`, which fails when
+an inline script starts a bar without the fence. Its first version matched the
+word "DOMContentLoaded" and was satisfied by the *comment* explaining why the
+fence is needed — removing the actual listener still passed. It now strips
+comments and matches the listener call itself, and was verified to fail on the
+real bug.
+

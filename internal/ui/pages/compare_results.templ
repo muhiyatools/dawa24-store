@@ -33,7 +33,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							</h1>
 						</div>
 						<p class="text-sm text-secondary m-0">
-							مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء وفجوات التغطية والنواقص.
+							مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء.
 						</p>
 					</div>
 
@@ -156,15 +156,6 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 						>
 							<span>أصناف حصرية لمورد واحد</span>
 						</button>
-
-						<button
-							type="button"
-							class="tab-btn"
-							data-filter="coverage-gap"
-							onclick="applyTableFilter('coverage-gap', this)"
-						>
-							<span>فجوات ونواقص موردين</span>
-						</button>
 					</div>
 
 					<!-- Instant Search Filter -->
@@ -200,7 +191,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 									<th class="tabular-nums">سعر الجمهور</th>
 									<th class="tabular-nums">أعلى نسبة خصم</th>
 									<th>المورد الفائز بالصفقة</th>
-									<th>عروض الموردين وفجوات النواقص</th>
+									<th>عروض الموردين</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -304,8 +295,6 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 						matchesFilter = sups > 1;
 					} else if (currentFilter === 'single-offer') {
 						matchesFilter = sups === 1;
-					} else if (currentFilter === 'coverage-gap') {
-						matchesFilter = gaps > 0;
 					}
 
 					let matchesSearch = true;

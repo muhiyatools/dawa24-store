@@ -9,11 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"fmt"
-
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 type CourierDeliveryData struct {
@@ -47,618 +45,157 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(lang)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 23, Col: 18}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" dir=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(dir)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 23, Col: 30}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"scroll-smooth\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta name=\"robots\" content=\"noindex, nofollow, noarchive\"><title>بوابة المندوب لتسليم الشحنات | دوا 24</title><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"\"><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap\"><link rel=\"stylesheet\" href=\"/static/css/modern.css\"><link rel=\"stylesheet\" href=\"/static/css/components.css\"><link rel=\"stylesheet\" href=\"/static/css/utilities.css\"><link rel=\"stylesheet\" href=\"/static/css/design-system.css\"></head><body class=\"bg-surface-sunken min-h-screen d-flex flex-col text-primary font-sans\"><!-- Top Standalone Header with Official Logo --><header class=\"bg-surface border-b sticky top-0 z-40 px-4 py-3 shadow-xs\"><div class=\"d-flex items-center justify-between max-w-xl mx-auto\"><div class=\"d-flex items-center gap-3\"><a href=\"/delivery\" class=\"d-flex items-center gap-2 text-decoration-none\"><img src=\"/static/img/logo.png\" alt=\"دوا 24\" class=\"h-8 w-auto object-contain\" onerror=\"this.classList.add('hidden')\"><div class=\"stack-2xs text-start\"><span class=\"text-sm font-black text-primary leading-tight\">دوا 24</span> <span class=\"text-2xs text-secondary font-bold\">بوابة المندوب والتسليم</span></div></a></div><div class=\"d-flex items-center gap-1.5 text-2xs font-extrabold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconShield("icon-2xs text-emerald-600").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تحقق مشفر 256-bit</span></div></div></header><!-- Main Container --><main class=\"flex-1 p-4 pb-12\"><div class=\"max-w-xl mx-auto space-y-4\"><!-- Operational Flow Guide --><div class=\"glass-panel p-4 rounded-2xl border bg-surface shadow-xs\"><div class=\"d-flex items-center gap-2 mb-2.5 text-brand font-black text-xs\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconInfo("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>خطوات تسليم الشحنة الدوائية:</span></div><div class=\"grid grid-cols-3 gap-2.5 text-center text-2xs font-bold\"><div class=\"p-2.5 rounded-xl bg-surface-sunken border\"><span class=\"d-block text-brand mb-1\">1. المطابقة</span> <span class=\"text-secondary font-medium\">الفرع والعنوان</span></div><div class=\"p-2.5 rounded-xl bg-surface-sunken border\"><span class=\"d-block text-brand mb-1\">2. الفحص</span> <span class=\"text-secondary font-medium\">الطرود والتحصيل</span></div><div class=\"p-2.5 rounded-xl bg-surface-sunken border\"><span class=\"d-block text-brand mb-1\">3. كود PIN</span> <span class=\"text-secondary font-medium\">توثيق الاستلام</span></div></div></div><!-- Error & Success Feedback Banners -->")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.ErrorMessage != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"alert alert-danger p-4 rounded-2xl border border-rose-200 bg-rose-50 text-rose-900 shadow-xs\"><div class=\"d-flex items-center gap-3\">")
+		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"courier-portal-wrapper\"><!-- Top Standalone Header with Properly Sized Logo --><header class=\"courier-top-header\"><div class=\"courier-top-header-inner\"><a href=\"/delivery\" class=\"d-flex items-center gap-2.5 text-decoration-none\"><img src=\"/static/img/logo.png\" alt=\"دوا 24\" class=\"courier-logo\" onerror=\"this.classList.add('hidden')\"><div class=\"stack-2xs text-start\"><span class=\"text-sm font-black text-primary leading-tight\">دوا 24</span> <span class=\"text-2xs text-secondary font-bold\">بوابة تسليم الشحنات</span></div></a><div class=\"courier-badge-secure\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconAlert("icon-sm text-rose-600 shrink-0").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconShield("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"stack-xs text-start\"><strong class=\"font-black text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>تحقق مشفر 256-bit</span></div></div></header><!-- Main Container --><main class=\"courier-main-container\"><!-- Error & Success Feedback Banners -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.ErrorMessage)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 89, Col: 63}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</strong> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.IsLocked {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"text-2xs text-rose-700\">يرجى الانتظار والمحاولة لاحقاً بعد انتهاء فترة القفل الأمني.</span>")
+			if data.ErrorMessage != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"alert alert-danger p-4 rounded-2xl border border-rose-200 bg-rose-50 text-rose-900 shadow-xs\"><div class=\"d-flex items-center gap-3\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconAlert("icon-sm text-rose-600 shrink-0").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"stack-xs text-start\"><strong class=\"font-black text-xs\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 string
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.ErrorMessage)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 53, Col: 62}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</strong> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if data.IsLocked {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"text-2xs text-rose-700 font-medium\">يرجى الانتظار والمحاولة لاحقاً بعد انتهاء فترة القفل الأمني.</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		if data.SuccessMessage != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"alert alert-success p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-xs\"><div class=\"d-flex items-center gap-3\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconCheckCircle("icon-sm text-emerald-600 shrink-0").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<strong class=\"font-black text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.SuccessMessage)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 102, Col: 64}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</strong></div></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<!-- State 1: Search Form -->")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Shipment == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"glass-panel text-center p-6 rounded-2xl border bg-surface shadow-xs\"><div class=\"w-14 h-14 rounded-2xl bg-brand-subtle text-brand d-inline-flex items-center justify-center mb-4 border shadow-2xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconTruck("icon-md").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><h2 class=\"text-lg font-black text-primary m-0 mb-2\">استعلام وتسليم شحنة دوائية</h2><p class=\"text-xs text-secondary leading-relaxed max-w-sm mx-auto mb-5 font-medium\">أدخل رقم الشحنة أو بوليصة التتبع المسلمة لك من المورد لمعاينة بيانات الصيدلية والأصناف المطلوب تسليمها.</p><form method=\"GET\" action=\"/delivery\" class=\"m-0 space-y-4\"><div><input type=\"text\" name=\"tracking\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.TrackingQuery)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 126, Col: 36}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" required autofocus placeholder=\"مثال: TRK-6023-15588\" class=\"form-input text-base text-center font-mono font-black w-full p-3 rounded-xl border border-slate-300\"></div><button type=\"submit\" class=\"btn btn-primary font-black text-xs py-3 px-6 rounded-xl shadow-xs gap-2 w-full\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>عرض بيانات الشحنة</span></button></form></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<!-- State 2: Shipment Loaded --> <!-- Status & Identification Card --> <div class=\"glass-panel p-4 rounded-2xl border bg-surface shadow-xs\"><div class=\"flex-between items-center flex-wrap gap-2\"><div class=\"stack-2xs text-start\"><span class=\"text-2xs text-secondary font-mono\">رقم الشحنة:</span><h2 class=\"text-base font-black text-primary font-mono m-0\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.ShipmentNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 150, Col: 99}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</h2>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.Shipment.TrackingNumber != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"text-2xs text-muted font-mono font-bold\">بوليصة: ")
+			if data.SuccessMessage != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"alert alert-success p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-xs\"><div class=\"d-flex items-center gap-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.TrackingNumber)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 152, Col: 108}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+				templ_7745c5c3_Err = components.IconCheckCircle("icon-sm text-emerald-600 shrink-0").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<strong class=\"font-black text-xs\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var4 string
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.SuccessMessage)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 66, Col: 63}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</strong></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- State 1: Search / Lookup Form -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.Shipment.Status == commerce.StatusDelivered || data.Shipment.Status == commerce.StatusCompleted {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span class=\"badge badge-emerald font-black text-xs p-2 px-3 gap-1.5 shadow-2xs\">")
+			if data.Shipment == nil {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!-- Operational Flow Guide --> <div class=\"courier-card\"><div class=\"d-flex items-center gap-2 mb-2.5 text-brand font-black text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconCheckCircle("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.IconInfo("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>تم التسليم بنجاح</span></span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>خطوات تسليم الشحنة الدوائية:</span></div><div class=\"courier-steps-grid\"><div class=\"courier-step-item\"><span class=\"d-block text-brand font-bold text-xs mb-0.5\">1. المطابقة</span> <span class=\"text-secondary font-medium text-2xs\">الفرع والعنوان</span></div><div class=\"courier-step-item\"><span class=\"d-block text-brand font-bold text-xs mb-0.5\">2. الفحص</span> <span class=\"text-secondary font-medium text-2xs\">الطرود والتحصيل</span></div><div class=\"courier-step-item\"><span class=\"d-block text-brand font-bold text-xs mb-0.5\">3. كود PIN</span> <span class=\"text-secondary font-medium text-2xs\">توثيق الاستلام</span></div></div></div><div class=\"courier-card text-center p-6\"><div class=\"courier-hero-icon\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-			} else if data.Shipment.Status == commerce.StatusCancelled {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-rose font-black text-xs p-2 px-3 gap-1.5\">")
+				templ_7745c5c3_Err = components.IconTruck("icon-md").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconClose("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><h2 class=\"text-lg font-black text-primary m-0 mb-1\">استعلام وتسليم شحنة دوائية</h2><p class=\"text-xs text-secondary leading-relaxed max-w-sm mx-auto mb-5 font-medium\">أدخل رقم الشحنة أو بوليصة التتبع المسلمة لك من المورد لمعاينة بيانات الصيدلية والأصناف المطلوب تسليمها.</p><form method=\"GET\" action=\"/delivery\" class=\"m-0 d-flex flex-col gap-3\"><div><input type=\"text\" name=\"tracking\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>شحنة ملغاة</span></span>")
+				var templ_7745c5c3_Var5 string
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.TrackingQuery)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 112, Col: 35}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required autofocus placeholder=\"مثال: TRK-6023-15588\" class=\"form-input text-base text-center font-mono font-black w-full p-3 rounded-xl border border-slate-300\"></div><button type=\"submit\" class=\"btn btn-primary font-black text-xs py-3 px-6 rounded-xl shadow-xs gap-2 w-full d-flex items-center justify-center\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>عرض بيانات الشحنة</span></button></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-sky font-black text-xs p-2 px-3 gap-1.5 shadow-2xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!-- State 2: Shipment Loaded Details --> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconTruck("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>جاهز للتسليم بالفرع</span></span>")
+				templ_7745c5c3_Err = CourierShipmentDetails(data, lang, dir).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div></div><!-- Recipient Pharmacy Info Card --> <div class=\"glass-panel p-4 rounded-2xl border bg-surface shadow-xs\"><div class=\"d-flex items-center gap-2 mb-3 pb-2.5 border-b text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</main></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconMapPin("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<h3 class=\"text-xs font-black m-0\">بيانات الصيدلية المستلمة</h3></div><div class=\"space-y-3 text-xs text-start\"><div class=\"flex-between items-baseline flex-wrap gap-1\"><span class=\"text-secondary font-medium\">اسم الصيدلية:</span> <strong class=\"text-primary font-extrabold text-sm\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 186, Col: 118}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</strong></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"flex-between items-baseline flex-wrap gap-1\"><span class=\"text-secondary font-medium\">الفرع:</span> <span class=\"text-primary font-bold\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 192, Col: 107}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			if data.Shipment.CustomerBranchAddress != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"pt-2 border-t\"><span class=\"text-secondary font-medium d-block mb-1\">العنوان بالتفصيل:</span><div class=\"p-2.5 rounded-lg bg-surface-sunken border text-primary font-bold leading-relaxed\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchAddress)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 200, Col: 48}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<!-- Pharmacist Contact & Phone Call Button --><div class=\"pt-2 border-t flex-between items-center gap-2 flex-wrap\"><div class=\"stack-2xs text-start\"><span class=\"text-2xs text-secondary font-medium\">المسؤول بالفرع:</span> <span class=\"text-xs font-bold text-primary\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.Shipment.CustomerManagerName != "" {
-				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerManagerName)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 211, Col: 47}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>الصيدلي المسؤول بالفرع</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.Shipment.CustomerBranchPhone != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var13 templ.SafeURL
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 220, Col: 75}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"btn btn-secondary font-black text-xs py-2 px-3.5 gap-1.5 text-brand\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconPhone("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span class=\"tabular-nums font-mono\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var14 string
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.CustomerBranchPhone)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 224, Col: 83}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</span></a>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div></div></div><!-- Financial Collection Box --> <div class=\"glass-panel p-4 rounded-2xl border bg-surface shadow-xs\"><div class=\"d-flex items-center gap-2 mb-3 pb-2.5 border-b text-primary\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconWallet("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<h3 class=\"text-xs font-black m-0\">التحصيل والمبالغ المالية</h3></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.Shipment.PaymentMethod == "cod" || data.Shipment.PaymentStatus != commerce.PaymentPaid {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div class=\"p-4 rounded-xl bg-surface-sunken border text-center mb-1\"><span class=\"text-2xs font-extrabold text-secondary d-block mb-1\">المبلغ المطلوب تحصيله نقداً من الصيدلية:</span><div class=\"text-2xl font-black text-emerald-700 tabular-nums font-mono\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.MoneyDisplay(components.MoneyDisplayProps{Amount: data.Shipment.TotalAmount}).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div><span class=\"badge badge-amber font-extrabold text-2xs mt-2\">الدفع عند الاستلام (COD)</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"p-3.5 rounded-xl bg-surface-sunken border text-center mb-1\"><div class=\"text-xs font-black text-emerald-700 mb-1\">مدفوع مسبقاً بالكامل إلكترونياً</div><div class=\"text-2xs text-secondary font-medium\">لا يلزم تحصيل أي مبالغ نقدية من الصيدلية لهذه الشحنة.</div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><!-- Items Summary Table --> <div class=\"glass-panel p-4 rounded-2xl border bg-surface shadow-xs\"><div class=\"d-flex items-center gap-2 mb-3 pb-2.5 border-b text-primary\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconPackage("icon-xs text-brand").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<h3 class=\"text-xs font-black m-0\">محتويات وأصناف الشحنة (")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Shipment.Lines)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 258, Col: 130}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, " صنف)</h3></div><div class=\"space-y-2\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, line := range data.Shipment.Lines {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"p-2.5 rounded-lg bg-surface-sunken border flex-between items-center gap-3\"><div class=\"flex-1 min-w-0 text-start\"><div class=\"text-xs font-bold text-primary truncate\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var16 string
-				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(line.ProductName.Get(i18n.ParseLang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 265, Col: 108}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if line.VariantName.Get(i18n.ParseLang(lang)) != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"text-2xs text-muted truncate\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(line.VariantName.Get(i18n.ParseLang(lang)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 267, Col: 98}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><div class=\"text-end shrink-0\"><span class=\"badge badge-secondary font-black text-xs tabular-nums\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 272, Col: 46}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, " عبوة</span></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div></div><!-- Handover Verification Form (Active) --> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if data.Shipment.Status != commerce.StatusDelivered && data.Shipment.Status != commerce.StatusCompleted && data.Shipment.Status != commerce.StatusCancelled {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"glass-panel p-5 rounded-2xl border border-brand bg-surface shadow-md\"><div class=\"text-center mb-4\"><div class=\"w-10 h-10 rounded-xl bg-brand-subtle text-brand d-inline-flex items-center justify-center mb-2 shadow-2xs\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><h3 class=\"text-sm font-black text-primary m-0\">تأكيد تسليم الشحنة بالكود</h3><p class=\"text-2xs text-secondary m-0 mt-1 font-medium leading-relaxed\">اطلب من الصيدلي المسؤول إعطاءك «كود تأكيد الاستلام» الظاهر في حسابه وفاتورته لإتمام التسليم</p></div><form method=\"POST\" action=\"/delivery/verify\" class=\"m-0 space-y-4\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Shipment.TrackingNumber != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<input type=\"hidden\" name=\"tracking\" value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Shipment.TrackingNumber)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 297, Col: 83}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\"> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<input type=\"hidden\" name=\"tracking\" value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var20 string
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Shipment.ShipmentNumber)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 299, Col: 83}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\"> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<input type=\"hidden\" name=\"shipment_id\" value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var21 string
-				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Shipment.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 301, Col: 92}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\"><div class=\"stack-sm text-center\"><label class=\"form-label text-xs font-black text-primary block text-center mb-2\">أدخل كود تأكيد الاستلام المكون من 6 أرقام:</label> <input type=\"text\" name=\"delivery_code\" required maxlength=\"6\" pattern=\"[0-9]{6}\" inputmode=\"numeric\" autocomplete=\"one-time-code\" placeholder=\"••••••\" class=\"form-input text-2xl tracking-widest text-center font-mono font-black py-3 rounded-xl border-2 w-full max-w-xs mx-auto\"></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Shipment.PaymentMethod == "cod" || data.Shipment.PaymentStatus != commerce.PaymentPaid {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"p-3 rounded-xl bg-surface-sunken border text-start\"><label class=\"d-flex items-center gap-2.5 cursor-pointer select-none\"><input type=\"checkbox\" name=\"confirm_collected\" value=\"true\" required class=\"form-checkbox text-emerald-600 rounded\"> <span class=\"text-xs font-bold text-primary\">أؤكد تحصيل كامل المبلغ المطلوب (")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var22 string
-					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.TotalAmount.String())
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 331, Col: 107}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " ج.م) نقداً من الصيدلي</span></label></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<div class=\"stack-sm text-start\"><label class=\"form-label text-2xs font-bold text-secondary block mb-1\">ملاحظات التسليم (اختياري):</label> <input type=\"text\" name=\"notes\" placeholder=\"مثال: تم التسليم للدكتور فلان بالفرع\" class=\"form-input text-xs w-full rounded-xl\"></div><button type=\"submit\" class=\"btn btn-primary w-full py-3.5 font-black text-sm rounded-xl gap-2 shadow-sm\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconCheckCircle("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span>تأكيد الاستلام وإغلاق الشحنة فوراً</span></button></form></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else if data.Shipment.Status == commerce.StatusDelivered || data.Shipment.Status == commerce.StatusCompleted {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"glass-panel text-center p-6 rounded-2xl bg-surface border shadow-xs\"><div class=\"w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 d-inline-flex items-center justify-center mb-3 shadow-2xs\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconCheckCircle("icon-md").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div><h3 class=\"text-base font-black text-primary m-0 mb-1\">تم تسليم الشحنة وتوثيقها بنجاح</h3><p class=\"text-xs text-secondary m-0 font-medium\">تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال أمر التوريد.</p>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Shipment.DeliveredAt != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"text-2xs text-secondary mt-2 font-mono tabular-nums\">وقت التسليم: ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var23 string
-					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.DeliveredAt.Format("2006-01-02 03:04 PM"))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 371, Col: 90}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"pt-4 mt-4 border-t\"><a href=\"/delivery\" class=\"btn btn-secondary text-xs font-bold py-2 px-4\"><span>تسليم شحنة أخرى</span></a></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, " <div class=\"text-center pt-2\"><a href=\"/delivery\" class=\"text-xs font-bold text-secondary text-decoration-none\"><span>← البحث عن شحنة أخرى</span></a></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</div></main></body></html>")
+			return nil
+		})
+		templ_7745c5c3_Err = layouts.Base("بوابة تسليم الشحنات | دوا 24", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
