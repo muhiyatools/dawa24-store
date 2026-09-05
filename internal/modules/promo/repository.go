@@ -60,6 +60,7 @@ type Repository interface {
 	// package tier level for the given item IDs.
 	RankedSponsorshipsForProducts(ctx context.Context, productIDs []int64) ([]*RankedSponsorship, error)
 	RankedSponsorshipsForOffers(ctx context.Context, offerIDs []int64) ([]*RankedSponsorship, error)
+	ListActiveRankedSponsorships(ctx context.Context, itemType SponsorshipItemType) ([]*RankedSponsorship, error)
 	IsSponsored(ctx context.Context, itemType SponsorshipItemType, itemID int64) (*RankedSponsorship, error)
 
 	CreateSponsorship(ctx context.Context, s *OfferSponsorship) error

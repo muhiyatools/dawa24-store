@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -117,3 +118,52 @@ func TestCustomerPhase7Routes(t *testing.T) {
 		})
 	}
 }
+
+func TestCustomerSavingProductsPageImportRoute(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger)
+
+	r := chi.NewRouter()
+	handler.RegisterCustomerRoutes(r)
+
+	actor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 5,
+		OrgType:        "customer",
+		Permissions:    []string{"pharmacy.*"},
+	}
+	ctx := authctx.WithActor(context.Background(), actor)
+
+	req, _ := http.NewRequestWithContext(ctx, "GET", "/customer/saving-products", nil)
+	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", rr.Code)
+	}
+
+	body := rr.Body.String()
+
+	// Verify old modal is not rendered
+	if strings.Contains(body, "openPharmacyImportModal()") {
+		t.Errorf("expected no openPharmacyImportModal() in HTML body")
+	}
+	if strings.Contains(body, "pharmacy-saving-import-modal") {
+		t.Errorf("expected no pharmacy-saving-import-modal in HTML body")
+	}
+
+	// Verify link to dedicated import page
+	if !strings.Contains(body, `href="/customer/saving-products/import"`) {
+		t.Errorf("expected link href=\"/customer/saving-products/import\" in HTML body")
+	}
+
+	// Verify the dedicated import page returns 200 OK
+	reqImport, _ := http.NewRequestWithContext(ctx, "GET", "/customer/saving-products/import", nil)
+	rrImport := httptest.NewRecorder()
+	r.ServeHTTP(rrImport, reqImport)
+
+	if rrImport.Code != http.StatusOK {
+		t.Fatalf("expected 200 OK for /customer/saving-products/import, got %d", rrImport.Code)
+	}
+}
+

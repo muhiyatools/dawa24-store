@@ -56,7 +56,9 @@ type SupplierVariantCard struct {
 	CanAddToCart    bool
 	IsNegotiable    bool
 	IsSponsored     bool
-	IsFavorite      bool // promoted via sponsorship package
+	SponsoredTier   int   // tier level from sponsorship package (5 Diamond, 4 Platinum, etc.)
+	TieBreaker      int64 // random tie breaker for equal tier sponsorships
+	IsFavorite      bool
 }
 type SupplierOffer struct {
 	OfferID          int64

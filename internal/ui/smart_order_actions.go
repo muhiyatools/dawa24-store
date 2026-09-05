@@ -151,8 +151,22 @@ func (h *UIHandler) smartOrderRecalculate(r *http.Request, run *smartorder.Run) 
 
 func (h *UIHandler) smartOrderBack(w http.ResponseWriter, r *http.Request, run *smartorder.Run, message string) {
 	target := "/customer/smart-order/" + run.PublicID + "/review"
+	q := url.Values{}
 	if message != "" {
-		target += "?error=" + url.QueryEscape(message)
+		q.Set("error", message)
+	}
+	if p := r.FormValue("page"); p != "" && p != "1" {
+		q.Set("page", p)
+	} else if p := r.URL.Query().Get("page"); p != "" && p != "1" {
+		q.Set("page", p)
+	}
+	if l := r.FormValue("limit"); l != "" && l != "25" {
+		q.Set("limit", l)
+	} else if l := r.URL.Query().Get("limit"); l != "" && l != "25" {
+		q.Set("limit", l)
+	}
+	if len(q) > 0 {
+		target += "?" + q.Encode()
 	}
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

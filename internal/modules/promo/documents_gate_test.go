@@ -113,6 +113,9 @@ func (s *stubPromoRepo) RankedSponsorshipsForProducts(context.Context, []int64) 
 func (s *stubPromoRepo) RankedSponsorshipsForOffers(context.Context, []int64) ([]*RankedSponsorship, error) {
 	return nil, nil
 }
+func (s *stubPromoRepo) ListActiveRankedSponsorships(context.Context, SponsorshipItemType) ([]*RankedSponsorship, error) {
+	return nil, nil
+}
 func (s *stubPromoRepo) IsSponsored(context.Context, SponsorshipItemType, int64) (*RankedSponsorship, error) {
 	return nil, nil
 }

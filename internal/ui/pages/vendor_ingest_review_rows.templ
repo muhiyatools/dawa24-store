@@ -26,18 +26,20 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Row Number -->
-		<td class="text-center align-middle tabular-nums text-muted font-bold text-xs">
+		<td class="review-col-num text-center align-middle tabular-nums text-muted font-bold text-xs">
 			{ fmt.Sprint(row.SourceRow) }
 		</td>
 
 		<!-- File Product Name (Direct Editable in same cell) -->
 		<td class="review-col-name align-middle">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-				class="row-center-xs gap-xs mb-1">
+				class="d-flex items-center gap-1 mb-1">
 				<input type="text" name="display_name" value={ row.DisplayName }
-					class="form-input"
+					class="form-input text-xs font-bold py-1 px-2 h-7"
 					placeholder="اسم الصنف بالملف..."/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ تعديل الاسم">@components.IconCheck("icon-sm")</button>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs h-7 w-7 flex-shrink-0" title="حفظ تعديل الاسم">
+					@components.IconCheck("icon-2xs")
+				</button>
 			</form>
 			<div class="row-center-xs gap-xs flex-wrap">
 				if row.SourceCode != "" {
@@ -173,7 +175,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 		</td>
 
 		<!-- Public Price (سعر الجمهور - Editable Inline) -->
-		<td class="review-col-money text-center align-middle tabular-nums">
+		<td class="review-col-price text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
@@ -187,12 +189,14 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					placeholder="0.00"
 					class="form-input text-center tabular-nums font-bold"
 					title="تعديل سعر الجمهور"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ سعر الجمهور">@components.IconCheck("icon-sm")</button>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ سعر الجمهور">
+					@components.IconCheck("icon-2xs")
+				</button>
 			</form>
 		</td>
 
 		<!-- Discount Percentage % (نسبة الخصم - Editable Inline) -->
-		<td class="review-col-money text-center align-middle tabular-nums">
+		<td class="review-col-discount text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="review-money-form">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
@@ -204,14 +208,16 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					placeholder="0.0"
 					class="form-input text-center tabular-nums font-bold"
 					title="تعديل نسبة الخصم %"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ نسبة الخصم">@components.IconCheck("icon-sm")</button>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ نسبة الخصم">
+					@components.IconCheck("icon-2xs")
+				</button>
 			</form>
 		</td>
 
 		<!-- Net Price (السعر بعد الخصم) -->
-		<td class="review-col-money text-center align-middle tabular-nums">
-			<span class="fw-800 text-primary">
-				{ rowNetPriceValue(row) } <span>ج.م</span>
+		<td class="review-col-net text-center align-middle tabular-nums">
+			<span class="fw-800 text-primary text-xs whitespace-nowrap">
+				{ rowNetPriceValue(row) } <span class="text-2xs text-muted font-semibold">ج.م</span>
 			</span>
 		</td>
 
@@ -234,7 +240,9 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					placeholder="0"
 					class="form-input text-center tabular-nums font-bold"
 					title="تعديل أو إدخال الكمية يدوياً"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ الكمية">@components.IconCheck("icon-sm")</button>
+				<button type="submit" class="btn btn-secondary btn-icon btn-xs" title="حفظ الكمية">
+					@components.IconCheck("icon-2xs")
+				</button>
 			</form>
 		</td>
 	</tr>

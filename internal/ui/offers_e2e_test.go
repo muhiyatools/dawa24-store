@@ -225,6 +225,9 @@ func (m *mockPromoRepo) RankedSponsorshipsForProducts(ctx context.Context, produ
 func (m *mockPromoRepo) RankedSponsorshipsForOffers(ctx context.Context, offerIDs []int64) ([]*promo.RankedSponsorship, error) {
 	return nil, nil
 }
+func (m *mockPromoRepo) ListActiveRankedSponsorships(ctx context.Context, itemType promo.SponsorshipItemType) ([]*promo.RankedSponsorship, error) {
+	return nil, nil
+}
 func (m *mockPromoRepo) IsSponsored(ctx context.Context, itemType promo.SponsorshipItemType, itemID int64) (*promo.RankedSponsorship, error) {
 	return nil, nil
 }

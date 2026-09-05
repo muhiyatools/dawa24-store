@@ -33,6 +33,21 @@ templ CustomerCatalogResults(data CatalogPageData, lang string) {
 	}
 }
 
+func getSponsoredTierLabel(tier int) string {
+	switch tier {
+	case 5:
+		return "باقة ماسية"
+	case 4:
+		return "باقة بلاتينية"
+	case 3:
+		return "باقة ذهبية"
+	case 2:
+		return "باقة فضية"
+	default:
+		return "إعلان ممول"
+	}
+}
+
 templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 	<div class="product-grid-wrapper mb-6">
 		for _, v := range variants {
@@ -40,7 +55,19 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 				class={ "product-card-glass", templ.KV("is-sponsored", v.IsSponsored) }
 				onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
 			>
-				<div>
+				if v.IsSponsored {
+					<div class="product-card-sponsored-bar">
+						<div class="d-flex items-center gap-1.5">
+							<span class="sponsored-star">★</span>
+							<span class="sponsored-title">إعلان ممول</span>
+						</div>
+						if v.SponsoredTier > 0 {
+							<span class="sponsored-tier-tag">{ getSponsoredTierLabel(v.SponsoredTier) }</span>
+						}
+					</div>
+				}
+
+				<div class="product-card-body">
 					<!-- Top Visual Media Box -->
 					<div class="product-card-media">
 						if v.ProductImage != "" {
@@ -51,13 +78,6 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 								<span class="text-xs font-bold opacity-60">صورة الصنف</span>
 							</div>
 						}
-
-						<!-- Floating Badges -->
-						<div class="product-card-badges-floating">
-							if v.IsSponsored {
-								@components.SponsoredBadge(lang)
-							}
-						</div>
 
 						<!-- Favorite Button -->
 						<div onclick="event.stopPropagation();" class="product-card-fav-btn">
@@ -94,7 +114,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 					</div>
 
 					<!-- Manufacturer & Dosage Form Meta -->
-					<div class="d-flex items-center gap-1.5 text-xs text-secondary mb-1 flex-wrap">
+					<div class="d-flex items-center gap-1.5 text-xs text-secondary mb-1.5 flex-wrap">
 						if v.BrandName != "" || v.Manufacturer != "" {
 							<div class="d-flex items-center gap-1 min-w-0">
 								@components.IconBuilding("icon-xs text-muted flex-shrink-0")
@@ -123,15 +143,15 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 					}
 
 					<!-- Supplier Info Box -->
-					<div class="p-2 rounded-xl bg-surface-sunken border mb-2.5 flex-between">
-						<div class="d-flex items-center gap-1.5 text-truncate">
+					<div class="p-2.5 rounded-xl bg-surface-sunken border mb-2.5 flex-between items-center">
+						<div class="d-flex items-center gap-2 text-truncate">
 							@components.IconTruck("icon-xs text-primary flex-shrink-0")
 							<div class="text-truncate">
-								<div class="text-xs font-extrabold text-primary text-truncate">
+								<div class="text-xs font-black text-primary text-truncate">
 									{ v.SupplierName }
 								</div>
 								if v.CityName != "" || v.BranchName != "" {
-									<div class="text-xs text-muted text-truncate">
+									<div class="text-2xs text-muted text-truncate font-medium">
 										if v.CityName != "" {
 											{ v.CityName }
 										} else {
@@ -143,12 +163,12 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						</div>
 						<div class="d-flex items-center gap-1 flex-shrink-0">
 							if v.DistanceText != "" {
-								<span class="badge badge-sky text-xs font-mono" title="المسافة التقديرية عن فرعكم">
+								<span class="badge badge-sky text-2xs font-mono font-bold" title="المسافة التقديرية عن فرعكم">
 									{ v.DistanceText }
 								</span>
 							}
 							if v.IsVerified {
-								<span class="badge badge-emerald text-xs font-bold" title="مورد معتمد">
+								<span class="badge badge-emerald text-2xs font-bold" title="مورد معتمد">
 									معتمد
 								</span>
 							}
@@ -156,136 +176,135 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 					</div>
 
 					<!-- Stock & Expiry -->
-					<div class="flex-between text-xs mb-3 font-semibold">
+					<div class="flex-between text-xs mb-3 font-semibold items-center">
 						<div class="d-flex items-center gap-1.5 flex-wrap">
 							if v.AvailableStock > 0 {
-								<span class="badge badge-emerald gap-1 font-bold">
+								<span class="badge badge-emerald gap-1 font-bold text-xs py-0.5 px-2">
 									<span>متاح ({ fmt.Sprintf("%d", v.AvailableStock) } عبوة)</span>
 								</span>
 							} else {
-								<span class="badge badge-rose gap-1 font-bold">
+								<span class="badge badge-rose gap-1 font-bold text-xs py-0.5 px-2">
 									<span>غير متوفر</span>
 								</span>
 							}
 							if !v.IsCovered {
-								<span class="badge badge-rose gap-1 font-bold" title={ v.CoverageReason }>
+								<span class="badge badge-rose gap-1 font-bold text-xs py-0.5 px-2" title={ v.CoverageReason }>
 									@components.IconAlert("icon-2xs")
 									<span>خارج التغطية اليوم</span>
 								</span>
 							}
 						</div>
 						if v.ExpiryDate != "" {
-							<div class="tabular-nums text-muted text-xs font-mono">
+							<div class="tabular-nums text-muted text-2xs font-mono font-medium">
 								صلاحية: { v.ExpiryDate }
 							</div>
 						}
 					</div>
-				</div>
 
-				<!-- Pricing & Action Footer -->
-				<div class="border-t pt-3 mt-auto">
-					<div class="catalog-card-pricing-block mb-3">
-						<!-- سعر الجمهور مع نسبة الخصم بجوارها -->
-						<div class="flex-between items-center mb-1.5 flex-wrap gap-1">
-							<div class="d-flex items-center gap-1.5 flex-wrap">
-								<span class="text-xs text-secondary font-bold">سعر الجمهور:</span>
-								if v.PublicPrice.IsPositive() {
-									<span class="text-sm font-black text-primary tabular-nums">
-										{ v.PublicPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
-									</span>
-								} else if v.OriginalPrice.IsPositive() {
-									<span class="text-sm font-black text-primary tabular-nums">
-										{ v.OriginalPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
-									</span>
-								} else {
-									<span class="text-sm font-bold text-muted tabular-nums">—</span>
-								}
-							</div>
+					<!-- Pricing & Action Footer -->
+					<div class="border-t pt-2.5 mt-auto">
+						<div class="p-2.5 rounded-xl bg-surface-sunken border mb-3">
+							<div class="flex-between items-center gap-2">
+								<div class="d-flex flex-col gap-1">
+									<!-- سعر الجمهور -->
+									<div class="d-flex items-baseline gap-1 text-xs">
+										<span class="text-secondary font-medium">سعر الجمهور:</span>
+										if v.PublicPrice.IsPositive() {
+											<span class="font-bold text-secondary line-through tabular-nums">
+												{ v.PublicPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
+											</span>
+										} else if v.OriginalPrice.IsPositive() {
+											<span class="font-bold text-secondary line-through tabular-nums">
+												{ v.OriginalPrice.String() } <small class="text-2xs text-muted font-bold">ج.م</small>
+											</span>
+										} else {
+											<span class="text-muted tabular-nums">—</span>
+										}
+									</div>
 
-							if v.DiscountPercent > 0 {
-								if v.DiscountPercent >= 40 {
-									<span class="market-disc-pill is-hot text-xs py-0.5 px-2 tabular-nums">
-										خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
-									</span>
-								} else {
-									<span class="market-disc-pill text-xs py-0.5 px-2 tabular-nums">
-										خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
-									</span>
-								}
-							}
-						</div>
-
-						<!-- سعر بعد الخصم -->
-						<div class="flex-between items-center">
-							<span class="text-xs text-secondary font-bold">سعر بعد الخصم:</span>
-							<div class="text-sm font-black text-brand tabular-nums">
-								if v.Price.IsPositive() {
-									{ v.Price.String() } <small class="text-2xs text-secondary font-bold">ج.م</small>
-								} else {
-									<span class="text-xs text-secondary font-bold">حسب الكمية</span>
-								}
-							</div>
-						</div>
-					</div>
-
-					if v.CanAddToCart {
-						<div onclick="event.stopPropagation();">
-							<form method="POST" action="/cart/add" class="d-flex items-center gap-1.5 m-0">
-								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
-								<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
-								<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
-								<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
-								<input type="hidden" name="offer_price" value={ v.Price.String() } />
-								
-								<div class="cart-stepper-control">
-									<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, -1)">−</button>
-									<input
-										type="number"
-										name="qty"
-										value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-										min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-										max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
-										class="cart-stepper-input"
-									/>
-									<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>
+									<!-- سعر بعد الخصم (مباشرة بعد النقطتين) -->
+									<div class="d-flex items-baseline gap-1.5">
+										<span class="text-primary font-black text-xs">سعر بعد الخصم:</span>
+										if v.Price.IsPositive() {
+											<span class="text-base font-black text-emerald-500 tabular-nums">
+												{ v.Price.String() } <small class="text-xs font-extrabold text-secondary">ج.م</small>
+											</span>
+										} else {
+											<span class="text-xs font-bold text-secondary">حسب الكمية</span>
+										}
+									</div>
 								</div>
 
-								<button type="submit" class="btn btn-primary btn-sm flex-1 font-bold justify-center gap-1 shadow-xs">
-									@components.IconPlus("icon-xs")
-									<span>أضف للسلة</span>
-								</button>
-							</form>
+								<!-- نسبة الخصم -->
+								if v.DiscountPercent > 0 {
+									<div class="flex-shrink-0">
+										<span class="badge badge-emerald font-black text-xs py-1 px-2.5 tabular-nums shadow-2xs">
+											خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
+										</span>
+									</div>
+								}
+							</div>
+						</div>
 
-							if v.IsNegotiable {
-								<button
-									type="button"
-									class="btn btn-secondary btn-xs w-full mt-1.5 font-bold justify-center text-amber-700 gap-1.5 shadow-2xs"
-									data-variant-id={ fmt.Sprintf("%d", v.VariantID) }
-									data-product-id={ fmt.Sprintf("%d", v.ProductID) }
-									data-vendor-id={ fmt.Sprintf("%d", v.SupplierID) }
-									data-product-name={ v.ProductNameAr }
-									data-current-price={ v.Price.String() }
-									data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-									onclick="triggerNegotiationModal(this)"
-								>
-									@components.IconRefresh("icon-xs")
-									<span>تفاوض على السعر</span>
-								</button>
-							}
-						</div>
-					} else {
-						<div class="d-flex flex-col gap-1 w-full text-center">
-							if !v.IsCovered && v.CoverageReason != "" {
-								<span class="text-2xs text-danger font-bold d-block truncate" title={ v.CoverageReason }>
-									{ v.CoverageReason }
-								</span>
-							}
-							<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-xs">
-								<span>تفاصيل الصنف والموردين</span>
-								@components.IconArrowLeft("icon-xs")
-							</a>
-						</div>
-					}
+						if v.CanAddToCart {
+							<div onclick="event.stopPropagation();">
+								<form method="POST" action="/cart/add" class="d-flex items-center gap-2 m-0">
+									<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.VariantID) } />
+									<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", v.ProductID) } />
+									<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+									<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", v.SupplierID) } />
+									<input type="hidden" name="offer_price" value={ v.Price.String() } />
+									
+									<button
+										type="submit"
+										class="btn btn-primary btn-sm flex-1 font-black justify-center gap-1.5 shadow-xs"
+									>
+										@components.IconPlus("icon-xs")
+										<span>أضف للسلة</span>
+									</button>
+
+									<div class="cart-stepper-control">
+										<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, -1)">−</button>
+										<input
+											type="number"
+											name="qty"
+											value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+											min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+											max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
+											class="cart-stepper-input"
+										/>
+										<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>
+									</div>
+								</form>
+
+								if v.IsNegotiable {
+									<button
+										type="button"
+										class="btn btn-secondary btn-xs w-full mt-1.5 font-bold justify-center text-amber-700 gap-1.5 shadow-2xs"
+										data-variant-id={ fmt.Sprintf("%d", v.VariantID) }
+										data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+										data-vendor-id={ fmt.Sprintf("%d", v.SupplierID) }
+										onclick="openNegotiationModal(this)"
+									>
+										@components.IconTag("icon-2xs")
+										<span>طلب تفاوض على السعر</span>
+									</button>
+								}
+							</div>
+						} else {
+							<div class="d-flex flex-col gap-1 w-full text-center">
+								if !v.IsCovered && v.CoverageReason != "" {
+									<span class="text-2xs text-danger font-bold d-block truncate" title={ v.CoverageReason }>
+										{ v.CoverageReason }
+									</span>
+								}
+								<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-xs">
+									<span>تفاصيل الصنف والموردين</span>
+									@components.IconArrowLeft("icon-xs")
+								</a>
+							</div>
+						}
+					</div>
 				</div>
 			</div>
 		}

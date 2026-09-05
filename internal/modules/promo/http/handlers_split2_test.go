@@ -21,6 +21,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
+func (happyRepo) ListActiveRankedSponsorships(context.Context, promo.SponsorshipItemType) ([]*promo.RankedSponsorship, error) {
+	return nil, nil
+}
 func (happyRepo) IsSponsored(context.Context, promo.SponsorshipItemType, int64) (*promo.RankedSponsorship, error) {
 	return nil, nil
 }

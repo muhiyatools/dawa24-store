@@ -7,189 +7,214 @@ import (
 )
 
 templ importReviewStage(view VendorImportView) {
-	<div class="glass-panel p-6 mb-6">
-		<div class="flex-between items-center flex-wrap gap-4 mb-6">
+	<!-- Stage Header Card -->
+	<div class="glass-panel p-5 mb-5 border border-slate-200/80 rounded-2xl shadow-xs">
+		<div class="flex-between items-center flex-wrap gap-4">
 			<div class="stack-sm">
-				<h2 class="text-2xl font-black text-primary m-0">4. مراجعة الأصناف والمطابقة</h2>
-				<p class="text-sm text-secondary m-0 mt-1">
-					راجع أصناف الملف، عدّل الأسماء، وافحص نسبة التطابق أو اربط الأصناف بالكتالوج المركزي مباشرة قبل الحفظ النهائي في قاعدة البيانات
-				</p>
+				<div class="d-flex items-center gap-2.5 mb-1">
+					<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+						@components.IconCheckCircle("icon-sm")
+					</div>
+					<div>
+						<h2 class="text-xl font-black text-primary m-0">4. مراجعة الأصناف والمطابقة</h2>
+						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+							راجع أصناف الملف، عدّل الأسماء والأسعار، وافحص نسبة التطابق أو اربط الأصناف بالكتالوج المركزي قبل الحفظ النهائي
+						</p>
+					</div>
+				</div>
 			</div>
 			<div class="d-flex items-center gap-2">
-				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back-settings") }>
-					<button type="submit" class="btn btn-secondary btn-sm font-bold">تعديل الإعدادات</button>
+				<form class="m-0" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back-settings") }>
+					<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-xs">
+						@components.IconSettings("icon-2xs")
+						<span>تعديل الإعدادات</span>
+					</button>
 				</form>
-				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }
+				<form class="m-0" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }
 					onsubmit="return confirm('هل أنت متأكد من إلغاء عملية الاستيراد وحذف البيانات المؤقتة؟');">
-					<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">إلغاء</button>
+					<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold text-xs gap-1">
+						@components.IconTrash("icon-2xs")
+						<span>إلغاء العملية</span>
+					</button>
 				</form>
 			</div>
 		</div>
+	</div>
 
-		<!-- Summary Stats Grid -->
-		<div class="dashboard-stat-grid mb-6">
-			<div class="stat-card-3d">
-				<div class="stat-card-label">إجمالي الأصناف</div>
-				<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprint(view.Session.TotalRows) }</div>
-				<span class="text-xs text-secondary mt-1 d-block">إجمالي سطور الملف</span>
-			</div>
-			<div class="stat-card-3d">
-				<div class="stat-card-label text-success">مطابق بالكتالوج</div>
-				<div class="stat-card-value text-success tabular-nums">{ fmt.Sprint(view.Session.MatchedRows) }</div>
-				<span class="text-xs text-secondary mt-1 d-block">جاهز للاستيراد فورياً</span>
-			</div>
-			<div class="stat-card-3d">
-				<div class="stat-card-label text-warning">يحتاج مراجعة</div>
-				<div class="stat-card-value text-warning tabular-nums">{ fmt.Sprint(view.Session.ReviewRows) }</div>
-				<span class="text-xs text-secondary mt-1 d-block">تطابق مقترح أو غير مؤكد</span>
-			</div>
-			<div class="stat-card-3d">
-				<div class="stat-card-label text-danger">غير مطابق</div>
-				<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprint(view.Session.UnmatchedRows) }</div>
-				<span class="text-xs text-secondary mt-1 d-block">بحاجة لربط يدوي</span>
-			</div>
+	<!-- Summary Stats Grid -->
+	<div class="dashboard-stat-grid cols-4 gap-4 mb-5">
+		<div class="stat-card-3d p-4 rounded-2xl border border-slate-200/80 bg-surface-sunken">
+			<div class="stat-card-label text-xs font-bold text-muted">إجمالي الأصناف بالملف</div>
+			<div class="stat-card-value text-2xl font-black text-primary tabular-nums mt-1">{ fmt.Sprint(view.Session.TotalRows) }</div>
+			<span class="text-2xs text-secondary mt-1 d-block font-medium">إجمالي سطور الملف المرفوع</span>
+		</div>
+		<div class="stat-card-3d p-4 rounded-2xl border border-emerald-200/80 bg-emerald-50/20">
+			<div class="stat-card-label text-xs font-bold text-emerald-600">مطابق بالكتالوج المركزي</div>
+			<div class="stat-card-value text-2xl font-black text-emerald-600 tabular-nums mt-1">{ fmt.Sprint(view.Session.MatchedRows) }</div>
+			<span class="text-2xs text-emerald-800/80 mt-1 d-block font-medium">جاهز للاستيراد والحفظ فورياً</span>
+		</div>
+		<div class="stat-card-3d p-4 rounded-2xl border border-amber-200/80 bg-amber-50/20">
+			<div class="stat-card-label text-xs font-bold text-amber-600">يحتاج مراجعة وتأكيد</div>
+			<div class="stat-card-value text-2xl font-black text-amber-600 tabular-nums mt-1">{ fmt.Sprint(view.Session.ReviewRows) }</div>
+			<span class="text-2xs text-amber-800/80 mt-1 d-block font-medium">تطابق مقترح يحتاج لاعتمادك</span>
+		</div>
+		<div class="stat-card-3d p-4 rounded-2xl border border-rose-200/80 bg-rose-50/20">
+			<div class="stat-card-label text-xs font-bold text-rose-600">غير مطابق (بحاجة لربط)</div>
+			<div class="stat-card-value text-2xl font-black text-rose-600 tabular-nums mt-1">{ fmt.Sprint(view.Session.UnmatchedRows) }</div>
+			<span class="text-2xs text-rose-800/80 mt-1 d-block font-medium">لم يتم العثور على صنف مطابق</span>
+		</div>
+	</div>
+
+	<!-- What the AI stage did, directly under the counters it changed -->
+	@aiPanel(view)
+
+	<!-- Filter Tabs and Search Bar -->
+	<div class="glass-panel p-3 px-4 mb-4 border border-slate-200/80 rounded-2xl shadow-xs flex-between items-center flex-wrap gap-3">
+		<div class="tabs-nav d-flex items-center gap-1.5 flex-wrap m-0">
+			@reviewFilterTab(view, "", "الكل (" + fmt.Sprint(view.Session.TotalRows) + ")")
+			@reviewFilterTab(view, "matched", "مطابق (" + fmt.Sprint(view.Session.MatchedRows) + ")")
+			@reviewFilterTab(view, "review", "يحتاج مراجعة (" + fmt.Sprint(view.Session.ReviewRows) + ")")
+			@reviewFilterTab(view, "unmatched", "غير مطابق (" + fmt.Sprint(view.Session.UnmatchedRows) + ")")
 		</div>
 
-		<!-- What the AI stage did, directly under the counters it changed -->
-		@aiPanel(view)
-
-		<!-- Filter Tabs and Search Bar -->
-		<div class="flex-between items-center flex-wrap gap-4 mb-4 mt-6">
-			<div class="tabs-nav">
-				@reviewFilterTab(view, "", "الكل (" + fmt.Sprint(view.Session.TotalRows) + ")")
-				@reviewFilterTab(view, "matched", "مطابق (" + fmt.Sprint(view.Session.MatchedRows) + ")")
-				@reviewFilterTab(view, "review", "يحتاج مراجعة (" + fmt.Sprint(view.Session.ReviewRows) + ")")
-				@reviewFilterTab(view, "unmatched", "غير مطابق (" + fmt.Sprint(view.Session.UnmatchedRows) + ")")
-			</div>
-
-			<form method="GET" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID) } class="d-flex items-center gap-2 flex-wrap ms-auto">
-				if view.Filter.MatchLevel != "" {
-					<input type="hidden" name="match" value={ view.Filter.MatchLevel }/>
-				}
-				if view.Filter.SortBy != "" {
-					<input type="hidden" name="sort" value={ view.Filter.SortBy }/>
-				}
-				if view.Filter.SortOrder != "" {
-					<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
-				}
-				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
-					class="form-input text-xs"/>
-				<input type="hidden" name="limit" value={ fmt.Sprint(view.PerPage) }/>
-				<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">بحث</button>
-				if view.Filter.Search != "" {
-					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
-				}
-			</form>
-		</div>
-
-		<!-- Batch Quantity Setter Card -->
-		<div class="glass-panel p-3 px-4 mb-4">
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/batch-quantity?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-				class="flex-between items-center flex-wrap gap-3"
-				onsubmit="return confirm('هل تريد تطبيق هذه الكمية على جميع الأصناف في الملف؟');">
-				<div class="d-flex items-center gap-2">
-					<span class="text-base">@components.IconPackage("icon-sm")</span>
-					<span class="font-extrabold text-xs text-primary">تعيين كمية موحدة لكافة الأصناف في الملف:</span>
-					<span class="text-xs text-muted">(مفيد في حال لم يحتوي ملفك على عمود للكمية)</span>
-				</div>
-				<div class="d-flex items-center gap-2">
-					<input type="number" name="batch_quantity" min="0" placeholder="مثال: 50" required
-						class="form-input text-center tabular-nums font-bold text-xs"/>
-					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs">
-						تطبيق على جميع الأصناف
-					</button>
-				</div>
-			</form>
-		</div>
-
-		@reviewBulkBar(view)
-
-		<!-- Table -->
-		<div class="glass-panel p-0 mb-6 review-table-shell">
-			<div class="review-table-scroll">
-				<table class="data-table review-table m-0">
-					<thead>
-						<tr>
-							<th class="text-center review-col-pick">
-								<input type="checkbox" class="review-pick-all"
-									onchange="reviewToggleAll(this)"
-									title="تحديد كل الأصناف المعروضة في هذه الصفحة"/>
-							</th>
-							<th class="text-center review-col-flag">استيراد</th>
-							<th class="text-center review-col-num">
-								@reviewSortHeader(view, "row", "#")
-							</th>
-							<th class="review-col-name">
-								@reviewSortHeader(view, "name", "الصنف في الملف (قابل للتعديل)")
-							</th>
-							<th class="review-col-catalog">
-								@reviewSortHeader(view, "catalog_name", "الصنف المطابق بالكتالوج المركزي")
-							</th>
-							<th class="text-center review-col-score">
-								@reviewSortHeader(view, "score", "نسبة التطابق")
-							</th>
-							<th class="text-center review-col-money">
-								@reviewSortHeader(view, "price", "سعر الجمهور")
-							</th>
-							<th class="text-center review-col-money">
-								@reviewSortHeader(view, "discount", "نسبة الخصم %")
-							</th>
-							<th class="text-center review-col-money">
-								السعر بعد الخصم
-							</th>
-							<th class="text-center review-col-qty">
-								@reviewSortHeader(view, "quantity", "الكمية")
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						if len(view.Rows) == 0 {
-							<tr>
-								<td colspan="10" class="text-center p-8 text-muted">
-									<div class="font-extrabold text-sm">لا توجد أصناف مطابقة للتصفية الحالية</div>
-									<div class="text-xs mt-1">جرّب تغيير التبويب أو إزالة كلمات البحث.</div>
-								</td>
-							</tr>
-						}
-						for _, row := range view.Rows {
-							@reviewTableRow(view, row)
-						}
-					</tbody>
-				</table>
-			</div>
-
-			<!-- Pagination Footer -->
-			if view.RowTotal > 0 {
-				@reviewPagination(view)
+		<form method="GET" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID) } class="d-flex items-center gap-2 flex-wrap ms-auto m-0">
+			if view.Filter.MatchLevel != "" {
+				<input type="hidden" name="match" value={ view.Filter.MatchLevel }/>
 			}
+			if view.Filter.SortBy != "" {
+				<input type="hidden" name="sort" value={ view.Filter.SortBy }/>
+			}
+			if view.Filter.SortOrder != "" {
+				<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
+			}
+			<div class="position-relative">
+				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
+					class="form-input text-xs w-48"/>
+			</div>
+			<input type="hidden" name="limit" value={ fmt.Sprint(view.PerPage) }/>
+			<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs gap-1 shadow-2xs">
+				@components.IconSearch("icon-2xs")
+				<span>بحث</span>
+			</button>
+			if view.Filter.Search != "" {
+				<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
+			}
+		</form>
+	</div>
+
+	<!-- Batch Quantity Setter Card -->
+	<div class="glass-panel p-3.5 px-4 mb-4 border border-slate-200/80 rounded-2xl shadow-xs bg-surface-raised">
+		<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/batch-quantity?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+			class="flex-between items-center flex-wrap gap-3 m-0"
+			onsubmit="return confirm('هل تريد تطبيق هذه الكمية على جميع الأصناف في الملف؟');">
+			<div class="d-flex items-center gap-2.5">
+				<div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs flex-shrink-0">
+					@components.IconPackage("icon-xs")
+				</div>
+				<div>
+					<span class="font-extrabold text-xs text-primary">تعيين كمية موحدة لكافة الأصناف في الملف</span>
+					<span class="text-2xs text-muted d-block mt-0.5 font-medium">(مفيد في حال لم يحتوي ملفك المرفوع على عمود مخصص للكمية)</span>
+				</div>
+			</div>
+			<div class="d-flex items-center gap-2">
+				<input type="number" name="batch_quantity" min="0" placeholder="مثال: 50" required
+					class="form-input text-center tabular-nums font-bold text-xs w-28"/>
+				<button type="submit" class="btn btn-primary btn-sm font-bold text-xs gap-1.5 shadow-2xs">
+					@components.IconCheck("icon-2xs")
+					<span>تطبيق على جميع الأصناف</span>
+				</button>
+			</div>
+		</form>
+	</div>
+
+	@reviewBulkBar(view)
+
+	<!-- Table -->
+	<div class="glass-panel p-0 mb-6 review-table-shell border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+		<div class="review-table-scroll">
+			<table class="data-table review-table m-0 w-full">
+				<thead>
+					<tr>
+						<th class="text-center review-col-pick">
+							<input type="checkbox" class="review-pick-all"
+								onchange="reviewToggleAll(this)"
+								title="تحديد كل الأصناف المعروضة في هذه الصفحة"/>
+						</th>
+						<th class="text-center review-col-flag">استيراد</th>
+						<th class="text-center review-col-num">
+							@reviewSortHeader(view, "row", "#")
+						</th>
+						<th class="review-col-name">
+							@reviewSortHeader(view, "name", "الصنف في الملف (قابل للتعديل)")
+						</th>
+						<th class="review-col-catalog">
+							@reviewSortHeader(view, "catalog_name", "الصنف المطابق بالكتالوج المركزي")
+						</th>
+						<th class="text-center review-col-score">
+							@reviewSortHeader(view, "score", "نسبة التطابق")
+						</th>
+						<th class="text-center review-col-price">
+							@reviewSortHeader(view, "price", "سعر الجمهور")
+						</th>
+						<th class="text-center review-col-discount">
+							@reviewSortHeader(view, "discount", "نسبة الخصم %")
+						</th>
+						<th class="text-center review-col-net">
+							السعر بعد الخصم
+						</th>
+						<th class="text-center review-col-qty">
+							@reviewSortHeader(view, "quantity", "الكمية")
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					if len(view.Rows) == 0 {
+						<tr>
+							<td colspan="10" class="text-center p-8 text-muted">
+								<div class="font-extrabold text-sm">لا توجد أصناف مطابقة للتصفية الحالية</div>
+								<div class="text-xs mt-1">جرّب تغيير التبويب أو إزالة كلمات البحث.</div>
+							</td>
+						</tr>
+					}
+					for _, row := range view.Rows {
+						@reviewTableRow(view, row)
+					}
+				</tbody>
+			</table>
 		</div>
 
-		<!-- Final Confirmation Footer -->
-		{{ held := view.Session.ReviewRows + view.Session.UnmatchedRows }}
-		<div class="glass-panel p-6 mb-0 mt-6">
-			<div class="flex-between items-center flex-wrap gap-4">
-				<div class="stack-sm">
-					<div class="font-black text-base text-primary">اعتماد البيانات وحفظها</div>
-					<div class="text-xs text-secondary mt-1">
-						سيتم حفظ الأصناف <strong>المطابقة فقط</strong> ({ fmt.Sprint(view.Session.MatchedRows) } صنف) وإدخال كمياتها في المخزن المختار.
-					</div>
-					if held > 0 {
-						<div class="text-xs mt-2 review-gate-note">
-							{ fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
-							اعتمدها من التبويبات أعلاه — أو اتركها، فلن يُكتب منها شيء.
-						</div>
-					}
+		<!-- Pagination Footer -->
+		if view.RowTotal > 0 {
+			@reviewPagination(view)
+		}
+	</div>
+
+	<!-- Final Confirmation Footer -->
+	{{ held := view.Session.ReviewRows + view.Session.UnmatchedRows }}
+	<div class="glass-panel p-5 mb-0 border border-slate-200/80 rounded-2xl shadow-xs">
+		<div class="flex-between items-center flex-wrap gap-4">
+			<div class="stack-sm">
+				<div class="font-black text-base text-primary">اعتماد البيانات وحفظها</div>
+				<div class="text-xs text-secondary mt-0.5">
+					سيتم حفظ الأصناف <strong>المطابقة فقط</strong> ({ fmt.Sprint(view.Session.MatchedRows) } صنف) وإدخال كمياتها في المخزن المختار.
 				</div>
-				<form class="stack-md" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/commit") }
-					data-matched={ fmt.Sprint(view.Session.MatchedRows) }
-					data-held={ fmt.Sprint(held) }
-					onsubmit="return confirmReviewCommit(this)">
-					<button type="submit" class="btn btn-primary font-black px-6 py-2 text-sm"
-						disabled?={ view.Session.MatchedRows == 0 }>
-						اعتماد وحفظ الأصناف المطابقة
-					</button>
-				</form>
+				if held > 0 {
+					<div class="text-xs mt-1.5 review-gate-note font-semibold text-amber-600">
+						{ fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
+						اعتمدها من التبويبات أعلاه — أو اتركها، فلن يُكتب منها شيء.
+					</div>
+				}
 			</div>
+			<form class="m-0" method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/commit") }
+				data-matched={ fmt.Sprint(view.Session.MatchedRows) }
+				data-held={ fmt.Sprint(held) }
+				onsubmit="return confirmReviewCommit(this)">
+				<button type="submit" class="btn btn-primary font-black px-6 py-2.5 text-sm gap-2 shadow-sm"
+					disabled?={ view.Session.MatchedRows == 0 }>
+					@components.IconCheckCircle("icon-xs")
+					<span>اعتماد وحفظ الأصناف المطابقة</span>
+				</button>
+			</form>
 		</div>
 	</div>
 

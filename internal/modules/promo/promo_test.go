@@ -246,6 +246,9 @@ func (m *mockPromoRepo) RankedSponsorshipsForProducts(_ context.Context, _ []int
 func (m *mockPromoRepo) RankedSponsorshipsForOffers(_ context.Context, _ []int64) ([]*RankedSponsorship, error) {
 	return nil, nil
 }
+func (m *mockPromoRepo) ListActiveRankedSponsorships(_ context.Context, _ SponsorshipItemType) ([]*RankedSponsorship, error) {
+	return nil, nil
+}
 func (m *mockPromoRepo) IsSponsored(_ context.Context, _ SponsorshipItemType, _ int64) (*RankedSponsorship, error) {
 	return nil, nil
 }

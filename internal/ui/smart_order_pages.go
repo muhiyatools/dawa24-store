@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -44,9 +45,10 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 		Caption: i18n.T(lang, "smartorder.staging_caption"),
 		Message: i18n.T(lang, "smartorder.matching_message"),
 	}
-	if data.Failed {
-		data.Message = run.FailureReason
-		if data.Message == "" {
+	if run.Status == smartorder.StatusFailed {
+		if run.FailureReason != "" {
+			data.Message = run.FailureReason
+		} else {
 			data.Message = i18n.T(lang, "smartorder.unexpected_error")
 		}
 	} else if stage := smartorder.CurrentStage(events); stage != "" {
@@ -109,6 +111,12 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	sortBy := strings.TrimSpace(q.Get("sort"))
 	sortOrder := strings.TrimSpace(q.Get("order"))
 	search := strings.TrimSpace(q.Get("q"))
+
+	// Default matched_product to confidence asc (low to high first) if not explicitly sorted
+	if (match == "matched_product" || match == "matched") && sortBy == "" {
+		sortBy = "confidence"
+		sortOrder = "asc"
+	}
 
 	// A tab may name a match GROUP ("unmatched", "ready_to_order") or a single
 	// OUTCOME ("out_of_stock", "coverage_blocked"). The collapsed panel links
@@ -195,6 +203,17 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	q := r.URL.Query()
+	page, _ := strconv.Atoi(q.Get("page"))
+	if page < 1 {
+		page = 1
+	}
+
+	limit := 25
+	if l, err := strconv.Atoi(q.Get("limit")); err == nil && (l == 10 || l == 25 || l == 50 || l == 100 || l == -1) {
+		limit = l
+	}
+
 	orderable, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{
 		Outcome: string(smartorder.OutcomeOrdered), All: true,
 	})
@@ -208,9 +227,18 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 		Error:      r.URL.Query().Get("error"),
 		BranchName: h.branchName(ctx, run),
 		// Shown once, on the render that follows a refused finalisation.
-		Stale: h.smartOrderStale.take(run.PublicID),
+		Stale:   h.smartOrderStale.take(run.PublicID),
+		Page:    page,
+		PerPage: limit,
 	}
+
+	type vendorLineItem struct {
+		vendor string
+		line   pages.SmartOrderReviewLine
+	}
+
 	byVendor := map[string]*pages.SmartOrderReviewGroup{}
+	var vendorOrder []string
 
 	for _, l := range orderable {
 		sel, err := h.smartOrderSvc.Selection(ctx, run.OrganizationID, l.ID)
@@ -231,8 +259,9 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 		if !exists {
 			group = &pages.SmartOrderReviewGroup{VendorName: vendor}
 			byVendor[vendor] = group
+			vendorOrder = append(vendorOrder, vendor)
 		}
-		group.Lines = append(group.Lines, pages.SmartOrderReviewLine{
+		revLine := pages.SmartOrderReviewLine{
 			Line:           l,
 			VendorName:     vendor,
 			AvailableStock: chosen.StockQty,
@@ -243,13 +272,64 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 			SkippedName:    h.skippedVendorName(ctx, candidates, sel.SkippedCandidateID),
 			SkippedExcess:  derefFloat(sel.SkippedExcessPct),
 			Alternatives:   alternatives,
-		})
+		}
+		group.TotalCount++
 		if sum, err := group.Subtotal.Add(sel.LineNet); err == nil {
 			group.Subtotal = sum
 		}
+		group.Lines = append(group.Lines, revLine)
 	}
-	for _, g := range byVendor {
-		data.Groups = append(data.Groups, *g)
+
+	sort.Strings(vendorOrder)
+
+	var allLineItems []vendorLineItem
+	for _, v := range vendorOrder {
+		g := byVendor[v]
+		data.AllGroups = append(data.AllGroups, *g)
+		for _, l := range g.Lines {
+			allLineItems = append(allLineItems, vendorLineItem{vendor: v, line: l})
+		}
+	}
+
+	data.TotalLines = len(allLineItems)
+
+	if limit == -1 {
+		data.Groups = data.AllGroups
+	} else {
+		start := (page - 1) * limit
+		if start < 0 {
+			start = 0
+		}
+		if start > data.TotalLines {
+			start = data.TotalLines
+		}
+		end := start + limit
+		if end > data.TotalLines {
+			end = data.TotalLines
+		}
+
+		pageItems := allLineItems[start:end]
+		pagedByVendor := map[string]*pages.SmartOrderReviewGroup{}
+		var pagedVendorOrder []string
+
+		for _, item := range pageItems {
+			pg, exists := pagedByVendor[item.vendor]
+			if !exists {
+				fullGroup := byVendor[item.vendor]
+				pg = &pages.SmartOrderReviewGroup{
+					VendorName: item.vendor,
+					TotalCount: fullGroup.TotalCount,
+					Subtotal:   fullGroup.Subtotal,
+				}
+				pagedByVendor[item.vendor] = pg
+				pagedVendorOrder = append(pagedVendorOrder, item.vendor)
+			}
+			pg.Lines = append(pg.Lines, item.line)
+		}
+
+		for _, v := range pagedVendorOrder {
+			data.Groups = append(data.Groups, *pagedByVendor[v])
+		}
 	}
 
 	// Everything the buyer is not getting, shown separately rather than omitted

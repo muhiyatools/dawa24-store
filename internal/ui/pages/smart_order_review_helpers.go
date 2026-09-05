@@ -23,6 +23,7 @@ type SmartOrderReviewLine struct {
 type SmartOrderReviewGroup struct {
 	VendorName string
 	Lines      []SmartOrderReviewLine
+	TotalCount int
 	Subtotal   money.Amount
 }
 
@@ -30,10 +31,14 @@ type SmartOrderReviewGroup struct {
 type SmartOrderReviewData struct {
 	Run        *smartorder.Run
 	Groups     []SmartOrderReviewGroup
+	AllGroups  []SmartOrderReviewGroup
 	Excluded   []*smartorder.Line
 	BranchName string
 	Stale      []smartorder.StaleLine
 	Error      string
+	Page       int
+	PerPage    int
+	TotalLines int
 }
 
 func decidedLabel(d smartorder.DecidedBy) string {

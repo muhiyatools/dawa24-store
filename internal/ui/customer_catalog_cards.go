@@ -3,9 +3,11 @@ package ui
 import (
 	"context"
 	"math"
+	"math/rand"
 	"sort"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -132,7 +134,7 @@ func (h *UIHandler) buildCatalogVariantCards(
 	}
 
 	// Sponsorship ranking
-	sponsoredItemIDs := make(map[int64]bool)
+	sponsoredRankings := make(map[int64]*promo.RankedSponsorship)
 	if h.promoSvc != nil {
 		var allIDs []int64
 		for _, pID := range productIDs {
@@ -150,29 +152,47 @@ func (h *UIHandler) buildCatalogVariantCards(
 			if err == nil {
 				for _, rs := range rankings {
 					if rs != nil {
-						sponsoredItemIDs[rs.ItemID] = true
+						sponsoredRankings[rs.ItemID] = rs
 					}
 				}
 			}
 		}
 	}
 	for _, vc := range variantCards {
-		if vc != nil && (sponsoredItemIDs[vc.ProductID] || sponsoredItemIDs[vc.VariantID]) {
-			vc.IsSponsored = true
+		if vc != nil {
+			if rs, ok := sponsoredRankings[vc.ProductID]; ok && rs != nil {
+				vc.IsSponsored = true
+				vc.SponsoredTier = rs.TierLevel
+				vc.TieBreaker = rand.Int63()
+			} else if rs, ok := sponsoredRankings[vc.VariantID]; ok && rs != nil {
+				vc.IsSponsored = true
+				vc.SponsoredTier = rs.TierLevel
+				vc.TieBreaker = rand.Int63()
+			}
 		}
 	}
 
 	// 3. Prioritize variant cards:
-	// - First: Eligible sponsored products (IsSponsored && CanAddToCart && AvailableStock > 0 && IsCovered) always at the absolute top!
+	// - First: Sponsored products always at the absolute top of all normal products, ordered by package tier level (Diamond > Platinum > Gold, etc.) and random tie-breaker for same tier.
 	// - Second: Actionable and orderable products (CanAddToCart && AvailableStock > 0 && IsCovered) ahead of unavailable products.
 	// - Third: User sort preference (price_asc, price_desc, discount, name, newest, nearby).
 	sort.SliceStable(variantCards, func(i, j int) bool {
-		aEligibleSponsored := variantCards[i].IsSponsored && variantCards[i].CanAddToCart && variantCards[i].AvailableStock > 0 && variantCards[i].IsCovered
-		bEligibleSponsored := variantCards[j].IsSponsored && variantCards[j].CanAddToCart && variantCards[j].AvailableStock > 0 && variantCards[j].IsCovered
-		if aEligibleSponsored != bEligibleSponsored {
-			return aEligibleSponsored
+		// 1. Sponsored vs Non-Sponsored
+		if variantCards[i].IsSponsored != variantCards[j].IsSponsored {
+			return variantCards[i].IsSponsored
+		}
+		if variantCards[i].IsSponsored && variantCards[j].IsSponsored {
+			// Higher tier package first (Level 5 > 4 > 3 etc.)
+			if variantCards[i].SponsoredTier != variantCards[j].SponsoredTier {
+				return variantCards[i].SponsoredTier > variantCards[j].SponsoredTier
+			}
+			// Same tier package -> Random tie breaker
+			if variantCards[i].TieBreaker != variantCards[j].TieBreaker {
+				return variantCards[i].TieBreaker < variantCards[j].TieBreaker
+			}
 		}
 
+		// 2. Orderable & in stock
 		aOrderable := variantCards[i].CanAddToCart && variantCards[i].AvailableStock > 0 && variantCards[i].IsCovered
 		bOrderable := variantCards[j].CanAddToCart && variantCards[j].AvailableStock > 0 && variantCards[j].IsCovered
 		if aOrderable != bOrderable {
@@ -185,7 +205,7 @@ func (h *UIHandler) buildCatalogVariantCards(
 			return aInStock
 		}
 
-		// Tier 2: User sort or Proximity to Client
+		// 3. User sort or default
 		switch sortBy {
 		case "price_asc":
 			if variantCards[i].Price.Minor() != variantCards[j].Price.Minor() {

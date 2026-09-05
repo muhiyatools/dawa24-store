@@ -354,6 +354,12 @@ func (s *Service) RankedSponsorshipsForOffers(ctx context.Context, offerIDs []in
 	return s.repo.RankedSponsorshipsForOffers(database.AsSystem(ctx), offerIDs)
 }
 
+// ListActiveRankedSponsorships returns all active, approved sponsorships for an item type,
+// ordered by package tier level (highest first), breaking ties at the same tier randomly.
+func (s *Service) ListActiveRankedSponsorships(ctx context.Context, itemType SponsorshipItemType) ([]*RankedSponsorship, error) {
+	return s.repo.ListActiveRankedSponsorships(database.AsSystem(ctx), itemType)
+}
+
 // IsSponsored returns the highest-tier sponsorship for a single item.
 func (s *Service) IsSponsored(ctx context.Context, itemType SponsorshipItemType, itemID int64) (*RankedSponsorship, error) {
 	return s.repo.IsSponsored(database.AsSystem(ctx), itemType, itemID)

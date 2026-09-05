@@ -13,55 +13,63 @@ templ reviewBulkBar(view VendorImportView) {
 	{{ scope := view.Filter.MatchLevel }}
 	<form id="review-bulk" method="POST"
 		action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/bulk?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-		class="glass-panel p-3 px-4 mb-4 review-bulk-bar">
+		class="glass-panel p-3 px-4 mb-4 review-bulk-bar border border-slate-200/80 rounded-2xl shadow-xs bg-surface-raised">
 		<input type="hidden" name="f_match" value={ view.Filter.MatchLevel }/>
 		<input type="hidden" name="f_outcome" value={ view.Filter.Outcome }/>
 		<input type="hidden" name="f_q" value={ view.Filter.Search }/>
 
-		<div class="review-bulk-row">
-			<label class="review-bulk-pickall">
-				<input type="checkbox" onchange="reviewToggleAll(this)"/>
-				<span class="font-extrabold text-xs">تحديد كل الأصناف المعروضة</span>
-			</label>
-			<span class="text-xs text-muted review-bulk-count" id="review-bulk-count">لم يتم تحديد أي صنف</span>
+		<div class="review-bulk-row flex-between items-center flex-wrap gap-3">
+			<div class="d-flex items-center gap-3 flex-wrap">
+				<label class="review-bulk-pickall d-flex items-center gap-2 cursor-pointer select-none">
+					<input type="checkbox" onchange="reviewToggleAll(this)" class="form-checkbox"/>
+					<span class="font-extrabold text-xs text-primary">تحديد كل الأصناف المعروضة</span>
+				</label>
+				<span class="badge badge-secondary text-2xs font-bold review-bulk-count" id="review-bulk-count">لم يتم تحديد أي صنف</span>
 
-			<label class="review-bulk-scope">
-				<input type="checkbox" name="select_scope" value="filter"/>
-				<span class="text-xs">
-					طبّق على كل الأصناف في التبويب الحالي ({ fmt.Sprint(view.RowTotal) }) وليس هذه الصفحة فقط
-				</span>
-			</label>
+				<label class="review-bulk-scope d-flex items-center gap-1.5 cursor-pointer select-none text-muted">
+					<input type="checkbox" name="select_scope" value="filter" class="form-checkbox"/>
+					<span class="text-xs">
+						طبّق على كل الأصناف في التبويب الحالي (<strong class="text-primary tabular-nums">{ fmt.Sprint(view.RowTotal) }</strong>) وليس هذه الصفحة فقط
+					</span>
+				</label>
+			</div>
 
-			<div class="review-bulk-actions">
+			<div class="review-bulk-actions d-flex items-center gap-2 flex-wrap">
 				if scope != "matched" {
 					<button type="submit" name="bulk_action" value="confirm"
-						class="btn btn-primary btn-sm font-extrabold text-xs"
+						class="btn btn-primary btn-sm font-extrabold text-xs gap-1 shadow-2xs"
 						title="اعتماد الصنف المقترح لكل صف محدد ونقله إلى «مطابق» ليُستورد">
-						اعتماد المحدد كمطابق
+						@components.IconCheck("icon-2xs")
+						<span>اعتماد المحدد كمطابق</span>
 					</button>
 				}
 				<button type="submit" name="bulk_action" value="unlink"
-					class="btn btn-secondary btn-sm font-bold text-xs"
+					class="btn btn-secondary btn-sm font-bold text-xs gap-1 shadow-2xs"
 					title="إلغاء الربط بالكتالوج عن الصفوف المحددة">
-					إلغاء الربط
+					@components.IconX("icon-2xs")
+					<span>إلغاء الربط</span>
 				</button>
 				<button type="submit" name="bulk_action" value="exclude"
-					class="btn btn-ghost btn-sm font-bold text-xs text-danger"
+					class="btn btn-ghost btn-sm font-bold text-xs text-danger gap-1"
 					title="استبعاد الصفوف المحددة من الاستيراد">
-					استبعاد المحدد
+					@components.IconTrash("icon-2xs")
+					<span>استبعاد المحدد</span>
 				</button>
 				<button type="submit" name="bulk_action" value="include"
-					class="btn btn-ghost btn-sm font-bold text-xs"
+					class="btn btn-ghost btn-sm font-bold text-xs gap-1"
 					title="إعادة الصفوف المحددة إلى الاستيراد">
-					↺ إعادة المحدد
+					<span>↺ إعادة المحدد</span>
 				</button>
 			</div>
 		</div>
 
 		if scope == "review" || scope == "unmatched" {
-			<div class="review-bulk-hint text-xs">
-				الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف،
-				ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «ربط».
+			<div class="review-bulk-hint text-xs mt-2.5 pt-2.5 border-t border-slate-200/60 text-secondary d-flex items-center gap-2">
+				@components.IconAlert("icon-2xs text-amber-500 flex-shrink-0")
+				<span>
+					الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف،
+					ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «ربط».
+				</span>
 			</div>
 		}
 	</form>

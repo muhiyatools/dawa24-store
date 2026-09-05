@@ -170,7 +170,9 @@ templ soSortHeader(data SmartOrderResultsData, colKey, label string) {
 				nextOrder = "desc"
 				icon = "▲"
 			}
-		} else if colKey == "confidence" || colKey == "qty" {
+		} else if colKey == "confidence" {
+			nextOrder = "asc"
+		} else if colKey == "qty" {
 			nextOrder = "desc"
 		}
 		href := buildSmartOrderResultsURL(data.Run.PublicID, data.Match, colKey, nextOrder, 1, data.PerPage, data.Search)
@@ -186,12 +188,18 @@ templ soSortHeader(data SmartOrderResultsData, colKey, label string) {
 templ soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) {
 	{{
 		active := (matchKey == "all" && data.Match == "") || data.Match == matchKey
-		href := buildSmartOrderResultsURL(data.Run.PublicID, matchKey, data.SortBy, data.SortOrder, 1, data.PerPage, data.Search)
+		sortBy := data.SortBy
+		sortOrder := data.SortOrder
+		if (matchKey == "matched_product" || matchKey == "matched") && sortBy == "" {
+			sortBy = "confidence"
+			sortOrder = "asc"
+		}
+		href := buildSmartOrderResultsURL(data.Run.PublicID, matchKey, sortBy, sortOrder, 1, data.PerPage, data.Search)
 	}}
 	<a href={ templ.SafeURL(href) }
-		class={ "wiz-chip", templ.KV("is-on", active) }>
+		class={ "wiz-chip", templ.KV("is-on", active), templ.KV("wiz-chip-danger", matchKey == "unmatched" && count > 0) }>
 		<span>{ label }</span>
-		<span class="badge tabular-nums">{ fmt.Sprintf("%d", count) }</span>
+		<span class={ "badge", "tabular-nums", templ.KV("badge-rose", matchKey == "unmatched" && count > 0) }>{ fmt.Sprintf("%d", count) }</span>
 	</a>
 }
 
@@ -259,13 +267,13 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			<!-- Filter Tabs Bar & Search Toolbar -->
 			<div class="glass-panel so-filter-card">
 				
-				<!-- Tabs: 6 Independent Statuses + Unmatched + All -->
+				<!-- Tabs: Organised logically with Unmatched & Matched first for review -->
 				<div class="so-filter-tabs">
-					@soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder)
-					@soFilterTab(data, "blocked", "غير جاهز", data.Blocked.Total())
 					@soFilterTab(data, "all", "الكل", data.Counts.Total)
 					@soFilterTab(data, "unmatched", "غير مطابق", data.Counts.Unmatched)
-					@soFilterTab(data, "matched_product", "مطابق للصنف", data.Counts.MatchedProduct)
+					@soFilterTab(data, "matched_product", "مطابق بالكتالوج", data.Counts.MatchedProduct)
+					@soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder)
+					@soFilterTab(data, "blocked", "غير جاهز", data.Blocked.Total())
 					@soFilterTab(data, "matched_supplier", "لديه مورد", data.Counts.MatchedSupplier)
 					@soFilterTab(data, "available_stock", "متوفر بالمخزون", data.Counts.AvailableStock)
 					@soFilterTab(data, "covered_branch", "مشمول بالتغطية", data.Counts.CoveredBranch)
@@ -327,10 +335,10 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 								<th class="so-col-status">
 									@soSortHeader(data, "method", "طريقة المطابقة")
 								</th>
-								<th class="so-col-qty">
+								<th class="so-col-confidence">
 									@soSortHeader(data, "confidence", "نسبة التطابق")
 								</th>
-								<th class="so-col-confidence">
+								<th class="so-col-qty">
 									@soSortHeader(data, "qty", "الكمية")
 								</th>
 								<th class="so-col-actions">

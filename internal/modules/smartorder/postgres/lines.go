@@ -181,7 +181,7 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 		case "name":
 			sortCol = "raw_name"
 		case "matched_name":
-			sortCol = "matched_product_id"
+			sortCol = "COALESCE((SELECT COALESCE(name->>'ar', name->>'en') FROM catalog.products WHERE id = matched_product_id), '')"
 		case "method":
 			sortCol = "match_method"
 		case "confidence":
@@ -198,7 +198,12 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 		if strings.ToUpper(f.SortOrder) == "DESC" {
 			sortOrder = "DESC"
 		} else if f.SortBy == "confidence" && f.SortOrder == "" {
-			sortOrder = "DESC"
+			sortOrder = "ASC"
+		}
+
+		nullsOrder := ""
+		if f.SortBy == "confidence" || f.SortBy == "matched_name" {
+			nullsOrder = " NULLS LAST"
 		}
 
 		page := ""
@@ -208,7 +213,7 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 		}
 		rows, err := tx.Query(txCtx,
 			`SELECT `+lineColumns+` FROM smartorder.run_lines WHERE `+clause+`
-			 ORDER BY `+sortCol+` `+sortOrder+`, row_number ASC`+page+`;`, args...)
+			 ORDER BY `+sortCol+` `+sortOrder+nullsOrder+`, row_number ASC`+page+`;`, args...)
 		if err != nil {
 			return err
 		}

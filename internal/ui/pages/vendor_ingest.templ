@@ -17,6 +17,17 @@ import (
 
 templ VendorIngestPage(view VendorImportView, lang, dir string) {
 	@layouts.VendorShell("استيراد الكتالوج الذكي | Dawa24", "ingest", lang, dir) {
+		<style>
+			.page-container:has(.wizard-fluid) {
+				max-width: 100% !important;
+				padding-inline: 1.5rem !important;
+			}
+			@supports not (selector(:has(*))) {
+				.page-container {
+					max-width: 100% !important;
+				}
+			}
+		</style>
 		@components.PageHeader(components.PageHeaderProps{
 			Title:    "استيراد الكتالوج الذكي",
 			Subtitle: "ارفع ملف الأسعار، راجع ربط الأعمدة، واعتمد الإعدادات قبل أن يُكتب أي صنف",
@@ -28,7 +39,7 @@ templ VendorIngestPage(view VendorImportView, lang, dir string) {
 				</a>
 			</div>
 		}
-		<div class="wizard">
+		<div class="wizard wizard-fluid">
 			@WizardRail(VendorRail(view.WizardStep()))
 			if view.NoticeMessage != "" {
 				@importNotice(view.NoticeType, view.NoticeMessage)

@@ -193,6 +193,49 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	// Fetch active sponsored products so they are guaranteed to appear on page 1 at the top
+	var activeSponsoredRankings []*promo.RankedSponsorship
+	if page == 1 && h.promoSvc != nil && h.catSvc != nil {
+		if rsList, err := h.promoSvc.ListActiveRankedSponsorships(ctx, promo.SponsorItemProduct); err == nil && len(rsList) > 0 {
+			activeSponsoredRankings = rsList
+			existingProductIDs := make(map[int64]bool)
+			for _, p := range products {
+				if p != nil {
+					existingProductIDs[p.ID] = true
+				}
+			}
+			var extraSponsoredProds []*catalog.Product
+			for _, rs := range rsList {
+				if rs != nil && !existingProductIDs[rs.ItemID] {
+					if sp, _, err := h.catSvc.GetProduct(ctx, rs.ItemID); err == nil && sp != nil {
+						if query != "" {
+							qLower := strings.ToLower(query)
+							arMatch := strings.Contains(strings.ToLower(sp.Name.Get(i18n.AR)), qLower)
+							enMatch := strings.Contains(strings.ToLower(sp.Name.Get(i18n.EN)), qLower)
+							if !arMatch && !enMatch {
+								continue
+							}
+						}
+						if categoryID != nil && (sp.CategoryID == nil || *sp.CategoryID != *categoryID) {
+							continue
+						}
+						if brandID != nil && (sp.BrandID == nil || *sp.BrandID != *brandID) {
+							continue
+						}
+						if dosageForm != "" && !strings.Contains(strings.ToLower(sp.DosageForm), strings.ToLower(dosageForm)) {
+							continue
+						}
+						extraSponsoredProds = append(extraSponsoredProds, sp)
+						existingProductIDs[rs.ItemID] = true
+					}
+				}
+			}
+			if len(extraSponsoredProds) > 0 {
+				products = append(extraSponsoredProds, products...)
+			}
+		}
+	}
+
 	// Batch-prefetch variants for current page slice
 	filtered := make([]*catalog.Product, 0, len(products))
 	for _, p := range products {
@@ -219,6 +262,11 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	env := h.buildOfferEnv(ctx, productIDs, variantsByProduct)
 
 	sponsoredProductIDs := make(map[int64]bool)
+	for _, rs := range activeSponsoredRankings {
+		if rs != nil {
+			sponsoredProductIDs[rs.ItemID] = true
+		}
+	}
 	if h.promoSvc != nil && len(productIDs) > 0 {
 		rankings, err := h.promoSvc.RankedSponsorshipsForProducts(ctx, productIDs)
 		if err == nil {
@@ -229,6 +277,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 	}
+
 	variantCards := h.buildCatalogVariantCards(
 		ctx,
 		filtered,
