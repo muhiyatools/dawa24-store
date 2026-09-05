@@ -113,7 +113,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" required class=\"form-select form-select-sm font-semibold\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأدنى للراتب (اختياري)</label> <input type=\"number\" name=\"salary_min\" class=\"form-control tabular-nums font-mono\" placeholder=\"8000\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأقصى للراتب (اختياري)</label> <input type=\"number\" name=\"salary_max\" class=\"form-control tabular-nums font-mono\" placeholder=\"12000\"></div></div><!-- Description --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" rows=\"3\" class=\"form-control\" placeholder=\"اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع...\"></textarea></div><!-- Requirements --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-control\" placeholder=\"مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل...\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" required class=\"form-select form-select-sm font-semibold\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأدنى للراتب (اختياري)</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"salary_min\" class=\"form-control tabular-nums font-mono\" placeholder=\"8000\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأقصى للراتب (اختياري)</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"salary_max\" class=\"form-control tabular-nums font-mono\" placeholder=\"12000\"></div></div><!-- Description --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" rows=\"3\" class=\"form-control\" placeholder=\"اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع...\"></textarea></div><!-- Requirements --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-control\" placeholder=\"مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل...\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -174,7 +174,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 221, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 225, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 					if templ_7745c5c3_Err != nil {
@@ -187,7 +187,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 222, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 226, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -200,7 +200,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.AR))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 223, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 227, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.EN))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 224, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 228, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 226, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 230, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" id=\"edit-job-status\" required class=\"form-select form-select-sm font-semibold\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأدنى للراتب</label> <input type=\"number\" name=\"salary_min\" id=\"edit-job-salary-min\" class=\"form-control tabular-nums font-mono\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأقصى للراتب</label> <input type=\"number\" name=\"salary_max\" id=\"edit-job-salary-max\" class=\"form-control tabular-nums font-mono\"></div></div><!-- Description --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" id=\"edit-job-description\" rows=\"3\" class=\"form-control\"></textarea></div><!-- Requirements --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" id=\"edit-job-requirements\" rows=\"3\" class=\"form-control\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" id=\"edit-job-status\" required class=\"form-select form-select-sm font-semibold\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأدنى للراتب</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"salary_min\" id=\"edit-job-salary-min\" class=\"form-control tabular-nums font-mono\"></div><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الحد الأقصى للراتب</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"salary_max\" id=\"edit-job-salary-max\" class=\"form-control tabular-nums font-mono\"></div></div><!-- Description --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" id=\"edit-job-description\" rows=\"3\" class=\"form-control\"></textarea></div><!-- Requirements --><div class=\"form-group mb-0\"><label class=\"form-label font-bold text-xs\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" id=\"edit-job-requirements\" rows=\"3\" class=\"form-control\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t d-flex items-center justify-between\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -340,7 +340,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 360, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 368, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 					if templ_7745c5c3_Err != nil {
@@ -353,7 +353,7 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 361, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 369, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {

@@ -200,8 +200,8 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 													data-title-ar={ item.Job.Title.Get(i18n.AR) }
 													data-title-en={ item.Job.Title.Get(i18n.EN) }
 													data-location={ item.Job.Location }
-													data-sal-min={ fmt.Sprintf("%d", item.Job.SalaryMin.Minor()/100) }
-													data-sal-max={ fmt.Sprintf("%d", item.Job.SalaryMax.Minor()/100) }
+													data-sal-min={ func() string { if item.Job.SalaryMin.IsPositive() { return fmt.Sprintf("%d", item.Job.SalaryMin.Minor()/100) }; return "" }() }
+													data-sal-max={ func() string { if item.Job.SalaryMax.IsPositive() { return fmt.Sprintf("%d", item.Job.SalaryMax.Minor()/100) }; return "" }() }
 													data-status={ item.Job.Status }
 													data-desc={ item.Job.Description }
 													data-reqs={ item.Job.Requirements }
@@ -320,8 +320,8 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					}
 				}
 				if (statusInput) statusInput.value = status || 'published';
-				if (salMinInput) salMinInput.value = salMin || '';
-				if (salMaxInput) salMaxInput.value = salMax || '';
+				if (salMinInput) salMinInput.value = (salMin && salMin !== '0' && salMin !== '0.00') ? salMin : '';
+				if (salMaxInput) salMaxInput.value = (salMax && salMax !== '0' && salMax !== '0.00') ? salMax : '';
 				if (descInput) descInput.value = desc || '';
 				if (reqsInput) reqsInput.value = reqs || '';
 

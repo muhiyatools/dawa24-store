@@ -40,7 +40,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 		</button>
 
 		<div x-show="isOpen" x-cloak class="modal-backdrop" @keydown.escape.window="close()">
-			<div class="modal-dialog modal-lg text-start" @click.outside="close()" role="dialog" aria-modal="true">
+			<div class="modal-dialog modal-xl text-start" @click.outside="close()" role="dialog" aria-modal="true">
 				<div class="modal-header">
 					<div class="d-flex items-center gap-3 min-w-0">
 						<div class="user-avatar-badge">
@@ -104,9 +104,10 @@ templ adsWizardSteps() {
 }
 
 templ adsWizardStepProduct() {
-	<div x-show="step === 1" class="d-flex flex-col gap-4">
-		<div class="alert alert-info text-xs font-medium m-0">
-			يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.
+	<div x-show="step === 1" class="d-flex flex-col gap-4 min-h-[280px]">
+		<div class="alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5">
+			@components.IconInfo("icon-xs flex-shrink-0")
+			<span>يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.</span>
 		</div>
 
 		<template x-if="selected">

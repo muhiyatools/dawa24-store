@@ -14,9 +14,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+func formatSalaryForInput(amt money.Amount) string {
+	if amt.IsZero() {
+		return ""
+	}
+	if amt.Minor()%100 == 0 {
+		return fmt.Sprintf("%d", amt.Minor()/100)
+	}
+	return amt.String()
+}
 
 type VendorJobItem struct {
 	Job               *hr.JobOffer
@@ -101,7 +112,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 43, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 54, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -135,7 +146,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 76, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 87, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -148,7 +159,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PublishedCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 85, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 96, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -161,7 +172,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ClosedCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 94, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 105, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -174,7 +185,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalApplications))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 103, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 114, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -187,7 +198,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d وظيفة", len(data.Jobs)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 114, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 125, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -231,7 +242,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 150, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 161, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -249,7 +260,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.Description)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 154, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 165, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -280,7 +291,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.Location)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 164, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 175, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -309,7 +320,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 							var templ_7745c5c3_Var14 string
 							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.SalaryMin.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 176, Col: 43}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 187, Col: 43}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 							if templ_7745c5c3_Err != nil {
@@ -330,7 +341,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 							var templ_7745c5c3_Var15 string
 							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.SalaryMax.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 182, Col: 43}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 193, Col: 43}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 							if templ_7745c5c3_Err != nil {
@@ -383,7 +394,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d متقدم", item.ApplicationsCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 199, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 210, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -411,7 +422,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(item.Job.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 218, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 229, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -424,7 +435,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", item.Job.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 229, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 240, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
@@ -437,7 +448,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Title.Get(i18n.AR))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 230, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 241, Col: 56}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 					if templ_7745c5c3_Err != nil {
@@ -450,7 +461,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Title.Get(i18n.EN))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 231, Col: 56}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 242, Col: 56}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 					if templ_7745c5c3_Err != nil {
@@ -463,7 +474,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Location)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 232, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 243, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {
@@ -474,9 +485,9 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var23 string
-					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.SalaryMin.String())
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(formatSalaryForInput(item.Job.SalaryMin))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 233, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 244, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 					if templ_7745c5c3_Err != nil {
@@ -487,9 +498,9 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.SalaryMax.String())
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(formatSalaryForInput(item.Job.SalaryMax))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 234, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 245, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 					if templ_7745c5c3_Err != nil {
@@ -502,7 +513,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Status)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 235, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 246, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 					if templ_7745c5c3_Err != nil {
@@ -515,7 +526,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 236, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 247, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 					if templ_7745c5c3_Err != nil {
@@ -528,7 +539,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Requirements)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 237, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 248, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -549,7 +560,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var28 templ.SafeURL
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 246, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 257, Col: 106}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -577,7 +588,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var29 templ.SafeURL
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 259, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 270, Col: 106}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -650,7 +661,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						var templ_7745c5c3_Var31 string
 						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 335, Col: 47}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 346, Col: 47}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 						if templ_7745c5c3_Err != nil {
@@ -663,7 +674,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						var templ_7745c5c3_Var32 string
 						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 336, Col: 43}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 347, Col: 43}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 						if templ_7745c5c3_Err != nil {
@@ -689,7 +700,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div><!-- Salary Range --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"5000\"></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"12000\"></div></div><!-- Description --><div class=\"stack-sm\"><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea name=\"description\" rows=\"4\" required class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Requirements --><div class=\"stack-sm\"><label class=\"form-label\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">نشر الوظيفة الآن</button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div><!-- Salary Range --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى للراتب (ج.م)</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"5000\"></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى للراتب (ج.م)</label> <input type=\"number\" step=\"any\" min=\"0\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"12000\"></div></div><!-- Description --><div class=\"stack-sm\"><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea name=\"description\" rows=\"4\" required class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Requirements --><div class=\"stack-sm\"><label class=\"form-label\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">نشر الوظيفة الآن</button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -727,7 +738,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 478, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 491, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 					if templ_7745c5c3_Err != nil {
@@ -740,7 +751,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 479, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 492, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
@@ -761,7 +772,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</select></div><!-- Salary Range --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" id=\"edit-job-salary-min\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\"></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" id=\"edit-job-salary-max\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\"></div></div><!-- Description --><div class=\"stack-sm\"><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea id=\"edit-job-description\" name=\"description\" rows=\"4\" required class=\"form-input rounded-lg\"></textarea></div><!-- Requirements --><div class=\"stack-sm\"><label class=\"form-label\">المتطلبات والمؤهلات</label> <textarea id=\"edit-job-requirements\" name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</select></div><!-- Salary Range --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى للراتب (ج.م)</label> <input type=\"number\" step=\"any\" min=\"0\" id=\"edit-job-salary-min\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\"></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى للراتب (ج.م)</label> <input type=\"number\" step=\"any\" min=\"0\" id=\"edit-job-salary-max\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\"></div></div><!-- Description --><div class=\"stack-sm\"><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea id=\"edit-job-description\" name=\"description\" rows=\"4\" required class=\"form-input rounded-lg\"></textarea></div><!-- Requirements --><div class=\"stack-sm\"><label class=\"form-label\">المتطلبات والمؤهلات</label> <textarea id=\"edit-job-requirements\" name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -839,7 +850,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, " <script>\n\t\t\tlet currentJobId = 0;\n\t\t\tlet currentJobTitle = '';\n\n\t\t\tfunction openAddJobModal() {\n\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\tif (el && typeof el.showModal === 'function') {\n\t\t\t\t\tel.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeAddJobModal() {\n\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\tif (el && typeof el.close === 'function') {\n\t\t\t\t\tel.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openEditJobModalFromBtn(btn) {\n\t\t\t\tif (!btn) return;\n\t\t\t\tconst jobId = btn.getAttribute('data-job-id');\n\t\t\t\tconst titleAr = btn.getAttribute('data-title-ar') || '';\n\t\t\t\tconst titleEn = btn.getAttribute('data-title-en') || '';\n\t\t\t\tconst location = btn.getAttribute('data-location') || '';\n\t\t\t\tconst salMin = btn.getAttribute('data-sal-min') || '';\n\t\t\t\tconst salMax = btn.getAttribute('data-sal-max') || '';\n\t\t\t\tconst status = btn.getAttribute('data-status') || '';\n\t\t\t\tconst desc = btn.getAttribute('data-desc') || '';\n\t\t\t\tconst reqs = btn.getAttribute('data-reqs') || '';\n\n\t\t\t\tconst form = document.getElementById('edit-job-form');\n\t\t\t\tif (form) form.action = `/vendor/jobs/${jobId}/edit`;\n\n\t\t\t\tconst titleArInput = document.getElementById('edit-job-title-ar');\n\t\t\t\tconst titleEnInput = document.getElementById('edit-job-title-en');\n\t\t\t\tconst locationInput = document.getElementById('edit-job-location');\n\t\t\t\tconst branchSelect = document.getElementById('edit-job-branch-id');\n\t\t\t\tconst statusInput = document.getElementById('edit-job-status');\n\t\t\t\tconst salMinInput = document.getElementById('edit-job-salary-min');\n\t\t\t\tconst salMaxInput = document.getElementById('edit-job-salary-max');\n\t\t\t\tconst descInput = document.getElementById('edit-job-description');\n\t\t\t\tconst reqsInput = document.getElementById('edit-job-requirements');\n\n\t\t\t\tif (titleArInput) titleArInput.value = titleAr || '';\n\t\t\t\tif (titleEnInput) titleEnInput.value = titleEn || '';\n\t\t\t\tif (locationInput) locationInput.value = location || '';\n\t\t\t\tif (branchSelect) {\n\t\t\t\t\tlet matched = false;\n\t\t\t\t\tif (location) {\n\t\t\t\t\t\tfor (let i = 0; i < branchSelect.options.length; i++) {\n\t\t\t\t\t\t\tconst opt = branchSelect.options[i];\n\t\t\t\t\t\t\tconst optText = opt.textContent.trim();\n\t\t\t\t\t\t\tconst optName = opt.getAttribute('data-branch-name') || '';\n\t\t\t\t\t\t\tconst optNameAr = opt.getAttribute('data-branch-name-ar') || '';\n\t\t\t\t\t\t\tconst optNameEn = opt.getAttribute('data-branch-name-en') || '';\n\t\t\t\t\t\t\tif (optText.includes(location) || optName === location || optNameAr === location || optNameEn === location) {\n\t\t\t\t\t\t\t\tbranchSelect.selectedIndex = i;\n\t\t\t\t\t\t\t\tmatched = true;\n\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif (!matched && branchSelect.options.length > 1) {\n\t\t\t\t\t\tbranchSelect.selectedIndex = 1;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif (statusInput) statusInput.value = status || 'published';\n\t\t\t\tif (salMinInput) salMinInput.value = salMin || '';\n\t\t\t\tif (salMaxInput) salMaxInput.value = salMax || '';\n\t\t\t\tif (descInput) descInput.value = desc || '';\n\t\t\t\tif (reqsInput) reqsInput.value = reqs || '';\n\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal && typeof modal.showModal === 'function') {\n\t\t\t\t\tmodal.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeEditJobModal() {\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal && typeof modal.close === 'function') {\n\t\t\t\t\tmodal.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openApplicantsModal() {\n\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\tif (el && typeof el.showModal === 'function') {\n\t\t\t\t\tel.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeApplicantsModal() {\n\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\tif (el && typeof el.close === 'function') {\n\t\t\t\t\tel.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openOnboardModal(appId, applicantName, jobTitle) {\n\t\t\t\tdocument.getElementById('onboard-job-id').value = currentJobId;\n\t\t\t\tdocument.getElementById('onboard-app-id').value = appId;\n\t\t\t\tdocument.getElementById('onboard-modal-subtitle').textContent = `المتقدم: ${applicantName} • الوظيفة: ${jobTitle}`;\n\t\t\t\tdocument.getElementById('onboard-job-title').value = jobTitle || '';\n\t\t\t\tconst modal = document.getElementById('onboard-modal');\n\t\t\t\tif (modal && typeof modal.showModal === 'function') {\n\t\t\t\t\tmodal.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeOnboardModal() {\n\t\t\t\tconst modal = document.getElementById('onboard-modal');\n\t\t\t\tif (modal && typeof modal.close === 'function') {\n\t\t\t\t\tmodal.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function viewApplicants(jobId, jobTitle) {\n\t\t\t\tcurrentJobId = jobId;\n\t\t\t\tcurrentJobTitle = jobTitle;\n\t\t\t\tdocument.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;\n\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t<div class=\"p-10 text-center text-muted\">\n\t\t\t\t\t\t<div class=\"text-2xl mb-2\">⏳</div>\n\t\t\t\t\t\t<div class=\"stat-card-label\">جاري استرجاع طلبات التقديم والسير الذاتية...</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\t\t\t\topenApplicantsModal();\n\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications`);\n\t\t\t\t\tif (!res.ok) throw new Error('فشل في جلب البيانات');\n\t\t\t\t\tconst apps = await res.json();\n\n\t\t\t\t\tif (!apps || apps.length === 0) {\n\t\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t\t<div class=\"text-center p-10\">\n\t\t\t\t\t\t\t\t<div class=\"text-3xl mb-2\">📬</div>\n\t\t\t\t\t\t\t\t<h4 class=\"text-primary font-extrabold text-sm m-0\">لا يوجد متقدمين حتى الآن</h4>\n\t\t\t\t\t\t\t\t<p class=\"text-muted text-xs mt-1\">\n\t\t\t\t\t\t\t\t\tلم يقم أي باحث عن عمل بالتقديم على هذه الوظيفة الشاغرة بعد.\n\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tlet html = `<div class=\"d-flex flex-col gap-3\">`;\n\n\t\t\t\t\tapps.forEach(app => {\n\t\t\t\t\t\tconst dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';\n\t\t\t\t\t\tlet cvUrl = app.cv_storage_key || '';\n\t\t\t\t\t\tif (cvUrl && !cvUrl.startsWith('http') && !cvUrl.startsWith('/')) {\n\t\t\t\t\t\t\tcvUrl = '/' + cvUrl;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst cvBtn = cvUrl \n\t\t\t\t\t\t\t? `<a href=\"${cvUrl}\" target=\"_blank\" download class=\"btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs\">\n\t\t\t\t\t\t\t\t\t<svg class=\"icon-xs\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline></svg>\n\t\t\t\t\t\t\t\t\t<span>تحميل السيرة الذاتية (CV)</span>\n\t\t\t\t\t\t\t   </a>`\n\t\t\t\t\t\t\t: `<span class=\"badge badge-slate text-2xs font-medium\">لم يُرفق CV</span>`;\n\n\t\t\t\t\t\tlet statusBadge = '';\n\t\t\t\t\t\tlet actionButtons = '';\n\n\t\t\t\t\t\tif (app.status === 'accepted' || app.status === 'hired') {\n\t\t\t\t\t\t\tconst branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'المقر الرئيسي';\n\t\t\t\t\t\t\tstatusBadge = `<span class=\"badge badge-emerald text-2xs font-bold gap-1\"><svg class=\"icon-2xs\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg><span>تم القبول والتعيين (${branchText})</span></span>`;\n\t\t\t\t\t\t} else if (app.status === 'rejected') {\n\t\t\t\t\t\t\tstatusBadge = `<span class=\"badge badge-slate text-2xs font-bold\">تم رفض الطلب</span>`;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tstatusBadge = `<span class=\"badge badge-sky text-2xs font-bold\">⏳ قيد المراجعة</span>`;\n\t\t\t\t\t\t\tactionButtons = `\n\t\t\t\t\t\t\t\t<div class=\"d-flex gap-1.5 items-center\">\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs px-3 py-1.5 gap-1 shadow-2xs\" onclick=\"openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')\">\n\t\t\t\t\t\t\t\t\t\t<svg class=\"icon-xs\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline></svg>\n\t\t\t\t\t\t\t\t\t\t<span>قبول وتعيين</span>\n\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-danger text-xs px-2.5 py-1.5\" onclick=\"rejectApplicant(${jobId}, ${app.id})\">\n\t\t\t\t\t\t\t\t\t\t<span>رفض</span>\n\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t<div class=\"p-4 bg-surface-sunken border rounded-2xl flex-between items-center flex-wrap gap-4 shadow-2xs\">\n\t\t\t\t\t\t\t\t<div class=\"stack-2xs\">\n\t\t\t\t\t\t\t\t\t<div class=\"d-flex items-center gap-2 flex-wrap\">\n\t\t\t\t\t\t\t\t\t\t<strong class=\"font-black text-sm text-primary\">${app.applicant_name || 'متقدم'}</strong>\n\t\t\t\t\t\t\t\t\t\t${statusBadge}\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class=\"d-flex gap-3 text-xs text-muted mt-1 flex-wrap font-medium\">\n\t\t\t\t\t\t\t\t\t\t<span>${app.applicant_email || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>•</span>\n\t\t\t\t\t\t\t\t\t\t<span>${app.applicant_phone || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>•</span>\n\t\t\t\t\t\t\t\t\t\t<span>${dateStr}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<div class=\"d-flex items-center gap-2.5 flex-wrap\">\n\t\t\t\t\t\t\t\t\t${cvBtn}\n\t\t\t\t\t\t\t\t\t${actionButtons}\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t});\n\n\t\t\t\t\thtml += `</div>`;\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = html;\n\t\t\t\t} catch (err) {\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t<div class=\"alert alert-danger p-md\">\n\t\t\t\t\t\t\tحدث خطأ أثناء تحميل المتقدمين: ${err.message}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function submitOnboardEmployee(e) {\n\t\t\t\te.preventDefault();\n\t\t\t\tconst jobId = document.getElementById('onboard-job-id').value;\n\t\t\t\tconst appId = document.getElementById('onboard-app-id').value;\n\t\t\t\tconst branchId = document.getElementById('onboard-branch-id').value;\n\t\t\t\tconst roleKey = document.getElementById('onboard-role-key').value;\n\t\t\t\tconst jobTitle = document.getElementById('onboard-job-title').value;\n\t\t\t\tconst baseSalary = document.getElementById('onboard-base-salary').value;\n\t\t\t\tconst notes = document.getElementById('onboard-notes').value;\n\n\t\t\t\tconst submitBtn = document.getElementById('onboard-submit-btn');\n\t\t\t\tsubmitBtn.disabled = true;\n\t\t\t\tsubmitBtn.innerHTML = '<span>جاري التعيين...</span>';\n\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/accept`, {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\tbody: JSON.stringify({\n\t\t\t\t\t\t\tbranch_id: branchId ? parseInt(branchId) : 0,\n\t\t\t\t\t\t\trole_key: roleKey,\n\t\t\t\t\t\t\tjob_title: jobTitle,\n\t\t\t\t\t\t\tbase_salary: baseSalary,\n\t\t\t\t\t\t\tnotes: notes\n\t\t\t\t\t\t})\n\t\t\t\t\t});\n\t\t\t\t\tconst data = await res.json();\n\t\t\t\t\tif (!res.ok || data.error) throw new Error(data.error || 'فشلت العملية');\n\n\t\t\t\t\tcloseOnboardModal();\n\t\t\t\t\talert('تم قبول المتقدم وتعيينه كموظف بنجاح وإرسال إشعار رسمي له!');\n\t\t\t\t\tviewApplicants(currentJobId, currentJobTitle);\n\t\t\t\t} catch (err) {\n\t\t\t\t\talert('حدث خطأ: ' + err.message);\n\t\t\t\t} finally {\n\t\t\t\t\tsubmitBtn.disabled = false;\n\t\t\t\t\tsubmitBtn.innerHTML = '<span>تأكيد القبول وتعيين الموظف</span>';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function rejectApplicant(jobId, appId) {\n\t\t\t\tif (!confirm('هل أنت متأكد من رفض هذا الطلب؟ سيتم إرسال إشعار اعتذار للمتقدم.')) return;\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/reject`, {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\tbody: JSON.stringify({ notes: 'تمت المراجعة والاعتذار عن الطلب' })\n\t\t\t\t\t});\n\t\t\t\t\tconst data = await res.json();\n\t\t\t\t\tif (!res.ok || data.error) throw new Error(data.error || 'فشلت العملية');\n\n\t\t\t\t\talert('تم رفض الطلب وإرسال إشعار للمتقدم.');\n\t\t\t\t\tviewApplicants(currentJobId, currentJobTitle);\n\t\t\t\t} catch (err) {\n\t\t\t\t\talert('حدث خطأ: ' + err.message);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Close on backdrop click\n\t\t\twindow.addEventListener('click', function(e) {\n\t\t\t\tconst addModal = document.getElementById('add-job-modal');\n\t\t\t\tconst editModal = document.getElementById('edit-job-modal');\n\t\t\t\tconst appModal = document.getElementById('job-applicants-modal');\n\t\t\t\tconst onbModal = document.getElementById('onboard-modal');\n\t\t\t\tif (e.target === addModal) closeAddJobModal();\n\t\t\t\tif (e.target === editModal) closeEditJobModal();\n\t\t\t\tif (e.target === appModal) closeApplicantsModal();\n\t\t\t\tif (e.target === onbModal) closeOnboardModal();\n\t\t\t});\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, " <script>\n\t\t\tlet currentJobId = 0;\n\t\t\tlet currentJobTitle = '';\n\n\t\t\tfunction openAddJobModal() {\n\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\tif (el && typeof el.showModal === 'function') {\n\t\t\t\t\tel.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeAddJobModal() {\n\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\tif (el && typeof el.close === 'function') {\n\t\t\t\t\tel.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openEditJobModalFromBtn(btn) {\n\t\t\t\tif (!btn) return;\n\t\t\t\tconst jobId = btn.getAttribute('data-job-id');\n\t\t\t\tconst titleAr = btn.getAttribute('data-title-ar') || '';\n\t\t\t\tconst titleEn = btn.getAttribute('data-title-en') || '';\n\t\t\t\tconst location = btn.getAttribute('data-location') || '';\n\t\t\t\tconst salMin = btn.getAttribute('data-sal-min') || '';\n\t\t\t\tconst salMax = btn.getAttribute('data-sal-max') || '';\n\t\t\t\tconst status = btn.getAttribute('data-status') || '';\n\t\t\t\tconst desc = btn.getAttribute('data-desc') || '';\n\t\t\t\tconst reqs = btn.getAttribute('data-reqs') || '';\n\n\t\t\t\tconst form = document.getElementById('edit-job-form');\n\t\t\t\tif (form) form.action = `/vendor/jobs/${jobId}/edit`;\n\n\t\t\t\tconst titleArInput = document.getElementById('edit-job-title-ar');\n\t\t\t\tconst titleEnInput = document.getElementById('edit-job-title-en');\n\t\t\t\tconst locationInput = document.getElementById('edit-job-location');\n\t\t\t\tconst branchSelect = document.getElementById('edit-job-branch-id');\n\t\t\t\tconst statusInput = document.getElementById('edit-job-status');\n\t\t\t\tconst salMinInput = document.getElementById('edit-job-salary-min');\n\t\t\t\tconst salMaxInput = document.getElementById('edit-job-salary-max');\n\t\t\t\tconst descInput = document.getElementById('edit-job-description');\n\t\t\t\tconst reqsInput = document.getElementById('edit-job-requirements');\n\n\t\t\t\tif (titleArInput) titleArInput.value = titleAr || '';\n\t\t\t\tif (titleEnInput) titleEnInput.value = titleEn || '';\n\t\t\t\tif (locationInput) locationInput.value = location || '';\n\t\t\t\tif (branchSelect) {\n\t\t\t\t\tlet matched = false;\n\t\t\t\t\tif (location) {\n\t\t\t\t\t\tfor (let i = 0; i < branchSelect.options.length; i++) {\n\t\t\t\t\t\t\tconst opt = branchSelect.options[i];\n\t\t\t\t\t\t\tconst optText = opt.textContent.trim();\n\t\t\t\t\t\t\tconst optName = opt.getAttribute('data-branch-name') || '';\n\t\t\t\t\t\t\tconst optNameAr = opt.getAttribute('data-branch-name-ar') || '';\n\t\t\t\t\t\t\tconst optNameEn = opt.getAttribute('data-branch-name-en') || '';\n\t\t\t\t\t\t\tif (optText.includes(location) || optName === location || optNameAr === location || optNameEn === location) {\n\t\t\t\t\t\t\t\tbranchSelect.selectedIndex = i;\n\t\t\t\t\t\t\t\tmatched = true;\n\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif (!matched && branchSelect.options.length > 1) {\n\t\t\t\t\t\tbranchSelect.selectedIndex = 1;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif (statusInput) statusInput.value = status || 'published';\n\t\t\t\tif (salMinInput) salMinInput.value = (salMin && salMin !== '0' && salMin !== '0.00') ? salMin : '';\n\t\t\t\tif (salMaxInput) salMaxInput.value = (salMax && salMax !== '0' && salMax !== '0.00') ? salMax : '';\n\t\t\t\tif (descInput) descInput.value = desc || '';\n\t\t\t\tif (reqsInput) reqsInput.value = reqs || '';\n\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal && typeof modal.showModal === 'function') {\n\t\t\t\t\tmodal.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeEditJobModal() {\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal && typeof modal.close === 'function') {\n\t\t\t\t\tmodal.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openApplicantsModal() {\n\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\tif (el && typeof el.showModal === 'function') {\n\t\t\t\t\tel.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeApplicantsModal() {\n\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\tif (el && typeof el.close === 'function') {\n\t\t\t\t\tel.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openOnboardModal(appId, applicantName, jobTitle) {\n\t\t\t\tdocument.getElementById('onboard-job-id').value = currentJobId;\n\t\t\t\tdocument.getElementById('onboard-app-id').value = appId;\n\t\t\t\tdocument.getElementById('onboard-modal-subtitle').textContent = `المتقدم: ${applicantName} • الوظيفة: ${jobTitle}`;\n\t\t\t\tdocument.getElementById('onboard-job-title').value = jobTitle || '';\n\t\t\t\tconst modal = document.getElementById('onboard-modal');\n\t\t\t\tif (modal && typeof modal.showModal === 'function') {\n\t\t\t\t\tmodal.showModal();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeOnboardModal() {\n\t\t\t\tconst modal = document.getElementById('onboard-modal');\n\t\t\t\tif (modal && typeof modal.close === 'function') {\n\t\t\t\t\tmodal.close();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function viewApplicants(jobId, jobTitle) {\n\t\t\t\tcurrentJobId = jobId;\n\t\t\t\tcurrentJobTitle = jobTitle;\n\t\t\t\tdocument.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;\n\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t<div class=\"p-10 text-center text-muted\">\n\t\t\t\t\t\t<div class=\"text-2xl mb-2\">⏳</div>\n\t\t\t\t\t\t<div class=\"stat-card-label\">جاري استرجاع طلبات التقديم والسير الذاتية...</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\t\t\t\topenApplicantsModal();\n\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications`);\n\t\t\t\t\tif (!res.ok) throw new Error('فشل في جلب البيانات');\n\t\t\t\t\tconst apps = await res.json();\n\n\t\t\t\t\tif (!apps || apps.length === 0) {\n\t\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t\t<div class=\"text-center p-10\">\n\t\t\t\t\t\t\t\t<div class=\"text-3xl mb-2\">📬</div>\n\t\t\t\t\t\t\t\t<h4 class=\"text-primary font-extrabold text-sm m-0\">لا يوجد متقدمين حتى الآن</h4>\n\t\t\t\t\t\t\t\t<p class=\"text-muted text-xs mt-1\">\n\t\t\t\t\t\t\t\t\tلم يقم أي باحث عن عمل بالتقديم على هذه الوظيفة الشاغرة بعد.\n\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tlet html = `<div class=\"d-flex flex-col gap-3\">`;\n\n\t\t\t\t\tapps.forEach(app => {\n\t\t\t\t\t\tconst dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';\n\t\t\t\t\t\tlet cvUrl = app.cv_storage_key || '';\n\t\t\t\t\t\tif (cvUrl && !cvUrl.startsWith('http') && !cvUrl.startsWith('/')) {\n\t\t\t\t\t\t\tcvUrl = '/' + cvUrl;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst cvBtn = cvUrl \n\t\t\t\t\t\t\t? `<a href=\"${cvUrl}\" target=\"_blank\" download class=\"btn btn-secondary btn-sm font-bold text-xs gap-1.5 shadow-2xs\">\n\t\t\t\t\t\t\t\t\t<svg class=\"icon-xs\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline></svg>\n\t\t\t\t\t\t\t\t\t<span>تحميل السيرة الذاتية (CV)</span>\n\t\t\t\t\t\t\t   </a>`\n\t\t\t\t\t\t\t: `<span class=\"badge badge-slate text-2xs font-medium\">لم يُرفق CV</span>`;\n\n\t\t\t\t\t\tlet statusBadge = '';\n\t\t\t\t\t\tlet actionButtons = '';\n\n\t\t\t\t\t\tif (app.status === 'accepted' || app.status === 'hired') {\n\t\t\t\t\t\t\tconst branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'المقر الرئيسي';\n\t\t\t\t\t\t\tstatusBadge = `<span class=\"badge badge-emerald text-2xs font-bold gap-1\"><svg class=\"icon-2xs\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg><span>تم القبول والتعيين (${branchText})</span></span>`;\n\t\t\t\t\t\t} else if (app.status === 'rejected') {\n\t\t\t\t\t\t\tstatusBadge = `<span class=\"badge badge-slate text-2xs font-bold\">تم رفض الطلب</span>`;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tstatusBadge = `<span class=\"badge badge-sky text-2xs font-bold\">⏳ قيد المراجعة</span>`;\n\t\t\t\t\t\t\tactionButtons = `\n\t\t\t\t\t\t\t\t<div class=\"d-flex gap-1.5 items-center\">\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs px-3 py-1.5 gap-1 shadow-2xs\" onclick=\"openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')\">\n\t\t\t\t\t\t\t\t\t\t<svg class=\"icon-xs\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline></svg>\n\t\t\t\t\t\t\t\t\t\t<span>قبول وتعيين</span>\n\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-danger text-xs px-2.5 py-1.5\" onclick=\"rejectApplicant(${jobId}, ${app.id})\">\n\t\t\t\t\t\t\t\t\t\t<span>رفض</span>\n\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t<div class=\"p-4 bg-surface-sunken border rounded-2xl flex-between items-center flex-wrap gap-4 shadow-2xs\">\n\t\t\t\t\t\t\t\t<div class=\"stack-2xs\">\n\t\t\t\t\t\t\t\t\t<div class=\"d-flex items-center gap-2 flex-wrap\">\n\t\t\t\t\t\t\t\t\t\t<strong class=\"font-black text-sm text-primary\">${app.applicant_name || 'متقدم'}</strong>\n\t\t\t\t\t\t\t\t\t\t${statusBadge}\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class=\"d-flex gap-3 text-xs text-muted mt-1 flex-wrap font-medium\">\n\t\t\t\t\t\t\t\t\t\t<span>${app.applicant_email || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>•</span>\n\t\t\t\t\t\t\t\t\t\t<span>${app.applicant_phone || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>•</span>\n\t\t\t\t\t\t\t\t\t\t<span>${dateStr}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<div class=\"d-flex items-center gap-2.5 flex-wrap\">\n\t\t\t\t\t\t\t\t\t${cvBtn}\n\t\t\t\t\t\t\t\t\t${actionButtons}\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t});\n\n\t\t\t\t\thtml += `</div>`;\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = html;\n\t\t\t\t} catch (err) {\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t<div class=\"alert alert-danger p-md\">\n\t\t\t\t\t\t\tحدث خطأ أثناء تحميل المتقدمين: ${err.message}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function submitOnboardEmployee(e) {\n\t\t\t\te.preventDefault();\n\t\t\t\tconst jobId = document.getElementById('onboard-job-id').value;\n\t\t\t\tconst appId = document.getElementById('onboard-app-id').value;\n\t\t\t\tconst branchId = document.getElementById('onboard-branch-id').value;\n\t\t\t\tconst roleKey = document.getElementById('onboard-role-key').value;\n\t\t\t\tconst jobTitle = document.getElementById('onboard-job-title').value;\n\t\t\t\tconst baseSalary = document.getElementById('onboard-base-salary').value;\n\t\t\t\tconst notes = document.getElementById('onboard-notes').value;\n\n\t\t\t\tconst submitBtn = document.getElementById('onboard-submit-btn');\n\t\t\t\tsubmitBtn.disabled = true;\n\t\t\t\tsubmitBtn.innerHTML = '<span>جاري التعيين...</span>';\n\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/accept`, {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\tbody: JSON.stringify({\n\t\t\t\t\t\t\tbranch_id: branchId ? parseInt(branchId) : 0,\n\t\t\t\t\t\t\trole_key: roleKey,\n\t\t\t\t\t\t\tjob_title: jobTitle,\n\t\t\t\t\t\t\tbase_salary: baseSalary,\n\t\t\t\t\t\t\tnotes: notes\n\t\t\t\t\t\t})\n\t\t\t\t\t});\n\t\t\t\t\tconst data = await res.json();\n\t\t\t\t\tif (!res.ok || data.error) throw new Error(data.error || 'فشلت العملية');\n\n\t\t\t\t\tcloseOnboardModal();\n\t\t\t\t\talert('تم قبول المتقدم وتعيينه كموظف بنجاح وإرسال إشعار رسمي له!');\n\t\t\t\t\tviewApplicants(currentJobId, currentJobTitle);\n\t\t\t\t} catch (err) {\n\t\t\t\t\talert('حدث خطأ: ' + err.message);\n\t\t\t\t} finally {\n\t\t\t\t\tsubmitBtn.disabled = false;\n\t\t\t\t\tsubmitBtn.innerHTML = '<span>تأكيد القبول وتعيين الموظف</span>';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function rejectApplicant(jobId, appId) {\n\t\t\t\tif (!confirm('هل أنت متأكد من رفض هذا الطلب؟ سيتم إرسال إشعار اعتذار للمتقدم.')) return;\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/reject`, {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\tbody: JSON.stringify({ notes: 'تمت المراجعة والاعتذار عن الطلب' })\n\t\t\t\t\t});\n\t\t\t\t\tconst data = await res.json();\n\t\t\t\t\tif (!res.ok || data.error) throw new Error(data.error || 'فشلت العملية');\n\n\t\t\t\t\talert('تم رفض الطلب وإرسال إشعار للمتقدم.');\n\t\t\t\t\tviewApplicants(currentJobId, currentJobTitle);\n\t\t\t\t} catch (err) {\n\t\t\t\t\talert('حدث خطأ: ' + err.message);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Close on backdrop click\n\t\t\twindow.addEventListener('click', function(e) {\n\t\t\t\tconst addModal = document.getElementById('add-job-modal');\n\t\t\t\tconst editModal = document.getElementById('edit-job-modal');\n\t\t\t\tconst appModal = document.getElementById('job-applicants-modal');\n\t\t\t\tconst onbModal = document.getElementById('onboard-modal');\n\t\t\t\tif (e.target === addModal) closeAddJobModal();\n\t\t\t\tif (e.target === editModal) closeEditJobModal();\n\t\t\t\tif (e.target === appModal) closeApplicantsModal();\n\t\t\t\tif (e.target === onbModal) closeOnboardModal();\n\t\t\t});\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

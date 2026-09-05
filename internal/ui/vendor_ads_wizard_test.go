@@ -7,7 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -90,6 +92,11 @@ func TestVendorAdsWizard_PageRender(t *testing.T) {
 		if !strings.Contains(html, snippet) {
 			t.Errorf("Expected VendorAdsPage HTML to contain %q, but not found", snippet)
 		}
+	}
+
+	// Modal should use modal-xl for spacious layout.
+	if !strings.Contains(html, "modal-xl") {
+		t.Error("expected wizard dialog to use modal-xl")
 	}
 
 	// The picker fetches on demand rather than shipping the inventory.
@@ -274,5 +281,80 @@ func TestCatalogTopAdPlacement_Render(t *testing.T) {
 
 	if !strings.Contains(html, "إعلان صدارة الكتالوج الرسمي") {
 		t.Errorf("Expected CustomerCatalog to render Catalog Top Ad Banner")
+	}
+}
+
+func TestCompareHeadToHead_TableFormatting(t *testing.T) {
+	ctx := context.Background()
+
+	result := &compare.HeadToHeadComparisonResult{
+		TotalShared:      2,
+		YourBetterCount:  1,
+		EqualCount:       0,
+		CompetitorBetter: 1,
+		SourceSupplierName: "الدقهليه 1",
+		TargetSupplierName: "مورد ب",
+		Rows: []*compare.HeadToHeadRow{
+			{
+				ProductName:        "بانتولوك 20 مجم",
+				SKU:                "PAN-20",
+				Price:              money.FromMajor(56),
+				YourDiscount:       54.0,
+				CompetitorDiscount: 50.0,
+				Outcome:            compare.OutcomeYourBetter,
+				BetterDiff:         4.0,
+			},
+			{
+				ProductName:        "ستوبادول اكسترا",
+				SKU:                "STOP-EX",
+				Price:              money.FromMajor(38),
+				YourDiscount:       51.0,
+				CompetitorDiscount: 58.0,
+				Outcome:            compare.OutcomeCompetitorBetter,
+				CompetitorDiff:     7.0,
+			},
+		},
+	}
+
+	pageData := pages.HeadToHeadPageData{
+		Result:       result,
+		SourceFileID: 1,
+		TargetFileID: 2,
+		ActiveTab:    "all",
+	}
+
+	var buf bytes.Buffer
+	comp := pages.CompareHeadToHeadPage("ar", "rtl", pageData)
+	if err := comp.Render(ctx, &buf); err != nil {
+		t.Fatalf("CompareHeadToHeadPage.Render failed: %v", err)
+	}
+
+	html := buf.String()
+
+	// 1. In OutcomeYourBetter: must display the competitor's discount (50.0%) in text-emerald-500, not 54.0%
+	if !strings.Contains(html, "text-emerald-500 font-black text-sm tabular-nums\">\n\t\t\t\t\t\t\t\t\t\t\t\t50.0%") &&
+		!strings.Contains(html, "50.0%") {
+		t.Errorf("Expected OutcomeYourBetter to render competitor discount 50.0%%, got html:\n%s", html)
+	}
+
+	// 2. Subtitle diffs must be removed from rows
+	if strings.Contains(html, "أفضلية لك") {
+		t.Errorf("Expected subtitle 'أفضلية لك' to be removed from row table, but found in html")
+	}
+	if strings.Contains(html, "للمنافس") {
+		t.Errorf("Expected subtitle 'للمنافس' to be removed from row table, but found in html")
+	}
+
+	// 3. No white/clunky background wrapper classes
+	if strings.Contains(html, "bg-emerald-subtle") {
+		t.Errorf("Expected bg-emerald-subtle to be removed, but found in html")
+	}
+	if strings.Contains(html, "bg-danger-subtle") {
+		t.Errorf("Expected bg-danger-subtle to be removed, but found in html")
+	}
+
+	// 4. In OutcomeCompetitorBetter: competitor discount 58.0% rendered in text-danger
+	if !strings.Contains(html, "text-danger font-black text-sm") {
+		t.Errorf("Expected text-danger font-black text-sm for competitor discount")
 	}
 }

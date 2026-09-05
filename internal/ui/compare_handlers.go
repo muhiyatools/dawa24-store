@@ -143,9 +143,6 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 	}
 	if h.compareSvc != nil {
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
-		if len(files) == 0 && (actor.IsPlatformAdmin() || actor.IsStaff) {
-			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
-		}
 	}
 
 	maxAllowedFiles := 10

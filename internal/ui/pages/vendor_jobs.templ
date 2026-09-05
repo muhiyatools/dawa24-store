@@ -6,9 +6,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+func formatSalaryForInput(amt money.Amount) string {
+	if amt.IsZero() {
+		return ""
+	}
+	if amt.Minor()%100 == 0 {
+		return fmt.Sprintf("%d", amt.Minor()/100)
+	}
+	return amt.String()
+}
 
 type VendorJobItem struct {
 	Job               *hr.JobOffer
@@ -230,8 +241,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 													data-title-ar={ item.Job.Title.Get(i18n.AR) }
 													data-title-en={ item.Job.Title.Get(i18n.EN) }
 													data-location={ item.Job.Location }
-													data-sal-min={ item.Job.SalaryMin.String() }
-													data-sal-max={ item.Job.SalaryMax.String() }
+													data-sal-min={ formatSalaryForInput(item.Job.SalaryMin) }
+													data-sal-max={ formatSalaryForInput(item.Job.SalaryMax) }
 													data-status={ item.Job.Status }
 													data-desc={ item.Job.Description }
 													data-reqs={ item.Job.Requirements }
@@ -351,7 +362,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</label>
 						<input
 							type="number"
-							step="100"
+							step="any"
+							min="0"
 							name="salary_min"
 							class="form-input h-11 font-mono rounded-lg"
 							placeholder="5000"
@@ -364,7 +376,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</label>
 						<input
 							type="number"
-							step="100"
+							step="any"
+							min="0"
 							name="salary_max"
 							class="form-input h-11 font-mono rounded-lg"
 							placeholder="12000"
@@ -493,7 +506,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</label>
 						<input
 							type="number"
-							step="100"
+							step="any"
+							min="0"
 							id="edit-job-salary-min"
 							name="salary_min"
 							class="form-input h-11 font-mono rounded-lg"
@@ -506,7 +520,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</label>
 						<input
 							type="number"
-							step="100"
+							step="any"
+							min="0"
 							id="edit-job-salary-max"
 							name="salary_max"
 							class="form-input h-11 font-mono rounded-lg"
@@ -695,8 +710,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					}
 				}
 				if (statusInput) statusInput.value = status || 'published';
-				if (salMinInput) salMinInput.value = salMin || '';
-				if (salMaxInput) salMaxInput.value = salMax || '';
+				if (salMinInput) salMinInput.value = (salMin && salMin !== '0' && salMin !== '0.00') ? salMin : '';
+				if (salMaxInput) salMaxInput.value = (salMax && salMax !== '0' && salMax !== '0.00') ? salMax : '';
 				if (descInput) descInput.value = desc || '';
 				if (reqsInput) reqsInput.value = reqs || '';
 

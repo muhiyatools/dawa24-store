@@ -78,7 +78,7 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان جديد</span></button><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"close()\"><div class=\"modal-dialog modal-lg text-start\" @click.outside=\"close()\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان جديد</span></button><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"close()\"><div class=\"modal-dialog modal-xl text-start\" @click.outside=\"close()\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -193,7 +193,15 @@ func adsWizardStepProduct() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div x-show=\"step === 1\" class=\"d-flex flex-col gap-4\"><div class=\"alert alert-info text-xs font-medium m-0\">يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.</div><template x-if=\"selected\"><div class=\"wiz-picked\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div x-show=\"step === 1\" class=\"d-flex flex-col gap-4 min-h-[280px]\"><div class=\"alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconInfo("icon-xs flex-shrink-0").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.</span></div><template x-if=\"selected\"><div class=\"wiz-picked\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -201,7 +209,7 @@ func adsWizardStepProduct() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"stack-2xs min-w-0\"><strong class=\"text-sm font-black text-primary d-block truncate\" x-text=\"selected.label\"></strong> <span class=\"text-xs text-secondary\" x-text=\"selected.item ? (selected.item.hint || '') + ' · ' + (selected.item.badge || '') : ''\"></span></div></div><button type=\"button\" @click=\"clearProduct()\" class=\"btn btn-secondary btn-xs font-bold gap-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"stack-2xs min-w-0\"><strong class=\"text-sm font-black text-primary d-block truncate\" x-text=\"selected.label\"></strong> <span class=\"text-xs text-secondary\" x-text=\"selected.item ? (selected.item.hint || '') + ' · ' + (selected.item.badge || '') : ''\"></span></div></div><button type=\"button\" @click=\"clearProduct()\" class=\"btn btn-secondary btn-xs font-bold gap-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -209,7 +217,7 @@ func adsWizardStepProduct() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>تغيير الصنف</span></button></div></template><div x-show=\"!selected\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>تغيير الصنف</span></button></div></template><div x-show=\"!selected\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -225,7 +233,7 @@ func adsWizardStepProduct() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -254,82 +262,82 @@ func adsWizardStepPlacement() templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div x-show=\"step === 2\" class=\"d-flex flex-col gap-4\"><div class=\"stack-2xs\"><span class=\"form-label text-xs font-bold text-primary d-block\">حدد موضع ظهور الإعلان *</span><p class=\"text-xs text-secondary m-0\">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p></div><div class=\"d-grid grid-auto-fit-sm gap-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div x-show=\"step === 2\" class=\"d-flex flex-col gap-4\"><div class=\"stack-2xs\"><span class=\"form-label text-xs font-bold text-primary d-block\">حدد موضع ظهور الإعلان *</span><p class=\"text-xs text-secondary m-0\">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p></div><div class=\"d-grid grid-auto-fit-sm gap-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, p := range GetStandardPlacements() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<label class=\"wiz-placement\" :class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<label class=\"wiz-placement\" :class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("placement === '%s' ? 'is-selected' : ''", p.Key))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 153, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 154, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><span class=\"wiz-placement-head\"><span class=\"d-flex items-center gap-2 min-w-0\"><input type=\"radio\" name=\"position\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"><span class=\"wiz-placement-head\"><span class=\"d-flex items-center gap-2 min-w-0\"><input type=\"radio\" name=\"position\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Key)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 156, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 157, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" x-model=\"placement\" class=\"accent-brand\"> <span class=\"font-black text-xs text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" x-model=\"placement\" class=\"accent-brand\"> <span class=\"font-black text-xs text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.TitleAr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 157, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 158, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></span> <span class=\"badge badge-sky font-extrabold text-2xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></span> <span class=\"badge badge-sky font-extrabold text-2xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Badge)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 159, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 160, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></span> <span class=\"text-2xs text-secondary leading-relaxed font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></span> <span class=\"text-2xs text-secondary leading-relaxed font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 161, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 162, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span></label>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></label>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-click-target\">وجهة النقر *</label> <select id=\"ad-click-target\" name=\"click_target_type\" x-model=\"clickTargetType\" class=\"form-select text-xs font-semibold\"><option value=\"product\">صفحة الصنف الدوائي بالكتالوج</option> <option value=\"vendor_page\">صفحة ملف المورد</option> <option value=\"offer\">عرض ترويجي محدد</option></select></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-duration\">مدة الحملة *</label> <select id=\"ad-duration\" name=\"duration_days\" x-model.number=\"durationDays\" class=\"form-select text-xs font-semibold tabular-nums\"><option value=\"7\">7 أيام</option> <option value=\"15\">15 يوماً</option> <option value=\"30\">30 يوماً</option> <option value=\"60\">60 يوماً</option></select></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-click-target\">وجهة النقر *</label> <select id=\"ad-click-target\" name=\"click_target_type\" x-model=\"clickTargetType\" class=\"form-select text-xs font-semibold\"><option value=\"product\">صفحة الصنف الدوائي بالكتالوج</option> <option value=\"vendor_page\">صفحة ملف المورد</option> <option value=\"offer\">عرض ترويجي محدد</option></select></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-duration\">مدة الحملة *</label> <select id=\"ad-duration\" name=\"duration_days\" x-model.number=\"durationDays\" class=\"form-select text-xs font-semibold tabular-nums\"><option value=\"7\">7 أيام</option> <option value=\"15\">15 يوماً</option> <option value=\"30\">30 يوماً</option> <option value=\"60\">60 يوماً</option></select></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -358,7 +366,7 @@ func adsWizardStepCreative() templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div x-show=\"step === 3\" class=\"d-flex flex-col gap-4\"><div class=\"wiz-dropzone\"><template x-if=\"!mediaPreview\"><div class=\"d-flex flex-col items-center gap-2 text-center\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div x-show=\"step === 3\" class=\"d-flex flex-col gap-4\"><div class=\"wiz-dropzone\"><template x-if=\"!mediaPreview\"><div class=\"d-flex flex-col items-center gap-2 text-center\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -366,7 +374,7 @@ func adsWizardStepCreative() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><span class=\"text-xs font-bold text-primary\">أرفق صورة أو فيديو للإعلان</span> <span class=\"text-2xs text-muted\">PNG أو JPG أو MP4</span></div></template><template x-if=\"mediaPreview\"><div class=\"wiz-dropzone-preview\"><template x-if=\"mediaType === 'video'\"><video :src=\"mediaPreview\" autoplay muted loop playsinline class=\"w-full h-full object-contain\"></video></template><template x-if=\"mediaType !== 'video'\"><img :src=\"mediaPreview\" alt=\"معاينة الإعلان\" class=\"w-full h-full object-contain\"></template></div></template><input type=\"file\" name=\"media_file\" accept=\"image/*,video/mp4\" @change=\"onFileChange($event)\" class=\"form-input text-xs\"> <input type=\"hidden\" name=\"media_type\" :value=\"mediaType\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-ar\">عنوان الإعلان (عربي) *</label> <input id=\"ad-title-ar\" type=\"text\" name=\"title_ar\" x-model=\"titleAr\" maxlength=\"120\" required class=\"form-input text-xs font-semibold\"></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-en\">عنوان الإعلان (إنجليزي)</label> <input id=\"ad-title-en\" type=\"text\" name=\"title_en\" x-model=\"titleEn\" maxlength=\"120\" class=\"form-input text-xs font-semibold\" dir=\"ltr\"></div></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-text-ar\">نص ووصف الإعلان</label> <textarea id=\"ad-text-ar\" name=\"ad_text_ar\" x-model=\"adTextAr\" rows=\"3\" maxlength=\"400\" class=\"form-textarea text-xs font-medium\"></textarea></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><span class=\"text-xs font-bold text-primary\">أرفق صورة أو فيديو للإعلان</span> <span class=\"text-2xs text-muted\">PNG أو JPG أو MP4</span></div></template><template x-if=\"mediaPreview\"><div class=\"wiz-dropzone-preview\"><template x-if=\"mediaType === 'video'\"><video :src=\"mediaPreview\" autoplay muted loop playsinline class=\"w-full h-full object-contain\"></video></template><template x-if=\"mediaType !== 'video'\"><img :src=\"mediaPreview\" alt=\"معاينة الإعلان\" class=\"w-full h-full object-contain\"></template></div></template><input type=\"file\" name=\"media_file\" accept=\"image/*,video/mp4\" @change=\"onFileChange($event)\" class=\"form-input text-xs\"> <input type=\"hidden\" name=\"media_type\" :value=\"mediaType\"></div><div class=\"d-grid grid-auto-fit-sm gap-3\"><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-ar\">عنوان الإعلان (عربي) *</label> <input id=\"ad-title-ar\" type=\"text\" name=\"title_ar\" x-model=\"titleAr\" maxlength=\"120\" required class=\"form-input text-xs font-semibold\"></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-title-en\">عنوان الإعلان (إنجليزي)</label> <input id=\"ad-title-en\" type=\"text\" name=\"title_en\" x-model=\"titleEn\" maxlength=\"120\" class=\"form-input text-xs font-semibold\" dir=\"ltr\"></div></div><div class=\"stack-2xs\"><label class=\"form-label text-xs font-bold text-primary d-block\" for=\"ad-text-ar\">نص ووصف الإعلان</label> <textarea id=\"ad-text-ar\" name=\"ad_text_ar\" x-model=\"adTextAr\" rows=\"3\" maxlength=\"400\" class=\"form-textarea text-xs font-medium\"></textarea></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -395,7 +403,7 @@ func adsWizardStepReview() templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div x-show=\"step === 4\" class=\"d-flex flex-col gap-4\"><div class=\"wiz-credits\"><div class=\"flex-between items-center flex-wrap gap-2 pb-2 border-b\"><span class=\"d-flex items-center gap-2 font-black text-xs text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div x-show=\"step === 4\" class=\"d-flex flex-col gap-4\"><div class=\"wiz-credits\"><div class=\"flex-between items-center flex-wrap gap-2 pb-2 border-b\"><span class=\"d-flex items-center gap-2 font-black text-xs text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -403,20 +411,20 @@ func adsWizardStepReview() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>تكلفة الإعلان</span></span> <span class=\"badge badge-emerald font-black text-xs tabular-nums\" x-text=\"creditCost + ' رصيد'\"></span></div><div class=\"d-grid grid-auto-fit-sm gap-2 text-center\"><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">الرصيد المتاح</span> <strong class=\"text-base font-black text-primary tabular-nums\" x-text=\"totalCredits\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">تكلفة هذا الإعلان</span> <strong class=\"text-base font-black text-warning tabular-nums\" x-text=\"'- ' + creditCost\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">الرصيد المتبقي</span> <strong class=\"text-base font-black tabular-nums\" :class=\"totalCredits >= creditCost ? 'text-success' : 'text-danger'\" x-text=\"Math.max(0, totalCredits - creditCost)\"></strong></div></div></div><template x-if=\"totalCredits < creditCost\"><div class=\"alert alert-warning d-flex items-center justify-between gap-3 flex-wrap m-0\"><span class=\"text-xs font-bold\">رصيدك الحالي لا يكفي لإنشاء الإعلان. يتطلب توفر ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>تكلفة الإعلان</span></span> <span class=\"badge badge-emerald font-black text-xs tabular-nums\" x-text=\"creditCost + ' رصيد'\"></span></div><div class=\"d-grid grid-auto-fit-sm gap-2 text-center\"><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">الرصيد المتاح</span> <strong class=\"text-base font-black text-primary tabular-nums\" x-text=\"totalCredits\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">تكلفة هذا الإعلان</span> <strong class=\"text-base font-black text-warning tabular-nums\" x-text=\"'- ' + creditCost\"></strong></div><div class=\"wiz-credit-cell\"><span class=\"text-2xs text-muted font-semibold d-block\">الرصيد المتبقي</span> <strong class=\"text-base font-black tabular-nums\" :class=\"totalCredits >= creditCost ? 'text-success' : 'text-danger'\" x-text=\"Math.max(0, totalCredits - creditCost)\"></strong></div></div></div><template x-if=\"totalCredits < creditCost\"><div class=\"alert alert-warning d-flex items-center justify-between gap-3 flex-wrap m-0\"><span class=\"text-xs font-bold\">رصيدك الحالي لا يكفي لإنشاء الإعلان. يتطلب توفر ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", 2))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 265, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ads_wizard.templ`, Line: 266, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " رصيد رعاية على الأقل.</span> <a href=\"/vendor/sponsorship-requests\" class=\"btn btn-primary btn-xs font-black\">شراء باقة رعاية</a></div></template><dl class=\"wiz-summary\"><div><dt>الصنف</dt><dd x-text=\"selected ? selected.label : '—'\"></dd></div><div><dt>الموضع</dt><dd x-text=\"placementLabels[placement] || placement\"></dd></div><div><dt>العنوان</dt><dd x-text=\"titleAr || '—'\"></dd></div><div><dt>المدة</dt><dd class=\"tabular-nums\" x-text=\"durationDays + ' يوماً'\"></dd></div></dl></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " رصيد رعاية على الأقل.</span> <a href=\"/vendor/sponsorship-requests\" class=\"btn btn-primary btn-xs font-black\">شراء باقة رعاية</a></div></template><dl class=\"wiz-summary\"><div><dt>الصنف</dt><dd x-text=\"selected ? selected.label : '—'\"></dd></div><div><dt>الموضع</dt><dd x-text=\"placementLabels[placement] || placement\"></dd></div><div><dt>العنوان</dt><dd x-text=\"titleAr || '—'\"></dd></div><div><dt>المدة</dt><dd class=\"tabular-nums\" x-text=\"durationDays + ' يوماً'\"></dd></div></dl></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -445,7 +453,7 @@ func adsWizardFooter() templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"modal-footer flex-between\"><button type=\"button\" x-show=\"step > 1\" @click=\"prevStep()\" class=\"btn btn-secondary btn-sm font-bold gap-1.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"modal-footer flex-between\"><button type=\"button\" x-show=\"step > 1\" @click=\"prevStep()\" class=\"btn btn-secondary btn-sm font-bold gap-1.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -453,7 +461,7 @@ func adsWizardFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>السابق</span></button> <span x-show=\"step === 1\"></span><div class=\"d-flex items-center gap-2\"><button type=\"button\" @click=\"close()\" class=\"btn btn-ghost btn-sm font-bold\">إلغاء</button> <button type=\"button\" x-show=\"step < totalSteps\" @click=\"nextStep()\" :disabled=\"!canAdvance()\" class=\"btn btn-primary btn-sm font-black px-5 gap-1.5\"><span>التالي</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span>السابق</span></button> <span x-show=\"step === 1\"></span><div class=\"d-flex items-center gap-2\"><button type=\"button\" @click=\"close()\" class=\"btn btn-ghost btn-sm font-bold\">إلغاء</button> <button type=\"button\" x-show=\"step < totalSteps\" @click=\"nextStep()\" :disabled=\"!canAdvance()\" class=\"btn btn-primary btn-sm font-black px-5 gap-1.5\"><span>التالي</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -461,7 +469,7 @@ func adsWizardFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</button> <button type=\"submit\" x-show=\"step === totalSteps\" :disabled=\"!canSubmit()\" class=\"btn btn-primary btn-sm font-black px-5 gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</button> <button type=\"submit\" x-show=\"step === totalSteps\" :disabled=\"!canSubmit()\" class=\"btn btn-primary btn-sm font-black px-5 gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -469,7 +477,7 @@ func adsWizardFooter() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>تأكيد وإرسال للمراجعة</span></button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span>تأكيد وإرسال للمراجعة</span></button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

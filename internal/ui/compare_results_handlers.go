@@ -96,9 +96,6 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 			orgPtr = &actor.OrganizationID
 		}
 		allF, _ := h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
-		if len(allF) == 0 {
-			allF, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
-		}
 		for _, f := range allF {
 			if f.Status == compare.FileReady && f.RowCount > 0 {
 				fileIDs = append(fileIDs, f.ID)
@@ -153,9 +150,6 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 			orgPtr = &actor.OrganizationID
 		}
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
-		if len(files) == 0 {
-			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
-		}
 	}
 
 	sourceID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("source")), 10, 64)
@@ -266,9 +260,6 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
-		if len(files) == 0 && actor.IsStaff {
-			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
-		}
 	}
 
 	fileID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("file")), 10, 64)

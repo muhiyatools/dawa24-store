@@ -40,6 +40,7 @@
 
 	// registry lets one combobox read another's selection, for chained lists.
 	var registry = Object.create(null);
+	window.dawaComboboxRegistry = registry;
 
 	function normalize(s) {
 		if (s === null || s === undefined) return '';

@@ -393,56 +393,46 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 									</td>
 
 									<!-- 3. الخصم -->
-									<td class="text-center font-extrabold text-primary tabular-nums">
+									<td class="text-center tabular-nums">
 										if r.YourDiscount > 0 {
-											<span class="badge badge-slate text-xs">
+											<span class="text-sm font-black text-primary tabular-nums">
 												{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
 											</span>
 										} else {
-											<span class="text-muted">0%</span>
+											<span class="text-muted text-sm font-semibold">0%</span>
 										}
 									</td>
 
 									<!-- 4. خصم أفضل منك -->
 									<td class="text-center tabular-nums">
 										if r.Outcome == compare.OutcomeCompetitorBetter {
-											<div class="d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-danger-subtle border border-danger rounded-lg">
-												<span class="font-extrabold text-danger text-xs">
-													{ fmt.Sprintf("%.1f%%", r.CompetitorDiscount) }
-												</span>
-												<span class="text-xs text-danger font-bold">
-													(+{ fmt.Sprintf("%.1f%%", r.CompetitorDiff) } للمنافس)
-												</span>
-											</div>
+											<span class="text-danger font-black text-sm tabular-nums">
+												{ fmt.Sprintf("%.1f%%", r.CompetitorDiscount) }
+											</span>
 										} else {
-											<span class="text-muted">—</span>
+											<span class="text-muted text-sm font-semibold">—</span>
 										}
 									</td>
 
 									<!-- 5. نفس الخصم -->
 									<td class="text-center tabular-nums">
 										if r.Outcome == compare.OutcomeEqual {
-											<span class="badge badge-sky text-xs font-bold">
-												{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
+											<span class="text-sky-500 font-black text-sm tabular-nums">
+												{ fmt.Sprintf("%.1f%%", r.CompetitorDiscount) }
 											</span>
 										} else {
-											<span class="text-muted">—</span>
+											<span class="text-muted text-sm font-semibold">—</span>
 										}
 									</td>
 
 									<!-- 6. خصمك أفضل منهم -->
 									<td class="text-center tabular-nums">
 										if r.Outcome == compare.OutcomeYourBetter {
-											<div class="d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-emerald-subtle border border-emerald rounded-lg">
-												<span class="font-extrabold text-success text-xs">
-													{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
-												</span>
-												<span class="text-xs text-success font-bold">
-													(+{ fmt.Sprintf("%.1f%%", r.BetterDiff) } أفضلية لك)
-												</span>
-											</div>
+											<span class="text-emerald-500 font-black text-sm tabular-nums">
+												{ fmt.Sprintf("%.1f%%", r.CompetitorDiscount) }
+											</span>
 										} else {
-											<span class="text-muted">—</span>
+											<span class="text-muted text-sm font-semibold">—</span>
 										}
 									</td>
 								</tr>

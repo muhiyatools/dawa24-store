@@ -100,7 +100,7 @@
 [data-theme="dark"] .alert-danger,
 [data-theme="dark"] .alert-error   { color: var(--danger); }
 [data-theme="dark"] .alert-warning { color: var(--warning); }
-[data-theme="dark"] .alert-info    { color: var(--primary-border); }
+[data-theme="dark"] .alert-info    { color: #38bdf8; }
 
                                                                                                                                                px-*/py-* but no pt/pb/ps/pe, and
    no half steps, so 577 spacing attributes did nothing. Completed here on the

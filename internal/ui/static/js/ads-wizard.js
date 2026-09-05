@@ -62,6 +62,9 @@
 				// Give the component back its own empty state.
 				const hidden = this.$el.querySelector('input[name="click_target_id"]');
 				if (hidden) hidden.value = '';
+				if (window.dawaComboboxRegistry && window.dawaComboboxRegistry['click_target_id']) {
+					window.dawaComboboxRegistry['click_target_id'].clear(false);
+				}
 			},
 
 			onFileChange(event) {

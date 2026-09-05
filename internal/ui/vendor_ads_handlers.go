@@ -28,7 +28,8 @@ func (h *UIHandler) loadVendorInStockItems(ctx context.Context, orgID int64) []p
 	var warehouses []*inventory.Warehouse
 	var stocks []*inventory.Stock
 	whNameMap := make(map[int64]string)
-	stockMap := make(map[int64]*inventory.Stock)
+	stockQtyMap := make(map[int64]int)
+	stockWhMap := make(map[int64]string)
 
 	if h.invSvc != nil {
 		allWhs, _ := h.invSvc.ListWarehouses(ctx)
@@ -41,7 +42,10 @@ func (h *UIHandler) loadVendorInStockItems(ctx context.Context, orgID int64) []p
 		}
 		for _, s := range stocks {
 			if s != nil {
-				stockMap[s.ProductVariantID] = s
+				stockQtyMap[s.ProductVariantID] += s.Quantity
+				if n, exists := whNameMap[s.WarehouseID]; exists && stockWhMap[s.ProductVariantID] == "" {
+					stockWhMap[s.ProductVariantID] = n
+				}
 			}
 		}
 	}
@@ -53,13 +57,10 @@ func (h *UIHandler) loadVendorInStockItems(ctx context.Context, orgID int64) []p
 				if v == nil {
 					continue
 				}
-				whName := ""
+				whName := stockWhMap[v.ID]
 				stockQty := v.StockQty
-				if s, ok := stockMap[v.ID]; ok && s != nil {
-					stockQty = s.Quantity
-					if n, exists := whNameMap[s.WarehouseID]; exists {
-						whName = n
-					}
+				if qty, ok := stockQtyMap[v.ID]; ok {
+					stockQty = qty
 				}
 				if stockQty <= 0 {
 					continue
@@ -366,7 +367,14 @@ func (h *UIHandler) validateAdSubmission(
 		if err != nil || variant == nil || variant.OrganizationID != orgID {
 			return i18n.T(lang, "vendor.ads.product_not_yours")
 		}
-		if variant.StockQty <= 0 {
+		stockQty := variant.StockQty
+		if h.invSvc != nil {
+			avail, err := h.invSvc.AvailableQuantity(ctx, *ad.ClickTargetID)
+			if err == nil {
+				stockQty = avail
+			}
+		}
+		if stockQty <= 0 {
 			return i18n.T(lang, "vendor.ads.product_out_of_stock")
 		}
 	}

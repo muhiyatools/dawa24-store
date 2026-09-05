@@ -13,7 +13,6 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -396,24 +395,4 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	if !strings.Contains(body, "market-list-date") {
 		t.Error("the cards do not show the upload date")
 	}
-}
-
-// waitForStaging blocks until the detached parse has recorded its outcome.
-//
-// Polling rather than a channel, because the thing under test is a goroutine
-// the handler deliberately does not hand back — the screen learns the outcome
-// by asking, and so does this.
-func waitForStaging(t *testing.T, repo *mockCompareRepoE2E, fileID int64) {
-	t.Helper()
-	deadline := time.Now().Add(10 * time.Second)
-	for time.Now().Before(deadline) {
-		if f := repo.fileOf(fileID); f != nil && f.Status != compare.FileProcessing {
-			if f.Status == compare.FileFailed {
-				t.Fatalf("staging failed: %s", f.ErrorMessage)
-			}
-			return
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	t.Fatalf("file %d never left %q", fileID, compare.FileProcessing)
 }

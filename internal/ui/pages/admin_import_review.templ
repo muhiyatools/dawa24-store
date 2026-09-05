@@ -484,19 +484,33 @@ templ importProgressCard(view ImportReviewView) {
 		</p>
 
 		<script>
+			// See vendor_ingest_results.templ: this inline script runs while the
+			// document is parsing, and import-progress.js is deferred, so the
+			// bar was never started and never updated.
 			(function() {
-				const sessionEl = document.getElementById('import-progress');
-				const sessionID = sessionEl ? sessionEl.dataset.session : null;
-				if (!sessionID || typeof window.ImportProgress !== 'function') return;
+				function startProgress() {
+					const sessionEl = document.getElementById('import-progress');
+					const sessionID = sessionEl ? sessionEl.dataset.session : null;
+					if (!sessionID) return;
+					if (typeof window.ImportProgress !== 'function') {
+						console.error('import-progress.js did not load; the progress bar cannot update');
+						return;
+					}
 
-				const bar = new window.ImportProgress({
-					fill:    document.getElementById('import-progress-fill'),
-					label:   document.getElementById('import-progress-message'),
-					percent: document.getElementById('import-progress-percent'),
-					count:   document.getElementById('import-progress-count'),
-					onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
-				});
-				bar.follow('/admin/products/import/' + sessionID + '/stream', '/admin/products/import/' + sessionID + '/progress', 1500);
+					const bar = new window.ImportProgress({
+						fill:    document.getElementById('import-progress-fill'),
+						label:   document.getElementById('import-progress-message'),
+						percent: document.getElementById('import-progress-percent'),
+						count:   document.getElementById('import-progress-count'),
+						onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
+					});
+					bar.follow('/admin/products/import/' + sessionID + '/stream', '/admin/products/import/' + sessionID + '/progress', 1500);
+				}
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', startProgress);
+				} else {
+					startProgress();
+				}
 			})();
 		</script>
 	</div>

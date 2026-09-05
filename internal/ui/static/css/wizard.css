@@ -638,6 +638,7 @@
 
 @media (max-width: 640px) {
   .import-preview-scroll { max-block-size: 16rem; }
+}
 
 /* ==========================================================================
    ADVERTISEMENT WIZARD
@@ -800,5 +801,4 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
 }

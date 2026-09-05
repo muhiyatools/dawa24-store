@@ -188,35 +188,49 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 					</p>
 				</div>
 				<script>
+					// See vendor_ingest_results.templ: this inline script runs while
+					// the document is parsing, and import-progress.js is deferred,
+					// so the ring was never started and never moved.
 					(function () {
-						const card = document.querySelector('.so-progress-card');
-						if (!card || typeof window.ImportProgress !== 'function') return;
-						const ring = card.querySelector('.so-ring-value');
-						const label = card.querySelector('.so-ring-percent');
-						const caption = card.querySelector('.so-progress-caption');
-						// The ring is an SVG stroke, not a width, so the shared bar
-						// drives it through a shim: same easing, same drift, same
-						// refusal to show 100 before the run says it is done.
-						const circumference = 2 * Math.PI * 52;
-						const shim = {
-							style: {},
-							classList: { add(){}, remove(){} },
-							setAttribute(name, value) {
-								if (name !== 'aria-valuenow' || !ring) return;
-								const pct = Math.max(0, Math.min(100, Number(value)));
-								ring.style.strokeDashoffset = String(circumference * (1 - pct / 100));
-							},
-						};
-						const bar = new window.ImportProgress({
-							fill: shim, percent: label, label: caption,
-							onDone: function () { window.location.reload(); },
-						});
-						const base = window.location.pathname.replace(/\/+$/, '');
-						// Live, not polled twice a second. The stream is written
-						// to when a stage moves; the .json poll beside it is the
-						// fallback the shared bar takes by itself when the
-						// stream cannot be established.
-						bar.follow(base + '/stream', base + '.json', 1000);
+						function startProgress() {
+							const card = document.querySelector('.so-progress-card');
+							if (!card) return;
+							if (typeof window.ImportProgress !== 'function') {
+								console.error('import-progress.js did not load; the progress ring cannot update');
+								return;
+							}
+							const ring = card.querySelector('.so-ring-value');
+							const label = card.querySelector('.so-ring-percent');
+							const caption = card.querySelector('.so-progress-caption');
+							// The ring is an SVG stroke, not a width, so the shared bar
+							// drives it through a shim: same easing, same drift, same
+							// refusal to show 100 before the run says it is done.
+							const circumference = 2 * Math.PI * 52;
+							const shim = {
+								style: {},
+								classList: { add(){}, remove(){} },
+								setAttribute(name, value) {
+									if (name !== 'aria-valuenow' || !ring) return;
+									const pct = Math.max(0, Math.min(100, Number(value)));
+									ring.style.strokeDashoffset = String(circumference * (1 - pct / 100));
+								},
+							};
+							const bar = new window.ImportProgress({
+								fill: shim, percent: label, label: caption,
+								onDone: function () { window.location.reload(); },
+							});
+							const base = window.location.pathname.replace(/\/+$/, '');
+							// Live, not polled twice a second. The stream is written
+							// to when a stage moves; the .json poll beside it is the
+							// fallback the shared bar takes by itself when the
+							// stream cannot be established.
+							bar.follow(base + '/stream', base + '.json', 1000);
+						}
+						if (document.readyState === 'loading') {
+							document.addEventListener('DOMContentLoaded', startProgress);
+						} else {
+							startProgress();
+						}
 					})();
 				</script>
 			}

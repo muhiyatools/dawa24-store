@@ -395,3 +395,87 @@ Every one keeps its JSON poll, and the shared bar falls back to it on its own.
 - **B4**: `COPY` batching on the staging path — not audited.
 - SQL `platform.normalize_arabic` still folds fewer letters than
   `sheet.NormalizeName`; aligning it needs a migration and a GIN REINDEX.
+
+---
+
+## Third pass — the bar that needed a refresh, and Compare off the request thread
+
+### The reported bug: "I need to refresh to see the progress or result"
+
+Reproduced and fixed. `Stream` discards any snapshot older than the one it is
+showing — correct for events reordered across a process boundary. But a `Fetch`
+has no timestamp to give (a vendor import session carries a phase and a
+percentage, nothing that says *when*), so every safety read returned a **zero**
+`At`, and a zero time is before everything.
+
+The effect: the moment ONE snapshot had been published, every subsequent safety
+read looked stale and was dropped. The single mechanism that recovers a stream
+whose publisher has gone quiet was switched off by the first thing the publisher
+said — so the bar stopped where the last event left it and the page had to be
+reloaded.
+
+`readNow` now stamps a zero `At` with the time of the read.
+`TestStreamRecoversWhenThePublisherGoesQuiet` covers it and **fails without the
+fix** (verified by reverting).
+
+Two more found while chasing it, both mine, both silent:
+
+- **The Redis handle was resolved at wiring time**, before Redis is dialled, so
+  `Publisher` and `Bridge` captured `nil` for the life of the process. Every
+  cross-process progress message was dropped, in a deployment that looked
+  healthy because the local hub still worked. Both now take a `RedisSource`
+  resolver and re-resolve per attempt.
+- **The admin catalogue bar would have moved five times per run.** Its session
+  row is written once per phase by design; the fine-grained ticks live in an
+  in-memory reporter. `catalog.Service.SetProgressNotifier` now publishes every
+  tick while the row keeps its five writes.
+
+Also verified: SSE survives the real middleware chain (`RequestID → Recover →
+Logger → SecurityHeaders → Locale → RequestTimeout → Compress`) with the exact
+headers `EventSource` sends — `TestStreamSurvivesTheServerMiddlewareChain`
+asserts the content type, that nothing compressed the stream, and that a
+published event arrives.
+
+### Compare moved off the request thread
+
+Vendor ingest (`StageInBackground`) and the admin catalogue import
+(`import_prepare.go`) were **already** detached — the survey in the second pass
+was wrong about that. Compare was the only one left, and it was the worst case:
+`UploadAndProcessCompareFile` parsed the whole workbook and wrote every row of
+it inside the POST, for up to ten files, six at a time.
+
+- `Service.RegisterAndStage` records the file and returns; a goroutine with
+  `context.WithoutCancel` does the parse, so closing the tab no longer abandons
+  a half-staged batch.
+- `StageUploadedRows` is the parse, split out of the old method unchanged, so
+  both paths read a spreadsheet the same way.
+- New `FileProcessing` status. Without it a file that had not been parsed was
+  indistinguishable from one parsed and empty, and the tool showed "جاهز" for a
+  file still being read.
+- `GET /compare/files/staging?ids=` reports batch readiness, ownership-checked
+  per file and refused whole if any id is not the caller's.
+- The column wizard **waits** on that endpoint behind the shared progress
+  dialog, instead of opening a mapping for a file whose columns nobody had read.
+- The E2E test now waits for the detached parse and passes under `-race`; the
+  mock repository got the mutex it needs now that two goroutines touch it.
+
+The uploaded bytes deliberately travel with the goroutine. Re-reading them from
+disk was tried and reverted: `openStoredUpload` searches `data/uploads/compare`
+while the writer honours `UPLOAD_DIR`/`DATA_DIR`, so any deployment setting
+either would report a good file as unreadable. Peak memory is unchanged from the
+synchronous version and is bounded by the request-body cap.
+
+### Still open
+
+- **B4** `COPY` batching on the staging path — not audited.
+- SQL `platform.normalize_arabic` — needs a migration and a GIN reindex.
+- `cmd/worker` does not run the compare staging; it stays in the web process,
+  detached. Moving it to River would need the uploaded file in shared storage
+  rather than on one instance's disk.
+
+### Note
+
+`internal/ui/pages/market_discounts.templ` changed under me during this session
+(mtime 19:02, three new undefined CSS classes) — another session or tooling is
+editing this working tree. Not mine, not touched.
+

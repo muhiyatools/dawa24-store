@@ -119,18 +119,41 @@ templ importProcessingStage(view VendorImportView) {
 		</p>
 	</div>
 	<script>
+		// Deferred scripts have NOT run yet when this one does.
+		//
+		// import-progress.js is loaded with `defer` in the head, so it executes
+		// after the document is parsed — while this inline script runs DURING
+		// parsing. window.ImportProgress was therefore undefined, the guard
+		// below returned, and nothing ever polled: the bar kept the percentage
+		// the server had rendered into the HTML and sat on it, on an import
+		// that had already finished. That is the "stuck at 1% forever" report.
+		//
+		// DOMContentLoaded is the fence: every deferred script has executed by
+		// the time it fires. When the DOM is already parsed (an htmx swap, a
+		// bfcache restore) it will never fire, so that case runs immediately.
 		(function () {
-			const card = document.getElementById('import-progress-card');
-			if (!card || typeof window.ImportProgress !== 'function') return;
-			const bar = new window.ImportProgress({
-				fill:    document.getElementById('import-progress-bar'),
-				label:   document.getElementById('import-progress-note'),
-				percent: document.getElementById('import-progress-percent'),
-				count:   document.getElementById('import-progress-count'),
-				onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
-			});
-			bar.follow('/vendor/ingest/' + card.dataset.import + '/stream',
-				'/vendor/ingest/' + card.dataset.import + '/progress', 1500);
+			function startProgress() {
+				const card = document.getElementById('import-progress-card');
+				if (!card) return;
+				if (typeof window.ImportProgress !== 'function') {
+					console.error('import-progress.js did not load; the progress bar cannot update');
+					return;
+				}
+				const bar = new window.ImportProgress({
+					fill:    document.getElementById('import-progress-bar'),
+					label:   document.getElementById('import-progress-note'),
+					percent: document.getElementById('import-progress-percent'),
+					count:   document.getElementById('import-progress-count'),
+					onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
+				});
+				bar.follow('/vendor/ingest/' + card.dataset.import + '/stream',
+					'/vendor/ingest/' + card.dataset.import + '/progress', 1500);
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', startProgress);
+			} else {
+				startProgress();
+			}
 		})();
 	</script>
 }
