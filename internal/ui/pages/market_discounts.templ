@@ -203,6 +203,17 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 							<div class="market-money">
 								<div class="market-money-cell is-lead">
+									<span class="market-money-label">صافي السعر</span>
+									if item.PriceAfterDiscount.Minor() > 0 {
+										<span class="market-money-now tabular-nums">{ formatDiscountPrice(item.PriceAfterDiscount) } <small>ج.م</small></span>
+									} else if item.OriginalPrice.Minor() > 0 {
+										<span class="market-money-now tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
+									} else {
+										<span class="market-money-now is-empty">—</span>
+									}
+								</div>
+
+								<div class="market-money-cell">
 									<span class="market-money-label">سعر الجمهور</span>
 									if item.OriginalPrice.Minor() > 0 {
 										<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
@@ -248,25 +259,38 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							<div class="market-card-rail">
 								<div class="market-card-pricing-group">
 									<div class="market-card-price-block">
+										<span class="market-money-label">صافي السعر</span>
+										if item.PriceAfterDiscount.Minor() > 0 {
+											<span class="market-money-now text-base tabular-nums">{ formatDiscountPrice(item.PriceAfterDiscount) } <small>ج.م</small></span>
+										} else if item.OriginalPrice.Minor() > 0 {
+											<span class="market-money-now text-base tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
+										} else {
+											<span class="market-money-now is-empty text-base">—</span>
+										}
+									</div>
+									<div class="market-card-price-block">
 										<span class="market-money-label">سعر الجمهور</span>
 										if item.OriginalPrice.Minor() > 0 {
-											<span class="market-money-was tabular-nums">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
+											<span class="market-money-was tabular-nums text-xs">{ formatDiscountPrice(item.OriginalPrice) } <small>ج.م</small></span>
 										} else {
-											<span class="market-money-was is-empty">—</span>
+											<span class="market-money-was is-empty text-xs">—</span>
 										}
 									</div>
 									if item.DiscountPercent > 0 {
-										if item.DiscountPercent >= 40 {
-											<span class="market-disc-pill is-hot tabular-nums">
-												{ formatDiscount(item.DiscountPercent) }%
-												<small>خصم</small>
-											</span>
-										} else {
-											<span class="market-disc-pill tabular-nums">
-												{ formatDiscount(item.DiscountPercent) }%
-												<small>خصم</small>
-											</span>
-										}
+										<div class="market-card-price-block">
+											<span class="market-money-label">الخصم</span>
+											if item.DiscountPercent >= 40 {
+												<span class="market-disc-pill is-hot tabular-nums">
+													{ formatDiscount(item.DiscountPercent) }%
+													<small>خصم</small>
+												</span>
+											} else {
+												<span class="market-disc-pill tabular-nums">
+													{ formatDiscount(item.DiscountPercent) }%
+													<small>خصم</small>
+												</span>
+											}
+										</div>
 									}
 								</div>
 							</div>

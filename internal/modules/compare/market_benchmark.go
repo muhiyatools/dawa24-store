@@ -3,6 +3,7 @@ package compare
 import (
 	"context"
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -323,11 +324,17 @@ func applyBenchmarkFilter(rows []*BenchmarkRow, f BenchmarkFilter) []*BenchmarkR
 			!strings.Contains(strings.ToLower(row.SKU), q) {
 			continue
 		}
-		if f.MinPrice != nil && row.YourNet.Minor() < int64(*f.MinPrice*100) {
-			continue
+		if f.MinPrice != nil {
+			minMinor := int64(math.Round(*f.MinPrice * 100))
+			if row.YourNet.Minor() < minMinor && row.YourPrice.Minor() < minMinor {
+				continue
+			}
 		}
-		if f.MaxPrice != nil && row.YourNet.Minor() > int64(*f.MaxPrice*100) {
-			continue
+		if f.MaxPrice != nil {
+			maxMinor := int64(math.Round(*f.MaxPrice * 100))
+			if row.YourNet.Minor() > maxMinor && row.YourPrice.Minor() > maxMinor {
+				continue
+			}
 		}
 		if f.MinDiscount != nil && row.YourDiscount < *f.MinDiscount {
 			continue

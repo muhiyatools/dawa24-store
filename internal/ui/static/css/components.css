@@ -5622,13 +5622,30 @@ form.filter-bar { margin: 0; }
   color: var(--text-secondary);
   white-space: nowrap;
 }
-/* سعر الجمهور is what this board exists to show, so it is clearly readable
-   and adjacent to the discount pill. */
-.market-money-was {
+.market-money-now {
   font-size: 1.125rem;
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.15;
-  color: var(--text-primary);
+  color: var(--brand-primary, #0d9488);
+  white-space: nowrap;
+}
+.market-money-now small {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brand-primary, #0d9488);
+  margin-inline-start: 0.15rem;
+}
+.market-money-now.is-empty {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+.market-money-was {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 .market-money-was small {

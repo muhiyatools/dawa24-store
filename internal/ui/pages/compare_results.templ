@@ -133,15 +133,6 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 						<button
 							type="button"
 							class="tab-btn"
-							data-filter="best-discount"
-							onclick="applyTableFilter('best-discount', this)"
-						>
-							<span>خصم أعلى من 15%</span>
-						</button>
-
-						<button
-							type="button"
-							class="tab-btn"
 							data-filter="multi-offer"
 							onclick="applyTableFilter('multi-offer', this)"
 						>
@@ -289,9 +280,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 					const searchData = (row.getAttribute('data-search') || '').toLowerCase();
 
 					let matchesFilter = true;
-					if (currentFilter === 'best-discount') {
-						matchesFilter = disc >= 15.0;
-					} else if (currentFilter === 'multi-offer') {
+					if (currentFilter === 'multi-offer') {
 						matchesFilter = sups > 1;
 					} else if (currentFilter === 'single-offer') {
 						matchesFilter = sups === 1;

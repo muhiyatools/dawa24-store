@@ -46,12 +46,12 @@ func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string
 	}
 
 	if filter.MinPrice != nil {
-		where = append(where, fmt.Sprintf("(%s) >= $%d", marketWarehouseNetSQL, argIdx))
+		where = append(where, fmt.Sprintf("r.price >= $%d", argIdx))
 		args = append(args, *filter.MinPrice)
 		argIdx++
 	}
 	if filter.MaxPrice != nil {
-		where = append(where, fmt.Sprintf("(%s) <= $%d", marketWarehouseNetSQL, argIdx))
+		where = append(where, fmt.Sprintf("r.price <= $%d", argIdx))
 		args = append(args, *filter.MaxPrice)
 		argIdx++
 	}
@@ -78,9 +78,9 @@ func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string
 	case "oldest":
 		orderBy = "f.created_at ASC, r.id ASC"
 	case "price_asc":
-		orderBy = fmt.Sprintf("(%s) ASC, (%s) DESC", marketWarehouseNetSQL, marketWarehouseDiscountSQL)
+		orderBy = fmt.Sprintf("r.price ASC, (%s) DESC", marketWarehouseDiscountSQL)
 	case "price_desc":
-		orderBy = fmt.Sprintf("(%s) DESC, (%s) DESC", marketWarehouseNetSQL, marketWarehouseDiscountSQL)
+		orderBy = fmt.Sprintf("r.price DESC, (%s) DESC", marketWarehouseDiscountSQL)
 	case "discount_asc":
 		orderBy = fmt.Sprintf("(%s) ASC, (%s) ASC", marketWarehouseDiscountSQL, marketWarehouseNetSQL)
 	case "discount_desc", "":

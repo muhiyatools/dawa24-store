@@ -282,6 +282,18 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		filter.Tab = "all"
 	}
 
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page <= 0 {
+		page = 1
+	}
+
+	limit := 25
+	if lStr := strings.TrimSpace(r.URL.Query().Get("limit")); lStr != "" {
+		if l, err := strconv.Atoi(lStr); err == nil && (l == 10 || l == 25 || l == 50 || l == 100) {
+			limit = l
+		}
+	}
+
 	var (
 		result *compare.BenchmarkResult
 		failed bool
@@ -296,8 +308,34 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		}
 	}
 
+	var (
+		pagedRows  []*compare.BenchmarkRow
+		totalCount int
+		totalPages int
+	)
+	if result != nil {
+		totalCount = len(result.Rows)
+		if totalCount > 0 {
+			totalPages = (totalCount + limit - 1) / limit
+			if page > totalPages {
+				page = totalPages
+			}
+			start := (page - 1) * limit
+			end := start + limit
+			if end > totalCount {
+				end = totalCount
+			}
+			pagedRows = result.Rows[start:end]
+		} else {
+			totalPages = 1
+		}
+	} else {
+		totalPages = 1
+	}
+
 	pageData := pages.MarketBenchmarkPageData{
 		Result:      result,
+		PagedRows:   pagedRows,
 		Failed:      failed,
 		Files:       files,
 		FileID:      fileID,
@@ -309,6 +347,10 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		ActiveTab:   filter.Tab,
 		Sort:        filter.Sort,
 		IsCustomer:  actor.IsCustomer(),
+		Page:        page,
+		Limit:       limit,
+		TotalCount:  totalCount,
+		TotalPages:  totalPages,
 	}
 
 	h.renderPage(ctx, w, "render market benchmark page", pages.CompareMarketBenchmarkPage(lang, dir, pageData))

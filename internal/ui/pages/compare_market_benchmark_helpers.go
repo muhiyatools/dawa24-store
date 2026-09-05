@@ -10,6 +10,8 @@ import (
 // MarketBenchmarkPageData contains data for comparing list prices against the broader market.
 type MarketBenchmarkPageData struct {
 	Result *compare.BenchmarkResult
+	// PagedRows is the current page slice of Result.Rows for display.
+	PagedRows []*compare.BenchmarkRow
 	// Failed separates a broken query from an empty market. Both used to render
 	// as "لا توجد أصناف مطابقة", which is the single most misleading thing this
 	// screen could say.
@@ -26,6 +28,10 @@ type MarketBenchmarkPageData struct {
 	// Sort is "", "discount" or "price".
 	Sort       string
 	IsCustomer bool
+	Page       int
+	Limit      int
+	TotalCount int
+	TotalPages int
 }
 
 func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
@@ -54,10 +60,42 @@ func benchmarkURL(d MarketBenchmarkPageData, tab, sort string) string {
 	if sort != "" {
 		vals.Set("sort", sort)
 	}
+	if d.Limit > 0 {
+		vals.Set("limit", fmt.Sprintf("%d", d.Limit))
+	}
 	if len(vals) == 0 {
 		return "/compare/market-benchmark"
 	}
 	return "/compare/market-benchmark?" + vals.Encode()
+}
+
+func benchmarkPaginationQueryValues(d MarketBenchmarkPageData) url.Values {
+	vals := url.Values{}
+	if d.FileID > 0 {
+		vals.Set("file", fmt.Sprintf("%d", d.FileID))
+	}
+	if d.Query != "" {
+		vals.Set("q", d.Query)
+	}
+	if d.MinPrice != "" {
+		vals.Set("min_price", d.MinPrice)
+	}
+	if d.MaxPrice != "" {
+		vals.Set("max_price", d.MaxPrice)
+	}
+	if d.MinDiscount != "" {
+		vals.Set("min_discount", d.MinDiscount)
+	}
+	if d.MaxDiscount != "" {
+		vals.Set("max_discount", d.MaxDiscount)
+	}
+	if d.ActiveTab != "" && d.ActiveTab != "all" {
+		vals.Set("tab", d.ActiveTab)
+	}
+	if d.Sort != "" {
+		vals.Set("sort", d.Sort)
+	}
+	return vals
 }
 
 func benchmarkTabClass(active, tab string) string {

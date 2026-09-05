@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -84,6 +85,7 @@ templ benchmarkControls(data MarketBenchmarkPageData) {
 	>
 		<form method="GET" action="/compare/market-benchmark" class="bench-controls-form">
 			<input type="hidden" name="tab" value={ data.ActiveTab }/>
+			<input type="hidden" name="limit" value={ strconv.Itoa(data.Limit) }/>
 
 			<div class="bench-controls-row">
 				<label class="bench-field">
@@ -194,7 +196,7 @@ templ benchmarkTabs(data MarketBenchmarkPageData) {
 
 templ benchmarkTable(data MarketBenchmarkPageData) {
 	<div class="glass-panel p-0 mb-6 overflow-hidden">
-		if len(data.Result.Rows) == 0 {
+		if len(data.PagedRows) == 0 {
 			@benchmarkEmpty(data)
 		} else {
 			<div class="table-container bench-scroll m-0">
@@ -212,7 +214,7 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 						</tr>
 					</thead>
 					<tbody>
-						for _, row := range data.Result.Rows {
+						for _, row := range data.PagedRows {
 							<tr>
 								<!-- Identity, with the standing this row has in one word -->
 								<td>
@@ -273,9 +275,18 @@ templ benchmarkTable(data MarketBenchmarkPageData) {
 					</tbody>
 				</table>
 			</div>
-			<div class="bench-footnote">
-				{ fmt.Sprintf("عرض %d من %d صنف", data.Result.Shown, data.Result.Total) }
-			</div>
+			if data.TotalCount > 0 {
+				<div class="glass-panel p-4 bg-surface-sunken">
+					@components.B2BPagination(components.PaginationProps{
+						CurrentPage:     data.Page,
+						PageSize:        data.Limit,
+						TotalCount:      data.TotalCount,
+						BaseURL:         "/compare/market-benchmark",
+						QueryValues:     benchmarkPaginationQueryValues(data),
+						PageSizeOptions: []int{10, 25, 50, 100},
+					})
+				</div>
+			}
 		}
 	</div>
 }
