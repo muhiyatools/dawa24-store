@@ -33,6 +33,8 @@ func (h *UIHandler) AdminMyTempWarehousesPage(w http.ResponseWriter, r *http.Req
 	filter := compare.AdminTempWarehouseFilter{
 		Search:    strings.TrimSpace(r.URL.Query().Get("q")),
 		OwnerOnly: &uid,
+		SortBy:    strings.TrimSpace(r.URL.Query().Get("sort")),
+		SortOrder: strings.TrimSpace(r.URL.Query().Get("order")),
 	}
 	if s := strings.TrimSpace(r.URL.Query().Get("status")); s != "" {
 		st := compare.CompareFileStatus(s)

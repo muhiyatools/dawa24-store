@@ -68,9 +68,20 @@ func (h *UIHandler) CompareStagingStatus(w http.ResponseWriter, r *http.Request)
 	// containing one id the caller does not own is refused whole rather than
 	// answered for the rest — a partial answer is a way of asking "does this id
 	// exist" and getting a reply.
+	// A platform admin uploads temp warehouses ON BEHALF of an organisation, so
+	// the file is not theirs by the ownership rule every other compare route
+	// uses. They may already read and edit these rows through the admin screens;
+	// refusing them a readiness check would only mean the admin panel could not
+	// tell when its own upload had finished.
+	isAdmin := actor.IsPlatformAdmin()
 	for _, id := range ids {
 		file, err := h.compareSvc.GetFile(ctx, id)
-		if err != nil || !h.checkFileOwnership(actor, file) {
+		if err != nil || file == nil {
+			w.WriteHeader(http.StatusNotFound)
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false})
+			return
+		}
+		if !isAdmin && !h.checkFileOwnership(actor, file) {
 			w.WriteHeader(http.StatusNotFound)
 			_ = json.NewEncoder(w).Encode(map[string]any{"success": false})
 			return

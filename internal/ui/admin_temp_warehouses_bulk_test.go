@@ -316,12 +316,13 @@ func TestAdminTempWarehouse_BulkUpload_65Files_HighSpeed(t *testing.T) {
 	}
 
 	var jsonResp struct {
-		Success         bool   `json:"success"`
-		TotalFiles      int    `json:"total_files"`
-		SuccessfulFiles int    `json:"successful_files"`
-		FailedFiles     int    `json:"failed_files"`
-		TotalItems      int64  `json:"total_items"`
-		Message         string `json:"message"`
+		Success         bool     `json:"success"`
+		TotalFiles      int      `json:"total_files"`
+		SuccessfulFiles int      `json:"successful_files"`
+		FailedFiles     int      `json:"failed_files"`
+		TotalItems      int64    `json:"total_items"`
+		UploadedIDs     []string `json:"uploaded_ids"`
+		Message         string   `json:"message"`
 	}
 
 	if err := json.Unmarshal(rec.Body.Bytes(), &jsonResp); err != nil {
@@ -340,9 +341,9 @@ func TestAdminTempWarehouse_BulkUpload_65Files_HighSpeed(t *testing.T) {
 	if jsonResp.FailedFiles != 0 {
 		t.Errorf("expected FailedFiles=0, got %d", jsonResp.FailedFiles)
 	}
-	if int(jsonResp.TotalItems) != expectedTotalItems {
-		t.Errorf("expected TotalItems=%d, got %d", expectedTotalItems, jsonResp.TotalItems)
-	}
+	// The rows arrive AFTER the response: the parse is detached. Sixty-five
+	// workbooks read inside the POST is what made this endpoint time out.
+	waitForTempWarehouseStaging(t, mockRepo, jsonResp.UploadedIDs)
 
 	// Verify in mock repository
 	files, _ := mockRepo.ListAllFiles(context.Background(), "", nil)

@@ -812,3 +812,31 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* --------------------------------------------------------------------------
+   Vendor Ads Wizard Modal - Sizing & Spacious Layout
+   -------------------------------------------------------------------------- */
+.vendor-ads-wizard-dialog {
+  min-height: 600px;
+  height: min(720px, 90dvh);
+  display: flex;
+  flex-direction: column;
+}
+
+.vendor-ads-wizard-dialog form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.vendor-ads-wizard-dialog .modal-body {
+  flex: 1 1 auto;
+  min-height: 440px;
+  overflow-y: auto;
+}
+
+.vendor-ads-wizard-dialog .combobox-list {
+  max-block-size: 20rem;
+}
+}

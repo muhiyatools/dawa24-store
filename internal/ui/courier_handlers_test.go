@@ -202,16 +202,19 @@ func (m *courierMockCommerceRepo) VerifyAndCompleteDelivery(
 func TestCourierDeliveryHandlers(t *testing.T) {
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
 	mockShipment := &commerce.OrderShipment{
-		ID:                  101,
-		OrderID:             505,
-		ShipmentNumber:      "SH-2026-001",
-		TrackingNumber:      "TRK-987654",
-		Status:              commerce.StatusShipped,
-		DeliveryCode:        "654321",
-		TotalAmount:         money.FromMinor(125000),
-		CustomerOrgName:     i18n.New("صيدلية النور الحديثة", "Al-Noor Modern Pharmacy"),
-		CustomerBranchName:  i18n.New("فرع المعادي", "Maadi Branch"),
-		CustomerBranchPhone: "01012345678",
+		ID:                      101,
+		OrderID:                 505,
+		ShipmentNumber:          "SH-2026-001",
+		TrackingNumber:          "TRK-987654",
+		Status:                  commerce.StatusShipped,
+		DeliveryCode:            "654321",
+		TotalAmount:             money.FromMinor(125000),
+		CustomerOrgName:         i18n.New("صيدلية النور الحديثة", "Al-Noor Modern Pharmacy"),
+		CustomerBranchName:      i18n.New("فرع المعادي", "Maadi Branch"),
+		CustomerBranchAddress:   "شارع النصر، أمام مستشفى المعادي، القاهرة",
+		CustomerBranchPhone:     "01012345678",
+		CustomerBranchLatitude:  func(f float64) *float64 { return &f }(29.9602),
+		CustomerBranchLongitude: func(f float64) *float64 { return &f }(31.2825),
 		Lines: []*commerce.OrderLine{
 			{
 				ID:          1,
@@ -219,6 +222,41 @@ func TestCourierDeliveryHandlers(t *testing.T) {
 				Quantity:    10,
 				UnitPrice:   money.FromMinor(4500),
 				TotalPrice:  money.FromMinor(45000),
+			},
+			{
+				ID:          2,
+				ProductName: i18n.New("أوجمنتين 1 جم 14 قرص", "Augmentin 1g 14 Tablets"),
+				Quantity:    5,
+				UnitPrice:   money.FromMinor(8500),
+				TotalPrice:  money.FromMinor(42500),
+			},
+			{
+				ID:          3,
+				ProductName: i18n.New("كونجستال 20 قرص", "Congestal 20 Tablets"),
+				Quantity:    8,
+				UnitPrice:   money.FromMinor(2500),
+				TotalPrice:  money.FromMinor(20000),
+			},
+			{
+				ID:          4,
+				ProductName: i18n.New("كاتافلام 50 مجم 20 قرص", "Cataflam 50mg 20 Tablets"),
+				Quantity:    12,
+				UnitPrice:   money.FromMinor(3300),
+				TotalPrice:  money.FromMinor(39600),
+			},
+			{
+				ID:          5,
+				ProductName: i18n.New("أوميبرازول 20 مجم 14 كبسولة", "Omeprazole 20mg 14 Caps"),
+				Quantity:    6,
+				UnitPrice:   money.FromMinor(4000),
+				TotalPrice:  money.FromMinor(24000),
+			},
+			{
+				ID:          6,
+				ProductName: i18n.New("فيتامين سي 1000 مجم 10 أقراص فوارة", "Vitamin C 1000mg 10 Eff"),
+				Quantity:    15,
+				UnitPrice:   money.FromMinor(2000),
+				TotalPrice:  money.FromMinor(30000),
 			},
 		},
 	}
@@ -266,6 +304,27 @@ func TestCourierDeliveryHandlers(t *testing.T) {
 		}
 		if !strings.Contains(body, "تأكيد تسليم الشحنة بالكود") {
 			t.Errorf("missing verification form in rendered page")
+		}
+		// Location & Map assertions
+		if !strings.Contains(body, "موقع GPS دقيق") {
+			t.Errorf("missing GPS exact location badge")
+		}
+		if !strings.Contains(body, "29.960200, 31.282500") {
+			t.Errorf("missing coordinates in rendered page")
+		}
+		if !strings.Contains(body, "https://www.google.com/maps/dir/?api=1&amp;destination=29.960200,31.282500") &&
+			!strings.Contains(body, "destination=29.960200,31.282500") {
+			t.Errorf("missing Google Maps GPS navigation link in rendered page")
+		}
+		if !strings.Contains(body, "courier-branch-map") {
+			t.Errorf("missing mini-map container in rendered page")
+		}
+		// Pagination & Total units assertions
+		if !strings.Contains(body, "إجمالي: 56 عبوة") {
+			t.Errorf("missing total units count (56 عبوة) in rendered page")
+		}
+		if !strings.Contains(body, "courier-pagination-bar") {
+			t.Errorf("missing courier pagination bar in rendered page for >5 items")
 		}
 	})
 

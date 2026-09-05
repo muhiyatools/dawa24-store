@@ -61,47 +61,53 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 									</div>
 								</div>
 
-								<div class="table-container m-0">
-									<table class="data-table m-0">
-										<thead>
-											<tr>
-												<th>الصنف الدوائي</th>
-												<th class="text-center">الكمية المطلوبة</th>
-												<th class="text-end">سعر الجمهور</th>
-												<th class="text-center">نسبة الخصم</th>
-												<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
-												<th class="text-center"></th>
-											</tr>
-										</thead>
-										<tbody>
-											for _, l := range sh.Lines {
-												@EditableOrderLineRow(order, l, lang)
-											}
-										</tbody>
-									</table>
+								<div x-data={ shipmentPaginationAlpineData(len(sh.Lines)) }>
+									<div class="table-container m-0">
+										<table class="data-table m-0">
+											<thead>
+												<tr>
+													<th>الصنف الدوائي</th>
+													<th class="text-center">الكمية المطلوبة</th>
+													<th class="text-end">سعر الجمهور</th>
+													<th class="text-center">نسبة الخصم</th>
+													<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
+													<th class="text-center"></th>
+												</tr>
+											</thead>
+											<tbody>
+												for idx, l := range sh.Lines {
+													@EditableOrderLineRow(order, l, lang, idx)
+												}
+											</tbody>
+										</table>
+									</div>
+									@ShipmentLinesPagination(len(sh.Lines))
 								</div>
 							</div>
 						}
 					</div>
 				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
-							<thead>
-								<tr>
-									<th>الصنف الدوائي</th>
-									<th class="text-center">الكمية المطلوبة</th>
-									<th class="text-end">سعر الجمهور</th>
-									<th class="text-center">نسبة الخصم</th>
-									<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
-									<th class="text-center"></th>
-								</tr>
-							</thead>
-							<tbody>
-								for _, l := range order.Lines {
-									@EditableOrderLineRow(order, l, lang)
-								}
-							</tbody>
-						</table>
+					<div x-data={ shipmentPaginationAlpineData(len(order.Lines)) }>
+						<div class="table-container m-0">
+							<table class="data-table m-0">
+								<thead>
+									<tr>
+										<th>الصنف الدوائي</th>
+										<th class="text-center">الكمية المطلوبة</th>
+										<th class="text-end">سعر الجمهور</th>
+										<th class="text-center">نسبة الخصم</th>
+										<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
+										<th class="text-center"></th>
+									</tr>
+								</thead>
+								<tbody>
+									for idx, l := range order.Lines {
+										@EditableOrderLineRow(order, l, lang, idx)
+									}
+								</tbody>
+							</table>
+						</div>
+						@ShipmentLinesPagination(len(order.Lines))
 					</div>
 				}
 
@@ -148,54 +154,60 @@ templ CustomerOrderLines(order *commerce.Order, lang string, reviews map[int64]*
 									}
 								</div>
 							</div>
-							<div class="table-container m-0">
-								<table class="data-table m-0">
-									<thead>
-										<tr>
-											<th>الصنف الدوائي</th>
-											<th class="text-center">الكمية</th>
-											<th class="text-end">سعر الجمهور</th>
-											<th class="text-center">نسبة الخصم</th>
-											<th class="text-end">سعر التوريد</th>
-											<th class="text-end">الإجمالي</th>
-										</tr>
-									</thead>
-									<tbody>
-										for _, l := range sh.Lines {
-											@ReadOnlyOrderLineRow(order, l, lang)
-										}
-									</tbody>
-								</table>
+							<div x-data={ shipmentPaginationAlpineData(len(sh.Lines)) }>
+								<div class="table-container m-0">
+									<table class="data-table m-0">
+										<thead>
+											<tr>
+												<th>الصنف الدوائي</th>
+												<th class="text-center">الكمية</th>
+												<th class="text-end">سعر الجمهور</th>
+												<th class="text-center">نسبة الخصم</th>
+												<th class="text-end">سعر التوريد</th>
+												<th class="text-end">الإجمالي</th>
+											</tr>
+										</thead>
+										<tbody>
+											for lIdx, l := range sh.Lines {
+												@ReadOnlyOrderLineRow(order, l, lang, lIdx)
+											}
+										</tbody>
+									</table>
+								</div>
+								@ShipmentLinesPagination(len(sh.Lines))
 							</div>
 						</div>
 					}
 				</div>
 			} else {
-				<div class="table-container m-0">
-					<table class="data-table m-0">
-						<thead>
-							<tr>
-								<th>الصنف الدوائي</th>
-								<th class="text-center">الكمية</th>
-								<th class="text-end">سعر الجمهور</th>
-								<th class="text-center">نسبة الخصم</th>
-								<th class="text-end">سعر التوريد</th>
-								<th class="text-end">الإجمالي</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, l := range order.Lines {
-								@ReadOnlyOrderLineRow(order, l, lang)
-							}
-						</tbody>
-					</table>
+				<div x-data={ shipmentPaginationAlpineData(len(order.Lines)) }>
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>الصنف الدوائي</th>
+									<th class="text-center">الكمية</th>
+									<th class="text-end">سعر الجمهور</th>
+									<th class="text-center">نسبة الخصم</th>
+									<th class="text-end">سعر التوريد</th>
+									<th class="text-end">الإجمالي</th>
+								</tr>
+							</thead>
+							<tbody>
+								for lIdx, l := range order.Lines {
+									@ReadOnlyOrderLineRow(order, l, lang, lIdx)
+								}
+							</tbody>
+						</table>
+					</div>
+					@ShipmentLinesPagination(len(order.Lines))
 				</div>
 			}
 		}
 	</div>
 }
 
-templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string) {
+templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string, rowIdx int) {
 	<tr
 		class="order-table-row"
 		data-line-id={ fmt.Sprintf("%d", l.ID) }
@@ -204,6 +216,7 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 		data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
 		data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }
 		data-available-stock={ fmt.Sprintf("%d", l.AvailableStock) }
+		x-show={ fmt.Sprintf("pageSize === -1 || (%d >= (page - 1) * pageSize && %d < page * pageSize)", rowIdx, rowIdx) }
 	>
 		<td>
 			if isOrderLineAnOffer(l) {
@@ -287,8 +300,8 @@ templ EditableOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 	</tr>
 }
 
-templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string) {
-	<tr>
+templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang string, rowIdx int) {
+	<tr x-show={ fmt.Sprintf("pageSize === -1 || (%d >= (page - 1) * pageSize && %d < page * pageSize)", rowIdx, rowIdx) }>
 		<td>
 			if isOrderLineAnOffer(l) {
 				<button
@@ -336,7 +349,7 @@ templ ReadOnlyOrderLineRow(order *commerce.Order, l *commerce.OrderLine, lang st
 			}
 		</td>
 		<td class="text-end tabular-nums text-xs text-secondary font-bold">
-			{ l.UnitPrice.String() } ج.م
+			{ lineSupplyPrice(l).String() } ج.م
 		</td>
 		<td class="text-end tabular-nums font-black text-brand text-xs">
 			{ l.TotalPrice.String() } ج.م

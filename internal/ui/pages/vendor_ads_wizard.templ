@@ -40,7 +40,7 @@ templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
 		</button>
 
 		<div x-show="isOpen" x-cloak class="modal-backdrop" @keydown.escape.window="close()">
-			<div class="modal-dialog modal-xl text-start" @click.outside="close()" role="dialog" aria-modal="true">
+			<div class="modal-dialog modal-xl vendor-ads-wizard-dialog text-start" @click.outside="close()" role="dialog" aria-modal="true">
 				<div class="modal-header">
 					<div class="d-flex items-center gap-3 min-w-0">
 						<div class="user-avatar-badge">
@@ -104,7 +104,7 @@ templ adsWizardSteps() {
 }
 
 templ adsWizardStepProduct() {
-	<div x-show="step === 1" class="d-flex flex-col gap-4 min-h-[280px]">
+	<div x-show="step === 1" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5">
 			@components.IconInfo("icon-xs flex-shrink-0")
 			<span>يُشترط ربط الإعلان بصنف متوفر لديك في المخزون حالياً، حتى تتمكن من تلبية الطلبات الواردة عليه فوراً.</span>
@@ -143,7 +143,7 @@ templ adsWizardStepProduct() {
 }
 
 templ adsWizardStepPlacement() {
-	<div x-show="step === 2" class="d-flex flex-col gap-4">
+	<div x-show="step === 2" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="stack-2xs">
 			<span class="form-label text-xs font-bold text-primary d-block">حدد موضع ظهور الإعلان *</span>
 			<p class="text-xs text-secondary m-0">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p>
@@ -187,7 +187,7 @@ templ adsWizardStepPlacement() {
 }
 
 templ adsWizardStepCreative() {
-	<div x-show="step === 3" class="d-flex flex-col gap-4">
+	<div x-show="step === 3" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="wiz-dropzone">
 			<template x-if="!mediaPreview">
 				<div class="d-flex flex-col items-center gap-2 text-center">
@@ -231,7 +231,7 @@ templ adsWizardStepCreative() {
 }
 
 templ adsWizardStepReview() {
-	<div x-show="step === 4" class="d-flex flex-col gap-4">
+	<div x-show="step === 4" class="d-flex flex-col gap-4 min-h-[380px] flex-1">
 		<div class="wiz-credits">
 			<div class="flex-between items-center flex-wrap gap-2 pb-2 border-b">
 				<span class="d-flex items-center gap-2 font-black text-xs text-primary">

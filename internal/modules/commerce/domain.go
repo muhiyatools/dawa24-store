@@ -1,6 +1,9 @@
 package commerce
 
 import (
+	"fmt"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -160,10 +163,51 @@ type OrderShipment struct {
 	CustomerBranchName    i18n.Text     `json:"customer_branch_name,omitempty"`
 	CustomerBranchAddress string        `json:"customer_branch_address,omitempty"`
 	CustomerBranchPhone   string        `json:"customer_branch_phone,omitempty"`
-	CustomerManagerName   string        `json:"customer_manager_name,omitempty"`
-	PaymentMethod         string        `json:"payment_method,omitempty"`
-	PaymentStatus         PaymentStatus `json:"payment_status,omitempty"`
-	Notes                 string        `json:"notes,omitempty"`
+	CustomerManagerName         string        `json:"customer_manager_name,omitempty"`
+	CustomerBranchLatitude      *float64      `json:"customer_branch_latitude,omitempty"`
+	CustomerBranchLongitude     *float64      `json:"customer_branch_longitude,omitempty"`
+	CustomerBranchGoogleMapsURL string        `json:"customer_branch_google_maps_url,omitempty"`
+	PaymentMethod               string        `json:"payment_method,omitempty"`
+	PaymentStatus               PaymentStatus `json:"payment_status,omitempty"`
+	Notes                       string        `json:"notes,omitempty"`
+}
+
+// BranchLocationURL returns the most accurate Google Maps navigation or directions link for the branch.
+func (s *OrderShipment) BranchLocationURL() string {
+	if s == nil {
+		return ""
+	}
+	if s.CustomerBranchLatitude != nil && s.CustomerBranchLongitude != nil &&
+		(*s.CustomerBranchLatitude != 0 || *s.CustomerBranchLongitude != 0) {
+		return fmt.Sprintf("https://www.google.com/maps/dir/?api=1&destination=%.6f,%.6f", *s.CustomerBranchLatitude, *s.CustomerBranchLongitude)
+	}
+	if trimmed := strings.TrimSpace(s.CustomerBranchGoogleMapsURL); trimmed != "" {
+		return trimmed
+	}
+	if trimmedAddr := strings.TrimSpace(s.CustomerBranchAddress); trimmedAddr != "" {
+		return "https://www.google.com/maps/search/?api=1&query=" + url.QueryEscape(trimmedAddr)
+	}
+	return ""
+}
+
+// HasExactCoordinates reports whether the shipment recipient branch has valid GPS coordinates.
+func (s *OrderShipment) HasExactCoordinates() bool {
+	return s != nil && s.CustomerBranchLatitude != nil && s.CustomerBranchLongitude != nil &&
+		(*s.CustomerBranchLatitude != 0 || *s.CustomerBranchLongitude != 0)
+}
+
+// TotalUnitsCount returns the total quantity sum of all order lines in the shipment.
+func (s *OrderShipment) TotalUnitsCount() int {
+	if s == nil {
+		return 0
+	}
+	total := 0
+	for _, l := range s.Lines {
+		if l != nil {
+			total += l.Quantity
+		}
+	}
+	return total
 }
 
 // OrderLine is an immutable snapshot of a product variant purchased in an order.

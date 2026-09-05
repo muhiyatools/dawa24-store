@@ -36,8 +36,10 @@ func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Reque
 	lang, dir := h.localeAndDir(r)
 
 	filter := compare.AdminTempWarehouseFilter{
-		Search: strings.TrimSpace(r.URL.Query().Get("q")),
-		Source: strings.TrimSpace(r.URL.Query().Get("type")),
+		Search:    strings.TrimSpace(r.URL.Query().Get("q")),
+		Source:    strings.TrimSpace(r.URL.Query().Get("type")),
+		SortBy:    strings.TrimSpace(r.URL.Query().Get("sort")),
+		SortOrder: strings.TrimSpace(r.URL.Query().Get("order")),
 	}
 	if s := strings.TrimSpace(r.URL.Query().Get("status")); s != "" {
 		st := compare.CompareFileStatus(s)
@@ -137,6 +139,8 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 		StatusFilter:   statusFilterString(filter.Status),
 		SourceFilter:   filter.Source,
 		UploaderFilter: uploaderFilter,
+		SortBy:         filter.SortBy,
+		SortOrder:      filter.SortOrder,
 		MineOnly:       mineOnly,
 		Page:           page,
 		PerPage:        limit,

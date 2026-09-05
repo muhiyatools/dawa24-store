@@ -166,4 +166,3 @@ func TestCustomerSavingProductsPageImportRoute(t *testing.T) {
 		t.Fatalf("expected 200 OK for /customer/saving-products/import, got %d", rrImport.Code)
 	}
 }
-

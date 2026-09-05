@@ -104,7 +104,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">العروض وباقات الموردين الخاصة</h1><p class=\"text-sm text-secondary m-0 mt-1\">مراجعة واعتماد عروض وباقات الأدوية المجمعة المقدمة من الموردين، وإدارة التغطية الجغرافية وأسعار الباقات</p></div></div></div></div><!-- KPI Summary Strip --><div class=\"d-grid grid-auto-fit-sm gap-4 mb-6\"><div class=\"glass-panel p-4 mb-0 border-s-4 border-s-accent\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي الباقات والعروض</span> <span class=\"text-accent\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">العروض وباقات الموردين الخاصة</h1><p class=\"text-sm text-secondary m-0 mt-1\">مراجعة واعتماد عروض وباقات الأدوية المجمعة المقدمة من الموردين، وإدارة التغطية الجغرافية وأسعار الباقات</p></div></div></div></div><!-- KPI Summary Strip --><div class=\"d-grid grid-auto-fit-sm gap-4 mb-6\"><div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي الباقات والعروض</span> <span class=\"text-accent\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -125,7 +125,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><div class=\"glass-panel p-4 mb-0 border-s-4 border-s-emerald-500\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">العروض المعتمدة والنشطة</span> <span class=\"text-emerald\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">العروض المعتمدة والنشطة</span> <span class=\"text-emerald\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -146,7 +146,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div><div class=\"glass-panel p-4 mb-0 border-s-4 border-s-amber-500\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">بانتظار المراجعة والاعتماد</span> <span class=\"text-amber-500\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div><div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">بانتظار المراجعة والاعتماد</span> <span class=\"text-amber-500\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -167,7 +167,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"glass-panel p-4 mb-0 border-s-4 border-s-cyan-500\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">عروض ذات تغطية جغرافية</span> <span class=\"text-cyan\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><div class=\"glass-panel p-4 mb-0\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">عروض ذات تغطية جغرافية</span> <span class=\"text-cyan\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

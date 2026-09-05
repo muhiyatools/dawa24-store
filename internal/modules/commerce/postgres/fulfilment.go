@@ -241,12 +241,20 @@ func (r *Repository) GetShipmentForDeliveryByTracking(ctx context.Context, track
 			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
 			       COALESCE(b.address, '') AS branch_address,
 			       COALESCE(b.phone, '') AS branch_phone,
-			       COALESCE(b.manager_name, '') AS manager_name
+			       COALESCE(b.manager_name, '') AS manager_name,
+			       COALESCE(b.latitude, city.latitude) AS branch_latitude,
+			       COALESCE(b.longitude, city.longitude) AS branch_longitude,
+			       COALESCE(b.google_maps_url, '') AS branch_google_maps_url
 			FROM commerce.order_shipments s
 			JOIN commerce.orders ord ON ord.id = s.order_id
 			LEFT JOIN org.organizations vendor_org ON vendor_org.id = s.organization_id
 			LEFT JOIN org.organizations cust_org ON cust_org.id = ord.organization_id
-			LEFT JOIN org.branches b ON b.id = ord.branch_id
+			LEFT JOIN org.branches b ON b.id = COALESCE(
+				ord.branch_id,
+				(SELECT mb.id FROM org.branches mb WHERE mb.organization_id = ord.organization_id AND mb.is_main = true AND mb.deleted_at IS NULL LIMIT 1),
+				(SELECT mb.id FROM org.branches mb WHERE mb.organization_id = ord.organization_id AND mb.deleted_at IS NULL ORDER BY mb.id ASC LIMIT 1)
+			)
+			LEFT JOIN platform_admin.cities city ON city.id = b.city_id
 			WHERE LOWER(TRIM(s.tracking_number)) = LOWER(TRIM($1))
 			   OR LOWER(TRIM(s.shipment_number)) = LOWER(TRIM($1))
 			   OR LOWER(s.public_id::text) = LOWER(TRIM($1))
@@ -263,6 +271,7 @@ func (r *Repository) GetShipmentForDeliveryByTracking(ctx context.Context, track
 			&s.OrderNumber, &s.PaymentMethod, &payStatusStr, &s.Notes,
 			&s.VendorName, &s.CustomerOrgName, &s.CustomerBranchName, &s.CustomerBranchAddress,
 			&s.CustomerBranchPhone, &s.CustomerManagerName,
+			&s.CustomerBranchLatitude, &s.CustomerBranchLongitude, &s.CustomerBranchGoogleMapsURL,
 		)
 		if err != nil {
 			return err

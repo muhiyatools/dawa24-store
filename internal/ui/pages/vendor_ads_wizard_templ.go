@@ -78,7 +78,7 @@ func VendorAdsWizardModal(data VendorAdsData, lang, dir string) templ.Component 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان جديد</span></button><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"close()\"><div class=\"modal-dialog modal-xl text-start\" @click.outside=\"close()\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إنشاء إعلان جديد</span></button><div x-show=\"isOpen\" x-cloak class=\"modal-backdrop\" @keydown.escape.window=\"close()\"><div class=\"modal-dialog modal-xl vendor-ads-wizard-dialog text-start\" @click.outside=\"close()\" role=\"dialog\" aria-modal=\"true\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-3 min-w-0\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -193,7 +193,7 @@ func adsWizardStepProduct() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div x-show=\"step === 1\" class=\"d-flex flex-col gap-4 min-h-[280px]\"><div class=\"alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div x-show=\"step === 1\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"alert alert-info text-xs font-semibold m-0 d-flex items-center gap-2.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -262,7 +262,7 @@ func adsWizardStepPlacement() templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div x-show=\"step === 2\" class=\"d-flex flex-col gap-4\"><div class=\"stack-2xs\"><span class=\"form-label text-xs font-bold text-primary d-block\">حدد موضع ظهور الإعلان *</span><p class=\"text-xs text-secondary m-0\">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p></div><div class=\"d-grid grid-auto-fit-sm gap-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div x-show=\"step === 2\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"stack-2xs\"><span class=\"form-label text-xs font-bold text-primary d-block\">حدد موضع ظهور الإعلان *</span><p class=\"text-xs text-secondary m-0\">اختر الموقع المستهدف لعرض البنر أمام الصيدليات.</p></div><div class=\"d-grid grid-auto-fit-sm gap-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -366,7 +366,7 @@ func adsWizardStepCreative() templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div x-show=\"step === 3\" class=\"d-flex flex-col gap-4\"><div class=\"wiz-dropzone\"><template x-if=\"!mediaPreview\"><div class=\"d-flex flex-col items-center gap-2 text-center\"><div class=\"user-avatar-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div x-show=\"step === 3\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"wiz-dropzone\"><template x-if=\"!mediaPreview\"><div class=\"d-flex flex-col items-center gap-2 text-center\"><div class=\"user-avatar-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -403,7 +403,7 @@ func adsWizardStepReview() templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div x-show=\"step === 4\" class=\"d-flex flex-col gap-4\"><div class=\"wiz-credits\"><div class=\"flex-between items-center flex-wrap gap-2 pb-2 border-b\"><span class=\"d-flex items-center gap-2 font-black text-xs text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div x-show=\"step === 4\" class=\"d-flex flex-col gap-4 min-h-[380px] flex-1\"><div class=\"wiz-credits\"><div class=\"flex-between items-center flex-wrap gap-2 pb-2 border-b\"><span class=\"d-flex items-center gap-2 font-black text-xs text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

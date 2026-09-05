@@ -1048,20 +1048,22 @@
 .product-grid-wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 1.15rem;
+  gap: 1.5rem 1.15rem;
+  padding-top: 0.75rem;
   margin-bottom: 1.5rem;
 }
 
 @media (max-width: 640px) {
   .product-grid-wrapper {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: 1.25rem 0.75rem;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .product-grid-wrapper {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 }
 
@@ -1087,45 +1089,50 @@
 }
 
 .product-card-glass.is-sponsored {
-  border-color: rgba(245, 158, 11, 0.45);
-  box-shadow: 0 2px 14px rgba(245, 158, 11, 0.1);
+  border-color: #f59e0b;
+  box-shadow: 0 2px 14px rgba(245, 158, 11, 0.15);
+  position: relative;
+  margin-top: 1.25rem;
+  overflow: visible;
 }
 
 .product-card-glass.is-sponsored:hover {
   transform: translateY(-2px);
-  border-color: rgba(245, 158, 11, 0.75);
-  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.18);
+  border-color: #d97706;
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.25);
 }
 
 .product-card-sponsored-bar {
-  background: linear-gradient(90deg, #b45309 0%, #d97706 40%, #f59e0b 100%);
-  color: #ffffff;
-  padding: 6px 14px;
-  display: flex;
+  position: absolute;
+  top: -24px;
+  inset-inline-start: 14px;
+  height: 24px;
+  background: #f59e0b;
+  color: #1e293b;
+  padding: 0 12px;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 0.75rem;
+  gap: 5px;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-  border-bottom: 1px solid rgba(245, 158, 11, 0.35);
-  flex-shrink: 0;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid rgba(245, 158, 11, 0.85);
+  border-bottom: none;
+  box-shadow: 0 -2px 6px rgba(245, 158, 11, 0.2);
+  z-index: 3;
+}
+
+.product-card-sponsored-bar .sponsored-star {
+  color: #78350f;
+  font-size: 0.75rem;
+  line-height: 1;
 }
 
 .product-card-sponsored-bar .sponsored-title {
-  color: #ffffff;
+  color: #1e293b;
   font-weight: 900;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  font-size: 0.75rem;
-}
-
-.product-card-sponsored-bar .sponsored-tier-tag {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #fffbeb;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 1.5px 8px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.72rem;
 }
 
 .product-card-body {

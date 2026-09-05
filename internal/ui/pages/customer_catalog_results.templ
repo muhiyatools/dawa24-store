@@ -33,21 +33,6 @@ templ CustomerCatalogResults(data CatalogPageData, lang string) {
 	}
 }
 
-func getSponsoredTierLabel(tier int) string {
-	switch tier {
-	case 5:
-		return "باقة ماسية"
-	case 4:
-		return "باقة بلاتينية"
-	case 3:
-		return "باقة ذهبية"
-	case 2:
-		return "باقة فضية"
-	default:
-		return "إعلان ممول"
-	}
-}
-
 templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 	<div class="product-grid-wrapper mb-6">
 		for _, v := range variants {
@@ -57,13 +42,8 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 			>
 				if v.IsSponsored {
 					<div class="product-card-sponsored-bar">
-						<div class="d-flex items-center gap-1.5">
-							<span class="sponsored-star">★</span>
-							<span class="sponsored-title">إعلان ممول</span>
-						</div>
-						if v.SponsoredTier > 0 {
-							<span class="sponsored-tier-tag">{ getSponsoredTierLabel(v.SponsoredTier) }</span>
-						}
+						<span class="sponsored-star">★</span>
+						<span class="sponsored-title">إعلان ممول</span>
 					</div>
 				}
 

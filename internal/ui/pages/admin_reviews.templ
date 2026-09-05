@@ -49,48 +49,77 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 
 			<!-- KPI Summary Stats -->
 			if data.Stats != nil {
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-					<div class="glass-panel p-4 text-center">
-						<div class="text-xs font-bold text-secondary mb-1">إجمالي التقييمات</div>
-						<div class="text-2xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalReviews) }</div>
-						<div class="text-2xs text-secondary mt-1">
-							<span class="text-emerald font-bold">{ fmt.Sprintf("%d معتمد", data.Stats.ApprovedCount) }</span>
-							<span class="mx-1">•</span>
-							<span class="text-amber font-bold">{ fmt.Sprintf("%d قيد التدقيق", data.Stats.PendingCount) }</span>
+				<div class="dashboard-stat-grid cols-4 mb-6">
+					<div class="glass-panel p-4 text-center d-flex flex-col justify-between hover-lift">
+						<div>
+							<div class="d-flex items-center justify-between gap-2 mb-2">
+								<span class="text-xs font-bold text-muted">إجمالي التقييمات</span>
+								<span class="badge badge-sky text-2xs font-bold">@components.IconBuilding("icon-xs")</span>
+							</div>
+							<div class="text-3xl font-black text-primary tabular-nums tracking-tight mb-2">
+								{ fmt.Sprintf("%d", data.Stats.TotalReviews) }
+							</div>
+						</div>
+						<div class="d-flex items-center justify-center gap-1.5 pt-2 border-t text-2xs">
+							<span class="badge badge-emerald text-2xs font-bold">{ fmt.Sprintf("%d معتمد", data.Stats.ApprovedCount) }</span>
+							<span class="text-muted">•</span>
+							<span class="badge badge-amber text-2xs font-bold">{ fmt.Sprintf("%d قيد التدقيق", data.Stats.PendingCount) }</span>
 						</div>
 					</div>
 
-					<div class="glass-panel p-4 text-center">
-						<div class="text-xs font-bold text-secondary mb-1">متوسط التقييم العام</div>
-						<div class="text-2xl font-black text-amber tabular-nums d-flex items-center justify-center gap-1">
-							<span>★</span>
-							<span>{ fmt.Sprintf("%.1f", data.Stats.AverageRating) }</span>
-							<span class="text-xs text-secondary font-normal">/ 5.0</span>
+					<div class="glass-panel p-4 text-center d-flex flex-col justify-between hover-lift">
+						<div>
+							<div class="d-flex items-center justify-between gap-2 mb-2">
+								<span class="text-xs font-bold text-muted">متوسط التقييم العام</span>
+								<span class="badge badge-amber text-2xs font-bold">★</span>
+							</div>
+							<div class="text-3xl font-black text-amber tabular-nums d-flex items-center justify-center gap-1.5 mb-1">
+								<span>★</span>
+								<span>{ fmt.Sprintf("%.1f", data.Stats.AverageRating) }</span>
+								<span class="text-xs text-muted font-normal">/ 5.0</span>
+							</div>
 						</div>
-						<div class="d-flex justify-center mt-1">
+						<div class="d-flex justify-center items-center pt-2 border-t">
 							@components.RatingStars(data.Stats.AverageRating, 0)
 						</div>
 					</div>
 
-					<div class="glass-panel p-4 text-center">
-						<div class="text-xs font-bold text-secondary mb-1">معايير التقييم (المندوب والجودة)</div>
-						<div class="d-flex justify-around items-center mt-2">
-							<div class="stack-xs">
-								<div class="text-xs text-secondary">المندوب</div>
-								<div class="font-black text-primary text-sm tabular-nums">{ fmt.Sprintf("%.1f", data.Stats.AvgScoreRep) }/5</div>
+					<div class="glass-panel p-4 text-center d-flex flex-col justify-between hover-lift">
+						<div>
+							<div class="d-flex items-center justify-between gap-2 mb-2">
+								<span class="text-xs font-bold text-muted">معايير الأداء والخدمة</span>
+								<span class="badge badge-slate text-2xs font-bold">مؤشرات</span>
 							</div>
-							<div class="border-r h-6"></div>
-							<div class="stack-xs">
-								<div class="text-xs text-secondary">الخدمة</div>
-								<div class="font-black text-primary text-sm tabular-nums">{ fmt.Sprintf("%.1f", data.Stats.AvgScoreQual) }/5</div>
+							<div class="d-grid grid-cols-2 gap-2 mt-1">
+								<div class="bg-surface-sunken p-2 rounded-lg text-center">
+									<div class="text-2xs text-muted mb-0.5">المندوب</div>
+									<div class="font-black text-primary text-sm tabular-nums">{ fmt.Sprintf("%.1f", data.Stats.AvgScoreRep) }/5</div>
+								</div>
+								<div class="bg-surface-sunken p-2 rounded-lg text-center">
+									<div class="text-2xs text-muted mb-0.5">الخدمة</div>
+									<div class="font-black text-primary text-sm tabular-nums">{ fmt.Sprintf("%.1f", data.Stats.AvgScoreQual) }/5</div>
+								</div>
 							</div>
+						</div>
+						<div class="text-2xs text-muted pt-2 border-t">
+							تقييم المندوب وجودة الخدمة
 						</div>
 					</div>
 
-					<div class="glass-panel p-4 text-center">
-						<div class="text-xs font-bold text-secondary mb-1">سرعة التوريد والتسليم</div>
-						<div class="text-2xl font-black text-emerald tabular-nums">{ fmt.Sprintf("%.1f", data.Stats.AvgScoreSpeed) } <span class="text-xs text-secondary font-normal">/ 5.0</span></div>
-						<div class="text-2xs text-secondary mt-1">معدل التزام مواعيد التوصيل</div>
+					<div class="glass-panel p-4 text-center d-flex flex-col justify-between hover-lift">
+						<div>
+							<div class="d-flex items-center justify-between gap-2 mb-2">
+								<span class="text-xs font-bold text-muted">سرعة التوريد والتسليم</span>
+								<span class="badge badge-emerald text-2xs font-bold">⚡</span>
+							</div>
+							<div class="text-3xl font-black text-emerald tabular-nums mb-1">
+								{ fmt.Sprintf("%.1f", data.Stats.AvgScoreSpeed) }
+								<span class="text-xs text-muted font-normal">/ 5.0</span>
+							</div>
+						</div>
+						<div class="text-2xs text-muted pt-2 border-t d-flex items-center justify-center gap-1">
+							<span class="badge badge-emerald text-2xs font-bold">الالتزام بالمواعيد</span>
+						</div>
 					</div>
 				</div>
 			}
@@ -151,7 +180,7 @@ templ AdminReviewsPage(data AdminReviewsPageData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container">
-						<table class="data-table">
+						<table class="data-table table-compact">
 							<thead>
 								<tr>
 									<th>المورد المُقيَّم</th>

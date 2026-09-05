@@ -526,3 +526,73 @@ fence is needed — removing the actual listener still passed. It now strips
 comments and matches the listener call itself, and was verified to fail on the
 real bug.
 
+---
+
+## Fourth pass — the two systems that were still fully synchronous
+
+Reported: the saving-products import spins the browser tab with no progress, and
+nothing had changed. Both true, for two separate reasons.
+
+### 1. Nothing was deployed
+
+Every change in this document is **uncommitted, on the local machine**. The
+deployed instance has none of it. That should have been the first line of the
+previous three reports rather than the last.
+
+### 2. Saving products did all its work inside the POST
+
+`/vendor/saving-products/import/{id}/map` and its pharmacy twin — the mapping
+step, the one in the screenshot — did the ENTIRE job synchronously:
+
+- `catSvc.ListMatchProducts` loaded the whole catalogue (up to 150k products)
+- built a match index over it
+- scored **every row** of the file against that index
+- then ran the AI stage over the residue
+
+with the browser holding the connection and nothing on screen. There was no
+progress UI on this path at all — the bar existed only on the separate JSON
+`/import/start` flow. And the route is not in `httpx.longRunningPrefixes`, so
+the request deadline cut it off before it could finish.
+
+Both handlers now call `startSavingImportRun`, which already existed and does
+the right thing: a durable `platform.import_runs` row, an in-memory session
+mirrored from it, and a goroutine that outlives the request. The wizard
+redirects onto the run's id and renders a new `savingProcessingStage` that
+streams progress through `/imports/{id}/stream` like every other tool.
+
+### 3. Temp warehouses parsed every file inside the POST
+
+`AdminTempWarehouseUploadSubmit` was written for "60-100+ files in parallel" and
+read, parsed and inserted all of them in the request, sixteen at a time, then
+waited on the lot. Split into `registerTempWarehouseFile` (in-request: read,
+validate, write to disk, create the row as `FileProcessing`) and
+`stageTempWarehouseFile` (detached: parse, detect columns, insert rows), with a
+**bounded pool of four** — sixteen parsers against a twenty-connection pool is
+how a bulk upload takes the rest of the site down. The admin screen polls
+`/admin/user/temparte-warehouses/staging` for real per-file progress instead of
+animating a fake 35→85→100, and the mapping wizard waits for the columns to
+exist before opening. The org-import path had the same defect and now shares the
+same code; the old synchronous implementation is deleted.
+
+Both bulk tests (65 and 100 files) now wait for the detached parse and pass.
+
+### Two real bugs found doing it
+
+- **`resolveStoragePath` ignored the configured upload directory.** It searched
+  the `UploadBaseDir` constant while `saveUploadedBytes` writes to
+  `GetUploadBaseDir()`, which honours `UPLOAD_DIR`/`DATA_DIR`. On any deployment
+  setting either, a file that had just been written was reported missing — which
+  the detached staging pass depends on. Caught by the 100-file test failing on
+  one file; fixed by searching the configured directory first.
+- **`temp_warehouses` was not an allowed upload category**, so `sanitizeCategory`
+  silently rewrote it to `products` and the warehouse files landed among the
+  product images. Nothing broke because the path resolver tried the storage key
+  first, so nobody noticed.
+
+### Concurrent edits
+
+`internal/modules/promo`, `internal/modules/commerce` and several
+`internal/ui/pages` files changed under me repeatedly during this session, twice
+leaving the tree unbuildable for minutes at a time. Another session or watcher
+is editing this working tree. Nothing in those files is mine.
+

@@ -58,118 +58,35 @@ func (h *UIHandler) CustomerSavingProductsImportMapSubmit(w http.ResponseWriter,
 		}
 	}
 
-	var matchEngine *SavingProductMatchEngine
-	if h.catSvc != nil {
-		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
-			matchEngine = NewSavingProductMatchEngine(catalogSources)
-		}
-	}
-
-	stagedItems := make([]*StagedSavingItem, 0, len(session.RawDataRows))
-	matchedCount := 0
-	unlinkedCount := 0
-	var totalQty float64
-	var totalValMinor int64
-
-	for _, row := range session.RawDataRows {
-		if len(row) == 0 || IsAllEmptyRow(row) || IsSummaryOrTotalRow(row) {
-			continue
-		}
-
-		var name string
-		if nCol >= 0 && nCol < len(row) {
-			name = strings.TrimSpace(row[nCol])
-		}
-		var sku string
-		if sCol >= 0 && sCol < len(row) {
-			sku = strings.TrimSpace(row[sCol])
-		}
-
-		if isAllDigitsOrCode(name) && len(name) >= 4 && isDescriptiveArabicText(sku) {
-			name, sku = sku, name
-		}
-		if name == "" && sku != "" {
-			name = sku
-		}
-		if name == "" {
-			continue
-		}
-
-		var qty float64 = 1.0
-		if qCol >= 0 && qCol < len(row) {
-			if parsedQ, ok := ParseFlexibleQuantity(row[qCol]); ok && parsedQ > 0 {
-				qty = parsedQ
-			}
-		}
-
-		var price money.Amount
-		if pCol >= 0 && pCol < len(row) {
-			price, _ = ParseFlexibleMoney(row[pCol])
-		}
-
-		var productID *int64
-		matchType := "unlinked"
-		confidence := 0.0
-		masterName := ""
-		masterSKU := ""
-
-		if matchEngine != nil {
-			res := matchEngine.MatchUnified(matchChoice, nil, sku, name)
-			if res.ProductID != nil {
-				productID = res.ProductID
-				matchType = res.MatchType
-				confidence = res.Confidence
-				masterName, masterSKU = matchEngine.Describe(*productID)
-			}
-		}
-
-		if productID != nil {
-			matchedCount++
-		} else {
-			unlinkedCount++
-		}
-
-		rowTotalMinor := int64(qty * float64(price.Minor()))
-		totalQty += qty
-		totalValMinor += rowTotalMinor
-
-		stagedItems = append(stagedItems, &StagedSavingItem{
-			Index:             len(stagedItems) + 1,
-			NameProduct:       name,
-			SKU:               sku,
-			Quantity:          qty,
-			Price:             price,
-			TotalValue:        money.FromMinor(rowTotalMinor),
-			ProductID:         productID,
-			MasterProductName: masterName,
-			MasterProductSKU:  masterSKU,
-			MatchType:         matchType,
-			Confidence:        confidence,
-			Included:          true,
-		})
-	}
-
-	// The residue goes to the shared AI stage — the same prompt, the same
-	// ceilings and the same decision cache the vendor import and the smart order
-	// use. A row it cannot verify against the catalogue's own record keeps the
-	// deterministic outcome, and the whole stage is a no-op when the Gateway is
-	// unwired.
-	if n := h.enhanceSaving(ctx, useAI, matchEngine, stagedItems); n > 0 {
-		matchedCount += n
-		unlinkedCount -= n
-	}
-
-	globalSavingImportSessionStore.CompleteProcessing(
-		session.ID,
-		stagedItems,
-		matchedCount,
-		unlinkedCount,
-		totalQty,
-		money.FromMinor(totalValMinor),
+	// Detached. This used to run inline, inside this POST.
+	//
+	// It loaded the ENTIRE catalogue — up to a hundred and fifty thousand
+	// products — built a match index over it, scored every row of the file
+	// against that index, and then called the AI stage over whatever was left.
+	// On a real price list that is minutes of work, and it happened with the
+	// browser holding the connection open and nothing on screen: no bar, no
+	// percentage, no way to tell a slow run from a dead one. Worse, this route
+	// is not in httpx.longRunningPrefixes, so the request deadline cut it off
+	// before it could finish and the user got an error page after the wait.
+	//
+	// startSavingImportRun is the path the JSON flow already used: a durable
+	// platform.import_runs row, an in-memory session mirrored from it, and a
+	// goroutine that outlives the request and reports progress as it goes. The
+	// wizard redirects onto the run's id and renders savingProcessingStage,
+	// which streams that progress through the same bar every other import uses.
+	publicID, _, startErr := h.startSavingImportRun(
+		ctx, actor, session.Filename,
+		append([][]string{session.Headers}, session.RawDataRows...),
+		session.Headers, session.SampleRows,
+		nCol, sCol, qCol, pCol, -1,
+		matchChoice, useAI, langOf(r), "customer",
 	)
-	session.Phase = SavingPhaseReview
+	if startErr != nil {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/customer/saving-products/import/%s", sessionID), "error", h.safeMessage(startErr, langOf(r)))
+		return
+	}
 
-	http.Redirect(w, r, fmt.Sprintf("/customer/saving-products/import/%s", sessionID), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/customer/saving-products/import/%s", publicID), http.StatusSeeOther)
 }
 
 // CustomerSavingProductsImportItemUpdateSubmit updates staged item details directly from table row.

@@ -74,19 +74,47 @@ func buildAdminTempWarehouseWhere(filter compare.AdminTempWarehouseFilter) ([]st
 	return where, args
 }
 
+func buildAdminTempWarehouseOrderBy(filter compare.AdminTempWarehouseFilter) string {
+	dir := "DESC"
+	if strings.ToLower(filter.SortOrder) == "asc" {
+		dir = "ASC"
+	}
+
+	switch strings.ToLower(filter.SortBy) {
+	case "supplier", "supplier_name", "name":
+		return fmt.Sprintf("f.supplier_name %s, f.id DESC", dir)
+	case "filename", "original_filename":
+		return fmt.Sprintf("f.original_filename %s, f.id DESC", dir)
+	case "uploader", "uploader_name":
+		return fmt.Sprintf("uploader_name %s, f.id DESC", dir)
+	case "type", "source_type":
+		return fmt.Sprintf("f.is_temp_warehouse %s, f.id DESC", dir)
+	case "rows", "row_count", "products":
+		return fmt.Sprintf("f.row_count %s, f.id DESC", dir)
+	case "status":
+		return fmt.Sprintf("f.status %s, f.id DESC", dir)
+	case "date", "created_at", "created":
+		return fmt.Sprintf("f.created_at %s, f.id DESC", dir)
+	default:
+		return "f.created_at DESC, f.id DESC"
+	}
+}
+
 // ListAdminTempWarehouses returns temporary warehouses (moderator uploads plus
 // vendor compare-tool files) enriched with the uploader and vendor labels.
 func (r *Repository) ListAdminTempWarehouses(ctx context.Context, filter compare.AdminTempWarehouseFilter) ([]*compare.AdminTempWarehouse, error) {
 	where, args := buildAdminTempWarehouseWhere(filter)
-	sql := `
-		SELECT ` + fileColumnsF + `,
-		       ` + uploaderLabelExpr + ` AS uploader_name,
+	orderByClause := buildAdminTempWarehouseOrderBy(filter)
+	sql := fmt.Sprintf(`
+		SELECT %s,
+		       %s AS uploader_name,
 		       COALESCE(o.name->>'ar', o.name->>'en', '') AS org_name
 		FROM compare.files f
 		LEFT JOIN identity.users u ON u.id = f.user_id
 		LEFT JOIN org.organizations o ON o.id = f.organization_id
-		WHERE ` + strings.Join(where, " AND ") + `
-		ORDER BY f.created_at DESC;`
+		WHERE %s
+		ORDER BY %s;`,
+		fileColumnsF, uploaderLabelExpr, strings.Join(where, " AND "), orderByClause)
 
 	var out []*compare.AdminTempWarehouse
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
@@ -111,6 +139,7 @@ func (r *Repository) ListAdminTempWarehouses(ctx context.Context, filter compare
 func (r *Repository) ListAdminTempWarehousesWithTotal(ctx context.Context, filter compare.AdminTempWarehouseFilter, limit, offset int) ([]*compare.AdminTempWarehouse, int, error) {
 	where, args := buildAdminTempWarehouseWhere(filter)
 	whereClause := strings.Join(where, " AND ")
+	orderByClause := buildAdminTempWarehouseOrderBy(filter)
 
 	if limit <= 0 || limit > 100 {
 		limit = 25
@@ -128,9 +157,9 @@ func (r *Repository) ListAdminTempWarehousesWithTotal(ctx context.Context, filte
 		LEFT JOIN identity.users u ON u.id = f.user_id
 		LEFT JOIN org.organizations o ON o.id = f.organization_id
 		WHERE %s
-		ORDER BY f.created_at DESC, f.id DESC
+		ORDER BY %s
 		LIMIT $%d OFFSET $%d;`,
-		fileColumnsF, uploaderLabelExpr, whereClause, len(args)+1, len(args)+2)
+		fileColumnsF, uploaderLabelExpr, whereClause, orderByClause, len(args)+1, len(args)+2)
 
 	var total int
 	var out []*compare.AdminTempWarehouse

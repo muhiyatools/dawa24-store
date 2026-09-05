@@ -119,28 +119,34 @@ func linePublicPrice(l *commerce.OrderLine) money.Amount {
 	if l == nil {
 		return money.Zero
 	}
-	p := l.ListPrice
-	if p.IsPositive() && p.Minor() >= l.UnitPrice.Minor() {
-		return p
+	if l.ListPrice.IsPositive() {
+		return l.ListPrice
 	}
-	if l.OriginalPrice.IsPositive() && l.OriginalPrice.Minor() >= l.UnitPrice.Minor() {
+	if l.UnitPrice.IsPositive() {
+		return l.UnitPrice
+	}
+	if l.OriginalPrice.IsPositive() {
 		return l.OriginalPrice
 	}
-	if l.DiscountAmount.IsPositive() && l.Quantity > 0 {
-		return money.FromMinor(l.UnitPrice.Minor() + (l.DiscountAmount.Minor() / int64(l.Quantity)))
+	return money.Zero
+}
+
+func lineSupplyPrice(l *commerce.OrderLine) money.Amount {
+	if l == nil || l.Quantity <= 0 {
+		return money.Zero
 	}
-	if l.CostDiscountPercentage > 0 && l.CostDiscountPercentage < 100 {
-		mult := 1.0 - (l.CostDiscountPercentage / 100.0)
-		if mult > 0.05 {
-			return money.FromMinor(int64(float64(l.UnitPrice.Minor()) / mult))
-		}
-	}
-	return l.UnitPrice
+	return money.FromMinor(l.TotalPrice.Minor() / int64(l.Quantity))
 }
 
 func lineDiscountPercent(l *commerce.OrderLine) float64 {
 	if l == nil {
 		return 0
+	}
+	if l.Quantity > 0 && l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
+		totalRetail := float64(l.UnitPrice.Minor() * int64(l.Quantity))
+		if totalRetail > 0 {
+			return (float64(l.DiscountAmount.Minor()) / totalRetail) * 100.0
+		}
 	}
 	if l.CostDiscountPercentage > 0 {
 		return l.CostDiscountPercentage
@@ -148,9 +154,6 @@ func lineDiscountPercent(l *commerce.OrderLine) float64 {
 	pub := linePublicPrice(l)
 	if pub.Minor() > l.UnitPrice.Minor() {
 		return (float64(pub.Minor()-l.UnitPrice.Minor()) / float64(pub.Minor())) * 100.0
-	}
-	if l.DiscountAmount.IsPositive() && l.Quantity > 0 && l.UnitPrice.IsPositive() {
-		return (float64(l.DiscountAmount.Minor()) / float64(l.UnitPrice.Minor()*int64(l.Quantity))) * 100.0
 	}
 	return 0
 }

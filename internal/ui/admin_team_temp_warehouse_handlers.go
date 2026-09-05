@@ -44,8 +44,10 @@ func (h *UIHandler) AdminTeamTempWarehousesPage(w http.ResponseWriter, r *http.R
 
 	team := h.teamModeratorIDs(ctx)
 	filter := compare.AdminTempWarehouseFilter{
-		Search:  strings.TrimSpace(r.URL.Query().Get("q")),
-		OwnerIn: team,
+		Search:    strings.TrimSpace(r.URL.Query().Get("q")),
+		OwnerIn:   team,
+		SortBy:    strings.TrimSpace(r.URL.Query().Get("sort")),
+		SortOrder: strings.TrimSpace(r.URL.Query().Get("order")),
 	}
 	if s := strings.TrimSpace(r.URL.Query().Get("status")); s != "" {
 		st := compare.CompareFileStatus(s)
@@ -207,4 +209,17 @@ func (h *UIHandler) AdminTeamTempWarehouseMappingSubmit(w http.ResponseWriter, r
 		return
 	}
 	h.AdminTempWarehouseMappingSubmit(w, r)
+}
+
+// AdminTeamTempWarehouseDeleteSubmit deletes a team warehouse.
+func (h *UIHandler) AdminTeamTempWarehouseDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	if _, ok := h.teamTempWarehouseOwned(w, r); !ok {
+		return
+	}
+	h.AdminTempWarehouseDeleteSubmit(w, r)
+}
+
+// AdminTeamTempWarehouseBulkSubmit handles bulk actions on team warehouses.
+func (h *UIHandler) AdminTeamTempWarehouseBulkSubmit(w http.ResponseWriter, r *http.Request) {
+	h.AdminTempWarehouseBulkSubmit(w, r)
 }

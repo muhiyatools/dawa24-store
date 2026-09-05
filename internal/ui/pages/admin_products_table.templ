@@ -1,0 +1,213 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ AdminProductsTable(products []*catalog.Product, brands []*catalog.Brand, categories []*catalog.Category, lang string) {
+	<div class="table-container is-sticky mb-4">
+		<table class="data-table table-compact">
+			<thead>
+				<tr>
+					<th class="w-14 text-center">الصورة</th>
+					<th class="min-w-64">الاسم والتسجيل</th>
+					<th class="min-w-48">الاسم العلمي والفعالية</th>
+					<th class="w-28 text-center">الشكل الصيدلي</th>
+					<th class="w-32 text-center">فئة المنتج</th>
+					<th class="min-w-36">الشركة المصنعة</th>
+					<th class="w-28 text-center">الحالة</th>
+					<th class="col-actions text-center">الإجراءات</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, p := range products {
+					<tr id={ fmt.Sprintf("product-row-%d", p.ID) } class="hover-lift-subtle">
+						<!-- 1. Thumbnail -->
+						<td class="text-center align-middle">
+							<div class="product-thumb-box mx-auto">
+								if p.Image != "" {
+									<img src={ p.Image } alt={ p.Name.Get(i18n.Lang(lang)) } loading="lazy" class="product-thumb-img" />
+								} else {
+									<span class="text-muted">@components.IconPill("icon-xs")</span>
+								}
+							</div>
+						</td>
+
+						<!-- 2. Product Name & EDA -->
+						<td class="align-middle">
+							<div class="d-flex flex-col gap-0.5">
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", p.ID)) }
+									class="font-bold text-sm text-primary hover:text-accent text-decoration-none line-clamp-2 leading-snug"
+									title={ p.Name.Get(i18n.Lang(lang)) }
+								>
+									{ p.Name.Get(i18n.Lang(lang)) }
+								</a>
+								if p.Name.Get("en") != "" && lang == "ar" {
+									<span class="text-xs text-muted line-clamp-1" dir="ltr" title={ p.Name.Get("en") }>
+										{ p.Name.Get("en") }
+									</span>
+								}
+								if p.Barcode != "" {
+									<div class="d-flex items-center gap-1 mt-0.5">
+										<span class="badge badge-neutral text-2xs tabular-nums font-mono py-0 px-1" title="رقم التسجيل بهيئة الدواء (EDA)">
+											EDA: { p.Barcode }
+										</span>
+									</div>
+								}
+							</div>
+						</td>
+
+						<!-- 3. Scientific Name & Active Ingredient -->
+						<td class="align-middle">
+							<div class="d-flex flex-col gap-0.5 max-w-xs">
+								if p.ScientificName != "" {
+									<div class="font-medium text-xs text-primary line-clamp-2" title={ p.ScientificName }>
+										{ p.ScientificName }
+									</div>
+								}
+								if p.Active != "" {
+									<div class="text-2xs text-secondary line-clamp-1" title={ p.Active }>
+										{ p.Active }
+									</div>
+								}
+								if p.ScientificName == "" && p.Active == "" {
+									<span class="text-muted text-xs">—</span>
+								}
+							</div>
+						</td>
+
+						<!-- 4. Dosage Form -->
+						<td class="text-center align-middle">
+							if p.DosageForm != "" {
+								<span class="badge badge-slate text-xs font-semibold">
+									{ p.DosageForm }
+								</span>
+							} else {
+								<span class="text-muted text-xs">—</span>
+							}
+						</td>
+
+						<!-- 5. Category -->
+						<td class="text-center align-middle">
+							{{ catLabel := getCategoryLabel(p.CategoryID, categories, "غير مصنف") }}
+							if catLabel != "غير مصنف" {
+								<span class="badge badge-purple text-xs font-semibold text-truncate d-inline-block max-w-full" title={ catLabel }>
+									{ catLabel }
+								</span>
+							} else {
+								<span class="badge badge-neutral text-xs text-muted">غير مصنف</span>
+							}
+						</td>
+
+						<!-- 6. Manufacturer / Brand -->
+						<td class="align-middle">
+							<div class="max-w-44">
+								if p.BrandID != nil && *p.BrandID > 0 {
+									<a
+										href="/admin/brands"
+										class="badge badge-sky text-xs font-medium text-truncate d-inline-block max-w-full"
+										title={ getBrandLabel(p.BrandID, brands, p.ManufacturingCompanies) }
+									>
+										{ getBrandLabel(p.BrandID, brands, p.ManufacturingCompanies) }
+									</a>
+								} else if p.ManufacturingCompanies != "" {
+									<span
+										class="text-xs text-secondary font-medium text-truncate d-inline-block max-w-full"
+										title={ p.ManufacturingCompanies }
+									>
+										{ p.ManufacturingCompanies }
+									</span>
+								} else {
+									<span class="text-muted text-xs">—</span>
+								}
+							</div>
+						</td>
+
+						<!-- 7. Status -->
+						<td class="text-center align-middle">
+							if p.Status == "active" {
+								<span class="badge badge-emerald text-xs font-bold">نشط ومعتمد</span>
+							} else {
+								<span class="badge badge-danger text-xs font-bold">موقوف</span>
+							}
+						</td>
+
+						<!-- 8. Actions -->
+						<td class="col-actions text-center align-middle">
+							<div class="table-actions d-inline-flex items-center gap-1">
+								<!-- View Details Link -->
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", p.ID)) }
+									class="btn btn-secondary btn-icon btn-sm"
+									title="عرض تفاصيل الصنف بالكامل"
+								>
+									@components.IconArrowLeft("icon-xs")
+								</a>
+
+								<!-- Edit Modal Trigger -->
+								<button
+									type="button"
+									class="btn btn-secondary btn-icon btn-sm"
+									title="تعديل بيانات الدواء"
+									@click={ fmt.Sprintf("openEdit(%d, %q, %q, %q, %q, %q, %d, %d, %q, %q, %q, %q, %q, %q, %q)",
+										p.ID,
+										p.Name.Get("ar"),
+										p.Name.Get("en"),
+										p.ScientificName,
+										p.Active,
+										p.DosageForm,
+										derefBrandID(p.BrandID),
+										derefCategoryID(p.CategoryID),
+										p.ManufacturingCompanies,
+										p.Barcode,
+										p.Price.String(),
+										p.Image,
+										p.Description.Get("ar"),
+										p.Description.Get("en"),
+										string(p.Status)) }
+								>
+									@components.IconEdit("icon-xs")
+								</button>
+
+								<!-- Status Toggle -->
+								if p.Status == "pending" || p.Status == "inactive" || p.Status == "rejected" {
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)) } class="m-0 d-inline">
+										<input type="hidden" name="status" value="active" />
+										<button type="submit" class="btn btn-secondary btn-icon btn-sm" title="تفعيل واعتماد الصنف">
+											@components.IconCheck("icon-xs")
+										</button>
+									</form>
+								}
+								if p.Status == "active" {
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/status", p.ID)) } class="m-0 d-inline">
+										<input type="hidden" name="status" value="inactive" />
+										<button type="submit" class="btn btn-secondary btn-icon btn-sm" title="إيقاف الصنف مؤقتاً">
+											@components.IconMinus("icon-xs")
+										</button>
+									</form>
+								}
+
+								<!-- Delete Button -->
+								<form
+									method="POST"
+									action={ templ.SafeURL(fmt.Sprintf("/admin/products/%d/delete", p.ID)) }
+									class="m-0 d-inline"
+									onsubmit="return confirm('هل أنت متأكد من حذف هذا الصنف الدوائي الأساسي نهائياً؟');"
+								>
+									<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف الصنف نهائياً">
+										@components.IconTrash("icon-xs")
+									</button>
+								</form>
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

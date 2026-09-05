@@ -149,9 +149,14 @@ var allowedUploadCategories = map[string]bool{
 	"brands":    true,
 	"compare":   true,
 	"imports":   true,
-	"receipts":  true,
-	"ads":       true,
-	"offers":    true,
+	// Temp-warehouse uploads named this category and it was not in the list, so
+	// sanitizeCategory quietly rewrote it to "products" and the files landed
+	// among the product images. resolveStoragePath found them anyway — it tries
+	// the storage key's own path first — so nothing broke and nobody noticed.
+	"temp_warehouses": true,
+	"receipts":        true,
+	"ads":             true,
+	"offers":          true,
 }
 
 func sanitizeCategory(category string) string {
@@ -322,4 +327,22 @@ func (h *UIHandler) UploadAPISubmit(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write([]byte(fmt.Sprintf(`{"url":"%s"}`, url)))
+}
+
+// readAllUpTo reads r into memory, refusing anything past limit.
+//
+// io.ReadAll on a multipart part will happily allocate whatever the part
+// contains. The body cap upstream bounds the whole request, but a single part
+// inside an accepted request can still be most of it, and the importers read
+// several parts at once — so each one states its own ceiling rather than
+// trusting the sum.
+func readAllUpTo(r io.Reader, limit int64) ([]byte, error) {
+	data, err := io.ReadAll(io.LimitReader(r, limit+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > limit {
+		return nil, fmt.Errorf("file exceeds the maximum allowed size")
+	}
+	return data, nil
 }

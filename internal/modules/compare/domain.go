@@ -250,7 +250,9 @@ type AdminTempWarehouseFilter struct {
 	// filter" when it holds no ids is the exact shape of an access-control
 	// leak. buildAdminTempWarehouseWhere writes FALSE for it rather than
 	// omitting the clause.
-	OwnerIn []int64
+	OwnerIn   []int64
+	SortBy    string // "supplier", "uploader", "type", "rows", "date", "status"
+	SortOrder string // "asc", "desc"
 }
 
 // AdminTempWarehouse is a compare file enriched with the uploader and vendor

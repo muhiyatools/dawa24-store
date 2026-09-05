@@ -288,10 +288,10 @@ func TestCompareHeadToHead_TableFormatting(t *testing.T) {
 	ctx := context.Background()
 
 	result := &compare.HeadToHeadComparisonResult{
-		TotalShared:      2,
-		YourBetterCount:  1,
-		EqualCount:       0,
-		CompetitorBetter: 1,
+		TotalShared:        2,
+		YourBetterCount:    1,
+		EqualCount:         0,
+		CompetitorBetter:   1,
 		SourceSupplierName: "الدقهليه 1",
 		TargetSupplierName: "مورد ب",
 		Rows: []*compare.HeadToHeadRow{

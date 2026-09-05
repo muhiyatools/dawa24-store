@@ -79,6 +79,8 @@ templ savingImportContent(view SavingImportView) {
 				if len(view.Sessions) > 0 {
 					@savingSessionsHistoryCard(view)
 				}
+			} else if view.Session.Status == SessionStateProcessing {
+				@savingProcessingStage(view)
 			} else {
 				switch view.Session.Phase {
 					case SavingPhaseMapping:
@@ -93,6 +95,66 @@ templ savingImportContent(view SavingImportView) {
 			}
 		</div>
 	</div>
+}
+
+// savingProcessingStage is what the wizard shows while the matching runs.
+//
+// It did not exist, and its absence is the whole bug: the mapping form posted
+// to a handler that loaded the entire catalogue, matched every row against it
+// and then called the AI stage — all inside the POST. The browser sat on a
+// spinning tab for minutes with nothing on screen, and on a large file the
+// request deadline killed it before it finished.
+//
+// The work is detached now, and this is where the user waits: the same bar
+// every other import tool uses, fed by the same live stream.
+templ savingProcessingStage(view SavingImportView) {
+	<div class="glass-panel p-6" id="saving-progress-card" data-session={ view.Session.ID }>
+		<h2 class="wiz-head">جارٍ مطابقة الأصناف</h2>
+		<p class="wiz-sub" id="saving-progress-phase">{ view.Session.ProgressPhase }</p>
+
+		<div class="wiz-progress">
+			<div class="wiz-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+				<div class="wiz-progress-fill" id="saving-progress-fill"></div>
+			</div>
+			<div class="wiz-progress-meta">
+				<span id="saving-progress-count" class="tabular-nums"></span>
+				<span id="saving-progress-percent" class="wiz-progress-percent"></span>
+			</div>
+		</div>
+
+		<p class="text-xs text-muted mt-2">
+			يمكنك إغلاق هذه الصفحة؛ ستستمر المعالجة وستجد نتيجتها في سجل عمليات الاستيراد.
+		</p>
+	</div>
+	<script>
+		// import-progress.js is deferred, so it has NOT executed while this
+		// inline script runs. Starting the bar here would find
+		// window.ImportProgress undefined and silently do nothing — see
+		// internal/ui/pages/progress_bootstrap_test.go.
+		(function () {
+			function startProgress() {
+				const card = document.getElementById('saving-progress-card');
+				if (!card) return;
+				if (typeof window.ImportProgress !== 'function') {
+					console.error('import-progress.js did not load; the progress bar cannot update');
+					return;
+				}
+				const bar = new window.ImportProgress({
+					fill:    document.getElementById('saving-progress-fill'),
+					label:   document.getElementById('saving-progress-phase'),
+					percent: document.getElementById('saving-progress-percent'),
+					count:   document.getElementById('saving-progress-count'),
+					onDone:  function () { setTimeout(function () { window.location.reload(); }, 500); },
+				});
+				bar.watch(card.dataset.session, 1500);
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', startProgress);
+			} else {
+				startProgress();
+			}
+		})();
+	</script>
 }
 
 templ savingUploadStage(view SavingImportView) {

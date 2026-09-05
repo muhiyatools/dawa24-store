@@ -227,7 +227,9 @@ func (h *UIHandler) AdminOrgImportTempWarehouseUploadSubmit(w http.ResponseWrite
 		}
 	}
 
-	res := h.processSingleTempWarehouseFile(
+	// Detached, like the bulk path beside it: this used to parse the workbook
+	// and insert every row inside the POST.
+	res := h.registerTempWarehouseFile(
 		database.AsSystem(ctx),
 		fileHeaders[0],
 		baseSupplierName,

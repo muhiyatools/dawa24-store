@@ -75,7 +75,7 @@ templ CustomerOrderDetailScript() {
 						rows.forEach(tr => {
 							const delInput = tr.querySelector('.row-deleted-input');
 							if (delInput && delInput.value === "1") return;
-							if (tr.style.display === 'none') return;
+							if (tr.classList.contains('deleted-row')) return;
 
 							const qtyInput = tr.querySelector('.row-qty-input');
 							const priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;
@@ -117,6 +117,7 @@ templ CustomerOrderDetailScript() {
 						if (delInput) {
 							delInput.value = '1';
 						}
+						tr.classList.add('deleted-row');
 						tr.style.display = 'none';
 						window.recalcOrderLiveTotals();
 					};

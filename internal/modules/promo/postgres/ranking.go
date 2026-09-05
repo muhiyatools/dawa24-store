@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 
@@ -29,13 +28,22 @@ func (r *Repository) ListActiveRankedSponsorships(ctx context.Context, itemType 
 	var list []*promo.RankedSponsorship
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT os.item_id, os.organization_id, os.package_id, op.tier_level, os.expires_at
-			FROM promo.offer_sponsorships os
+			SELECT os.item_id, os.organization_id, os.package_id, op.tier_level, os.expires_at, os.item_type
+			FROM (
+				SELECT COALESCE(item_id, offer_id) AS item_id, organization_id, package_id, expires_at, item_type
+				FROM promo.offer_sponsorships
+				WHERE status = 'active'
+				  AND admin_status = 'approved'
+				  AND expires_at > now()
+				UNION
+				SELECT item_id, organization_id, package_id, expires_at, item_type
+				FROM promo.sponsorship_requests
+				WHERE status = 'active'
+				  AND admin_status = 'approved'
+				  AND expires_at > now()
+			) os
 			JOIN promo.offer_packages op ON op.id = os.package_id
-			WHERE os.status = 'active'
-			  AND os.admin_status = 'approved'
-			  AND os.item_type = $1
-			  AND os.expires_at > now()
+			WHERE ($1 = '' OR os.item_type = $1 OR os.item_type = 'product' OR os.item_type = 'variant')
 			ORDER BY op.tier_level DESC, random();
 		`
 		rows, err := tx.Query(txCtx, query, string(itemType))
@@ -45,10 +53,11 @@ func (r *Repository) ListActiveRankedSponsorships(ctx context.Context, itemType 
 		defer rows.Close()
 		for rows.Next() {
 			var rs promo.RankedSponsorship
-			if err := rows.Scan(&rs.ItemID, &rs.OrganizationID, &rs.PackageID, &rs.TierLevel, &rs.ExpiresAt); err != nil {
+			var it string
+			if err := rows.Scan(&rs.ItemID, &rs.OrganizationID, &rs.PackageID, &rs.TierLevel, &rs.ExpiresAt, &it); err != nil {
 				return err
 			}
-			rs.ItemType = itemType
+			rs.ItemType = promo.SponsorshipItemType(it)
 			list = append(list, &rs)
 		}
 		return rows.Err()
@@ -62,28 +71,37 @@ func (r *Repository) rankedSponsorships(ctx context.Context, itemType promo.Spon
 	}
 	var list []*promo.RankedSponsorship
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := fmt.Sprintf(`
-			SELECT os.item_id, os.organization_id, os.package_id, op.tier_level, os.expires_at
-			FROM promo.offer_sponsorships os
+		query := `
+			SELECT os.item_id, os.organization_id, os.package_id, op.tier_level, os.expires_at, os.item_type
+			FROM (
+				SELECT COALESCE(item_id, offer_id) AS item_id, organization_id, package_id, expires_at, item_type
+				FROM promo.offer_sponsorships
+				WHERE status = 'active'
+				  AND admin_status = 'approved'
+				  AND expires_at > now()
+				UNION
+				SELECT item_id, organization_id, package_id, expires_at, item_type
+				FROM promo.sponsorship_requests
+				WHERE status = 'active'
+				  AND admin_status = 'approved'
+				  AND expires_at > now()
+			) os
 			JOIN promo.offer_packages op ON op.id = os.package_id
-			WHERE os.status = 'active'
-			  AND os.admin_status = 'approved'
-			  AND os.item_type = $1
-			  AND os.item_id = ANY($2)
-			  AND os.expires_at > now()
-			ORDER BY op.tier_level DESC, os.created_at ASC;
-		`)
-		rows, err := tx.Query(txCtx, query, string(itemType), itemIDs)
+			WHERE os.item_id = ANY($1)
+			ORDER BY op.tier_level DESC, os.expires_at DESC;
+		`
+		rows, err := tx.Query(txCtx, query, itemIDs)
 		if err != nil {
 			return err
 		}
 		defer rows.Close()
 		for rows.Next() {
 			var rs promo.RankedSponsorship
-			if err := rows.Scan(&rs.ItemID, &rs.OrganizationID, &rs.PackageID, &rs.TierLevel, &rs.ExpiresAt); err != nil {
+			var it string
+			if err := rows.Scan(&rs.ItemID, &rs.OrganizationID, &rs.PackageID, &rs.TierLevel, &rs.ExpiresAt, &it); err != nil {
 				return err
 			}
-			rs.ItemType = itemType
+			rs.ItemType = promo.SponsorshipItemType(it)
 			list = append(list, &rs)
 		}
 		return rows.Err()

@@ -109,14 +109,15 @@ func TestAdminTempWarehouse_100Files_BulkUpload_WithMappingWizardQueue(t *testin
 	if jsonResp.TotalFiles != 100 || jsonResp.SuccessfulFiles != 100 {
 		t.Errorf("expected 100 successful files, got %d", jsonResp.SuccessfulFiles)
 	}
-	if int(jsonResp.TotalItems) != expectedTotalItems {
-		t.Errorf("expected %d total items, got %d", expectedTotalItems, jsonResp.TotalItems)
-	}
 	if len(jsonResp.UploadedIDs) != 100 {
-		t.Errorf("expected 100 uploaded IDs in setup queue, got %d", len(jsonResp.UploadedIDs))
+		t.Fatalf("expected 100 uploaded IDs in setup queue, got %d", len(jsonResp.UploadedIDs))
+	}
+	// Rows arrive AFTER the response: the parse is detached.
+	if staged := waitForTempWarehouseStaging(t, mockRepo, jsonResp.UploadedIDs); staged != expectedTotalItems {
+		t.Errorf("expected %d total items once staging finished, got %d", expectedTotalItems, staged)
 	}
 
-	// 2. Test Step-by-Step Setup Experience: GET /admin/temporary-warehouses/{id}/mapping-json
+	// 2. Step-by-step setup: GET /admin/temporary-warehouses/{id}/mapping-json
 	firstID := jsonResp.UploadedIDs[0]
 	reqMappingJSON := httptest.NewRequest(http.MethodGet, "/admin/temporary-warehouses/"+firstID+"/mapping-json", nil)
 	reqMappingJSON = reqMappingJSON.WithContext(authctx.WithActor(reqMappingJSON.Context(), adminActor))
@@ -397,3 +398,58 @@ func TestAdminTempWarehouse_BulkActions_Archive_Unarchive_Delete(t *testing.T) {
 		t.Errorf("expected f1 to be deleted from repo, got %+v", deletedF1)
 	}
 }
+
+func TestAdminTempWarehouse_SortingAndColumns(t *testing.T) {
+	mockRepo := newMockBulkCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	compareSvc := compare.NewService(mockRepo, logger)
+
+	handler := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+	handler.SetCompareService(compareSvc)
+
+	r := chi.NewRouter()
+	handler.RegisterAdminRoutes(r)
+
+	adminActor := authctx.Actor{
+		UserID:         1,
+		IsStaff:        true,
+		Email:          "admin@dawa24.com",
+		Role:           "super_admin",
+		OrganizationID: 0,
+		Permissions:    []string{"*"},
+	}
+
+	// 1. Test Super Admin GET with sorting
+	req1 := httptest.NewRequest(http.MethodGet, "/admin/user/temparte-warehouses?sort=supplier&order=asc", nil)
+	req1 = req1.WithContext(authctx.WithActor(req1.Context(), adminActor))
+	rec1 := httptest.NewRecorder()
+	r.ServeHTTP(rec1, req1)
+	if rec1.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", rec1.Code)
+	}
+	body1 := rec1.Body.String()
+	if !strings.Contains(body1, "sort=supplier") {
+		t.Errorf("expected HTML to contain sort=supplier link")
+	}
+
+	// 2. Test My Warehouses GET with sorting
+	req2 := httptest.NewRequest(http.MethodGet, "/admin/my/temparte-warehouses?sort=rows&order=desc", nil)
+	req2 = req2.WithContext(authctx.WithActor(req2.Context(), adminActor))
+	rec2 := httptest.NewRecorder()
+	r.ServeHTTP(rec2, req2)
+	if rec2.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", rec2.Code)
+	}
+
+	// 3. Test Team Warehouses GET with sorting
+	req3 := httptest.NewRequest(http.MethodGet, "/admin/team/temparte-warehouses?sort=date&order=asc", nil)
+	req3 = req3.WithContext(authctx.WithActor(req3.Context(), adminActor))
+	rec3 := httptest.NewRecorder()
+	r.ServeHTTP(rec3, req3)
+	if rec3.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", rec3.Code)
+	}
+}
+

@@ -81,6 +81,7 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.upload.quota_overflow", "compare", "عدد الملفات المحددة للرفع (%d) يتجاوز السعة المتبقية في باقتك (%d كشوف متبقية من أصل %d). يرجى تقليل عدد الملفات أو ترقية الباقة.", "Selected files count (%d) exceeds remaining quota in your plan (%d lists remaining out of %d). Please reduce files count or upgrade plan.", "Quota error")
 	addKey(e, "compare.upload.quota_skipped", "compare", "لم يُرفَع — الحد الأقصى لباقتك %d كشوف", "not uploaded — your plan allows %d lists", "Quota skipped file")
 	addKey(e, "compare.upload.staging_summary", "compare", "تم رفع %d كشف بنجاح، وجارٍ قراءة الأصناف الآن.", "%d file(s) uploaded; their items are being read now.", "Upload staged summary")
+	addKey(e, "admin.temp_warehouse.staging_message", "compare", "تم رفع %d من %d ملف، وجارٍ قراءة الأصناف الآن.", "%d of %d files uploaded; their items are being read now.", "Temp warehouse staged summary")
 	// The caption under a progress bar before the worker has named a phase.
 	addKey(e, "import.state.queued", "compare", "في انتظار بدء المعالجة…", "Waiting to start…", "Import state: queued")
 	addKey(e, "import.state.processing", "compare", "جارٍ المعالجة…", "Processing…", "Import state: processing")

@@ -59,6 +59,8 @@ type AdminTempWarehousesData struct {
 	// UploaderFilter / SourceFilter hold the current filter selection.
 	UploaderFilter string
 	SourceFilter   string
+	SortBy         string
+	SortOrder      string
 	Page           int
 	PerPage        int
 	Uploaders      []AdminTempWarehouseUploader
@@ -102,7 +104,7 @@ func tempWarehousesNavKey(data *AdminTempWarehousesData) string {
 }
 
 // tempWarehouseFilterURL builds a status-pill link that carries the current
-// search / uploader / source filters.
+// search / uploader / source / sort filters.
 func tempWarehouseFilterURL(data *AdminTempWarehousesData, status string) string {
 	q := url.Values{}
 	if data.Query != "" {
@@ -114,12 +116,42 @@ func tempWarehouseFilterURL(data *AdminTempWarehousesData, status string) string
 	if data.UploaderFilter != "" {
 		q.Set("uploader", data.UploaderFilter)
 	}
+	if data.SortBy != "" {
+		q.Set("sort", data.SortBy)
+	}
+	if data.SortOrder != "" {
+		q.Set("order", data.SortOrder)
+	}
 	if status != "" {
 		q.Set("status", status)
 	}
 	if len(q) == 0 {
 		return data.PageURL
 	}
+	return data.PageURL + "?" + q.Encode()
+}
+
+// tempWarehouseSortURL toggles sorting on a column and preserves existing filters.
+func tempWarehouseSortURL(data *AdminTempWarehousesData, col string) string {
+	q := url.Values{}
+	if data.Query != "" {
+		q.Set("q", data.Query)
+	}
+	if data.SourceFilter != "" {
+		q.Set("type", data.SourceFilter)
+	}
+	if data.UploaderFilter != "" {
+		q.Set("uploader", data.UploaderFilter)
+	}
+	if data.StatusFilter != "" {
+		q.Set("status", data.StatusFilter)
+	}
+	newOrder := "asc"
+	if data.SortBy == col && data.SortOrder != "desc" {
+		newOrder = "desc"
+	}
+	q.Set("sort", col)
+	q.Set("order", newOrder)
 	return data.PageURL + "?" + q.Encode()
 }
 
@@ -216,6 +248,9 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				uploadStatusText: '',
 				selectedFiles: [],
 				bulkUploadResults: null,
+				getBase() {
+					return (this.$root && this.$root.dataset && this.$root.dataset.base) || window.location.pathname.replace(/\/$/, '') || '/admin/temporary-warehouses';
+				},
 				init() {
 					const urlParams = new URLSearchParams(window.location.search);
 					const setupFile = urlParams.get('setup_file');
@@ -236,7 +271,11 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				async fetchItems() {
 					this.modalLoading = true;
 					try {
-						const res = await fetch(this.$root.dataset.base + '/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
+						const base = this.getBase();
+						let res = await fetch(base + '/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
+						if (!res.ok && base !== '/admin/temporary-warehouses') {
+							res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
+						}
 						const json = await res.json();
 						if (json.success) {
 							this.modalItems = json.items || [];
@@ -264,11 +303,18 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				async deleteItem(rowId) {
 					if (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;
 					try {
+						const base = this.getBase();
 						const formData = new FormData();
-						const res = await fetch(this.$root.dataset.base + '/items/' + rowId + '/delete', {
+						let res = await fetch(base + '/items/' + rowId + '/delete', {
 							method: 'POST',
 							body: formData
 						});
+						if (!res.ok && base !== '/admin/temporary-warehouses') {
+							res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {
+								method: 'POST',
+								body: formData
+							});
+						}
 						const json = await res.json();
 						if (json.success) {
 							await this.fetchItems();
@@ -286,7 +332,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					this.mappingQueue = queue || [];
 					this.mappingStep = step || 1;
 					this.mappingTotal = total || (this.mappingQueue.length + 1);
-					const base = (this.$root && this.$root.dataset && this.$root.dataset.base) || window.location.pathname.replace(/\/$/, '') || '/admin/temporary-warehouses';
+					const base = this.getBase();
 					try {
 						let res = await fetch(base + '/' + id + '/mapping-json', {
 							headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
@@ -328,7 +374,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				async submitMapping(form) {
 					if (!this.mappingFile || !this.mappingFile.id) return;
 					this.mappingSubmitting = true;
-					const base = (this.$root && this.$root.dataset && this.$root.dataset.base) || window.location.pathname.replace(/\/$/, '') || '/admin/temporary-warehouses';
+					const base = this.getBase();
 					try {
 						const formData = new FormData();
 						formData.append('supplier_name', this.mappingFile.supplier_name || '');
@@ -528,14 +574,25 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							}
 						});
 
-						this.uploadProgress = 85;
+						this.uploadProgress = 45;
 						const result = await response.json();
-						this.uploadProgress = 100;
 
 						if (result && result.success) {
 							this.bulkUploadResults = result;
-							this.uploadStatusText = result.message || 'تم الرفع والمعالجة بنجاح!';
-							
+							this.uploadStatusText = result.message || 'تم الرفع، وجارٍ قراءة الأصناف…';
+
+							// The upload now RETURNS as soon as the files are
+							// recorded; their rows are read by goroutines that
+							// outlive the request. So the bar tracks the real
+							// staging instead of the fake 35→85→100 it used to
+							// animate, and the mapping wizard is not opened until
+							// the columns have actually been detected — it would
+							// otherwise show a preview of nothing.
+							await this.awaitStaging(result.uploaded_ids || []);
+
+							this.uploadProgress = 100;
+							this.uploadStatusText = 'اكتملت قراءة الأصناف.';
+
 							if (this.autoLaunchSetup && result.uploaded_ids && result.uploaded_ids.length > 0) {
 								setTimeout(() => {
 									this.isBulkUploading = false;
@@ -544,11 +601,11 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 									const firstId = parseInt(result.uploaded_ids[0], 10);
 									const queue = result.uploaded_ids.slice(1);
 									this.openMapping(firstId, queue, 1, result.uploaded_ids.length);
-								}, 800);
+								}, 500);
 							} else {
 								setTimeout(() => {
 									window.location.reload();
-								}, 1500);
+								}, 1200);
 							}
 						} else {
 							alert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');
@@ -560,6 +617,46 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						setTimeout(() => {
 							window.location.reload();
 						}, 2000);
+					}
+				},
+
+				/*
+				 * awaitStaging polls until every file of the batch has been read.
+				 *
+				 * The percentage is files finished out of files uploaded, which
+				 * is the only honest figure available: the server can say a file
+				 * is done, and nothing trustworthy about how far through one it
+				 * is. Failing to reach the endpoint is not failure of the import
+				 * — the files are recorded and the parse is running regardless —
+				 * so after a run of errors this stops waiting rather than
+				 * trapping the admin in a dialog that never closes.
+				 */
+				async awaitStaging(ids) {
+					if (!ids || ids.length === 0) return;
+					const query = ids.join(',');
+					let failures = 0;
+
+					for (;;) {
+						try {
+							const res = await fetch(this.$root.dataset.base + '/staging?ids=' + encodeURIComponent(query), {
+								headers: { 'Accept': 'application/json' }
+							});
+							if (!res.ok) throw new Error('HTTP ' + res.status);
+							const data = await res.json();
+							failures = 0;
+
+							if (!data || data.ready) return;
+
+							const done = data.done || 0;
+							const total = data.total || ids.length;
+							// 45..95: the first 45 was the upload itself.
+							this.uploadProgress = 45 + Math.round((data.percent || 0) * 0.5);
+							this.uploadStatusText = 'جارٍ قراءة الأصناف… (' + done + ' / ' + total + ')';
+						} catch (e) {
+							failures++;
+							if (failures >= 5) return;
+						}
+						await new Promise((r) => setTimeout(r, 1000));
 					}
 				}
 			}"
@@ -694,6 +791,12 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				<form method="GET" action={ templ.SafeURL(data.PageURL) } class="flex-between items-center flex-wrap gap-4 m-0">
 					if !data.MineOnly {
 						<input type="hidden" name="type" value={ data.SourceFilter } />
+					}
+					if data.SortBy != "" {
+						<input type="hidden" name="sort" value={ data.SortBy } />
+					}
+					if data.SortOrder != "" {
+						<input type="hidden" name="order" value={ data.SortOrder } />
 					}
 
 					<!-- Search Input -->
@@ -837,8 +940,8 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						</button>
 					</div>
 				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
+					<div class="table-container m-0 overflow-x-auto lg:overflow-x-visible">
+						<table class="data-table m-0 w-full text-xs">
 							<thead>
 								<tr>
 									<th class="w-10 text-center">
@@ -851,14 +954,79 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 										/>
 									</th>
 									<th class="w-10 text-center">#</th>
-									<th class="min-w-60">اسم المورد / الملف</th>
+									<th class="min-w-[180px]">
+										<a href={ templ.SafeURL(tempWarehouseSortURL(data, "supplier")) } class="d-flex items-center justify-between text-inherit text-decoration-none font-black gap-1">
+											<span>اسم المورد / الملف</span>
+											if data.SortBy == "supplier" {
+												if data.SortOrder == "asc" {
+													<span class="text-accent font-black">▲</span>
+												} else {
+													<span class="text-accent font-black">▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-40">⇅</span>
+											}
+										</a>
+									</th>
 									if !data.MineOnly {
-										<th class="min-w-48">المشرف / المورد</th>
+										<th class="min-w-[130px]">
+											<a href={ templ.SafeURL(tempWarehouseSortURL(data, "uploader")) } class="d-flex items-center justify-between text-inherit text-decoration-none font-black gap-1">
+												<span>المشرف / المورد</span>
+												if data.SortBy == "uploader" {
+													if data.SortOrder == "asc" {
+														<span class="text-accent font-black">▲</span>
+													} else {
+														<span class="text-accent font-black">▼</span>
+													}
+												} else {
+													<span class="text-muted opacity-40">⇅</span>
+												}
+											</a>
+										</th>
 									}
-									<th class="min-w-32">النوع</th>
-									<th class="min-w-28">عدد المنتجات</th>
-									<th class="min-w-40">تاريخ الرفع</th>
-									<th class="col-actions min-w-64">الإجراءات</th>
+									<th class="w-24">
+										<a href={ templ.SafeURL(tempWarehouseSortURL(data, "type")) } class="d-flex items-center justify-between text-inherit text-decoration-none font-black gap-1">
+											<span>النوع</span>
+											if data.SortBy == "type" {
+												if data.SortOrder == "asc" {
+													<span class="text-accent font-black">▲</span>
+												} else {
+													<span class="text-accent font-black">▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-40">⇅</span>
+											}
+										</a>
+									</th>
+									<th class="w-28 text-center">
+										<a href={ templ.SafeURL(tempWarehouseSortURL(data, "rows")) } class="d-flex items-center justify-center text-inherit text-decoration-none font-black gap-1">
+											<span>عدد الأصناف</span>
+											if data.SortBy == "rows" {
+												if data.SortOrder == "asc" {
+													<span class="text-accent font-black">▲</span>
+												} else {
+													<span class="text-accent font-black">▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-40">⇅</span>
+											}
+										</a>
+									</th>
+									<th class="w-36">
+										<a href={ templ.SafeURL(tempWarehouseSortURL(data, "date")) } class="d-flex items-center justify-between text-inherit text-decoration-none font-black gap-1">
+											<span>تاريخ الرفع</span>
+											if data.SortBy == "date" || data.SortBy == "" {
+												if data.SortOrder == "asc" {
+													<span class="text-accent font-black">▲</span>
+												} else {
+													<span class="text-accent font-black">▼</span>
+												}
+											} else {
+												<span class="text-muted opacity-40">⇅</span>
+											}
+										</a>
+									</th>
+									<th class="col-actions text-center min-w-[210px]">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -874,22 +1042,22 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												title="تحديد هذا المستودع"
 											/>
 										</td>
-										<td class="tabular-nums text-muted text-sm text-center">
+										<td class="tabular-nums text-muted text-xs text-center align-middle">
 											{ fmt.Sprintf("%d", idx+1) }
 										</td>
-										<td>
-											<div class="font-black text-primary text-base">
+										<td class="align-middle">
+											<div class="font-black text-primary text-sm leading-snug">
 												{ item.SupplierName }
 											</div>
 											if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
-												<div class="tabular-nums text-xs text-muted font-mono mt-0.5">
+												<div class="tabular-nums text-2xs text-muted font-mono mt-0.5 truncate max-w-xs" title={ item.OriginalFilename }>
 													{ item.OriginalFilename }
 												</div>
 											}
 										</td>
 										if !data.MineOnly {
-											<td>
-												<div class="font-bold text-primary text-sm">
+											<td class="align-middle">
+												<div class="font-bold text-primary text-xs">
 													if item.UploaderName != "" {
 														{ item.UploaderName }
 													} else {
@@ -897,69 +1065,74 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													}
 												</div>
 												if item.OrgName != "" {
-													<div class="text-xs text-muted mt-0.5">{ item.OrgName }</div>
+													<div class="text-2xs text-muted mt-0.5 truncate max-w-xs">{ item.OrgName }</div>
 												}
 											</td>
 										}
-										<td>
+										<td class="align-middle">
 											if item.SourceType == "vendor" {
-												<span class="badge badge-amber font-black text-xs px-2.5 py-1 rounded-md">أداة المقارنة — بائع</span>
+												<span class="badge badge-amber font-black text-2xs px-2 py-0.5 rounded-md">أداة المقارنة</span>
 												if item.Visibility == "public" {
-													<div class="mt-1"><span class="badge badge-emerald font-bold text-2xs px-2 py-0.5 rounded">عام في السوق</span></div>
+													<div class="mt-0.5"><span class="badge badge-emerald font-bold text-3xs px-1.5 py-0.5 rounded">عام</span></div>
 												} else {
-													<div class="mt-1"><span class="badge badge-slate font-bold text-2xs px-2 py-0.5 rounded">خاص</span></div>
+													<div class="mt-0.5"><span class="badge badge-slate font-bold text-3xs px-1.5 py-0.5 rounded">خاص</span></div>
 												}
 											} else {
-												<span class="badge badge-sky font-black text-xs px-2.5 py-1 rounded-md">مستودع مشرف</span>
+												<span class="badge badge-sky font-black text-2xs px-2 py-0.5 rounded-md">مستودع مشرف</span>
 											}
 										</td>
-										<td>
-											<span class="badge badge-sky font-black text-xs tabular-nums px-3 py-1.5 rounded-md">
+										<td class="align-middle text-center">
+											<span class="badge badge-sky font-black text-xs tabular-nums px-2.5 py-1 rounded-md">
 												{ fmt.Sprintf("%d صنف", item.RowCount) }
 											</span>
 										</td>
-										<td class="tabular-nums text-xs text-muted whitespace-nowrap">
+										<td class="tabular-nums text-2xs text-muted whitespace-nowrap align-middle">
 											{ item.CreatedAt.Format("2006-01-02 03:04 PM") }
 										</td>
-										<td class="col-actions">
-											<div class="table-actions">
+										<td class="col-actions align-middle">
+											<div class="table-actions d-flex items-center justify-center gap-1.5 flex-wrap">
+												<!-- Review & Mapping Setup Modal -->
+												<button
+													type="button"
+													@click.stop={ fmt.Sprintf("openMapping(%d, [], 1, 1)", item.ID) }
+													class="btn btn-primary btn-xs font-black px-2.5 py-1 rounded-md text-xs d-inline-flex items-center gap-1 shadow-xs"
+													title="مراجعة وضبط وتأكيد تعيين أعمدة المستودع"
+												>
+													@components.IconSliders("icon-2xs")
+													<span>مراجعة</span>
+												</button>
+
 												<!-- View Items Button -->
 												<button
 													type="button"
-													@click={ fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount) }
-													class="btn btn-secondary btn-sm font-black px-3 py-1.5 rounded-md text-accent text-xs"
+													@click.stop={ fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount) }
+													class="btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-accent text-xs d-inline-flex items-center gap-1"
 													title="عرض وفحص كافة أصناف هذا المستودع"
 												>
+													@components.IconPackage("icon-2xs")
 													<span>الأصناف</span>
-												</button>
-
-												<!-- Column Mapping Button -->
-												<button
-													type="button"
-													@click={ fmt.Sprintf("openMapping(%d, [], 1, 1)", item.ID) }
-													class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-primary text-xs"
-													title="ضبط وتعديل وتأكيد تعيين أعمدة المستودع"
-												>
-													<span>ضبط الأعمدة</span>
 												</button>
 
 												<!-- Download XLSX -->
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("%s/%d/export", data.Base, item.ID)) }
-													class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-emerald text-xs"
+													class="btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-emerald text-xs d-inline-flex items-center gap-1"
 													title="تنزيل كشف المستودع بصيغة Excel"
 												>
+													@components.IconDownload("icon-2xs")
 													<span>XLSX</span>
 												</a>
 
 												<!-- Toggle Archive -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/toggle-archive", data.Base, item.ID)) } class="inline m-0">
 													if item.Status == "archived" {
-														<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs" title="إعادة تفعيل المستودع بالخصومات">
+														<button type="submit" class="btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-xs text-emerald" title="إعادة تفعيل المستودع بالخصومات">
+															@components.IconRefresh("icon-2xs")
 															<span>تفعيل</span>
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs" title="أرشفة المستودع">
+														<button type="submit" class="btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-xs text-muted" title="أرشفة المستودع">
+															@components.IconFolder("icon-2xs")
 															<span>أرشفة</span>
 														</button>
 													}
@@ -967,8 +1140,8 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 
 												<!-- Delete Warehouse -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", data.Base, item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" class="inline m-0">
-													<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-danger text-xs" title="حذف المستودع بالكامل">
-														<span>حذف</span>
+													<button type="submit" class="btn btn-secondary btn-xs font-bold px-2 py-1 rounded-md text-danger text-xs" title="حذف المستودع بالكامل">
+														@components.IconTrash("icon-2xs")
 													</button>
 												</form>
 											</div>
@@ -989,6 +1162,8 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								"status":   {data.StatusFilter},
 								"type":     {data.SourceFilter},
 								"uploader": {data.UploaderFilter},
+								"sort":     {data.SortBy},
+								"order":    {data.SortOrder},
 							},
 						})
 					}

@@ -140,6 +140,14 @@ func (v SavingImportView) WizardStep() Step {
 	if v.Session != nil && v.Session.Phase != "" {
 		phase = v.Session.Phase
 	}
+	// A run still matching rows is on the processing step, whatever phase the
+	// session was left in. The store sets Phase to review the moment a session
+	// is created, because the review screen is where it ends up — but it is not
+	// there yet, and rendering the review while the matching is still going is
+	// how the wizard came to show an empty table.
+	if v.Session != nil && v.Session.Status == SessionStateProcessing {
+		return StepReview
+	}
 	switch phase {
 	case SavingPhaseMapping:
 		return StepColumns

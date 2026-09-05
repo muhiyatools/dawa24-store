@@ -148,6 +148,10 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Get("/admin/temporary-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
 
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)
+		// Readiness of a freshly uploaded batch. The upload detaches the parse,
+		// so the mapping wizard waits on this instead of opening on a file whose
+		// columns nobody has read yet.
+		g.Get("/admin/user/temparte-warehouses/staging", h.CompareStagingStatus)
 		g.Get("/admin/user/temparte-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
 		g.Get("/admin/user/temparte-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
 		g.Get("/admin/user/temparte-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
@@ -227,7 +231,9 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.team_temp_warehouse.manage"))
 		g.Post("/admin/team/temparte-warehouses/{id}/mapping", h.AdminTeamTempWarehouseMappingSubmit)
 		g.Post("/admin/team/temparte-warehouses/{id}/toggle-archive", h.AdminTeamTempWarehouseToggleArchiveSubmit)
+		g.Post("/admin/team/temparte-warehouses/{id}/delete", h.AdminTeamTempWarehouseDeleteSubmit)
 		g.Post("/admin/team/temparte-warehouses/items/{id}/delete", h.AdminTeamTempWarehouseItemDeleteSubmit)
+		g.Post("/admin/team/temparte-warehouses/bulk", h.AdminTeamTempWarehouseBulkSubmit)
 	})
 }
 
