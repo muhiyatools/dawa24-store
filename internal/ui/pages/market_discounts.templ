@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -63,7 +64,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					</div>
 					<div class="md-stat is-accent">
 						<dt>أعلى خصم</dt>
-						<dd class="tabular-nums">{ fmt.Sprintf("%.0f%%", calculateMaxDiscount(result.Items)) }</dd>
+						<dd class="tabular-nums">{ formatDiscount(calculateMaxDiscount(result.Items)) }%</dd>
 					</div>
 				</dl>
 			</header>
@@ -379,10 +380,16 @@ func formatOptionalFloat(val *float64) string {
 }
 
 func formatDiscount(pct float64) string {
+	if pct <= 0 {
+		return "0"
+	}
 	if pct == float64(int64(pct)) {
 		return fmt.Sprintf("%d", int64(pct))
 	}
-	return fmt.Sprintf("%.1f", pct)
+	s := fmt.Sprintf("%.2f", pct)
+	s = strings.TrimRight(s, "0")
+	s = strings.TrimRight(s, ".")
+	return s
 }
 
 func formatDiscountPrice(m money.Amount) string {

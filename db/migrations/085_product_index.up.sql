@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS catalog.product_index (
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-COMMENT ON TABLE catalog.product_index IS 'جدول القراءة المفهرس والمجرد للبحث السريع وتصفية المنتجات مع التوافق التام مع منظومة دوا 24';
+COMMENT ON TABLE catalog.product_index IS 'جدول القراءة المفهرس والمجرد للبحث السريع وتصفية المنتجات مع التوافق التام مع منظومة دواء 24';
 COMMENT ON COLUMN catalog.product_index.unique_row_id IS 'المعرف الفريد لسجل الفهرس المركب (p_{id} أو p_{id}_v_{id}_b_{id})';
 COMMENT ON COLUMN catalog.product_index.institutional_work_ids IS 'معرفات الهيكل والأنشطة المؤسسية المسموح لها برؤية المنتج';
 
