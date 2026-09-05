@@ -93,8 +93,12 @@ func buildUIHandler(
 	// screen watching a run is written to when a number moves instead of asking
 	// twice a second for one that has not.
 	progressHub := progress.NewHub()
-	uiProgress := progress.NewPublisher(redisHandle(deps), progressHub, log)
-	go progress.Bridge(context.Background(), redisHandle(deps), progressHub, log)
+	// The Redis handle is passed as a RESOLVER, not a client: this runs before
+	// Redis has been dialled, so a client read here would be nil for the life of
+	// the process and every cross-process message would vanish silently.
+	redisFor := func() *redis.Client { return redisHandle(deps) }
+	uiProgress := progress.NewPublisher(redisFor, progressHub, log)
+	go progress.Bridge(context.Background(), redisFor, progressHub, log)
 
 	instGate := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
@@ -106,6 +110,17 @@ func buildUIHandler(
 	// it is written. Without a store the wizard reports itself unavailable
 	// rather than falling back to writing blind.
 	catSvcUI.SetImportStore(catalog.WithProgressNotifications(catRepoUI, uiProgress))
+	// The row is written once per phase; the bar is fed every batch.
+	catSvcUI.SetProgressNotifier(func(publicID string, p catalog.ImportProgress) {
+		uiProgress.Publish(context.Background(), progress.Snapshot{
+			ID:      publicID,
+			Percent: p.Percent(),
+			Message: p.Message,
+			Current: p.Current,
+			Total:   p.Total,
+			State:   string(catalog.SessionProcessing),
+		})
+	})
 	if cacheHandle := deps.CacheHandle(); cacheHandle != nil {
 		catSvcUI.SetCache(cacheHandle)
 	}

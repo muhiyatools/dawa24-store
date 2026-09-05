@@ -175,10 +175,18 @@ type CompareFileStatus string
 
 const (
 	FileUploaded CompareFileStatus = "uploaded"
-	FileMapping  CompareFileStatus = "mapping"
-	FileReady    CompareFileStatus = "ready"
-	FileFailed   CompareFileStatus = "failed"
-	FileArchived CompareFileStatus = "archived"
+	// FileProcessing is a file whose rows are being read right now.
+	//
+	// It exists so the screen that receives the redirect from an upload can
+	// tell "not parsed yet" from "parsed and empty" — FileUploaded means the
+	// latter. Without the distinction the column-mapping wizard opened on a
+	// file whose columns had not been read, and offered the pharmacy a mapping
+	// for a spreadsheet nothing had looked at.
+	FileProcessing CompareFileStatus = "processing"
+	FileMapping    CompareFileStatus = "mapping"
+	FileReady      CompareFileStatus = "ready"
+	FileFailed     CompareFileStatus = "failed"
+	FileArchived   CompareFileStatus = "archived"
 )
 
 // MappingConfig defines column index mappings for spreadsheet parser.

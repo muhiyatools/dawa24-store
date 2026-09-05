@@ -278,15 +278,19 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			go func() {
 				defer wg.Done()
 				for itm := range itemChan {
-					uploadedFile, archived, err := h.compareSvc.UploadAndProcessCompareFile(
+					// Registers the file and returns; the parse happens in a
+					// goroutine that outlives this request. What used to happen
+					// here — reading a whole workbook and writing every row of
+					// it, for up to ten files — is why this endpoint had to be
+					// exempted from the request deadline in the first place.
+					staged, err := h.compareSvc.RegisterAndStage(
 						ctx, actor.UserID, orgPtr, itm.supplierName, itm.filename,
 						itm.contentType, itm.size, itm.localURL, itm.fileBytes,
 					)
-					res := fileResult{
-						index:    itm.index,
-						file:     uploadedFile,
-						archived: archived,
-						err:      err,
+					res := fileResult{index: itm.index, err: err}
+					if staged != nil {
+						res.file = staged.File
+						res.archived = staged.Archived
 					}
 					if err != nil {
 						res.errFile = itm.filename + " (" + h.safeMessage(err, lang) + ")"
@@ -331,7 +335,11 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	msg := fmt.Sprintf(i18n.T(lang, "compare.upload.success_summary"), processedCount, totalRows)
+	// The rows have not been read yet — that is the point — so the summary
+	// counts files, not rows. Claiming "0 rows" for a batch still being parsed
+	// is worse than not mentioning rows at all.
+	msg := fmt.Sprintf(i18n.T(lang, "compare.upload.staging_summary"), processedCount)
+	_ = totalRows
 	firstID := uploadedIDs[0]
 	queueStr := strings.Join(uploadedIDs, ",")
 	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))

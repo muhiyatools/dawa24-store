@@ -110,16 +110,21 @@ func run() error {
 	// reachable the worker simply does not announce, the browser keeps polling,
 	// and nothing breaks — which is the same trade the cache makes everywhere
 	// else on this platform.
-	var progressRedis *redis.Client
-	if progressCache, cacheErr := cache.Open(ctx, cfg.Redis, cfg.Env); cacheErr == nil {
+	var progressCache *cache.Cache
+	if opened, cacheErr := cache.Open(ctx, cfg.Redis, cfg.Env); cacheErr == nil {
+		progressCache = opened
 		defer func() { _ = progressCache.Close() }()
-		progressRedis = progressCache.Redis()
 	} else {
 		log.Warn("progress channel unavailable; import bars will poll", "error", cacheErr)
 	}
 	importRunRepo := importrun.WithProgress(
 		importrunPostgres.New(db),
-		progress.NewPublisher(progressRedis, progress.NewHub(), log),
+		progress.NewPublisher(func() *redis.Client {
+			if progressCache == nil {
+				return nil
+			}
+			return progressCache.Redis()
+		}, progress.NewHub(), log),
 	)
 	catRepo := catalogPostgres.NewRepository(db)
 	catSvcWorker := catalog.NewService(catRepo, log)

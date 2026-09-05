@@ -108,6 +108,9 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/compare/sample", h.CompareSampleDownload)
 		pub.Get("/compare/template", h.CompareSampleDownload)
 		pub.Post("/compare/upload", h.CompareUploadSubmit)
+		// Readiness of a freshly uploaded batch: the wizard waits on this
+		// rather than opening a column mapping for a file nobody has parsed.
+		pub.Get("/compare/files/staging", h.CompareStagingStatus)
 		pub.Post("/compare/files/{id}/rename", h.CompareFileRenameSubmit)
 		pub.Post("/compare/file/{id}/rename", h.CompareFileRenameSubmit)
 		pub.Post("/compare/files/{id}/archive", h.CompareFileArchiveSubmit)

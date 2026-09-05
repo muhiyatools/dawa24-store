@@ -305,8 +305,8 @@ func (mockCatalogRepoStub) ListBrands(context.Context) ([]*catalog.Brand, error)
 func (mockCatalogRepoStub) ListBrandsWithProductCount(context.Context, string, string, int, int) ([]*catalog.BrandWithCount, int, error) {
 	return nil, 0, nil
 }
-func (mockCatalogRepoStub) UpdateBrand(context.Context, *catalog.Brand) error    { return nil }
-func (mockCatalogRepoStub) DeleteBrand(context.Context, int64) error             { return nil }
+func (mockCatalogRepoStub) UpdateBrand(context.Context, *catalog.Brand) error { return nil }
+func (mockCatalogRepoStub) DeleteBrand(context.Context, int64) error          { return nil }
 func (mockCatalogRepoStub) ListBrandsByCategory(context.Context, int64) ([]*catalog.Brand, error) {
 	return nil, nil
 }

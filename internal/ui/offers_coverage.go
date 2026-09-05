@@ -27,10 +27,11 @@ func (h *UIHandler) pharmacyCustomerBranch(ctx context.Context, actor *authctx.A
 //
 // Rules:
 // 1. If the offer has specific location coverage rules in promo.offer_location_covers:
-//    - The pharmacy branch is covered if its city_id matches any active location's city_id,
-//      OR its coordinates fall within any active location's radius_meters.
+//   - The pharmacy branch is covered if its city_id matches any active location's city_id,
+//     OR its coordinates fall within any active location's radius_meters.
+//
 // 2. If the offer has NO specific location rules:
-//    - It falls back to the vendor's standard branch / weekly delivery coverage.
+//   - It falls back to the vendor's standard branch / weekly delivery coverage.
 func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.SpecialOffer, branch *org.Branch) (covered bool, reason string) {
 	if offer == nil {
 		return false, "بيانات العرض غير متوفرة"

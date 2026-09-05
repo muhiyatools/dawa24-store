@@ -463,7 +463,17 @@ window.addEventListener('DOMContentLoaded', () => {
 	const setupTotal = parseInt(params.get('setup_total') || '1', 10);
 
 	if (setupFile) {
-		openSetupModal(setupFile, setupQueue, setupStep, setupTotal);
+		// Wait for the batch to be readable before offering a column mapping.
+		//
+		// The upload records the files and hands the parse to a goroutine that
+		// outlives the request — that is what stops ten files from holding the
+		// browser open for minutes. It also means the columns of these files
+		// may not have been read yet, and a mapping wizard opened on an
+		// unparsed file shows a preview of nothing and asks the pharmacy to map
+		// columns that were never detected.
+		whenStagingReady(setupQueue || setupFile, () => {
+			openSetupModal(setupFile, setupQueue, setupStep, setupTotal);
+		});
 	} else {
 		const openFileId = params.get('open_mapping') || params.get('mapping_file');
 		if (openFileId) {
@@ -471,3 +481,79 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 });
+
+/*
+ * whenStagingReady polls the batch's readiness and calls done() once every file
+ * has left `processing`.
+ *
+ * It shows the shared upload dialog while it waits, in its indeterminate state:
+ * the server can honestly say how many FILES are finished, and nothing
+ * trustworthy about how far through a given file it is, so the bar reports the
+ * former and does not invent the latter.
+ *
+ * Failure to reach the endpoint is not failure of the import. The files are
+ * recorded and the parse is running regardless, so after a run of errors this
+ * stops waiting and opens the wizard anyway — a wizard that may be early is a
+ * better outcome than a dialog that never goes away.
+ */
+function whenStagingReady(ids, done) {
+	const modalId = 'compare-upload-progress';
+	const hasBar = typeof window.UploadProgress === 'function' && document.getElementById(modalId);
+	let bar = null;
+	let failures = 0;
+	let shown = false;
+
+	const finish = () => {
+		if (bar) {
+			bar.setPercent(100);
+			bar.setCaption('اكتملت قراءة الكشوف');
+			bar.close();
+		}
+		done();
+	};
+
+	const tick = () => {
+		fetch('/compare/files/staging?ids=' + encodeURIComponent(ids), {
+			headers: { Accept: 'application/json' },
+		})
+			.then((res) => {
+				if (!res.ok) throw new Error('HTTP ' + res.status);
+				return res.json();
+			})
+			.then((data) => {
+				failures = 0;
+				if (!data || data.ready) {
+					finish();
+					return;
+				}
+				if (hasBar && !shown) {
+					shown = true;
+					bar = new window.UploadProgress(modalId);
+					bar.open();
+				}
+				if (bar) {
+					bar.setCaption('جارٍ قراءة أصناف الكشوف…');
+					bar.setPercent(data.percent || 0);
+					bar.setCount((data.done || 0) + ' / ' + (data.total || 0));
+					bar.setFiles((data.files || []).map((f) => ({
+						name: f.name || ('#' + f.id),
+						state: f.status === 'failed' ? 'failed' : (f.done ? 'done' : 'pending'),
+						label: f.status === 'failed'
+							? 'تعذّرت القراءة'
+							: (f.done ? f.row_count + ' صنف' : 'جارٍ القراءة…'),
+					})));
+				}
+				setTimeout(tick, 1000);
+			})
+			.catch(() => {
+				failures++;
+				if (failures >= 5) {
+					finish();
+					return;
+				}
+				setTimeout(tick, 2000);
+			});
+	};
+
+	tick();
+}

@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -77,7 +78,14 @@ func TestCompareUploadSubmit_E2E(t *testing.T) {
 		t.Errorf("expected success notice, got notice=%s msg=%s", u.Query().Get("notice"), u.Query().Get("msg"))
 	}
 
-	// Verify file and rows in repository
+	// Verify file and rows in repository.
+	//
+	// The rows arrive AFTER the redirect. Reading a whole workbook and writing
+	// every row of it used to happen inside this POST, which is why a ten-file
+	// batch held the browser for minutes; the upload now records the file and
+	// hands the parse to a goroutine that outlives the request. So the handler
+	// returning is the start of the work, not the end of it, and the test waits
+	// for the outcome exactly as the screen does.
 	if len(repo.files) != 1 {
 		t.Fatalf("expected 1 file stored in repo, got %d", len(repo.files))
 	}
@@ -85,14 +93,17 @@ func TestCompareUploadSubmit_E2E(t *testing.T) {
 	for _, f := range repo.files {
 		uploadedFile = f
 	}
-	if uploadedFile.RowCount != 2 {
-		t.Errorf("expected 2 rows extracted, got %d", uploadedFile.RowCount)
-	}
 	if uploadedFile.SupplierName != "شركة الفتح لتوزيع الأدوية" {
 		t.Errorf("unexpected supplier name: %s", uploadedFile.SupplierName)
 	}
-	if len(repo.fileRows[uploadedFile.ID]) != 2 {
-		t.Errorf("expected 2 file rows stored, got %d", len(repo.fileRows[uploadedFile.ID]))
+
+	waitForStaging(t, repo, uploadedFile.ID)
+
+	if got := repo.fileOf(uploadedFile.ID).RowCount; got != 2 {
+		t.Errorf("expected 2 rows extracted, got %d", got)
+	}
+	if len(repo.rowsOf(uploadedFile.ID)) != 2 {
+		t.Errorf("expected 2 file rows stored, got %d", len(repo.rowsOf(uploadedFile.ID)))
 	}
 
 	// Test CompareToolPage renders the file and success notice
@@ -105,8 +116,19 @@ func TestCompareUploadSubmit_E2E(t *testing.T) {
 	if !strings.Contains(toolBody, "شركة الفتح لتوزيع الأدوية") {
 		t.Errorf("expected CompareToolPage to contain supplier name, got: %s", toolBody)
 	}
-	if !strings.Contains(toolBody, "2 صنف جاهز") {
-		t.Errorf("expected CompareToolPage to contain row count badge")
+	// The row-count badge on the file card, not the notice text.
+	//
+	// This used to assert against the redirect's success message, which quoted
+	// a row count the upload knew because it had just parsed everything inside
+	// the request. It no longer knows: the parse is detached, so the message
+	// counts files and the ROW count is whatever the staged file ended up with.
+	// Reading it off the rendered card is the stronger assertion anyway — it is
+	// the number the pharmacy actually sees.
+	if !strings.Contains(toolBody, "2 صنف") {
+		t.Errorf("expected CompareToolPage to show the staged row count badge")
+	}
+	if !strings.Contains(toolBody, "شركة الفتح لتوزيع الأدوية") {
+		t.Errorf("expected the supplier card to be listed")
 	}
 }
 
@@ -374,4 +396,24 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	if !strings.Contains(body, "market-list-date") {
 		t.Error("the cards do not show the upload date")
 	}
+}
+
+// waitForStaging blocks until the detached parse has recorded its outcome.
+//
+// Polling rather than a channel, because the thing under test is a goroutine
+// the handler deliberately does not hand back — the screen learns the outcome
+// by asking, and so does this.
+func waitForStaging(t *testing.T, repo *mockCompareRepoE2E, fileID int64) {
+	t.Helper()
+	deadline := time.Now().Add(10 * time.Second)
+	for time.Now().Before(deadline) {
+		if f := repo.fileOf(fileID); f != nil && f.Status != compare.FileProcessing {
+			if f.Status == compare.FileFailed {
+				t.Fatalf("staging failed: %s", f.ErrorMessage)
+			}
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	t.Fatalf("file %d never left %q", fileID, compare.FileProcessing)
 }

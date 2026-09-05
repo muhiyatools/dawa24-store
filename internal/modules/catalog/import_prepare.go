@@ -283,6 +283,22 @@ func (s *Service) persistedProgress(ctx context.Context, publicID string, report
 	var last ImportPhase
 	return func(phase ImportPhase, current, total int) {
 		report.report(phase, current, total)
+
+		// Announce EVERY tick, persist only phase changes.
+		//
+		// These are two different jobs and they want two different rates. The
+		// row exists so a page opened in another tab can say what the run is
+		// doing, which one write per phase answers. A bar being watched wants
+		// the batch-by-batch movement — and taking that from the row would mean
+		// either writing per batch or a watcher re-reading on a timer, which is
+		// the polling this replaced. Publishing costs a map lookup and a
+		// channel send.
+		if s.notifyProgress != nil {
+			s.notifyProgress(publicID, ImportProgress{
+				Phase: phase, Current: current, Total: total, Message: phase.Label(),
+			})
+		}
+
 		if phase == last {
 			return
 		}

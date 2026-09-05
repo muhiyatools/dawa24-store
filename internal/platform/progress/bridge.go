@@ -31,20 +31,42 @@ import (
 // the process is free by comparison.
 const channel = "dawa24:import-progress"
 
+// RedisSource resolves the shared Redis client.
+//
+// A function rather than a client, and that is the whole point of it. The HTTP
+// listener opens before Redis is dialled, so anything constructed at wiring
+// time that CAPTURES a client captures nil — and holds nil for the life of the
+// process, however healthy Redis becomes a second later. Every cross-process
+// progress message would then be dropped silently, in a deployment that looked
+// entirely fine because the local hub still worked.
+//
+// May be nil, and may return nil. Both mean "no cross-process channel today",
+// which degrades progress to the local hub plus the stream's safety poll rather
+// than breaking it.
+type RedisSource func() *redis.Client
+
 // Publisher sends snapshots to the other processes.
 type Publisher struct {
-	rdb *redis.Client
-	hub *Hub
-	log *slog.Logger
+	redis RedisSource
+	hub   *Hub
+	log   *slog.Logger
 }
 
-// NewPublisher returns a publisher that feeds the local hub and, when a Redis
-// client is available, the other processes too.
+// NewPublisher returns a publisher that feeds the local hub and, when Redis is
+// reachable, the other processes too.
 //
-// rdb may be nil. A worker with no Redis still publishes locally, which is what
-// the tests use and what a single-process deployment gets.
-func NewPublisher(rdb *redis.Client, hub *Hub, log *slog.Logger) *Publisher {
-	return &Publisher{rdb: rdb, hub: hub, log: log}
+// redis may be nil. A worker with no Redis still publishes locally, which is
+// what the tests use and what a single-process deployment gets.
+func NewPublisher(redis RedisSource, hub *Hub, log *slog.Logger) *Publisher {
+	return &Publisher{redis: redis, hub: hub, log: log}
+}
+
+// client resolves the Redis handle for this call, or nil.
+func (p *Publisher) client() *redis.Client {
+	if p == nil || p.redis == nil {
+		return nil
+	}
+	return p.redis()
 }
 
 // Publish delivers a snapshot locally and across the bus.
@@ -62,7 +84,8 @@ func (p *Publisher) Publish(ctx context.Context, s Snapshot) {
 	}
 	p.hub.Publish(s)
 
-	if p.rdb == nil {
+	rdb := p.client()
+	if rdb == nil {
 		return
 	}
 	payload, err := json.Marshal(s)
@@ -74,7 +97,7 @@ func (p *Publisher) Publish(ctx context.Context, s Snapshot) {
 	// the terminal snapshot is the one that matters most.
 	sendCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
 	defer cancel()
-	if err := p.rdb.Publish(sendCtx, channel, payload).Err(); err != nil && p.log != nil {
+	if err := rdb.Publish(sendCtx, channel, payload).Err(); err != nil && p.log != nil {
 		p.log.DebugContext(ctx, "progress publish failed", "run", s.ID, "error", err)
 	}
 }
@@ -84,13 +107,28 @@ func (p *Publisher) Publish(ctx context.Context, s Snapshot) {
 // Run one per server process. It returns when ctx is cancelled; a connection
 // that drops is retried, because a bridge that gives up silently turns every
 // progress bar in the deployment into a five-second poll with nobody the wiser.
-func Bridge(ctx context.Context, rdb *redis.Client, hub *Hub, log *slog.Logger) {
-	if rdb == nil || hub == nil {
+func Bridge(ctx context.Context, source RedisSource, hub *Hub, log *slog.Logger) {
+	if source == nil || hub == nil {
 		return
 	}
 	const retryDelay = 2 * time.Second
 
 	for ctx.Err() == nil {
+		// Resolved on every attempt, never captured. Bridge is started during
+		// wiring, before Redis has been dialled, so a client read once at the
+		// top would be nil for ever and this loop would exit immediately —
+		// leaving every deployment that runs cmd/worker separately with no
+		// cross-process progress at all, and nothing in the logs to say so.
+		rdb := source()
+		if rdb == nil {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(retryDelay):
+			}
+			continue
+		}
+
 		sub := rdb.Subscribe(ctx, channel)
 		ch := sub.Channel()
 

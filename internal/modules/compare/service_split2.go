@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -153,8 +151,22 @@ func (s *Service) UploadAndProcessCompareFile(
 		return file, archived, nil
 	}
 
+	if err := s.StageUploadedRows(ctx, file, fileBytes); err != nil {
+		return file, archived, err
+	}
+	return file, archived, nil
+}
+
+// StageUploadedRows reads a freshly uploaded spreadsheet and stores its rows.
+//
+// Split out of UploadAndProcessCompareFile so the same work can run detached
+// from the request that uploaded the file — see RegisterAndStage. Everything
+// below this line used to be inline there, and is unchanged: it detects the
+// header row, auto-maps the columns, extracts the rows and records the outcome
+// on the file.
+func (s *Service) StageUploadedRows(ctx context.Context, file *CompareFile, fileBytes []byte) error {
 	// 1. Read all rows from file using universal spreadsheet reader
-	allRows, err := sheet.ReadRows(fileBytes, originalFilename)
+	allRows, err := sheet.ReadRows(fileBytes, file.OriginalFilename)
 	if err != nil || len(allRows) == 0 {
 		file.Status = FileFailed
 		file.ErrorMessage = i18n.TDefault("w4_mod.s_375_375")
@@ -162,7 +174,7 @@ func (s *Service) UploadAndProcessCompareFile(
 			file.ErrorMessage = filesecurity.SecurityErrorMessage
 		}
 		_ = s.repo.UpdateFile(ctx, file)
-		return file, archived, err
+		return err
 	}
 
 	// 2. Find best header row and detect columns
@@ -238,7 +250,7 @@ func (s *Service) UploadAndProcessCompareFile(
 	}
 
 	_ = s.repo.UpdateFile(ctx, file)
-	return file, archived, nil
+	return nil
 }
 
 // ProcessCompareFile downloads the uploaded spreadsheet from storage or local disk, parses it using the
@@ -253,45 +265,7 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 		return apperr.Validation("compare.no_mapping", "Column mapping not configured for this file.", nil)
 	}
 
-	var reader io.ReadCloser
-	// 1. Try object storage if available
-	if s.storage != nil && file.StorageKey != "" && !strings.HasPrefix(file.StorageKey, "/") && !strings.HasPrefix(file.StorageKey, "data/") {
-		r, _, err := s.storage.Get(ctx, file.StorageKey)
-		if err == nil {
-			reader = r
-		}
-	}
-
-	// 2. Try exact storage key on local disk
-	if reader == nil && file.StorageKey != "" {
-		cleanKey := strings.TrimPrefix(filepath.FromSlash(file.StorageKey), string(filepath.Separator))
-		candidates := []string{
-			file.StorageKey,
-			filepath.Join("data", cleanKey),
-			filepath.Join("data", "uploads", "compare", filepath.Base(file.StorageKey)),
-			filepath.Join("data", "uploads", "compare", filepath.Base(file.OriginalFilename)),
-			"data" + file.StorageKey,
-		}
-		for _, cand := range candidates {
-			if f, err := os.Open(cand); err == nil {
-				reader = f
-				break
-			}
-		}
-	}
-
-	// 3. Scan data/uploads/compare directory for matching files
-	if reader == nil {
-		entries, _ := os.ReadDir(filepath.Join("data", "uploads", "compare"))
-		for _, entry := range entries {
-			if !entry.IsDir() && (strings.Contains(entry.Name(), file.OriginalFilename) || strings.HasSuffix(entry.Name(), filepath.Ext(file.OriginalFilename))) {
-				if f, err := os.Open(filepath.Join("data", "uploads", "compare", entry.Name())); err == nil {
-					reader = f
-					break
-				}
-			}
-		}
-	}
+	reader := s.openStoredUpload(ctx, file)
 
 	// 4. If raw file is unavailable but rows were already extracted in DB, keep file ready without crashing
 	if reader == nil {

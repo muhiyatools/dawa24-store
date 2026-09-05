@@ -140,7 +140,16 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 											<div class="min-w-0">
 												<div class="d-flex items-center gap-1.5 flex-wrap">
 													<strong class="text-xs text-primary font-black text-truncate">{ f.SupplierName }</strong>
-													if f.RowCount > 0 {
+					if f.Status == compare.FileProcessing {
+														<!-- Its rows are being read right now, by a goroutine that
+														     outlived the upload request. Saying "جاهز" here — which
+														     is what a zero row count used to render — would tell the
+														     pharmacy a file was ready to compare while it was still
+														     being parsed. -->
+														<span class="badge badge-amber text-2xs font-bold">جارٍ القراءة…</span>
+													} else if f.Status == compare.FileFailed {
+														<span class="badge badge-rose text-2xs font-bold">تعذّرت القراءة</span>
+													} else if f.RowCount > 0 {
 														<span class="badge badge-emerald text-2xs font-bold">{ fmt.Sprintf("%d صنف", f.RowCount) }</span>
 													} else {
 														<span class="badge badge-secondary text-2xs font-bold">جاهز</span>

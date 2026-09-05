@@ -45,7 +45,37 @@ const (
 //
 // Returning ok=false means "no such run, or not this viewer's" and ends the
 // stream: authorisation is the caller's, not this package's.
+//
+// A Fetch is NOT required to set At. Most sources have no timestamp to give —
+// a vendor import session carries a phase and a percentage and nothing that
+// says when — so Stream stamps a zero At with the time of the read. See
+// readNow, and the bug it exists to prevent.
 type Fetch func(ctx context.Context) (Snapshot, bool)
+
+// readNow performs a fetch and timestamps the result.
+//
+// The stamp is what makes the safety poll work at all. Stream drops any
+// snapshot older than the one it is already showing, which is right for events
+// arriving out of order across a process boundary — and catastrophic for a
+// fetch that always returns a ZERO timestamp, because a zero time is before
+// everything. The moment one snapshot had been published, every subsequent
+// safety read looked stale and was discarded, so the one mechanism that exists
+// to recover a stream whose publisher has gone quiet was silently switched off
+// for the rest of the connection.
+//
+// What that looked like: a bar that stopped where the last published event left
+// it and never finished, on a run that had finished. The page had to be
+// reloaded to see the result.
+func readNow(ctx context.Context, fetch Fetch) (Snapshot, bool) {
+	s, ok := fetch(ctx)
+	if !ok {
+		return s, false
+	}
+	if s.At.IsZero() {
+		s.At = time.Now()
+	}
+	return s, true
+}
 
 // Stream writes one run's progress to w as server-sent events until the run
 // finishes, the client goes away, or maxStreamDuration expires.
@@ -56,7 +86,7 @@ type Fetch func(ctx context.Context) (Snapshot, bool)
 func Stream(w http.ResponseWriter, r *http.Request, hub *Hub, id string, fetch Fetch) {
 	flusher, canStream := w.(http.Flusher)
 	if !canStream {
-		snap, ok := fetch(r.Context())
+		snap, ok := readNow(r.Context(), fetch)
 		if !ok {
 			http.Error(w, "not found", http.StatusNotFound)
 			return
@@ -83,7 +113,7 @@ func Stream(w http.ResponseWriter, r *http.Request, hub *Hub, id string, fetch F
 	w.Header().Set("X-Accel-Buffering", "no")
 	w.WriteHeader(http.StatusOK)
 
-	current, ok := fetch(r.Context())
+	current, ok := readNow(r.Context(), fetch)
 	if !ok {
 		writeEvent(w, flusher, "gone", Snapshot{ID: id})
 		return
@@ -128,7 +158,7 @@ func Stream(w http.ResponseWriter, r *http.Request, hub *Hub, id string, fetch F
 			beat.Reset(heartbeat)
 
 		case <-poll.C:
-			s, ok := fetch(r.Context())
+			s, ok := readNow(r.Context(), fetch)
 			if !ok {
 				writeEvent(w, flusher, "gone", current)
 				return

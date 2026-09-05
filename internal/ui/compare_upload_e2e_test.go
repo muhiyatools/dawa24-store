@@ -3,15 +3,38 @@ package ui_test
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
+// mockCompareRepoE2E is written from two goroutines now.
+//
+// The upload handler records the file and hands the parse to a goroutine that
+// outlives the request, so the test reads these maps while that goroutine is
+// still writing them. Without the mutex the race detector fails the package —
+// correctly, because the real repository is a database and this is the only
+// thing standing in for its concurrency guarantees.
 type mockCompareRepoE2E struct {
+	mu       sync.Mutex
 	files    map[int64]*compare.CompareFile
 	fileRows map[int64][]*compare.CompareFileRow
 	nextID   int64
+}
+
+// fileOf and rowsOf are the test's read path, taking the same lock the
+// repository methods do.
+func (m *mockCompareRepoE2E) fileOf(id int64) *compare.CompareFile {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.files[id]
+}
+
+func (m *mockCompareRepoE2E) rowsOf(id int64) []*compare.CompareFileRow {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return append([]*compare.CompareFileRow(nil), m.fileRows[id]...)
 }
 
 func newMockCompareRepoE2E() *mockCompareRepoE2E {
@@ -96,12 +119,16 @@ func (m *mockCompareRepoE2E) TerminateUserSessions(ctx context.Context, userID i
 	return nil
 }
 func (m *mockCompareRepoE2E) CreateFile(ctx context.Context, f *compare.CompareFile) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	f.ID = m.nextID
 	m.nextID++
 	m.files[f.ID] = f
 	return nil
 }
 func (m *mockCompareRepoE2E) GetFileByID(ctx context.Context, id int64) (*compare.CompareFile, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if f, ok := m.files[id]; ok {
 		return f, nil
 	}
@@ -111,6 +138,8 @@ func (m *mockCompareRepoE2E) GetFileByPublicID(ctx context.Context, pid string) 
 	return nil, nil
 }
 func (m *mockCompareRepoE2E) ListFiles(ctx context.Context, userID int64, orgID *int64, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	var list []*compare.CompareFile
 	for _, f := range m.files {
 		list = append(list, f)
@@ -118,6 +147,8 @@ func (m *mockCompareRepoE2E) ListFiles(ctx context.Context, userID int64, orgID 
 	return list, nil
 }
 func (m *mockCompareRepoE2E) ListAllFiles(ctx context.Context, search string, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	var list []*compare.CompareFile
 	for _, f := range m.files {
 		list = append(list, f)
@@ -158,13 +189,20 @@ func (m *mockCompareRepoE2E) SetFileVisibility(ctx context.Context, id int64, vi
 	return nil
 }
 func (m *mockCompareRepoE2E) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	return len(m.files), nil
 }
 func (m *mockCompareRepoE2E) UpdateFile(ctx context.Context, f *compare.CompareFile) error {
-	m.files[f.ID] = f
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	stored := *f
+	m.files[f.ID] = &stored
 	return nil
 }
 func (m *mockCompareRepoE2E) RenameFile(ctx context.Context, id int64, name string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	if f, ok := m.files[id]; ok {
 		f.SupplierName = name
 	}
@@ -191,19 +229,25 @@ func (m *mockCompareRepoE2E) PurgeExpiredCompareFiles(ctx context.Context, defau
 	return 0, nil
 }
 func (m *mockCompareRepoE2E) InsertFileRows(ctx context.Context, rows []*compare.CompareFileRow) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	for _, r := range rows {
 		m.fileRows[r.FileID] = append(m.fileRows[r.FileID], r)
 	}
 	return nil
 }
 func (m *mockCompareRepoE2E) ListFileRows(ctx context.Context, fileID int64, limit, offset int) ([]*compare.CompareFileRow, error) {
-	return m.fileRows[fileID], nil
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return append([]*compare.CompareFileRow(nil), m.fileRows[fileID]...), nil
 }
 func (m *mockCompareRepoE2E) GetFileRowsPaginated(ctx context.Context, fileID int64, page, limit int) ([]*compare.CompareFileRow, int64, error) {
 	rows := m.fileRows[fileID]
 	return rows, int64(len(rows)), nil
 }
 func (m *mockCompareRepoE2E) DeleteFileRows(ctx context.Context, fileID int64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	delete(m.fileRows, fileID)
 	return nil
 }

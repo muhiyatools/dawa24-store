@@ -57,6 +57,16 @@ type ImportSessionStore interface {
 	) (archived int64, result BulkWriteResult, err error)
 }
 
+// ProgressNotifier is told every progress tick of a running import.
+//
+// It exists so the live bar can move batch by batch while the session ROW is
+// still written once per phase. Optional: a nil notifier means the only source
+// of progress is the row, which is what every screen had before.
+type ProgressNotifier func(publicID string, p ImportProgress)
+
+// SetProgressNotifier installs the live-progress hook.
+func (s *Service) SetProgressNotifier(fn ProgressNotifier) { s.notifyProgress = fn }
+
 // SetImportStore installs the staging persistence.
 func (s *Service) SetImportStore(store ImportSessionStore) {
 	s.imports = store
