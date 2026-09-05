@@ -211,7 +211,7 @@ type Settings struct {
 	// holds their own warehouse numbering got confident links to unrelated
 	// medicines with nothing in the review screen to mark them as doubtful.
 	TrustBarcode bool
-	// CodeIsCatalogCode says the mapped code column holds دواء 24's own codes
+	// CodeIsCatalogCode says the mapped code column holds دوا 24's own codes
 	// rather than the vendor's internal numbering. Only then is a code hit
 	// accepted without the name agreeing too.
 	CodeIsCatalogCode bool `json:"trust_supplier_code"`
@@ -260,7 +260,7 @@ func DefaultSettings() Settings {
 		RejectExpired:       false,
 		DefaultMinOrderQty:  1,
 		DefaultMinThreshold: 0,
-		PublishImmediately:  false,
+		PublishImmediately:  true,
 		RecordRows:          true,
 	}
 }

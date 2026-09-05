@@ -27,7 +27,7 @@ func TestAuthLoginPage_Render(t *testing.T) {
 		"auth-card",
 		"auth-header",
 		"auth-title",
-		"منصة دواء 24",
+		"منصة دوا 24",
 		"تسجيل الدخول إلى حسابك الصيدلي أو التجاري",
 		"pwd-input-wrap",
 		"pwd-toggle-btn",

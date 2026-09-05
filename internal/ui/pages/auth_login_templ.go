@@ -46,7 +46,7 @@ func LoginPage(lang, dir, errorMsg string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\" x-data=\"{ showPwd: false }\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"auth-logo-img\"></a><h1 class=\"auth-title\">منصة دواء 24</h1><p class=\"auth-subtitle\">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\" x-data=\"{ showPwd: false }\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"auth-logo-img\"></a><h1 class=\"auth-title\">منصة دوا 24</h1><p class=\"auth-subtitle\">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

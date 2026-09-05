@@ -94,10 +94,9 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 
 			varName := sr.EffectiveVariantName()
 			status := catalog.StatusActive
-			if !session.Settings.PublishImmediately {
-				status = catalog.StatusInactive
-			}
 			if sr.Payload != nil && sr.Payload.Status == "inactive" {
+				status = catalog.StatusInactive
+			} else if !session.Settings.PublishImmediately {
 				status = catalog.StatusInactive
 			}
 

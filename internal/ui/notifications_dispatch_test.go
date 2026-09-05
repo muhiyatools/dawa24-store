@@ -97,7 +97,7 @@ func TestNotificationsDispatch_Comprehensive(t *testing.T) {
 	assert.NotEmpty(t, nRepo.logs)
 	lastLog := nRepo.logs[len(nRepo.logs)-1]
 	assert.Equal(t, int64(501), lastLog.UserID)
-	assert.Contains(t, lastLog.Title, "دواء 24")
+	assert.Contains(t, lastLog.Title, "دوا 24")
 
 	// 2. Org Approved / Rejected Notification
 	handler.notifyOrgApproved(ctx, orgID)

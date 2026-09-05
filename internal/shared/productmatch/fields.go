@@ -160,7 +160,7 @@ type Spec struct {
 // name, code, public price, discount — are the first four rows a vendor sees.
 var Specs = []Spec{
 	{FieldName, "اسم الصنف", "الاسم التجاري كما يكتبه المورد؛ أهم عمود في المطابقة", GroupIdentity, KindText, NeedCore, "بانادول إكسترا 24 قرص"},
-	{FieldProductID, "معرف المنتج في دواء 24", "رقم الصنف في الكتالوج المركزي — يوجد فقط في ملف سبق تصديره من المنصة", GroupIdentity, KindCode, NeedOptional, "311352"},
+	{FieldProductID, "معرف المنتج في دوا 24", "رقم الصنف في الكتالوج المركزي — يوجد فقط في ملف سبق تصديره من المنصة", GroupIdentity, KindCode, NeedOptional, "311352"},
 	{FieldSKU, "كود الصنف لدى المورد", "الكود الداخلي للمورد — يُستخدم للتعرف على الصنف عند إعادة الرفع", GroupIdentity, KindCode, NeedImportant, "12690"},
 	{FieldBarcode, "الباركود الدولي", "باركود GTIN/EAN المطبوع على العبوة", GroupIdentity, KindCode, NeedOptional, "6221234567890"},
 	{FieldNameEN, "الاسم بالإنجليزية", "اسم الصنف اللاتيني إن وُجد في عمود منفصل", GroupIdentity, KindText, NeedOptional, "Panadol Extra"},

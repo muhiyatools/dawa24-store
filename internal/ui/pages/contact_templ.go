@@ -64,7 +64,7 @@ func ContactPage(lang, dir string, submitted bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mk-page\"><header class=\"mk-masthead\"><p class=\"mk-eyebrow\">تواصل معنا</p><h1 class=\"mk-title\">تحدّث إلى فريق دواء 24</h1><p class=\"mk-lede\">للطلبات العاجلة اتصل. لكل ما عداها، اترك رسالة ويصلك ردّ من الفريق المختص.</p></header>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<article class=\"mk-page\"><header class=\"mk-masthead\"><p class=\"mk-eyebrow\">تواصل معنا</p><h1 class=\"mk-title\">تحدّث إلى فريق دوا 24</h1><p class=\"mk-lede\">للطلبات العاجلة اتصل. لكل ما عداها، اترك رسالة ويصلك ردّ من الفريق المختص.</p></header>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

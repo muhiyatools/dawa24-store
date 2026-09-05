@@ -194,7 +194,7 @@ func RolesPage(v RolesView, lang, dir string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = roleShell(v.Tenant, v.Title+" | دواء 24", "roles", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = roleShell(v.Tenant, v.Title+" | دوا 24", "roles", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -627,7 +627,7 @@ func RoleEditPage(v RoleEditView, lang, dir string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = roleShell(v.Tenant, v.Name+" | الصلاحيات | دواء 24", "roles", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = roleShell(v.Tenant, v.Name+" | الصلاحيات | دوا 24", "roles", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

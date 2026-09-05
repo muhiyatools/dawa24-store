@@ -35,7 +35,7 @@ type OfferCardData struct {
 }
 
 templ OffersPage(lang, dir string, offers []*OfferCardData, sort string) {
-	@layouts.ShellFor("العروض والخصومات الدوائية | دواء 24", "offers", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor("العروض والخصومات الدوائية | دوا 24", "offers", lang, dir, authctx.FromContext(ctx)) {
 		@OffersContent(lang, offers, sort)
 	}
 }
@@ -97,6 +97,7 @@ templ OffersContent(lang string, offers []*OfferCardData, sort string) {
 				>
 					<option value="newest" selected?={ sort == "" || sort == "newest" }>الأحدث</option>
 					<option value="discount_desc" selected?={ sort == "discount_desc" }>الأعلى خصماً</option>
+					<option value="discount_asc" selected?={ sort == "discount_asc" }>الأقل خصماً</option>
 					<option value="price_asc" selected?={ sort == "price_asc" }>الأقل سعراً</option>
 					<option value="price_desc" selected?={ sort == "price_desc" }>الأعلى سعراً</option>
 				</select>

@@ -36,7 +36,7 @@ type AdminOrgChangesView struct {
 }
 
 templ AdminOrgChangesPage(v AdminOrgChangesView, lang, dir string) {
-	@layouts.AdminShell(i18n.T(lang, "admin.org_changes.title")+" | دواء 24", "org_changes", lang, dir) {
+	@layouts.AdminShell(i18n.T(lang, "admin.org_changes.title")+" | دوا 24", "org_changes", lang, dir) {
 		<div class="page-container">
 			@roleNotice(v.NoticeKind, v.Notice)
 

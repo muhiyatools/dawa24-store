@@ -193,7 +193,7 @@ func AdminOrgChangesPage(v AdminOrgChangesView, lang, dir string) templ.Componen
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell(i18n.T(lang, "admin.org_changes.title")+" | دواء 24", "org_changes", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell(i18n.T(lang, "admin.org_changes.title")+" | دوا 24", "org_changes", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

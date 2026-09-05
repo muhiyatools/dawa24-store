@@ -48,7 +48,7 @@ func (h *UIHandler) MarkdownNegotiationMiddleware(next http.Handler) http.Handle
 
 		switch path {
 		case "/":
-			mdContent = `# Dawa24 (دواء 24) - B2B Pharmaceutical Marketplace
+			mdContent = `# Dawa24 (دوا 24) - B2B Pharmaceutical Marketplace
 
 Unified platform connecting licensed pharmacies with verified pharmaceutical suppliers and warehouses in Egypt.
 

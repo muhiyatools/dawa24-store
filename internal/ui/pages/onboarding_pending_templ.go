@@ -132,7 +132,7 @@ func OnboardingPending(lang, dir, state string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><h1 class=\"status-title\">حسابك قيد المراجعة</h1><p class=\"status-desc\">تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دواء 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب.</p><div class=\"status-steps\"><div class=\"status-steps-title\">ماذا يحدث بعد ذلك؟</div><ul class=\"status-steps-list\"><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><h1 class=\"status-title\">حسابك قيد المراجعة</h1><p class=\"status-desc\">تم استلام طلب انضمام مؤسستك بنجاح. يراجع فريق دوا 24 المستندات المرسلة — عادةً خلال يوم عمل واحد — ثم تصلك رسالة فور اعتماد الحساب.</p><div class=\"status-steps\"><div class=\"status-steps-title\">ماذا يحدث بعد ذلك؟</div><ul class=\"status-steps-list\"><li>مراجعة السجل التجاري وبيانات المنشأة</li><li>التحقق من ترخيص الصيدلي عند الحاجة</li><li>إرسال إشعار الاعتماد أو طلب مستندات إضافية</li></ul></div><div class=\"status-actions\"><a href=\"/documents\" class=\"btn btn-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

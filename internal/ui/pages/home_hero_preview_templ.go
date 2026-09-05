@@ -41,7 +41,7 @@ func HeroPlatformClone() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>منصة دواء 24 — إدارة التوريد الذكي والربط المباشر</span></div><div class=\"preview-window-status\"><span class=\"status-live-indicator\"></span> <span class=\"status-live-text\">متصل حي بالشبكة الدوائية</span></div></div><!-- Workspace Header Bar --><div class=\"preview-workspace-bar\"><div class=\"preview-pharmacy-info\"><div class=\"preview-pharmacy-badge\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>منصة دوا 24 — إدارة التوريد الذكي والربط المباشر</span></div><div class=\"preview-window-status\"><span class=\"status-live-indicator\"></span> <span class=\"status-live-text\">متصل حي بالشبكة الدوائية</span></div></div><!-- Workspace Header Bar --><div class=\"preview-workspace-bar\"><div class=\"preview-pharmacy-info\"><div class=\"preview-pharmacy-badge\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

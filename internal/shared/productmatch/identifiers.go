@@ -48,7 +48,7 @@ type IdentifierChoices struct {
 	ByCode bool
 	// ByBarcode allows the file's barcode to settle a match.
 	ByBarcode bool
-	// CodeIsCatalogCode declares that the mapped code column holds دواء 24's
+	// CodeIsCatalogCode declares that the mapped code column holds دوا 24's
 	// own codes rather than the file owner's internal numbering. Only then is a
 	// code hit accepted without the name agreeing as well.
 	CodeIsCatalogCode bool

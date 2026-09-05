@@ -96,6 +96,7 @@ const updateVariantSQL = `
 	    min_order_qty = $15,
 	    branch_id = COALESCE($16, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = $2 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
 	    product_id = COALESCE($17, product_id),
+	    status = CASE WHEN $18 <> '' THEN $18 ELSE status END,
 	    updated_at = now()
 	WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL
 	RETURNING id`
@@ -223,12 +224,11 @@ func (r *Repository) writeVariantsOneByOne(
 // queueVariant appends one insert or update to a batch.
 func queueVariant(batch *pgx.Batch, orgID int64, v *catalog.ProductVariant) {
 	if v.ID > 0 {
-		// No status on the update path: see updateVariantSQL.
 		batch.Queue(updateVariantSQL,
 			v.ID, orgID, v.Name, v.SKU, v.Barcode, v.Price, v.CostPrice,
 			v.CostDiscountPercentage,
 			v.Discount, v.Unit, v.Image, v.IsNegotiable,
-			v.BatchNumber, v.ExpiryDate, v.MinOrderQty, v.BranchID, nullableID(v.ProductID))
+			v.BatchNumber, v.ExpiryDate, v.MinOrderQty, v.BranchID, nullableID(v.ProductID), string(v.Status))
 		return
 	}
 	batch.Queue(insertVariantSQL,

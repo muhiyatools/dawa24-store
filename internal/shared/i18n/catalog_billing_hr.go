@@ -178,7 +178,7 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "invoice.customer_redirect_info", "billing", "يمكنك طباعة الفواتير الضريبية مباشرة من صفحة تفاصيل الطلب.", "You can print tax invoices directly from the order details page.", "Redirect info notice")
 	addKey(e, "invoice.prepare_failed", "billing", "تعذر تجهيز بيانات الفاتورة للطباعة", "Unable to prepare invoice data for printing", "Print error")
 	addKey(e, "invoice.print_pending_error", "billing", "لا يمكن طباعة الفاتورة قبل قبول وتأكيد المورد للطلب.", "Invoice cannot be printed before supplier confirms and accepts the order.", "Order pending error")
-	addKey(e, "invoice.default_vendor_display_name", "billing", "المورد المعتمد - دواء 24", "Approved Supplier - Dawa24", "Default vendor name")
+	addKey(e, "invoice.default_vendor_display_name", "billing", "المورد المعتمد - دوا 24", "Approved Supplier - Dawa24", "Default vendor name")
 	addKey(e, "invoice.default_vendor_legal_name", "billing", "شركة توزيع الأدوية والمستلزمات الطبية", "Pharmaceutical & Medical Supply Distribution Co.", "Default vendor legal name")
 	addKey(e, "invoice.default_vendor_address", "billing", "المنطقة الصناعية - مخازن الأدوية", "Industrial Zone - Medical Warehouses", "Default vendor address")
 	addKey(e, "invoice.default_vendor_city", "billing", "القاهرة", "Cairo", "Default vendor city")

@@ -169,7 +169,7 @@ func AdminCreditAccountsPage(v AdminCreditAccountsView, lang, dir string) templ.
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("حسابات المنشآت والباقات | دواء 24", "offers_packages", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("حسابات المنشآت والباقات | دوا 24", "offers_packages", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -456,7 +456,7 @@ func AdminOrgPackagesPage(v AdminOrgPackagesView, lang, dir string) templ.Compon
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell(v.OrgName+" | باقات المنشأة | دواء 24", "offers_packages", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell(v.OrgName+" | باقات المنشأة | دوا 24", "offers_packages", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -38,7 +38,7 @@ func TestPhase2_SSEStreamingDecoding(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 
 		// Frame 3: content delta 2 + usage
-		fmt.Fprintf(w, "data: {\"choices\":[{\"delta\":{\"content\":\"في دواء 24\"}}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":15,\"total_tokens\":25,\"completion_tokens_details\":{\"reasoning_tokens\":5}}}\n\n")
+		fmt.Fprintf(w, "data: {\"choices\":[{\"delta\":{\"content\":\"في دوا 24\"}}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":15,\"total_tokens\":25,\"completion_tokens_details\":{\"reasoning_tokens\":5}}}\n\n")
 		flusher.Flush()
 		time.Sleep(10 * time.Millisecond)
 
@@ -91,8 +91,8 @@ func TestPhase2_SSEStreamingDecoding(t *testing.T) {
 	if gatheredReasoning != "thinking step 1" {
 		t.Errorf("T2.1 failed: expected reasoning 'thinking step 1', got %q", gatheredReasoning)
 	}
-	if gatheredText != "مرحبا بك في دواء 24" {
-		t.Errorf("T2.1 failed: expected full text 'مرحبا بك في دواء 24', got %q", gatheredText)
+	if gatheredText != "مرحبا بك في دوا 24" {
+		t.Errorf("T2.1 failed: expected full text 'مرحبا بك في دوا 24', got %q", gatheredText)
 	}
 	if usageFound == nil || usageFound.TotalTokens != 25 || usageFound.ReasoningTokens != 5 {
 		t.Errorf("T2.1 failed: usage mismatch: %+v", usageFound)

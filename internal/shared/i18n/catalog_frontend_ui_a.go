@@ -257,10 +257,10 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "notif.wallet_withdrawal_rejected_body", "wallet", "تم رفض طلب سحب مبلغ %s ج.م من المحفظة.", "Withdrawal request of %s EGP was rejected.", "Wallet withdrawal rejected body")
 
 	// --- Registration & Organization Approval Notifications ---
-	addKey(e, "notif.account_registered_title", "identity", "مرحباً بك في منصة دواء 24! 🌿", "Welcome to Dawa24 Platform!", "Welcome registration title")
+	addKey(e, "notif.account_registered_title", "identity", "مرحباً بك في منصة دوا 24! 🌿", "Welcome to Dawa24 Platform!", "Welcome registration title")
 	addKey(e, "notif.account_registered_body", "identity", "تم إنشاء حسابك بنجاح. طلب اعتماد المنشأة قيد المراجعة والتدقيق بواسطة فريق الإدارة لتفعيل كافة خدمات التوريد والشراء.", "Your account has been created successfully. Organization verification is under review by administration.", "Welcome registration body")
 	addKey(e, "notif.org_approved_title", "org", "تم اعتماد وتفعيل حساب منشأتك بنجاح 🚀", "Your organization has been approved and activated!", "Org approved notification title")
-	addKey(e, "notif.org_approved_body", "org", "تهانينا! تمت مراجعة واعتماد بيانات المنشأة والتراخيص بنجاح بواسطة إدارة دواء 24. تم تفعيل كامل صلاحيات التوريد والطلب بالمنصة.", "Congratulations! Your organization profile and licenses have been verified and approved by Dawa24 admins.", "Org approved notification body")
+	addKey(e, "notif.org_approved_body", "org", "تهانينا! تمت مراجعة واعتماد بيانات المنشأة والتراخيص بنجاح بواسطة إدارة دوا 24. تم تفعيل كامل صلاحيات التوريد والطلب بالمنصة.", "Congratulations! Your organization profile and licenses have been verified and approved by Dawa24 admins.", "Org approved notification body")
 	addKey(e, "notif.org_rejected_title", "org", "تحديث بشأن طلب اعتماد المنشأة", "Update on organization approval request", "Org rejected notification title")
 	addKey(e, "notif.org_rejected_body", "org", "تم فحص طلب اعتماد المنشأة من قِبل إدارة المنصة. يرجى مراجعة المستندات أو التواصل مع الدعم الفني.", "Your organization approval request was reviewed. Please check your documents or contact support.", "Org rejected notification body")
 	addKey(e, "notif.new_registration_title", "identity", "تسجيل جديد بانتظار المراجعة", "New registration pending review", "Admin new registration title")

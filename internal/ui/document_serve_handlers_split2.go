@@ -66,7 +66,7 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
   <!-- Top Header Bar -->
   <path d="M0 16C0 7.16344 7.16344 0 16 0H784C792.837 0 800 7.16344 800 16V80H0V16Z" fill="#0F172A"/>
   <text x="760" y="48" fill="#38BDF8" font-size="22" font-weight="800" text-anchor="end">DAWA24</text>
-  <text x="40" y="48" fill="#94A3B8" font-size="14" font-weight="600">منصة دواء24 لتداول وتوثيق الأدوية</text>
+  <text x="40" y="48" fill="#94A3B8" font-size="14" font-weight="600">منصة دوا 24 لتداول وتوثيق الأدوية</text>
   
   <!-- Document Icon & Title -->
   <circle cx="720" cy="140" r="32" fill="#F1F5F9"/>
@@ -108,7 +108,7 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 
   <!-- Footer Seal -->
   <rect x="40" y="425" width="720" height="60" rx="8" fill="#F1F5F9"/>
-  <text x="720" y="460" fill="#475569" font-size="12" font-weight="600" text-anchor="end">🔒 هذا المستند مسجل وموثق إلكترونياً بقاعدة بيانات منصة دواء24 الرسمية.</text>
+  <text x="720" y="460" fill="#475569" font-size="12" font-weight="600" text-anchor="end">🔒 هذا المستند مسجل وموثق إلكترونياً بقاعدة بيانات منصة دوا 24 الرسمية.</text>
   <text x="60" y="460" fill="#10B981" font-size="13" font-weight="800" text-anchor="start">VERIFIED COMPLIANCE RECORD ✓</text>
 </svg>`,
 		typeNameAr,

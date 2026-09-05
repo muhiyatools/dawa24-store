@@ -77,7 +77,7 @@ type TenantTeamView struct {
 }
 
 templ TenantTeamPage(v TenantTeamView, lang, dir string) {
-	@layouts.ShellFor(v.Title+" | دواء 24", "team", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(v.Title+" | دوا 24", "team", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			@roleNotice(v.NoticeKind, v.Notice)
 			@teamHeader(v)

@@ -225,7 +225,7 @@ func (r *Repository) RebuildProductIndex(ctx context.Context) (int64, error) {
 				CONCAT_WS(' ', COALESCE(p.name->>'ar', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.name->>'ar', '')) AS search_ar,
 				CONCAT_WS(' ', COALESCE(p.name->>'en', ''), COALESCE(p.scientific_name, ''), COALESCE(p.pharmacology, ''), COALESCE(p.manufacturing_companies, ''), COALESCE(o.name->>'en', '')) AS search_en,
 				CONCAT_WS(' ', platform.normalize_arabic(COALESCE(p.name->>'ar', '')), COALESCE(p.name->>'en', ''), COALESCE(p.sku, '')) AS search_simple,
-				COALESCE(o.name->>'ar', o.name->>'en', 'دواء 24') AS organization_name,
+				COALESCE(o.name->>'ar', o.name->>'en', 'دوا 24') AS organization_name,
 				COALESCE(b.name->>'ar', 'المخزن الرئيسي') AS branch_city,
 				p.scientific_name,
 				p.price,

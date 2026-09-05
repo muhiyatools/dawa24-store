@@ -927,7 +927,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = vendorImportSwitch("code_is_catalog_code", "", "عمود الكود يحمل أكواد دواء 24 نفسها", "",
+			templ_7745c5c3_Err = vendorImportSwitch("code_is_catalog_code", "", "عمود الكود يحمل أكواد دوا 24 نفسها", "",
 				view.Session.Settings.CodeIsCatalogCode).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

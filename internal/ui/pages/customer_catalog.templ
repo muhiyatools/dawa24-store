@@ -106,7 +106,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@CustomerCatalogResults(data, lang)
 	} else {
-		@layouts.ShellFor("كتالوج توريد الأدوية والمستلزمات الطبية | دواء 24", "catalog", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor("كتالوج توريد الأدوية والمستلزمات الطبية | دوا 24", "catalog", lang, dir, authctx.FromContext(ctx)) {
 			<div class="py-2">
 				
 				<!-- Page Header Strip -->

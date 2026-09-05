@@ -58,9 +58,11 @@ func (h *UIHandler) buildCatalogVariantCards(
 
 		if len(offers) > 0 {
 			for _, off := range offers {
-				// Uncovered offers are included with CanAddToCart=false and IsCovered=false
-				// so the pharmacist clearly sees the supplier and why it is not orderable today.
-				if inStock && off.AvailableStock <= 0 {
+				// Only display available-to-order variants: must have stock and be orderable
+				if off.AvailableStock <= 0 {
+					continue
+				}
+				if off.VariantID <= 0 {
 					continue
 				}
 				if hasDiscount && off.DiscountBPS <= 0 {
@@ -102,15 +104,6 @@ func (h *UIHandler) buildCatalogVariantCards(
 					BrandLogo:       pBrandLogo,
 					ScientificName:  p.ScientificName,
 					PublicPrice:     p.Price,
-					SupplierID:      off.SupplierID,
-					SupplierName:    off.SupplierName,
-					SupplierRating:  off.SupplierRating,
-					IsVerified:      off.IsVerified,
-					BranchName:      off.BranchName,
-					CityName:        off.CityName,
-					GovernorateName: off.GovernorateName,
-					DistanceKM:      off.DistanceKM,
-					DistanceText:    off.DistanceText,
 					Price:           off.Price,
 					OriginalPrice:   off.OldPrice,
 					DiscountPercent: discPct,
@@ -123,30 +116,16 @@ func (h *UIHandler) buildCatalogVariantCards(
 					IsNegotiable:    off.IsNegotiable,
 					VariantName:     varUnitName,
 					SKU:             varSKU,
+					SupplierID:      off.SupplierID,
+					SupplierName:    off.SupplierName,
+					SupplierRating:  off.SupplierRating,
+					IsVerified:      off.IsVerified,
+					BranchName:      off.BranchName,
+					CityName:        off.CityName,
+					GovernorateName: off.GovernorateName,
+					DistanceKM:      off.DistanceKM,
+					DistanceText:    off.DistanceText,
 					IsFavorite:      favMap[p.ID],
-				})
-			}
-		} else {
-			// Master product placeholder when no active offer
-			if !inStock && !hasDiscount {
-				variantCards = append(variantCards, &pages.SupplierVariantCard{
-					ProductID:      p.ID,
-					ProductNameAr:  p.Name.Get(i18n.AR),
-					ProductNameEn:  p.Name.Get(i18n.EN),
-					ProductImage:   p.Image,
-					DosageForm:     p.DosageForm,
-					Manufacturer:   p.ManufacturingCompanies,
-					BrandID:        pBrandID,
-					BrandName:      pBrandName,
-					BrandLogo:      pBrandLogo,
-					ScientificName: p.ScientificName,
-					PublicPrice:    p.Price,
-					Price:          p.Price,
-					SupplierName:   i18n.T(lang, "customer.catalog.custom_procurement_request"),
-					IsVerified:     true,
-					DistanceText:   "-",
-					CanAddToCart:   false,
-					IsFavorite:     favMap[p.ID],
 				})
 			}
 		}

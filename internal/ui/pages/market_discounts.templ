@@ -35,7 +35,7 @@ import (
 // These are markup comments deliberately kept out of the markup — an HTML
 // comment ships to every reader.
 templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.MarketDiscountsResult, filter compare.MarketDiscountsFilter, currentView string) {
-	@layouts.ShellFor("خصومات السوق العامة | دواء 24", "market-discounts", lang, dir, actor) {
+	@layouts.ShellFor("خصومات السوق العامة | دوا 24", "market-discounts", lang, dir, actor) {
 		<div
 			class="page-container"
 			x-data={ fmt.Sprintf("{ showMoreFilters: %t, currentView: '%s', setView(v) { this.currentView = v; localStorage.setItem('d24_market_view', v); }, init() { const saved = localStorage.getItem('d24_market_view'); if (saved && (saved === 'list' || saved === 'grid')) { this.currentView = saved; } } }", (filter.MinPrice != nil || filter.MaxPrice != nil || filter.MinDiscount != nil || filter.MaxDiscount != nil), currentView) }
@@ -93,6 +93,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 						<select name="sort" class="form-select md-select" onchange="this.form.submit()" aria-label="الترتيب">
 							<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً</option>
+							<option value="discount_asc" selected?={ filter.SortBy == "discount_asc" }>الأقل خصماً</option>
 							<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً</option>
 							<option value="price_desc" selected?={ filter.SortBy == "price_desc" }>الأعلى سعراً</option>
 							<option value="newest" selected?={ filter.SortBy == "newest" }>الأحدث إضافة</option>

@@ -81,6 +81,8 @@ func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string
 		orderBy = fmt.Sprintf("(%s) ASC, (%s) DESC", marketWarehouseNetSQL, marketWarehouseDiscountSQL)
 	case "price_desc":
 		orderBy = fmt.Sprintf("(%s) DESC, (%s) DESC", marketWarehouseNetSQL, marketWarehouseDiscountSQL)
+	case "discount_asc":
+		orderBy = fmt.Sprintf("(%s) ASC, (%s) ASC", marketWarehouseDiscountSQL, marketWarehouseNetSQL)
 	case "discount_desc", "":
 		// The clamped expression, not the raw column: ranking by a number the
 		// card refuses to print is how 6,182 rows showing "0%" reached the top

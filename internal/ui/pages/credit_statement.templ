@@ -31,7 +31,7 @@ type CreditStatementView struct {
 }
 
 templ CreditStatementPage(v CreditStatementView, lang, dir string) {
-	@layouts.ShellFor(i18n.T(lang, "promo.credits.statement_title")+" | دواء 24", "offers_packages", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "promo.credits.statement_title")+" | دوا 24", "offers_packages", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-5xl">
 			@roleNotice(v.NoticeKind, v.Notice)
 

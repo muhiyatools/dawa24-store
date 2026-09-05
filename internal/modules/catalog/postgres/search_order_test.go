@@ -47,10 +47,8 @@ func TestStockPredicateIsSharedBySortAndFilter(t *testing.T) {
 	if !strings.Contains(stockFirstOrder, productHasStockSQL) {
 		t.Error("the ordering does not use the shared availability predicate")
 	}
-	// Tightening the predicate with pv.status = 'active' looks right and is
-	// not: of the 851 products with stock, 849 have only inactive variants, so
-	// it would reduce the existing filter to two products.
-	if strings.Contains(productHasStockSQL, "status") {
-		t.Error("the availability predicate must not filter on variant status; see the comment beside it")
+	// Variants must be active to be considered orderable stock.
+	if !strings.Contains(productHasStockSQL, "pv.status = 'active'") {
+		t.Error("the availability predicate must filter on active variant status")
 	}
 }

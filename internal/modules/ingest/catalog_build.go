@@ -87,13 +87,13 @@ func variantName(row *productmatch.Row) i18n.Text {
 // variantStatus decides whether the imported row goes on sale.
 func (w *importWriter) variantStatus(row *productmatch.Row) catalog.ProductStatus {
 	switch row.Status {
-	case "active":
-		return catalog.StatusActive
 	case "inactive":
 		return catalog.StatusInactive
-	}
-	if w.settings.PublishImmediately || row.Quantity > 0 {
+	case "active":
 		return catalog.StatusActive
 	}
-	return catalog.StatusInactive
+	if !w.settings.PublishImmediately {
+		return catalog.StatusInactive
+	}
+	return catalog.StatusActive
 }

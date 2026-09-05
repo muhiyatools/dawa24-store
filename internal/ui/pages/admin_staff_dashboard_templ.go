@@ -58,7 +58,7 @@ func AdminStaffDashboard(actor authctx.Actor, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"admin-banner-title\"><span>مساحة عمل فريق الإدارة والعمليات</span></h1><p class=\"admin-banner-subtitle\">بوابة المتابعة والتشغيل لمنظومة دواء24 — دليلك الشامل لمهام النظام وإدارة العمليات اليومية</p></div></div><div class=\"d-flex items-center gap-2 flex-wrap\"><div class=\"admin-status-pill\"><span class=\"admin-status-dot online\"></span> <span class=\"text-secondary\">حالة المنظومة:</span> <span class=\"text-success\">جاهزة ومستقرة</span></div><div class=\"admin-status-pill\"><span class=\"badge badge-sky text-2xs font-bold\">بوابة الموظفين</span></div></div></div></div><!-- Welcome & Guidelines Card --><div class=\"glass-panel p-6 mb-6\"><div class=\"d-flex items-start gap-4\"><div class=\"user-avatar-badge text-2xl shrink-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"admin-banner-title\"><span>مساحة عمل فريق الإدارة والعمليات</span></h1><p class=\"admin-banner-subtitle\">بوابة المتابعة والتشغيل لمنظومة دوا 24 — دليلك الشامل لمهام النظام وإدارة العمليات اليومية</p></div></div><div class=\"d-flex items-center gap-2 flex-wrap\"><div class=\"admin-status-pill\"><span class=\"admin-status-dot online\"></span> <span class=\"text-secondary\">حالة المنظومة:</span> <span class=\"text-success\">جاهزة ومستقرة</span></div><div class=\"admin-status-pill\"><span class=\"badge badge-sky text-2xs font-bold\">بوابة الموظفين</span></div></div></div></div><!-- Welcome & Guidelines Card --><div class=\"glass-panel p-6 mb-6\"><div class=\"d-flex items-start gap-4\"><div class=\"user-avatar-badge text-2xl shrink-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -66,7 +66,7 @@ func AdminStaffDashboard(actor authctx.Actor, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">مرحباً بك في فريق عمل منصة دواء24</h2><p class=\"text-sm text-secondary m-0 leading-relaxed max-w-4xl\">هذه المساحة مخصصة لأعضاء فريق الإدارة والعمليات لتقديم الدعم لشبكة الصيدليات والموردين،  والتحقق من البيانات والمستودعات ومتابعة سير الطلبات والكتالوج وفقاً للصلاحيات الممنوحة لكل دور وظيفي.</p></div></div></div><!-- System Overview Modules Grid --><div class=\"mb-6\"><div class=\"flex-between items-center mb-4\"><h2 class=\"text-base font-black text-primary m-0 d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"stack-sm\"><h2 class=\"text-lg font-black text-primary m-0\">مرحباً بك في فريق عمل منصة دوا 24</h2><p class=\"text-sm text-secondary m-0 leading-relaxed max-w-4xl\">هذه المساحة مخصصة لأعضاء فريق الإدارة والعمليات لتقديم الدعم لشبكة الصيدليات والموردين،  والتحقق من البيانات والمستودعات ومتابعة سير الطلبات والكتالوج وفقاً للصلاحيات الممنوحة لكل دور وظيفي.</p></div></div></div><!-- System Overview Modules Grid --><div class=\"mb-6\"><div class=\"flex-between items-center mb-4\"><h2 class=\"text-base font-black text-primary m-0 d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

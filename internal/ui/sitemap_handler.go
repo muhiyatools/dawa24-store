@@ -63,7 +63,7 @@ func (h *UIHandler) SitemapXML(w http.ResponseWriter, r *http.Request) {
 // LLMsTxt serves /llms.txt per https://llmstxt.org providing an LLM-friendly index of the site.
 func (h *UIHandler) LLMsTxt(w http.ResponseWriter, r *http.Request) {
 	baseURL := resolveBaseURL(r)
-	content := fmt.Sprintf(`# Dawa24 (دواء 24)
+	content := fmt.Sprintf(`# Dawa24 (دوا 24)
 
 > Unified B2B Marketplace connecting licensed pharmacies with verified pharmaceutical suppliers and warehouses in Egypt.
 

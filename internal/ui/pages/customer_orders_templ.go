@@ -182,7 +182,7 @@ func CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) t
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><script>\r\n\t\t\t\tfunction filterOrders(status, btn) {\r\n\t\t\t\t\tdocument.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));\r\n\t\t\t\t\tbtn.classList.add('active');\r\n\r\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\r\n\t\t\t\t\titems.forEach(item => {\r\n\t\t\t\t\t\tconst s = item.getAttribute('data-status-category');\r\n\t\t\t\t\t\tif (status === 'all' || s === status) {\r\n\t\t\t\t\t\t\titem.style.display = 'flex';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\titem.style.display = 'none';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t}\r\n\r\n\t\t\t\tfunction searchOrders(q) {\r\n\t\t\t\t\tconst query = (q || '').trim().toLowerCase();\r\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\r\n\t\t\t\t\titems.forEach(item => {\r\n\t\t\t\t\t\tconst num = (item.getAttribute('data-order-num') || '').toLowerCase();\r\n\t\t\t\t\t\tif (!query || num.includes(query)) {\r\n\t\t\t\t\t\t\titem.style.display = 'flex';\r\n\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\titem.style.display = 'none';\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t});\r\n\t\t\t\t}\r\n\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><script>\n\t\t\t\tfunction filterOrders(status, btn) {\n\t\t\t\t\tdocument.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));\n\t\t\t\t\tbtn.classList.add('active');\n\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\n\t\t\t\t\titems.forEach(item => {\n\t\t\t\t\t\tconst s = item.getAttribute('data-status-category');\n\t\t\t\t\t\tif (status === 'all' || s === status) {\n\t\t\t\t\t\t\titem.style.display = 'flex';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\titem.style.display = 'none';\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\n\t\t\t\tfunction searchOrders(q) {\n\t\t\t\t\tconst query = (q || '').trim().toLowerCase();\n\t\t\t\t\tconst items = document.querySelectorAll('.order-card-item');\n\t\t\t\t\titems.forEach(item => {\n\t\t\t\t\t\tconst num = (item.getAttribute('data-order-num') || '').toLowerCase();\n\t\t\t\t\t\tif (!query || num.includes(query)) {\n\t\t\t\t\t\t\titem.style.display = 'flex';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\titem.style.display = 'none';\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -221,7 +221,7 @@ func CustomerOrdersList(orders []*commerce.Order, lang string) templ.Component {
 		if len(orders) == 0 {
 			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
 				Title:       "لا توجد طلبيات سابقة",
-				Message:     "لم تقم بإجراء أي طلبات شراء حتى الآن عبر منصة دواء 24.",
+				Message:     "لم تقم بإجراء أي طلبات شراء حتى الآن عبر منصة دوا 24.",
 				ActionLabel: "تصفح الكتالوج الدوائي",
 				ActionURL:   "/catalog",
 			}).Render(ctx, templ_7745c5c3_Buffer)

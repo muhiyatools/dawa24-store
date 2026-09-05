@@ -54,7 +54,7 @@ func PrivacyPolicy() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h1 class=\"page-title font-bold text-xl m-0\">سياسة الخصوصية — دواء 24</h1></div><p class=\"text-sm text-secondary m-0\">نحن في منصة دواء 24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والمؤسسات الطبية المعتمدة.</p><h2 class=\"font-bold text-base m-0\">جمع واستخدام البيانات</h2><p class=\"text-sm text-secondary m-0\">يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية ومطابقتها للمواصفات والقوانين المصرية.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<h1 class=\"page-title font-bold text-xl m-0\">سياسة الخصوصية — دوا 24</h1></div><p class=\"text-sm text-secondary m-0\">نحن في منصة دوا 24 نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية والتجارية. تهدف هذه الوثيقة إلى توضيح كيفية جمع واستخدام وحماية البيانات الخاصة بالصيدليات والموردين والمؤسسات الطبية المعتمدة.</p><h2 class=\"font-bold text-base m-0\">جمع واستخدام البيانات</h2><p class=\"text-sm text-secondary m-0\">يتم جمع البيانات الأساسية للتسجيل والتحقق من التراخيص الطبية والتجارية لضمان أمان المعاملات الدوائية ومطابقتها للمواصفات والقوانين المصرية.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -109,7 +109,7 @@ func TermsOfService() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<h1 class=\"page-title font-bold text-xl m-0\">شروط الاستخدام والخدمة — دواء 24</h1></div><p class=\"text-sm text-secondary m-0\">باستخدامك لمنصة دواء 24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية، والالتزام بمعايير الحفظ والتخزين والتسليم المعتمدة.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<h1 class=\"page-title font-bold text-xl m-0\">شروط الاستخدام والخدمة — دوا 24</h1></div><p class=\"text-sm text-secondary m-0\">باستخدامك لمنصة دوا 24 لتوزيع الأدوية والمستلزمات الصيدلانية، فإنك توافق على الالتزام بجميع القوانين واللوائح المنظمة لتداول الأدوية المعمول بها في جمهورية مصر العربية، والالتزام بمعايير الحفظ والتخزين والتسليم المعتمدة.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

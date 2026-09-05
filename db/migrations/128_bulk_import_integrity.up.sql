@@ -40,7 +40,7 @@ COMMENT ON COLUMN catalog.import_sessions.new_categories IS
 
 -- 3. The canonical master-catalogue organisation, then the move.
 INSERT INTO org.organizations (name, type, status)
-SELECT '{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb,
+SELECT '{"ar":"دوا 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb,
        'company', 'approved'
 WHERE NOT EXISTS (
     SELECT 1 FROM org.organizations

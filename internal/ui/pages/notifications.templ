@@ -15,7 +15,7 @@ templ Notifications(logs []*notifications.NotificationLog, unreadCount int, lang
 	if isPartial {
 		@NotificationsList(logs)
 	} else {
-		@layouts.ShellFor("مركز الإشعارات والتنبيهات | دواء 24", "notifications", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor("مركز الإشعارات والتنبيهات | دوا 24", "notifications", lang, dir, authctx.FromContext(ctx)) {
 			@NotificationsContent(logs, unreadCount, lang)
 		}
 	}

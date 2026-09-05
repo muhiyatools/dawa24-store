@@ -157,7 +157,7 @@ func TestContactAndHowItWorksPages(t *testing.T) {
 		}
 		body, _ := io.ReadAll(resp.Body)
 		bodyStr := string(body)
-		if !strings.Contains(bodyStr, "كيف تعمل منصة دواء 24") {
+		if !strings.Contains(bodyStr, "كيف تعمل منصة دوا 24") {
 			t.Errorf("expected how it works page to contain main heading")
 		}
 		if !strings.Contains(bodyStr, "مسار الصيدليات") {

@@ -433,7 +433,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Safety & Trust Guarantee --><div class=\"p-3.5 bg-surface-sunken rounded-xl border text-2xs text-muted leading-relaxed\"><strong class=\"text-primary d-block mb-1\">ضمان الأمان والموثوقية:</strong> تضمن منصة دواء24 التحقق من كافة جهات العمل المنشورة. لا تطلب أي جهة معتمدة أي رسوم مقابل التقديم للوظائف.</div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Safety & Trust Guarantee --><div class=\"p-3.5 bg-surface-sunken rounded-xl border text-2xs text-muted leading-relaxed\"><strong class=\"text-primary d-block mb-1\">ضمان الأمان والموثوقية:</strong> تضمن منصة دوا 24 التحقق من كافة جهات العمل المنشورة. لا تطلب أي جهة معتمدة أي رسوم مقابل التقديم للوظائف.</div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

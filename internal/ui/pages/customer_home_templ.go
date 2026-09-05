@@ -1266,7 +1266,7 @@ func CustomerHome(featured []*catalog.Product, categories []*catalog.Category, o
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell("دواء 24 — منصة التوريد والربط الدوائي المباشر في مصر", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("دوا 24 — منصة التوريد والربط الدوائي المباشر في مصر", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

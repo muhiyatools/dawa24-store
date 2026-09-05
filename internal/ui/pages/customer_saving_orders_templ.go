@@ -356,7 +356,7 @@ func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"container\"><div class=\"glass-panel\"><h2 class=\"text-base font-bold text-primary\">تتبع شحنات وطلبات دواء 24</h2><p class=\"text-sm text-secondary m-0\">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p><form class=\"stack-md\" method=\"GET\" action=\"/tracking\"><input type=\"text\" name=\"order_number\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"container\"><div class=\"glass-panel\"><h2 class=\"text-base font-bold text-primary\">تتبع شحنات وطلبات دوا 24</h2><p class=\"text-sm text-secondary m-0\">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p><form class=\"stack-md\" method=\"GET\" action=\"/tracking\"><input type=\"text\" name=\"order_number\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -26,7 +26,7 @@ type MatchChoice struct {
 	// MinScore is the similarity at or above which a name match is applied
 	// without asking. Zero means productmatch.DefaultMinStrong.
 	MinScore float64
-	// ByProductID accepts a دواء 24 product id stated in the file. It is on by
+	// ByProductID accepts a دوا 24 product id stated in the file. It is on by
 	// default because an id the file states is not a guess: it is validated
 	// against the catalogue before it is believed, and a stale id simply falls
 	// through to the name.
@@ -35,7 +35,7 @@ type MatchChoice struct {
 	ByBarcode bool
 	// ByCode lets the file's item code settle the match. Off by default; it
 	// still needs the name to agree unless CodeIsCatalogCode says the column
-	// holds دواء 24's own codes.
+	// holds دوا 24's own codes.
 	ByCode bool
 	// CodeIsCatalogCode lifts the name corroboration on a code hit.
 	CodeIsCatalogCode bool

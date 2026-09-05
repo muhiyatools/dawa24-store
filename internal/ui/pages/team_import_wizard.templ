@@ -20,11 +20,11 @@ func TeamRail(currentStep int) []WizardStep {
 // TeamImportPage renders the unified bulk employee import wizard.
 templ TeamImportPage(view TeamImportView, lang, dir string) {
 	if view.Audience == "vendor" {
-		@layouts.VendorShell("استيراد فريق العمل والموظفين | دواء 24", "team", lang, dir) {
+		@layouts.VendorShell("استيراد فريق العمل والموظفين | دوا 24", "team", lang, dir) {
 			@teamImportContent(view)
 		}
 	} else {
-		@layouts.CustomerShell("استيراد فريق العمل والموظفين | دواء 24", "team", lang, dir, nil) {
+		@layouts.CustomerShell("استيراد فريق العمل والموظفين | دوا 24", "team", lang, dir, nil) {
 			@teamImportContent(view)
 		}
 	}

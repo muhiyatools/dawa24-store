@@ -420,7 +420,7 @@ persisted on each message (Phase 7) so old turns remain explainable.
 
 Structure — write it in Arabic, with these sections:
 
-1. **Identity** — كبسولة, the pharmaceutical assistant of منصة دواء 24.
+1. **Identity** — كبسولة, the pharmaceutical assistant of منصة دوا 24.
 2. **Scope** — pharmaceutical supply, drug information, offers, orders,
    catalogue and platform usage.
 3. **Hard boundaries** *(this phase has no tools, and the prompt must say so)*:

@@ -74,7 +74,7 @@ type RoleEditView struct {
 }
 
 templ RolesPage(v RolesView, lang, dir string) {
-	@roleShell(v.Tenant, v.Title+" | دواء 24", "roles", lang, dir) {
+	@roleShell(v.Tenant, v.Title+" | دوا 24", "roles", lang, dir) {
 		<div class="page-container" x-data="{ showCreate: false }">
 			@roleNotice(v.NoticeKind, v.Notice)
 			<div class="glass-panel p-6 mb-4">
@@ -192,7 +192,7 @@ templ roleList(v RolesView) {
 }
 
 templ RoleEditPage(v RoleEditView, lang, dir string) {
-	@roleShell(v.Tenant, v.Name+" | الصلاحيات | دواء 24", "roles", lang, dir) {
+	@roleShell(v.Tenant, v.Name+" | الصلاحيات | دوا 24", "roles", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-4">
 				<div class="flex-between items-start flex-wrap gap-4">

@@ -224,7 +224,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</h1><p class=\"text-xs text-secondary m-0 mt-1\">الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دواء 24</p></div><span class=\"badge badge-emerald text-xs font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</h1><p class=\"text-xs text-secondary m-0 mt-1\">الوثيقة الرسمية المنظمة للتعاملات وسرية البيانات على منصة دوا 24</p></div><span class=\"badge badge-emerald text-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -320,7 +320,7 @@ func PolicyPage(lang, dir, title, body, slug, version, lastUpdated string) templ
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell(title+" | دواء 24", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell(title+" | دوا 24", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

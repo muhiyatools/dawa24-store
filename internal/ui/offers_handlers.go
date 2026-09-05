@@ -150,6 +150,16 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				}
 				return offerCards[i].DiscountValue.Minor() > offerCards[j].DiscountValue.Minor()
 			})
+		case "discount_asc":
+			sort.SliceStable(offerCards, func(i, j int) bool {
+				if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
+					return offerCards[i].IsSponsored
+				}
+				if offerCards[i].DiscountPercentage != offerCards[j].DiscountPercentage {
+					return offerCards[i].DiscountPercentage < offerCards[j].DiscountPercentage
+				}
+				return offerCards[i].DiscountValue.Minor() < offerCards[j].DiscountValue.Minor()
+			})
 		case "price_asc":
 			sort.SliceStable(offerCards, func(i, j int) bool {
 				priceI := offerCards[i].TotalPrice.Minor()

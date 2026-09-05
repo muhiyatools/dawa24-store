@@ -136,7 +136,7 @@ func InvoicePrintableA4(data billing.PrintableInvoiceData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- 2. Center Column: Official Dawa24 Platform Branding & Document Type --><div class=\"header-center\"><img src=\"/static/img/logo.png\" alt=\"دواء 24\" class=\"dawa-brand-logo\" onerror=\"this.style.display='none'\"><div class=\"stack-sm font-size-10 font-bold text-secondary mt-2px\">منصة الربط والتوزيع الدوائي المعتمدة</div><div class=\"stack-sm invoice-type-badge\">فاتورة استلام وتوريد</div></div><!-- 3. Left Column: Invoice Meta Details --><div class=\"header-meta text-left dir-ltr\"><div class=\"stack-sm font-size-11 text-slate mb-1\"><span class=\"dir-rtl d-inline-block font-size-10 text-muted m-right-1\">رقم الفاتورة:</span> <strong class=\"tabular-nums text-dark font-size-12\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><!-- 2. Center Column: Official Dawa24 Platform Branding & Document Type --><div class=\"header-center\"><img src=\"/static/img/logo.png\" alt=\"دوا 24\" class=\"dawa-brand-logo\" onerror=\"this.style.display='none'\"><div class=\"stack-sm font-size-10 font-bold text-secondary mt-2px\">منصة الربط والتوزيع الدوائي المعتمدة</div><div class=\"stack-sm invoice-type-badge\">فاتورة استلام وتوريد</div></div><!-- 3. Left Column: Invoice Meta Details --><div class=\"header-meta text-left dir-ltr\"><div class=\"stack-sm font-size-11 text-slate mb-1\"><span class=\"dir-rtl d-inline-block font-size-10 text-muted m-right-1\">رقم الفاتورة:</span> <strong class=\"tabular-nums text-dark font-size-12\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -35,7 +35,7 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 			} else {
 				err = tx.QueryRow(txCtx, `
 					INSERT INTO org.organizations (name, legal_name, trade_name, type, status)
-					VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, '{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, '{"ar":"دواء 24","en":"Dawa24"}'::jsonb, 'vendor', 'approved')
+					VALUES ('{"ar":"دوا 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, '{"ar":"دوا 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, '{"ar":"دوا 24","en":"Dawa24"}'::jsonb, 'vendor', 'approved')
 					RETURNING id
 				`).Scan(&firstOrgID)
 				if err == nil {
@@ -227,9 +227,11 @@ func (r *Repository) UpdateProductImageBySKU(ctx context.Context, sku string, im
 // it by narrowing a query is how the answer gets hidden.
 const productHasStockSQL = `EXISTS (
 			      SELECT 1 FROM catalog.product_variants pv
+			      JOIN org.organizations o ON o.id = pv.organization_id AND o.deleted_at IS NULL AND o.status = 'approved'
 			      JOIN inventory.stocks st ON st.product_variant_id = pv.id AND st.deleted_at IS NULL
 			      WHERE pv.product_id = catalog.products.id
 			        AND pv.deleted_at IS NULL
+			        AND pv.status = 'active'
 			        AND st.quantity > 0
 			  )`
 

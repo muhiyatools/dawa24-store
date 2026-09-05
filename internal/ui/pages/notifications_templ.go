@@ -64,7 +64,7 @@ func Notifications(logs []*notifications.NotificationLog, unreadCount int, lang,
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.ShellFor("مركز الإشعارات والتنبيهات | دواء 24", "notifications", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.ShellFor("مركز الإشعارات والتنبيهات | دوا 24", "notifications", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

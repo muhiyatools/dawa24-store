@@ -513,7 +513,7 @@ func AdminFirstLookPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"glass-panel max-w-2xl mx-auto\"><h2 class=\"text-base font-bold text-primary\">مرحباً بك في لوحة تحكم منصة دواء 24</h2><p class=\"text-sm text-secondary m-0\">تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"glass-panel max-w-2xl mx-auto\"><h2 class=\"text-base font-bold text-primary\">مرحباً بك في لوحة تحكم منصة دوا 24</h2><p class=\"text-sm text-secondary m-0\">تم بناء المنصة بأعلى معايير الأداء والسرعة في Go مع واجهات سريعة وتجربة مستخدم مخصصة لإدارة العمليات الصيدلانية وشبكات التوريد بدقة كاملة.</p><a href=\"/admin/dashboard\" class=\"btn btn-primary\">الانتقال للرئيسية</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -54,7 +54,7 @@ type OrganizationProfileView struct {
 }
 
 templ OrganizationProfilePage(v OrganizationProfileView, lang, dir string) {
-	@layouts.ShellFor(v.Title+" | دواء 24", "organization", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(v.Title+" | دوا 24", "organization", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-6xl">
 			@roleNotice(v.NoticeKind, v.Notice)
 

@@ -852,7 +852,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></div></div><div class=\"stack-sm\"><label class=\"form-label\">استراتيجية المطابقة مع الكتالوج المركزي</label> <select name=\"match_strategy\" class=\"form-select\"><option value=\"barcode_only\">الباركود فقط</option> <option value=\"id_only\">دواء 24 كود الصنف فقط</option> <option value=\"name_only\" selected>الاسم فقط</option> <option value=\"sku_barcode\">الكود والباركود</option></select><p class=\"wiz-sub mt-xs\">تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.</p></div><div class=\"stack-xs text-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</select></div></div><div class=\"stack-sm\"><label class=\"form-label\">استراتيجية المطابقة مع الكتالوج المركزي</label> <select name=\"match_strategy\" class=\"form-select\"><option value=\"barcode_only\">الباركود فقط</option> <option value=\"id_only\">دوا 24 كود الصنف فقط</option> <option value=\"name_only\" selected>الاسم فقط</option> <option value=\"sku_barcode\">الكود والباركود</option></select><p class=\"wiz-sub mt-xs\">تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.</p></div><div class=\"stack-xs text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

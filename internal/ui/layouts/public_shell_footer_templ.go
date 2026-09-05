@@ -36,7 +36,7 @@ func publicMobileNav(site *platformadmin.SiteSettings) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"nav-scrim\" x-show=\"mobileNav\" x-cloak x-transition:enter=\"ease-out duration-200\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-150\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" @click=\"mobileNav = false\"></div><div class=\"nav-drawer\" x-show=\"mobileNav\" x-cloak x-transition:enter=\"transform transition ease-in-out duration-300\" x-transition:enter-start=\"translate-x-full\" x-transition:enter-end=\"translate-x-0\" x-transition:leave=\"transform transition ease-in-out duration-200\" x-transition:leave-start=\"translate-x-0\" x-transition:leave-end=\"translate-x-full\"><div class=\"nav-drawer-head\"><span class=\"nav-brand-text\"><span class=\"nav-brand-name\">دواء 24</span></span> <button type=\"button\" @click=\"mobileNav = false\" class=\"nav-btn nav-btn--icon\" aria-label=\"إغلاق القائمة\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"nav-scrim\" x-show=\"mobileNav\" x-cloak x-transition:enter=\"ease-out duration-200\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"ease-in duration-150\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" @click=\"mobileNav = false\"></div><div class=\"nav-drawer\" x-show=\"mobileNav\" x-cloak x-transition:enter=\"transform transition ease-in-out duration-300\" x-transition:enter-start=\"translate-x-full\" x-transition:enter-end=\"translate-x-0\" x-transition:leave=\"transform transition ease-in-out duration-200\" x-transition:leave-start=\"translate-x-0\" x-transition:leave-end=\"translate-x-full\"><div class=\"nav-drawer-head\"><span class=\"nav-brand-text\"><span class=\"nav-brand-name\">دوا 24</span></span> <button type=\"button\" @click=\"mobileNav = false\" class=\"nav-btn nav-btn--icon\" aria-label=\"إغلاق القائمة\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -506,7 +506,7 @@ func publicFooter(site *platformadmin.SiteSettings) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"footer-logo\"><div class=\"stack-sm\"><div class=\"footer-brand-name\">دواء 24</div><div class=\"footer-brand-subtitle\">منظومة الربط والتوريد الدوائي المباشر</div></div></div><p class=\"footer-description\">منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، والتحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.</p><div class=\"footer-social-links\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"footer-logo\"><div class=\"stack-sm\"><div class=\"footer-brand-name\">دوا 24</div><div class=\"footer-brand-subtitle\">منظومة الربط والتوريد الدوائي المباشر</div></div></div><p class=\"footer-description\">منصة التوريد الذكية توفر تجربة شاملة وآمنة لربط العملاء بالموردين، مع نظام موثوق يسهل عمليات الشراء والتوريد، ويدعم التواصل المباشر، والتحليلات المتقدمة، والدعم الفني المتواصل 24/7 لتحقيق كفاءة وأمان أعلى.</p><div class=\"footer-social-links\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -672,7 +672,7 @@ func publicFooter(site *platformadmin.SiteSettings) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div></div><!-- Quick Links --><div class=\"stack-sm\"><h4 class=\"footer-heading\">خدمات وروابط المنصة</h4><ul class=\"footer-link-list\"><li><a href=\"/about\">من نحن (عن دواء 24)</a></li><li><a href=\"/how-it-works\">كيف تعمل المنصة؟</a></li>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div></div><!-- Quick Links --><div class=\"stack-sm\"><h4 class=\"footer-heading\">خدمات وروابط المنصة</h4><ul class=\"footer-link-list\"><li><a href=\"/about\">من نحن (عن دوا 24)</a></li><li><a href=\"/how-it-works\">كيف تعمل المنصة؟</a></li>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -791,7 +791,7 @@ func publicFooter(site *platformadmin.SiteSettings) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</ul></div></div><div class=\"footer-bottom\"><div class=\"footer-copyright-group\"><p class=\"footer-copyright-text\">جميع الحقوق محفوظة © 2026 لدى دواء 24.</p><div class=\"footer-developer-credit\"><span>تم التطوير بواسطة</span> <a href=\"https://muhiya.com\" target=\"_blank\" rel=\"noopener\" class=\"developer-link\"><img src=\"/static/img/muhiya-logo.png\" alt=\"Muhiya\" class=\"developer-logo\"> <span>Muhiya</span></a></div></div><div class=\"footer-legal-links\"><a href=\"/privacy\">سياسة الخصوصية</a> <a href=\"/terms\">شروط الاستخدام</a> <a href=\"/shipping-returns\">الشحن والاسترجاع والإلغاء</a> <a href=\"/cookies\">ملفات تعريف الارتباط</a> <a href=\"/payment-policy\">سياسة الدفع</a></div></div></footer>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</ul></div></div><div class=\"footer-bottom\"><div class=\"footer-copyright-group\"><p class=\"footer-copyright-text\">جميع الحقوق محفوظة © 2026 لدى دوا 24.</p><div class=\"footer-developer-credit\"><span>تم التطوير بواسطة</span> <a href=\"https://muhiya.com\" target=\"_blank\" rel=\"noopener\" class=\"developer-link\"><img src=\"/static/img/muhiya-logo.png\" alt=\"Muhiya\" class=\"developer-logo\"> <span>Muhiya</span></a></div></div><div class=\"footer-legal-links\"><a href=\"/privacy\">سياسة الخصوصية</a> <a href=\"/terms\">شروط الاستخدام</a> <a href=\"/shipping-returns\">الشحن والاسترجاع والإلغاء</a> <a href=\"/cookies\">ملفات تعريف الارتباط</a> <a href=\"/payment-policy\">سياسة الدفع</a></div></div></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

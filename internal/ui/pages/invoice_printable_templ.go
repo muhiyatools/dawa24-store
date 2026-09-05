@@ -74,9 +74,9 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("فاتورة توريد #%s - دواء 24", data.InvoiceNumber))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("فاتورة توريد #%s - دوا 24", data.InvoiceNumber))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 23, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 23, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -103,7 +103,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></span></div></div><div class=\"toolbar-btn-group\"><!-- Standard A4 Print --><button type=\"button\" class=\"btn-action btn-primary\" onclick=\"printA4()\" title=\"طباعة الفاتورة بالحجم القياسي A4\"><span>طباعة الفاتورة (A4)</span></button><!-- Thermal Print (POS 80mm) --><button type=\"button\" class=\"btn-action btn-thermal\" onclick=\"printThermal()\" title=\"طباعة إيصال كاشير 80 مم\"><span>طباعة إيصال كاشير (Thermal)</span></button><!-- Close / Back --><button type=\"button\" class=\"btn-action btn-secondary\" onclick=\"window.close(); if(!window.closed) window.history.back();\"><span>إغلاق</span></button></div></div><!-- =========================================================================\r\n\t\t\t     VIEW 1: Standard A4 Invoice\r\n\t\t\t     ========================================================================= -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></span></div></div><div class=\"toolbar-btn-group\"><!-- Standard A4 Print --><button type=\"button\" class=\"btn-action btn-primary\" onclick=\"printA4()\" title=\"طباعة الفاتورة بالحجم القياسي A4\"><span>طباعة الفاتورة (A4)</span></button><!-- Thermal Print (POS 80mm) --><button type=\"button\" class=\"btn-action btn-thermal\" onclick=\"printThermal()\" title=\"طباعة إيصال كاشير 80 مم\"><span>طباعة إيصال كاشير (Thermal)</span></button><!-- Close / Back --><button type=\"button\" class=\"btn-action btn-secondary\" onclick=\"window.close(); if(!window.closed) window.history.back();\"><span>إغلاق</span></button></div></div><!-- =========================================================================\n\t\t\t     VIEW 1: Standard A4 Invoice\n\t\t\t     ========================================================================= -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -111,7 +111,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- =========================================================================\r\n\t\t\t     VIEW 2: Thermal POS Receipt 80mm\r\n\t\t\t     ========================================================================= -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- =========================================================================\n\t\t\t     VIEW 2: Thermal POS Receipt 80mm\n\t\t\t     ========================================================================= -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -119,7 +119,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Scripts for Thermal and A4 Printing Modes --><script>\r\n\t\t\t\tfunction printA4() {\r\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\r\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\r\n\t\t\t\t\tif (thermal) thermal.style.display = 'none';\r\n\t\t\t\t\tif (a4) a4.style.display = 'block';\r\n\t\t\t\t\twindow.print();\r\n\t\t\t\t}\r\n\r\n\t\t\t\tfunction printThermal() {\r\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\r\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\r\n\t\t\t\t\tif (a4) a4.style.display = 'none';\r\n\t\t\t\t\tif (thermal) thermal.style.display = 'block';\r\n\t\t\t\t\twindow.print();\r\n\t\t\t\t\t// restore after print dialog\r\n\t\t\t\t\tsetTimeout(() => {\r\n\t\t\t\t\t\tif (a4) a4.style.display = 'block';\r\n\t\t\t\t\t\tif (thermal) thermal.style.display = 'none';\r\n\t\t\t\t\t}, 1000);\r\n\t\t\t\t}\r\n\r\n\t\t\t\t// Auto print if requested via query parameter\r\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\r\n\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\r\n\t\t\t\t\tif (params.get('thermal') === '1') {\r\n\t\t\t\t\t\tprintThermal();\r\n\t\t\t\t\t} else if (params.get('autoprint') === '1') {\r\n\t\t\t\t\t\tprintA4();\r\n\t\t\t\t\t}\r\n\t\t\t\t});\r\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Scripts for Thermal and A4 Printing Modes --><script>\n\t\t\t\tfunction printA4() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t}\n\n\t\t\t\tfunction printThermal() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (a4) a4.style.display = 'none';\n\t\t\t\t\tif (thermal) thermal.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t\t// restore after print dialog\n\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\t}, 1000);\n\t\t\t\t}\n\n\t\t\t\t// Auto print if requested via query parameter\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\t\tif (params.get('thermal') === '1') {\n\t\t\t\t\t\tprintThermal();\n\t\t\t\t\t} else if (params.get('autoprint') === '1') {\n\t\t\t\t\t\tprintA4();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

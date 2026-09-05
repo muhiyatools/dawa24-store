@@ -66,7 +66,7 @@ func TeamImportPage(view TeamImportView, lang, dir string) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.VendorShell("استيراد فريق العمل والموظفين | دواء 24", "team", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.VendorShell("استيراد فريق العمل والموظفين | دوا 24", "team", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -89,7 +89,7 @@ func TeamImportPage(view TeamImportView, lang, dir string) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.CustomerShell("استيراد فريق العمل والموظفين | دواء 24", "team", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.CustomerShell("استيراد فريق العمل والموظفين | دوا 24", "team", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

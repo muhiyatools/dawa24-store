@@ -139,7 +139,7 @@ func InvoicePrintableThermal(data billing.PrintableInvoiceData) templ.Component 
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"thermal-divider\"></div><div class=\"stack-sm font-size-13 font-black\">دواء 24 — إيصال استلام وتوريد</div><div class=\"tabular-nums font-size-10\">#")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"thermal-divider\"></div><div class=\"stack-sm font-size-13 font-black\">دوا 24 — إيصال استلام وتوريد</div><div class=\"tabular-nums font-size-10\">#")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

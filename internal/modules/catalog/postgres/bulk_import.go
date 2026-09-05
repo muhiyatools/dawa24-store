@@ -241,7 +241,7 @@ func resolveDefaultOrg(ctx context.Context, tx pgx.Tx) (int64, error) {
 
 	err = tx.QueryRow(ctx, `
 		INSERT INTO org.organizations (name, type, status)
-		VALUES ('{"ar":"دواء 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
+		VALUES ('{"ar":"دوا 24 - الكتالوج المعتمد","en":"Dawa24 Master Catalog"}'::jsonb, 'company', 'approved')
 		RETURNING id
 	`).Scan(&orgID)
 	if err != nil {

@@ -85,9 +85,13 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 
 	stockFilter := catalog.StockFilter(r.URL.Query().Get("stock"))
 	if h.catSvc != nil {
+		statusFilter := r.URL.Query().Get("status")
+		if statusFilter == "" {
+			statusFilter = "active"
+		}
 		variants, total, err := h.catSvc.ListVendorVariants(database.AsSystem(ctx), id, catalog.VendorVariantQuery{
 			Query:      q,
-			Status:     r.URL.Query().Get("status"),
+			Status:     statusFilter,
 			Stock:      stockFilter,
 			PageNumber: page,
 			PerPage:    limit,
@@ -112,8 +116,9 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 					data.ProductsMap, _ = h.catSvc.ProductsByIDs(database.AsSystem(ctx), pIDs)
 				}
 
+				availableVariants := make([]*catalog.ProductVariant, 0, len(variants))
 				for _, v := range variants {
-					if v == nil {
+					if v == nil || v.Status != catalog.StatusActive || v.StockQty <= 0 {
 						continue
 					}
 					availStock := v.StockQty
@@ -162,6 +167,10 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 								}
 							}
 						}
+						// If customer has selected receiving branch, hide unavailable/uncovered items
+						if customerBranchID > 0 && !canAddToCart {
+							continue
+						}
 					}
 
 					data.VariantMeta[v.ID] = pages.SupplierVariantMeta{
@@ -171,7 +180,9 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 						CoverageReason: covReason,
 						CanAddToCart:   canAddToCart,
 					}
+					availableVariants = append(availableVariants, v)
 				}
+				data.Variants = availableVariants
 			}
 		}
 	}
