@@ -104,14 +104,46 @@ if (typeof window.syncCityDropdownsWithCoordinates === 'undefined') {
       }
       if (bestOpt && minOptDist < 0.45) {
         selectEl.value = bestOpt.value;
-        const cityId = bestOpt.dataset.cityId;
+        const cityId = bestOpt.dataset.cityId || bestOpt.value;
         if (cityId) {
           document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach(function (hi) {
             hi.value = cityId;
           });
+          if (typeof window.dawaComboboxSet === 'function') {
+            const label = bestOpt.dataset.nameAr || bestOpt.textContent.trim();
+            window.dawaComboboxSet('city_id', cityId, label);
+            window.dawaComboboxSet('branch_city_id', cityId, label);
+          }
         }
       }
     });
+
+    // Also check if any combobox 'city_id' exists and coordinates map is available in DOM
+    if (typeof window.dawaComboboxSet === 'function') {
+      const cb = window.dawaComboboxRegistry && (window.dawaComboboxRegistry['city_id'] || window.dawaComboboxRegistry['branch_city_id']);
+      if (cb) {
+        const coordsScript = document.getElementById('customer-branch-cities-coords') || document.getElementById('vendor-branch-cities-coords');
+        if (coordsScript) {
+          try {
+            const coords = JSON.parse(coordsScript.textContent);
+            let closestCityId = null;
+            let minDistance = Infinity;
+            for (const [cId, pos] of Object.entries(coords)) {
+              if (Array.isArray(pos) && pos.length >= 2) {
+                const dist = Math.hypot(lat - pos[0], lon - pos[1]);
+                if (dist < minDistance) {
+                  minDistance = dist;
+                  closestCityId = cId;
+                }
+              }
+            }
+            if (closestCityId && minDistance < 0.35) {
+              window.dawaComboboxSet(cb.name, closestCityId);
+            }
+          } catch(e) {}
+        }
+      }
+    }
 
     return closest;
   };

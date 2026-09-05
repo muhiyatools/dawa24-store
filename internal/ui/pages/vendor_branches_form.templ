@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -13,7 +12,13 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 		id="branch-form-panel"
 		class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6"
 		@dawa-coords-change.window="if ($event.detail && ($event.detail.targetId === 'vendor-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }"
+		@combobox-change.window="if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value); }"
 	>
+		<!-- City coordinates lookup for instant map auto-pan -->
+		<script id="vendor-branch-cities-coords" type="application/json">
+			{ templ.Raw(CitiesCoordinatesJSON(data.Cities)) }
+		</script>
+
 		<!-- Form Header -->
 		<div class="flex-between items-center pb-3 border-b">
 			<div class="d-flex items-center gap-2">
@@ -39,7 +44,7 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			</template>
 		</div>
 
-		<form method="POST" :action="formAction" class="d-flex flex-col gap-3 m-0">
+		<form method="POST" :action="formAction" class="d-flex flex-col gap-3 m-0" @submit="if (!form.city_id) { $event.preventDefault(); if (window.showToast) { window.showToast('يرجى اختيار المدينة أو المحافظة من القائمة', 'warning'); } else { alert('يرجى اختيار المدينة أو المحافظة من القائمة'); } }">
 			<!-- Section 1: Names & Code -->
 			<div class="d-grid grid-cols-2 gap-3">
 				<div class="stack-sm">
@@ -110,21 +115,15 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 			<!-- Section 3: City, Address, Manager -->
 			<div class="d-grid grid-cols-2 gap-3">
 				<div class="stack-sm">
-					<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-						المدينة / المحافظة <span class="text-danger">*</span>
-					</label>
-					<select name="city_id" x-model="form.city_id" data-map-city class="form-input text-xs w-full">
-						<option value="">-- اختر المدينة --</option>
-						for _, c := range data.Cities {
-							<option
-								value={ fmt.Sprintf("%d", c.ID) }
-								data-lat={ fmt.Sprintf("%.6f", c.Latitude) }
-								data-lng={ fmt.Sprintf("%.6f", c.Longitude) }
-							>
-								{ c.Name.Get(i18n.Lang(lang)) }
-							</option>
-						}
-					</select>
+					@components.Combobox(components.ComboboxProps{
+						Name:        "city_id",
+						Label:       "المدينة / المحافظة",
+						Placeholder: "ابحث باسم المدينة أو المحافظة…",
+						Options:     CityOptions(data.Cities, lang),
+						Required:    true,
+						EmptyText:   "لم يتم العثور على مدينة بهذا الاسم.",
+						Class:       "w-full",
+					})
 				</div>
 
 				<div class="stack-sm">
@@ -221,6 +220,7 @@ templ VendorBranchesScript() {
 				mode: 'add',
 				editId: 0,
 				formAction: '/vendor/branches/new',
+				_settingEditMode: false,
 				form: {
 					id: 0,
 					name_ar: '',
@@ -251,6 +251,24 @@ templ VendorBranchesScript() {
 						});
 					}
 				},
+				onCityChange(cityId) {
+					this.form.city_id = cityId ? String(cityId) : '';
+					if (!cityId || this._settingEditMode) return;
+					const coordsEl = document.getElementById('vendor-branch-cities-coords');
+					if (coordsEl) {
+						try {
+							const coords = JSON.parse(coordsEl.textContent);
+							const pos = coords[String(cityId)];
+							if (pos && (pos[0] || pos[1])) {
+								if (typeof window.dawaSetMapLocation === 'function') {
+									window.dawaSetMapLocation('#vendor-branch-map-picker', pos[0], pos[1], 14);
+								}
+							}
+						} catch (e) {
+							console.error('Failed to parse city coordinates:', e);
+						}
+					}
+				},
 				setEditModeFromElement(btnEl) {
 					if (!btnEl) return;
 					try {
@@ -264,18 +282,20 @@ templ VendorBranchesScript() {
 				},
 				setEditMode(b) {
 					if (!b || !b.id) return;
+					this._settingEditMode = true;
 					this.mode = 'edit';
 					this.editId = b.id;
 					this.formAction = '/vendor/branches/' + b.id + '/edit';
 					const latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;
 					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
+					const targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';
 					this.form = {
 						id: b.id,
 						name_ar: b.name_ar || '',
 						name_en: b.name_en || '',
 						code: b.code || '',
 						warehouse_type: b.warehouse_type || 'warehouse',
-						city_id: b.city_id ? String(b.city_id) : '',
+						city_id: targetCityId,
 						manager_id: b.manager_id ? String(b.manager_id) : '',
 						address: b.address || '',
 						phone: b.phone || '',
@@ -295,6 +315,16 @@ templ VendorBranchesScript() {
 						if (typeof window.dawaSetMapLocation === 'function') {
 							window.dawaSetMapLocation('#vendor-branch-map-picker', latVal, lonVal, 14);
 						}
+						const syncCb = () => {
+							if (typeof window.dawaComboboxSet === 'function') {
+								window.dawaComboboxSet('city_id', targetCityId);
+							}
+						};
+						syncCb();
+						setTimeout(syncCb, 50);
+						setTimeout(() => {
+							this._settingEditMode = false;
+						}, 120);
 					});
 				},
 				resetToAddMode() {
@@ -320,7 +350,10 @@ templ VendorBranchesScript() {
 						institutional_works: []
 					};
 					this.$nextTick(() => {
-						if (window.dawaSetMapLocation) {
+						if (typeof window.dawaComboboxSet === 'function') {
+							window.dawaComboboxSet('city_id', '');
+						}
+						if (typeof window.dawaSetMapLocation === 'function') {
 							window.dawaSetMapLocation('#vendor-branch-map-picker', 30.0444, 31.2357, 13);
 						}
 					});

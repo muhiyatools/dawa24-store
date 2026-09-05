@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"encoding/json"
 	"strconv"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
@@ -23,7 +24,7 @@ import (
 func GovernorateOptions(govs []*platformadmin.Governorate, lang string) []components.ComboboxOption {
 	out := make([]components.ComboboxOption, 0, len(govs))
 	for _, g := range govs {
-		if g == nil || !g.IsActive {
+		if g == nil {
 			continue
 		}
 		out = append(out, components.ComboboxOption{
@@ -38,25 +39,60 @@ func GovernorateOptions(govs []*platformadmin.Governorate, lang string) []compon
 }
 
 // CityOptions turns the city list into combobox options, each tagged with the
-// governorate it belongs to.
+// governorate it belongs to, including governorate badge and searchable hint.
 func CityOptions(cities []*platformadmin.City, lang string) []components.ComboboxOption {
 	out := make([]components.ComboboxOption, 0, len(cities))
 	for _, c := range cities {
-		if c == nil || !c.IsActive {
+		if c == nil {
 			continue
 		}
 		parent := ""
 		if c.GovernorateID != nil && *c.GovernorateID > 0 {
 			parent = strconv.FormatInt(*c.GovernorateID, 10)
 		}
+		badge := ""
+		hint := geoAltName(c.Name, lang)
+		if c.GovernorateName != nil {
+			govName := geoName(*c.GovernorateName, lang)
+			badge = govName
+			govAlt := geoAltName(*c.GovernorateName, lang)
+			if hint != "" {
+				hint = hint + " - " + govName
+			} else {
+				hint = govName
+			}
+			if govAlt != "" {
+				hint = hint + " " + govAlt
+			}
+		}
 		out = append(out, components.ComboboxOption{
 			ID:     strconv.FormatInt(c.ID, 10),
 			Label:  geoName(c.Name, lang),
-			Hint:   geoAltName(c.Name, lang),
+			Hint:   hint,
+			Badge:  badge,
 			Parent: parent,
 		})
 	}
 	return out
+}
+
+// CitiesCoordinatesJSON returns a JSON map of city ID to [lat, lon] coordinates.
+// It is embedded in branch pages so selecting a city can immediately pan the map.
+func CitiesCoordinatesJSON(cities []*platformadmin.City) string {
+	coords := make(map[string][2]float64, len(cities))
+	for _, c := range cities {
+		if c == nil {
+			continue
+		}
+		if c.Latitude != 0 || c.Longitude != 0 {
+			coords[strconv.FormatInt(c.ID, 10)] = [2]float64{c.Latitude, c.Longitude}
+		}
+	}
+	b, err := json.Marshal(coords)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
 }
 
 // SelectedGeoLabel finds the display name for a previously chosen id, so a

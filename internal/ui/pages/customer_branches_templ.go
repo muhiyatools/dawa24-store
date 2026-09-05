@@ -669,7 +669,7 @@ func CustomerBranches(data CustomerBranchesData, lang string, dir string, perms 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = CustomerBranchesForm(data).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = CustomerBranchesForm(data, lang).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
