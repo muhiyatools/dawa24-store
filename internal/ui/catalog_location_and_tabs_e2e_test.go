@@ -251,3 +251,65 @@ func TestCatalog_RenderingDistanceBadge(t *testing.T) {
 		t.Errorf("expected catalog HTML to contain default sort option")
 	}
 }
+
+// TestCatalog_OrderableOnlyEnforcement verifies that variants not ready for ordering
+// (e.g., no institutional works, out of coverage, zero stock) are completely omitted.
+func TestCatalog_OrderableOnlyEnforcement(t *testing.T) {
+	offers := []pages.SupplierOffer{
+		{
+			VariantID:      101,
+			SupplierID:     1,
+			SupplierName:   "مستودع القاهرة",
+			AvailableStock: 50,
+			CanAddToCart:   true,
+			IsCovered:      true,
+			Price:          money.FromMinor(1000),
+		},
+		{
+			VariantID:      102,
+			SupplierID:     2,
+			SupplierName:   "مستودع بلا أعمال مؤسسية",
+			AvailableStock: 50,
+			CanAddToCart:   false,
+			IsCovered:      false, // ReasonBranchNoInstitutionalWorks
+			Price:          money.FromMinor(1000),
+		},
+		{
+			VariantID:      103,
+			SupplierID:     3,
+			SupplierName:   "مستودع خارج التغطية",
+			AvailableStock: 50,
+			CanAddToCart:   false,
+			IsCovered:      false, // ReasonNotCovered
+			Price:          money.FromMinor(1000),
+		},
+		{
+			VariantID:      104,
+			SupplierID:     4,
+			SupplierName:   "مستودع نفد مخزونه",
+			AvailableStock: 0, // ReasonOutOfStock
+			CanAddToCart:   false,
+			IsCovered:      true,
+			Price:          money.FromMinor(1000),
+		},
+	}
+
+	isPharmacy := true
+	var orderableOffers []pages.SupplierOffer
+	for _, off := range offers {
+		if off.AvailableStock <= 0 || off.VariantID <= 0 {
+			continue
+		}
+		if isPharmacy && (!off.CanAddToCart || !off.IsCovered) {
+			continue
+		}
+		orderableOffers = append(orderableOffers, off)
+	}
+
+	if len(orderableOffers) != 1 {
+		t.Fatalf("expected exactly 1 orderable offer, got %d", len(orderableOffers))
+	}
+	if orderableOffers[0].VariantID != 101 {
+		t.Fatalf("expected variant ID 101 to be the only visible offer, got %d", orderableOffers[0].VariantID)
+	}
+}

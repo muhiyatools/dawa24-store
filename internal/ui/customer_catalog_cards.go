@@ -27,8 +27,11 @@ func (h *UIHandler) buildCatalogVariantCards(
 ) []*pages.SupplierVariantCard {
 	var variantCards []*pages.SupplierVariantCard
 
+	actor, hasActor := authctx.From(ctx)
+	isPharmacy := hasActor && actor.IsCustomer()
+
 	favMap := make(map[int64]bool)
-	if actor, ok := authctx.From(ctx); ok && h.idSvc != nil {
+	if hasActor && h.idSvc != nil {
 		if ids, err := h.idSvc.ListFavorites(ctx, actor.UserID); err == nil {
 			for _, id := range ids {
 				favMap[id] = true
@@ -65,6 +68,9 @@ func (h *UIHandler) buildCatalogVariantCards(
 					continue
 				}
 				if off.VariantID <= 0 {
+					continue
+				}
+				if isPharmacy && (!off.CanAddToCart || !off.IsCovered) {
 					continue
 				}
 				if hasDiscount && off.DiscountBPS <= 0 {

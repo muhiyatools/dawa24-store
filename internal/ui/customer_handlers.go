@@ -334,7 +334,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 
 	startItem := 0
 	endItem := 0
-	if totalCount > 0 {
+	if totalCount > 0 && len(variantCards) > 0 {
 		startItem = offset + 1
 		endItem = offset + len(variantCards)
 		if endItem > totalCount {
