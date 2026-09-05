@@ -5543,29 +5543,23 @@ form.filter-bar { margin: 0; }
   font-size: 0.6875rem;
   font-weight: 700;
   line-height: 1.2;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
-/* سعر الجمهور is what this board exists to show, so it is the largest number
-   on the card and it is not struck through.
-
-   It used to be 0.875rem, muted, with a line-through, sitting beside a 1.125rem
-   black "سعر بعد الخصم" — the strike-through says "this price is superseded"
-   about the very figure a reader came to compare, and the size said the other
-   number mattered more. The net price is gone from both layouts; the discount
-   pill beside it already says what to subtract. */
+/* سعر الجمهور is what this board exists to show, so it is clearly readable
+   and adjacent to the discount pill. */
 .market-money-was {
   font-size: 1.125rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.15;
   color: var(--text-primary);
   white-space: nowrap;
 }
 .market-money-was small {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin-inline-start: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-inline-start: 0.15rem;
 }
 .market-money-was.is-empty {
   font-size: 0.875rem;
@@ -5573,29 +5567,34 @@ form.filter-bar { margin: 0; }
   color: var(--text-muted);
   opacity: 0.55;
 }
-/* The lead cell gets the room the removed net-price cell freed. */
-.market-money-cell.is-lead { min-inline-size: 8rem; }
+.market-money-cell.is-lead { min-inline-size: 7.5rem; }
 
 .market-disc-pill {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.15rem;
-  padding: 0.25rem 0.5rem;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5625rem;
   border-radius: var(--radius-md);
-  font-size: 0.9375rem;
-  font-weight: 900;
-  line-height: 1.1;
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1.15;
   white-space: nowrap;
   color: var(--success);
   background: var(--success-subtle);
   border: 1px solid var(--success-border);
+  letter-spacing: -0.01em;
 }
 .market-disc-pill.is-hot {
   color: var(--danger);
   background: var(--danger-subtle);
   border-color: var(--danger-border);
 }
-.market-disc-pill small { font-size: 0.625rem; font-weight: 700; opacity: 0.85; }
+.market-disc-pill small {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  opacity: 0.9;
+  margin-inline-start: 0.125rem;
+}
 .market-disc-pill.is-block {
   flex-direction: column;
   align-items: center;
@@ -5604,18 +5603,17 @@ form.filter-bar { margin: 0; }
   min-inline-size: 3.25rem;
 }
 .market-supplier-badge {
-  font-size: 0.6875rem;
-  font-weight: 800;
-  max-inline-size: 12rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  max-inline-size: 14rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* The available quantity. Every row on this screen has stock — the query will
-   not return one that does not — so this says how much, never whether. */
+/* The available quantity. */
 .market-stock {
-  font-size: 0.6875rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--success);
   background: var(--success-subtle);
   border: 1px solid var(--success-border);
@@ -5654,9 +5652,14 @@ form.filter-bar { margin: 0; }
   gap: 0.375rem;
   min-block-size: 1.375rem;
 }
+.market-card .market-supplier-badge {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+}
 .market-card-title {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 800;
   line-height: 1.45;
   color: var(--text-primary);
@@ -5666,83 +5669,84 @@ form.filter-bar { margin: 0; }
   overflow: hidden;
   min-block-size: 2.35em;
 }
-/* The price rail keeps the discount tag glued to the two prices it modifies. */
+/* The price rail keeps public price and discount tag adjacent on the right (RTL). */
 .market-card-rail {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
   margin-block-start: auto;
   padding-block-start: 0.5rem;
   border-block-start: 1px solid var(--border-subtle);
 }
-.market-card-rail-prices {
+.market-card-pricing-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  justify-content: flex-start;
+}
+.market-card-price-block {
   display: flex;
   flex-direction: column;
-  gap: 0.1875rem;
-  min-inline-size: 0;
-}
-.market-card-rail-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.125rem;
 }
 .market-card-foot { margin-block-start: 0.125rem; }
-/* A line nobody has matched to a catalogue product yet. The board is price
-   intelligence, so a quoted figure is still worth reading; what it is not is a
-   thing to click. */
-.market-no-order {
-  display: block;
-  text-align: center;
-  padding-block: 0.375rem;
-  padding-inline: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: var(--bg-surface-sunken);
-  border: 1px dashed var(--border-subtle);
-  border-radius: var(--radius-md);
-  white-space: nowrap;
-}
 
 /* List view — one row per offer ------------------------------------------- */
 
-.market-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.market-list { display: flex; flex-direction: column; gap: 0.625rem; }
 
 .market-list-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.875rem 1.25rem;
   overflow: visible;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
 .market-list-row:hover {
   border-color: var(--border-strong, var(--border-card));
   box-shadow: var(--shadow-sm);
 }
-.market-list-identity { min-inline-size: 0; }
+.market-list-identity {
+  flex: 1 1 0;
+  min-inline-size: 0;
+}
+.market-list-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
 .market-list-title {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 1rem;
   font-weight: 800;
   line-height: 1.4;
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
-.market-list-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  flex-wrap: wrap;
+.market-list-row .market-supplier-badge {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-md);
 }
 .market-list-date {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
 }
-/* The three money cells, in reading order, separated by hairlines. */
+.market-list-row .market-list-date {
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-subtle);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
 .market-money {
   display: flex;
   align-items: stretch;
@@ -5751,6 +5755,7 @@ form.filter-bar { margin: 0; }
   border-radius: var(--radius-lg);
   background: var(--bg-surface-sunken, #f8fafc);
   overflow: hidden;
+  flex: 0 0 auto;
 }
 .market-money-cell {
   display: flex;
@@ -5758,27 +5763,62 @@ form.filter-bar { margin: 0; }
   align-items: center;
   justify-content: center;
   gap: 0.1875rem;
-  padding: 0.4375rem 0.75rem;
-  min-inline-size: 6.5rem;
+  padding: 0.4375rem 0.875rem;
+  min-inline-size: 6rem;
 }
 .market-money-cell + .market-money-cell {
   border-inline-start: 1px solid var(--border-subtle);
 }
 .market-money-cell.is-net { background: var(--bg-surface-raised, #fff); }
-.market-list-action { display: flex; justify-content: flex-end; min-inline-size: 6rem; }
-
-@media (max-width: 1100px) {
-  .market-list-row { grid-template-columns: minmax(0, 1fr) auto; }
-  .market-list-action { grid-column: 2; }
-  .market-money { grid-column: 1 / -1; }
+.market-list-action {
+  display: flex;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  min-inline-size: 6rem;
 }
-@media (max-width: 620px) {
-  .market-list-row { grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }
-  .market-list-action { grid-column: 1; justify-content: stretch; }
-  .market-list-action > .btn { inline-size: 100%; justify-content: center; }
-  .market-money { justify-content: space-between; }
-  .market-money-cell { flex: 1 1 0; min-inline-size: 0; padding-inline: 0.375rem; }
+
+@media (max-width: 960px) {
+  .market-list-row {
+    flex-wrap: wrap;
+    gap: 0.875rem;
+  }
+  .market-list-identity {
+    flex: 1 1 100%;
+  }
+  .market-money {
+    flex: 1 1 auto;
+  }
+  .market-list-action {
+    flex: 0 0 auto;
+  }
+}
+@media (max-width: 560px) {
+  .market-list-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  .market-list-title-wrap {
+    gap: 0.375rem;
+  }
+  .market-money {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .market-money-cell {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    padding-inline: 0.375rem;
+  }
   .market-money-was { font-size: 1rem; }
+  .market-list-action {
+    width: 100%;
+  }
+  .market-list-action > .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* ---- Market-intelligence spread table (reference layout: product | best | highest) ---- */

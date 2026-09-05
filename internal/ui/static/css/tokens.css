@@ -127,20 +127,20 @@
     --accent-glow:    rgba(0, 139, 204, 0.25); --accent-glow:    oklch(0.60 0.15 235 / 0.25);
 
     /* Functional Semantics (Distinct from Accent) */
-    --success:        rgb(0, 161, 89); --success:        oklch(0.62 0.16 155);
-    --success-hover:  rgb(0, 137, 62); --success-hover:  oklch(0.54 0.17 155);
-    --success-subtle: rgb(227, 248, 233); --success-subtle: oklch(0.96 0.03 155);
-    --success-border: rgb(179, 221, 192); --success-border: oklch(0.86 0.06 155);
+    --success:        rgb(5, 150, 105); --success:        oklch(0.60 0.14 160);
+    --success-hover:  rgb(4, 120, 87); --success-hover:  oklch(0.52 0.15 160);
+    --success-subtle: rgb(236, 253, 245); --success-subtle: oklch(0.97 0.025 160);
+    --success-border: rgb(167, 243, 208); --success-border: oklch(0.88 0.06 160);
 
     --warning:        rgb(222, 147, 0); --warning:        oklch(0.72 0.16 75);
     --warning-hover:  rgb(198, 120, 0); --warning-hover:  oklch(0.64 0.17 75);
     --warning-subtle: rgb(254, 239, 220); --warning-subtle: oklch(0.96 0.03 75);
     --warning-border: rgb(243, 210, 164); --warning-border: oklch(0.88 0.07 75);
 
-    --danger:         rgb(215, 51, 55); --danger:         oklch(0.58 0.20 25);
-    --danger-hover:   rgb(190, 0, 25); --danger-hover:   oklch(0.50 0.21 25);
-    --danger-subtle:  rgb(255, 235, 232); --danger-subtle:  oklch(0.96 0.03 25);
-    --danger-border:  rgb(255, 189, 183); --danger-border:  oklch(0.86 0.08 25);
+    --danger:         rgb(225, 29, 72); --danger:         oklch(0.58 0.20 15);
+    --danger-hover:   rgb(190, 18, 60); --danger-hover:   oklch(0.50 0.21 15);
+    --danger-subtle:  rgb(255, 241, 242); --danger-subtle:  oklch(0.97 0.025 15);
+    --danger-border:  rgb(254, 205, 211); --danger-border:  oklch(0.88 0.06 15);
 
     --info:           rgb(0, 142, 200); --info:           oklch(0.60 0.15 230);
     --info-hover:     rgb(0, 117, 178); --info-hover:     oklch(0.52 0.16 230);
@@ -244,20 +244,20 @@
       --accent-subtle:  rgb(5, 39, 57); --accent-subtle:  oklch(0.26 0.05 235);
       --accent-glow:    rgba(60, 187, 249, 0.25); --accent-glow:    oklch(0.75 0.14 235 / 0.25);
 
-      --success:        rgb(67, 192, 122); --success:        oklch(0.72 0.15 155);
-      --success-hover:  rgb(114, 214, 153); --success-hover:  oklch(0.80 0.13 155);
-      --success-subtle: rgb(7, 38, 20); --success-subtle: oklch(0.24 0.05 155);
-      --success-border: rgb(21, 79, 47); --success-border: oklch(0.38 0.08 155);
+      --success:        rgb(52, 211, 153); --success:        oklch(0.78 0.14 160);
+      --success-hover:  rgb(110, 231, 183); --success-hover:  oklch(0.84 0.12 160);
+      --success-subtle: rgba(16, 185, 129, 0.14); --success-subtle: oklch(0.78 0.14 160 / 0.14);
+      --success-border: rgba(52, 211, 153, 0.28); --success-border: oklch(0.78 0.14 160 / 0.28);
 
       --warning:        rgb(242, 175, 72); --warning:        oklch(0.80 0.14 75);
       --warning-hover:  rgb(255, 204, 121); --warning-hover:  oklch(0.88 0.12 75);
       --warning-subtle: rgb(50, 32, 4); --warning-subtle: oklch(0.26 0.05 75);
       --warning-border: rgb(102, 70, 16); --warning-border: oklch(0.42 0.08 75);
 
-      --danger:         rgb(255, 111, 105); --danger:         oklch(0.72 0.18 25);
-      --danger-hover:   rgb(255, 145, 136); --danger-hover:   oklch(0.80 0.16 25);
-      --danger-subtle:  rgb(58, 20, 18); --danger-subtle:  oklch(0.25 0.06 25);
-      --danger-border:  rgb(116, 46, 43); --danger-border:  oklch(0.40 0.10 25);
+      --danger:         rgb(251, 113, 133); --danger:         oklch(0.74 0.16 15);
+      --danger-hover:   rgb(253, 164, 175); --danger-hover:   oklch(0.80 0.13 15);
+      --danger-subtle:  rgba(244, 63, 94, 0.14); --danger-subtle:  oklch(0.74 0.16 15 / 0.14);
+      --danger-border:  rgba(251, 113, 133, 0.28); --danger-border:  oklch(0.74 0.16 15 / 0.28);
 
       --info:           rgb(22, 179, 235); --info:           oklch(0.72 0.14 230);
       --info-hover:     rgb(96, 204, 252); --info-hover:     oklch(0.80 0.12 230);
@@ -313,20 +313,20 @@
     --accent-subtle:  rgb(5, 39, 57); --accent-subtle:  oklch(0.26 0.05 235);
     --accent-glow:    rgba(60, 187, 249, 0.25); --accent-glow:    oklch(0.75 0.14 235 / 0.25);
 
-    --success:        rgb(67, 192, 122); --success:        oklch(0.72 0.15 155);
-    --success-hover:  rgb(114, 214, 153); --success-hover:  oklch(0.80 0.13 155);
-    --success-subtle: rgb(7, 38, 20); --success-subtle: oklch(0.24 0.05 155);
-    --success-border: rgb(21, 79, 47); --success-border: oklch(0.38 0.08 155);
+    --success:        rgb(52, 211, 153); --success:        oklch(0.78 0.14 160);
+    --success-hover:  rgb(110, 231, 183); --success-hover:  oklch(0.84 0.12 160);
+    --success-subtle: rgba(16, 185, 129, 0.14); --success-subtle: oklch(0.78 0.14 160 / 0.14);
+    --success-border: rgba(52, 211, 153, 0.28); --success-border: oklch(0.78 0.14 160 / 0.28);
 
     --warning:        rgb(242, 175, 72); --warning:        oklch(0.80 0.14 75);
     --warning-hover:  rgb(255, 204, 121); --warning-hover:  oklch(0.88 0.12 75);
     --warning-subtle: rgb(50, 32, 4); --warning-subtle: oklch(0.26 0.05 75);
     --warning-border: rgb(102, 70, 16); --warning-border: oklch(0.42 0.08 75);
 
-    --danger:         rgb(255, 111, 105); --danger:         oklch(0.72 0.18 25);
-    --danger-hover:   rgb(255, 145, 136); --danger-hover:   oklch(0.80 0.16 25);
-    --danger-subtle:  rgb(58, 20, 18); --danger-subtle:  oklch(0.25 0.06 25);
-    --danger-border:  rgb(116, 46, 43); --danger-border:  oklch(0.40 0.10 25);
+    --danger:         rgb(251, 113, 133); --danger:         oklch(0.74 0.16 15);
+    --danger-hover:   rgb(253, 164, 175); --danger-hover:   oklch(0.80 0.13 15);
+    --danger-subtle:  rgba(244, 63, 94, 0.14); --danger-subtle:  oklch(0.74 0.16 15 / 0.14);
+    --danger-border:  rgba(251, 113, 133, 0.28); --danger-border:  oklch(0.74 0.16 15 / 0.28);
 
     --info:           rgb(22, 179, 235); --info:           oklch(0.72 0.14 230);
     --info-hover:     rgb(96, 204, 252); --info-hover:     oklch(0.80 0.12 230);
