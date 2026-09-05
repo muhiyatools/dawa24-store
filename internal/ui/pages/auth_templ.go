@@ -88,7 +88,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form id=\"registration-onboarding-form\" method=\"POST\" action=\"/auth/register\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6\"><input type=\"hidden\" name=\"account_type\" id=\"reg-account-type-input\" value=\"customer\"><!-- ================= STEP 1: Select Account Type ================= --><section id=\"reg-step-1\" class=\"form-step active\"><h2 class=\"text-sm font-bold text-primary m-0\">يرجى تحديد نوع حساب المنشأة للبدء:</h2><div class=\"d-flex flex-col gap-3\"><!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) --><div class=\"type-card active\" data-account-type=\"customer\"><div class=\"type-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form id=\"registration-onboarding-form\" method=\"POST\" action=\"/auth/register\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6\"><input type=\"hidden\" name=\"account_type\" id=\"reg-account-type-input\" value=\"customer\"><!-- Geographic coordinates lookup for instant map synchronization --><script id=\"reg-cities-coords\" type=\"application/json\">\n\t\t\t\t\t\t{ templ.Raw(CitiesCoordinatesJSON(cities)) }\n\t\t\t\t\t</script><script id=\"reg-govs-coords\" type=\"application/json\">\n\t\t\t\t\t\t{ templ.Raw(GovernoratesCoordinatesJSON(governorates)) }\n\t\t\t\t\t</script><!-- ================= STEP 1: Select Account Type ================= --><section id=\"reg-step-1\" class=\"form-step active\"><h2 class=\"text-sm font-bold text-primary m-0\">يرجى تحديد نوع حساب المنشأة للبدء:</h2><div class=\"d-flex flex-col gap-3\"><!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) --><div class=\"type-card active\" data-account-type=\"customer\"><div class=\"type-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -159,7 +159,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.YearsExperience)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 154, Col: 175}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 161, Col: 175}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.ExpectedSalary)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 184, Col: 163}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 191, Col: 163}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(form.Bio)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 198, Col: 203}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 205, Col: 203}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -228,7 +228,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.LegalName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 204, Col: 167}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 211, Col: 167}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -241,7 +241,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameAr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 210, Col: 109}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 217, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -254,7 +254,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameEn)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 214, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 221, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -267,7 +267,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.CommercialRegister)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 221, Col: 129}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 228, Col: 129}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -280,7 +280,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TaxNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 225, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 232, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
@@ -293,7 +293,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.PharmacistLicense)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 231, Col: 131}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 238, Col: 131}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
@@ -349,7 +349,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 291, Col: 180}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 298, Col: 180}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -386,7 +386,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 318, Col: 126}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 325, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
@@ -399,7 +399,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 324, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 331, Col: 139}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -412,7 +412,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 328, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 335, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
@@ -449,7 +449,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(layouts.Asset("/static/js/registration.js"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 396, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 403, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {

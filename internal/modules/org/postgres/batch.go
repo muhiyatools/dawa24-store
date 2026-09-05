@@ -80,7 +80,7 @@ func (r *Repository) GetBranchesByIDs(ctx context.Context, ids []int64) ([]*org.
 			       COALESCE(b.warehouse_type, 'warehouse'), COALESCE(b.has_cold_storage, false),
 			       COALESCE(b.capacity_sqm, 0), COALESCE(b.operating_hours, ''),
 			       COALESCE(b.status, 'active'), b.is_main, COALESCE(b.phone, ''), b.created_at, b.updated_at,
-			       COALESCE((SELECT array_agg(w.work_category)
+			       COALESCE((SELECT array_agg(DISTINCT COALESCE(w.institutional_work_id::text, w.work_category))
 			                 FROM org.branch_institutional_works w
 			                 WHERE w.branch_id = b.id), '{}')
 			FROM org.branches b

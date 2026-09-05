@@ -122,11 +122,12 @@ if (typeof window.syncCityDropdownsWithCoordinates === 'undefined') {
     if (typeof window.dawaComboboxSet === 'function') {
       const cb = window.dawaComboboxRegistry && (window.dawaComboboxRegistry['city_id'] || window.dawaComboboxRegistry['branch_city_id']);
       if (cb) {
-        const coordsScript = document.getElementById('customer-branch-cities-coords') || document.getElementById('vendor-branch-cities-coords');
+        const coordsScript = document.getElementById('reg-cities-coords') || document.getElementById('customer-branch-cities-coords') || document.getElementById('vendor-branch-cities-coords');
         if (coordsScript) {
           try {
             const coords = JSON.parse(coordsScript.textContent);
             let closestCityId = null;
+            let closestGovId = null;
             let minDistance = Infinity;
             for (const [cId, pos] of Object.entries(coords)) {
               if (Array.isArray(pos) && pos.length >= 2) {
@@ -134,10 +135,14 @@ if (typeof window.syncCityDropdownsWithCoordinates === 'undefined') {
                 if (dist < minDistance) {
                   minDistance = dist;
                   closestCityId = cId;
+                  closestGovId = pos[2] || null;
                 }
               }
             }
             if (closestCityId && minDistance < 0.35) {
+              if (closestGovId) {
+                window.dawaComboboxSet('branch_governorate_id', String(closestGovId));
+              }
               window.dawaComboboxSet(cb.name, closestCityId);
             }
           } catch(e) {}

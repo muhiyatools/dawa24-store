@@ -10,39 +10,14 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
-func ensureInstitutionalTables(ctx context.Context, tx pgx.Tx) error {
-	const schema = `
-		CREATE TABLE IF NOT EXISTS org.institutional_works (
-			id BIGSERIAL PRIMARY KEY,
-			public_id UUID NOT NULL DEFAULT gen_random_uuid(),
-			title JSONB NOT NULL DEFAULT '{"ar":"","en":""}'::jsonb,
-			description JSONB NOT NULL DEFAULT '{"ar":"","en":""}'::jsonb,
-			icon TEXT NOT NULL DEFAULT 'building',
-			pricing_type TEXT NOT NULL DEFAULT 'free',
-			is_active BOOLEAN NOT NULL DEFAULT true,
-			view_type INT NOT NULL DEFAULT 1,
-			slug TEXT NOT NULL DEFAULT '',
-			parent_id BIGINT REFERENCES org.institutional_works(id) ON DELETE SET NULL,
-			sort_order INT NOT NULL DEFAULT 0,
-			created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-			updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-			deleted_at TIMESTAMPTZ
-		);
-
-		CREATE TABLE IF NOT EXISTS org.institutional_work_connections (
-			id BIGSERIAL PRIMARY KEY,
-			from_institutional_work_id BIGINT NOT NULL REFERENCES org.institutional_works(id) ON DELETE CASCADE,
-			to_institutional_work_id BIGINT NOT NULL REFERENCES org.institutional_works(id) ON DELETE CASCADE,
-			created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-			CONSTRAINT uq_inst_work_conn UNIQUE (from_institutional_work_id, to_institutional_work_id)
-		);
-
-		CREATE INDEX IF NOT EXISTS idx_inst_work_conn_from ON org.institutional_work_connections (from_institutional_work_id);
-		CREATE INDEX IF NOT EXISTS idx_inst_work_conn_to ON org.institutional_work_connections (to_institutional_work_id);
-	`
-	_, err := tx.Exec(ctx, schema)
-	return err
-}
+// The institutional works schema (org.institutional_works and
+// org.institutional_work_connections) is owned by migrations 077 and 079.
+// It used to be re-declared as CREATE TABLE IF NOT EXISTS at the top of every
+// repository call, including the read ones — which run in a read-only
+// transaction, so every institutional read failed with
+// "cannot execute CREATE TABLE in a read-only transaction". That error
+// propagated all the way to commerce.CheckAvailability, which fails closed, so
+// the storefront hid every supplier offer from every pharmacy.
 
 func seedDefaultInstitutionalWorks(ctx context.Context, tx pgx.Tx) error {
 	var count int
@@ -273,9 +248,6 @@ func seedDefaultInstitutionalWorks(ctx context.Context, tx pgx.Tx) error {
 // CreateInstitutionalWork creates a new institutional structure category and syncs allowed connections.
 func (r *Repository) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		var parentID *int64
 		if iw.ParentID != nil && *iw.ParentID > 0 {
 			parentID = iw.ParentID

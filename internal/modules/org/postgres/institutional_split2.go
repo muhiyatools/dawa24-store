@@ -15,9 +15,6 @@ import (
 func (r *Repository) GetInstitutionalWorkByID(ctx context.Context, id int64) (*org.InstitutionalWork, error) {
 	var iw org.InstitutionalWork
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		const query = `
 			SELECT iw.id, iw.public_id, iw.title, iw.description, iw.icon, iw.pricing_type,
 			       iw.is_active, iw.view_type, iw.slug, iw.parent_id,
@@ -76,9 +73,6 @@ func (r *Repository) GetInstitutionalWorkByID(ctx context.Context, id int64) (*o
 // UpdateInstitutionalWork updates an existing institutional category and synchronizes connections.
 func (r *Repository) UpdateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		var parentID *int64
 		if iw.ParentID != nil && *iw.ParentID > 0 && *iw.ParentID != iw.ID {
 			parentID = iw.ParentID
@@ -121,9 +115,6 @@ func (r *Repository) UpdateInstitutionalWork(ctx context.Context, iw *org.Instit
 // DeleteInstitutionalWork soft-deletes an institutional category.
 func (r *Repository) DeleteInstitutionalWork(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		const query = `UPDATE org.institutional_works SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL;`
 		tag, err := tx.Exec(txCtx, query, id)
 		if err != nil {
@@ -139,9 +130,6 @@ func (r *Repository) DeleteInstitutionalWork(ctx context.Context, id int64) erro
 // ToggleInstitutionalWorkStatus toggles the active state of an institutional category.
 func (r *Repository) ToggleInstitutionalWorkStatus(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		const query = `UPDATE org.institutional_works SET is_active = NOT is_active, updated_at = now() WHERE id = $1 AND deleted_at IS NULL;`
 		tag, err := tx.Exec(txCtx, query, id)
 		if err != nil {
@@ -158,9 +146,6 @@ func (r *Repository) ToggleInstitutionalWorkStatus(ctx context.Context, id int64
 func (r *Repository) CanConnectInstitutionalWorks(ctx context.Context, fromID, toID int64) (bool, error) {
 	var allowed bool
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		const query = `
 			SELECT EXISTS (
 				SELECT 1 FROM org.institutional_work_connections
@@ -176,9 +161,6 @@ func (r *Repository) CanConnectInstitutionalWorks(ctx context.Context, fromID, t
 func (r *Repository) ListAllFlatInstitutionalWorks(ctx context.Context, onlyActive bool) ([]*org.InstitutionalWork, error) {
 	var all []*org.InstitutionalWork
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		if err := seedDefaultInstitutionalWorks(txCtx, tx); err != nil {
 			return err
 		}

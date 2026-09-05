@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    DAWA 24 — REGISTRATION & ONBOARDING MODULE (registration.js)
    Multi-step stepper, file upload preview, verification & password strength
    ========================================================================== */
@@ -84,6 +84,14 @@ function initRegistrationStepper() {
       const isVisible = allowed.includes(type);
       el.classList.toggle('d-none', !isVisible);
     });
+
+    if (type !== 'job_seeker') {
+      setTimeout(() => {
+        document.querySelectorAll('[data-map-picker] .map-canvas, [data-map-picker], .leaflet-container').forEach((c) => {
+          if (c._leaflet_map) c._leaflet_map.invalidateSize();
+        });
+      }, 100);
+    }
   }
 
   // Account Type Selection Cards
@@ -391,6 +399,72 @@ const EGYPT_CITIES_COORDS = [
   { name: 'رأس سدر', lat: 29.5892, lon: 32.7144 }
 ];
 
+let isMapSyncing = false;
+
+function initRegistrationMapComboboxSync() {
+  window.addEventListener('combobox-change', function (e) {
+    if (isMapSyncing) return;
+    if (!e.detail || !e.detail.name) return;
+    const name = e.detail.name;
+    const val = e.detail.value;
+
+    const mapContainer = document.querySelector('[data-map-picker]');
+    if (!mapContainer || mapContainer.closest('.d-none')) return;
+
+    if (name === 'branch_governorate_id') {
+      if (!val) return;
+      const govsCoordsEl = document.getElementById('reg-govs-coords');
+      if (govsCoordsEl) {
+        try {
+          const govs = JSON.parse(govsCoordsEl.textContent);
+          const pos = govs[String(val)];
+          if (pos && (pos[0] || pos[1])) {
+            if (typeof window.dawaSetMapLocation === 'function') {
+              window.dawaSetMapLocation(mapContainer, pos[0], pos[1], 11);
+            }
+          }
+        } catch (err) {
+          console.warn('branch_governorate_id map sync error:', err);
+        }
+      }
+    } else if (name === 'branch_city_id') {
+      if (val) {
+        const citiesCoordsEl = document.getElementById('reg-cities-coords');
+        if (citiesCoordsEl) {
+          try {
+            const cities = JSON.parse(citiesCoordsEl.textContent);
+            const pos = cities[String(val)];
+            if (pos && (pos[0] || pos[1])) {
+              if (typeof window.dawaSetMapLocation === 'function') {
+                window.dawaSetMapLocation(mapContainer, pos[0], pos[1], 14);
+              }
+            }
+          } catch (err) {
+            console.warn('branch_city_id map sync error:', err);
+          }
+        }
+      } else {
+        // City was cleared: if governorate is still selected, pan back to governorate center
+        const govVal = window.dawaComboboxValue ? window.dawaComboboxValue('branch_governorate_id') : '';
+        if (govVal) {
+          const govsCoordsEl = document.getElementById('reg-govs-coords');
+          if (govsCoordsEl) {
+            try {
+              const govs = JSON.parse(govsCoordsEl.textContent);
+              const pos = govs[String(govVal)];
+              if (pos && (pos[0] || pos[1])) {
+                if (typeof window.dawaSetMapLocation === 'function') {
+                  window.dawaSetMapLocation(mapContainer, pos[0], pos[1], 11);
+                }
+              }
+            } catch (err) {}
+          }
+        }
+      }
+    }
+  });
+}
+
 function findClosestEgyptianCity(lat, lon) {
   let closest = null;
   let minDist = Infinity;
@@ -405,55 +479,65 @@ function findClosestEgyptianCity(lat, lon) {
 }
 
 function syncCityDropdownsWithCoordinates(lat, lon) {
-  const closest = findClosestEgyptianCity(lat, lon);
-  if (!closest) return null;
+  const coordsEl = document.getElementById('reg-cities-coords') ||
+                   document.getElementById('customer-branch-cities-coords') ||
+                   document.getElementById('vendor-branch-cities-coords');
 
-  const mapCitySelects = document.querySelectorAll('[data-city-selector]');
-  mapCitySelects.forEach((selectEl) => {
-    let bestOpt = null;
-    let minOptDist = Infinity;
-    for (let i = 0; i < selectEl.options.length; i++) {
-      const opt = selectEl.options[i];
-      if (!opt.value) continue;
-      const [optLat, optLon] = opt.value.split(',').map((v) => parseFloat(v.trim()));
-      if (!isNaN(optLat) && !isNaN(optLon)) {
-        const d = Math.hypot(lat - optLat, lon - optLon);
-        if (d < minOptDist) {
-          minOptDist = d;
-          bestOpt = opt;
+  let closestCityId = null;
+  let closestGovId = null;
+  let minDist = Infinity;
+
+  if (coordsEl) {
+    try {
+      const coords = JSON.parse(coordsEl.textContent);
+      for (const [cId, pos] of Object.entries(coords)) {
+        if (Array.isArray(pos) && pos.length >= 2) {
+          const d = Math.hypot(lat - pos[0], lon - pos[1]);
+          if (d < minDist) {
+            minDist = d;
+            closestCityId = cId;
+            closestGovId = pos[2] || null;
+          }
         }
       }
+    } catch (e) {
+      console.warn('syncCityDropdownsWithCoordinates parse error:', e);
     }
-    if (bestOpt && minOptDist < 0.45) {
-      selectEl.value = bestOpt.value;
-      const cityId = bestOpt.dataset.cityId;
-      if (cityId) {
-        // The hidden branch_city_id the map used to be the only writer of.
-        // Kept for the screens whose city control is still a plain input.
-        document.querySelectorAll('[data-map-city-id]').forEach((hi) => {
-          hi.value = cityId;
-        });
-        // And the combobox, which is the visible control on the registration
-        // form. Going through its own setter is what keeps the text the person
-        // reads and the value the form submits from disagreeing.
-        if (typeof window.dawaComboboxSet === 'function') {
-          const label = bestOpt.dataset.nameAr || bestOpt.textContent.trim();
-          // Only the branch pickers: the map is not shown to job seekers, and
-          // their city field is a different question ("where would you like to
-          // work"), not the same answer.
-          window.dawaComboboxSet('branch_city_id', cityId, label);
-        }
-      }
-    }
-  });
+  }
 
-  return closest;
+  // Fallback to static array if no coords script in DOM
+  if (!closestCityId) {
+    const closest = findClosestEgyptianCity(lat, lon);
+    if (!closest) return null;
+  }
+
+  if (closestCityId && minDist < 0.45) {
+    isMapSyncing = true;
+    try {
+      document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"]').forEach((hi) => {
+        hi.value = closestCityId;
+      });
+      if (typeof window.dawaComboboxSet === 'function') {
+        if (closestGovId) {
+          window.dawaComboboxSet('branch_governorate_id', String(closestGovId));
+        }
+        window.dawaComboboxSet('branch_city_id', String(closestCityId));
+      }
+    } finally {
+      setTimeout(() => { isMapSyncing = false; }, 200);
+    }
+  }
+
+  return closestCityId;
 }
+window.syncCityDropdownsWithCoordinates = syncCityDropdownsWithCoordinates;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initRegistrationStepper();
+    initRegistrationMapComboboxSync();
   });
 } else {
   initRegistrationStepper();
+  initRegistrationMapComboboxSync();
 }

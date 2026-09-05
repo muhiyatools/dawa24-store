@@ -12,9 +12,6 @@ import (
 // AssignBranchInstitutionalWorks sets the institutional work categories for a branch.
 func (r *Repository) AssignBranchInstitutionalWorks(ctx context.Context, branchID int64, workIDs []int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		if _, err := tx.Exec(txCtx, `DELETE FROM org.branch_institutional_works WHERE branch_id = $1;`, branchID); err != nil {
 			return err
 		}
@@ -37,9 +34,6 @@ func (r *Repository) AssignBranchInstitutionalWorks(ctx context.Context, branchI
 func (r *Repository) GetBranchInstitutionalWorks(ctx context.Context, branchID int64) ([]*org.InstitutionalWork, error) {
 	var list []*org.InstitutionalWork
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		if err := ensureInstitutionalTables(txCtx, tx); err != nil {
-			return err
-		}
 		const query = `
 			SELECT iw.id, iw.public_id, iw.title, iw.description, iw.icon, iw.pricing_type,
 			       iw.is_active, iw.view_type, iw.slug, iw.parent_id, '', 0, iw.created_at, iw.updated_at

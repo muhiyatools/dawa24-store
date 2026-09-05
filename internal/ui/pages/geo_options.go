@@ -76,16 +76,39 @@ func CityOptions(cities []*platformadmin.City, lang string) []components.Combobo
 	return out
 }
 
-// CitiesCoordinatesJSON returns a JSON map of city ID to [lat, lon] coordinates.
-// It is embedded in branch pages so selecting a city can immediately pan the map.
+// CitiesCoordinatesJSON returns a JSON map of city ID to [lat, lon, govID].
+// It is embedded in pages so selecting a city can immediately pan the map.
 func CitiesCoordinatesJSON(cities []*platformadmin.City) string {
-	coords := make(map[string][2]float64, len(cities))
+	coords := make(map[string][]any, len(cities))
 	for _, c := range cities {
 		if c == nil {
 			continue
 		}
 		if c.Latitude != 0 || c.Longitude != 0 {
-			coords[strconv.FormatInt(c.ID, 10)] = [2]float64{c.Latitude, c.Longitude}
+			var govID int64
+			if c.GovernorateID != nil {
+				govID = *c.GovernorateID
+			}
+			coords[strconv.FormatInt(c.ID, 10)] = []any{c.Latitude, c.Longitude, govID}
+		}
+	}
+	b, err := json.Marshal(coords)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
+}
+
+// GovernoratesCoordinatesJSON returns a JSON map of governorate ID to [lat, lon] coordinates.
+// It is embedded in pages so selecting a governorate can immediately pan the map.
+func GovernoratesCoordinatesJSON(govs []*platformadmin.Governorate) string {
+	coords := make(map[string][2]float64, len(govs))
+	for _, g := range govs {
+		if g == nil {
+			continue
+		}
+		if g.Latitude != 0 || g.Longitude != 0 {
+			coords[strconv.FormatInt(g.ID, 10)] = [2]float64{g.Latitude, g.Longitude}
 		}
 	}
 	b, err := json.Marshal(coords)

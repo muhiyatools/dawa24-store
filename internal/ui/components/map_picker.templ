@@ -67,44 +67,6 @@ templ MapPicker(props MapPickerProps) {
 
 			<!-- Toolbar Buttons -->
 			<div class="stack-sm" style="display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;">
-				<!-- City Jump Selector (Dynamic from Database) -->
-				<select class="form-select text-xs" style="padding:0.25rem 0.5rem; font-size:11px; width:auto;" data-city-selector>
-					<option value="">-- المحافظات المصرية (Governorates) --</option>
-					if len(props.Cities) > 0 {
-						for _, c := range props.Cities {
-							<option value={ fmt.Sprintf("%.4f,%.4f", c.Latitude, c.Longitude) } data-city-id={ fmt.Sprintf("%d", c.ID) } data-name-ar={ c.Name.Get("ar") } data-name-en={ c.Name.Get("en") }>{ c.Name.Get("ar") }</option>
-						}
-					} else {
-						<option value="30.0444,31.2357" data-name-ar="القاهرة" data-name-en="Cairo">القاهرة (Cairo)</option>
-						<option value="30.0131,31.2089" data-name-ar="الجيزة" data-name-en="Giza">الجيزة (Giza)</option>
-						<option value="31.2001,29.9187" data-name-ar="الإسكندرية" data-name-en="Alexandria">الإسكندرية (Alexandria)</option>
-						<option value="31.0379,31.3815" data-name-ar="الدقهلية" data-name-en="Dakahlia">الدقهلية (Dakahlia)</option>
-						<option value="27.2579,33.8116" data-name-ar="البحر الأحمر" data-name-en="Red Sea">البحر الأحمر (Red Sea)</option>
-						<option value="31.0349,30.4682" data-name-ar="البحيرة" data-name-en="Beheira">البحيرة (Beheira)</option>
-						<option value="29.3084,30.8428" data-name-ar="الفيوم" data-name-en="Faiyum">الفيوم (Faiyum)</option>
-						<option value="30.7865,31.0004" data-name-ar="الغربية" data-name-en="Gharbia">الغربية (Gharbia)</option>
-						<option value="30.5965,32.2715" data-name-ar="الإسماعيلية" data-name-en="Ismailia">الإسماعيلية (Ismailia)</option>
-						<option value="30.5972,30.9876" data-name-ar="المنوفية" data-name-en="Monufia">المنوفية (Monufia)</option>
-						<option value="28.1099,30.7503" data-name-ar="المنيا" data-name-en="Minya">المنيا (Minya)</option>
-						<option value="30.4591,31.1786" data-name-ar="القليوبية" data-name-en="Qalyubia">القليوبية (Qalyubia)</option>
-						<option value="25.4514,30.5464" data-name-ar="الوادي الجديد" data-name-en="New Valley">الوادي الجديد (New Valley)</option>
-						<option value="29.9668,32.5498" data-name-ar="السويس" data-name-en="Suez">السويس (Suez)</option>
-						<option value="24.0889,32.8998" data-name-ar="أسوان" data-name-en="Aswan">أسوان (Aswan)</option>
-						<option value="27.1809,31.1837" data-name-ar="أسيوط" data-name-en="Asyut">أسيوط (Asyut)</option>
-						<option value="29.0661,31.0994" data-name-ar="بني سويف" data-name-en="Beni Suef">بني سويف (Beni Suef)</option>
-						<option value="31.2653,32.3019" data-name-ar="بورسعيد" data-name-en="Port Said">بورسعيد (Port Said)</option>
-						<option value="31.4175,31.8144" data-name-ar="دمياط" data-name-en="Damietta">دمياط (Damietta)</option>
-						<option value="30.5765,31.5041" data-name-ar="الشرقية" data-name-en="Sharqia">الشرقية (Sharqia)</option>
-						<option value="28.9712,33.6176" data-name-ar="جنوب سيناء" data-name-en="South Sinai">جنوب سيناء (South Sinai)</option>
-						<option value="31.1107,30.9388" data-name-ar="كفر الشيخ" data-name-en="Kafr El Sheikh">كفر الشيخ (Kafr El Sheikh)</option>
-						<option value="31.3543,27.2373" data-name-ar="مطروح" data-name-en="Matrouh">مطروح (Matrouh)</option>
-						<option value="25.6872,32.6396" data-name-ar="الأقصر" data-name-en="Luxor">الأقصر (Luxor)</option>
-						<option value="26.1551,32.7160" data-name-ar="قنا" data-name-en="Qena">قنا (Qena)</option>
-						<option value="31.1316,33.8033" data-name-ar="شمال سيناء" data-name-en="North Sinai">شمال سيناء (North Sinai)</option>
-						<option value="26.5569,31.6948" data-name-ar="سوهاج" data-name-en="Sohag">سوهاج (Sohag)</option>
-					}
-				</select>
-
 				<!-- Current Location GPS Button -->
 				<button type="button" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.6rem; font-size:11px; gap:4px;" data-locate-me-btn title="تحديد موقعي الحالي بدقة">
 					<span>موقعي الحالي</span>
