@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -218,11 +220,21 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	noticeType := r.URL.Query().Get("notice")
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("notice_msg")
+	}
+
 	data := pages.AdminBranchesPageData{
 		Branches:         branches,
 		Organizations:    allOrgs,
 		OrgNames:         orgNames,
 		OrgTypes:         orgTypes,
+		Cities:           h.listCities(ctx),
 		TotalBranches:    totalBranches,
 		FilteredCount:    filteredCount,
 		ActiveBranches:   activeBranches,
@@ -233,6 +245,8 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 		SearchQuery:      searchQuery,
 		SelectedOrgID:    orgIDFilter,
 		StatusFilter:     statusFilter,
+		NoticeType:       noticeType,
+		NoticeMsg:        noticeMsg,
 	}
 
 	h.renderPage(ctx, w, "render admin branches page", pages.AdminBranchesPage(data, lang, dir))
@@ -293,4 +307,241 @@ func (h *UIHandler) AdminBranchUsersPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.renderPage(ctx, w, "render admin branch users", pages.AdminBranchDetailPage(branch, lang, dir))
+}
+
+// AdminBranchNewSubmit creates a new branch or warehouse for any organization.
+func (h *UIHandler) AdminBranchNewSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", i18n.T(lang, "customer.branch.service_unavailable"))
+		return
+	}
+
+	_ = r.ParseForm()
+
+	orgID, err := strconv.ParseInt(r.PostFormValue("org_id"), 10, 64)
+	if err != nil || orgID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", "يرجى تحديد المنشأة التابع لها الفرع")
+		return
+	}
+
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
+	if nameAr == "" {
+		nameAr = "فرع جديد"
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	if code == "" {
+		code = fmt.Sprintf("BR-%d", time.Now().Unix())
+	}
+	warehouseType := strings.TrimSpace(r.PostFormValue("warehouse_type"))
+	if warehouseType == "" {
+		warehouseType = "branch"
+	}
+	address := strings.TrimSpace(r.PostFormValue("address"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
+	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
+	isMain := r.PostFormValue("is_main") == "true" || r.PostFormValue("is_main") == "on" || r.PostFormValue("is_main") == "1"
+	hasColdStorage := r.PostFormValue("has_cold_storage") == "true" || r.PostFormValue("has_cold_storage") == "on" || r.PostFormValue("has_cold_storage") == "1"
+
+	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
+	var cityID *int64
+	if cityIDVal > 0 {
+		cityID = &cityIDVal
+	}
+
+	var latPtr, lngPtr *float64
+	if latStr := r.PostFormValue("latitude"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			latPtr = &lat
+		}
+	}
+	if lngStr := r.PostFormValue("longitude"); lngStr != "" {
+		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
+			lngPtr = &lng
+		}
+	}
+
+	b := &org.Branch{
+		OrganizationID:     orgID,
+		Name:               i18n.New(nameAr, nameEn),
+		Code:               code,
+		WarehouseType:      warehouseType,
+		Address:            address,
+		Phone:              phone,
+		OperatingHours:     operatingHours,
+		HasColdStorage:     hasColdStorage,
+		GoogleMapsURL:      gmaps,
+		CityID:             cityID,
+		Latitude:           latPtr,
+		Longitude:          lngPtr,
+		IsMain:             isMain,
+		Status:             "active",
+		InstitutionalWorks: r.Form["institutional_works"],
+	}
+
+	if err := h.orgSvc.CreateBranch(database.AsSystem(ctx), b); err != nil {
+		h.log.ErrorContext(ctx, "admin create branch error", "error", err)
+		h.redirectWithNotice(w, r, "/admin/branches", "error", h.safeMessage(err, lang))
+		return
+	}
+	InvalidateBranchOptionsCache(orgID)
+
+	h.redirectWithNotice(w, r, "/admin/branches", "success", "تمت إضافة الفرع بنجاح.")
+}
+
+// AdminBranchEditSubmit updates an existing branch.
+func (h *UIHandler) AdminBranchEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", i18n.T(lang, "customer.branch.service_unavailable"))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", "معرف الفرع غير صالح")
+		return
+	}
+
+	existing, err := h.orgSvc.GetBranch(database.AsSystem(ctx), id)
+	if err != nil || existing == nil {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", "لم يتم العثور على الفرع المطلوب")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	orgID, _ := strconv.ParseInt(r.PostFormValue("org_id"), 10, 64)
+	if orgID <= 0 {
+		orgID = existing.OrganizationID
+	}
+
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
+	if nameAr == "" {
+		nameAr = existing.Name.Get(i18n.AR)
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	if code == "" {
+		code = existing.Code
+	}
+	warehouseType := strings.TrimSpace(r.PostFormValue("warehouse_type"))
+	if warehouseType == "" {
+		warehouseType = existing.WarehouseType
+	}
+	address := strings.TrimSpace(r.PostFormValue("address"))
+	if address == "" {
+		address = existing.Address
+	}
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	if phone == "" {
+		phone = existing.Phone
+	}
+	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
+	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
+	status := strings.TrimSpace(r.PostFormValue("status"))
+	if status == "" {
+		status = existing.Status
+	}
+	isMain := r.PostFormValue("is_main") == "true" || r.PostFormValue("is_main") == "on" || r.PostFormValue("is_main") == "1"
+	hasColdStorage := r.PostFormValue("has_cold_storage") == "true" || r.PostFormValue("has_cold_storage") == "on" || r.PostFormValue("has_cold_storage") == "1"
+
+	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
+	var cityID *int64
+	if cityIDVal > 0 {
+		cityID = &cityIDVal
+	} else {
+		cityID = existing.CityID
+	}
+
+	var latPtr, lngPtr *float64
+	if latStr := r.PostFormValue("latitude"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			latPtr = &lat
+		}
+	}
+	if lngStr := r.PostFormValue("longitude"); lngStr != "" {
+		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
+			lngPtr = &lng
+		}
+	}
+	if latPtr == nil {
+		latPtr = existing.Latitude
+	}
+	if lngPtr == nil {
+		lngPtr = existing.Longitude
+	}
+
+	b := &org.Branch{
+		ID:                 id,
+		OrganizationID:     orgID,
+		Name:               i18n.New(nameAr, nameEn),
+		Code:               code,
+		WarehouseType:      warehouseType,
+		Address:            address,
+		Phone:              phone,
+		OperatingHours:     operatingHours,
+		HasColdStorage:     hasColdStorage,
+		GoogleMapsURL:      gmaps,
+		CityID:             cityID,
+		Latitude:           latPtr,
+		Longitude:          lngPtr,
+		IsMain:             isMain,
+		Status:             status,
+		InstitutionalWorks: r.Form["institutional_works"],
+	}
+
+	if err := h.orgSvc.UpdateBranch(database.AsSystem(ctx), b); err != nil {
+		h.log.ErrorContext(ctx, "admin update branch error", "error", err, "branch_id", id)
+		h.redirectWithNotice(w, r, "/admin/branches", "error", h.safeMessage(err, lang))
+		return
+	}
+	InvalidateBranchOptionsCache(orgID)
+
+	h.redirectWithNotice(w, r, "/admin/branches", "success", "تم تحديث بيانات الفرع بنجاح.")
+}
+
+// AdminBranchDeleteSubmit removes a branch.
+func (h *UIHandler) AdminBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", i18n.T(lang, "customer.branch.service_unavailable"))
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", "معرف الفرع غير صالح")
+		return
+	}
+
+	existing, err := h.orgSvc.GetBranch(database.AsSystem(ctx), id)
+	if err != nil || existing == nil {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", "لم يتم العثور على الفرع المطلوب")
+		return
+	}
+	if existing.IsMain {
+		h.redirectWithNotice(w, r, "/admin/branches", "error", "لا يمكن حذف الفرع الرئيسي للمنشأة")
+		return
+	}
+
+	if err := h.orgSvc.DeleteBranch(database.AsSystem(ctx), id, existing.OrganizationID); err != nil {
+		h.log.ErrorContext(ctx, "admin delete branch error", "error", err, "branch_id", id)
+		h.redirectWithNotice(w, r, "/admin/branches", "error", h.safeMessage(err, lang))
+		return
+	}
+	InvalidateBranchOptionsCache(existing.OrganizationID)
+
+	h.redirectWithNotice(w, r, "/admin/branches", "success", "تم حذف الفرع بنجاح.")
 }

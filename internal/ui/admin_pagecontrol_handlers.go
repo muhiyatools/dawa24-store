@@ -40,6 +40,7 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	filter := strings.TrimSpace(r.URL.Query().Get("resource"))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	lowerQ := strings.ToLower(q)
 
@@ -59,6 +60,13 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 			continue
 		}
 
+		if statusFilter == "active" && !p.IsEnabled {
+			continue
+		}
+		if statusFilter == "inactive" && p.IsEnabled {
+			continue
+		}
+
 		label := p.Label(lang)
 		if q != "" {
 			matchPath := strings.Contains(strings.ToLower(p.Path), lowerQ)
@@ -74,6 +82,9 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 		matchedRows = append(matchedRows, pages.SystemPageRow{
 			ID:           p.ID,
 			Label:        label,
+			LabelAr:      p.LabelAr,
+			LabelEn:      p.LabelEn,
+			Description:  p.Description,
 			Path:         p.Path,
 			MatchMode:    string(p.MatchMode),
 			Resource:     string(p.Resource),
@@ -105,6 +116,9 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 	if filter != "" {
 		qVals.Set("resource", filter)
 	}
+	if statusFilter != "" {
+		qVals.Set("status", statusFilter)
+	}
 	if q != "" {
 		qVals.Set("q", q)
 	}
@@ -112,6 +126,7 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 	view := pages.SystemPagesView{
 		Rows:          pagedRows,
 		Filter:        filter,
+		StatusFilter:  statusFilter,
 		SearchQuery:   q,
 		Counts:        counts,
 		Total:         len(all),
@@ -132,6 +147,38 @@ func (h *UIHandler) AdminSystemPagesPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.renderPage(ctx, w, "render system pages", pages.AdminSystemPagesPage(view, lang, dir))
+}
+
+// AdminSystemPageEditSubmit updates an existing managed page.
+func (h *UIHandler) AdminSystemPageEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if h.pageControl == nil {
+		h.redirectWithNotice(w, r, pageControlBase, "error", i18n.T(lang, "admin.pagecontrol.service_unavailable"))
+		return
+	}
+	id, ok := pageControlID(r)
+	if !ok {
+		h.redirectWithNotice(w, r, pageControlBase, "error", i18n.T(lang, "admin.pagecontrol.not_found"))
+		return
+	}
+	_ = r.ParseForm()
+
+	in := pagecontrol.UpdateInput{
+		Path:        r.PostFormValue("path"),
+		MatchMode:   pagecontrol.MatchMode(strings.TrimSpace(r.PostFormValue("match_mode"))),
+		Resource:    pagecontrol.Resource(strings.TrimSpace(r.PostFormValue("resource"))),
+		LabelAr:     r.PostFormValue("label_ar"),
+		LabelEn:     r.PostFormValue("label_en"),
+		Description: r.PostFormValue("description"),
+	}
+	if _, err := h.pageControl.Update(ctx, id, in, h.pageControlActor(r)); err != nil {
+		h.log.WarnContext(ctx, "update managed page", "id", id, "error", err)
+		h.redirectWithNotice(w, r, pageControlBase, "error", i18n.T(lang, "admin.pagecontrol.update_failed"))
+		return
+	}
+	h.reloadPageControl(ctx)
+	h.redirectWithNotice(w, r, pageControlBase, "success", i18n.T(lang, "admin.pagecontrol.updated"))
 }
 
 // AdminSystemPageToggleSubmit enables or disables one managed page.

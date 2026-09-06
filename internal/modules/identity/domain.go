@@ -354,6 +354,7 @@ type AdminUserFilter struct {
 	Role   string `json:"role,omitempty"`
 	Status string `json:"status,omitempty"`
 	Search string `json:"search,omitempty"`
+	OrgID  int64  `json:"org_id,omitempty"`
 }
 
 // AdminUserStatsResult holds aggregated user metrics for the admin user management screen.

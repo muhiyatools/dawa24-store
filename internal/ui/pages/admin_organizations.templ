@@ -217,6 +217,28 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 									</td>
 									<td class="col-actions nowrap">
 										<div class="table-actions">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/users?org_id=%d", o.ID)) } class="btn btn-secondary btn-xs font-bold gap-1" title="عرض مستخدمي هذه المنشأة في إدارة الحسابات">
+												@components.IconUsers("icon-xs")
+												<span>المستخدمين</span>
+												if count, ok := data.UserCounts[o.ID]; ok && count > 0 {
+													<span class="badge badge-slate text-2xs tabular-nums">{ fmt.Sprintf("%d", count) }</span>
+												}
+											</a>
+											if string(o.Status) == "approved" {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", o.ID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من تعليق هذه المنشأة وإيقاف نشاطها؟');">
+													<button type="submit" class="btn btn-danger btn-xs font-bold gap-1" title="تعليق المنشأة">
+														@components.IconPause("icon-xs")
+														<span>تعليق</span>
+													</button>
+												</form>
+											} else if string(o.Status) == "suspended" {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", o.ID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من إعادة تنشيط وتفعيل هذه المنشأة؟');">
+													<button type="submit" class="btn btn-primary btn-xs font-bold gap-1" title="إعادة تنشيط المنشأة">
+														@components.IconCheck("icon-xs")
+														<span>تنشيط</span>
+													</button>
+												</form>
+											}
 											<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-xs font-black">
 												<span>الملف الشامل ↗</span>
 											</a>

@@ -20,6 +20,9 @@ import (
 type SystemPageRow struct {
 	ID           int64
 	Label        string
+	LabelAr      string
+	LabelEn      string
+	Description  string
 	Path         string
 	MatchMode    string // "exact" | "prefix"
 	Resource     string // "admin" | "vendor" | "client" | "independent"
@@ -35,6 +38,7 @@ type SystemPageRow struct {
 type SystemPagesView struct {
 	Rows          []SystemPageRow
 	Filter        string // active resource filter, "" for all
+	StatusFilter  string // "active" | "inactive" | ""
 	SearchQuery   string
 	Counts        map[string]int
 	Total         int
@@ -57,8 +61,9 @@ var pageControlResources = []struct{ Key, Label string }{
 
 templ AdminSystemPagesPage(v SystemPagesView, lang, dir string) {
 	@layouts.AdminShell("التحكم في صفحات النظام", "system_pages", lang, dir) {
-		<div class="page-container" x-data="{ showAdd: false }">
+		<div class="page-container" x-data="adminPageControlManager()">
 			@pageControlNotice(v.NoticeKind, v.Notice)
+			@pageControlEditModal()
 			<div class="glass-panel p-6 mb-4">
 				<div class="flex-between items-start flex-wrap gap-4">
      <div class="stack-sm">
@@ -96,6 +101,7 @@ templ AdminSystemPagesPage(v SystemPagesView, lang, dir string) {
 			}
 			@pageControlFilters(v)
 			@pageControlTable(v)
+			@pageControlScript()
 		</div>
 	}
 }
@@ -148,15 +154,12 @@ templ pageControlAddForm() {
 templ pageControlFilters(v SystemPagesView) {
 	<div class="glass-panel p-4 mb-4">
 		<div class="flex-between items-center flex-wrap gap-3">
-			<!-- Search Form -->
-			<form method="GET" action="/admin/system-pages" class="d-flex items-center gap-2 flex-grow max-w-md m-0">
-				if v.Filter != "" {
-					<input type="hidden" name="resource" value={ v.Filter } />
-				}
+			<!-- Search & Filters Form -->
+			<form method="GET" action="/admin/system-pages" class="d-flex items-center gap-2 flex-grow flex-wrap m-0">
 				if v.Pagination.PageSize > 0 {
 					<input type="hidden" name="limit" value={ strconv.Itoa(v.Pagination.PageSize) } />
 				}
-				<div class="search-input-wrap flex-grow">
+				<div class="search-input-wrap flex-grow min-w-48 max-w-sm">
 					<input
 						type="text"
 						name="q"
@@ -165,15 +168,32 @@ templ pageControlFilters(v SystemPagesView) {
 						class="form-input text-sm w-full"
 					/>
 				</div>
+
+				<!-- التصنيف Filter -->
+				<select name="resource" class="form-select text-sm w-auto font-bold">
+					<option value="">كل التصنيفات</option>
+					<option value="admin" selected?={ v.Filter == "admin" }>لوحة الإدارة</option>
+					<option value="vendor" selected?={ v.Filter == "vendor" }>لوحة المورّد</option>
+					<option value="client" selected?={ v.Filter == "client" }>لوحة العميل</option>
+					<option value="independent" selected?={ v.Filter == "independent" }>صفحات مستقلة</option>
+				</select>
+
+				<!-- التفعيل Filter -->
+				<select name="status" class="form-select text-sm w-auto font-bold">
+					<option value="">كل الحالات</option>
+					<option value="active" selected?={ v.StatusFilter == "active" }>مُفعّلة</option>
+					<option value="inactive" selected?={ v.StatusFilter == "inactive" }>معطّلة</option>
+				</select>
+
 				<button type="submit" class="btn btn-secondary btn-sm font-bold gap-1.5 shrink-0">
 					@components.IconSearch("icon-xs")
-					<span>بحث</span>
+					<span>تصفية</span>
 				</button>
-				if v.SearchQuery != "" {
+				if v.SearchQuery != "" || v.Filter != "" || v.StatusFilter != "" {
 					<a
-						href={ templ.SafeURL(pageControlFilterHref(v, v.Filter, true)) }
+						href="/admin/system-pages"
 						class="btn btn-ghost btn-sm text-xs font-bold text-muted shrink-0"
-						title="إلغاء البحث"
+						title="إلغاء التصفية"
 					>
 						@components.IconClose("icon-xs")
 						<span>مسح</span>
@@ -274,6 +294,17 @@ templ pageControlRow(v SystemPagesView, row SystemPageRow) {
 		<td><span class="text-xs text-muted">{ row.UpdatedAt }</span></td>
 		<td class="col-actions">
 			<div class="table-actions">
+				if v.CanUpdate {
+					<button
+						type="button"
+						class="btn btn-secondary btn-sm font-bold gap-1"
+						title="تعديل بيانات الصفحة"
+						@click={ fmt.Sprintf("openEdit({ id: %d, path: %q, match_mode: %q, resource: %q, label_ar: %q, label_en: %q, description: %q, source: %q, is_system: %t })", row.ID, row.Path, row.MatchMode, row.Resource, row.LabelAr, row.LabelEn, row.Description, row.Source, row.IsSystem) }
+					>
+						@components.IconEdit("icon-xs")
+						<span>تعديل</span>
+					</button>
+				}
 				@pageControlToggle(v, row)
 				if v.CanDelete && row.Source == "manual" && !row.IsSystem {
 					<form
@@ -335,10 +366,110 @@ templ pageControlNotice(kind, message string) {
 	}
 }
 
+templ pageControlEditModal() {
+	<div x-show="editModalOpen" x-cloak class="modal-backdrop d-flex items-center justify-center fixed inset-0 z-50 bg-black-50 p-4" @keydown.escape.window="closeEdit()">
+		<div class="glass-panel p-6 max-w-lg w-full shadow-2xl border rounded-2xl" @click.outside="closeEdit()">
+			<div class="flex-between items-center pb-3 mb-4 border-b">
+				<div class="d-flex items-center gap-2">
+					<div class="user-avatar-badge">
+						@components.IconEdit("icon-xs")
+					</div>
+					<h3 class="text-base font-extrabold text-primary m-0">تعديل بيانات ومورد الصفحة</h3>
+				</div>
+				<button type="button" class="btn btn-ghost btn-xs font-bold" @click="closeEdit()">✕</button>
+			</div>
+			<form method="POST" :action="'/admin/system-pages/' + editRow.id + '/edit'" class="d-grid grid-cols-2 gap-3">
+				<div class="col-span-2 stack-sm">
+					<label class="form-label text-xs font-bold" for="edit-path">المسار (Route Path)</label>
+					<input id="edit-path" class="form-input font-mono text-xs" type="text" name="path" x-model="editRow.path" required maxlength="512" :readonly="!editRow.is_manual" :class="{ 'opacity-70 bg-surface-sunken': !editRow.is_manual }"/>
+					<template x-if="!editRow.is_manual">
+						<span class="text-2xs text-muted">المسار مكتشف تلقائياً من خريطة مسارات النظام ولا يمكن تعديل نصه.</span>
+					</template>
+				</div>
+				<div class="stack-sm">
+					<label class="form-label text-xs font-bold" for="edit-match">نمط المطابقة</label>
+					<select id="edit-match" class="form-input text-xs font-bold" name="match_mode" x-model="editRow.match_mode">
+						<option value="exact">مطابقة تامة للمسار فقط (exact)</option>
+						<option value="prefix">هذا المسار وكافة المسارات التابعة له (prefix)</option>
+					</select>
+				</div>
+				<div class="stack-sm">
+					<label class="form-label text-xs font-bold" for="edit-resource">التصنيف</label>
+					<select id="edit-resource" class="form-input text-xs font-bold" name="resource" x-model="editRow.resource">
+						<option value="admin">لوحة الإدارة (admin)</option>
+						<option value="vendor">لوحة المورّد (vendor)</option>
+						<option value="client">لوحة العميل (client)</option>
+						<option value="independent">صفحة مستقلة (independent)</option>
+					</select>
+				</div>
+				<div class="stack-sm">
+					<label class="form-label text-xs font-bold" for="edit-label-ar">الاسم (عربي)</label>
+					<input id="edit-label-ar" class="form-input text-xs font-bold" type="text" name="label_ar" x-model="editRow.label_ar" maxlength="120" placeholder="مثال: لوحة الإدارة"/>
+				</div>
+				<div class="stack-sm">
+					<label class="form-label text-xs font-bold" for="edit-label-en">الاسم (إنجليزي)</label>
+					<input id="edit-label-en" class="form-input text-xs font-bold" type="text" name="label_en" x-model="editRow.label_en" maxlength="120" placeholder="e.g. Admin Dashboard"/>
+				</div>
+				<div class="col-span-2 stack-sm">
+					<label class="form-label text-xs font-bold" for="edit-desc">الوصف</label>
+					<input id="edit-desc" class="form-input text-xs font-semibold" type="text" name="description" x-model="editRow.description" maxlength="200" placeholder="وصف موجز للمسار"/>
+				</div>
+				<div class="col-span-2 d-flex items-center justify-end gap-2 pt-3 border-t mt-1">
+					<button type="button" class="btn btn-secondary btn-sm font-bold" @click="closeEdit()">إلغاء</button>
+					<button type="submit" class="btn btn-primary btn-sm font-bold gap-1">
+						@components.IconCheck("icon-xs")
+						<span>حفظ التعديلات</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+templ pageControlScript() {
+	<script>
+		function adminPageControlManager() {
+			return {
+				showAdd: false,
+				editModalOpen: false,
+				editRow: {
+					id: 0,
+					path: '',
+					match_mode: 'exact',
+					resource: 'admin',
+					label_ar: '',
+					label_en: '',
+					description: '',
+					is_manual: false
+				},
+				openEdit(data) {
+					this.editRow = {
+						id: data.id,
+						path: data.path || '',
+						match_mode: data.match_mode || 'exact',
+						resource: data.resource || 'admin',
+						label_ar: data.label_ar || '',
+						label_en: data.label_en || '',
+						description: data.description || '',
+						is_manual: data.source === 'manual' && !data.is_system
+					};
+					this.editModalOpen = true;
+				},
+				closeEdit() {
+					this.editModalOpen = false;
+				}
+			};
+		}
+	</script>
+}
+
 func pageControlFilterHref(v SystemPagesView, key string, clearSearch bool) string {
 	vals := url.Values{}
 	if key != "" {
 		vals.Set("resource", key)
+	}
+	if v.StatusFilter != "" {
+		vals.Set("status", v.StatusFilter)
 	}
 	if !clearSearch && v.SearchQuery != "" {
 		vals.Set("q", v.SearchQuery)

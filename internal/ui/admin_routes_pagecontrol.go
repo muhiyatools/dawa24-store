@@ -20,6 +20,7 @@ func (h *UIHandler) registerAdminPageControlRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("platform.page_control.update"))
 		g.Post("/admin/system-pages/{id}/toggle", h.AdminSystemPageToggleSubmit)
+		g.Post("/admin/system-pages/{id}/edit", h.AdminSystemPageEditSubmit)
 		g.Post("/admin/system-pages/rescan", h.AdminSystemPageRescanSubmit)
 	})
 	r.Group(func(g chi.Router) {

@@ -28,6 +28,7 @@ type AdminUsersPageData struct {
 	SearchQuery      string
 	RoleFilter       string
 	StatusFilter     string
+	OrgFilter        int64
 	StaffRoles       []AdminUserRoleOption
 	Notice           string
 	NoticeKind       string
@@ -138,10 +139,24 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
 							<option value="suspended" selected?={ data.StatusFilter == "suspended" }>موقوف / معلق</option>
 						</select>
+						<select name="org_id" class="form-select text-xs font-bold w-auto">
+							<option value="">كافة المنشآت</option>
+							for _, o := range data.Organizations {
+								if o != nil {
+									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.OrgFilter }>{ o.LegalName }</option>
+								}
+							}
+						</select>
+						if data.OrgFilter > 0 {
+							<div class="badge badge-sky text-xs font-bold gap-1">
+								<span>منشأة: { data.OrgNames[data.OrgFilter] }</span>
+								<a href="/admin/users" class="text-danger no-underline ms-1" title="إلغاء تصفية المنشأة">✕</a>
+							</div>
+						}
 						<button type="submit" class="btn btn-secondary btn-sm font-black shadow-2xs">
 							تصفية
 						</button>
-						if data.SearchQuery != "" || data.RoleFilter != "" || data.StatusFilter != "" {
+						if data.SearchQuery != "" || data.RoleFilter != "" || data.StatusFilter != "" || data.OrgFilter > 0 {
 							<a href="/admin/users" class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">إلغاء</a>
 						}
 					</div>
@@ -238,11 +253,7 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 							PageSize:    data.PerPage,
 							TotalCount:  data.TotalCount,
 							BaseURL:     "/admin/users",
-							QueryValues: url.Values{
-								"q":      {data.SearchQuery},
-								"role":   {data.RoleFilter},
-								"status": {data.StatusFilter},
-							},
+							QueryValues: adminUsersQueryValues(data),
 						})
 					}
 				</div>
@@ -775,4 +786,21 @@ func roleBadgeClass(role string) string {
 	default:
 		return "badge-slate"
 	}
+}
+
+func adminUsersQueryValues(data AdminUsersPageData) url.Values {
+	vals := url.Values{}
+	if data.SearchQuery != "" {
+		vals.Set("q", data.SearchQuery)
+	}
+	if data.RoleFilter != "" {
+		vals.Set("role", data.RoleFilter)
+	}
+	if data.StatusFilter != "" {
+		vals.Set("status", data.StatusFilter)
+	}
+	if data.OrgFilter > 0 {
+		vals.Set("org_id", fmt.Sprintf("%d", data.OrgFilter))
+	}
+	return vals
 }

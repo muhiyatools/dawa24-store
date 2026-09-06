@@ -38,6 +38,14 @@ func loadAdminPageControlKeys(e *engine) {
 		"تعذّرت إضافة الصفحة.",
 		"Could not add the page.",
 		"System pages: create failed")
+	addKey(e, "admin.pagecontrol.updated", ns,
+		"تم تحديث بيانات الصفحة بنجاح.",
+		"The page was updated successfully.",
+		"System pages: update success")
+	addKey(e, "admin.pagecontrol.update_failed", ns,
+		"تعذّر تحديث بيانات الصفحة.",
+		"Could not update the page.",
+		"System pages: update failed")
 	addKey(e, "admin.pagecontrol.deleted", ns,
 		"تم حذف الصفحة المخصّصة من السجل.",
 		"The custom page was removed.",

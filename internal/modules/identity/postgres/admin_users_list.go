@@ -49,6 +49,11 @@ func (r *Repository) AdminListUsersWithTotal(ctx context.Context, filter identit
 			where = append(where, "(email ILIKE "+p+" OR phone ILIKE "+p+" OR name->>'ar' ILIKE "+p+" OR name->>'en' ILIKE "+p+")")
 		}
 
+		if filter.OrgID > 0 {
+			args = append(args, filter.OrgID)
+			where = append(where, "id IN (SELECT user_id FROM org.members WHERE organization_id = $"+strconv.Itoa(len(args))+")")
+		}
+
 		clause := strings.Join(where, " AND ")
 
 		// 1. COUNT over the SAME joins and WHERE clause

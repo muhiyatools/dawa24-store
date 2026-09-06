@@ -28,6 +28,7 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
 	roleFilter := strings.TrimSpace(r.URL.Query().Get("role"))
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	orgIDFilter, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64)
 
 	if roleFilter == "" {
 		roleFilter = strings.TrimSpace(r.URL.Query().Get("type"))
@@ -69,6 +70,7 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 			Role:   roleFilter,
 			Status: statusFilter,
 			Search: searchQuery,
+			OrgID:  orgIDFilter,
 		}
 		uList, tot, err := h.idSvc.AdminListUsersWithTotal(sysCtx, filter, limit, offset)
 		if err == nil {
@@ -95,6 +97,7 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		SearchQuery:      searchQuery,
 		RoleFilter:       roleFilter,
 		StatusFilter:     statusFilter,
+		OrgFilter:        orgIDFilter,
 		Notice:           r.URL.Query().Get("notice"),
 		NoticeKind:       r.URL.Query().Get("kind"),
 	}

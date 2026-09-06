@@ -142,6 +142,94 @@ func (s *Store) UpdateMeta(ctx context.Context, id int64, labelAr, labelEn, desc
 	return updated, err
 }
 
+// UpdateInput specifies updates to a managed page.
+type UpdateInput struct {
+	Path        string
+	MatchMode   MatchMode
+	Resource    Resource
+	LabelAr     string
+	LabelEn     string
+	Description string
+}
+
+// Update edits a managed page's metadata, match mode, resource, and (for manual pages) path.
+func (s *Store) Update(ctx context.Context, id int64, in UpdateInput, a Actor) (Page, error) {
+	if s == nil || s.db == nil {
+		return Page{}, fmt.Errorf("pagecontrol: store is not configured")
+	}
+	mode := in.MatchMode
+	if mode == "" {
+		mode = MatchExact
+	}
+	if !ValidMatchMode(mode) {
+		return Page{}, fmt.Errorf("unknown match mode %q", mode)
+	}
+	res := in.Resource
+	if res != "" && !ValidResource(res) {
+		return Page{}, fmt.Errorf("unknown resource %q", res)
+	}
+	label, _ := json.Marshal(map[string]string{"ar": strings.TrimSpace(in.LabelAr), "en": strings.TrimSpace(in.LabelEn)})
+
+	var updated Page
+	err := s.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		before, err := scanPage(tx.QueryRow(txCtx,
+			`SELECT `+pageColumns+` FROM platform_admin.managed_pages WHERE id = $1 AND deleted_at IS NULL FOR UPDATE`, id))
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("managed page %d not found", id)
+		}
+		if err != nil {
+			return err
+		}
+
+		path := before.Path
+		if before.Source == SourceManual && strings.TrimSpace(in.Path) != "" {
+			newPath := NormalizePath(in.Path)
+			if err := ValidatePath(newPath); err != nil {
+				return err
+			}
+			if err := ValidatePrefixRule(newPath, mode); err != nil {
+				return err
+			}
+			if newPath != before.Path {
+				var exists bool
+				if err := tx.QueryRow(txCtx,
+					`SELECT EXISTS (SELECT 1 FROM platform_admin.managed_pages WHERE path = $1 AND id != $2 AND deleted_at IS NULL)`,
+					newPath, id).Scan(&exists); err != nil {
+					return err
+				}
+				if exists {
+					return fmt.Errorf("a page for %q already exists", newPath)
+				}
+				path = newPath
+			}
+		}
+
+		if res == "" {
+			res = ClassifyResource(path)
+		}
+
+		row := tx.QueryRow(txCtx, `
+			UPDATE platform_admin.managed_pages
+			   SET path = $2,
+			       match_mode = $3,
+			       resource = $4,
+			       label = $5,
+			       description = $6,
+			       updated_by = $7,
+			       updated_at = now()
+			 WHERE id = $1
+			RETURNING `+pageColumns, id, path, string(mode), string(res), label, strings.TrimSpace(in.Description), nullableID(a.UserID))
+		if updated, err = scanPage(row); err != nil {
+			return err
+		}
+		if err := writeAudit(txCtx, tx, a, "page_control.update", id, before, updated); err != nil {
+			return err
+		}
+		return bumpVersion(txCtx, tx)
+	})
+	return updated, err
+}
+
 // Delete soft-removes a manual page. Discovered and system rows stay.
 func (s *Store) Delete(ctx context.Context, id int64, a Actor) error {
 	if s == nil || s.db == nil {

@@ -62,13 +62,24 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Post("/admin/documents/{id}/verify", h.AdminVerifyUploadedDocSubmit)
 	})
 
-	// Branches Oversight
+	// Branches Oversight & Management
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("org.branch.view"))
 		g.Get("/admin/branches", h.AdminBranchesPage)
 		g.Get("/admin/branches/{id}", h.AdminBranchDetailPage)
 		g.Get("/admin/branches/{id}/products", h.AdminBranchProductsPage)
 		g.Get("/admin/branches/{id}/users", h.AdminBranchUsersPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("org.branch.update"))
+		g.Post("/admin/branches/new", h.AdminBranchNewSubmit)
+		g.Post("/admin/branches/{id}/edit", h.AdminBranchEditSubmit)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("org.branch.delete"))
+		g.Post("/admin/branches/{id}/delete", h.AdminBranchDeleteSubmit)
 	})
 
 	// Weekly Coverages Oversight & Management
