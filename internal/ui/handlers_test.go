@@ -47,6 +47,13 @@ func newTestRouter(actor *authctx.Actor) http.Handler {
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireBuyer(logger))
+		uiRouter.Use(authctx.RequireApproved(logger))
+		handler.RegisterBuyingRoutes(uiRouter)
+		handler.RegisterSmartOrderRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
 		uiRouter.Use(authctx.RequireVendor(logger))
 		uiRouter.Use(authctx.RequireApproved(logger))
 		handler.RegisterVendorRoutes(uiRouter)

@@ -80,9 +80,10 @@ func TestCommerceCartAndFulfilment(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	svc := NewService(repo, logger)
 	ctx := context.Background()
+	const buyerOrg int64 = 900
 
 	// Cart operations
-	cart, err := svc.GetCart(ctx, 100)
+	cart, err := svc.GetCart(ctx, 100, buyerOrg)
 	if err != nil {
 		t.Fatalf("GetCart failed: %v", err)
 	}
@@ -90,7 +91,7 @@ func TestCommerceCartAndFulfilment(t *testing.T) {
 		t.Errorf("got user id %d, want 100", cart.UserID)
 	}
 
-	_, err = svc.AddToCart(ctx, 100, &CartItem{
+	_, err = svc.AddToCart(ctx, 100, buyerOrg, &CartItem{
 		ProductVariantID: 55,
 		Quantity:         2,
 		UnitPrice:        money.MustParse("15.00"),

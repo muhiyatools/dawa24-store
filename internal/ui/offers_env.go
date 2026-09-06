@@ -90,10 +90,10 @@ func keysOf(set map[int64]struct{}) []int64 {
 	return out
 }
 
-// pharmacyBranchID resolves the branch the actor is buying for: the
+// buyingBranchID resolves the branch the actor is buying for: the
 // branch chosen in the shell selector first, else the member-bound branch
 // (if assigned and active), else the main active branch, else the first active one.
-func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) int64 {
+func (h *UIHandler) buyingBranchID(ctx context.Context, actor *authctx.Actor) int64 {
 	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
 		if h.orgSvc != nil && actor != nil && actor.OrganizationID > 0 {
 			if b, err := h.orgSvc.GetBranch(ctx, *selection.Active); err == nil && b != nil && b.OrganizationID == actor.OrganizationID && b.Status != "inactive" && b.Status != "suspended" {
@@ -135,10 +135,10 @@ func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) 
 	return 0
 }
 
-// pharmacyBranchCoords resolves the branch the actor is buying for: the
+// buyingBranchCoords resolves the branch the actor is buying for: the
 // branch chosen in the shell selector first, else the member-bound branch
 // (if assigned and active), else the main active branch, else the first active one.
-func (h *UIHandler) pharmacyBranchCoords(ctx context.Context, actor *authctx.Actor) (lat, lng float64, ok bool) {
+func (h *UIHandler) buyingBranchCoords(ctx context.Context, actor *authctx.Actor) (lat, lng float64, ok bool) {
 	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
 		return 0, 0, false
 	}

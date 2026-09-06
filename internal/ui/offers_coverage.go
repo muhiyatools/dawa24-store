@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -10,12 +11,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 )
 
-// pharmacyCustomerBranch resolves the active pharmacy branch the customer is shopping for.
-func (h *UIHandler) pharmacyCustomerBranch(ctx context.Context, actor *authctx.Actor) *org.Branch {
+// buyingBranch resolves the active pharmacy branch the customer is shopping for.
+func (h *UIHandler) buyingBranch(ctx context.Context, actor *authctx.Actor) *org.Branch {
 	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
 		return nil
 	}
-	branchID := h.pharmacyBranchID(ctx, actor)
+	branchID := h.buyingBranchID(ctx, actor)
 	if branchID <= 0 {
 		return nil
 	}
@@ -37,7 +38,7 @@ func (h *UIHandler) checkOfferCoverage(ctx context.Context, offer *promo.Special
 		return false, "بيانات العرض غير متوفرة"
 	}
 	if branch == nil {
-		return false, "يرجى تحديد فرع صيدلية للاستلام أولاً"
+		return false, i18n.T("ar", "buying.select_branch_first")
 	}
 
 	// 1. Check offer-specific locations

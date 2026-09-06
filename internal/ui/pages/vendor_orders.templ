@@ -32,7 +32,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 	if isPartial {
 		@VendorOrdersContent(data, lang, dir)
 	} else {
-		@layouts.VendorShell("طلبيات الصيدليات والشحنات | Orders & Shipments", "orders", lang, dir) {
+		@layouts.VendorShell("طلبيات الصيدليات والشحنات | Orders & Shipments", "supply_orders", lang, dir) {
 			<div class="page-container">
 				<!-- Header Section -->
 				<div class="glass-panel p-6 mb-6">

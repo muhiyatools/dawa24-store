@@ -14,6 +14,7 @@ const (
 	gVendorCatalog  = "vendor.catalog"
 	gVendorPromo    = "vendor.promo"
 	gVendorCommerce = "vendor.commerce"
+	gVendorBuying   = "vendor.buying"
 	gVendorTools    = "vendor.tools"
 	gVendorContent  = "vendor.content"
 	gVendorAccount  = "vendor.account"
@@ -26,6 +27,7 @@ func vendorGroups() []Group {
 		{Key: gVendorCatalog, NameAr: "الكتالوج والمخزون", NameEn: "Catalog & Inventory", Scopes: s, Order: 120},
 		{Key: gVendorPromo, NameAr: "العروض والتسويق", NameEn: "Offers & Marketing", Scopes: s, Order: 130},
 		{Key: gVendorCommerce, NameAr: "الطلبات والمالية", NameEn: "Orders & Finance", Scopes: s, Order: 140},
+		{Key: gVendorBuying, NameAr: "شراء المنتجات", NameEn: "Purchasing", Scopes: s, Order: 145},
 		{Key: gVendorTools, NameAr: "الأدوات والتحليلات", NameEn: "Tools & Analytics", Scopes: s, Order: 150},
 		{Key: gVendorContent, NameAr: "المحتوى والسياسات", NameEn: "Content & Policies", Scopes: s, Order: 160},
 		{Key: gVendorAccount, NameAr: "الحساب والأمان", NameEn: "Account & Security", Scopes: s, Order: 170},
@@ -48,6 +50,7 @@ func vendorPermissions() []Permission {
 	out = append(out, vendorCatalogPerms()...)
 	out = append(out, vendorPromoPerms()...)
 	out = append(out, vendorCommercePerms()...)
+	out = append(out, vendorBuyingPerms()...)
 	out = append(out, vendorToolsPerms()...)
 	out = append(out, vendorContentPerms()...)
 	out = append(out, vendorAccountPerms()...)
@@ -119,7 +122,7 @@ func vendorCatalogPerms() []Permission {
 func vendorPromoPerms() []Permission {
 	g := gVendorPromo
 	return []Permission{
-		vendorPage("vendor.offer.view", g, "offers", "العروض والخصومات", "Offers & discounts"),
+		vendorPage("vendor.offer.view", g, "supply_offers", "العروض والخصومات", "Offers & discounts"),
 		vendorAct("vendor.offer.manage", g, "إنشاء وتعديل وحذف العروض", "Create, edit and delete offers", "vendor.offer.view"),
 		vendorPage("vendor.offer_package.view", g, "offers_packages", "باقات العروض والرعايات", "Offer packages & sponsorships"),
 		vendorAct("vendor.offer_package.manage", g, "شراء باقات العروض", "Purchase offer packages", "vendor.offer_package.view"),
@@ -133,7 +136,7 @@ func vendorPromoPerms() []Permission {
 func vendorCommercePerms() []Permission {
 	g := gVendorCommerce
 	return []Permission{
-		vendorPage("vendor.order.view", g, "orders", "أوامر التوريد والشحنات", "Supply orders"),
+		vendorPage("vendor.order.view", g, "supply_orders", "أوامر التوريد والشحنات", "Supply orders"),
 		vendorAct("vendor.order.update", g, "تحديث حالة الطلبات", "Update order status", "vendor.order.view"),
 		vendorAct("vendor.order.negotiate", g, "قبول أو رفض التفاوض", "Accept or reject negotiation", "vendor.order.view"),
 
@@ -146,6 +149,45 @@ func vendorCommercePerms() []Permission {
 
 		vendorPage("vendor.wallet.view", g, "wallet", "المحفظة والرصيد", "Wallet"),
 		vendorAct("vendor.wallet.manage", g, "الإيداع والسحب ووسائل الدفع", "Deposit, withdraw and payment methods", "vendor.wallet.view"),
+	}
+}
+
+// vendorBuyingPerms is the supplier's side of the shared buying surface.
+//
+// A supplier is a buyer too: it restocks from other distributors on the same
+// catalogue, the same offers board and the same cart a pharmacy uses. These
+// keys are the vendor half of the pairs declared in buying.go — the pharmacy
+// half lives in catalog_pharmacy.go, and a route gate names the pair rather
+// than either key, so the two cannot drift.
+//
+// They are deliberately not the vendor's selling keys. "vendor.order.view" is
+// أوامر التوريد — orders other people placed with this supplier;
+// "vendor.buying.order.view" is this supplier's own purchases. An owner who
+// hands a warehouse clerk the first must not thereby hand them the second.
+func vendorBuyingPerms() []Permission {
+	g := gVendorBuying
+	return []Permission{
+		vendorPage(BuyCatalogView.Vendor, g, "catalog", "كتالوج الأدوية", "Drug catalogue"),
+
+		vendorPage(BuyPurchaseRequestView.Vendor, g, "purchase-request", "طلب الشراء", "Purchase request"),
+		vendorAct(BuyPurchaseRequestCreate.Vendor, g, "إنشاء طلب شراء", "Create a purchase request", BuyPurchaseRequestView.Vendor),
+
+		vendorPage(BuySmartOrderView.Vendor, g, "smart_order", "الطلب الذكي", "Smart ordering"),
+		vendorAct(BuySmartOrderRun.Vendor, g, "تشغيل الطلب الذكي وإرساله", "Run and submit a smart order", BuySmartOrderView.Vendor),
+
+		vendorPage(BuyCartUse.Vendor, g, "cart", "سلة الشراء", "Cart"),
+
+		vendorPage(BuyOrderView.Vendor, g, "orders", "طلباتي والشحنات", "My orders & shipments"),
+		vendorAct(BuyOrderCreate.Vendor, g, "إتمام الشراء وإرسال الطلبات", "Check out and place orders", BuyOrderView.Vendor),
+		vendorAct(BuyOrderUpdate.Vendor, g, "تعديل الطلبات والتفاوض", "Edit orders and negotiate", BuyOrderView.Vendor),
+
+		vendorPage(BuyOfferView.Vendor, g, "offers", "العروض والخصومات", "Offers & discounts"),
+		vendorPage(BuySupplierView.Vendor, g, "suppliers", "دليل الموردين", "Supplier directory"),
+		vendorAct(BuySupplierFollow.Vendor, g, "متابعة الموردين ومراسلتهم", "Follow and message suppliers", BuySupplierView.Vendor),
+		vendorAct(BuyReviewWrite.Vendor, g, "كتابة تقييمات الموردين", "Write supplier reviews", BuySupplierView.Vendor),
+
+		vendorPage(BuyFavoriteView.Vendor, g, "favorites", "المنتجات المفضلة", "Favourites"),
+		vendorAct(BuyFavoriteManage.Vendor, g, "تعديل المفضلة", "Edit favourites", BuyFavoriteView.Vendor),
 	}
 }
 

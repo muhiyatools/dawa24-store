@@ -24,7 +24,7 @@ func (h *Handler) GetCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := h.service.GetCart(r.Context(), userID)
+	cart, err := h.service.GetCart(r.Context(), userID, buyerOrgOf(r))
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
@@ -59,7 +59,7 @@ func (h *Handler) AddCartItem(w http.ResponseWriter, r *http.Request) {
 		UnitPrice:        body.UnitPrice,
 	}
 
-	cart, err := h.service.AddToCart(r.Context(), userID, item)
+	cart, err := h.service.AddToCart(r.Context(), userID, buyerOrgOf(r), item)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
@@ -112,4 +112,16 @@ func (h *Handler) ClearCart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, map[string]string{"status": "cleared"})
+}
+
+// buyerOrgOf is the company the caller is buying for, or 0 when they belong to
+// none. The cart rules that depend on it — hiding and refusing the caller's own
+// stock — then simply do not apply, which is correct: a caller with no company
+// supplies nothing.
+func buyerOrgOf(r *http.Request) int64 {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		return 0
+	}
+	return actor.OrganizationID
 }

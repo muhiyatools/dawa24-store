@@ -154,7 +154,7 @@ func TestAddToCartSubmit_HTMX_And_Persistence(t *testing.T) {
 	}
 
 	// Verify item was saved to database cart
-	cart, err := commSvc.GetCart(ctx, 42)
+	cart, err := commSvc.GetCart(ctx, 42, 0)
 	if err != nil {
 		t.Fatalf("failed to retrieve cart: %v", err)
 	}

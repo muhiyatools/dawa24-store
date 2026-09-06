@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
@@ -10,7 +11,7 @@ import (
 )
 
 templ CustomerFollowedSuppliers(suppliers []*org.Organization, query, sort, lang, dir string) {
-	@layouts.CustomerShell("الموردون المتابعون", "followed", lang, dir, nil) {
+	@layouts.ShellFor("الموردون المتابعون", "followed", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			
 			<!-- Page Header -->

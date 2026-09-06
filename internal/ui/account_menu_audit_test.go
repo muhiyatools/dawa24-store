@@ -199,20 +199,32 @@ func TestAccountMenuAlwaysOffersAccountSettings(t *testing.T) {
 	}
 }
 
-// TestVendorCannotReachCustomerOrders proves the audit above can fail.
+// TestOrdersIsReachedByTheBuyingGrantAndNothingElse proves the audit above can
+// fail.
 //
-// /orders is the exact link the old menu gave suppliers. It is registered
-// inside the customer audience group, so a supplier gets the audience gate's
-// 404 — the URL does not exist for them at all. If this ever stops being true,
-// the audit has stopped testing anything.
-func TestVendorCannotReachCustomerOrders(t *testing.T) {
-	a := &authctx.Actor{
+// /orders was the exact link the old menu gave suppliers, and it answered them
+// a refusal: it lived inside the customer audience group. It is now a shared
+// buying page, which is a change of who may open it and not a change of whether
+// anyone may — so the test that used to assert the refusal asserts the grant.
+//
+// If a supplier holding no buying grant ever reaches /orders, sharing the page
+// has quietly turned "is a supplier" into the permission.
+func TestOrdersIsReachedByTheBuyingGrantAndNothingElse(t *testing.T) {
+	withGrant := &authctx.Actor{
 		UserID: 10, OrganizationID: 100, OrgType: "vendor",
 		OrgStatus: "approved", Scope: rbac.ScopeVendor,
 	}
-	a.Grants(rbac.Default().KeysFor(rbac.ScopeVendor))
+	withGrant.Grants(rbac.Default().KeysFor(rbac.ScopeVendor))
+	if got := reachStatus(newTestRouter(withGrant), "/orders"); got == http.StatusSeeOther {
+		t.Errorf("a supplier holding vendor.buying.order.view was refused /orders")
+	}
 
-	if got := reachStatus(newTestRouter(a), "/orders"); got != http.StatusSeeOther {
-		t.Fatalf("/orders for a supplier returned %d, want 303 — should redirect to supplier dashboard", got)
+	withoutGrant := &authctx.Actor{
+		UserID: 11, OrganizationID: 100, OrgType: "vendor",
+		OrgStatus: "approved", Scope: rbac.ScopeVendor,
+	}
+	withoutGrant.Grants([]string{"vendor.dashboard.view", "vendor.order.view"})
+	if got := reachStatus(newTestRouter(withoutGrant), "/orders"); got != http.StatusSeeOther {
+		t.Errorf("/orders for a supplier without the buying grant returned %d, want 303", got)
 	}
 }

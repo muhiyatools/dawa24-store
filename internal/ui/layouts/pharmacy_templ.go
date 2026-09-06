@@ -118,7 +118,7 @@ func CustomerShell(title string, activeNav string, lang string, dir string, perm
 				templ_7745c5c3_Err = components.DashboardTopBar(components.TopBarProps{
 					Title:   title,
 					Lang:    lang,
-					Context: PharmacyBranchSelector(ctx),
+					Context: BuyingBranchSelector(ctx),
 					Actions: pharmacyTopBarActions(lang),
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func CustomerShell(title string, activeNav string, lang string, dir string, perm
 	})
 }
 
-// PharmacyBranchSelector is an island in the top navbar. It reads the current
+// BuyingBranchSelector is an island in the top navbar. It reads the current
 func activeBranchDisplayName(buying authctx.BuyingBranch) string {
 	if buying.Active != nil {
 		for _, b := range buying.Branches {
@@ -166,10 +166,15 @@ func activeBranchDisplayName(buying authctx.BuyingBranch) string {
 	return "الفرع المعتمد"
 }
 
-// PharmacyBranchSelector reads the customer's available branches and the
-// active branch from the request context (or session), renders a dropdown of
-// the user's pharmacy branches, and POSTs to /customer/set-branch on change.
-func PharmacyBranchSelector(ctx context.Context) templ.Component {
+// BuyingBranchSelector reads the caller's available branches and the active
+// branch from the request context (or session), renders a dropdown of their own
+// company's branches, and POSTs to /customer/set-branch on change.
+//
+// It renders for any buying company. It used to ask actor.IsCustomer(), which
+// meant a supplier buying from another distributor had no way to say which of
+// its own warehouses the delivery was for — and the branch is what decides
+// coverage, distance and whether the line can be ordered at all.
+func BuyingBranchSelector(ctx context.Context) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -190,7 +195,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		if actor, ok := authctx.From(ctx); ok && actor.IsBuyer() {
 			if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
 				if buying.IsLocked {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"nav-pop\" title=\"الفرع المخصص لحسابك الوظيفي (غير متاح التبديل)\"><div class=\"nav-trigger cursor-default opacity-90\">")
@@ -208,7 +213,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(activeBranchDisplayName(buying))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 86, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 91, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -234,7 +239,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(activeBranchDisplayName(buying))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 103, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 108, Col: 71}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -260,7 +265,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 121, Col: 78}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 126, Col: 78}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 						if templ_7745c5c3_Err != nil {
@@ -295,7 +300,7 @@ func PharmacyBranchSelector(ctx context.Context) templ.Component {
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 128, Col: 48}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 133, Col: 48}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -359,7 +364,7 @@ func pharmacyTopBarActions(lang string) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(lang, "nav.cart"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 149, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/pharmacy.templ`, Line: 154, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -34,7 +35,7 @@ type SmartOrderNewData struct {
 
 // SmartOrderNewPage is step 1: upload and configuration.
 templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
-	@layouts.CustomerShell("الطلب الذكي", "purchase-request", lang, dir, nil) {
+	@layouts.ShellFor("الطلب الذكي", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-4xl so-new-order-page">
 			<div class="flex-between items-center mb-4 flex-wrap gap-2">
 				<h1 class="so-page-title m-0">الطلب الذكي، استيراد ملف</h1>

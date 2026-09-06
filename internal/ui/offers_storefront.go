@@ -66,16 +66,25 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	seenSuppliers := make(map[int64]int) // supplierID -> index in offers
 
 	actor, hasActor := authctx.From(ctx)
-	isPharmacy := hasActor && actor.IsCustomer()
+	isBuyer := hasActor && actor.IsBuyer()
+	buyerOrg := buyerOrgID(ctx)
 	customerBranchID := int64(0)
-	if isPharmacy {
-		customerBranchID = h.pharmacyBranchID(ctx, &actor)
+	if isBuyer {
+		customerBranchID = h.buyingBranchID(ctx, &actor)
 	}
-	custLat, custLng, hasCustCoords := h.pharmacyBranchCoords(ctx, &actor)
+	custLat, custLng, hasCustCoords := h.buyingBranchCoords(ctx, &actor)
 
 	// 1. Process all direct vendor supply variants
 	for _, v := range variants {
 		if v == nil || v.OrganizationID <= 0 {
+			continue
+		}
+		// A supplier browsing the catalogue must not be shown its own stock.
+		// Dropping the row here rather than marking it unbuyable is deliberate:
+		// this is the function every buying screen assembles its offers from,
+		// so one refusal keeps own stock out of the catalogue, the product
+		// page, the supplier profile and the offer comparison at once.
+		if ownedByBuyer(buyerOrg, v.OrganizationID) {
 			continue
 		}
 
@@ -162,7 +171,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		canAddToCart := false
 		covReason := ""
 
-		if isPharmacy {
+		if isBuyer {
 			if h.commSvc != nil && customerBranchID > 0 {
 				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 					VariantID:        v.ID,
@@ -200,17 +209,15 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			} else if customerBranchID <= 0 {
 				isCovered = false
 				canAddToCart = false
-				covReason = "يرجى تحديد فرع صيدلية للاستلام أولاً للتمكن من الطلب"
+				covReason = i18n.T(lang, "buying.select_branch_first")
 			}
 		} else {
 			isCovered = false
 			canAddToCart = false
 			if !hasActor {
-				covReason = "يرجى تسجيل الدخول بحساب صيدلية للطلب"
-			} else if !isPharmacy {
-				covReason = "الطلب متاح فقط لحسابات الصيدليات المعتمدة"
-			} else if stockQty <= 0 {
-				covReason = i18n.T(lang, "offers.cov_reason_out_of_stock")
+				covReason = i18n.T(lang, "buying.sign_in_to_order")
+			} else {
+				covReason = i18n.T(lang, "buying.approved_companies_only")
 			}
 		}
 
@@ -246,6 +253,11 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	// 2. Check for promotional discounts from promo module (prefetched)
 	for _, row := range env.offersFor(product.ID) {
 		if row == nil || row.Offer == nil || row.Product == nil {
+			continue
+		}
+		// A promo offer is a second way onto this list, so it needs the same
+		// refusal: a supplier must not see its own promotion offered back.
+		if ownedByBuyer(buyerOrg, row.Offer.OrganizationID) {
 			continue
 		}
 
@@ -326,20 +338,43 @@ func orgName(o *org.Organization) string {
 	return o.LegalName
 }
 
-// visibleOffersForActor lists the offers reachable from the pharmacy branch
-// the actor is buying for; empty when no branch coordinates exist.
+// visibleOffersForActor lists the offers reachable from the branch the actor is
+// buying for; empty when no branch coordinates exist.
 func (h *UIHandler) visibleOffersForActor(ctx context.Context, actor *authctx.Actor, limit int) []*promo.VisibleOffer {
 	if h.promoSvc == nil {
 		return nil
 	}
-	lat, lng, ok := h.pharmacyBranchCoords(ctx, actor)
+	lat, lng, ok := h.buyingBranchCoords(ctx, actor)
 	if !ok {
 		lat, lng = 30.0444, 31.2357
 	}
-	offers, err := h.promoSvc.ListOffersVisibleTo(ctx, lat, lng, int(time.Now().Weekday()), limit, 0)
+	// Twice the page, because the caller's own offers are dropped below and a
+	// supplier whose promotions fill the nearest results would otherwise see a
+	// short list. It is a margin, not a guarantee: a supplier who owns more
+	// than half the nearby offers still sees fewer than limit, which is the
+	// truthful answer — there are not that many other people's offers nearby.
+	offers, err := h.promoSvc.ListOffersVisibleTo(ctx, lat, lng, int(time.Now().Weekday()), limit*2, 0)
 	if err != nil {
 		h.log.WarnContext(ctx, "load visible offers", "error", err)
 		return nil
 	}
-	return offers
+	return excludeOwnVisibleOffers(offers, buyerOrgID(ctx), limit)
+}
+
+// excludeOwnVisibleOffers drops the buyer's own promotions and trims to limit.
+func excludeOwnVisibleOffers(offers []*promo.VisibleOffer, buyerOrg int64, limit int) []*promo.VisibleOffer {
+	out := make([]*promo.VisibleOffer, 0, len(offers))
+	for _, o := range offers {
+		if o == nil || o.Offer == nil {
+			continue
+		}
+		if ownedByBuyer(buyerOrg, o.Offer.OrganizationID) {
+			continue
+		}
+		out = append(out, o)
+		if limit > 0 && len(out) == limit {
+			break
+		}
+	}
+	return out
 }

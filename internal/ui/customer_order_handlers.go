@@ -252,7 +252,7 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || !actor.IsCustomer() {
+	if !ok || !actor.IsBuyer() {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
@@ -265,6 +265,13 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	if targetOrgID <= 0 {
 		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(langOf(r), "customer.order.invalid_target_org"))
+		return
+	}
+	// A company rating itself is not a rating. It became reachable when
+	// suppliers gained the buying surface and could post this form at their
+	// own id.
+	if ownedByBuyer(buyerOrgID(ctx), targetOrgID) {
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(langOf(r), "err.own_organization_supply"))
 		return
 	}
 

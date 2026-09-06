@@ -7,6 +7,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -35,8 +36,8 @@ func (h *UIHandler) processWalletPayment(
 	actor authctx.Actor,
 	goodsAmount money.Amount,
 ) (int64, error) {
-	if !actor.IsCustomer() || actor.OrganizationID <= 0 {
-		return 0, apperr.Validation("wallet.pharmacy_required", "يجب تسجيل الدخول بحساب صيدلية تابعة لمؤسسة للاستفادة من الدفع بالمحفظة.", nil)
+	if !actor.IsBuyer() || actor.OrganizationID <= 0 {
+		return 0, apperr.Validation("wallet.company_required", i18n.T("ar", "wallet.company_required"), nil)
 	}
 	if h.billSvc == nil {
 		return 0, apperr.Validation("wallet.service_unavailable", "خدمة المحفظة غير متاحة حالياً.", nil)

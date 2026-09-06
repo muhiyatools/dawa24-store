@@ -122,7 +122,7 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 		http.Redirect(w, r, "/notifications", http.StatusMovedPermanently)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.session.view", "vendor.dashboard.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.session.view"))
 		g.Get("/vendor/sessions", h.TenantSessionsPage)
 		g.Get("/vendor/mfa", h.VendorMFAPage)
 		g.Post("/vendor/mfa/setup", h.VendorMFASetupSubmit)
@@ -284,6 +284,26 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 		g.Post("/vendor/orders/{id}/negotiation/reject", h.VendorNegotiationRejectSubmit)
 	})
 
+	// Purchase requests a buyer sent this supplier.
+	//
+	// The permissions, the handlers and the pages all existed; the routes did
+	// not. vendor.purchase_request.view and .respond were grantable in every
+	// supplier's role editor and revealed nothing, four handlers were
+	// unreachable, and the screens the templates link to answered 404 — the
+	// exact "the feature is missing" failure the permission catalogue was
+	// built to prevent. Now that suppliers buy from each other as well, these
+	// are the other end of the purchase request a supplier sends.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.purchase_request.view"))
+		g.Get("/vendor/purchase-requests", h.VendorPurchaseRequestsPage)
+		g.Get("/vendor/purchase-requests/{id}", h.VendorPurchaseRequestDetailPage)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.purchase_request.respond"))
+		g.Post("/vendor/purchase-requests/{id}/respond", h.VendorPurchaseRequestRespondSubmit)
+		g.Post("/vendor/purchase-request-lines/{id}/respond", h.VendorPurchaseRequestLineRespondSubmit)
+	})
+
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.payment.view"))
 		g.Get("/vendor/payments", h.VendorPaymentsPage)
@@ -299,11 +319,11 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 	// The wallet moves the company's money. Reading the balance and moving it
 	// are separate grants, and neither is implied by ordinary membership.
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.view", "vendor.dashboard.view", "vendor.payment.view", "vendor.earnings.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.view"))
 		g.Get("/vendor/wallet", h.TenantWalletPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.manage", "vendor.wallet.view", "vendor.payment.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.wallet.manage"))
 		g.Post("/vendor/wallet/deposit", h.TenantWalletDepositSubmit)
 		g.Post("/vendor/wallet/withdraw", h.TenantWalletWithdrawSubmit)
 		g.Post("/vendor/wallet/payment-methods", h.TenantPaymentMethodAddSubmit)
@@ -343,7 +363,7 @@ func (h *UIHandler) registerVendorContentRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.activity.view", "vendor.team.view", "vendor.dashboard.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.activity.view", "vendor.team.view"))
 		g.Get("/vendor/activities", h.VendorActivitiesPage)
 	})
 	r.Group(func(g chi.Router) {

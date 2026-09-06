@@ -98,9 +98,10 @@ func (p *availabilityProbe) Vendor(ctx context.Context, orgID int64) (commerce.V
 	}, nil
 }
 
-// CustomerBranch reads the buying pharmacy's own branch. This one stays
-// tenant-scoped: commerce compares the returned OrganizationID against the
-// actor's, and a caller must not be able to probe another pharmacy's branches.
+// CustomerBranch reads the buying company's own branch -- a pharmacy's, or a
+// supplier's warehouse when a supplier is the one restocking. commerce compares
+// the returned OrganizationID against the actor's, so a caller cannot probe
+// another company's branches.
 func (p *availabilityProbe) CustomerBranch(ctx context.Context, branchID int64) (commerce.BranchAvailability, error) {
 	if p.org == nil {
 		return commerce.BranchAvailability{}, nil

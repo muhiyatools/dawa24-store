@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
@@ -31,11 +32,21 @@ func TestSmartOrderResultsRoutes(t *testing.T) {
 		t.Errorf("GET /customer/smart-order/new anonymous = %d; want %d", w.Code, http.StatusSeeOther)
 	}
 
-	customerCtx := authctx.WithActor(context.Background(), authctx.Actor{
+	// The wizard is gated on the Smart Ordering capability now that suppliers
+	// reach the same pages; a member without it is redirected, not served.
+	customerActor := authctx.Actor{
 		UserID:         10,
 		OrganizationID: 2,
+		OrgType:        "customer",
+		OrgStatus:      "approved",
+		Scope:          rbac.ScopePharmacy,
 		Role:           "customer",
+	}
+	customerActor.Grants([]string{
+		rbac.BuySmartOrderView.Pharmacy,
+		rbac.BuySmartOrderRun.Pharmacy,
 	})
+	customerCtx := authctx.WithActor(context.Background(), customerActor)
 
 	// 2. Catalog search returns 200 with JSON
 	req, _ = http.NewRequestWithContext(customerCtx, http.MethodGet, "/customer/smart-order/SO-TEST-001/catalog-search?q=panadol", nil)

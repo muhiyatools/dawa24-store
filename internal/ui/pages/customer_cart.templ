@@ -14,7 +14,7 @@ templ CustomerCart(cart *commerce.Cart, groups []CartGroup, lang, dir string, is
 	if isPartial {
 		@CustomerCartContent(cart, groups, lang)
 	} else {
-		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", "cart", lang, dir, nil) {
+		@layouts.ShellFor("سلة المشتريات | Shopping Cart", "cart", lang, dir, authctx.FromContext(ctx)) {
 			<div class="page-container max-w-6xl">
 				@components.PageHeader(components.PageHeaderProps{
 					Title:    "سلة المشتريات وأوامر التوريد",

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -20,7 +21,7 @@ templ CustomerOrders(data CustomerOrdersData, lang, dir string, isPartial bool) 
 	if isPartial {
 		@CustomerOrdersList(data.Orders, lang)
 	} else {
-		@layouts.CustomerShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
+		@layouts.ShellFor("طلبياتي وأوامر التوريد", "orders", lang, dir, authctx.FromContext(ctx)) {
 			{{
 				ordersCount := data.TotalCount
 				activeCount := 0

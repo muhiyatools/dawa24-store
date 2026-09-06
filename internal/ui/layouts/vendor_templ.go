@@ -110,6 +110,9 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 					Title:   title,
 					Lang:    lang,
 					Compact: true,
+					// Suppliers buy too, and the receiving branch decides what
+					// the catalogue will let them order.
+					Context: BuyingBranchSelector(ctx),
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

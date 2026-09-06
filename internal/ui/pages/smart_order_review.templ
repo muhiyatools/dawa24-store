@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 	"net/url"
 
@@ -15,7 +16,7 @@ func smartOrderReviewPaginationQuery(data SmartOrderReviewData) url.Values {
 
 // SmartOrderReviewPage is step 5: review and place.
 templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
-	@layouts.CustomerShell("مراجعة وتأكيد الطلب الذكي", "purchase-request", lang, dir, nil) {
+	@layouts.ShellFor("مراجعة وتأكيد الطلب الذكي", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="container-fluid py-4">
 			
 			<!-- Page Header Strip -->

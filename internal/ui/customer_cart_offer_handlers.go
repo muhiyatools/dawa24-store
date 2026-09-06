@@ -29,7 +29,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if !actor.IsCustomer() {
+	if !actor.IsBuyer() {
 		if h.isHTMX(r) {
 			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.buy_pharmacy_only")))
 			w.WriteHeader(http.StatusForbidden)
@@ -86,7 +86,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Verify offer location and delivery coverage for the pharmacy branch
-	branch := h.pharmacyCustomerBranch(ctx, &actor)
+	branch := h.buyingBranch(ctx, &actor)
 	offerForCheck := sp
 	if offerForCheck == nil && baseOffer != nil {
 		offerForCheck = &promo.SpecialOffer{
@@ -94,6 +94,13 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 			OrganizationID: baseOffer.OrganizationID,
 			BranchID:       baseOffer.BranchID,
 		}
+	}
+	// A supplier cannot buy its own bundle. commerce.AddToCart refuses the same
+	// pairing, so this is the message rather than the control: refusing here
+	// names the actual reason instead of the generic add-failed toast.
+	if offerForCheck != nil && ownedByBuyer(buyerOrgID(ctx), offerForCheck.OrganizationID) {
+		h.offerAddFailed(w, r, offerID, "err.own_organization_supply")
+		return
 	}
 	if covered, reason := h.checkOfferCoverage(ctx, offerForCheck, branch); !covered {
 		h.offerAddFailed(w, r, offerID, reason)
@@ -160,7 +167,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 		OfferID:        &offerID,
 	}
 
-	if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr != nil {
+	if _, aErr := h.commSvc.AddToCart(ctx, userID, buyerOrgID(ctx), item); aErr != nil {
 		h.log.ErrorContext(ctx, "add offer to cart",
 			"error", aErr, "offer_id", offerID, "user_id", userID)
 		h.offerAddFailed(w, r, offerID, "customer.offer.add_failed")
@@ -172,7 +179,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	_ = h.promoSvc.RecordOfferClick(ctx, offerID)
 
 	if h.isHTMX(r) {
-		cart, _ := h.commSvc.GetCart(ctx, userID)
+		cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 		totalCount := 0
 		if cart != nil {
 			for _, ci := range cart.Items {
@@ -198,7 +205,7 @@ func (h *UIHandler) assertCartLineAvailable(
 ) bool {
 	ctx := r.Context()
 
-	branchID := h.pharmacyBranchID(ctx, &actor)
+	branchID := h.buyingBranchID(ctx, &actor)
 
 	res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 		VariantID:        variantID,
@@ -226,7 +233,7 @@ func (h *UIHandler) assertCartLineAvailable(
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID, "qty", qty)
 		if h.isHTMX(r) {
 			if back == "/cart" {
-				cart, _ := h.commSvc.GetCart(ctx, actor.UserID)
+				cart, _ := h.commSvc.GetCart(ctx, actor.UserID, buyerOrgID(ctx))
 				lang, _ := h.localeAndDir(r)
 				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
 				w.Header().Set("Content-Type", "text/html; charset=utf-8")

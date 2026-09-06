@@ -211,12 +211,24 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.wallet.view", "vendor.wallet.manage",
 			"vendor.job.view", "vendor.job.manage", "vendor.session.view",
 			"vendor.decision_memory.view", "vendor.decision_memory.delete",
+			// Restocking from other distributors. The manager is the only
+			// starter role that may spend on it; the roles below see what was
+			// bought without being able to buy.
+			"vendor.buying.catalog.view",
+			"vendor.buying.purchase_request.view", "vendor.buying.purchase_request.create",
+			"vendor.buying.smart_order.view", "vendor.buying.smart_order.run",
+			"vendor.buying.cart.use",
+			"vendor.buying.order.view", "vendor.buying.order.create", "vendor.buying.order.update",
+			"vendor.buying.offer.view",
+			"vendor.buying.supplier.view", "vendor.buying.supplier.follow",
+			"vendor.buying.favorite.view", "vendor.buying.favorite.manage",
 		},
 		"org_accountant": {
 			"vendor.dashboard.view",
 			"vendor.invoice.view", "vendor.payment.view", "vendor.earnings.view",
 			"vendor.wallet.view", "vendor.wallet.manage",
 			"vendor.order.view", "vendor.subscription.view", "vendor.session.view",
+			"vendor.buying.order.view",
 		},
 		"org_warehouse": {
 			"vendor.dashboard.view",
@@ -225,6 +237,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.inventory.view", "vendor.inventory.adjust",
 			"vendor.warehouse.view", "vendor.warehouse.manage",
 			"vendor.order.view", "vendor.order.update", "vendor.session.view",
+			"vendor.buying.catalog.view", "vendor.buying.order.view",
 		},
 		"org_sales_rep": {
 			"vendor.dashboard.view",
@@ -238,6 +251,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 		"org_pharmacist": {
 			"vendor.dashboard.view", "vendor.product.view",
 			"vendor.order.view", "vendor.document.view", "vendor.session.view",
+			"vendor.buying.catalog.view", "vendor.buying.order.view",
 		},
 		"org_employee": {"vendor.dashboard.view", "vendor.order.view", "vendor.session.view"},
 	},

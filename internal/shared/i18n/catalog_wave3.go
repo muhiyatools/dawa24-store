@@ -97,6 +97,14 @@ func loadWave3Keys(e *engine) {
 	addKey(e, "err.qty_must_be_positive", "errors", "الكمية المطلوبة يجب أن تكون أكبر من صفر.", "Requested quantity must be greater than zero.", "Quantity positive error")
 	addKey(e, "err.supplier_not_specified", "errors", "لم يتم تحديد المورد لهذا الصنف.", "Supplier is not specified for this item.", "Supplier unspecified error")
 	addKey(e, "err.supplier_invalid", "errors", "المورد المحدد غير صالح.", "Specified supplier is invalid.", "Supplier invalid error")
+	addKey(e, "err.own_organization_supply", "errors", "لا يمكن شراء أصناف منشأتك. هذا الصنف معروض من منشأتك نفسها.", "You cannot buy your own organization's items. This item is supplied by your own company.", "Self-supply refusal")
+
+	// The shared buying surface: a supplier buys on the same screens a pharmacy
+	// does, so these must not say "pharmacy".
+	addKey(e, "buying.select_branch_first", "buying", "يرجى تحديد فرع الاستلام أولاً للتمكن من الطلب", "Select a receiving branch first to place an order.", "Buying branch not chosen")
+	addKey(e, "buying.sign_in_to_order", "buying", "يرجى تسجيل الدخول بحساب منشأة معتمدة للطلب", "Sign in with an approved company account to order.", "Sign in to order")
+	addKey(e, "wallet.company_required", "buying", "يجب تسجيل الدخول بحساب منشأة معتمدة للاستفادة من الدفع بالمحفظة.", "Sign in with an approved company account to pay from the wallet.", "Wallet needs a company")
+	addKey(e, "buying.approved_companies_only", "buying", "الطلب متاح فقط للمنشآت المعتمدة", "Ordering is available to approved companies only.", "Approved companies only")
 
 	addKey(e, "err.compare_quota_exceeded", "errors", "تجاوز الحد الأقصى للملفات النشطة المسموح بها في باقتك (%s ملفات)", "Active file limit exceeded for your plan (%s files).", "Compare quota exceeded")
 	addKey(e, "err.manual_archive_reason", "errors", "أرشفة يدوية من قبل المستخدم", "Manual archive by user.", "Manual archive reason")

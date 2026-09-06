@@ -38,7 +38,7 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 		OrgType:        "vendor",
 		Role:           "vendor_admin",
 		Scope:          rbac.ScopeVendor,
-		Permissions:    []string{"vendor.payment.view"},
+		Permissions:    []string{"vendor.payment.view", "vendor.invoice.view"},
 	}
 
 	customerActor := &authctx.Actor{
@@ -46,6 +46,11 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 		OrganizationID: 3,
 		OrgType:        "customer",
 		Role:           "customer_owner",
+		Scope:          rbac.ScopePharmacy,
+		// A pharmacy has no invoice permission of its own: its invoices are
+		// its orders seen from the money side, so /invoices is revealed by the
+		// order grant and redirects there.
+		Permissions: []string{"pharmacy.order.view"},
 	}
 
 	t.Run("Customer GET /invoices redirects to /orders", func(t *testing.T) {

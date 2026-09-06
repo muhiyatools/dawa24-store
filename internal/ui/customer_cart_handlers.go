@@ -26,7 +26,7 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !actor.IsCustomer() {
+	if !actor.IsBuyer() {
 		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(langOf(r), "customer.cart.pharmacy_only"))
 		return
 	}
@@ -36,19 +36,19 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := h.commSvc.GetCart(ctx, actor.UserID)
+	cart, err := h.commSvc.GetCart(ctx, actor.UserID, buyerOrgID(ctx))
 	if err != nil {
 		h.renderError(w, r, err)
 		return
 	}
 
 	if cart != nil && len(cart.Items) > 0 {
-		branchID := h.pharmacyBranchID(ctx, &actor)
+		branchID := h.buyingBranchID(ctx, &actor)
 		for _, it := range cart.Items {
 			it.IsCovered = true
 			if branchID <= 0 {
 				it.IsCovered = false
-				it.CoverageReason = "يرجى تحديد فرع صيدلية للاستلام أولاً"
+				it.CoverageReason = i18n.T(langOf(r), "buying.select_branch_first")
 			} else if it.ProductVariantID > 0 && it.OrganizationID > 0 {
 				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 					VariantID:        it.ProductVariantID,
@@ -94,7 +94,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !actor.IsCustomer() {
+	if !actor.IsBuyer() {
 		if h.isHTMX(r) {
 			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.add_pharmacy_only")))
 			w.WriteHeader(http.StatusForbidden)
@@ -193,7 +193,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if _, err := h.commSvc.AddToCart(ctx, userID, item); err != nil {
+	if _, err := h.commSvc.AddToCart(ctx, userID, buyerOrgID(ctx), item); err != nil {
 		h.log.ErrorContext(ctx, "add to cart", "error", err,
 			"user", userID, "variant", variantID, "vendor", vendorOrgID)
 		if h.isHTMX(r) {
@@ -206,7 +206,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.isHTMX(r) {
-		cart, _ := h.commSvc.GetCart(ctx, userID)
+		cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 		itemCount := 0
 		if cart != nil {
 			for _, ci := range cart.Items {
@@ -253,7 +253,7 @@ func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.isHTMX(r) {
-		cart, _ := h.commSvc.GetCart(ctx, userID)
+		cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 		lang, _ := h.localeAndDir(r)
 		h.renderPage(ctx, w, "render customer cart content",
 			pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
@@ -294,7 +294,7 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 			return
 		}
 		if h.isHTMX(r) {
-			cart, _ := h.commSvc.GetCart(ctx, userID)
+			cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 			lang, _ := h.localeAndDir(r)
 			h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
 			return
@@ -315,7 +315,7 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 		vendorOrgID, _ := strconv.ParseInt(r.PostFormValue("vendor_org_id"), 10, 64)
 		if vendorOrgID <= 0 {
 			// The cart row knows its supplier even when the form omits it.
-			if line, err := h.commSvc.GetCartLine(ctx, userID, variantID); err == nil && line != nil {
+			if line, err := h.commSvc.GetCartLine(ctx, userID, buyerOrgID(ctx), variantID); err == nil && line != nil {
 				vendorOrgID = line.OrganizationID
 			}
 		}
@@ -332,7 +332,7 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	if h.isHTMX(r) {
-		cart, _ := h.commSvc.GetCart(ctx, userID)
+		cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 		lang, _ := h.localeAndDir(r)
 		h.renderPage(ctx, w, "render customer cart content",
 			pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
@@ -357,7 +357,7 @@ func (h *UIHandler) cartGroups(
 		return groups
 	}
 	var branchID *int64
-	if id := h.pharmacyBranchID(ctx, actor); id > 0 {
+	if id := h.buyingBranchID(ctx, actor); id > 0 {
 		branchID = &id
 	}
 	for i := range groups {

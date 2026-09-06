@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -11,7 +12,7 @@ import (
 )
 
 templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, noticeType, noticeMsg, lang, dir string, reviews map[int64]*org.Review) {
-	@layouts.CustomerShell(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, nil) {
+	@layouts.ShellFor(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			<!-- Notice Feedback Banner -->
 			if noticeMsg != "" {

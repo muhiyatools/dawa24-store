@@ -539,7 +539,7 @@ func CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billi
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("إتمام أمر الشراء والتوريد | B2B Checkout", "checkout", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.ShellFor("إتمام أمر الشراء والتوريد | B2B Checkout", "checkout", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

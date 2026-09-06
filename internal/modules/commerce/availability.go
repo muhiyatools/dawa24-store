@@ -9,7 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-// Availability is the single source of truth for "may this pharmacy buy this
+// Availability is the single source of truth for "may this company buy this
 // quantity of this variant from this supplier, right now?".
 //
 // Before this existed, AddToCartSubmit made the decision inline and got it
@@ -41,6 +41,10 @@ const (
 	ReasonBranchInstitutionalMismatch Reason = "branch_institutional_mismatch"
 	ReasonNotCovered                 Reason = "not_covered"
 	ReasonQuantityInvalid            Reason = "quantity_invalid"
+	// ReasonOwnOrganization refuses a company buying from itself. Smart
+	// Ordering has always called this ReasonOwnOrg and refused it first; this
+	// is the same invariant on the ordinary purchase path.
+	ReasonOwnOrganization Reason = "own_organization"
 )
 
 // VariantAvailability is the slice of a catalog variant that the rule needs.
@@ -59,7 +63,7 @@ type VendorAvailability struct {
 	Approved bool
 }
 
-// BranchAvailability is the slice of a pharmacy branch that the rule needs.
+// BranchAvailability is the slice of the buyer's own branch that the rule needs.
 type BranchAvailability struct {
 	ID                 int64
 	OrganizationID     int64
@@ -130,6 +134,25 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 			i18n.T("ar", "err.supplier_not_specified"),
 			"No supplier was specified for this item."), nil
 	}
+
+	// 1b. A company never buys from itself.
+	//
+	// This became reachable when suppliers gained the buying surface: a
+	// distributor restocking from other distributors browses the same
+	// catalogue its own variants are listed in. The listings filter those rows
+	// out, but a filter is presentation — a stale page, a bookmarked
+	// /cart/add, or a hand-written form post would otherwise place a real
+	// order against the caller's own stock, debit its own wallet and create an
+	// order where the buyer and the seller are one row.
+	//
+	// It sits before every load because it needs nothing but the request, and
+	// because a refusal that costs three queries to reach is a refusal an
+	// attacker can use to measure the database.
+	if req.CustomerOrgID > 0 && req.CustomerOrgID == req.VendorOrgID {
+		return denied(ReasonOwnOrganization, 0,
+			i18n.T("ar", "err.own_organization_supply"),
+			"You cannot buy your own organization's items."), nil
+	}
 	vendor, err := s.availability.Vendor(ctx, req.VendorOrgID)
 	if err != nil {
 		return AvailabilityResult{}, fmt.Errorf("availability: load vendor %d: %w", req.VendorOrgID, err)
@@ -188,7 +211,7 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 			fmt.Sprintf("Minimum order quantity for this item is %d.", variant.MinOrderQty)), nil
 	}
 
-	// 4. The delivery branch must belong to the buying pharmacy.
+	// 4. The delivery branch must belong to the buying company.
 	if req.CustomerBranchID <= 0 {
 		return denied(ReasonBranchInvalid, variant.StockQty,
 			i18n.TDefault("w4_mod.w4str_133_133"),

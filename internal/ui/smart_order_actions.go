@@ -10,6 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
@@ -248,32 +250,49 @@ func (h *UIHandler) SmartOrderMatchSubmit(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
-// RegisterSmartOrderRoutes mounts the wizard on the customer surface.
+// RegisterSmartOrderRoutes mounts the wizard on the shared buying surface.
+//
+// Every route here used to be registered flat, with no permission gate at all:
+// membership of an approved pharmacy was the only question asked, so any
+// employee could upload a list, re-match its lines, switch suppliers and place
+// the resulting order — while pharmacy.smart_order.view and .run existed in the
+// catalogue, appeared in the role editor, and controlled nothing. The route
+// audit did not catch it because its glob only reads files named *routes*.go.
+//
+// Reading the wizard and running it are two grants. Uploading a list, changing
+// what it matched, choosing a different supplier and finalising all commit the
+// company to a purchase; opening the history does not.
 func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
-	r.Get("/customer/smart-order", h.SmartOrderHistoryPage)
-	r.Get("/customer/smart-order/history", h.SmartOrderHistoryPage)
-	r.Get("/customer/smart-order/new", h.SmartOrderNewPage)
-	r.Post("/customer/smart-order", h.SmartOrderCreateSubmit)
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireCapability(rbac.BuySmartOrderView))
+		g.Get("/customer/smart-order", h.SmartOrderHistoryPage)
+		g.Get("/customer/smart-order/history", h.SmartOrderHistoryPage)
+		g.Get("/customer/smart-order/new", h.SmartOrderNewPage)
 
-	r.Get("/customer/smart-order/{id}/mapping", h.SmartOrderMappingPage)
-	r.Post("/customer/smart-order/{id}/mapping", h.SmartOrderMappingSubmit)
-	r.Get("/customer/smart-order/{id}/progress", h.SmartOrderProgressPage)
-	r.Get("/customer/smart-order/{id}/progress.json", h.SmartOrderProgressJSON)
-	// Both shapes, mirroring the two .json routes above: the progress page and
-	// the run page each derive the stream URL from their own path, and a client
-	// asking for a route that does not exist falls silently back to polling —
-	// which looks like the stream simply never helping.
-	r.Get("/customer/smart-order/{id}/progress/stream", h.SmartOrderProgressStream)
-	r.Get("/customer/smart-order/{id}/stream", h.SmartOrderProgressStream)
-	r.Get("/customer/smart-order/{id}.json", h.SmartOrderProgressJSON)
-	r.Get("/customer/smart-order/{id}/results", h.SmartOrderResultsPage)
-	r.Get("/customer/smart-order/{id}/catalog-search", h.SmartOrderCatalogSearch)
-	r.Get("/customer/smart-order/{id}/review", h.SmartOrderReviewPage)
-	r.Get("/customer/smart-order/{id}/export", h.SmartOrderExportCSV)
+		g.Get("/customer/smart-order/{id}/mapping", h.SmartOrderMappingPage)
+		g.Get("/customer/smart-order/{id}/progress", h.SmartOrderProgressPage)
+		g.Get("/customer/smart-order/{id}/progress.json", h.SmartOrderProgressJSON)
+		// Both shapes, mirroring the two .json routes above: the progress page
+		// and the run page each derive the stream URL from their own path, and
+		// a client asking for a route that does not exist falls silently back
+		// to polling — which looks like the stream simply never helping.
+		g.Get("/customer/smart-order/{id}/progress/stream", h.SmartOrderProgressStream)
+		g.Get("/customer/smart-order/{id}/stream", h.SmartOrderProgressStream)
+		g.Get("/customer/smart-order/{id}.json", h.SmartOrderProgressJSON)
+		g.Get("/customer/smart-order/{id}/results", h.SmartOrderResultsPage)
+		g.Get("/customer/smart-order/{id}/catalog-search", h.SmartOrderCatalogSearch)
+		g.Get("/customer/smart-order/{id}/review", h.SmartOrderReviewPage)
+		g.Get("/customer/smart-order/{id}/export", h.SmartOrderExportCSV)
+	})
 
-	r.Post("/customer/smart-order/{id}/lines/{lineID}/quantity", h.SmartOrderQuantitySubmit)
-	r.Post("/customer/smart-order/{id}/lines/{lineID}/match", h.SmartOrderMatchSubmit)
-	r.Post("/customer/smart-order/{id}/lines/{lineID}/supplier", h.SmartOrderSupplierSubmit)
-	r.Post("/customer/smart-order/{id}/lines/{lineID}/remove", h.SmartOrderRemoveSubmit)
-	r.Post("/customer/smart-order/{id}/finalize", h.SmartOrderFinalizeSubmit)
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireCapability(rbac.BuySmartOrderRun))
+		g.Post("/customer/smart-order", h.SmartOrderCreateSubmit)
+		g.Post("/customer/smart-order/{id}/mapping", h.SmartOrderMappingSubmit)
+		g.Post("/customer/smart-order/{id}/lines/{lineID}/quantity", h.SmartOrderQuantitySubmit)
+		g.Post("/customer/smart-order/{id}/lines/{lineID}/match", h.SmartOrderMatchSubmit)
+		g.Post("/customer/smart-order/{id}/lines/{lineID}/supplier", h.SmartOrderSupplierSubmit)
+		g.Post("/customer/smart-order/{id}/lines/{lineID}/remove", h.SmartOrderRemoveSubmit)
+		g.Post("/customer/smart-order/{id}/finalize", h.SmartOrderFinalizeSubmit)
+	})
 }

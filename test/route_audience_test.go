@@ -34,9 +34,14 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 		"RegisterApprovedSharedRoutes": "approved_shared",
 		"RegisterCustomerSharedRoutes": "customer",
 		"RegisterVendorSharedRoutes":   "vendor",
-		"RegisterSmartOrderRoutes":     "customer",
-		"RegisterStaticRoutes":         "public",
-		"RegisterUploadRoutes":         "public",
+		// The buying surface is its own audience: a pharmacy and a supplier
+		// reach the same catalogue, cart and orders, and which pages each may
+		// open is decided per page by the buying capability rather than by
+		// which dashboard they are on.
+		"RegisterBuyingRoutes":     "buyer",
+		"RegisterSmartOrderRoutes": "buyer",
+		"RegisterStaticRoutes":     "public",
+		"RegisterUploadRoutes":     "public",
 	}
 
 	// The old single-group registrar must stay dead: its existence is how the
@@ -108,7 +113,8 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 	gates := map[string][]string{
 		"RegisterPublicRoutes":         {},
 		"RegisterCustomerRoutes":       {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer", "authctx.RequireApproved"},
-		"RegisterSmartOrderRoutes":     {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer", "authctx.RequireApproved"},
+		"RegisterBuyingRoutes":         {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireBuyer", "authctx.RequireApproved"},
+		"RegisterSmartOrderRoutes":     {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireBuyer", "authctx.RequireApproved"},
 		"RegisterVendorRoutes":         {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireVendor", "authctx.RequireApproved"},
 		"RegisterAdminRoutes":          {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireStaff"},
 		"RegisterPreApprovalRoutes":    {"identityHttp.RequireAuth", "identityHttp.ResolveTenant"},

@@ -54,10 +54,82 @@ var (
 		"/customer/team",
 		"/customer/branches",
 		"/customer/saving-products",
-		"/customer/purchase-request",
 		"/customer/subscription",
+		"/customer/decision-memory",
+	}
+	// sharedBuyingPaths are the marketplace screens both dashboards own. They
+	// are the exception to the separation above, and the exception has to be
+	// named: /customer/purchase-request sat in pharmacyOnlyPaths until
+	// suppliers gained the purchasing section, and moving it without a test in
+	// its place would have removed the only thing checking it.
+	sharedBuyingPaths = []string{
+		"/customer/purchase-request",
+		"/customer/catalog",
+		"/customer/suppliers",
+		"/customer/offers",
+		"/orders",
+		"/cart",
+		"/suppliers/followed",
+		"/favorites",
+		// /new rather than the history index: the index redirects to it when
+		// the Smart Ordering service is not wired, which this harness never
+		// wires, and a redirect would be indistinguishable from a refusal.
+		"/customer/smart-order/new",
 	}
 )
+
+// TestASupplierWithTheBuyingGrantsReachesTheSharedPages.
+//
+// A supplier restocking from other distributors buys on the pharmacy's own
+// screens. This is the positive half of the separation above: the pages a
+// supplier must reach, listed beside the ones they must not.
+func TestASupplierWithTheBuyingGrantsReachesTheSharedPages(t *testing.T) {
+	vendor := tenantActor(4, 51, "supplier", rbac.ScopeVendor)
+	router := newTestRouter(vendor)
+
+	for _, path := range sharedBuyingPaths {
+		t.Run(path, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+			// The harness builds the handler with nil services, so a page that
+			// reads real data answers 500 rather than rendering. Only a refusal
+			// — the gate's 303, or a 404 — means the page does not exist for
+			// this caller, which is what this asserts against.
+			if rec.Code == http.StatusSeeOther || rec.Code == http.StatusNotFound {
+				t.Errorf("a supplier holding every vendor grant was refused the shared buying page %s (status %d)",
+					path, rec.Code)
+			}
+		})
+	}
+}
+
+// TestASupplierWithoutTheBuyingGrantsIsRefusedTheSharedPages is the same list
+// held against a supplier who holds their selling dashboard and nothing else.
+//
+// Sharing a page between two dashboards is only safe if the grant still
+// decides: without this, "vendor" would have become the permission.
+func TestASupplierWithoutTheBuyingGrantsIsRefusedTheSharedPages(t *testing.T) {
+	vendor := &authctx.Actor{
+		UserID: 5, OrganizationID: 51, OrgType: "supplier",
+		OrgStatus: "approved", Scope: rbac.ScopeVendor,
+	}
+	vendor.Grants([]string{
+		"vendor.dashboard.view", "vendor.product.view",
+		"vendor.order.view", "vendor.offer.view",
+	})
+	router := newTestRouter(vendor)
+
+	for _, path := range sharedBuyingPaths {
+		t.Run(path, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			router.ServeHTTP(rec, httptest.NewRequest("GET", path, nil))
+			if rec.Code != http.StatusSeeOther {
+				t.Errorf("status = %d, want 303: a supplier without the buying grants opened %s",
+					rec.Code, path)
+			}
+		})
+	}
+}
 
 // TestASupplierCannotReachPharmacyPages.
 func TestASupplierCannotReachPharmacyPages(t *testing.T) {

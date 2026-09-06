@@ -259,3 +259,140 @@ func TestAlwaysVisibleItemsAreTheSameEverywhere(t *testing.T) {
 		t.Errorf("account settings should be always-visible at /settings, got %q", hrefs["account_settings"])
 	}
 }
+
+// TestSharedCapabilitiesAreDeclaredInBothScopes.
+//
+// A Capability is a promise that one page is grantable on both dashboards. The
+// promise is only kept if both keys exist and each is grantable in its own
+// scope — otherwise RequiredKeys hands the gate a key nobody can hold, and the
+// page is closed to that dashboard with nothing in the role editor to explain
+// why. That is the failure the whole catalogue exists to make impossible, in
+// the one place a single declaration spans two scopes.
+func TestSharedCapabilitiesAreDeclaredInBothScopes(t *testing.T) {
+	c := rbac.Default()
+	all := append(rbac.BuyingCapabilities(), rbac.SharedCompanyCapabilities()...)
+	if len(all) == 0 {
+		t.Fatal("no shared capabilities are declared")
+	}
+	for _, cap := range all {
+		for _, tc := range []struct {
+			scope rbac.Scope
+			key   string
+		}{
+			{rbac.ScopePharmacy, cap.Pharmacy},
+			{rbac.ScopeVendor, cap.Vendor},
+		} {
+			if key := cap.KeyFor(tc.scope); key != tc.key {
+				t.Errorf("capability %q: KeyFor(%s) = %q, want %q", cap.Name, tc.scope, key, tc.key)
+			}
+			if tc.key == "" {
+				t.Errorf("capability %q declares no key for %s", cap.Name, tc.scope)
+				continue
+			}
+			p, ok := c.Lookup(tc.key)
+			if !ok {
+				t.Errorf("capability %q names undeclared permission %q", cap.Name, tc.key)
+				continue
+			}
+			if !p.InScope(tc.scope) {
+				t.Errorf("capability %q names %q for %s, which is not grantable there",
+					cap.Name, tc.key, tc.scope)
+			}
+		}
+		if got := rbac.RequiredKeys(rbac.ScopeAdmin, cap); len(got) != 0 {
+			t.Errorf("capability %q resolves to %v on the admin dashboard; a shared page is a tenant page",
+				cap.Name, got)
+		}
+	}
+}
+
+// TestCapabilityNamesAreUnique catches two capabilities claiming one name,
+// which would make a test failure name the wrong page.
+func TestCapabilityNamesAreUnique(t *testing.T) {
+	seen := map[string]bool{}
+	for _, cap := range append(rbac.BuyingCapabilities(), rbac.SharedCompanyCapabilities()...) {
+		if seen[cap.Name] {
+			t.Errorf("duplicate capability name %q", cap.Name)
+		}
+		seen[cap.Name] = true
+	}
+}
+
+// TestVendorPurchasingSection pins the section this feature exists to add.
+//
+// A supplier restocks from other distributors, and does it on the same six
+// screens a pharmacy buys through. The names and the order are the product
+// decision; the permissions are what make each one hideable.
+func TestVendorPurchasingSection(t *testing.T) {
+	var buying *rbac.NavSection
+	for _, sec := range rbac.Nav(rbac.ScopeVendor) {
+		if sec.Key == "buying" {
+			s := sec
+			buying = &s
+			break
+		}
+	}
+	if buying == nil {
+		t.Fatal("the vendor sidebar has no purchasing section")
+	}
+	if buying.NameAr != "شراء المنتجات" {
+		t.Errorf("the section is labelled %q", buying.NameAr)
+	}
+
+	want := []struct{ key, href, perm string }{
+		{"orders", "/orders", "vendor.buying.order.view"},
+		{"purchase-request", "/customer/purchase-request", "vendor.buying.purchase_request.view"},
+		{"followed", "/suppliers/followed", "vendor.buying.supplier.follow"},
+		{"suppliers", "/customer/suppliers", "vendor.buying.supplier.view"},
+		{"catalog", "/customer/catalog", "vendor.buying.catalog.view"},
+		{"offers", "/customer/offers", "vendor.buying.offer.view"},
+	}
+	if len(buying.Items) != len(want) {
+		t.Fatalf("the section has %d items, want %d", len(buying.Items), len(want))
+	}
+	for i, w := range want {
+		got := buying.Items[i]
+		if got.Key != w.key || got.Href != w.href || got.Perm != w.perm {
+			t.Errorf("item %d is {%s %s %s}, want {%s %s %s}",
+				i, got.Key, got.Href, got.Perm, w.key, w.href, w.perm)
+		}
+	}
+
+	// A supplier holding only their selling dashboard sees none of it: the
+	// section is a grant, not a consequence of being a supplier.
+	selling := rbac.NewSet([]string{
+		"vendor.dashboard.view", "vendor.product.view",
+		"vendor.order.view", "vendor.offer.view", "vendor.wallet.view",
+	})
+	for _, sec := range rbac.VisibleNav(rbac.ScopeVendor, selling) {
+		if sec.Key == "buying" {
+			t.Error("the purchasing section is shown to a supplier holding no buying grant")
+		}
+	}
+}
+
+// TestVendorSellingAndBuyingNavKeysAreDistinct.
+//
+// أوامر التوريد (orders placed WITH this supplier) and طلباتي (orders this
+// supplier placed) are two pages in one sidebar. One activeNav value must
+// highlight one of them, or both light up and the active state means nothing.
+func TestVendorSellingAndBuyingNavKeysAreDistinct(t *testing.T) {
+	byKey := map[string]string{}
+	for _, sec := range rbac.Nav(rbac.ScopeVendor) {
+		for _, item := range sec.Items {
+			byKey[item.Key] = item.Href
+		}
+	}
+	pairs := []struct{ selling, buying, sellingHref, buyingHref string }{
+		{"supply_orders", "orders", "/vendor/orders", "/orders"},
+		{"supply_offers", "offers", "/vendor/offers", "/customer/offers"},
+	}
+	for _, p := range pairs {
+		if byKey[p.selling] != p.sellingHref {
+			t.Errorf("nav key %q points at %q, want %q", p.selling, byKey[p.selling], p.sellingHref)
+		}
+		if byKey[p.buying] != p.buyingHref {
+			t.Errorf("nav key %q points at %q, want %q", p.buying, byKey[p.buying], p.buyingHref)
+		}
+	}
+}

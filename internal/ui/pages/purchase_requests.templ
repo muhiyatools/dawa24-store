@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 // CustomerPurchaseRequestWizardPage renders the clean gateway to catalog and suppliers.
 templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string) {
-	@layouts.CustomerShell("طلبات الشراء والتوريد", "purchase-request", lang, dir, nil) {
+	@layouts.ShellFor("طلبات الشراء والتوريد", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container">
 			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-0">

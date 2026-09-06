@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -9,7 +10,7 @@ import (
 )
 
 templ SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) {
-	@layouts.CustomerShell("سجل الطلبات الذكية", "purchase-request", lang, dir, nil) {
+	@layouts.ShellFor("سجل الطلبات الذكية", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-5xl">
 			<!-- Header -->
 			<div class="flex-between items-center mb-6 flex-wrap gap-4">

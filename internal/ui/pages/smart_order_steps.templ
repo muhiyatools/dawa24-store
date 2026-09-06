@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -53,7 +54,7 @@ func confidenceChip(c float64) string {
 
 // SmartOrderMappingPage is step 2: confirm or correct the column mapping.
 templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
-	@layouts.CustomerShell("تعيين الأعمدة", "purchase-request", lang, dir, nil) {
+	@layouts.ShellFor("تعيين الأعمدة", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-4xl so-mapping-page">
 			<h1 class="so-mapping-title">تعيين أعمدة الملف</h1>
 			@WizardRail(OrderRail(StepColumns))
@@ -147,7 +148,7 @@ func (d SmartOrderProgressData) ringOffset() string {
 // started the run, which is what lets a buyer close the tab, come back from
 // another device, and find the run where it got to.
 templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
-	@layouts.CustomerShell("جارٍ المطابقة", "purchase-request", lang, dir, nil) {
+	@layouts.ShellFor("جارٍ المطابقة", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
 		<div class="container-fluid so-progress-page">
 			<h1 class="so-progress-title">جارٍ تجهيز الطلب</h1>
 			@WizardRail(OrderRail(StepReview))

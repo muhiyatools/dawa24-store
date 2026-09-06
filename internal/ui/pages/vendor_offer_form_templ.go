@@ -615,7 +615,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "offers", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "supply_offers", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -445,7 +445,7 @@ func OfferDetailContent(lang string, data OfferDetailPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+		if actor, ok := authctx.From(ctx); ok && actor.IsBuyer() {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<form action=\"/cart/add-offer\" method=\"POST\" class=\"m-0 d-flex items-center gap-3 flex-wrap\"><input type=\"hidden\" name=\"offer_id\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

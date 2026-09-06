@@ -206,12 +206,19 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		buyerOrg := buyerOrgID(ctx)
 		var items []*pages.SupplierDirectoryItem
 		for _, o := range orgs {
 			if o == nil {
 				continue
 			}
 			if o.Status == org.StatusRejected || o.Status == org.StatusSuspended {
+				continue
+			}
+			// A supplier is not a supplier to itself. Its own row would offer
+			// a profile whose every variant is filtered out, and a follow
+			// button for a company it already is.
+			if ownedByBuyer(buyerOrg, o.ID) {
 				continue
 			}
 			if q != "" {
@@ -317,8 +324,14 @@ func (h *UIHandler) FollowedSuppliersPage(w http.ResponseWriter, r *http.Request
 	var suppliers []*org.Organization
 	if h.orgSvc != nil {
 		rawList, _ := h.orgSvc.ListFollowedOrganizations(ctx, userID)
+		buyerOrg := buyerOrgID(ctx)
 		for _, s := range rawList {
 			if s == nil {
+				continue
+			}
+			// Following is per user, so a member who joined the company they
+			// had followed would otherwise find it listed here.
+			if ownedByBuyer(buyerOrg, s.ID) {
 				continue
 			}
 			if q != "" {

@@ -14,15 +14,21 @@ import (
 // company's wallet, delete a branch, or remove a colleague. A pharmacy owner
 // had no way to hire a counter assistant who may search the catalogue but not
 // spend money — which is the ordinary case, not an exotic one.
+//
+// What is registered here is what only a pharmacy has. The catalogue, the
+// cart, the orders and the supplier directory moved to buying_routes.go when
+// suppliers gained the purchasing section: those are one surface two
+// dashboards share, and keeping a second copy here would have been a second
+// set of rules to keep in step.
 func (h *UIHandler) registerCustomerRoutes(r chi.Router) {
-	h.registerCustomerBuyingRoutes(r)
-	h.registerCustomerMarketRoutes(r)
+	h.registerCustomerDashboardRoutes(r)
+	h.registerCustomerDecisionMemoryRoutes(r)
 	h.registerCustomerSavingRoutes(r)
 	h.registerCustomerCompanyRoutes(r)
 	h.registerCustomerTeamRoutes(r)
 }
 
-func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
+func (h *UIHandler) registerCustomerDashboardRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.dashboard.view"))
 		g.Get("/customer/dashboard", h.PharmacyDashboardPage)
@@ -33,92 +39,16 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Get("/customer/cpanel", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
 		})
+		g.Get("/customer/purchase-priority", redirectTo("/customer/dashboard"))
+		g.Get("/customer/purchase-priority/*", redirectTo("/customer/dashboard"))
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(h.scrape.Protect)
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view", "pharmacy.dashboard.view"))
-		g.Get("/customer/catalog", h.CustomerCatalogPage)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.purchase_request.view", "pharmacy.dashboard.view"))
-		g.Get("/customer/purchase-request", h.CustomerPurchaseRequestWizardPage)
-		g.Get("/customer/catalog/{id}", h.CustomerProductDetailPage)
-		g.Get("/customer/purchase-request/products", h.CustomerPurchaseRequestProductsRedirect)
-		g.Get("/customer/purchase-request/previous", h.CustomerPurchaseRequestPreviousRedirect)
-		g.Get("/customer/purchase-request/supplier", h.CustomerPurchaseRequestSupplierRedirect)
-		g.Get("/customer/purchase-request/supplier/{id}", h.CustomerPurchaseRequestSupplierRedirect)
-		g.Get("/customer/add-order", h.CustomerAddOrderPage)
-		g.Get("/customer/products/main/{id}", h.CustomerProductsMainAlias)
-		g.Get("/customer/purchase-priority", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
-		})
-		g.Get("/customer/purchase-priority/*", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
-		})
-	})
-
-	// The former Automatic Purchase Request feature is superseded by Smart
-	// Ordering (specs/001-smart-ordering-system).
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.smart_order.view"))
-		g.Get("/customer/automation", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/customer/smart-order", http.StatusMovedPermanently)
-		})
-		g.Get("/customer/automation/previous", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/customer/smart-order/history", http.StatusMovedPermanently)
-		})
-	})
-
-	// The cart and the checkout. Placing an order commits the company's money,
-	// so it is its own grant: a counter assistant may fill a basket for a
-	// pharmacist to approve without being able to submit it themselves.
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.cart.use"))
-		g.Get("/cart", h.CustomerCartPage)
-		g.Post("/cart/add", h.AddToCartSubmit)
-		g.Post("/cart/add-offer", h.AddOfferToCartSubmit)
-		g.Post("/cart/remove", h.RemoveFromCartSubmit)
-		g.Post("/cart/update-quantity", h.UpdateCartQuantitySubmit)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.order.create"))
-		g.Get("/checkout", h.CustomerCheckoutPage)
-		g.Get("/offers/{id}/checkout", h.CustomerOfferCheckoutPage)
-		g.Post("/checkout", h.CheckoutSubmit)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.order.view"))
-		g.Get("/orders", h.CustomerOrdersPage)
-		g.Get("/orders/{id}", h.CustomerOrderDetailPage)
-		g.Get("/orders/{id}/lines/{lineID}/offer-details", h.CustomerOrderLineOfferDetails)
-		g.Get("/customer/orders", h.CustomerOrdersPage)
-		g.Get("/customer/orders/{id}", h.CustomerOrderDetailPage)
-		g.Get("/customer/orders/{id}/lines/{lineID}/offer-details", h.CustomerOrderLineOfferDetails)
-		g.Get("/orders/offers", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/orders", http.StatusMovedPermanently)
-		})
-		g.Get("/orders/offers/{id}", func(w http.ResponseWriter, r *http.Request) {
-			id := chi.URLParam(r, "id")
-			http.Redirect(w, r, "/orders/"+id, http.StatusMovedPermanently)
-		})
-	})
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.order.update"))
-		g.Post("/orders/{id}/edit", h.CustomerOrderEditSubmit)
-		g.Post("/customer/orders/{id}/edit", h.CustomerOrderEditSubmit)
-		g.Post("/customer/negotiate-order", h.CustomerNegotiateOrderSubmit)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.view", "pharmacy.dashboard.view", "pharmacy.order.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.view"))
 		g.Get("/customer/wallet", h.TenantWalletPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.manage", "pharmacy.wallet.view", "pharmacy.order.update"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.wallet.manage"))
 		g.Post("/customer/wallet/deposit", h.TenantWalletDepositSubmit)
 		g.Post("/customer/wallet/withdraw", h.TenantWalletWithdrawSubmit)
 		g.Post("/customer/wallet/payment-methods", h.TenantPaymentMethodAddSubmit)
@@ -133,47 +63,9 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Post("/customer/wallet/payment-methods/{id}/delete", h.TenantPaymentMethodDeleteSubmit)
 	})
 
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.favorite.view", "pharmacy.favorite.manage", "pharmacy.dashboard.view"))
-		g.Get("/favorites", h.FavoritesPage)
-		g.Get("/customer/favorites", h.FavoritesPage)
-		g.Post("/favorites/{id}/remove", h.FavoriteRemoveSubmit)
-		g.Post("/favorites/{id}/add", h.FavoriteAddSubmit)
-		g.Post("/favorites/{id}/toggle", h.FavoriteToggleSubmit)
-		g.Post("/favorites/toggle", h.FavoriteToggleSubmit)
-	})
-
-	// Choosing which of the pharmacy's own branches you are buying for is not
-	// a privilege: every member who can order needs it, and it addresses only
-	// branches the tenant already owns.
-	r.Post("/customer/set-branch", h.SetBuyingBranchSubmit)
-	r.Post("/customer/branches/active", h.CustomerSwitchActiveBranchSubmit)
 }
 
-func (h *UIHandler) registerCustomerMarketRoutes(r chi.Router) {
-	r.Group(func(g chi.Router) {
-		g.Use(h.scrape.Protect)
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.supplier.view"))
-		g.Get("/customer/suppliers", h.SuppliersPage)
-		g.Get("/customer/suppliers/{id}", h.SupplierProfilePage)
-		g.Get("/suppliers/followed", h.FollowedSuppliersPage)
-	})
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.offer.view"))
-		g.Get("/customer/offers", h.OffersPage)
-		g.Get("/customer/offers/{id}", h.OfferDetailPage)
-	})
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.supplier.follow"))
-		g.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
-		g.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.review.write"))
-		g.Post("/reviews/submit", h.ReviewSubmit)
-	})
-
+func (h *UIHandler) registerCustomerDecisionMemoryRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.decision_memory.view"))
 		g.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
@@ -321,7 +213,7 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 		http.Redirect(w, r, "/notifications", http.StatusMovedPermanently)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view", "pharmacy.dashboard.view"))
+		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view"))
 		g.Get("/customer/sessions", h.TenantSessionsPage)
 		g.Get("/customer/mfa", h.CustomerMFAPage)
 		g.Post("/customer/mfa/setup", h.CustomerMFASetupSubmit)

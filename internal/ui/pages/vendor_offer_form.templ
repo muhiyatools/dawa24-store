@@ -173,7 +173,7 @@ func selectedItemsJSON(offer *promo.SpecialOffer, options []VendorOfferItemOptio
 }
 
 templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
-	@layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "offers", lang, dir) {
+	@layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "supply_offers", lang, dir) {
 		<div
 			class="page-container"
 			x-data={ fmt.Sprintf(`{

@@ -28,6 +28,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
@@ -167,6 +168,16 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	h.registerCustomerRoutes(r)
 }
 
+// RegisterBuyingRoutes mounts the surface a pharmacy and a supplier share when
+// they buy, gated by RequireBuyer.
+func (h *UIHandler) RegisterBuyingRoutes(r chi.Router) {
+	// The table lives in buying_routes.go; this shim is here because
+	// test/route_audience_test.go checks that every audience registrar is
+	// declared in this file and mounted behind the right gates in
+	// cmd/server/routes.go.
+	h.registerBuyingRoutes(r)
+}
+
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
 // RequireVendor.
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
@@ -263,8 +274,13 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 
 	// Branch management lives at /customer/branches and /vendor/branches. The
 	// settings page used to carry a third, lower-quality write path that even
-	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
-	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
+	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2). What
+	// is left of it assigns a manager, which is a branch edit and takes the
+	// branch-edit grant.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireCapability(rbac.BranchUpdate))
+		g.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
+	})
 	// The payment-method writes live on the wallet screens, behind
 	// pharmacy.wallet.manage / vendor.wallet.manage. These paths stayed
 	// reachable by any approved member because this tier has no permission gate
@@ -274,18 +290,41 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Post("/settings/payment-methods/{id}/default", h.PaymentMethodsRedirect)
 	r.Post("/settings/payment-methods/{id}/delete", h.PaymentMethodsRedirect)
 
-	// Wallet, invoices, messages, requests
+	// The wallet and the invoices.
+	//
+	// Both dashboards reach these at an unprefixed URL, and until now neither
+	// gate applied: /customer/wallet/deposit required pharmacy.wallet.manage
+	// while /wallet/deposit, the same handler moving the same money, required
+	// only membership of an approved company. Any employee could deposit,
+	// withdraw and edit a pending deposit. The capability names the page once
+	// and resolves to whichever key the caller's own dashboard grants it under.
+	// /wallet itself is a 301 to whichever dashboard's wallet the caller
+	// belongs to, and that destination carries the gate. Gating the redirect
+	// as well would only stop a member without the grant from being told where
+	// the page they cannot open lives — and would refuse platform staff, who
+	// have no tenant wallet and are simply sent home.
 	r.Get("/wallet", h.WalletPage)
-	r.Get("/invoices", h.InvoicesPage)
-	r.Get("/invoices/{id}/print", h.InvoicePrintPage)
-	r.Get("/orders/{id}/invoice/print", h.OrderInvoicePrintPage)
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireCapability(rbac.WalletManage))
+		g.Post("/wallet/deposit", h.WalletDepositSubmit)
+		g.Post("/wallet/deposit/{id}/edit", h.WalletDepositEditSubmit)
+		g.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireCapability(rbac.InvoiceView))
+		g.Get("/invoices", h.InvoicesPage)
+		g.Get("/invoices/{id}/print", h.InvoicePrintPage)
+		g.Get("/orders/{id}/invoice/print", h.OrderInvoicePrintPage)
+	})
+
+	// Messages and requests are correspondence, not a company screen: neither
+	// dashboard declares a permission for them and neither sidebar links to
+	// them, so there is no key to gate on and inventing one here would create
+	// a grant no role editor offers. The handlers scope every read to the
+	// caller's own organization.
 	r.Get("/messages", h.MessagesPage)
 	r.Get("/messages/{id}", h.MessagesConversationPage)
 	r.Get("/requests", h.RequestsPage)
-
-	r.Post("/wallet/deposit", h.WalletDepositSubmit)
-	r.Post("/wallet/deposit/{id}/edit", h.WalletDepositEditSubmit)
-	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
 	r.Post("/requests", h.RequestCreateSubmit)
 }

@@ -28,7 +28,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if !actor.IsCustomer() {
+	if !actor.IsBuyer() {
 		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(lang, "checkout.pharmacy_only"))
 		return
 	}
@@ -40,7 +40,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	cart, err := h.commSvc.GetCart(ctx, userID)
+	cart, err := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 	if err != nil {
 		h.renderError(w, r, err)
 		return
@@ -80,7 +80,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := h.commSvc.GetCart(ctx, userID)
+	cart, err := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
 	if err != nil || cart == nil || len(cart.Items) == 0 {
 		http.Redirect(w, r, "/cart", http.StatusSeeOther)
 		return
@@ -202,7 +202,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if targetBranchID <= 0 {
-		h.redirectWithNotice(w, r, "/checkout", "error", "يرجى تحديد فرع صيدلية للاستلام أولاً للتمكن من إتمام الطلب")
+		h.redirectWithNotice(w, r, "/checkout", "error", i18n.T(langOf(r), "buying.select_branch_first"))
 		return
 	}
 

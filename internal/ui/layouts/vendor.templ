@@ -33,6 +33,9 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					Title:   title,
 					Lang:    lang,
 					Compact: true,
+					// Suppliers buy too, and the receiving branch decides what
+					// the catalogue will let them order.
+					Context: BuyingBranchSelector(ctx),
 				})
 
 				<div class="page-container">

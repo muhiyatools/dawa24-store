@@ -90,19 +90,19 @@ func loadFrontendUIKeysA(e *engine) {
 	addKey(e, "customer.saving.sample_col_price", "customer", "سعر الجمهور (ج.م)", "Public Price (EGP)", "Sample template column")
 
 	// --- Customer: Cart ---
-	addKey(e, "customer.cart.pharmacy_only", "customer", "عذراً، الشراء وسلة الطلبات متاحة حصرياً للصيدليات المرخصة.", "Purchase and cart are exclusively for licensed pharmacies.", "Cart access denied")
+	addKey(e, "customer.cart.pharmacy_only", "customer", "عذراً، الشراء وسلة الطلبات متاحة للمنشآت المعتمدة فقط.", "Purchase and cart are available to approved companies only.", "Cart access denied")
 	addKey(e, "customer.cart.coverage_outside", "customer", "خارج نطاق التغطية للفرع المحدد", "Outside coverage area for selected branch", "Coverage reason")
 	addKey(e, "customer.cart.out_of_stock", "customer", "نفد المخزون لدى المورد", "Out of stock at supplier", "Coverage reason")
 	addKey(e, "customer.cart.login_required", "customer", "يرجى تسجيل الدخول كصيدلية مرخصة للشراء", "Please sign in as a licensed pharmacy to purchase", "Login required toast")
-	addKey(e, "customer.cart.add_pharmacy_only", "customer", "عذراً، إضافة الأدوية وسلة المشتريات متاحة حصرياً لحسابات الصيدليات المرخصة", "Adding medicines to cart is exclusively for licensed pharmacy accounts", "Add to cart denied toast")
-	addKey(e, "customer.cart.order_pharmacy_only", "customer", "عذراً، إضافة الأدوية وطلب التوريد متاح حصرياً للصيدليات المرخصة.", "Adding medicines and ordering is exclusively for licensed pharmacies.", "Order denied")
+	addKey(e, "customer.cart.add_pharmacy_only", "customer", "عذراً، إضافة الأدوية وسلة المشتريات متاحة لحسابات المنشآت المعتمدة فقط", "Adding medicines to cart is available to approved company accounts only", "Add to cart denied toast")
+	addKey(e, "customer.cart.order_pharmacy_only", "customer", "عذراً، إضافة الأدوية وطلب التوريد متاح للمنشآت المعتمدة فقط.", "Adding medicines and ordering is available to approved companies only.", "Order denied")
 	addKey(e, "customer.cart.service_unavailable", "customer", "خدمة السلة غير متوفرة حالياً", "Cart service is currently unavailable", "Cart service unavailable toast")
 	addKey(e, "customer.cart.add_success", "customer", "تمت إضافة الصنف إلى سلة المشتريات بنجاح", "Item added to cart successfully", "Add to cart success")
 
 	// --- Customer: Offers / Cart ---
 	addKey(e, "customer.offer.login_required", "customer", "يرجى تسجيل الدخول كصيدلية مرخصة للشراء", "Please sign in as a licensed pharmacy to purchase", "Login required toast")
-	addKey(e, "customer.offer.buy_pharmacy_only", "customer", "عذراً، شراء باقات العروض متاح حصرياً لحسابات الصيدليات المرخصة", "Purchasing offer bundles is exclusively for licensed pharmacy accounts", "Offer purchase denied toast")
-	addKey(e, "customer.offer.buy_pharmacy_only_notice", "customer", "عذراً، شراء باقات العروض متاح حصرياً للصيدليات المرخصة.", "Purchasing offer bundles is exclusively for licensed pharmacies.", "Offer purchase denied")
+	addKey(e, "customer.offer.buy_pharmacy_only", "customer", "عذراً، شراء باقات العروض متاح لحسابات المنشآت المعتمدة فقط", "Purchasing offer bundles is available to approved company accounts only", "Offer purchase denied toast")
+	addKey(e, "customer.offer.buy_pharmacy_only_notice", "customer", "عذراً، شراء باقات العروض متاح للمنشآت المعتمدة فقط.", "Purchasing offer bundles is available to approved companies only.", "Offer purchase denied")
 	addKey(e, "customer.offer.invalid_id", "customer", "معرف العرض غير صالح.", "Invalid offer ID.", "Offer ID validation")
 	addKey(e, "customer.offer.not_found", "customer", "العرض المطلوب غير موجود أو انتهت صلاحيته.", "Requested offer not found or expired.", "Offer not found")
 	addKey(e, "customer.offer.add_failed", "customer", "تعذر إضافة أصناف العرض إلى السلة، يرجى التأكد من توفر أصناف العرض", "Could not add offer items to cart, please verify offer items availability", "Offer add failed")

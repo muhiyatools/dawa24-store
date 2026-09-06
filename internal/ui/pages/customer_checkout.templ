@@ -12,7 +12,7 @@ import (
 )
 
 templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billing.Wallet, lang, dir string) {
-	@layouts.CustomerShell("إتمام أمر الشراء والتوريد | B2B Checkout", "checkout", lang, dir, nil) {
+	@layouts.ShellFor("إتمام أمر الشراء والتوريد | B2B Checkout", "checkout", lang, dir, authctx.FromContext(ctx)) {
 		<div class="page-container max-w-6xl">
 			
 			<!-- Header -->

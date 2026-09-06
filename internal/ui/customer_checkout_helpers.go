@@ -128,7 +128,7 @@ func (h *UIHandler) resolveCheckoutBranch(ctx context.Context, actor authctx.Act
 	}
 
 	if branchID == nil && actor.OrganizationID > 0 {
-		targetID := h.pharmacyBranchID(ctx, &actor)
+		targetID := h.buyingBranchID(ctx, &actor)
 		if targetID > 0 {
 			branchID = &targetID
 		}

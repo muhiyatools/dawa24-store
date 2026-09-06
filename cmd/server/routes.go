@@ -83,6 +83,21 @@ func mountModuleRoutes(
 		uiRouter.Use(authctx.RequireApproved(log))
 		uiRouter.Use(uiHandler.BuyingBranchSelector)
 		uiHandler.RegisterCustomerRoutes(uiRouter)
+	})
+	// The shared buying surface: the catalogue, the supplier directory, the
+	// offers board, the cart, the checkout, the buyer's own orders and Smart
+	// Ordering. A pharmacy and a supplier reach the same pages here; which of
+	// them each may open is decided per page by the buying capability, against
+	// the caller's own dashboard.
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(httpx.CSRF(isProd))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
+		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
+		uiRouter.Use(authctx.RequireBuyer(log))
+		uiRouter.Use(authctx.RequireApproved(log))
+		uiRouter.Use(uiHandler.BuyingBranchSelector)
+		uiHandler.RegisterBuyingRoutes(uiRouter)
 		uiHandler.RegisterSmartOrderRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {

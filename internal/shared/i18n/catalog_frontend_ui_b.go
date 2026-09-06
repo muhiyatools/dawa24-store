@@ -262,7 +262,7 @@ func loadFrontendUIKeysB(e *engine) {
 	addKey(e, "delivery.band.deleted_success", "coverage", "تم حذف شريحة التوصيل بنجاح.", "Delivery tier deleted successfully.", "Success notice")
 
 	// --- Customer Checkout ---
-	addKey(e, "checkout.pharmacy_only", "commerce", "عذراً، إتمام الشراء والتوريد متاح حصرياً للصيدليات المرخصة.", "Sorry, checkout and procurement is exclusively available to licensed pharmacies.", "Permission error")
+	addKey(e, "checkout.pharmacy_only", "commerce", "عذراً، إتمام الشراء والتوريد متاح للمنشآت المعتمدة فقط.", "Sorry, checkout and procurement is available to approved companies only.", "Permission error")
 	addKey(e, "checkout.branch_out_of_coverage_format", "commerce", "فرع الصيدلية المحدد خارج نطاق التغطية الجغرافية لشركات التوريد (%s). يرجى اختيار فرع معتمد داخل التغطية.", "Selected pharmacy branch is outside supplier coverage area (%s). Please select an eligible branch within coverage.", "Coverage error")
 	addKey(e, "customer.catalog.custom_procurement_request", "catalog", "طلب توريد خاص", "Special Procurement Request", "Fallback supplier label")
 	addKey(e, "customer.catalog.no_active_offers", "catalog", "لا تتوفر عروض توريد نشطة لهذا الصنف حالياً", "No active supplier offers available for this item currently", "No offers notice")

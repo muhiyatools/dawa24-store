@@ -33,10 +33,10 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	actor, hasActor := authctx.From(ctx)
-	isCustomer := hasActor && actor.IsCustomer()
+	isBuyer := hasActor && actor.IsBuyer()
 	var customerBranch *org.Branch
-	if isCustomer {
-		customerBranch = h.pharmacyCustomerBranch(ctx, &actor)
+	if isBuyer {
+		customerBranch = h.buyingBranch(ctx, &actor)
 	}
 
 	var offerCards []*pages.OfferCardData
@@ -64,8 +64,13 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		buyerOrg := buyerOrgID(ctx)
 		for _, o := range offers {
 			if o == nil {
+				continue
+			}
+			// A supplier's own promotion is not an offer to them.
+			if ownedByBuyer(buyerOrg, o.OrganizationID) {
 				continue
 			}
 
@@ -104,7 +109,7 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 
 			isCovered := true
 			covReason := ""
-			if isCustomer {
+			if isBuyer {
 				if sp != nil {
 					isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
 				} else {
@@ -132,7 +137,7 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				ExpiresAt:          o.ExpiresAt,
 				ProductsCount:      prodCount,
 				IsSponsored:        sponsoredOfferIDs[o.ID],
-				IsCustomerUser:     isCustomer,
+				IsCustomerUser:     isBuyer,
 				IsCovered:          isCovered,
 				CoverageReason:     covReason,
 			})
@@ -250,6 +255,14 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// A supplier who reaches their own promotion by id is sent back to the
+	// board rather than shown a buy button for their own stock. Recording a
+	// view first would also let them inflate their own offer's statistics.
+	if ownedByBuyer(buyerOrgID(ctx), sp.OrganizationID) {
+		h.redirectWithNotice(w, r, "/offers", "error", i18n.T(lang, "err.own_organization_supply"))
+		return
+	}
+
 	_ = h.promoSvc.RecordOfferView(ctx, id)
 
 	var orgInfo *org.Organization
@@ -270,12 +283,12 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 	sp.Locations = locs
 
 	actor, ok := authctx.From(ctx)
-	isCustomer := ok && actor.IsCustomer()
+	isBuyer := ok && actor.IsBuyer()
 	var customerBranch *org.Branch
 	isCovered := true
 	covReason := ""
-	if isCustomer {
-		customerBranch = h.pharmacyCustomerBranch(ctx, &actor)
+	if isBuyer {
+		customerBranch = h.buyingBranch(ctx, &actor)
 		isCovered, covReason = h.checkOfferCoverage(ctx, sp, customerBranch)
 	}
 
@@ -284,7 +297,7 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		Organization:   orgInfo,
 		Products:       sp.Products,
 		Locations:      locs,
-		IsCustomerUser: isCustomer,
+		IsCustomerUser: isBuyer,
 		IsCovered:      isCovered,
 		CoverageReason: covReason,
 		CustomerBranch: customerBranch,

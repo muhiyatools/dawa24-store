@@ -42,7 +42,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 				@components.DashboardTopBar(components.TopBarProps{
 					Title:   title,
 					Lang:    lang,
-					Context: PharmacyBranchSelector(ctx),
+					Context: BuyingBranchSelector(ctx),
 					Actions: pharmacyTopBarActions(lang),
 				})
 
@@ -56,7 +56,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 	}
 }
 
-// PharmacyBranchSelector is an island in the top navbar. It reads the current
+// BuyingBranchSelector is an island in the top navbar. It reads the current
 func activeBranchDisplayName(buying authctx.BuyingBranch) string {
 	if buying.Active != nil {
 		for _, b := range buying.Branches {
@@ -71,11 +71,16 @@ func activeBranchDisplayName(buying authctx.BuyingBranch) string {
 	return "الفرع المعتمد"
 }
 
-// PharmacyBranchSelector reads the customer's available branches and the
-// active branch from the request context (or session), renders a dropdown of
-// the user's pharmacy branches, and POSTs to /customer/set-branch on change.
-templ PharmacyBranchSelector(ctx context.Context) {
-	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+// BuyingBranchSelector reads the caller's available branches and the active
+// branch from the request context (or session), renders a dropdown of their own
+// company's branches, and POSTs to /customer/set-branch on change.
+//
+// It renders for any buying company. It used to ask actor.IsCustomer(), which
+// meant a supplier buying from another distributor had no way to say which of
+// its own warehouses the delivery was for — and the branch is what decides
+// coverage, distance and whether the line can be ordered at all.
+templ BuyingBranchSelector(ctx context.Context) {
+	if actor, ok := authctx.From(ctx); ok && actor.IsBuyer() {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
 			if buying.IsLocked {
 				<div class="nav-pop" title="الفرع المخصص لحسابك الوظيفي (غير متاح التبديل)">

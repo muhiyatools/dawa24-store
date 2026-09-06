@@ -94,20 +94,65 @@ func (s *Service) GetWishlist(ctx context.Context, userID int64) ([]*WishlistIte
 	return s.repo.ListWishlist(ctx, userID)
 }
 
-// GetCart retrieves or initializes a customer cart.
-func (s *Service) GetCart(ctx context.Context, userID int64) (*Cart, error) {
+// GetCart retrieves or initializes the caller's cart, without any line their
+// own company supplies.
+//
+// buyerOrgID is the company the caller is buying for. Self-supplied lines are
+// hidden rather than deleted, because a cart belongs to a user and a user may
+// be a member of two companies: a line added while acting for a pharmacy is a
+// perfectly good line, and it must come back when they switch back to that
+// pharmacy — it is only unbuyable while they are acting for the supplier that
+// sells it.
+//
+// Hiding here rather than in the templates is what makes checkout agree with
+// the screen. CheckAvailability refuses the same pairing, so a line that
+// reached the basket before the caller switched companies cannot be ordered;
+// leaving it visible-to-checkout but hidden-on-screen would fail the whole
+// order over a line nobody could see.
+//
+// Pass 0 for a caller with no company — nothing is theirs, so nothing is
+// hidden.
+//
+// GetCart, GetCartLine and AddToCart all take (userID, buyerOrgID) in that
+// order, and never in the other. Both are int64, so a transposed call compiles
+// and silently reads the wrong cart; keeping one order across the three is the
+// only defence the language offers.
+func (s *Service) GetCart(ctx context.Context, userID, buyerOrgID int64) (*Cart, error) {
 	cart, err := s.repo.GetOrCreateCart(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	return s.repo.GetCartWithItems(ctx, cart.ID)
+	full, err := s.repo.GetCartWithItems(ctx, cart.ID)
+	if err != nil {
+		return nil, err
+	}
+	return withoutSelfSuppliedLines(full, buyerOrgID), nil
+}
+
+// withoutSelfSuppliedLines returns the cart without lines supplied by buyerOrgID.
+func withoutSelfSuppliedLines(cart *Cart, buyerOrgID int64) *Cart {
+	if cart == nil || buyerOrgID <= 0 || len(cart.Items) == 0 {
+		return cart
+	}
+	kept := make([]*CartItem, 0, len(cart.Items))
+	for _, item := range cart.Items {
+		if item != nil && item.OrganizationID == buyerOrgID {
+			continue
+		}
+		kept = append(kept, item)
+	}
+	cart.Items = kept
+	return cart
 }
 
 // GetCartLine returns one line of the user's cart, or nil when the variant is
 // not in it. The quantity controls need the line's supplier so a re-check can
 // run even when the form does not resend it.
-func (s *Service) GetCartLine(ctx context.Context, userID, variantID int64) (*CartItem, error) {
-	cart, err := s.GetCart(ctx, userID)
+//
+// It reads through GetCart, so a line the caller's own company supplies is not
+// in it: a line you cannot see is a line you cannot re-price.
+func (s *Service) GetCartLine(ctx context.Context, userID, buyerOrgID, variantID int64) (*CartItem, error) {
+	cart, err := s.GetCart(ctx, userID, buyerOrgID)
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +167,17 @@ func (s *Service) GetCartLine(ctx context.Context, userID, variantID int64) (*Ca
 	return nil, nil
 }
 
-// AddToCart adds or updates an item in the cart.
-func (s *Service) AddToCart(ctx context.Context, userID int64, item *CartItem) (*Cart, error) {
+// AddToCart adds or updates an item in the caller's cart.
+//
+// buyerOrgID is the company the caller is buying for. A line that company
+// supplies is refused here rather than only at the screen: the JSON API reaches
+// this function too, and a rule enforced in one of two callers is not enforced.
+func (s *Service) AddToCart(ctx context.Context, userID, buyerOrgID int64, item *CartItem) (*Cart, error) {
+	if buyerOrgID > 0 && item.OrganizationID == buyerOrgID {
+		return nil, apperr.Validation(
+			"cart.line_unavailable."+string(ReasonOwnOrganization),
+			i18n.T("ar", "err.own_organization_supply"), nil)
+	}
 	cart, err := s.repo.GetOrCreateCart(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -131,7 +185,11 @@ func (s *Service) AddToCart(ctx context.Context, userID int64, item *CartItem) (
 	if err := s.repo.AddToCartItem(ctx, cart.ID, item); err != nil {
 		return nil, err
 	}
-	return s.repo.GetCartWithItems(ctx, cart.ID)
+	full, err := s.repo.GetCartWithItems(ctx, cart.ID)
+	if err != nil {
+		return nil, err
+	}
+	return withoutSelfSuppliedLines(full, buyerOrgID), nil
 }
 
 // RemoveFromCart removes an item from cart.
@@ -348,4 +406,3 @@ func (s *Service) GetOfferDetailsForOrderLine(ctx context.Context, orderID, line
 	}
 	return s.repo.GetOfferDetailsForOrderLine(ctx, orderID, lineID)
 }
-

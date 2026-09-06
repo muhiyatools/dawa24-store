@@ -115,6 +115,13 @@ func (h *UIHandler) SupplierMessageSubmit(w http.ResponseWriter, r *http.Request
 		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(lang, "chat.cannot_start_conversation"))
 		return
 	}
+	// A conversation between a company and itself has no second party, and
+	// StartConversation would create one with the buyer and the supplier on
+	// the same row.
+	if ownedByBuyer(buyerOrgID(ctx), supplierID) {
+		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(lang, "err.own_organization_supply"))
+		return
+	}
 
 	c, err := h.chatSvc.StartConversation(ctx, actor.OrganizationID, supplierID, actor.UserID, i18n.New(i18n.TDefault("w4_ui.s_77_77"), "Inquiry"), chat.ContextGeneral, nil)
 	if err != nil {

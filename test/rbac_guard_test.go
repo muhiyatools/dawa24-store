@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 	"testing"
 
@@ -38,6 +37,7 @@ var routeFiles = []string{
 	"internal/ui/vendor_routes.go",
 	"internal/ui/vendor_catalog_routes.go",
 	"internal/ui/customer_routes.go",
+	"internal/ui/buying_routes.go",
 }
 
 // TestEveryRouteGateNamesADeclaredPermission walks every permission gate in the
@@ -100,7 +100,19 @@ func TestTenantGatesUseTenantScopedPermissions(t *testing.T) {
 	const root = ".."
 	catalog := rbac.Default()
 
-	reAdminGate := regexp.MustCompile(`Require(?:Page|API)?Permission\(([^)]*)\)`)
+	// RequirePagePermission and RequireAPIPermission both refuse a non-staff
+	// caller outright, so every key they name has to be grantable on the admin
+	// dashboard.
+	//
+	// authctx.RequirePermission is deliberately excluded. It is the third
+	// category this audit used to be missing: a gate that asks only "does the
+	// caller hold one of these", for a route both a staff member and a company
+	// member legitimately reach — settling an invoice, topping up a wallet.
+	// Naming a tenant key there is the point of it, and treating it as an
+	// admin gate reported 27 correct call sites as violations, which is how an
+	// audit stops being read. Its keys are still held to the catalogue by
+	// TestEveryRouteGateNamesADeclaredPermission.
+	reAdminGate := regexp.MustCompile(`Require(?:Page|API)Permission\(([^)]*)\)`)
 	reTenantGate := regexp.MustCompile(`Require(?:API)?Tenant(?:Page)?Permission\(([^)]*)\)`)
 
 	for _, dir := range []string{"cmd", "internal"} {
@@ -212,7 +224,7 @@ func TestNoDashboardRouteIsRegisteredOutsideAGate(t *testing.T) {
 			if !reRouteInSrc.MatchString(g[1]) {
 				continue
 			}
-			if !strings.Contains(g[1], "PagePermission(") {
+			if !strings.Contains(g[1], "PagePermission(") && !strings.Contains(g[1], "RequireCapability(") {
 				routes := reRouteInSrc.FindAllStringSubmatch(g[1], -1)
 				paths := make([]string, 0, len(routes))
 				for _, r := range routes {
@@ -225,52 +237,12 @@ func TestNoDashboardRouteIsRegisteredOutsideAGate(t *testing.T) {
 	}
 }
 
-// TestEverySidebarPermissionGatesARoute.
+// The sidebar-to-route direction used to be checked here, textually: every
+// permission a sidebar item names had to appear inside some gate in the route
+// files. It could only see gates written as string literals, so it went blind
+// the moment a shared page was gated on a rbac.Capability, and it could never
+// have caught a gate naming the right key on the wrong path.
 //
-// The other direction: a sidebar item whose permission gates no route is a
-// link the caller can see and open regardless of their grants. The check is
-// deliberately loose — it asks only that the permission appears in some gate —
-// because a section can span several route groups.
-func TestEverySidebarPermissionGatesARoute(t *testing.T) {
-	const root = ".."
-
-	gated := map[string]bool{}
-	for _, rel := range routeFiles {
-		src, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
-		if err != nil {
-			t.Fatalf("reading %s: %v", rel, err)
-		}
-		for _, m := range reGateKeys.FindAllStringSubmatch(string(src), -1) {
-			for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
-				gated[k[1]] = true
-			}
-		}
-	}
-
-	// Items whose destination is a shared or public route, gated elsewhere.
-	elsewhere := map[string]bool{
-		"vendor.invoice.view":          true, // /invoices is a shared route
-		"vendor.compare.use":           true, // /compare/tool is shared with pharmacies
-		"vendor.market_discounts.view": true, // /market-discounts is a public page
-		"pharmacy.offer.view":          true, // /offers is a public storefront route
-		"pharmacy.supplier.view":       true, // /suppliers is a public directory
-		"platform.dashboard.view":      true, // /admin/dashboard: any staff member
-	}
-
-	var missing []string
-	for _, scope := range rbac.Scopes() {
-		for _, section := range rbac.Nav(scope) {
-			for _, item := range section.Items {
-				if gated[item.Perm] || elsewhere[item.Perm] {
-					continue
-				}
-				missing = append(missing, string(scope)+" "+item.Key+" → "+item.Perm)
-			}
-		}
-	}
-	sort.Strings(missing)
-	for _, m := range missing {
-		t.Errorf("sidebar item %s names a permission that gates no route; "+
-			"the link would be hidden while the page stayed open to anyone", m)
-	}
-}
+// internal/ui/sidebar_route_sync_test.go replaces it with the behavioural
+// check: every item, in every dashboard, requested through the real router by a
+// caller who holds its permission and by one who holds everything else.

@@ -85,6 +85,43 @@ func TestCheckAvailability(t *testing.T) {
 			wantMax:   5,
 		},
 		{
+			// The marketplace invariant Smart Ordering has always enforced as
+			// ReasonOwnOrg, and the ordinary purchase path did not: it became
+			// reachable when suppliers gained the buying surface and began
+			// browsing a catalogue their own variants are listed in.
+			name: "a company buying from itself is refused",
+			request: func(r *AvailabilityRequest) {
+				r.CustomerOrgID = r.VendorOrgID
+			},
+			wantReason: ReasonOwnOrganization,
+		},
+		{
+			// The refusal must not depend on anything the probe knows, so a
+			// self-supplied line is refused even when every other condition is
+			// broken too. Otherwise the first failure reported would vary with
+			// the state of the catalogue.
+			name: "self-supply is refused before stock, coverage or approval",
+			probe: func(p *stubProbe) {
+				p.vendor.Approved = false
+				p.variant.StockQty = 0
+				p.covers = false
+			},
+			request: func(r *AvailabilityRequest) {
+				r.CustomerOrgID = r.VendorOrgID
+			},
+			wantReason: ReasonOwnOrganization,
+		},
+		{
+			// A signed-out or org-less caller has no company to supply itself
+			// from; the check must not fire on a zero.
+			name: "a caller with no organization is not treated as self-supplying",
+			request: func(r *AvailabilityRequest) {
+				r.CustomerOrgID = 0
+			},
+			wantAllow: true,
+			wantMax:   5,
+		},
+		{
 			// The old code did `if vendorOrgID <= 0 { vendorOrgID = 1 }`, which
 			// silently attributed the line to whichever org has id 1.
 			name:       "a missing vendor is refused, never defaulted",

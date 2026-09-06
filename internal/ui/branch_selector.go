@@ -27,7 +27,7 @@ const buyingBranchCookie = "dawa24_buying_branch"
 func (h *UIHandler) BuyingBranchSelector(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		actor, ok := authctx.From(r.Context())
-		if !ok || !actor.IsCustomer() || h.orgSvc == nil {
+		if !ok || !actor.IsBuyer() || h.orgSvc == nil {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -190,26 +190,29 @@ func (h *UIHandler) validatedCookieBranch(r *http.Request, actor authctx.Actor, 
 // returns to the previous page, which re-renders with the new selection.
 func (h *UIHandler) SetBuyingBranchSubmit(w http.ResponseWriter, r *http.Request) {
 	actor, ok := authctx.From(r.Context())
-	if !ok || !actor.IsCustomer() || h.orgSvc == nil {
+	if !ok || !actor.IsBuyer() || h.orgSvc == nil {
 		http.Redirect(w, r, "/catalog", http.StatusSeeOther)
 		return
 	}
+	// A refused switch goes back to the caller's own dashboard. It used to go
+	// to the pharmacy's, which a supplier is not allowed to open.
+	home := dashboardHome(actor)
 
 	id := parseBranchID(&http.Cookie{Value: r.PostFormValue("branch_id")})
 	if id <= 0 {
-		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, home, http.StatusSeeOther)
 		return
 	}
 
 	// Only non-owner employees strictly assigned to a different branch cannot switch
 	if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && *actor.BranchID != id {
-		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, home, http.StatusSeeOther)
 		return
 	}
 
 	branch, err := h.orgSvc.GetBranch(r.Context(), id)
 	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID || branch.Status == "inactive" || branch.Status == "suspended" {
-		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, home, http.StatusSeeOther)
 		return
 	}
 

@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 // CustomerOfferOrdersPage renders offer-based orders.
 templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, perPage, totalCount int) {
-	@layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil) {
+	@layouts.ShellFor("طلبات العروض والصفقات", "orders", lang, dir, authctx.FromContext(ctx)) {
 		<div class="glass-panel mb-0">
 			<div class="header-row">
     <div class="stack-sm">
@@ -63,7 +64,7 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string, page, 
 
 // CustomerOfferCheckoutPage renders checkout for an offer.
 templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
-	@layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil) {
+	@layouts.ShellFor(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, authctx.FromContext(ctx)) {
 		<div class="glass-panel max-w-2xl mx-auto">
 			<div class="header-row">
     <div class="stack-sm">
@@ -101,7 +102,7 @@ templ CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) {
 
 // CustomerAddOrderPage renders manual order form.
 templ CustomerAddOrderPage(lang, dir string) {
-	@layouts.CustomerShell("طلب شراء سريع", "orders", lang, dir, nil) {
+	@layouts.ShellFor("طلب شراء سريع", "orders", lang, dir, authctx.FromContext(ctx)) {
 		<div class="glass-panel max-w-2xl mx-auto">
 			<h2 class="mb-lg text-base font-bold text-primary">إضافة أمر شراء يدوي سريع</h2>
 			@components.EmptyState(components.EmptyStateProps{Title: "الطلب اليدوي", Message: "يمكنك إضافة الأصناف والكميات مباشرة لإرسالها لأقرب مورد معتمد."})

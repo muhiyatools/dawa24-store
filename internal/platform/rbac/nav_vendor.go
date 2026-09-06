@@ -1,5 +1,42 @@
 package rbac
 
+// vendorBuyingNav is the supplier's purchasing section — the same six screens a
+// pharmacy buys through, reached at the same URLs.
+//
+// The nav keys are the shared buying vocabulary ("orders", "catalog",
+// "offers", "suppliers", "followed", "purchase-request"), because those pages
+// have one implementation and pass one activeNav value whoever is looking at
+// them. The supplier's own selling screens therefore carry "supply_orders" and
+// "supply_offers": one activeNav value must highlight one link, and أوامر
+// التوريد (orders placed *with* this supplier) and طلباتي (orders this supplier
+// placed) are two different pages that would otherwise both light up.
+func vendorBuyingNav() NavSection {
+	return NavSection{
+		Key: "buying", NameAr: "شراء المنتجات", NameEn: "Purchasing",
+		Items: []NavItem{
+			{Key: "orders", Href: "/orders", Icon: "truck",
+				NameAr: "طلبات والشحنات", NameEn: "Orders & shipments",
+				Perm: BuyOrderView.Vendor},
+			{Key: "purchase-request", Aliases: []string{"purchase_request", "smart-order", "smart_order"},
+				Href: "/customer/purchase-request", Icon: "cart",
+				NameAr: "طلب الشراء", NameEn: "Purchase request",
+				Perm: BuyPurchaseRequestView.Vendor, Also: []string{BuySmartOrderView.Vendor}},
+			{Key: "followed", Href: "/suppliers/followed", Icon: "heart-filled",
+				NameAr: "الموردون المتابعون", NameEn: "Followed suppliers",
+				Perm: BuySupplierFollow.Vendor},
+			{Key: "suppliers", Href: "/customer/suppliers", Icon: "building",
+				NameAr: "دليل الموردين", NameEn: "Supplier directory",
+				Perm: BuySupplierView.Vendor},
+			{Key: "catalog", Href: "/customer/catalog", Icon: "package",
+				NameAr: "كتالوج الأدوية", NameEn: "Drug catalogue",
+				Perm: BuyCatalogView.Vendor},
+			{Key: "offers", Href: "/customer/offers", Icon: "tag",
+				NameAr: "العروض والخصومات", NameEn: "Offers & discounts",
+				Perm: BuyOfferView.Vendor},
+		},
+	}
+}
+
 func vendorNav() []NavSection {
 	return []NavSection{
 		{
@@ -62,7 +99,7 @@ func vendorNav() []NavSection {
 		{
 			Key: "promo", NameAr: "العروض والتسويق", NameEn: "Offers & Marketing",
 			Items: []NavItem{
-				{Key: "offers", Href: "/vendor/offers", Icon: "tag",
+				{Key: "supply_offers", Href: "/vendor/offers", Icon: "tag",
 					NameAr: "العروض والخصومات", NameEn: "Offers",
 					Perm: "vendor.offer.view"},
 				{Key: "offers_packages", Href: "/vendor/offers-packages", Icon: "package",
@@ -82,9 +119,12 @@ func vendorNav() []NavSection {
 		{
 			Key: "commerce", NameAr: "الطلبات والمالية", NameEn: "Orders & Finance",
 			Items: []NavItem{
-				{Key: "orders", Href: "/vendor/orders", Icon: "truck",
+				{Key: "supply_orders", Href: "/vendor/orders", Icon: "truck",
 					NameAr: "أوامر التوريد والشحنات", NameEn: "Supply orders",
 					Perm: "vendor.order.view"},
+				{Key: "purchase_requests", Href: "/vendor/purchase-requests", Icon: "cart",
+					NameAr: "طلبات الشراء الواردة", NameEn: "Incoming purchase requests",
+					Perm: "vendor.purchase_request.view"},
 				{Key: "invoices", Href: "/invoices", Icon: "file",
 					NameAr: "الفواتير والمستحقات", NameEn: "Invoices",
 					Perm: "vendor.invoice.view"},
@@ -99,6 +139,7 @@ func vendorNav() []NavSection {
 					Perm: "vendor.wallet.view"},
 			},
 		},
+		vendorBuyingNav(),
 		{
 			Key: "tools", NameAr: "الأدوات والتحليلات", NameEn: "Tools & Analytics",
 			Items: []NavItem{
@@ -124,7 +165,7 @@ func vendorNav() []NavSection {
 					Perm: "vendor.policy.view"},
 				{Key: "activities", Href: "/vendor/activities", Icon: "clock",
 					NameAr: "سجل العمليات والنشاط", NameEn: "Activity log",
-					Perm: "vendor.activity.view"},
+					Perm: "vendor.activity.view", Also: []string{"vendor.team.view"}},
 				{Key: "reviews", Href: "/vendor/reviews", Icon: "star",
 					NameAr: "التقييمات", NameEn: "Reviews",
 					Perm: "vendor.review.view"},
@@ -144,10 +185,10 @@ func vendorNav() []NavSection {
 					Perm: "vendor.dashboard.view"},
 				{Key: "sessions", Href: "/vendor/sessions", Icon: "shield",
 					NameAr: "الأجهزة والجلسات النشطة", NameEn: "Active sessions",
-					Perm: "vendor.dashboard.view"},
+					Perm: "vendor.session.view"},
 				{Key: "mfa", Href: "/vendor/mfa", Icon: "lock",
 					NameAr: "المصادقة الثنائية (MFA)", NameEn: "Two-Factor Auth (MFA)",
-					Perm: "vendor.dashboard.view"},
+					Perm: "vendor.session.view"},
 			},
 		},
 	}

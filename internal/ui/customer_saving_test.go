@@ -21,6 +21,10 @@ func TestCustomerPhase7Routes(t *testing.T) {
 
 	r := chi.NewRouter()
 	handler.RegisterCustomerRoutes(r)
+	// The catalogue, the cart and the buyer's own orders moved to the shared
+	// buying surface when suppliers gained the purchasing section; a pharmacy
+	// reaches them through the same registrar a supplier does.
+	handler.RegisterBuyingRoutes(r)
 	handler.RegisterPublicRoutes(r)
 
 	// /customer/cpanel is a 301 to /customer/dashboard: it was a link hub to

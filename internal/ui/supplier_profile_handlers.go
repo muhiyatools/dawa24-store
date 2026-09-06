@@ -43,6 +43,14 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		h.renderError(w, r, fmt.Errorf("%s", i18n.T(lang, "suppliers.vendor_unavailable")))
 		return
 	}
+	// A supplier reaching its own profile through the buying surface is sent
+	// to its own dashboard. The page is a buying screen — follow, message,
+	// review, add to cart — and every one of those is meaningless aimed at
+	// yourself. The company's own view of itself is /vendor/organization.
+	if ownedByBuyer(buyerOrgID(ctx), o.ID) {
+		h.redirectHome(w, r, i18n.T(lang, "err.own_organization_supply"))
+		return
+	}
 
 	branches, _ := h.orgSvc.ListBranches(sysCtx, id)
 	var coverages []*workflow.CoverageView
@@ -77,10 +85,10 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 
 	data.VariantMeta = make(map[int64]pages.SupplierVariantMeta)
 	actor, hasActor := authctx.From(ctx)
-	isCustomer := hasActor && actor.IsCustomer()
+	isBuyer := hasActor && actor.IsBuyer()
 	customerBranchID := int64(0)
-	if isCustomer {
-		customerBranchID = h.pharmacyBranchID(ctx, &actor)
+	if isBuyer {
+		customerBranchID = h.buyingBranchID(ctx, &actor)
 	}
 
 	stockFilter := catalog.StockFilter(r.URL.Query().Get("stock"))
@@ -131,11 +139,11 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 					canAddToCart := (availStock > 0)
 					covReason := ""
 
-					if isCustomer {
+					if isBuyer {
 						if customerBranchID <= 0 {
 							isCovered = false
 							canAddToCart = false
-							covReason = "يرجى تحديد فرع صيدلية للاستلام أولاً للتمكن من الطلب"
+							covReason = i18n.T(lang, "buying.select_branch_first")
 						} else if h.commSvc != nil {
 							res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
 								VariantID:        v.ID,
@@ -221,7 +229,9 @@ func (h *UIHandler) SupplierFollowSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err == nil && h.orgSvc != nil {
+	// Following your own company is not a relationship. The directory and the
+	// profile both refuse it; this refuses the form post that reaches neither.
+	if err == nil && h.orgSvc != nil && !ownedByBuyer(buyerOrgID(ctx), id) {
 		_, _ = h.orgSvc.ToggleFollow(ctx, id, userID)
 	}
 
