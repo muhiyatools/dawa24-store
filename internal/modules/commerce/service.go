@@ -78,6 +78,7 @@ type CheckoutInput struct {
 	VendorBranchID     *int64                 `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
 	UserAddressID      *int64                 `json:"user_address_id,omitempty"`  // delivery address (063)
 	PaymentMethod      string                 `json:"payment_method"`
+	PaymentStatus      PaymentStatus          `json:"payment_status,omitempty"`
 	ShippingFee        money.Amount           `json:"shipping_fee,omitempty"`
 	VendorShippingFees map[int64]money.Amount `json:"vendor_shipping_fees,omitempty"` // distance delivery fee per vendor shipment
 	// VendorBranchIDs is the fulfilling branch per vendor. VendorBranchID above
@@ -323,7 +324,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		TotalAmount:       finalPrice,
 		FinalPrice:        finalPrice,
 		PaymentMethod:     input.PaymentMethod,
-		PaymentStatus:     PaymentUnpaid,
+		PaymentStatus:     func() PaymentStatus { if input.PaymentStatus != "" { return input.PaymentStatus }; return PaymentUnpaid }(),
 		Notes:             input.Notes,
 		IsNegotiation:     input.IsNegotiation,
 		NegotiationStatus: negStatus,

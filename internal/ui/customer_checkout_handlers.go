@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -34,7 +36,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 	userID := actor.UserID
 
 	if h.commSvc == nil {
-		h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(nil, nil, lang, dir))
+		h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(nil, nil, nil, lang, dir))
 		return
 	}
 
@@ -53,7 +55,15 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(cart, branches, lang, dir))
+	var wallet *billing.Wallet
+	if h.billSvc != nil && actor.OrganizationID > 0 {
+		walletUserID, _ := resolveTenantUserIDs(ctx, h, actor)
+		if wItem, err := h.billSvc.GetWallet(ctx, walletUserID, "EGP"); err == nil {
+			wallet = wItem
+		}
+	}
+
+	h.renderPage(ctx, w, "render checkout page", pages.CustomerCheckout(cart, branches, wallet, lang, dir))
 }
 
 func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +190,10 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	paymentMethod := "cod"
+	paymentMethod := strings.TrimSpace(r.PostFormValue("payment_method"))
+	if paymentMethod != "wallet" {
+		paymentMethod = "cod"
+	}
 
 	branchID := h.resolveCheckoutBranch(ctx, actor, r.PostFormValue("branch_id"))
 	var targetBranchID int64
@@ -227,10 +240,27 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var walletUserID int64
+	var goodsAmount money.Amount
+	var payStatus commerce.PaymentStatus = commerce.PaymentUnpaid
+
+	if paymentMethod == "wallet" {
+		goodsAmount = computeCheckoutGoodsAmount(items)
+		var wErr error
+		walletUserID, wErr = h.processWalletPayment(ctx, actor, goodsAmount)
+		if wErr != nil {
+			h.log.WarnContext(ctx, "checkout wallet payment rejected", "error", wErr)
+			h.redirectWithNotice(w, r, "/checkout", "error", h.safeMessage(wErr, langOf(r)))
+			return
+		}
+		payStatus = commerce.PaymentPaid
+	}
+
 	input := commerce.CheckoutInput{
 		CustomerID:    userID,
 		BranchID:      branchID,
 		PaymentMethod: paymentMethod,
+		PaymentStatus: payStatus,
 		Notes:         r.PostFormValue("notes"),
 		Items:         items,
 	}
@@ -314,6 +344,9 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 
 	order, err := h.commSvc.Checkout(ctx, input)
 	if err != nil {
+		if walletUserID > 0 && goodsAmount.IsPositive() && h.billSvc != nil {
+			_, _ = h.billSvc.Deposit(ctx, walletUserID, "EGP", goodsAmount, "refund", nil, "استرداد قيمة مشتريات لتعذر إتمام الطلب")
+		}
 		h.log.ErrorContext(ctx, "checkout failed", "error", err)
 		// Validation failures carry stable codes: surface a specific Arabic
 		// message instead of the generic "بيانات الطلب غير صالحة" envelope
@@ -332,25 +365,4 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.commSvc.ClearCart(ctx, userID)
 	http.Redirect(w, r, "/orders/"+strconv.FormatInt(order.ID, 10), http.StatusSeeOther)
-}
-
-// vendorFulfillingBranch picks the branch a vendor ships from: their main
-// branch, or their first if none is marked main. nil means the vendor has no
-// branches and the order-level branch stands.
-func (h *UIHandler) vendorFulfillingBranch(ctx context.Context, vendorOrgID int64) *int64 {
-	if h.orgSvc == nil || vendorOrgID <= 0 {
-		return nil
-	}
-	branches, err := h.orgSvc.ListBranches(ctx, vendorOrgID)
-	if err != nil || len(branches) == 0 {
-		return nil
-	}
-	for _, b := range branches {
-		if b.IsMain {
-			id := b.ID
-			return &id
-		}
-	}
-	id := branches[0].ID
-	return &id
 }

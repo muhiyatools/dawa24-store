@@ -39,11 +39,17 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 									</div>
 									<div class="stack-2xs min-w-0 flex-1">
 										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="text-inherit no-underline block">
-											<div class="font-black text-primary text-xs transition-colors hover-text-brand leading-snug">
+											<div class="font-black text-primary text-xs transition-colors hover-text-brand leading-snug d-flex items-center gap-1.5 flex-wrap">
 												if v.ProductNameAr != "" {
-													{ v.ProductNameAr }
+													<span>{ v.ProductNameAr }</span>
 												} else {
-													{ v.ProductNameEn }
+													<span>{ v.ProductNameEn }</span>
+												}
+												if v.IsSponsored {
+													<span class="badge badge-amber text-2xs font-extrabold gap-0.5 py-0 px-1.5 shadow-2xs">
+														<span>★</span>
+														<span>إعلان ممول</span>
+													</span>
 												}
 											</div>
 										</a>

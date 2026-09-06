@@ -136,3 +136,25 @@ func (h *UIHandler) resolveCheckoutBranch(ctx context.Context, actor authctx.Act
 
 	return branchID
 }
+
+// vendorFulfillingBranch picks the branch a vendor ships from: their main
+// branch, or their first if none is marked main. nil means the vendor has no
+// branches and the order-level branch stands.
+func (h *UIHandler) vendorFulfillingBranch(ctx context.Context, vendorOrgID int64) *int64 {
+	if h.orgSvc == nil || vendorOrgID <= 0 {
+		return nil
+	}
+	branches, err := h.orgSvc.ListBranches(ctx, vendorOrgID)
+	if err != nil || len(branches) == 0 {
+		return nil
+	}
+	for _, b := range branches {
+		if b.IsMain {
+			id := b.ID
+			return &id
+		}
+	}
+	id := branches[0].ID
+	return &id
+}
+

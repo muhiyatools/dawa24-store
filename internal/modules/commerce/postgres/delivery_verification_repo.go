@@ -23,12 +23,13 @@ func (r *Repository) VerifyAndCompleteDelivery(
 	collectedAmountMinor int64,
 ) (*commerce.OrderShipment, error) {
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. Lock shipment row for update
+		// 1. Lock shipment row for update and read payment method
 		query := `
-			SELECT id, order_id, organization_id, status, delivery_code, delivery_attempts,
-			       delivery_locked_until, total_amount
-			FROM commerce.order_shipments
-			WHERE id = $1
+			SELECT s.id, s.order_id, s.organization_id, s.status, s.delivery_code, s.delivery_attempts,
+			       s.delivery_locked_until, s.total_amount, s.shipping_fee, COALESCE(ord.payment_method, 'cod')
+			FROM commerce.order_shipments s
+			JOIN commerce.orders ord ON ord.id = s.order_id
+			WHERE s.id = $1
 			FOR UPDATE;
 		`
 		var currentStatus string
@@ -36,12 +37,14 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		var attempts int
 		var lockedUntil *time.Time
 		var totalAmount money.Amount
+		var shippingFee money.Amount
+		var paymentMethod string
 		var orderID int64
 		var orgID int64
 
 		err := tx.QueryRow(txCtx, query, shipmentID).Scan(
 			&shipmentID, &orderID, &orgID, &currentStatus, &actualCode,
-			&attempts, &lockedUntil, &totalAmount,
+			&attempts, &lockedUntil, &totalAmount, &shippingFee, &paymentMethod,
 		)
 		if err != nil {
 			if err == pgx.ErrNoRows {
@@ -93,8 +96,15 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		}
 
 		// 5. Success: update shipment to delivered
+		// If paid with organization wallet, courier only collects the delivery fee (if any).
 		if collectedAmountMinor <= 0 {
-			collectedAmountMinor = totalAmount.Minor()
+			if paymentMethod == "wallet" {
+				collectedAmountMinor = shippingFee.Minor()
+			} else if paymentMethod == "cod" {
+				collectedAmountMinor = totalAmount.Minor()
+			} else {
+				collectedAmountMinor = 0
+			}
 		}
 
 		updateQuery := `

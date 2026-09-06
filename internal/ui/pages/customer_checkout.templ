@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -10,7 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir string) {
+templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *billing.Wallet, lang, dir string) {
 	@layouts.CustomerShell("إتمام أمر الشراء والتوريد | B2B Checkout", "checkout", lang, dir, nil) {
 		<div class="page-container max-w-6xl">
 			
@@ -167,9 +168,54 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, lang, dir st
 								</div>
 
 								<div class="d-flex flex-col gap-3">
-									<!-- Only Cash on Delivery -->
-									<label class="checkout-branch-item border-brand bg-surface-sunken">
-										<input type="radio" name="payment_method" value="cod" checked class="form-radio mt-1" />
+									<!-- Organization Wallet Payment -->
+									if wallet != nil {
+										{{ hasFunds := cart == nil || wallet.Balance.Minor() >= CartTotal(cart).Minor() }}
+										<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", hasFunds), templ.KV("opacity-75 bg-surface-raised cursor-not-allowed", !hasFunds) }>
+											<input
+												type="radio"
+												name="payment_method"
+												value="wallet"
+												checked={ hasFunds }
+												disabled={ !hasFunds }
+												class="form-radio mt-1 text-brand"
+											/>
+											<div class="flex-1">
+												<div class="flex-between mb-1 flex-wrap gap-2">
+													<div class="d-flex items-center gap-2">
+														@components.IconWallet("icon-xs text-brand")
+														<div class="font-extrabold text-base text-primary">
+															المحفظة المؤسسية (رصيد متاح: { wallet.Balance.String() } ج.م)
+														</div>
+													</div>
+													if hasFunds {
+														<span class="badge badge-emerald text-xs font-bold">رصيد كافٍ للسداد الفوري</span>
+													} else {
+														<span class="badge badge-amber text-xs font-bold">رصيد غير كافٍ</span>
+													}
+												</div>
+												<div class="text-xs text-secondary leading-relaxed">
+													يتم خصم قيمة الأدوية فوراً ومباشرة من المحفظة المؤسسية. عند استلام الشحنة، لا يُحصّل مندوب التوصيل سوى مصاريف الشحن والتوصيل فقط إن وُجدت.
+												</div>
+												if !hasFunds {
+													<div class="mt-2 text-2xs text-danger font-bold d-flex items-center gap-1">
+														<span>⚠️ الرصيد الحالي بالمحفظة لا يغطي إجمالي الأصناف.</span>
+														<a href="/customer/wallet" target="_blank" class="text-brand underline font-extrabold">شحن المحفظة المؤسسية ↗</a>
+													</div>
+												}
+											</div>
+										</label>
+									}
+
+									<!-- Cash on Delivery (COD) -->
+									<label class={ "checkout-branch-item", templ.KV("border-brand bg-surface-sunken", wallet == nil || (cart != nil && wallet.Balance.Minor() < CartTotal(cart).Minor())) }>
+										<input
+											type="radio"
+											name="payment_method"
+											value="cod"
+											checked={ wallet == nil || (cart != nil && wallet.Balance.Minor() < CartTotal(cart).Minor()) }
+											class="form-radio mt-1"
+										/>
 										<div class="flex-1">
 											<div class="flex-between mb-1 flex-wrap gap-2">
 												<div class="font-extrabold text-base text-primary">

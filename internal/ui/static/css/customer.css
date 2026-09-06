@@ -1090,49 +1090,61 @@
 
 .product-card-glass.is-sponsored {
   border-color: #f59e0b;
-  box-shadow: 0 2px 14px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4), 0 4px 20px rgba(245, 158, 11, 0.15);
   position: relative;
-  margin-top: 1.25rem;
-  overflow: visible;
 }
 
 .product-card-glass.is-sponsored:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: #d97706;
-  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.5), 0 8px 25px rgba(245, 158, 11, 0.25);
 }
 
 .product-card-sponsored-bar {
-  position: absolute;
-  top: -24px;
-  inset-inline-start: 14px;
-  height: 24px;
-  background: #f59e0b;
-  color: #1e293b;
-  padding: 0 12px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.72rem;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.02em;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid rgba(245, 158, 11, 0.85);
-  border-bottom: none;
-  box-shadow: 0 -2px 6px rgba(245, 158, 11, 0.2);
-  z-index: 3;
+  border-top-left-radius: calc(var(--radius-2xl) - 1px);
+  border-top-right-radius: calc(var(--radius-2xl) - 1px);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  z-index: 2;
 }
 
 .product-card-sponsored-bar .sponsored-star {
-  color: #78350f;
-  font-size: 0.75rem;
+  color: #fef3c7;
+  font-size: 0.85rem;
   line-height: 1;
 }
 
 .product-card-sponsored-bar .sponsored-title {
-  color: #1e293b;
-  font-weight: 900;
-  font-size: 0.72rem;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.product-detail-sponsored-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  border-radius: var(--radius-xl);
+  color: #b45309;
+}
+
+.product-detail-sponsored-banner .sponsored-star {
+  color: #f59e0b;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .product-card-body {

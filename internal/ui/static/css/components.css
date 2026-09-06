@@ -7892,6 +7892,14 @@ form.filter-bar { margin: 0; }
   text-align: center;
 }
 
+.courier-cash-alert-wallet {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(79, 70, 229, 0.04));
+  border: 1.5px solid rgba(99, 102, 241, 0.35);
+  border-radius: var(--radius-xl, 1rem);
+  padding: 1rem;
+  text-align: center;
+}
+
 .courier-item-row {
   padding: 0.625rem 0.75rem;
   border-radius: var(--radius-md, 0.5rem);
