@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // ImportProgressStream is the live half of /imports/{id}/progress.
@@ -52,10 +53,18 @@ func (h *UIHandler) ImportProgressStream(w http.ResponseWriter, r *http.Request)
 		} else {
 			run, err = h.importRunRepo.GetRunByPublicID(ctx, publicID, orgID)
 		}
-		if err != nil || run == nil {
-			return progress.Snapshot{}, false
+		if err == nil && run != nil {
+			return snapshotOfRun(run, lang), true
 		}
-		return snapshotOfRun(run, lang), true
+		if sess, ok := globalSavingImportSessionStore.GetSession(publicID, orgID); ok {
+			return snapshotOfSavingSession(sess), true
+		}
+		if isAdmin {
+			if sess, ok := globalSavingImportSessionStore.GetSessionForAdmin(publicID); ok {
+				return snapshotOfSavingSession(sess), true
+			}
+		}
+		return progress.Snapshot{}, false
 	}
 
 	progress.Stream(w, r, h.progressHub, publicID, fetch)
@@ -81,6 +90,31 @@ func snapshotOfRun(run *importrun.Run, lang string) progress.Snapshot {
 		s.Percent = 100
 	}
 	return s
+}
+
+// snapshotOfSavingSession converts an in-memory saving session into a progress snapshot.
+func snapshotOfSavingSession(sess *pages.SavingImportSession) progress.Snapshot {
+	isReady := sess.Status == pages.SessionStateReady
+	isDone := isReady || sess.Status == pages.SessionStateCommitted || sess.Status == pages.SessionStateFailed
+	state := string(sess.Status)
+	if isReady {
+		state = "ready"
+	}
+	pct := sess.Progress
+	if isDone && sess.Status != pages.SessionStateFailed {
+		pct = 100
+	}
+	return progress.Snapshot{
+		ID:      sess.ID,
+		Percent: pct,
+		Message: sess.ProgressPhase,
+		Current: sess.ProcessedRows,
+		Total:   sess.TotalRows,
+		State:   state,
+		Done:    isDone,
+		Error:   sess.ErrorMessage,
+		At:      sess.CreatedAt,
+	}
 }
 
 // importPhaseLabel resolves a user-facing label for a run's state and phase.

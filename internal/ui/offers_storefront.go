@@ -100,16 +100,22 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		discountAmt := money.Zero
 		var discountBPS int64 = 0
 
-		if v.Discount.IsPositive() && v.Price.IsPositive() {
+		discPct := 0.0
+		if v.Discount.IsPositive() {
+			discPct = float64(v.Discount.Minor()) / 100.0
+		} else if v.CostDiscountPercentage > 0 && v.CostDiscountPercentage < 100 {
+			discPct = v.CostDiscountPercentage
+		}
+
+		if discPct > 0 && discPct < 100 && v.Price.IsPositive() {
 			oldPrice = v.Price
-			// In catalog schema, v.Discount stores the discount percentage (e.g. 15.00 for 15%).
-			discPct := float64(v.Discount.Minor()) / 100.0
-			if discPct > 0 && discPct < 100 {
-				discountBPS = int64(discPct * 100.0)
-				discMinor := int64(float64(v.Price.Minor()) * (discPct / 100.0))
-				discountAmt = money.FromMinor(discMinor)
-				price = money.FromMinor(v.Price.Minor() - discMinor)
+			if product != nil && product.Price.IsPositive() && product.Price.Minor() > oldPrice.Minor() {
+				oldPrice = product.Price
 			}
+			discountBPS = int64(discPct * 100.0)
+			discMinor := int64(float64(oldPrice.Minor()) * (discPct / 100.0))
+			discountAmt = money.FromMinor(discMinor)
+			price = money.FromMinor(oldPrice.Minor() - discMinor)
 		} else if product != nil && product.Price.IsPositive() && v.Price.IsPositive() && product.Price.Minor() > v.Price.Minor() {
 			oldPrice = product.Price
 			price = v.Price
@@ -246,14 +252,31 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		listPrice := product.EffectivePrice()
 		price, bd := promo.EffectivePrice(listPrice, row.Product, row.Offer)
 
-		if idx, found := seenSuppliers[row.Offer.OrganizationID]; found {
-			// Apply promo discount to existing supplier offer
-			offers[idx].OfferID = row.Offer.ID
-			offers[idx].Price = price
-			offers[idx].OldPrice = bd.ListPrice
-			offers[idx].DiscountAmount = bd.DiscountAmount
-			offers[idx].DiscountBPS = bd.DiscountBPS
-		} else {
+		matchedExisting := false
+		for i := range offers {
+			if offers[i].SupplierID != row.Offer.OrganizationID {
+				continue
+			}
+			if row.Product.VariantID != nil && *row.Product.VariantID > 0 && *row.Product.VariantID != offers[i].VariantID {
+				continue
+			}
+			matchedExisting = true
+
+			hasExistingDiscount := offers[i].DiscountBPS > 0 || offers[i].DiscountAmount.IsPositive()
+			isPromoDiscounted := bd.DiscountBPS > 0 || bd.DiscountAmount.IsPositive()
+			isPromoBetter := bd.DiscountBPS > offers[i].DiscountBPS ||
+				(price.IsPositive() && offers[i].Price.IsPositive() && price.Minor() < offers[i].Price.Minor())
+
+			if !hasExistingDiscount || (isPromoDiscounted && isPromoBetter) {
+				offers[i].OfferID = row.Offer.ID
+				offers[i].Price = price
+				offers[i].OldPrice = bd.ListPrice
+				offers[i].DiscountAmount = bd.DiscountAmount
+				offers[i].DiscountBPS = bd.DiscountBPS
+			}
+		}
+
+		if !matchedExisting {
 			orgn := env.org(row.Offer.OrganizationID)
 			sName := orgName(orgn)
 			if sName == "" {

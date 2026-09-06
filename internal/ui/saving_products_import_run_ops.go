@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/importjobs"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
+	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -70,7 +72,9 @@ func (h *UIHandler) startSavingImportRun(
 			ProcessedRows:  0,
 			Payload:        payloadBytes,
 		}
-		if err := h.importRunRepo.CreateRun(ctx, run); err == nil {
+		if err := h.importRunRepo.CreateRun(ctx, run); err != nil {
+			h.log.WarnContext(ctx, "failed to create durable import run for saving products", "error", err)
+		} else {
 			runID = run.ID
 			publicID = run.PublicID
 		}
@@ -86,12 +90,29 @@ func (h *UIHandler) startSavingImportRun(
 	// Launch async background processing.
 	go func(runID int64, sessID string, orgID, userID int64, rows [][]string, nC, sC, qC, pC, pidC int, ch MatchChoice, aiOn bool, l string) {
 		bgCtx := context.Background()
+		total := len(rows)
+
+		publishProgress := func(pct int, msg string, cur int) {
+			globalSavingImportSessionStore.UpdateProgress(sessID, pct, msg, cur)
+			if h.importRunRepo != nil && runID > 0 {
+				_ = h.importRunRepo.UpdateProgress(bgCtx, runID, msg, pct, cur)
+			}
+			if h.progressHub != nil {
+				h.progressHub.Publish(progress.Snapshot{
+					ID:      sessID,
+					Percent: pct,
+					Message: msg,
+					Current: cur,
+					Total:   total,
+					State:   "processing",
+					Done:    false,
+					At:      time.Now(),
+				})
+			}
+		}
 
 		phaseLoading := i18n.T(l, "customer.saving.import.progress_loading_catalog")
-		globalSavingImportSessionStore.UpdateProgress(sessID, 15, phaseLoading, 0)
-		if h.importRunRepo != nil && runID > 0 {
-			_ = h.importRunRepo.UpdateProgress(bgCtx, runID, phaseLoading, 15, 0)
-		}
+		publishProgress(15, phaseLoading, 0)
 
 		var matchEngine *SavingProductMatchEngine
 		if h.catSvc != nil {
@@ -100,7 +121,6 @@ func (h *UIHandler) startSavingImportRun(
 			}
 		}
 
-		total := len(rows)
 		stagedItems := make([]*StagedSavingItem, 0, total)
 		var dbRows []importrun.Row
 		matchedCount := 0
@@ -109,10 +129,7 @@ func (h *UIHandler) startSavingImportRun(
 		var totalValMinor int64
 
 		phaseMatching := i18n.T(l, "customer.saving.import.progress_matching")
-		globalSavingImportSessionStore.UpdateProgress(sessID, 30, phaseMatching, 0)
-		if h.importRunRepo != nil && runID > 0 {
-			_ = h.importRunRepo.UpdateProgress(bgCtx, runID, phaseMatching, 30, 0)
-		}
+		publishProgress(30, phaseMatching, 0)
 
 		for i, row := range rows {
 			if len(row) == 0 || IsAllEmptyRow(row) || IsSummaryOrTotalRow(row) {
@@ -216,10 +233,7 @@ func (h *UIHandler) startSavingImportRun(
 					pct = 98
 				}
 				pMsg := fmt.Sprintf(i18n.T(l, "customer.saving.import.progress_processed"), i+1, total)
-				globalSavingImportSessionStore.UpdateProgress(sessID, pct, pMsg, i+1)
-				if h.importRunRepo != nil && runID > 0 {
-					_ = h.importRunRepo.UpdateProgress(bgCtx, runID, pMsg, pct, i+1)
-				}
+				publishProgress(pct, pMsg, i+1)
 			}
 		}
 
@@ -249,6 +263,19 @@ func (h *UIHandler) startSavingImportRun(
 			_ = h.importRunRepo.SetResult(bgCtx, runID, resBytes)
 			_ = h.importRunRepo.UpdateProgress(bgCtx, runID, "اكتملت المعالجة", 100, total)
 			_ = h.importRunRepo.TransitionState(bgCtx, runID, importrun.StateReady)
+		}
+
+		if h.progressHub != nil {
+			h.progressHub.Publish(progress.Snapshot{
+				ID:      sessID,
+				Percent: 100,
+				Message: i18n.T(l, "ops.saving.processing_complete"),
+				Current: total,
+				Total:   total,
+				State:   "ready",
+				Done:    true,
+				At:      time.Now(),
+			})
 		}
 	}(runID, publicID, actor.OrganizationID, actor.UserID, dataRows, nCol, sCol, qCol, pCol, pidCol, choice, useAI, lang)
 

@@ -1,13 +1,12 @@
 package ui
 
 import (
-	"crypto/rand"
-	"encoding/hex"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"sort"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -61,9 +60,7 @@ func (s *SavingImportSessionStore) NewSession(orgID, userID int64, filename stri
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	id := hex.EncodeToString(b)
+	id := uuid.NewString()
 
 	session := &SavingImportSession{
 		Success:       true,

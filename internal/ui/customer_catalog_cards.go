@@ -98,6 +98,9 @@ func (h *UIHandler) buildCatalogVariantCards(
 				}
 
 				discPct := int(off.DiscountBPS / 100)
+				if discPct <= 0 && off.OldPrice.IsPositive() && off.Price.IsPositive() && off.OldPrice.Minor() > off.Price.Minor() {
+					discPct = int((off.OldPrice.Minor() - off.Price.Minor()) * 100 / off.OldPrice.Minor())
+				}
 
 				variantCards = append(variantCards, &pages.SupplierVariantCard{
 					VariantID:       off.VariantID,

@@ -85,27 +85,34 @@
 	/** update applies a server snapshot. */
 	ImportProgress.prototype.update = function (snapshot) {
 		if (!snapshot) return;
-		if (typeof snapshot.percent === 'number' && snapshot.percent >= 0) {
+		var pct = typeof snapshot.percent === 'number' ? snapshot.percent : snapshot.progress;
+		if (typeof pct === 'number' && pct >= 0) {
 			// Never rewind. A lower number from the server is a recomputation,
 			// not a regression in the work.
-			this.target = Math.max(this.target, snapshot.percent);
+			this.target = Math.max(this.target, pct);
 			this.shown = Math.max(this.shown, Math.min(this.shown, this.target));
 			this.lastServerAt = Date.now();
 		}
-		if (this.labelEl && snapshot.message) {
-			this.labelEl.textContent = snapshot.message;
+		var msg = snapshot.message || snapshot.phase || snapshot.progress_phase;
+		if (this.labelEl && msg) {
+			this.labelEl.textContent = msg;
 		}
+		var tot = snapshot.total != null ? snapshot.total : snapshot.total_rows;
+		var cur = snapshot.current != null ? snapshot.current : snapshot.processed_rows;
 		if (this.countEl) {
-			if (snapshot.total > 0) {
+			if (tot > 0) {
 				this.countEl.textContent =
-					Number(snapshot.current || 0).toLocaleString('en-US') +
+					Number(cur || 0).toLocaleString('en-US') +
 					' / ' +
-					Number(snapshot.total).toLocaleString('en-US');
+					Number(tot).toLocaleString('en-US');
 			} else {
 				this.countEl.textContent = '';
 			}
 		}
-		if (snapshot.done) {
+		var isDone = snapshot.done || snapshot.is_ready ||
+			snapshot.state === 'ready' || snapshot.state === 'committed' ||
+			snapshot.status === 'ready' || snapshot.status === 'committed';
+		if (isDone) {
 			this.finish();
 			return;
 		}

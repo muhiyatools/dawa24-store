@@ -9,6 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // ImportProgressJSON serves the unified progress snapshot for any import run.
@@ -69,14 +70,12 @@ func (h *UIHandler) ImportProgressJSON(w http.ResponseWriter, r *http.Request) {
 
 	// 2. Transitional fallback: in-memory saving products session store.
 	if sess, ok := globalSavingImportSessionStore.GetSession(publicID, actor.OrganizationID); ok {
-		sess.Success = true
-		_ = json.NewEncoder(w).Encode(sess)
+		respondWithSavingSessionProgress(w, sess)
 		return
 	}
 	if actor.IsPlatformAdmin() {
 		if sess, ok := globalSavingImportSessionStore.GetSessionForAdmin(publicID); ok {
-			sess.Success = true
-			_ = json.NewEncoder(w).Encode(sess)
+			respondWithSavingSessionProgress(w, sess)
 			return
 		}
 	}
@@ -137,5 +136,54 @@ func (h *UIHandler) respondWithRunProgress(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func respondWithSavingSessionProgress(w http.ResponseWriter, sess *pages.SavingImportSession) {
+	if sess == nil {
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "session not found"})
+		return
+	}
+
+	isReady := sess.Status == pages.SessionStateReady
+	isDone := isReady || sess.Status == pages.SessionStateCommitted || sess.Status == pages.SessionStateFailed
+	state := string(sess.Status)
+	if isReady {
+		state = "ready"
+	}
+	pct := sess.Progress
+	if isDone && sess.Status != pages.SessionStateFailed {
+		pct = 100
+	}
+
+	resp := map[string]any{
+		"id":             sess.ID,
+		"public_id":      sess.ID,
+		"session_id":     sess.ID,
+		"success":        sess.Status != pages.SessionStateFailed,
+		"state":          state,
+		"status":         string(sess.Status),
+		"phase":          sess.ProgressPhase,
+		"progress_phase": sess.ProgressPhase,
+		"percent":        pct,
+		"progress":       pct,
+		"processed_rows": sess.ProcessedRows,
+		"current":        sess.ProcessedRows,
+		"total_rows":     sess.TotalRows,
+		"total":          sess.TotalRows,
+		"message":        sess.ProgressPhase,
+		"error_message":  sess.ErrorMessage,
+		"error":          sess.ErrorMessage,
+		"done":           isDone,
+		"is_ready":       isReady,
+		"matched_rows":   sess.MatchedRows,
+		"unlinked_rows":  sess.UnlinkedRows,
+		"total_quantity": sess.TotalQuantity,
+		"total_value":    sess.TotalValue.String(),
+	}
+	if isReady || sess.Status == pages.SessionStateCommitted {
+		resp["items"] = sess.Items
+	}
 	_ = json.NewEncoder(w).Encode(resp)
 }
