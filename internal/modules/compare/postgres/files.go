@@ -101,7 +101,10 @@ func (r *Repository) ListFiles(ctx context.Context, userID int64, orgID *int64, 
 			FROM compare.files
 			WHERE deleted_at IS NULL
 			  AND is_temp_warehouse = FALSE
-			  AND ($1::text IS NULL OR status = $1)
+			  AND (
+			      ($1::text IS NULL AND status != 'archived')
+			      OR ($1::text IS NOT NULL AND status = $1)
+			  )
 			  AND (
 			      user_id = $3
 			      OR ($2::bigint IS NOT NULL AND organization_id = $2)
@@ -264,6 +267,45 @@ func (r *Repository) ArchiveOldestFiles(ctx context.Context, userID int64, orgID
 			RETURNING ta.supplier_name;
 		`
 		rows, err := tx.Query(txCtx, query, orgID, userID, keepCount, reason)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var name string
+			if err := rows.Scan(&name); err != nil {
+				return err
+			}
+			archivedNames = append(archivedNames, name)
+		}
+		return rows.Err()
+	})
+	return archivedNames, err
+}
+
+// ArchiveActiveFiles soft-archives all currently active compare files for a user/organization.
+// This replaces previous comparisons on bulk upload, while keeping historical records
+// fully preserved in the database for Super Admin and review.
+func (r *Repository) ArchiveActiveFiles(ctx context.Context, userID int64, orgID *int64, reason string) ([]string, error) {
+	var archivedNames []string
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE compare.files
+			SET status = 'archived',
+			    archived_at = now(),
+			    archive_reason = $3,
+			    updated_at = now()
+			WHERE deleted_at IS NULL
+			  AND status != 'archived'
+			  AND is_temp_warehouse = FALSE
+			  AND (
+			      user_id = $2
+			      OR ($1::bigint IS NOT NULL AND organization_id = $1)
+			  )
+			RETURNING supplier_name;
+		`
+		rows, err := tx.Query(txCtx, query, orgID, userID, reason)
 		if err != nil {
 			return err
 		}

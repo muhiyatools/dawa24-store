@@ -17,9 +17,8 @@ const uploaderLabelExpr = `COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.first_name, u.l
 	`u.name->>'ar', u.name->>'en', u.email::text, '#' || f.user_id)`
 
 // adminTempWarehouseScope is the base predicate shared by the Super Admin and
-// "my uploads" listings: a temporary warehouse is a moderator upload
-// (is_temp_warehouse) or any vendor compare-tool upload (organization_id set).
-const adminTempWarehouseScope = `f.deleted_at IS NULL AND (f.is_temp_warehouse = TRUE OR f.organization_id IS NOT NULL)`
+// "my uploads" listings: includes all active and archived files across the platform.
+const adminTempWarehouseScope = `f.deleted_at IS NULL`
 
 // fileColumnsF is fileColumns qualified with the "f" alias, for queries that
 // JOIN identity.users / org.organizations where bare column names are ambiguous.
@@ -67,9 +66,9 @@ func buildAdminTempWarehouseWhere(filter compare.AdminTempWarehouseFilter) ([]st
 	}
 	switch filter.Source {
 	case "moderator":
-		where = append(where, "f.is_temp_warehouse = TRUE AND f.organization_id IS NULL")
+		where = append(where, "f.is_temp_warehouse = TRUE")
 	case "vendor":
-		where = append(where, "f.organization_id IS NOT NULL")
+		where = append(where, "(f.organization_id IS NOT NULL OR f.is_temp_warehouse = FALSE)")
 	}
 	return where, args
 }
@@ -195,7 +194,7 @@ func (r *Repository) AdminTempWarehouseStats(ctx context.Context, filter compare
 
 	sql := fmt.Sprintf(`
 		SELECT COALESCE(SUM(f.row_count), 0)::bigint,
-		       COUNT(*) FILTER (WHERE f.status = 'ready'),
+		       COUNT(*) FILTER (WHERE f.status != 'archived'),
 		       COUNT(*) FILTER (WHERE f.status = 'archived')
 		FROM compare.files f
 		WHERE %s;`, whereClause)
