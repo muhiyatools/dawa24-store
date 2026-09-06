@@ -3,7 +3,6 @@ package ui
 import (
 	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -155,11 +154,9 @@ func shuffleAds(ads []*promo.Ad) []*promo.Ad {
 	if len(ads) < 2 {
 		return ads
 	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := len(ads) - 1; i > 0; i-- {
-		j := r.Intn(i + 1)
+	rand.Shuffle(len(ads), func(i, j int) {
 		ads[i], ads[j] = ads[j], ads[i]
-	}
+	})
 	return ads
 }
 

@@ -205,11 +205,17 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		for rows.Next() {
 			var up, da money.Amount
 			var qty int
-			if err := rows.Scan(&up, &qty, &da); err == nil {
-				lineSub, _ := up.MulInt(int64(qty))
-				newSubtotal, _ = newSubtotal.Add(lineSub)
-				newTotalDiscount, _ = newTotalDiscount.Add(da)
+			if err := rows.Scan(&up, &qty, &da); err != nil {
+				rows.Close()
+				return fmt.Errorf("scan order line pricing: %w", err)
 			}
+			lineSub, _ := up.MulInt(int64(qty))
+			newSubtotal, _ = newSubtotal.Add(lineSub)
+			newTotalDiscount, _ = newTotalDiscount.Add(da)
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return fmt.Errorf("iterate order lines: %w", err)
 		}
 		rows.Close()
 

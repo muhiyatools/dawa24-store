@@ -287,9 +287,13 @@ func (r *Repository) SetBatchQuantity(ctx context.Context, importID int64, quant
 		var items []rowPayloadItem
 		for rows.Next() {
 			var it rowPayloadItem
-			if err := rows.Scan(&it.id, &it.payload); err == nil {
-				items = append(items, it)
+			if err := rows.Scan(&it.id, &it.payload); err != nil {
+				return err
 			}
+			items = append(items, it)
+		}
+		if err := rows.Err(); err != nil {
+			return err
 		}
 		rows.Close()
 

@@ -2,14 +2,19 @@ package ui
 
 import (
 	"context"
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -425,4 +430,140 @@ func derefFloat(v *float64) float64 {
 		return 0
 	}
 	return *v
+}
+
+// smartOrderAIState checks whether the AI toggle can honestly be offered.
+func (h *UIHandler) smartOrderAIState(ctx context.Context, orgID int64, langOptional ...string) (bool, string) {
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
+	}
+	if h.aiClient == nil {
+		return false, i18n.T(lang, "smartorder.ai_not_enabled")
+	}
+	if !h.aiClient.Enabled() {
+		return false, i18n.T(lang, "smartorder.ai_gateway_down")
+	}
+	if h.orgSvc == nil || orgID <= 0 {
+		return false, i18n.T(lang, "smartorder.ai_org_members_only")
+	}
+
+	org, err := h.orgSvc.GetOrganization(ctx, orgID)
+	if err != nil || org == nil {
+		return false, i18n.T(lang, "smartorder.ai_subscription_check_failed")
+	}
+	if org.AIVirtualKey == "" {
+		return false, i18n.T(lang, "smartorder.ai_key_missing")
+	}
+
+	return true, ""
+}
+
+// SmartOrderProgressJSON is the poll behind the progress ring.
+func (h *UIHandler) SmartOrderProgressJSON(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	run, ok := h.smartOrderRun(w, r)
+	if !ok {
+		return
+	}
+
+	events, _ := h.smartOrderSvc.Events(ctx, run.ID, 0)
+	percent := smartorder.RunPercent(events)
+	caption := i18n.T(lang, "smartorder.staging_caption")
+	if stage := smartorder.CurrentStage(events); stage != "" {
+		caption = stage.Label()
+	}
+
+	done := false
+	switch run.Status {
+	case smartorder.StatusCompleted, smartorder.StatusStale,
+		smartorder.StatusPlaced, smartorder.StatusFailed:
+		done = true
+		percent = importprogress.Complete
+	default:
+		if percent >= importprogress.Complete {
+			percent = importprogress.Complete - 1
+		}
+		if percent <= 0 {
+			percent = 2
+		}
+	}
+
+	payload := map[string]any{
+		"percent": percent,
+		"message": caption,
+		"status":  run.Status,
+		"done":    done,
+		"failed":  run.Status == smartorder.StatusFailed,
+		"error":   run.FailureReason,
+	}
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		h.log.WarnContext(ctx, "smart order progress encode failed", "error", err)
+	}
+}
+
+// utf8BOM makes Excel open a UTF-8 CSV as Arabic rather than as mojibake.
+const utf8BOM = "\xEF\xBB\xBF"
+
+// SmartOrderExportCSV streams the whole run as a spreadsheet.
+func (h *UIHandler) SmartOrderExportCSV(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	run, ok := h.smartOrderRun(w, r)
+	if !ok {
+		return
+	}
+
+	lines, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{All: true})
+	if err != nil {
+		h.log.ErrorContext(ctx, "export smart order results", "run_id", run.ID, "error", err)
+		http.Error(w, i18n.T(lang, "smartorder.export_error"), http.StatusInternalServerError)
+		return
+	}
+
+	filename := fmt.Sprintf("smart-order-%s-%s.csv", run.PublicID, time.Now().Format("20060102"))
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+	_, _ = w.Write([]byte(utf8BOM))
+
+	out := csv.NewWriter(w)
+	defer out.Flush()
+
+	if lang == "en" {
+		_ = out.Write([]string{
+			"Row #", "Raw Name", "SKU", "Barcode",
+			"Matched Product ID", "Matched Product Name",
+			"Match Method", "Confidence", "Quantity", "Status", "Reason",
+		})
+	} else {
+		_ = out.Write([]string{
+			i18n.T("ar", "smartorder.export.row_num"), i18n.T("ar", "smartorder.export.raw_name"), i18n.T("ar", "smartorder.export.code"), i18n.T("ar", "smartorder.export.barcode"),
+			i18n.T("ar", "smartorder.export.matched_id"), i18n.T("ar", "smartorder.export.matched_name"),
+			i18n.T("ar", "smartorder.export.method"), i18n.T("ar", "smartorder.export.confidence"), i18n.T("ar", "smartorder.export.quantity"), i18n.T("ar", "smartorder.export.status"), i18n.T("ar", "smartorder.export.reason"),
+		})
+	}
+
+	for _, l := range lines {
+		matchedID, matchedName := "", ""
+		if l.Matched() {
+			matchedID = strconv.FormatInt(*l.MatchedProductID, 10)
+			matchedName = l.MatchedProductName
+		}
+		_ = out.Write([]string{
+			strconv.Itoa(l.RowNumber),
+			l.RawName,
+			l.RawSKU,
+			l.RawBarcode,
+			matchedID,
+			matchedName,
+			pages.MatchMethodLabel(l.MatchMethod),
+			fmt.Sprintf("%.0f%%", l.MatchConfidence*100),
+			strconv.FormatFloat(l.EffectiveQty, 'f', -1, 64),
+			pages.SmartOrderOutcomeLabel(l.Outcome),
+			l.OutcomeReason,
+		})
+	}
 }

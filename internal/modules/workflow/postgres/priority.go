@@ -55,7 +55,7 @@ func (r *Repository) ListPriorityRequestsByUser(ctx context.Context, userID int6
 			_ = json.Unmarshal(recomJSON, &req.Recommendations)
 			list = append(list, &req)
 		}
-		return nil
+		return rows.Err()
 	})
 
 	if err != nil {
@@ -147,7 +147,7 @@ func (r *Repository) GetCandidateProducts(ctx context.Context, userID int64, aut
 			cp.EstimatedDelivery = 1 // default 1 day
 			candidates = append(candidates, cp)
 		}
-		return nil
+		return rows.Err()
 	})
 
 	if err != nil {

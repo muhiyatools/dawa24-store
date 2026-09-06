@@ -483,3 +483,128 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", order.ID), "success", i18n.T(langOf(r), "customer.order.negotiate_success"))
 }
 
+// enrichOrderPricing populates retail list prices, discount percentages, and offer links
+// for display on order detail views when historical snapshots were omitted.
+func (h *UIHandler) enrichOrderPricing(ctx context.Context, order *commerce.Order) {
+	if order == nil {
+		return
+	}
+	var allLines []*commerce.OrderLine
+	allLines = append(allLines, order.Lines...)
+	for _, sh := range order.Shipments {
+		if sh != nil {
+			allLines = append(allLines, sh.Lines...)
+		}
+	}
+
+	for _, l := range allLines {
+		if l == nil {
+			continue
+		}
+
+		// 1. Resolve offer link if missing
+		if l.OfferProductID == nil || *l.OfferProductID <= 0 {
+			if order.OfferID > 0 {
+				l.OfferProductID = &order.OfferID
+			} else if strings.Contains(l.ProductName.Get("ar"), "عرض") || strings.Contains(l.ProductName.Get("en"), "Offer") {
+				if h.promoSvc != nil {
+					if offList, err := h.promoSvc.ListActiveOffers(ctx, 50, 0); err == nil {
+						for _, off := range offList {
+							if off.Title.Get("ar") == l.ProductName.Get("ar") || off.Title.Get("en") == l.ProductName.Get("en") {
+								offID := off.ID
+								l.OfferProductID = &offID
+								if off.DiscountValue.IsPositive() && l.CostDiscountPercentage <= 0 {
+									l.CostDiscountPercentage = float64(off.DiscountValue.Minor()) / 100.0
+								}
+								break
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// 2. Resolve variant & public retail price if list price missing
+		if (l.ListPrice.IsZero() || l.ListPrice.Minor() <= l.UnitPrice.Minor()) && l.ProductID != nil && *l.ProductID > 0 && h.catSvc != nil {
+			if prod, variants, err := h.catSvc.GetProduct(ctx, *l.ProductID); err == nil && prod != nil {
+				var targetListPrice money.Amount
+				if prod.Price.IsPositive() {
+					targetListPrice = prod.Price
+				}
+				if l.ProductVariantID != nil && *l.ProductVariantID > 0 {
+					for _, v := range variants {
+						if v != nil && v.ID == *l.ProductVariantID {
+							if v.Price.IsPositive() {
+								targetListPrice = v.Price
+							}
+							if v.CostDiscountPercentage > 0 && l.CostDiscountPercentage <= 0 {
+								l.CostDiscountPercentage = v.CostDiscountPercentage
+							}
+							break
+						}
+					}
+				}
+				if targetListPrice.IsPositive() {
+					l.ListPrice = targetListPrice
+					if l.OriginalPrice.IsZero() {
+						l.OriginalPrice = targetListPrice
+					}
+					if targetListPrice.Minor() > l.UnitPrice.Minor() {
+						diff := targetListPrice.Minor() - l.UnitPrice.Minor()
+						if l.CostDiscountPercentage <= 0 {
+							l.CostDiscountPercentage = (float64(diff) / float64(targetListPrice.Minor())) * 100.0
+						}
+						if l.DiscountAmount.IsZero() {
+							l.DiscountAmount = money.FromMinor(diff * int64(l.Quantity))
+						}
+					}
+				}
+			}
+		}
+
+		// 3. Fallback: derive cost discount percentage from list price and unit price
+		if l.CostDiscountPercentage <= 0 && l.ListPrice.Minor() > l.UnitPrice.Minor() {
+			diff := l.ListPrice.Minor() - l.UnitPrice.Minor()
+			l.CostDiscountPercentage = (float64(diff) / float64(l.ListPrice.Minor())) * 100.0
+		}
+	}
+}
+
+// CustomerOrderLineOfferDetails returns the HTML modal partial containing the offer bundle
+// manifest and all included items.
+func (h *UIHandler) CustomerOrderLineOfferDetails(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID == 0 {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	orderIDStr := chi.URLParam(r, "id")
+	lineIDStr := chi.URLParam(r, "lineID")
+
+	orderID, err1 := strconv.ParseInt(orderIDStr, 10, 64)
+	lineID, err2 := strconv.ParseInt(lineIDStr, 10, 64)
+	if err1 != nil || err2 != nil || orderID <= 0 || lineID <= 0 {
+		http.Error(w, "invalid parameters", http.StatusBadRequest)
+		return
+	}
+
+	if h.commSvc == nil {
+		http.Error(w, "commerce service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	details, err := h.commSvc.GetOfferDetailsForOrderLine(ctx, orderID, lineID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to fetch offer details for order line",
+			"order_id", orderID, "line_id", lineID, "error", err)
+		http.Error(w, fmt.Sprintf("تعذر جلب تفاصيل العرض: %v", err), http.StatusNotFound)
+		return
+	}
+
+	lang := langOf(r)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = pages.CustomerOrderOfferModal(details, lang).Render(ctx, w)
+}
+

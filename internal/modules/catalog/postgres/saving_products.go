@@ -102,10 +102,12 @@ func (r *Repository) ListSavingProductsEnriched(ctx context.Context, orgID int64
 			WHERE organization_id = $1 AND deleted_at IS NULL;
 		`
 		var totalMinor int64
-		_ = tx.QueryRow(txCtx, statsQuery, orgID).Scan(
+		if err := tx.QueryRow(txCtx, statsQuery, orgID).Scan(
 			&stats.CountAll, &stats.CountLinked, &stats.CountUnlinked,
 			&stats.TotalQuantity, &totalMinor,
-		)
+		); err != nil {
+			return err
+		}
 		stats.TotalValue = money.FromMinor(totalMinor)
 
 		// 2. Fetch filtered rows

@@ -255,7 +255,7 @@ func (r *Repository) ListErrorLogs(ctx context.Context, filter platformadmin.Err
 			}
 			logs = append(logs, &e)
 		}
-		return nil
+		return rows.Err()
 	})
 
 	return logs, total, err

@@ -6,30 +6,20 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/importprogress"
 )
 
 // ImportProgressStream is the live half of /imports/{id}/progress.
 //
 // Route: GET /imports/{id}/stream
-//
-// The JSON poll beside it stays, and stays supported: a proxy that buffers
-// responses, a browser with EventSource disabled, and a network that drops the
-// connection all fall back to it, and the bar cannot tell the difference
-// because both deliver the same snapshot shape. What the stream changes is the
-// ordinary case — the one where somebody is actually watching an import — from
-// two requests a second to one connection that is written to when a number
-// moves.
-//
-// Authorisation is done once here rather than inside the stream loop. The run
-// is fetched through the same tenant-scoped repository the poll uses, so a
-// stream cannot show a run its viewer could not have opened; and because the
-// fetch closure re-reads through that repository on every safety tick, a
-// membership revoked mid-import ends the stream at the next tick rather than
-// running to completion.
 func (h *UIHandler) ImportProgressStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang := langOf(r)
@@ -45,8 +35,6 @@ func (h *UIHandler) ImportProgressStream(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if h.importRunRepo == nil || h.progressHub == nil {
-		// Nothing to stream from. Say so plainly rather than holding a
-		// connection open; the client falls back to the poll.
 		http.Error(w, "streaming unavailable", http.StatusServiceUnavailable)
 		return
 	}
@@ -73,11 +61,7 @@ func (h *UIHandler) ImportProgressStream(w http.ResponseWriter, r *http.Request)
 	progress.Stream(w, r, h.progressHub, publicID, fetch)
 }
 
-// snapshotOfRun renders a durable run as the shape the bar consumes.
-//
-// The phase caption is translated here, at the edge, rather than stored on the
-// run: the same import can be watched by an Arabic screen and an English one,
-// and a caption baked into the row would be wrong for one of them.
+// snapshotOfRun converts a durable import run into a progress snapshot.
 func snapshotOfRun(run *importrun.Run, lang string) progress.Snapshot {
 	s := progress.Snapshot{
 		ID:      run.PublicID,
@@ -90,35 +74,16 @@ func snapshotOfRun(run *importrun.Run, lang string) progress.Snapshot {
 		Error:   run.ErrorMessage,
 		At:      run.UpdatedAt,
 	}
-	// "Ready" ends the phase the viewer is watching.
-	//
-	// A saving-products or catalogue import runs in two acts: it stages and
-	// matches, the vendor reviews what it found, and only then does it commit.
-	// `ready` is the end of the first act — the processing bar has genuinely
-	// finished — but importrun.IsDone is about the run as a whole and says
-	// false there. A stream that took its word for it held the connection open
-	// at ninety-nine per cent while the review screen sat waiting to be drawn.
-	//
-	// The commit is watched separately when the vendor starts it, and its
-	// states (committing → committed) come through the same stream.
 	if run.State == importrun.StateReady {
 		s.Done = true
 	}
-	// 100 is written by a terminal state and never inferred. Every "stuck at
-	// 100%" report came from arithmetic reaching the end of the last band while
-	// a commit was still writing.
 	if s.Done && !s.IsFailure() {
 		s.Percent = 100
 	}
 	return s
 }
 
-// importPhaseLabel is the caption under the bar.
-//
-// The workers write the phase as a ready-made Arabic sentence rather than as a
-// translatable key ("جارٍ مطابقة الأصناف..."), so it is shown as written. A
-// state caption stands in while a run has not reached a phase yet, because a
-// blank line under a moving bar reads as a stall.
+// importPhaseLabel resolves a user-facing label for a run's state and phase.
 func importPhaseLabel(run *importrun.Run, lang string) string {
 	if run.State == importrun.StateFailed && run.ErrorMessage != "" {
 		return run.ErrorMessage
@@ -143,4 +108,149 @@ func importPhaseLabel(run *importrun.Run, lang string) string {
 		return i18n.T(lang, "import.state.cancelled")
 	}
 	return run.State
+}
+
+// VendorIngestProgressStream streams one vendor import's progress.
+// Route: GET /vendor/ingest/{id}/stream
+func (h *UIHandler) VendorIngestProgressStream(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if publicID == "" || h.ingSvc == nil || h.progressHub == nil {
+		http.Error(w, "streaming unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	session, err := h.ingSvc.LoadImport(r.Context(), publicID)
+	if err != nil || session == nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	fetch := func(ctx context.Context) (progress.Snapshot, bool) {
+		s, err := h.ingSvc.LoadImport(ctx, publicID)
+		if err != nil || s == nil {
+			return progress.Snapshot{}, false
+		}
+		return ingestSnapshot(s), true
+	}
+
+	progress.Stream(w, r, h.progressHub, ingest.ProgressKey(session.ID), fetch)
+}
+
+func ingestSnapshot(s *ingest.Session) progress.Snapshot {
+	running := s.Phase == ingest.PhaseProcessing
+	percent := s.ProgressPercent
+	switch {
+	case !running && s.Phase != ingest.PhaseFailed:
+		percent = 100
+	case percent >= 100:
+		percent = 99
+	}
+	return progress.Snapshot{
+		ID:      ingest.ProgressKey(s.ID),
+		Percent: percent,
+		Message: s.ProgressNote,
+		State:   string(s.Phase),
+		Done:    !running,
+		Error:   s.ErrorMessage,
+	}
+}
+
+// AdminProductsImportProgressStream streams one administrative import's progress.
+// Route: GET /admin/products/import/{id}/stream
+func (h *UIHandler) AdminProductsImportProgressStream(w http.ResponseWriter, r *http.Request) {
+	publicID := chi.URLParam(r, "id")
+	if !h.requirePlatformAdmin(w, r) {
+		return
+	}
+	if publicID == "" || h.catSvc == nil || h.progressHub == nil {
+		http.Error(w, "streaming unavailable", http.StatusServiceUnavailable)
+		return
+	}
+
+	fetch := func(ctx context.Context) (progress.Snapshot, bool) {
+		p, session, err := h.catSvc.SessionProgress(database.AsSystem(ctx), publicID)
+		if err != nil || session == nil {
+			return progress.Snapshot{}, false
+		}
+		return progress.Snapshot{
+			ID:      publicID,
+			Percent: p.Percent(),
+			Message: p.Message,
+			Current: p.Current,
+			Total:   p.Total,
+			State:   string(session.Status),
+			Done:    !session.IsProcessing(),
+			Error:   adminImportFailure(p),
+			At:      p.UpdatedAt,
+		}, true
+	}
+
+	progress.Stream(w, r, h.progressHub, publicID, fetch)
+}
+
+func adminImportFailure(p catalog.ImportProgress) string {
+	if p.Phase == catalog.ImportPhaseFailed {
+		return p.Message
+	}
+	return ""
+}
+
+// SmartOrderProgressStream streams one smart-order run's progress.
+// Route: GET /customer/smart-order/{id}/stream
+func (h *UIHandler) SmartOrderProgressStream(w http.ResponseWriter, r *http.Request) {
+	if h.progressHub == nil || h.smartOrderSvc == nil {
+		http.Error(w, "streaming unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	run, ok := h.smartOrderRun(w, r)
+	if !ok {
+		return
+	}
+	lang, _ := h.localeAndDir(r)
+	runID, orgID, publicID := run.ID, run.OrganizationID, run.PublicID
+
+	fetch := func(ctx context.Context) (progress.Snapshot, bool) {
+		current, err := h.smartOrderSvc.Get(ctx, orgID, publicID)
+		if err != nil || current == nil {
+			return progress.Snapshot{}, false
+		}
+		events, _ := h.smartOrderSvc.Events(ctx, runID, 0)
+		return smartOrderSnapshot(current, events, lang), true
+	}
+
+	progress.Stream(w, r, h.progressHub, smartorder.ProgressKey(runID), fetch)
+}
+
+func smartOrderSnapshot(run *smartorder.Run, events []*smartorder.Event, lang string) progress.Snapshot {
+	percent := smartorder.RunPercent(events)
+	caption := i18n.T(lang, "smartorder.staging_caption")
+	if stage := smartorder.CurrentStage(events); stage != "" {
+		caption = stage.Label()
+	}
+
+	done := false
+	switch run.Status {
+	case smartorder.StatusCompleted, smartorder.StatusStale,
+		smartorder.StatusPlaced, smartorder.StatusFailed:
+		done = true
+		if run.Status != smartorder.StatusFailed {
+			percent = importprogress.Complete
+		}
+	default:
+		if percent >= importprogress.Complete {
+			percent = importprogress.Complete - 1
+		}
+		if percent <= 0 {
+			percent = 2
+		}
+	}
+
+	return progress.Snapshot{
+		ID:      smartorder.ProgressKey(run.ID),
+		Percent: percent,
+		Message: caption,
+		State:   string(run.Status),
+		Done:    done,
+		Error:   run.FailureReason,
+	}
 }
