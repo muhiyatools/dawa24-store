@@ -61,6 +61,7 @@ type Repository interface {
 	UpdateFile(ctx context.Context, f *CompareFile) error
 	RenameFile(ctx context.Context, id int64, newSupplierName string) error
 	ArchiveOldestFiles(ctx context.Context, userID int64, orgID *int64, keepCount int, reason string) ([]string, error)
+	ArchiveActiveFiles(ctx context.Context, userID int64, orgID *int64, reason string) ([]string, error)
 	ArchiveFile(ctx context.Context, id int64, reason string) error
 	UnarchiveFile(ctx context.Context, id int64) error
 	DeleteFile(ctx context.Context, id int64) error
