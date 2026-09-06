@@ -401,47 +401,99 @@ const EGYPT_CITIES_COORDS = [
 
 let isMapSyncing = false;
 
+function setMapLocationHelper(container, lat, lon, zoom) {
+  if (!container) return;
+  if (typeof window.dawaSetMapLocation === 'function') {
+    window.dawaSetMapLocation(container, lat, lon, zoom);
+    return;
+  }
+  const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
+  const updateFn = container._updateCoords || (canvas && canvas._updateCoords);
+  const targetZoom = (typeof zoom === 'number' && zoom > 0) ? zoom : 14;
+  const targetLat = parseFloat(lat);
+  const targetLon = parseFloat(lon);
+
+  if (isNaN(targetLat) || isNaN(targetLon) || (targetLat === 0 && targetLon === 0)) return;
+
+  if (typeof updateFn === 'function') {
+    updateFn(targetLat, targetLon, targetZoom, false);
+  } else if (canvas._leaflet_map || container._leaflet_map) {
+    const map = canvas._leaflet_map || container._leaflet_map;
+    map.setView([targetLat, targetLon], targetZoom);
+  } else {
+    container._pendingCoords = { lat: targetLat, lon: targetLon, zoom: targetZoom };
+    if (canvas !== container) {
+      canvas._pendingCoords = { lat: targetLat, lon: targetLon, zoom: targetZoom };
+    }
+  }
+
+  const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"]');
+  const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"]');
+  if (latInput) latInput.value = targetLat.toFixed(6);
+  if (lonInput) lonInput.value = targetLon.toFixed(6);
+  const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
+  if (badge) badge.textContent = `${targetLat.toFixed(4)}, ${targetLon.toFixed(4)}`;
+  const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
+  if (gmapsInput) gmapsInput.value = `https://www.google.com/maps?q=${targetLat},${targetLon}`;
+}
+
+function findCityCoordsByName(name) {
+  if (!name) return null;
+  const clean = name.trim().toLowerCase();
+  for (const c of EGYPT_CITIES_COORDS) {
+    if (c.name.toLowerCase() === clean || clean.includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(clean)) {
+      return [c.lat, c.lon];
+    }
+  }
+  return null;
+}
+
 function initRegistrationMapComboboxSync() {
   window.addEventListener('combobox-change', function (e) {
     if (isMapSyncing) return;
     if (!e.detail || !e.detail.name) return;
     const name = e.detail.name;
     const val = e.detail.value;
+    const item = e.detail.item;
 
     const mapContainer = document.querySelector('[data-map-picker]');
-    if (!mapContainer || mapContainer.closest('.d-none')) return;
+    if (!mapContainer) return;
 
     if (name === 'branch_governorate_id') {
       if (!val) return;
+      let pos = null;
       const govsCoordsEl = document.getElementById('reg-govs-coords');
       if (govsCoordsEl) {
         try {
           const govs = JSON.parse(govsCoordsEl.textContent);
-          const pos = govs[String(val)];
-          if (pos && (pos[0] || pos[1])) {
-            if (typeof window.dawaSetMapLocation === 'function') {
-              window.dawaSetMapLocation(mapContainer, pos[0], pos[1], 11);
-            }
-          }
+          pos = govs[String(val)];
         } catch (err) {
           console.warn('branch_governorate_id map sync error:', err);
         }
       }
+      if (!pos && item && item.label) {
+        pos = findCityCoordsByName(item.label);
+      }
+      if (pos && (pos[0] || pos[1])) {
+        setMapLocationHelper(mapContainer, pos[0], pos[1], 11);
+      }
     } else if (name === 'branch_city_id') {
       if (val) {
+        let pos = null;
         const citiesCoordsEl = document.getElementById('reg-cities-coords');
         if (citiesCoordsEl) {
           try {
             const cities = JSON.parse(citiesCoordsEl.textContent);
-            const pos = cities[String(val)];
-            if (pos && (pos[0] || pos[1])) {
-              if (typeof window.dawaSetMapLocation === 'function') {
-                window.dawaSetMapLocation(mapContainer, pos[0], pos[1], 14);
-              }
-            }
+            pos = cities[String(val)];
           } catch (err) {
             console.warn('branch_city_id map sync error:', err);
           }
+        }
+        if ((!pos || (!pos[0] && !pos[1])) && item && item.label) {
+          pos = findCityCoordsByName(item.label);
+        }
+        if (pos && (pos[0] || pos[1])) {
+          setMapLocationHelper(mapContainer, pos[0], pos[1], 14);
         }
       } else {
         // City was cleared: if governorate is still selected, pan back to governorate center
@@ -453,9 +505,7 @@ function initRegistrationMapComboboxSync() {
               const govs = JSON.parse(govsCoordsEl.textContent);
               const pos = govs[String(govVal)];
               if (pos && (pos[0] || pos[1])) {
-                if (typeof window.dawaSetMapLocation === 'function') {
-                  window.dawaSetMapLocation(mapContainer, pos[0], pos[1], 11);
-                }
+                setMapLocationHelper(mapContainer, pos[0], pos[1], 11);
               }
             } catch (err) {}
           }

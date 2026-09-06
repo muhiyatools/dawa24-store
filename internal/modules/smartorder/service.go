@@ -85,9 +85,14 @@ func (s *Service) Start(ctx context.Context, opts StartOptions) (*Run, error) {
 	return run, nil
 }
 
-// Get loads a run the caller is entitled to see.
+// Get loads a run the caller is entitled to see by its public ID.
 func (s *Service) Get(ctx context.Context, orgID int64, publicID string) (*Run, error) {
 	return s.repo.GetRunByPublicID(ctx, orgID, publicID)
+}
+
+// GetByID loads a run by its internal numeric ID.
+func (s *Service) GetByID(ctx context.Context, orgID, id int64) (*Run, error) {
+	return s.repo.GetRunByID(ctx, orgID, id)
 }
 
 // History lists the buyer's previous runs.

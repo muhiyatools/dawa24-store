@@ -118,7 +118,7 @@ templ SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) {
 										<td class="text-center">
 											if r.Status == smartorder.StatusCompleted || r.Status == smartorder.StatusStale {
 												<a
-													href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/review?run_id=%d", r.ID)) }
+													href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", r.PublicID)) }
 													class="btn btn-primary btn-xs font-bold gap-1"
 												>
 													<span>مراجعة النتائج</span>
@@ -134,7 +134,7 @@ templ SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) {
 												</a>
 											} else if r.Status == smartorder.StatusProcessing || r.Status == smartorder.StatusFinalizing {
 												<a
-													href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/review?run_id=%d", r.ID)) }
+													href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/progress", r.PublicID)) }
 													class="btn btn-secondary btn-xs font-bold gap-1 text-sky-700"
 												>
 													<span>متابعة المعالجة...</span>
@@ -142,7 +142,7 @@ templ SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) {
 											} else {
 												<!-- Staging or Failed: Can Resume/Re-enter -->
 												<a
-													href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/new?resume_id=%d", r.ID)) }
+													href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", r.PublicID)) }
 													class="btn btn-secondary btn-xs font-bold gap-1"
 												>
 													<span>استكمال المسودة</span>

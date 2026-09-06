@@ -433,3 +433,51 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 	return fmt.Sprintf(i18n.T(lang, "smartorder.err_operation_failed_format"), msg)
 }
 
+// SmartOrderLegacyRedirect handles backward-compatible URLs like:
+// /customer/smart-order/review?run_id=64 or /customer/smart-order/results?run_id=64
+// and redirects to the canonical RESTful URL: /customer/smart-order/{public_id}/results
+func (h *UIHandler) SmartOrderLegacyRedirect(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+	if h.smartOrderSvc == nil {
+		http.Redirect(w, r, "/customer/smart-order/history", http.StatusSeeOther)
+		return
+	}
+
+	q := r.URL.Query()
+	runParam := strings.TrimSpace(q.Get("run_id"))
+	if runParam == "" {
+		runParam = strings.TrimSpace(q.Get("id"))
+	}
+	if runParam == "" {
+		http.Redirect(w, r, "/customer/smart-order/history", http.StatusSeeOther)
+		return
+	}
+
+	var run *smartorder.Run
+	if numID, err := strconv.ParseInt(runParam, 10, 64); err == nil && numID > 0 {
+		run, _ = h.smartOrderSvc.GetByID(ctx, actor.OrganizationID, numID)
+	}
+	if run == nil {
+		run, _ = h.smartOrderSvc.Get(ctx, actor.OrganizationID, runParam)
+	}
+	if run == nil {
+		http.Redirect(w, r, "/customer/smart-order/history", http.StatusSeeOther)
+		return
+	}
+
+	subpath := "results"
+	if run.Status == smartorder.StatusProcessing || run.Status == smartorder.StatusFinalizing || run.Status == smartorder.StatusQueued {
+		subpath = "progress"
+	} else if run.Status == smartorder.StatusDraft || run.Status == smartorder.StatusMapping {
+		subpath = "mapping"
+	}
+
+	http.Redirect(w, r, "/customer/smart-order/"+run.PublicID+"/"+subpath, http.StatusSeeOther)
+}
+
+

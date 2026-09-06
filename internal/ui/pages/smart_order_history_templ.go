@@ -232,7 +232,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var10 templ.SafeURL
-						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/review?run_id=%d", r.ID)))
+						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", r.PublicID)))
 						if templ_7745c5c3_Err != nil {
 							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 121, Col: 94}
 						}
@@ -284,9 +284,9 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var12 templ.SafeURL
-						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/review?run_id=%d", r.ID)))
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/progress", r.PublicID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 137, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 137, Col: 95}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func SmartOrderHistoryPage(runs []*smartorder.Run, lang, dir string) templ.Compo
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var13 templ.SafeURL
-						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/new?resume_id=%d", r.ID)))
+						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", r.PublicID)))
 						if templ_7745c5c3_Err != nil {
 							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_history.templ`, Line: 145, Col: 94}
 						}

@@ -283,6 +283,9 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 		g.Get("/customer/smart-order/{id}/catalog-search", h.SmartOrderCatalogSearch)
 		g.Get("/customer/smart-order/{id}/review", h.SmartOrderReviewPage)
 		g.Get("/customer/smart-order/{id}/export", h.SmartOrderExportCSV)
+		// Legacy query-param redirects (e.g. /customer/smart-order/review?run_id=64 or ?id=...)
+		g.Get("/customer/smart-order/review", h.SmartOrderLegacyRedirect)
+		g.Get("/customer/smart-order/results", h.SmartOrderLegacyRedirect)
 	})
 
 	r.Group(func(g chi.Router) {

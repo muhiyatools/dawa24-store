@@ -358,6 +358,17 @@ function initMapPickers() {
     container._updateCoords = updateCoordinates;
     canvas._updateCoords = updateCoordinates;
 
+    // If there were pending coordinates set before initialization, apply them now
+    if (container._pendingCoords) {
+      const p = container._pendingCoords;
+      delete container._pendingCoords;
+      updateCoordinates(p.lat, p.lon, p.zoom, false);
+    } else if (canvas._pendingCoords) {
+      const p = canvas._pendingCoords;
+      delete canvas._pendingCoords;
+      updateCoordinates(p.lat, p.lon, p.zoom, false);
+    }
+
     // Map Click Handler (User action = true)
     map.on('click', (e) => {
       updateCoordinates(e.latlng.lat, e.latlng.lng, null, true);
@@ -668,3 +679,40 @@ window.setMapPickerLocation = window.dawaSetMapLocation;
     locate(btn);
   });
 })();
+
+// Global helper for programmatic map location updates from comboboxes and external pickers
+function dawaSetMapLocation(container, lat, lon, zoom) {
+  if (!container) return;
+  const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
+  const targetZoom = (typeof zoom === 'number' && zoom > 0) ? zoom : 14;
+  const targetLat = parseFloat(lat);
+  const targetLon = parseFloat(lon);
+
+  if (isNaN(targetLat) || isNaN(targetLon) || (targetLat === 0 && targetLon === 0)) return;
+
+  const updateFn = container._updateCoords || (canvas && canvas._updateCoords);
+  if (typeof updateFn === 'function') {
+    updateFn(targetLat, targetLon, targetZoom, false);
+  } else if (canvas._leaflet_map || container._leaflet_map) {
+    const map = canvas._leaflet_map || container._leaflet_map;
+    map.setView([targetLat, targetLon], targetZoom);
+  } else {
+    // Save pending coords if map is still initializing
+    container._pendingCoords = { lat: targetLat, lon: targetLon, zoom: targetZoom };
+    if (canvas !== container) {
+      canvas._pendingCoords = { lat: targetLat, lon: targetLon, zoom: targetZoom };
+    }
+  }
+
+  // Also proactively synchronize form inputs and labels
+  const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"]');
+  const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"]');
+  if (latInput) latInput.value = targetLat.toFixed(6);
+  if (lonInput) lonInput.value = targetLon.toFixed(6);
+  const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
+  if (badge) badge.textContent = `${targetLat.toFixed(4)}, ${targetLon.toFixed(4)}`;
+  const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
+  if (gmapsInput) gmapsInput.value = `https://www.google.com/maps?q=${targetLat},${targetLon}`;
+}
+window.dawaSetMapLocation = dawaSetMapLocation;
+
