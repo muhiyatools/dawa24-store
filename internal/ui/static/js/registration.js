@@ -299,14 +299,17 @@ function fetchDetailedAddressFromCoords(lat, lon) {
         const fullAddr = parts.filter(Boolean).join('، ');
         if (fullAddr) {
           addressInput.value = fullAddr;
+          addressInput.dispatchEvent(new Event('input', { bubbles: true }));
+          addressInput.dispatchEvent(new Event('change', { bubbles: true }));
           if (hint) hint.textContent = '📍 تم تحديث العنوان تلقائياً من الخريطة';
         }
       }
     } catch (e) {
       console.warn('Reverse geocoding error:', e);
     }
-  }, 400);
+  }, 350);
 }
+window.fetchDetailedAddressFromCoords = fetchDetailedAddressFromCoords;
 
 // Egyptian Cities Coordinates Reference Table
 const EGYPT_CITIES_COORDS = [
@@ -476,6 +479,9 @@ function initRegistrationMapComboboxSync() {
       }
       if (pos && (pos[0] || pos[1])) {
         setMapLocationHelper(mapContainer, pos[0], pos[1], 11);
+        if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+          window.fetchDetailedAddressFromCoords(pos[0], pos[1]);
+        }
       }
     } else if (name === 'branch_city_id') {
       if (val) {
@@ -493,7 +499,17 @@ function initRegistrationMapComboboxSync() {
           pos = findCityCoordsByName(item.label);
         }
         if (pos && (pos[0] || pos[1])) {
+          // If city has parent governorate (pos[2]), auto-select branch_governorate_id
+          if (pos[2] && typeof window.dawaComboboxSet === 'function') {
+            const curGov = window.dawaComboboxValue ? window.dawaComboboxValue('branch_governorate_id') : '';
+            if (!curGov || curGov !== String(pos[2])) {
+              window.dawaComboboxSet('branch_governorate_id', String(pos[2]));
+            }
+          }
           setMapLocationHelper(mapContainer, pos[0], pos[1], 14);
+          if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+            window.fetchDetailedAddressFromCoords(pos[0], pos[1]);
+          }
         }
       } else {
         // City was cleared: if governorate is still selected, pan back to governorate center

@@ -43,6 +43,7 @@ func (h *UIHandler) VendorBranchesPage(w http.ResponseWriter, r *http.Request) {
 
 	data := pages.VendorBranchesData{
 		Branches:           branches,
+		Governorates:       h.listGovernorates(ctx),
 		Cities:             h.listCities(ctx),
 		Employees:          employees,
 		InstitutionalWorks: instWorks,

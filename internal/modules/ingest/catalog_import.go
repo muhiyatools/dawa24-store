@@ -255,7 +255,7 @@ func DefaultSettings() Settings {
 		StockMode:           inventory.StockReplace,
 		Duplicates:          productmatch.DuplicateLastWins,
 		MinMatchScore:       productmatch.DefaultMinStrong,
-		UseAI:               true,
+		UseAI:               false,
 		BlankQuantityIsZero: true,
 		RejectExpired:       false,
 		DefaultMinOrderQty:  1,

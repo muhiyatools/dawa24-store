@@ -122,7 +122,12 @@
 				.header-vendor {
 					text-align: right;
 				}
+				.header-center,
 				.header-center-logo {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
 					text-align: center;
 				}
 				.header-meta {
@@ -311,7 +316,7 @@
 /* Utility classes for A4 & Thermal Invoices */
 .header-logo { max-height: 52px; max-width: 150px; object-fit: contain; margin-bottom: 0.35rem; display: block; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .vendor-name-title { font-size: 1.15rem; font-weight: 900; color: #0f172a; line-height: 1.2; }
-.dawa-brand-logo { height: 28px; width: auto; object-fit: contain; margin-bottom: 2px; }
+.dawa-brand-logo { height: 52px; max-width: 190px; width: auto; object-fit: contain; margin: 0 auto 6px auto; display: block; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .invoice-type-badge { font-size: 0.75rem; font-weight: 800; color: #0f172a; margin-top: 4px; padding: 0.2rem 0.6rem; background: #f1f5f9; border-radius: 4px; display: inline-block; border: 1px solid #e2e8f0; }
 .font-size-9 { font-size: 9px; }
 .font-size-9-5 { font-size: 9.5px; }

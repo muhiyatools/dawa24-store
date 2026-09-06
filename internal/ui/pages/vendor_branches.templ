@@ -12,6 +12,7 @@ import (
 
 type VendorBranchesData struct {
 	Branches           []*org.Branch
+	Governorates       []*platformadmin.Governorate
 	Cities             []*platformadmin.City
 	Employees          []*org.EmployeeView
 	InstitutionalWorks []*org.InstitutionalWork
@@ -34,13 +35,20 @@ func (d VendorBranchesData) WorkLabel(key string) string {
 	return formatInstitutionalWorkLabel(key)
 }
 
-func formatVendorBranchJSON(b *org.Branch) string {
+func formatVendorBranchJSON(b *org.Branch, cities []*platformadmin.City) string {
 	if b == nil {
 		return "{}"
 	}
 	cityID := int64(0)
+	govID := int64(0)
 	if b.CityID != nil {
 		cityID = *b.CityID
+		for _, c := range cities {
+			if c != nil && c.ID == cityID && c.GovernorateID != nil {
+				govID = *c.GovernorateID
+				break
+			}
+		}
 	}
 	managerID := int64(0)
 	if b.ManagerID != nil {
@@ -61,6 +69,7 @@ func formatVendorBranchJSON(b *org.Branch) string {
 		"code":                b.Code,
 		"warehouse_type":      b.WarehouseType,
 		"city_id":             cityID,
+		"governorate_id":      govID,
 		"manager_id":          managerID,
 		"address":             b.Address,
 		"phone":               b.Phone,
@@ -282,7 +291,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 												type="button"
 												class="btn btn-secondary btn-sm font-bold text-xs gap-1"
 												data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-												data-branch-data={ formatVendorBranchJSON(b) }
+												data-branch-data={ formatVendorBranchJSON(b, data.Cities) }
 												@click="setEditModeFromElement($el)"
 											>
 												@components.IconEdit("icon-xs")

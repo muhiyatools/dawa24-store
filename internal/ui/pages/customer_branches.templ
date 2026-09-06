@@ -22,6 +22,7 @@ type CustomerBranchesData struct {
 	Branches           []*org.Branch
 	StaffPerBranch     map[int64]int
 	TotalStaff         int
+	Governorates       []*platformadmin.Governorate
 	Cities             []*platformadmin.City
 	InstitutionalWorks []*org.InstitutionalWork
 	NoticeType         string
@@ -73,13 +74,20 @@ func formatBranchWorksJSON(works []string) string {
 	return string(b)
 }
 
-func formatCustomerBranchJSON(b *org.Branch) string {
+func formatCustomerBranchJSON(b *org.Branch, cities []*platformadmin.City) string {
 	if b == nil {
 		return "{}"
 	}
 	cityID := int64(0)
+	govID := int64(0)
 	if b.CityID != nil {
 		cityID = *b.CityID
+		for _, c := range cities {
+			if c != nil && c.ID == cityID && c.GovernorateID != nil {
+				govID = *c.GovernorateID
+				break
+			}
+		}
 	}
 	lat := 30.0444
 	if b.Latitude != nil {
@@ -95,6 +103,7 @@ func formatCustomerBranchJSON(b *org.Branch) string {
 		"name_en":             b.Name.Get("en"),
 		"code":                b.Code,
 		"city_id":             cityID,
+		"governorate_id":      govID,
 		"address":             b.Address,
 		"phone":               b.Phone,
 		"operating_hours":     b.OperatingHours,
@@ -260,7 +269,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													type="button"
 													class="btn btn-secondary btn-xs font-bold gap-1"
 													data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-													data-branch-data={ formatCustomerBranchJSON(b) }
+													data-branch-data={ formatCustomerBranchJSON(b, data.Cities) }
 													@click="setEditModeFromElement($el)"
 												>
 													@components.IconEdit("icon-xs")

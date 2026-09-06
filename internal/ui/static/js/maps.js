@@ -154,37 +154,115 @@ if (typeof window.syncCityDropdownsWithCoordinates === 'undefined') {
   };
 }
 
-if (typeof window.fetchDetailedAddressFromCoords === 'undefined') {
-  let reverseGeocodeTimer = null;
-  window.fetchDetailedAddressFromCoords = function (lat, lon) {
-    const addressInput = document.getElementById('reg-address') ||
-      document.querySelector('input[name="address"], [data-map-address]');
-    if (!addressInput) return;
-    clearTimeout(reverseGeocodeTimer);
-    reverseGeocodeTimer = setTimeout(async function () {
-      try {
-        const resp = await fetch(
-          'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat +
-          '&lon=' + lon + '&zoom=18&addressdetails=1&accept-language=ar',
-          { headers: { 'Accept': 'application/json' } }
-        );
-        if (!resp.ok) return;
-        const data = await resp.json();
-        if (!data || !data.address) return;
-        const a = data.address;
-        const parts = [];
-        if (a.road || a.street) parts.push(a.road || a.street);
-        if (a.neighbourhood || a.suburb || a.quarter) parts.push(a.neighbourhood || a.suburb || a.quarter);
-        if (a.city || a.town || a.village || a.county) parts.push(a.city || a.town || a.village || a.county);
-        if (a.state) parts.push(a.state);
-        const fullAddr = parts.filter(Boolean).join('، ');
-        if (fullAddr && !addressInput.value.trim()) addressInput.value = fullAddr;
-      } catch (e) {
-        console.warn('reverse geocoding:', e);
+let reverseGeocodeTimer = null;
+window.fetchDetailedAddressFromCoords = function (lat, lon) {
+  if (!lat || !lon) return;
+  clearTimeout(reverseGeocodeTimer);
+  reverseGeocodeTimer = setTimeout(async function () {
+    try {
+      const addressInputs = document.querySelectorAll(
+        '#reg-address, input[name="address"], input[name="branch_address"], [data-map-address], textarea[name="address"]'
+      );
+      if (!addressInputs.length) return;
+
+      const hint = document.getElementById('reg-address-hint') || document.querySelector('[data-address-hint]');
+      if (hint) hint.textContent = '⏳ جلب العنوان بالتفصيل...';
+
+      const resp = await fetch(
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat +
+        '&lon=' + lon + '&zoom=18&addressdetails=1&accept-language=ar',
+        { headers: { 'Accept': 'application/json' } }
+      );
+      if (!resp.ok) {
+        if (hint) hint.textContent = '📍 تم تحديد الموقع بنجاح';
+        return;
       }
-    }, 400);
-  };
-}
+      const data = await resp.json();
+      if (!data || !data.address) return;
+      const a = data.address;
+      const parts = [];
+      if (a.road || a.street) parts.push(a.road || a.street);
+      if (a.neighbourhood || a.suburb || a.quarter) parts.push(a.neighbourhood || a.suburb || a.quarter);
+      if (a.city || a.town || a.village || a.county) parts.push(a.city || a.town || a.village || a.county);
+      if (a.state) parts.push(a.state);
+      const fullAddr = parts.filter(Boolean).join('، ');
+      if (fullAddr) {
+        addressInputs.forEach(function (input) {
+          input.value = fullAddr;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        if (hint) hint.textContent = '📍 تم تحديث العنوان تلقائياً من الخريطة';
+      }
+    } catch (e) {
+      console.warn('reverse geocoding:', e);
+    }
+  }, 350);
+};
+
+let isMapSyncingCity = false;
+window.syncCityDropdownsWithCoordinates = function (lat, lon) {
+  if (isMapSyncingCity) return null;
+  const coordsEl = document.getElementById('reg-cities-coords') ||
+                   document.getElementById('customer-branch-cities-coords') ||
+                   document.getElementById('vendor-branch-cities-coords') ||
+                   document.getElementById('admin-branch-cities-coords') ||
+                   document.querySelector('script[id$="-cities-coords"]');
+
+  let closestCityId = null;
+  let closestGovId = null;
+  let minDist = Infinity;
+
+  if (coordsEl) {
+    try {
+      const coords = JSON.parse(coordsEl.textContent);
+      for (const [cId, pos] of Object.entries(coords)) {
+        if (Array.isArray(pos) && pos.length >= 2) {
+          const d = Math.hypot(lat - pos[0], lon - pos[1]);
+          if (d < minDist) {
+            minDist = d;
+            closestCityId = cId;
+            closestGovId = pos[2] ? String(pos[2]) : null;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('syncCityDropdownsWithCoordinates parse error:', e);
+    }
+  }
+
+  if (closestCityId && minDist < 0.65) {
+    isMapSyncingCity = true;
+    try {
+      // Sync native inputs
+      document.querySelectorAll('input[name="city_id"], input[name="branch_city_id"], [data-map-city-id]').forEach(function (hi) {
+        hi.value = closestCityId;
+        hi.dispatchEvent(new Event('input', { bubbles: true }));
+        hi.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      if (closestGovId) {
+        document.querySelectorAll('input[name="governorate_id"], input[name="branch_governorate_id"]').forEach(function (hi) {
+          hi.value = closestGovId;
+          hi.dispatchEvent(new Event('input', { bubbles: true }));
+          hi.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      }
+
+      // Sync comboboxes via window.dawaComboboxSet
+      if (typeof window.dawaComboboxSet === 'function') {
+        if (closestGovId) {
+          window.dawaComboboxSet('branch_governorate_id', closestGovId);
+          window.dawaComboboxSet('governorate_id', closestGovId);
+        }
+        window.dawaComboboxSet('branch_city_id', closestCityId);
+        window.dawaComboboxSet('city_id', closestCityId);
+      }
+    } finally {
+      setTimeout(function () { isMapSyncingCity = false; }, 250);
+    }
+  }
+  return { cityId: closestCityId, govId: closestGovId };
+};
 
 // Universal Leaflet & Interactive Map Engine
 function initMapPickers() {
@@ -593,7 +671,7 @@ window.setMapPickerLocation = window.dawaSetMapLocation;
     var lon = pos.coords.longitude;
 
     if (typeof setCoords === 'function') {
-      setCoords(lat, lon, 16);
+      setCoords(lat, lon, 16, true);
     } else {
       // No map beside this button: still fill whatever coordinate inputs the
       // surrounding form has, so the button is not simply inert.
@@ -604,14 +682,13 @@ window.setMapPickerLocation = window.dawaSetMapLocation;
       if (lonInput) { lonInput.value = lon.toFixed(8); lonInput.dispatchEvent(new Event('input', { bubbles: true })); }
     }
 
-    var nearest = (typeof window.syncCityDropdownsWithCoordinates === 'function')
-      ? window.syncCityDropdownsWithCoordinates(lat, lon)
-      : null;
-    if (nearest && nearest.name) {
-      toast('تم تحديد موقعك وتحديث المنطقة إلى: ' + nearest.name, 'success');
-    } else {
-      toast('تم تحديد موقعك الجغرافي.', 'success');
+    if (typeof window.syncCityDropdownsWithCoordinates === 'function') {
+      window.syncCityDropdownsWithCoordinates(lat, lon);
     }
+    if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+      window.fetchDetailedAddressFromCoords(lat, lon);
+    }
+    toast('تم تحديد موقعك الجغرافي وتحديث العنوان والمنطقة.', 'success');
   }
 
   function describeError(err) {

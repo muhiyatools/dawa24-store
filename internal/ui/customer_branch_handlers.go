@@ -90,6 +90,7 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 		Branches:           branches,
 		StaffPerBranch:     staff,
 		TotalStaff:         total,
+		Governorates:       h.listGovernorates(ctx),
 		Cities:             h.listCities(ctx),
 		InstitutionalWorks: instWorks,
 		NoticeType:         noticeType,

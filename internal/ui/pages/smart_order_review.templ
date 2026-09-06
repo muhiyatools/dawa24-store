@@ -17,7 +17,7 @@ func smartOrderReviewPaginationQuery(data SmartOrderReviewData) url.Values {
 // SmartOrderReviewPage is step 5: review and place.
 templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 	@layouts.ShellFor("مراجعة وتأكيد الطلب الذكي", "purchase-request", lang, dir, authctx.FromContext(ctx)) {
-		<div class="container-fluid py-4">
+		<div class="container-fluid py-4" x-data="smartOrderReviewManager()">
 			
 			<!-- Page Header Strip -->
 			<div class="flex-between items-center flex-wrap gap-4 mb-4">
@@ -131,9 +131,91 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 			}
 
+			<!-- Filters & Search Toolbar -->
+			<div class="glass-panel p-4 mb-4 border border-subtle rounded-xl flex-between items-center flex-wrap gap-3">
+				<div class="d-flex items-center gap-2 flex-grow min-w-0" style="max-width: 480px;">
+					<div class="position-relative w-100">
+						<span class="position-absolute end-3 top-50 translate-middle-y text-muted pointer-events-none">
+							@components.IconSearch("icon-xs")
+						</span>
+						<input
+							type="text"
+							class="form-input text-xs w-100 pe-8"
+							placeholder="بحث فوري في الأصناف (الاسم، كود SKU، الصنف المطابق)..."
+							x-model="searchQuery"
+						/>
+					</div>
+				</div>
+
+				<div class="d-flex items-center gap-3 flex-wrap">
+					if len(data.AllGroups) > 1 {
+						<div class="d-flex items-center gap-2">
+							<label class="text-xs text-secondary font-bold whitespace-nowrap">تصفية حسب المورد:</label>
+							<select class="form-select text-xs font-bold" x-model="selectedVendor" style="min-width: 180px;">
+								<option value="all">جميع الموردين ({ fmt.Sprintf("%d", len(data.AllGroups)) })</option>
+								for _, ag := range data.AllGroups {
+									<option value={ ag.VendorName }>{ ag.VendorName } ({ fmt.Sprintf("%d", ag.TotalCount) })</option>
+								}
+							</select>
+						</div>
+					}
+
+					<div class="d-flex items-center gap-1.5">
+						<button
+							type="button"
+							class="btn btn-xs font-bold"
+							:class="activeTab === 'all' ? 'btn-primary' : 'btn-secondary'"
+							@click="activeTab = 'all'"
+						>
+							جاهز للتوريد ({ fmt.Sprintf("%d", data.TotalLines) })
+						</button>
+						if len(data.Excluded) > 0 {
+							<button
+								type="button"
+								class="btn btn-xs font-bold"
+								:class="activeTab === 'excluded' ? 'btn-amber' : 'btn-secondary'"
+								@click="activeTab = 'excluded'"
+							>
+								المستبعدة ({ fmt.Sprintf("%d", len(data.Excluded)) })
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Floating / Dynamic Bulk Selection Action Bar -->
+			<div
+				x-show="selectedLines.length > 0"
+				x-transition
+				class="glass-panel p-3 mb-4 border border-danger rounded-xl flex-between items-center flex-wrap gap-3 bg-danger-subtle shadow-sm"
+			>
+				<div class="d-flex items-center gap-2">
+					<span class="badge badge-danger text-xs font-black tabular-nums py-1 px-2.5">
+						<span x-text="selectedLines.length"></span> أصناف محددة
+					</span>
+					<span class="text-xs text-secondary font-bold">تم تحديد أصناف لحذفها دفعة واحدة من أمر الشراء.</span>
+				</div>
+				<div class="d-flex items-center gap-2">
+					<button type="button" class="btn btn-secondary btn-xs font-bold" @click="clearSelection()">
+						إلغاء التحديد
+					</button>
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/bulk-remove", data.Run.PublicID)) } @submit="confirmBulkDelete($event)" class="m-0 d-inline-flex">
+						<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
+						<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
+						<template x-for="id in selectedLines" :key="id">
+							<input type="hidden" name="line_ids" :value="id" />
+						</template>
+						<button type="submit" class="btn btn-danger btn-xs font-bold gap-1.5 shadow-xs">
+							@components.IconTrash("icon-xs")
+							<span>حذف الأصناف المحددة من الطلب (<span x-text="selectedLines.length"></span>)</span>
+						</button>
+					</form>
+				</div>
+			</div>
+
 			<!-- Main Supplier Groups Review Tables -->
 			if data.TotalLines > 0 {
-				<div class="glass-panel p-4 mb-5 border border-subtle rounded-xl flex-between items-center flex-wrap gap-2">
+				<div class="glass-panel p-4 mb-5 border border-subtle rounded-xl flex-between items-center flex-wrap gap-2" x-show="activeTab === 'all'">
 					<div class="d-flex items-center gap-2">
 						<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d صنف جاهز للتوريد", data.TotalLines) }</span>
 						<span class="text-xs text-secondary">من إجمالي { fmt.Sprintf("%d مورد", len(data.AllGroups)) } — راجع الكميات والموردين أدناه ثم اعتمد الطلب.</span>
@@ -157,7 +239,10 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			}
 
 			for _, g := range data.Groups {
-				<div class="glass-panel p-0 mb-6 border border-subtle rounded-2xl overflow-hidden shadow-sm">
+				<div
+					class="glass-panel p-0 mb-6 border border-subtle rounded-2xl overflow-hidden shadow-sm"
+					x-show={ fmt.Sprintf("(activeTab === 'all') && (selectedVendor === 'all' || selectedVendor === %q)", g.VendorName) }
+				>
 					
 					<!-- Group Header Strip -->
 					<div class="p-4 bg-surface-raised border-b border-subtle flex-between items-center flex-wrap gap-3">
@@ -181,11 +266,20 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						</div>
 					</div>
 
-					<!-- 10-Column Master Responsive Table in Exact Specified Order -->
+					<!-- 11-Column Master Responsive Table with Checkbox Selection -->
 					<div class="table-container m-0 overflow-x-auto">
 						<table class="data-table m-0 so-review-table">
 							<thead>
 								<tr>
+									<th class="so-rev-col-check text-center">
+										<input
+											type="checkbox"
+											class="form-check-input"
+											title="تحديد كافة أصناف هذا المورد"
+											@change={ fmt.Sprintf("toggleGroupSelectAll($el, %s)", GroupLineIDsJSON(g)) }
+											:checked={ fmt.Sprintf("isGroupAllSelected(%s)", GroupLineIDsJSON(g)) }
+										/>
+									</th>
 									<th class="so-rev-col-name text-start">الصنف المطلوب</th>
 									<th class="so-rev-col-sku text-center">كود SKU</th>
 									<th class="so-rev-col-qty text-center">الكمية المطلوبة</th>
@@ -200,7 +294,23 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							</thead>
 							<tbody>
 								for _, l := range g.Lines {
-									<tr>
+									<tr
+										data-vendor={ g.VendorName }
+										data-name={ l.Line.RawName }
+										data-sku={ l.Line.RawSKU }
+										data-match={ l.Line.MatchedProductName }
+										x-show="matchesRow($el)"
+										:class={ fmt.Sprintf("selectedLines.includes('%d') ? 'bg-primary-subtle' : ''", l.Line.ID) }
+									>
+										<!-- 0. Selection Checkbox -->
+										<td class="so-rev-col-check text-center align-middle">
+											<input
+												type="checkbox"
+												class="form-check-input"
+												value={ fmt.Sprint(l.Line.ID) }
+												x-model="selectedLines"
+											/>
+										</td>
 										
 										<!-- 1. Product Name -->
 										<td class="so-rev-col-name align-middle">
@@ -339,8 +449,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			<!-- Excluded Items Collapsible Section -->
 			if len(data.Excluded) > 0 {
-				<div class="glass-panel p-0 mb-6 border border-subtle rounded-2xl overflow-hidden shadow-xs">
-					<details class="group">
+				<div class="glass-panel p-0 mb-6 border border-subtle rounded-2xl overflow-hidden shadow-xs" x-show="activeTab === 'all' || activeTab === 'excluded'">
+					<details class="group" :open="activeTab === 'excluded'">
 						<summary class="p-4 bg-surface-raised cursor-pointer flex-between items-center gap-3 select-none">
 							<div class="d-flex items-center gap-3">
 								<div class="user-avatar-badge text-amber bg-amber-subtle">
@@ -442,6 +552,56 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 		</div>
 
 		<script>
+			function smartOrderReviewManager() {
+				return {
+					searchQuery: '',
+					selectedVendor: 'all',
+					activeTab: 'all',
+					selectedLines: [],
+
+					toggleGroupSelectAll(el, groupIds) {
+						if (!Array.isArray(groupIds)) return;
+						if (el.checked) {
+							const set = new Set(this.selectedLines);
+							groupIds.forEach(id => set.add(String(id)));
+							this.selectedLines = Array.from(set);
+						} else {
+							const removeSet = new Set(groupIds.map(id => String(id)));
+							this.selectedLines = this.selectedLines.filter(id => !removeSet.has(String(id)));
+						}
+					},
+
+					isGroupAllSelected(groupIds) {
+						if (!Array.isArray(groupIds) || groupIds.length === 0) return false;
+						return groupIds.every(id => this.selectedLines.includes(String(id)));
+					},
+
+					clearSelection() {
+						this.selectedLines = [];
+					},
+
+					matchesRow(el) {
+						if (!this.searchQuery) return true;
+						const q = this.searchQuery.trim().toLowerCase();
+						if (!q) return true;
+						const name = (el.getAttribute('data-name') || '').toLowerCase();
+						const sku = (el.getAttribute('data-sku') || '').toLowerCase();
+						const match = (el.getAttribute('data-match') || '').toLowerCase();
+						return name.includes(q) || sku.includes(q) || match.includes(q);
+					},
+
+					confirmBulkDelete(e) {
+						if (this.selectedLines.length === 0) {
+							e.preventDefault();
+							return;
+						}
+						if (!confirm(`هل أنت متأكد من رغبتك في حذف ${this.selectedLines.length} صنف من الطلبية؟`)) {
+							e.preventDefault();
+						}
+					}
+				};
+			}
+
 			function stepReviewQty(btn, delta) {
 				const form = btn.closest('form');
 				if (!form) return;

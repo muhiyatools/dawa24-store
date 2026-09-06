@@ -80,6 +80,40 @@ func (h *UIHandler) SmartOrderRemoveSubmit(w http.ResponseWriter, r *http.Reques
 	h.smartOrderBack(w, r, run, "")
 }
 
+// SmartOrderBulkRemoveSubmit drops multiple selected lines from the order at once.
+func (h *UIHandler) SmartOrderBulkRemoveSubmit(w http.ResponseWriter, r *http.Request) {
+	lang := langOf(r)
+	run, ok := h.smartOrderRun(w, r)
+	if !ok {
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.form_parse_error"))
+		return
+	}
+
+	lineIDs := r.Form["line_ids"]
+	if len(lineIDs) == 0 {
+		lineIDs = r.Form["line_id"]
+	}
+	if len(lineIDs) == 0 {
+		h.smartOrderBack(w, r, run, "لم يتم تحديد أي أصناف لحذفها")
+		return
+	}
+
+	for _, idStr := range lineIDs {
+		lineID, err := strconv.ParseInt(strings.TrimSpace(idStr), 10, 64)
+		if err != nil || lineID <= 0 {
+			continue
+		}
+		if err := h.smartOrderSvc.RemoveLine(r.Context(), run.OrganizationID, lineID); err != nil {
+			h.log.WarnContext(r.Context(), "bulk remove line failed", "line_id", lineID, "error", err)
+		}
+	}
+	h.smartOrderRecalculate(r, run)
+	h.smartOrderBack(w, r, run, "")
+}
+
 // SmartOrderFinalizeSubmit re-verifies every line and places the order.
 //
 // A line that changed since generation stops the whole order and is named on the
@@ -296,6 +330,7 @@ func (h *UIHandler) RegisterSmartOrderRoutes(r chi.Router) {
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/match", h.SmartOrderMatchSubmit)
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/supplier", h.SmartOrderSupplierSubmit)
 		g.Post("/customer/smart-order/{id}/lines/{lineID}/remove", h.SmartOrderRemoveSubmit)
+		g.Post("/customer/smart-order/{id}/lines/bulk-remove", h.SmartOrderBulkRemoveSubmit)
 		g.Post("/customer/smart-order/{id}/finalize", h.SmartOrderFinalizeSubmit)
 	})
 }

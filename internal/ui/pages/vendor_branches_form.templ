@@ -12,11 +12,14 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 		id="branch-form-panel"
 		class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6"
 		@dawa-coords-change.window="if ($event.detail && ($event.detail.targetId === 'vendor-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }"
-		@combobox-change.window="if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value, $event.detail.item); }"
+		@combobox-change.window="if ($event.detail) { onComboboxChange($event.detail); }"
 	>
-		<!-- City coordinates lookup for instant map auto-pan -->
+		<!-- City & Governorate coordinates lookup for instant map auto-pan -->
 		<script id="vendor-branch-cities-coords" type="application/json">
 			{ templ.Raw(CitiesCoordinatesJSON(data.Cities)) }
+		</script>
+		<script id="vendor-branch-govs-coords" type="application/json">
+			{ templ.Raw(GovernoratesCoordinatesJSON(data.Governorates)) }
 		</script>
 
 		<!-- Form Header -->
@@ -112,16 +115,29 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 				<input type="text" name="google_maps_url" x-model="form.google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input text-xs w-full"/>
 			</div>
 
-			<!-- Section 3: City, Address, Manager -->
-			<div class="d-grid grid-cols-2 gap-3">
+			<!-- Section 3: Governorate, City, Manager -->
+			<div class="d-grid grid-auto-fit-sm gap-3">
+				<div class="stack-sm">
+					@components.Combobox(components.ComboboxProps{
+						Name:        "governorate_id",
+						Label:       "المحافظة",
+						Placeholder: "اختر المحافظة…",
+						Options:     GovernorateOptions(data.Governorates, lang),
+						Required:    true,
+						EmptyText:   "لم يتم العثور على محافظة بهذا الاسم.",
+						Class:       "w-full",
+					})
+				</div>
+
 				<div class="stack-sm">
 					@components.Combobox(components.ComboboxProps{
 						Name:        "city_id",
-						Label:       "المدينة / المحافظة",
-						Placeholder: "ابحث باسم المدينة أو المحافظة…",
+						Label:       "المدينة / الحي",
+						Placeholder: "اختر المدينة التابعة…",
 						Options:     CityOptions(data.Cities, lang),
+						DependsOn:   "governorate_id",
 						Required:    true,
-						EmptyText:   "لم يتم العثور على مدينة بهذا الاسم.",
+						EmptyText:   "اختر المحافظة أولاً، أو ابحث باسم آخر.",
 						Class:       "w-full",
 					})
 				</div>
@@ -227,6 +243,7 @@ templ VendorBranchesScript() {
 					name_en: '',
 					code: '',
 					warehouse_type: 'warehouse',
+					governorate_id: '',
 					city_id: '',
 					manager_id: '',
 					address: '',
@@ -251,10 +268,53 @@ templ VendorBranchesScript() {
 						});
 					}
 				},
+				onComboboxChange(detail) {
+					if (!detail || !detail.name) return;
+					if (detail.name === 'governorate_id') {
+						this.onGovChange(detail.value, detail.item);
+					} else if (detail.name === 'city_id') {
+						this.onCityChange(detail.value, detail.item);
+					}
+				},
+				onGovChange(govId, item) {
+					this.form.governorate_id = govId ? String(govId) : '';
+					if (!govId || this._settingEditMode) return;
+					let lat = null, lon = null;
+					const coordsEl = document.getElementById('vendor-branch-govs-coords');
+					if (coordsEl) {
+						try {
+							const coords = JSON.parse(coordsEl.textContent);
+							const pos = coords[String(govId)];
+							if (pos && (pos[0] || pos[1])) {
+								lat = pos[0];
+								lon = pos[1];
+							}
+						} catch (e) {
+							console.error('Failed to parse gov coordinates:', e);
+						}
+					}
+					if ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {
+						if (typeof window.findCityCoordsByName === 'function') {
+							const found = window.findCityCoordsByName(item.label);
+							if (found) { lat = found[0]; lon = found[1]; }
+						}
+					}
+					if (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
+						this.form.latitude = lat;
+						this.form.longitude = lon;
+						const picker = document.getElementById('vendor-branch-map-picker');
+						if (typeof window.dawaSetMapLocation === 'function') {
+							window.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 11);
+						}
+						if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+							window.fetchDetailedAddressFromCoords(lat, lon);
+						}
+					}
+				},
 				onCityChange(cityId, item) {
 					this.form.city_id = cityId ? String(cityId) : '';
 					if (!cityId || this._settingEditMode) return;
-					let lat = null, lon = null;
+					let lat = null, lon = null, parentGovId = null;
 					const coordsEl = document.getElementById('vendor-branch-cities-coords');
 					if (coordsEl) {
 						try {
@@ -263,6 +323,7 @@ templ VendorBranchesScript() {
 							if (pos && (pos[0] || pos[1])) {
 								lat = pos[0];
 								lon = pos[1];
+								if (pos[2]) parentGovId = String(pos[2]);
 							}
 						} catch (e) {
 							console.error('Failed to parse city coordinates:', e);
@@ -277,12 +338,22 @@ templ VendorBranchesScript() {
 							}
 						}
 					}
+					// Auto-select parent governorate if not set or different
+					if (parentGovId && (!this.form.governorate_id || this.form.governorate_id !== parentGovId)) {
+						this.form.governorate_id = parentGovId;
+						if (typeof window.dawaComboboxSet === 'function') {
+							window.dawaComboboxSet('governorate_id', parentGovId);
+						}
+					}
 					if (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
 						this.form.latitude = lat;
 						this.form.longitude = lon;
 						const picker = document.getElementById('vendor-branch-map-picker');
 						if (typeof window.dawaSetMapLocation === 'function') {
 							window.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 14);
+						}
+						if (typeof window.fetchDetailedAddressFromCoords === 'function') {
+							window.fetchDetailedAddressFromCoords(lat, lon);
 						}
 					}
 				},
@@ -306,12 +377,24 @@ templ VendorBranchesScript() {
 					const latVal = (b.latitude !== undefined && b.latitude !== null && b.latitude !== 0) ? Number(b.latitude) : 30.0444;
 					const lonVal = (b.longitude !== undefined && b.longitude !== null && b.longitude !== 0) ? Number(b.longitude) : 31.2357;
 					const targetCityId = (b.city_id && b.city_id !== 0) ? String(b.city_id) : '';
+					let targetGovId = (b.governorate_id && b.governorate_id !== 0) ? String(b.governorate_id) : '';
+					if (!targetGovId && targetCityId) {
+						const coordsEl = document.getElementById('vendor-branch-cities-coords');
+						if (coordsEl) {
+							try {
+								const coords = JSON.parse(coordsEl.textContent);
+								const pos = coords[String(targetCityId)];
+								if (pos && pos[2]) targetGovId = String(pos[2]);
+							} catch (e) {}
+						}
+					}
 					this.form = {
 						id: b.id,
 						name_ar: b.name_ar || '',
 						name_en: b.name_en || '',
 						code: b.code || '',
 						warehouse_type: b.warehouse_type || 'warehouse',
+						governorate_id: targetGovId,
 						city_id: targetCityId,
 						manager_id: b.manager_id ? String(b.manager_id) : '',
 						address: b.address || '',
@@ -334,6 +417,9 @@ templ VendorBranchesScript() {
 						}
 						const syncCb = () => {
 							if (typeof window.dawaComboboxSet === 'function') {
+								if (targetGovId) {
+									window.dawaComboboxSet('governorate_id', targetGovId);
+								}
 								window.dawaComboboxSet('city_id', targetCityId);
 							}
 						};
@@ -354,6 +440,7 @@ templ VendorBranchesScript() {
 						name_en: '',
 						code: '',
 						warehouse_type: 'warehouse',
+						governorate_id: '',
 						city_id: '',
 						manager_id: '',
 						address: '',
@@ -368,6 +455,7 @@ templ VendorBranchesScript() {
 					};
 					this.$nextTick(() => {
 						if (typeof window.dawaComboboxSet === 'function') {
+							window.dawaComboboxSet('governorate_id', '');
 							window.dawaComboboxSet('city_id', '');
 						}
 						if (typeof window.dawaSetMapLocation === 'function') {

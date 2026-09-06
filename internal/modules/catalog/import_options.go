@@ -81,7 +81,7 @@ func DefaultImportOptions() ImportOptions {
 		AssignDosageForm:     true,
 		AssignCategory:       true,
 		AssignScientificName: true,
-		UseAI:                true,
+		UseAI:                false,
 		MinMatchScore:        productmatch.DefaultMinStrong,
 	}
 }

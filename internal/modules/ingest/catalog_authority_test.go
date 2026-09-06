@@ -75,12 +75,9 @@ func TestMatchedRowsStillResolveToAVariant(t *testing.T) {
 	}
 }
 
-// AI is on by default. It is the tier that decides the match rate, and it
-// cannot invent a product — it only picks among candidates the deterministic
-// engine already retrieved — so there is no reason to make a vendor find a
-// checkbox for it.
-func TestAIMatchingIsOnByDefault(t *testing.T) {
-	if !DefaultSettings().UseAI {
-		t.Error("AI matching defaults to off; the tier that does the most work should not need finding")
+// AI is off by default per configuration.
+func TestAIMatchingIsOffByDefault(t *testing.T) {
+	if DefaultSettings().UseAI {
+		t.Error("AI matching defaults to on, want off by default")
 	}
 }

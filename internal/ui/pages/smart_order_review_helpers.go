@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -65,4 +68,14 @@ func totalOrderableItems(groups []SmartOrderReviewGroup) int {
 		total += len(g.Lines)
 	}
 	return total
+}
+
+// GroupLineIDsJSON returns a JSON array of line ID strings for a review group.
+func GroupLineIDsJSON(g SmartOrderReviewGroup) string {
+	ids := make([]string, 0, len(g.Lines))
+	for _, l := range g.Lines {
+		ids = append(ids, fmt.Sprint(l.Line.ID))
+	}
+	b, _ := json.Marshal(ids)
+	return string(b)
 }

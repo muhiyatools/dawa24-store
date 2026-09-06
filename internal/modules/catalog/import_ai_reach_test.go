@@ -29,10 +29,10 @@ import (
 // What must stay off is anything that mints a row rather than filling a column.
 // Linking to a category that exists is reversible; creating one from a
 // supplier's spelling is how a category tree becomes a drug index.
-func TestAIDefaultsOnAndCreationDefaultsOff(t *testing.T) {
+func TestAIDefaultsOffAndCreationDefaultsOff(t *testing.T) {
 	opts := catalog.DefaultImportOptions()
-	if !opts.UseAI {
-		t.Error("UseAI defaults to off; the category column is left empty by every import that does not opt in")
+	if opts.UseAI {
+		t.Error("UseAI defaults to on; expected off by default")
 	}
 	if !opts.AssignCategory {
 		t.Error("AssignCategory defaults to off; the catalogue's organising column would stay null")

@@ -1499,6 +1499,7 @@
   vertical-align: middle;
   padding: 0.65rem 0.75rem;
 }
+.so-rev-col-check { width: 44px; min-width: 40px; text-align: center; }
 .so-rev-col-name { min-width: 220px; }
 .so-rev-col-sku { width: 90px; min-width: 80px; text-align: center; }
 .so-rev-col-qty { width: 140px; min-width: 130px; text-align: center; }

@@ -378,7 +378,13 @@ templ WalletModals(data WalletViewData) {
 					<div x-show="paymentType === 'vodafone_cash'" class="stack-sm">
 						<div class="form-group mb-2">
 							<label class="form-label text-xs" for="pm-wallet-provider">مشغّل المحفظة</label>
-							<input id="pm-wallet-provider" type="text" name="wallet_provider" x-model="paymentForm.wallet_provider" class="form-input form-input-sm" placeholder="فودافون كاش / أورنج كاش"/>
+							<select id="pm-wallet-provider" name="wallet_provider" x-model="paymentForm.wallet_provider" class="form-select form-select-sm font-semibold">
+								<option value="">-- اختر مشغّل المحفظة --</option>
+								<option value="فودافون كاش">فودافون كاش (Vodafone Cash)</option>
+								<option value="أورنج كاش">أورنج كاش (Orange Cash)</option>
+								<option value="اتصالات كاش">اتصالات كاش (Etisalat Cash)</option>
+								<option value="وي باي">وي باي (WE Pay)</option>
+							</select>
 						</div>
 						<div class="form-group mb-2">
 							<label class="form-label text-xs" for="pm-wallet-phone">رقم المحفظة الإلكترونية *</label>
