@@ -680,9 +680,33 @@ window.setMapPickerLocation = window.dawaSetMapLocation;
   });
 })();
 
+// Global helper to search coordinate fallbacks by Egyptian city or governorate name
+window.findCityCoordsByName = function(name) {
+  if (!name) return null;
+  const clean = String(name).trim().toLowerCase()
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه');
+  for (const c of (window.DAWA_EGYPT_CITY_COORDS || [])) {
+    const cName = c.name.toLowerCase()
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه');
+    if (cName === clean || clean.includes(cName) || cName.includes(clean)) {
+      return [c.lat, c.lon];
+    }
+  }
+  return null;
+};
+
 // Global helper for programmatic map location updates from comboboxes and external pickers
 function dawaSetMapLocation(container, lat, lon, zoom) {
   if (!container) return;
+  if (typeof container === 'string') {
+    container = document.querySelector(container);
+  }
+  if (!container) return;
+
   const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
   const targetZoom = (typeof zoom === 'number' && zoom > 0) ? zoom : 14;
   const targetLat = parseFloat(lat);
@@ -707,12 +731,30 @@ function dawaSetMapLocation(container, lat, lon, zoom) {
   // Also proactively synchronize form inputs and labels
   const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"]');
   const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"]');
-  if (latInput) latInput.value = targetLat.toFixed(6);
-  if (lonInput) lonInput.value = targetLon.toFixed(6);
+  if (latInput) {
+    latInput.value = targetLat.toFixed(6);
+    latInput.dispatchEvent(new Event('input', { bubbles: true }));
+    latInput.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (lonInput) {
+    lonInput.value = targetLon.toFixed(6);
+    lonInput.dispatchEvent(new Event('input', { bubbles: true }));
+    lonInput.dispatchEvent(new Event('change', { bubbles: true }));
+  }
   const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
   if (badge) badge.textContent = `${targetLat.toFixed(4)}, ${targetLon.toFixed(4)}`;
   const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
   if (gmapsInput) gmapsInput.value = `https://www.google.com/maps?q=${targetLat},${targetLon}`;
+
+  window.dispatchEvent(new CustomEvent('dawa-coords-change', {
+    detail: {
+      lat: targetLat,
+      lon: targetLon,
+      targetId: container.id || '',
+      container: container,
+      userAction: false
+    }
+  }));
 }
 window.dawaSetMapLocation = dawaSetMapLocation;
 

@@ -12,7 +12,7 @@ templ VendorBranchesForm(data VendorBranchesData, lang string) {
 		id="branch-form-panel"
 		class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6"
 		@dawa-coords-change.window="if ($event.detail && ($event.detail.targetId === 'vendor-branch-map-picker' || !$event.detail.targetId)) { form.latitude = $event.detail.lat; form.longitude = $event.detail.lon; }"
-		@combobox-change.window="if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value); }"
+		@combobox-change.window="if ($event.detail && $event.detail.name === 'city_id') { onCityChange($event.detail.value, $event.detail.item); }"
 	>
 		<!-- City coordinates lookup for instant map auto-pan -->
 		<script id="vendor-branch-cities-coords" type="application/json">
@@ -251,21 +251,38 @@ templ VendorBranchesScript() {
 						});
 					}
 				},
-				onCityChange(cityId) {
+				onCityChange(cityId, item) {
 					this.form.city_id = cityId ? String(cityId) : '';
 					if (!cityId || this._settingEditMode) return;
+					let lat = null, lon = null;
 					const coordsEl = document.getElementById('vendor-branch-cities-coords');
 					if (coordsEl) {
 						try {
 							const coords = JSON.parse(coordsEl.textContent);
 							const pos = coords[String(cityId)];
 							if (pos && (pos[0] || pos[1])) {
-								if (typeof window.dawaSetMapLocation === 'function') {
-									window.dawaSetMapLocation('#vendor-branch-map-picker', pos[0], pos[1], 14);
-								}
+								lat = pos[0];
+								lon = pos[1];
 							}
 						} catch (e) {
 							console.error('Failed to parse city coordinates:', e);
+						}
+					}
+					if ((lat === null || lon === null || (lat === 0 && lon === 0)) && item && item.label) {
+						if (typeof window.findCityCoordsByName === 'function') {
+							const found = window.findCityCoordsByName(item.label);
+							if (found) {
+								lat = found[0];
+								lon = found[1];
+							}
+						}
+					}
+					if (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
+						this.form.latitude = lat;
+						this.form.longitude = lon;
+						const picker = document.getElementById('vendor-branch-map-picker');
+						if (typeof window.dawaSetMapLocation === 'function') {
+							window.dawaSetMapLocation(picker || '#vendor-branch-map-picker', lat, lon, 14);
 						}
 					}
 				},
