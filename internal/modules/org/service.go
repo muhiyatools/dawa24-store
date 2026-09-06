@@ -253,6 +253,17 @@ func (s *Service) ListEmployeesWithTotal(ctx context.Context, orgID int64, limit
 	return s.repo.ListEmployeesWithTotal(ctx, orgID, limit, offset)
 }
 
+// ListMembersHolding returns the active members whose company role grants one
+// permission. The delivery screen uses it to offer the supplier's own
+// representatives, and only those.
+func (s *Service) ListMembersHolding(ctx context.Context, orgID int64, permissionKey string) ([]*EmployeeView, error) {
+	if orgID <= 0 || permissionKey == "" {
+		return nil, apperr.Validation("member.invalid",
+			"An organization and a permission are required.", nil)
+	}
+	return s.repo.ListMembersHolding(ctx, orgID, permissionKey)
+}
+
 // AddMemberDirect adds or updates a member directly with full attributes.
 func (s *Service) AddMemberDirect(ctx context.Context, m *Member) error {
 	if m.OrganizationID <= 0 || m.UserID <= 0 {

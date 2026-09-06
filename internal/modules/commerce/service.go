@@ -86,10 +86,10 @@ type CheckoutInput struct {
 	// shipment was stamped with it — so in a three-supplier order, supplier B's
 	// parcel named supplier A's warehouse as its origin, which is the address
 	// their own shipment screen shows them.
-	VendorBranchIDs map[int64]*int64 `json:"vendor_branch_ids,omitempty"`
-	TaxAmount          money.Amount           `json:"tax_amount,omitempty"`
-	Notes              string                 `json:"notes,omitempty"`
-	Items              []CheckoutLineItem     `json:"items"`
+	VendorBranchIDs map[int64]*int64   `json:"vendor_branch_ids,omitempty"`
+	TaxAmount       money.Amount       `json:"tax_amount,omitempty"`
+	Notes           string             `json:"notes,omitempty"`
+	Items           []CheckoutLineItem `json:"items"`
 	// MinOrderAmount is the approved offer's minimum order amount. It is
 	// supplied by the caller (which owns the offer data) and enforced here so
 	// every checkout path is gated in one place.
@@ -308,23 +308,28 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 	}
 
 	order := &Order{
-		OrderNumber:       orderNumber,
-		CustomerID:        input.CustomerID,
-		OrganizationID:    custOrgID,
-		OfferID:           input.OfferID,
-		BranchID:          input.BranchID,
-		VendorBranchID:    input.VendorBranchID,
-		UserAddressID:     input.UserAddressID,
-		Status:            StatusPending,
-		Subtotal:          orderSubtotal,
-		DiscountAmount:    totalDiscount,
-		TotalDiscount:     totalDiscount,
-		ShippingFee:       shippingFee,
-		TaxAmount:         input.TaxAmount,
-		TotalAmount:       finalPrice,
-		FinalPrice:        finalPrice,
-		PaymentMethod:     input.PaymentMethod,
-		PaymentStatus:     func() PaymentStatus { if input.PaymentStatus != "" { return input.PaymentStatus }; return PaymentUnpaid }(),
+		OrderNumber:    orderNumber,
+		CustomerID:     input.CustomerID,
+		OrganizationID: custOrgID,
+		OfferID:        input.OfferID,
+		BranchID:       input.BranchID,
+		VendorBranchID: input.VendorBranchID,
+		UserAddressID:  input.UserAddressID,
+		Status:         StatusPending,
+		Subtotal:       orderSubtotal,
+		DiscountAmount: totalDiscount,
+		TotalDiscount:  totalDiscount,
+		ShippingFee:    shippingFee,
+		TaxAmount:      input.TaxAmount,
+		TotalAmount:    finalPrice,
+		FinalPrice:     finalPrice,
+		PaymentMethod:  input.PaymentMethod,
+		PaymentStatus: func() PaymentStatus {
+			if input.PaymentStatus != "" {
+				return input.PaymentStatus
+			}
+			return PaymentUnpaid
+		}(),
 		Notes:             input.Notes,
 		IsNegotiation:     input.IsNegotiation,
 		NegotiationStatus: negStatus,

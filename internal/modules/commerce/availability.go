@@ -25,22 +25,22 @@ import (
 type Reason string
 
 const (
-	ReasonOK                Reason = ""
-	ReasonVendorInvalid     Reason = "vendor_invalid"
-	ReasonVendorUnapproved  Reason = "vendor_unapproved"
-	ReasonVariantInvalid    Reason = "variant_invalid"
-	ReasonVariantInactive   Reason = "variant_inactive"
-	ReasonWrongVendor       Reason = "wrong_vendor"
-	ReasonOutOfStock        Reason = "out_of_stock"
-	ReasonInsufficientStock Reason = "insufficient_stock"
-	ReasonBelowMinimum      Reason = "below_minimum"
-	ReasonBranchInvalid     Reason = "branch_invalid"
-	ReasonBranchNotOwned    Reason = "branch_not_owned"
-	ReasonBranchNoLocation           Reason = "branch_no_location"
-	ReasonBranchNoInstitutionalWorks Reason = "branch_no_institutional_works"
+	ReasonOK                          Reason = ""
+	ReasonVendorInvalid               Reason = "vendor_invalid"
+	ReasonVendorUnapproved            Reason = "vendor_unapproved"
+	ReasonVariantInvalid              Reason = "variant_invalid"
+	ReasonVariantInactive             Reason = "variant_inactive"
+	ReasonWrongVendor                 Reason = "wrong_vendor"
+	ReasonOutOfStock                  Reason = "out_of_stock"
+	ReasonInsufficientStock           Reason = "insufficient_stock"
+	ReasonBelowMinimum                Reason = "below_minimum"
+	ReasonBranchInvalid               Reason = "branch_invalid"
+	ReasonBranchNotOwned              Reason = "branch_not_owned"
+	ReasonBranchNoLocation            Reason = "branch_no_location"
+	ReasonBranchNoInstitutionalWorks  Reason = "branch_no_institutional_works"
 	ReasonBranchInstitutionalMismatch Reason = "branch_institutional_mismatch"
-	ReasonNotCovered                 Reason = "not_covered"
-	ReasonQuantityInvalid            Reason = "quantity_invalid"
+	ReasonNotCovered                  Reason = "not_covered"
+	ReasonQuantityInvalid             Reason = "quantity_invalid"
 	// ReasonOwnOrganization refuses a company buying from itself. Smart
 	// Ordering has always called this ReasonOwnOrg and refused it first; this
 	// is the same invariant on the ordinary purchase path.

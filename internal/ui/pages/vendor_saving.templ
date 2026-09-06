@@ -20,7 +20,7 @@ type VendorSavingPageData struct {
 }
 
 func savingFilterBorder(current, target string) string {
-	if current == target {
+	if current == target || ((current == "" || current == "all") && target == "all") {
 		return "var(--accent)"
 	}
 	return "var(--border)"
@@ -117,13 +117,14 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- 3 Status Metric Cards -->
+			<!-- 4 Status Metric Cards -->
 			<div class="dashboard-stat-grid mb-6">
 				
 				<!-- 1. All Products -->
 				<a
 					href="/vendor/saving-products?filter=all"
 					class="stat-card-3d text-decoration-none"
+					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "all")) }
 				>
 					<div class="stat-card-label">جميع المنتجات (الكل)</div>
 					<div class="stat-card-value text-primary tabular-nums">
@@ -140,6 +141,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				<a
 					href="/vendor/saving-products?filter=linked"
 					class="stat-card-3d text-decoration-none"
+					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "linked")) }
 				>
 					<div class="stat-card-label text-sky">المنتجات المرتبطة</div>
 					<div class="stat-card-value text-sky tabular-nums">
@@ -156,6 +158,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				<a
 					href="/vendor/saving-products?filter=unlinked"
 					class="stat-card-3d text-decoration-none"
+					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "unlinked")) }
 				>
 					<div class="stat-card-label text-warning">منتجات غير مرتبطة</div>
 					<div class="stat-card-value text-warning tabular-nums">
@@ -168,6 +171,25 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					<span class="text-xs text-secondary mt-1 d-block">تحتاج مطابقة وربط</span>
 				</a>
 
+				<!-- 4. Total Value & Quantity -->
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-emerald">إجمالي القيمة التقديرية</div>
+					<div class="stat-card-value text-emerald tabular-nums">
+						if data.Stats != nil && data.Stats.TotalValue.IsPositive() {
+							{ data.Stats.TotalValue.String() } <span class="text-xs font-normal">ج.م</span>
+						} else {
+							0 <span class="text-xs font-normal">ج.م</span>
+						}
+					</div>
+					<span class="text-xs text-secondary mt-1 d-block">
+						if data.Stats != nil && data.Stats.TotalQuantity > 0 {
+							{ fmt.Sprintf("إجمالي الكمية: %.0f وحدة", data.Stats.TotalQuantity) }
+						} else {
+							قيمة منتجات التوفير
+						}
+					</span>
+				</div>
+
 			</div>
 
 			<!-- Main Content Table Card -->
@@ -176,19 +198,35 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				<!-- Top Bar: Result Count & Search Input -->
 				<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-4">
 					<div class="text-sm font-extrabold text-primary">
-						إجمالي النتائج: <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong>
+						if data.Pagination.TotalCount > 0 {
+							عرض <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong> من إجمالي <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", data.Pagination.TotalCount) }</strong> صنف
+						} else {
+							إجمالي النتائج: <strong class="text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Items)) }</strong>
+						}
 					</div>
 
-					<div class="position-relative w-80 max-w-full">
+					<form method="GET" action="/vendor/saving-products" class="position-relative w-80 max-w-full m-0 d-flex gap-2">
+						if data.FilterStatus != "" && data.FilterStatus != "all" {
+							<input type="hidden" name="filter" value={ data.FilterStatus } />
+						}
 						<input
 							type="text"
 							id="saving-products-search"
+							name="search"
 							value={ data.SearchQuery }
 							placeholder="بحث باسم المنتج المحفوظ أو SKU..."
 							class="form-input text-xs w-full"
 							oninput="filterSavingProductsTable(this.value)"
 						/>
-					</div>
+						<button type="submit" class="btn btn-secondary btn-sm px-3" title="بحث في قاعدة البيانات">
+							@components.IconSearch("icon-xs")
+						</button>
+						if data.SearchQuery != "" {
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/saving-products?filter=%s", data.FilterStatus)) } class="btn btn-secondary btn-sm px-2 text-muted" title="إلغاء البحث">
+								✕
+							</a>
+						}
+					</form>
 				</div>
 
 				<!-- Saving Products Data Table -->

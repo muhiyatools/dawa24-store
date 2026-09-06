@@ -117,7 +117,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Result.Summary.TotalProducts))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 108, Col: 61}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 108, Col: 61}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("عبر %d موردين", data.Result.Summary.TotalSuppliers))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 115, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 115, Col: 82}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -152,7 +152,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", data.Result.Summary.AverageDiscount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 125, Col: 67}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 125, Col: 67}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -172,7 +172,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Result.Summary.TotalSuppliers))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 138, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 138, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -200,7 +200,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var8 templ.SafeURL
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "all", data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 153, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 153, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var7).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalFilteredCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 156, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 156, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -248,7 +248,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var12 templ.SafeURL
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "multi-offer", data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 160, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 160, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -261,7 +261,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var11).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -283,7 +283,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var15 templ.SafeURL
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "single-offer", data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 167, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 167, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -296,7 +296,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var14).String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 1, Col: 0}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
@@ -314,7 +314,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SuppliersParam)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 177, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 177, Col: 72}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
@@ -333,7 +333,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.ActiveFilter)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 180, Col: 67}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 180, Col: 67}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 				if templ_7745c5c3_Err != nil {
@@ -351,7 +351,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 185, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 185, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
@@ -395,7 +395,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.2f", row.BestDiscount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 224, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 224, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 					if templ_7745c5c3_Err != nil {
@@ -408,7 +408,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", row.TotalSuppliers))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 225, Col: 64}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 225, Col: 64}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 					if templ_7745c5c3_Err != nil {
@@ -421,7 +421,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", len(row.MissingSuppliers)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 226, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 226, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {
@@ -434,7 +434,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.ProductName + " " + row.SKU + " " + row.BestSupplier + " " + strings.Join(row.MissingSuppliers, " "))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 227, Col: 128}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 227, Col: 128}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 					if templ_7745c5c3_Err != nil {
@@ -447,7 +447,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(row.ProductName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 232, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 232, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -465,7 +465,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(row.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 235, Col: 75}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 235, Col: 75}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -488,7 +488,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestPrice.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 242, Col: 42}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 242, Col: 42}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -511,7 +511,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", row.BestDiscount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 251, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 251, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -524,7 +524,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(row.BestSupplier)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 258, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 258, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -543,7 +543,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var29 string
 							templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 267, Col: 155}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 267, Col: 155}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 							if templ_7745c5c3_Err != nil {
@@ -556,7 +556,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var30 string
 							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(supName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 268, Col: 24}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 268, Col: 24}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 							if templ_7745c5c3_Err != nil {
@@ -569,7 +569,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var31 string
 							templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", off.Discount))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 268, Col: 65}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 268, Col: 65}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 							if templ_7745c5c3_Err != nil {
@@ -582,7 +582,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var32 string
 							templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(off.PriceAfterDiscount.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 268, Col: 102}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 268, Col: 102}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 							if templ_7745c5c3_Err != nil {
@@ -600,7 +600,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var33 string
 							templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 271, Col: 147}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 271, Col: 147}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 							if templ_7745c5c3_Err != nil {
@@ -613,7 +613,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var34 string
 							templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(supName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 272, Col: 24}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 272, Col: 24}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 							if templ_7745c5c3_Err != nil {
@@ -626,7 +626,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var35 string
 							templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", off.Discount))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 272, Col: 65}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 272, Col: 65}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 							if templ_7745c5c3_Err != nil {
@@ -639,7 +639,7 @@ func CompareResultsPage(lang, dir string, data CompareResultsPageData) templ.Com
 							var templ_7745c5c3_Var36 string
 							templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(off.PriceAfterDiscount.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_results.templ`, Line: 272, Col: 102}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_results.templ`, Line: 272, Col: 102}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 							if templ_7745c5c3_Err != nil {

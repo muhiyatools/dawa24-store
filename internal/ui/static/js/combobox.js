@@ -276,6 +276,7 @@
 		var cb = registry[name];
 		if (!cb) return false;
 		if (!id) { cb.clear(false); return true; }
+		if (cb.selected && String(cb.selected.id) === String(id)) return true;
 
 		// Prefer this combobox's own record of the option: the caller knows an
 		// id and a label, the option knows which parent it belongs to.

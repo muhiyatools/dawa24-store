@@ -90,6 +90,27 @@ func TenantScopeFor(orgType string) (Scope, bool) {
 	return "", false
 }
 
+// TenantOrgTypes lists every legacy spelling of organization type that
+// resolves to a dashboard.
+//
+// It is the inverse of TenantScopeFor, and it exists so a query that has to
+// select companies by dashboard can do so in SQL without a second, drifting
+// copy of the spelling list. TestTenantOrgTypesMatchTenantScopeFor holds the
+// two to each other.
+func TenantOrgTypes(scope Scope) []string {
+	all := []string{
+		"vendor", "supplier", "company", "agency",
+		"customer", "pharmacy", "chain_pharmacy", "individual",
+	}
+	out := make([]string, 0, len(all))
+	for _, t := range all {
+		if s, ok := TenantScopeFor(t); ok && s == scope {
+			out = append(out, t)
+		}
+	}
+	return out
+}
+
 // Kind separates the two things a permission can control, because the role
 // editor renders them differently: a page is a row in the matrix, an action is
 // a checkbox within that row.

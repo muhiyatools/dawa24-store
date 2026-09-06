@@ -8,7 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
-templ VendorOrderShipmentCard(sh *commerce.OrderShipment, lang string) {
+templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData, lang string) {
 	<div
 		id={ fmt.Sprintf("shipment-%d", sh.ID) }
 		x-data="{ expanded: false }"
@@ -214,6 +214,17 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, lang string) {
 				</div>
 			</div>
 
+			<!-- Delivery assignment: which مندوب carries this parcel -->
+			if data.CanAssign {
+				<div class="bg-surface-sunken p-4 rounded-xl border mb-5">
+					<div class="d-flex items-center gap-2 mb-3 text-primary">
+						@components.IconTruck("icon-xs")
+						<h4 class="text-xs font-black m-0">إسناد الطرد إلى مندوب التوصيل</h4>
+					</div>
+					@VendorDeliveryAssignForm(sh, data.Couriers, "orders")
+				</div>
+			}
+
 			<!-- Action Controls Toolbar -->
 			<div class="flex-between items-center flex-wrap gap-4 pt-4 border-t">
 				<div class="d-flex items-center gap-2 flex-wrap">
@@ -222,15 +233,18 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, lang string) {
 							<span>رقم بوليصة الشحن:</span>
 							<strong class="tabular-nums text-primary font-black font-mono">{ sh.TrackingNumber }</strong>
 						</div>
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/delivery?tracking=%s", sh.TrackingNumber)) }
-							target="_blank"
-							class="btn btn-secondary font-black text-xs py-1.5 px-3 gap-1.5 text-sky-700 bg-sky-50 border-sky-200"
-							title="فتح شاشة تسليم المندوب لمشاركتها معه"
-						>
-							@components.IconExternalLink("icon-2xs")
-							<span>بوابة المندوب ↗</span>
-						</a>
+					}
+					if sh.CourierName != "" {
+						<div class="text-xs text-secondary bg-surface-sunken p-2 px-3 rounded-lg border d-flex items-center gap-2">
+							@components.IconTruck("icon-2xs")
+							<span>المندوب المسؤول:</span>
+							<strong class="text-primary font-black">{ sh.CourierName }</strong>
+							if sh.CourierAssignedAt != nil {
+								<span class="tabular-nums font-mono text-muted">
+									(منذ { sh.CourierAssignedAt.Format("2006-01-02 03:04 PM") })
+								</span>
+							}
+						</div>
 					}
 				</div>
 

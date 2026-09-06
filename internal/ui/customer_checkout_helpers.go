@@ -157,4 +157,3 @@ func (h *UIHandler) vendorFulfillingBranch(ctx context.Context, vendorOrgID int6
 	id := branches[0].ID
 	return &id
 }
-

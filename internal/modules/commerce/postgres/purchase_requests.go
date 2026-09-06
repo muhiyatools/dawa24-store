@@ -213,7 +213,6 @@ func (r *Repository) ListPurchaseRequestsByCustomer(ctx context.Context, custome
 	return results, nil
 }
 
-
 // CountPurchaseRequestsByCustomer returns status counts for a customer (Plan V5 §3.1).
 func (r *Repository) CountPurchaseRequestsByCustomer(ctx context.Context, customerID int64, orgID *int64) (map[string]int, error) {
 	counts := make(map[string]int)

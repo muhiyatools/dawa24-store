@@ -94,10 +94,6 @@ func (r stubRepo) UpdateShipmentStatus(ctx context.Context, id int64, from, to c
 	r.fail("UpdateShipmentStatus")
 	return nil
 }
-func (r stubRepo) GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*commerce.OrderShipment, error) {
-	r.fail("GetShipmentForDeliveryByTracking")
-	return nil, nil
-}
 func (r stubRepo) VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*commerce.OrderShipment, error) {
 	r.fail("VerifyAndCompleteDelivery")
 	return nil, nil
@@ -264,9 +260,6 @@ func (happyRepo) GetShipmentByID(ctx context.Context, id int64) (*commerce.Order
 func (happyRepo) UpdateShipmentStatus(ctx context.Context, id int64, from, to commerce.OrderStatus, history commerce.OrderStatusHistory) error {
 	return nil
 }
-func (happyRepo) GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*commerce.OrderShipment, error) {
-	return &commerce.OrderShipment{ID: 1, ShipmentNumber: "SH-1", TrackingNumber: tracking, Status: commerce.StatusShipped, DeliveryCode: "123456"}, nil
-}
 func (happyRepo) VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*commerce.OrderShipment, error) {
 	return &commerce.OrderShipment{ID: shipmentID, Status: commerce.StatusDelivered}, nil
 }
@@ -352,3 +345,39 @@ func (happyRepo) GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineI
 	return nil, nil
 }
 
+func (r stubRepo) GetVendorShipment(ctx context.Context, shipmentID, vendorOrgID int64) (*commerce.OrderShipment, error) {
+	r.fail("GetVendorShipment")
+	return nil, nil
+}
+func (r stubRepo) AssignShipmentCourier(ctx context.Context, shipmentID, vendorOrgID int64, courierUserID *int64, assignedBy int64) error {
+	r.fail("AssignShipmentCourier")
+	return nil
+}
+func (r stubRepo) ListCourierQueue(ctx context.Context, f commerce.CourierQueueFilter) ([]*commerce.OrderShipment, int, error) {
+	r.fail("ListCourierQueue")
+	return nil, 0, nil
+}
+func (r stubRepo) CourierQueueCounts(ctx context.Context, vendorOrgID, courierUserID int64) (commerce.CourierQueueCounts, error) {
+	r.fail("CourierQueueCounts")
+	return commerce.CourierQueueCounts{}, nil
+}
+func (r stubRepo) ListCourierWorkload(ctx context.Context, vendorOrgID int64) ([]*commerce.CourierWorkload, error) {
+	r.fail("ListCourierWorkload")
+	return nil, nil
+}
+
+func (happyRepo) GetVendorShipment(ctx context.Context, shipmentID, vendorOrgID int64) (*commerce.OrderShipment, error) {
+	return nil, nil
+}
+func (happyRepo) AssignShipmentCourier(ctx context.Context, shipmentID, vendorOrgID int64, courierUserID *int64, assignedBy int64) error {
+	return nil
+}
+func (happyRepo) ListCourierQueue(ctx context.Context, f commerce.CourierQueueFilter) ([]*commerce.OrderShipment, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) CourierQueueCounts(ctx context.Context, vendorOrgID, courierUserID int64) (commerce.CourierQueueCounts, error) {
+	return commerce.CourierQueueCounts{}, nil
+}
+func (happyRepo) ListCourierWorkload(ctx context.Context, vendorOrgID int64) ([]*commerce.CourierWorkload, error) {
+	return nil, nil
+}

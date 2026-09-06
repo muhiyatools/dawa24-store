@@ -425,4 +425,3 @@ type VendorPharmacyCoverageData struct {
 	FilterCity        string
 	SearchQuery       string
 }
-

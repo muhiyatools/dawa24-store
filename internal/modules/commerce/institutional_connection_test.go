@@ -14,7 +14,7 @@ func TestInstitutionalWorks_AllowedConnections(t *testing.T) {
 	t.Run("allowed when vendor institutional work is connected to pharmacy branch", func(t *testing.T) {
 		p := healthyProbe()
 		p.branch.InstitutionalWorks = []string{"2"} // Pharmacy (صيدلية)
-		p.instConnected = true                       // Connected to vendor's warehouse
+		p.instConnected = true                      // Connected to vendor's warehouse
 
 		req := healthyRequest()
 		res, err := serviceWith(p).CheckAvailability(ctx, req)
@@ -46,7 +46,7 @@ func TestInstitutionalWorks_AllowedConnections(t *testing.T) {
 	t.Run("refused with ReasonBranchInstitutionalMismatch when vendor work is not in pharmacy connections", func(t *testing.T) {
 		p := healthyProbe()
 		p.branch.InstitutionalWorks = []string{"2"} // Pharmacy (صيدلية)
-		p.instConnected = false                      // Vendor branch is NOT in allowed connections of this pharmacy
+		p.instConnected = false                     // Vendor branch is NOT in allowed connections of this pharmacy
 
 		req := healthyRequest()
 		res, err := serviceWith(p).CheckAvailability(ctx, req)

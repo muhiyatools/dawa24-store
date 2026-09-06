@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"context"
-	"time"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 
@@ -18,121 +18,72 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 	return shipments, err
 }
 
-// ListShipmentsByVendorWithTotal retrieves shipment partitions for a vendor organization with optional status filter and total count.
+// ListShipmentsByVendorWithTotal retrieves one page of a supplier's shipments,
+// optionally filtered by status, with the total that matched.
+//
+// It reads through the shared enriched projection rather than a projection of
+// its own. The supply-orders screen now shows who is carrying each parcel and
+// since when, and a second hand-written SELECT over the same table is how that
+// column would have been added to one screen and forgotten on the other.
 func (r *Repository) ListShipmentsByVendorWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.OrderShipment, int, error) {
-	var shipments []*commerce.OrderShipment
-	var total int
+	if limit <= 0 || limit > 100 {
+		limit = 25
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	var (
+		shipments []*commerce.OrderShipment
+		total     int
+	)
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		countSQL := `
+		const countSQL = `
 			SELECT count(*)
-			FROM commerce.order_shipments s
-			WHERE s.organization_id = $1
-			  AND ($2::text = '' OR s.status = $2);
+			  FROM commerce.order_shipments s
+			 WHERE s.organization_id = $1
+			   AND ($2::text = '' OR s.status = $2);
 		`
 		if err := tx.QueryRow(txCtx, countSQL, vendorOrgID, status).Scan(&total); err != nil {
 			return err
 		}
 
-		if limit <= 0 || limit > 100 {
-			limit = 25
-		}
-		if offset < 0 {
-			offset = 0
-		}
-
-		query := `
-			SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
-			       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
-			       s.carrier_name, s.delivery_code, s.delivery_attempts, s.delivery_locked_until,
-			       s.delivery_notes, s.collected_amount_minor, s.delivered_by_courier_at,
-			       s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
-			       COALESCE(ord.order_number, ''),
-			       COALESCE(ord.payment_method, 'cod'),
-			       COALESCE(ord.payment_status, 'unpaid'),
-			       COALESCE(ord.notes, ''),
-			       COALESCE(org.name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
-			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
-			       COALESCE(b.address, '') AS branch_address,
-			       COALESCE(b.phone, '') AS branch_phone,
-			       COALESCE(b.manager_name, '') AS manager_name
-			FROM commerce.order_shipments s
-			JOIN commerce.orders ord ON ord.id = s.order_id
-			LEFT JOIN org.organizations org ON org.id = ord.organization_id
-			LEFT JOIN org.branches b ON b.id = ord.branch_id
-			WHERE s.organization_id = $1
-			  AND ($2::text = '' OR s.status = $2)
-			ORDER BY s.created_at DESC, s.id DESC
-			LIMIT $3 OFFSET $4;
-		`
+		query := shipmentDetailSelect + `
+	WHERE s.organization_id = $1
+	  AND ($2::text = '' OR s.status = $2)
+	ORDER BY s.created_at DESC, s.id DESC
+	LIMIT $3 OFFSET $4;`
 		rows, err := tx.Query(txCtx, query, vendorOrgID, status, limit, offset)
 		if err != nil {
 			return err
 		}
 		defer rows.Close()
-
-		var shipmentIDs []int64
-		shipmentMap := make(map[int64]*commerce.OrderShipment)
-
 		for rows.Next() {
-			var s commerce.OrderShipment
-			var statusStr, payStatusStr string
-			if err := rows.Scan(
-				&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID,
-				&s.ShipmentNumber, &statusStr, &s.Subtotal, &s.ShippingFee,
-				&s.TotalAmount, &s.TrackingNumber, &s.CarrierName,
-				&s.DeliveryCode, &s.DeliveryAttempts, &s.DeliveryLockedUntil,
-				&s.DeliveryNotes, &s.CollectedAmountMinor, &s.DeliveredByCourierAt,
-				&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
-				&s.OrderNumber, &s.PaymentMethod, &payStatusStr, &s.Notes,
-				&s.CustomerOrgName, &s.CustomerBranchName, &s.CustomerBranchAddress,
-				&s.CustomerBranchPhone, &s.CustomerManagerName,
-			); err != nil {
+			sh, err := scanShipmentDetail(rows)
+			if err != nil {
 				return err
 			}
-			s.Status = commerce.OrderStatus(statusStr)
-			s.PaymentStatus = commerce.PaymentStatus(payStatusStr)
-			shipments = append(shipments, &s)
-			shipmentIDs = append(shipmentIDs, s.ID)
-			shipmentMap[s.ID] = &s
-		}
-
-		if len(shipmentIDs) > 0 {
-			queryLines := `
-				SELECT id, order_id, shipment_id, organization_id, product_id,
-				       product_variant_id, product_name, variant_name, sku,
-				       offer_product_id, unit_price, quantity, discount_amount,
-				       total_price, cost_price, COALESCE(cost_discount_percentage, 0.00),
-				       list_price, original_price, original_discount, rating
-				FROM commerce.order_lines
-				WHERE shipment_id = ANY($1)
-				ORDER BY id ASC;
-			`
-			lRows, err := tx.Query(txCtx, queryLines, shipmentIDs)
-			if err == nil {
-				defer lRows.Close()
-				for lRows.Next() {
-					var l commerce.OrderLine
-					var rating *float64
-					if err := lRows.Scan(
-						&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
-						&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
-						&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
-						&l.TotalPrice, &l.CostPrice, &l.CostDiscountPercentage,
-						&l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &rating,
-					); err == nil {
-						if sh, exists := shipmentMap[l.ShipmentID]; exists {
-							sh.Lines = append(sh.Lines, &l)
-						}
-					}
-				}
-			}
+			shipments = append(shipments, sh)
 		}
 		return rows.Err()
 	})
-	return shipments, total, err
-}
+	if err != nil {
+		return nil, 0, fmt.Errorf("commerce postgres: list vendor shipments: %w", err)
+	}
 
-var _ time.Time
+	ids := make([]int64, 0, len(shipments))
+	for _, sh := range shipments {
+		ids = append(ids, sh.ID)
+	}
+	lines, err := r.shipmentLines(ctx, ids)
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, sh := range shipments {
+		sh.Lines = lines[sh.ID]
+	}
+	return shipments, total, nil
+}
 
 // CountOrders returns the total number of orders on the platform.
 //

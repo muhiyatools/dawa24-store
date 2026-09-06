@@ -1,0 +1,242 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// What the representative does next.
+//
+// The two halves are deliberately different in kind. Moving a parcel forward —
+// picked up, on the way — is a claim the courier makes about themselves, so it
+// is one button. Closing it is a claim about the pharmacy, so it needs the
+// pharmacy's own six-digit code; the courier cannot mark a parcel delivered by
+// asserting it.
+
+templ VendorDeliveryActions(data VendorDeliveryDetailData, lang string) {
+	if data.Shipment.IsClosed() {
+		@VendorDeliveryClosedCard(data.Shipment)
+	} else if !data.CanUpdate {
+		<div class="courier-card text-center p-6">
+			<div class="mb-2">@components.IconInfo("icon-sm")</div>
+			<h3 class="text-sm font-black text-primary m-0 mb-1">هذا الطرد غير مسند إليك</h3>
+			<p class="text-xs text-secondary m-0 font-medium">
+				if data.CanAssign {
+					يمكنك إسناده إلى أحد مندوبي التوصيل من الأعلى؛ إجراءات التوصيل نفسها يقوم بها المندوب المسؤول.
+				} else {
+					إجراءات التسليم متاحة للمندوب المسند إليه الطرد فقط.
+				}
+			</p>
+		</div>
+	} else {
+		@VendorDeliveryProgressCard(data.Shipment)
+		@VendorDeliveryHandoverCard(data.Shipment)
+	}
+}
+
+// VendorDeliveryProgressCard offers only the transitions the state machine
+// accepts from where the parcel actually is, so a courier is never shown a
+// button that would be refused.
+templ VendorDeliveryProgressCard(sh *commerce.OrderShipment) {
+	<div class="courier-card">
+		<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
+			@components.IconTruck("icon-xs")
+			<h3 class="text-xs font-black m-0">تحديث حالة الطرد</h3>
+		</div>
+		<div class="d-flex items-center gap-2 flex-wrap">
+			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusShipped) {
+				@deliveryStatusButton(deliveryStep{
+					ShipmentID: sh.ID, To: commerce.StatusShipped, Variant: "btn-secondary",
+					Note: "استلم المندوب الطرد من المخزن وبدأ رحلة التوصيل",
+				})
+			}
+			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusInTransit) {
+				@deliveryStatusButton(deliveryStep{
+					ShipmentID: sh.ID, To: commerce.StatusInTransit, Variant: "btn-secondary",
+					Note: "الطرد في الطريق إلى الصيدلية",
+				})
+			}
+			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusOutForDelivery) {
+				@deliveryStatusButton(deliveryStep{
+					ShipmentID: sh.ID, To: commerce.StatusOutForDelivery, Variant: "btn-primary",
+					Note: "وصل المندوب إلى الصيدلية وبانتظار استلام الكود",
+				})
+			}
+			if commerce.IsValidStatusTransition(sh.Status, commerce.StatusFailed) {
+				@deliveryStatusButton(deliveryStep{
+					ShipmentID: sh.ID, To: commerce.StatusFailed, Variant: "btn-danger",
+					Note: "تعذّر تسليم الطرد للصيدلية",
+					// Failure is terminal: nothing moves the parcel out of it,
+					// and a courier who taps it by mistake has closed the
+					// supplier's order. It is the one step that asks first.
+					Confirm: true,
+				})
+			}
+		</div>
+		<p class="text-2xs text-muted m-0 mt-3">
+			تحديث الحالة يُشعر الصيدلية فوراً بموقع طردها، ويُسجَّل في سجل الطلب باسمك وتوقيته.
+		</p>
+	</div>
+}
+
+// deliveryStep is one button on the progress card: the move it makes, the note
+// it writes into the order history, and whether it asks first.
+type deliveryStep struct {
+	ShipmentID int64
+	To         commerce.OrderStatus
+	Variant    string
+	// Note is what the order timeline will say happened. Without one the
+	// history records a status change and no account of it, which is the half
+	// of an audit trail that is no use to anybody reading it later.
+	Note string
+	// Confirm asks before posting. It is a flag rather than the question
+	// itself because the question would be interpolated into an HTML attribute
+	// that also delimits a JavaScript string — two levels of quoting for a
+	// message only one button uses.
+	Confirm bool
+}
+
+templ deliveryStatusButton(step deliveryStep) {
+	<form
+		action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/status", step.ShipmentID)) }
+		method="POST"
+		class="m-0 d-inline"
+		if step.Confirm {
+			onsubmit="return confirm('تعذّر التسليم إجراء نهائي لا يمكن التراجع عنه، وسيتم إبلاغ المورد والصيدلية. هل أنت متأكد؟');"
+		}
+	>
+		<input type="hidden" name="status" value={ string(step.To) }/>
+		<input type="hidden" name="notes" value={ step.Note }/>
+		<button type="submit" class={ "btn", step.Variant, "btn-sm font-bold text-xs gap-1.5" }>
+			@DeliveryTransitionLabel(step.To)
+		</button>
+	</form>
+}
+
+// DeliveryTransitionLabel names the action in the courier's own words: what
+// they are about to say happened, not the enum it maps to.
+templ DeliveryTransitionLabel(to commerce.OrderStatus) {
+	switch to {
+		case commerce.StatusShipped:
+			<span>استلمت الطرد من المخزن</span>
+		case commerce.StatusInTransit:
+			<span>في الطريق إلى الصيدلية</span>
+		case commerce.StatusOutForDelivery:
+			<span>وصلت إلى الصيدلية</span>
+		case commerce.StatusFailed:
+			<span>تعذّر التسليم</span>
+		default:
+			<span>{ string(to) }</span>
+	}
+}
+
+// VendorDeliveryHandoverCard is the PIN form. The confirmation checkbox is
+// rendered only when there is cash to take, because a checkbox that always
+// appears is one people always tick.
+templ VendorDeliveryHandoverCard(sh *commerce.OrderShipment) {
+	<div class="courier-card border-brand">
+		<div class="text-center mb-4">
+			<div class="courier-hero-icon">
+				@components.IconShield("icon-sm")
+			</div>
+			<h3 class="text-sm font-black text-primary m-0">تأكيد تسليم الطرد بالكود</h3>
+			<p class="text-xs text-secondary m-0 mt-1 font-medium leading-relaxed">
+				اطلب من الصيدلي المسؤول «كود تأكيد الاستلام» الظاهر في حسابه وفاتورته لإتمام التسليم
+			</p>
+		</div>
+
+		<form
+			method="POST"
+			action={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d/verify", sh.ID)) }
+			class="m-0 d-flex flex-col gap-4"
+		>
+			<div class="stack-xs text-center">
+				<label class="form-label text-xs font-black text-primary d-block text-center mb-2">
+					أدخل كود تأكيد الاستلام المكون من 6 أرقام:
+				</label>
+				<input
+					type="text"
+					name="delivery_code"
+					required
+					maxlength="6"
+					pattern="[0-9]{6}"
+					inputmode="numeric"
+					autocomplete="one-time-code"
+					class="courier-pin-input"
+				/>
+			</div>
+
+			if sh.CourierCollection().Kind != commerce.CollectNothing {
+				<div class="p-3 rounded-xl bg-surface-sunken border text-start">
+					<label class="d-flex items-center gap-2.5 cursor-pointer select-none">
+						<input type="checkbox" name="confirm_collected" value="true" required class="w-4 h-4 cursor-pointer"/>
+						<span class="text-xs font-bold text-primary">
+							أؤكد تحصيل { sh.CourierCollection().Amount.String() } ج.م نقداً من الصيدلي قبل تسليم الأصناف
+						</span>
+					</label>
+				</div>
+			}
+
+			<div class="stack-2xs text-start">
+				<label class="form-label text-2xs font-bold text-secondary d-block mb-1">
+					ملاحظات التسليم (اختياري):
+				</label>
+				<input
+					type="text"
+					name="notes"
+					placeholder="مثال: تم التسليم للدكتور المسؤول بالفرع"
+					class="form-input text-xs w-full rounded-xl"
+				/>
+			</div>
+
+			<button type="submit" class="btn btn-primary w-full py-3 font-black text-sm rounded-xl gap-2 d-flex items-center justify-center">
+				@components.IconCheckCircle("icon-sm")
+				<span>تأكيد الاستلام وإغلاق الطرد</span>
+			</button>
+		</form>
+	</div>
+}
+
+// VendorDeliveryClosedCard is what a finished parcel looks like: a receipt, not
+// a form.
+templ VendorDeliveryClosedCard(sh *commerce.OrderShipment) {
+	<div class="courier-card text-center p-6">
+		if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
+			<div class="courier-hero-icon">
+				@components.IconCheckCircle("icon-md")
+			</div>
+			<h3 class="text-base font-black text-primary m-0 mb-1">تم تسليم الطرد وتوثيقه بنجاح</h3>
+			<p class="text-xs text-secondary m-0 font-medium">
+				تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال التسليم.
+			</p>
+			if sh.DeliveredAt != nil {
+				<div class="text-2xs text-secondary mt-2 font-mono tabular-nums">
+					وقت التسليم: { sh.DeliveredAt.Format("2006-01-02 03:04 PM") }
+				</div>
+			}
+			if sh.CollectedAmountMinor > 0 {
+				<div class="text-2xs text-secondary mt-1 font-mono tabular-nums">
+					المبلغ المُحصَّل: { fmt.Sprintf("%.2f", float64(sh.CollectedAmountMinor)/100) } ج.م
+				</div>
+			}
+			if sh.DeliveryNotes != "" {
+				<div class="text-2xs text-secondary mt-2">ملاحظات: { sh.DeliveryNotes }</div>
+			}
+		} else {
+			<div class="mb-2">@components.IconAlert("icon-md")</div>
+			<h3 class="text-base font-black text-primary m-0 mb-1">هذا الطرد مغلق</h3>
+			<p class="text-xs text-secondary m-0 font-medium">
+				لم يعد بالإمكان اتخاذ إجراءات توصيل عليه. راجع المورد إذا كان ذلك غير متوقع.
+			</p>
+		}
+
+		<div class="pt-4 mt-4 border-t">
+			<a href="/vendor/delivery" class="btn btn-secondary text-xs font-bold py-2.5 px-5 d-inline-flex items-center gap-2">
+				@components.IconTruck("icon-2xs")
+				<span>العودة إلى طرودي</span>
+			</a>
+		</div>
+	</div>
+}

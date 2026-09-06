@@ -481,4 +481,3 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		QRCodeData:     qrData,
 	}, nil
 }
-

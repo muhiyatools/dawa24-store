@@ -549,4 +549,3 @@ func (h *UIHandler) VendorCoverageDeleteAllSubmit(w http.ResponseWriter, r *http
 
 	h.redirectWithNotice(w, r, "/vendor/coverage", "success", "تم حذف جميع نطاقات التغطية الخاصة بك بنجاح.")
 }
-

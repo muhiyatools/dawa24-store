@@ -423,4 +423,3 @@ func TestAdminProductImagesUploadAndMappingFlow(t *testing.T) {
 		t.Errorf("NotFoundRows = %d; want 1 (for UNKNOWN-999)", cur.NotFoundRows)
 	}
 }
-

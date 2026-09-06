@@ -37,7 +37,7 @@ func EnsureCompanyRoles(ctx context.Context, db *database.DB, orgID int64, orgTy
 }
 
 func ensureCompanyRolesTx(ctx context.Context, tx pgx.Tx, orgID int64, scope Scope) error {
-	for _, r := range OrganizationRoles() {
+	for _, r := range OrganizationRolesFor(scope) {
 		name, err := json.Marshal(map[string]string{"ar": r.NameAr, "en": r.NameEn})
 		if err != nil {
 			return fmt.Errorf("rbac provision: marshal %s: %w", r.Key, err)
@@ -128,6 +128,83 @@ func SeedExistingCompanies(ctx context.Context, db *database.DB) (int, error) {
 		})
 		if err != nil {
 			return seeded, fmt.Errorf("rbac provision: seed organization %d: %w", t.id, err)
+		}
+		seeded++
+	}
+	return seeded, nil
+}
+
+// SeedMissingSystemRoles adds starter roles that a company does not have yet.
+//
+// SeedExistingCompanies deliberately touches only companies with *no* roles at
+// all, which is right for the migration it was written for and wrong for every
+// role added afterwards: مندوب توصيل was declared after every supplier on the
+// platform already had its six roles, so not one of them would ever have seen
+// it, and the delivery portal would have looked like a feature that does not
+// exist.
+//
+// This closes that gap once per boot, and it is cheap because it asks the
+// question the other way round — "which company is missing which role" — so a
+// platform with nothing to do reads zero rows rather than upserting six roles
+// per company.
+func SeedMissingSystemRoles(ctx context.Context, db *database.DB) (int, error) {
+	type target struct {
+		id    int64
+		scope Scope
+	}
+	var todo []target
+
+	// One pass per dashboard, asking only about the roles that dashboard has.
+	// Asking globally instead would report every pharmacy as "missing"
+	// org_courier on every boot — for ever, because a pharmacy is never meant
+	// to have one — and the repair would be a no-op the platform paid for at
+	// each start.
+	for _, scope := range []Scope{ScopeVendor, ScopePharmacy} {
+		keys := make([]string, 0, 8)
+		for _, r := range OrganizationRolesFor(scope) {
+			keys = append(keys, r.Key)
+		}
+		types := TenantOrgTypes(scope)
+		s := scope
+		err := db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+			rows, err := tx.Query(txCtx, `
+				SELECT DISTINCT o.id
+				  FROM org.organizations o
+				  JOIN org.roles have ON have.organization_id = o.id AND have.deleted_at IS NULL
+				  CROSS JOIN unnest($1::text[]) AS want(key)
+				 WHERE o.deleted_at IS NULL
+				   AND o.type = ANY($2)
+				   AND NOT EXISTS (
+				       SELECT 1 FROM org.roles r
+				        WHERE r.organization_id = o.id
+				          AND r.key = want.key
+				          AND r.deleted_at IS NULL)
+				 ORDER BY o.id;`, keys, types)
+			if err != nil {
+				return err
+			}
+			defer rows.Close()
+			for rows.Next() {
+				var id int64
+				if err := rows.Scan(&id); err != nil {
+					return err
+				}
+				todo = append(todo, target{id: id, scope: s})
+			}
+			return rows.Err()
+		})
+		if err != nil {
+			return 0, fmt.Errorf("rbac provision: list %s companies missing system roles: %w", scope, err)
+		}
+	}
+
+	seeded := 0
+	for _, t := range todo {
+		err := db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+			return ensureCompanyRolesTx(txCtx, tx, t.id, t.scope)
+		})
+		if err != nil {
+			return seeded, fmt.Errorf("rbac provision: seed missing roles for organization %d: %w", t.id, err)
 		}
 		seeded++
 	}
@@ -238,7 +315,7 @@ func RepairOutOfScopeGrants(ctx context.Context, db *database.DB) (int, error) {
 // reseedSystemRoles restores the starter grants for a company's system roles.
 // Custom roles are untouched.
 func reseedSystemRoles(ctx context.Context, tx pgx.Tx, orgID int64, scope Scope) error {
-	for _, r := range OrganizationRoles() {
+	for _, r := range OrganizationRolesFor(scope) {
 		var roleID int64
 		err := tx.QueryRow(ctx, `
 			SELECT id FROM org.roles

@@ -452,4 +452,3 @@ func TestAdminTempWarehouse_SortingAndColumns(t *testing.T) {
 		t.Fatalf("expected status 200, got %d", rec3.Code)
 	}
 }
-

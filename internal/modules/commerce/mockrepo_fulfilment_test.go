@@ -108,18 +108,6 @@ func (m *mockCommerceRepo) UpdateCustomerPendingOrder(_ context.Context, order *
 	return o, nil
 }
 
-func (m *mockCommerceRepo) GetShipmentForDeliveryByTracking(_ context.Context, tracking string) (*OrderShipment, error) {
-	for _, list := range m.shipments {
-		for _, s := range list {
-			if s.TrackingNumber == tracking || s.ShipmentNumber == tracking || s.PublicID == tracking {
-				copied := *s
-				return &copied, nil
-			}
-		}
-	}
-	return nil, apperr.NotFound("shipment")
-}
-
 func (m *mockCommerceRepo) VerifyAndCompleteDelivery(
 	_ context.Context,
 	shipmentID int64,
@@ -151,4 +139,27 @@ func (m *mockCommerceRepo) VerifyAndCompleteDelivery(
 		}
 	}
 	return nil, apperr.NotFound("shipment")
+}
+
+// Courier assignment — the dispatch board. These mocks predate it and none of
+// their tests exercise it; the queue itself is covered in courier_test.go.
+
+func (m *mockCommerceRepo) GetVendorShipment(_ context.Context, _, _ int64) (*OrderShipment, error) {
+	return nil, apperr.NotFound("shipment")
+}
+
+func (m *mockCommerceRepo) AssignShipmentCourier(_ context.Context, _, _ int64, _ *int64, _ int64) error {
+	return nil
+}
+
+func (m *mockCommerceRepo) ListCourierQueue(_ context.Context, _ CourierQueueFilter) ([]*OrderShipment, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockCommerceRepo) CourierQueueCounts(_ context.Context, _, _ int64) (CourierQueueCounts, error) {
+	return CourierQueueCounts{}, nil
+}
+
+func (m *mockCommerceRepo) ListCourierWorkload(_ context.Context, _ int64) ([]*CourierWorkload, error) {
+	return nil, nil
 }

@@ -388,4 +388,3 @@ func (h *UIHandler) VendorProductsDeleteAllSubmit(w http.ResponseWriter, r *http
 	}
 	h.redirectWithNotice(w, r, "/vendor/products", "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.catalog.deleted_all_success"), count))
 }
-

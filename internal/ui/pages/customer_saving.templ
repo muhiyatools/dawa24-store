@@ -103,11 +103,12 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				</div>
 			</div>
 
-			<!-- 3 Status Metric Cards -->
+			<!-- 4 Status Metric Cards -->
 			<div class="dashboard-stat-grid mb-6">
 				<a
 					href="/customer/saving-products?filter=all"
 					class="stat-card-3d text-decoration-none"
+					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "all")) }
 				>
 					<div class="stat-card-label">جميع الأصناف المسجلة</div>
 					<div class="stat-card-value text-primary tabular-nums">
@@ -123,6 +124,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				<a
 					href="/customer/saving-products?filter=linked"
 					class="stat-card-3d text-decoration-none"
+					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "linked")) }
 				>
 					<div class="stat-card-label text-sky">أصناف مرتبطة بالكتالوج</div>
 					<div class="stat-card-value text-sky tabular-nums">
@@ -138,6 +140,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				<a
 					href="/customer/saving-products?filter=unlinked"
 					class="stat-card-3d text-decoration-none"
+					style={ fmt.Sprintf("border-color: %s;", savingFilterBorder(data.FilterStatus, "unlinked")) }
 				>
 					<div class="stat-card-label text-warning">أصناف بحاجة إلى ربط</div>
 					<div class="stat-card-value text-warning tabular-nums">
@@ -149,23 +152,57 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					</div>
 					<span class="text-xs text-secondary mt-1 d-block">غير مربوطة بصنف معتمد</span>
 				</a>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-emerald">إجمالي القيمة التقديرية</div>
+					<div class="stat-card-value text-emerald tabular-nums">
+						if data.Stats != nil && data.Stats.TotalValue.IsPositive() {
+							{ data.Stats.TotalValue.String() } <span class="text-xs font-normal">ج.م</span>
+						} else {
+							0 <span class="text-xs font-normal">ج.م</span>
+						}
+					</div>
+					<span class="text-xs text-secondary mt-1 d-block">
+						if data.Stats != nil && data.Stats.TotalQuantity > 0 {
+							{ fmt.Sprintf("إجمالي الكمية: %.0f وحدة", data.Stats.TotalQuantity) }
+						} else {
+							قيمة منتجات التوفير
+						}
+					</span>
+				</div>
 			</div>
 
 			<!-- Search Filter Bar -->
 			<div class="glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4">
-				<div class="position-relative">
+				<form method="GET" action="/customer/saving-products" class="position-relative w-80 max-w-full m-0 d-flex gap-2">
+					if data.FilterStatus != "" && data.FilterStatus != "all" {
+						<input type="hidden" name="filter" value={ data.FilterStatus } />
+					}
 					<input
 						type="text"
 						id="pharmacy-saving-search-input"
+						name="search"
 						value={ data.SearchQuery }
 						placeholder="ابحث باسم الدواء، الكود SKU، أو اسم الصنف بالكتالوج..."
 						class="form-input text-xs w-full"
 						oninput="filterPharmacySavingTable(this.value)"
 					/>
-				</div>
+					<button type="submit" class="btn btn-secondary btn-sm px-3" title="بحث في قاعدة البيانات">
+						@components.IconSearch("icon-xs")
+					</button>
+					if data.SearchQuery != "" {
+						<a href={ templ.SafeURL(fmt.Sprintf("/customer/saving-products?filter=%s", data.FilterStatus)) } class="btn btn-secondary btn-sm px-2 text-muted" title="إلغاء البحث">
+							✕
+						</a>
+					}
+				</form>
 
 				<div class="badge badge-slate text-xs font-bold tabular-nums">
-					عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
+					if data.Pagination.TotalCount > 0 {
+						عرض { fmt.Sprintf("%d", len(data.Items)) } من { fmt.Sprintf("%d", data.Pagination.TotalCount) } صنف
+					} else {
+						عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
+					}
 				</div>
 			</div>
 

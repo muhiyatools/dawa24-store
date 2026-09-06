@@ -230,6 +230,14 @@ func (m *mockOrgRepo) ListEmployeesWithTotal(_ context.Context, orgID int64, _, 
 	return list, len(list), nil
 }
 
+func (m *mockOrgRepo) ListMembersHolding(_ context.Context, orgID int64, _ string) ([]*EmployeeView, error) {
+	var list []*EmployeeView
+	for _, mem := range m.members[orgID] {
+		list = append(list, &EmployeeView{Member: mem, UserName: "Test Courier"})
+	}
+	return list, nil
+}
+
 func (m *mockOrgRepo) AddMember(_ context.Context, mem *Member) error {
 
 	mem.ID = m.nextID

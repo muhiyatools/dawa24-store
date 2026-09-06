@@ -215,6 +215,10 @@ func (r stubRepo) ListEmployeesWithTotal(ctx context.Context, orgID int64, limit
 	r.fail("ListEmployeesWithTotal")
 	return nil, 0, nil
 }
+func (r stubRepo) ListMembersHolding(ctx context.Context, orgID int64, permissionKey string) ([]*org.EmployeeView, error) {
+	r.fail("ListMembersHolding")
+	return nil, nil
+}
 func (r stubRepo) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
 	r.fail("CreateInstitutionalWork")
 	return nil
@@ -336,6 +340,9 @@ func (happyRepo) ListEmployees(ctx context.Context, orgID int64) ([]*org.Employe
 }
 func (happyRepo) ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*org.EmployeeView, int, error) {
 	return nil, 0, nil
+}
+func (happyRepo) ListMembersHolding(ctx context.Context, orgID int64, permissionKey string) ([]*org.EmployeeView, error) {
+	return nil, nil
 }
 func (happyRepo) CreateInstitutionalWork(ctx context.Context, iw *org.InstitutionalWork) error {
 	iw.ID = 1

@@ -81,5 +81,3 @@ func (h *UIHandler) CustomerTeamImportCommitSubmit(w http.ResponseWriter, r *htt
 func (h *UIHandler) CustomerTeamImportCancelSubmit(w http.ResponseWriter, r *http.Request) {
 	h.handleTeamImportCancelSubmit(w, r, "customer")
 }
-
-

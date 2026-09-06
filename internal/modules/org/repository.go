@@ -57,6 +57,15 @@ type Repository interface {
 	ListMembersByOrg(ctx context.Context, orgID int64) ([]*Member, error)
 	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
 	ListEmployeesWithTotal(ctx context.Context, orgID int64, limit, offset int) ([]*EmployeeView, int, error)
+	// ListMembersHolding returns the active members whose company role grants
+	// one permission — "who in this company may do X".
+	//
+	// It answers by permission rather than by role key on purpose. A supplier
+	// that renames مندوب توصيل, or builds "مندوب المنطقة الشرقية" from scratch
+	// and grants it the delivery keys, has made a delivery representative; a
+	// query for role_key = 'org_courier' would not find them, and the
+	// assignment list would silently omit half the team.
+	ListMembersHolding(ctx context.Context, orgID int64, permissionKey string) ([]*EmployeeView, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
 
 	// Company roles. Every one of these takes the caller's organization id

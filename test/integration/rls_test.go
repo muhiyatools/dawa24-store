@@ -7,7 +7,6 @@ package integration_test
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -19,6 +18,35 @@ import (
 )
 
 func getTestDB(t *testing.T) *database.DB {
+	t.Helper()
+	db := connectTestDB(t)
+	if db == nil {
+		return nil
+	}
+
+	// A superuser bypasses row-level security unconditionally, FORCE included.
+	// Running these checks as one reports a leak on every assertion, which says
+	// nothing about whether the policies are correct — only that the connection
+	// is exempt from them. Skip with a clear reason rather than emit four
+	// alarming failures that are really one configuration fact.
+	//
+	// It is a skip for *isolation* tests only. A test that merely needs a real
+	// PostgreSQL to parse a query — see courier_queue_test.go — calls
+	// connectTestDB directly, because skipping those on a superuser DSN means
+	// never running them on the connection a developer actually has.
+	var isSuper bool
+	if err := db.Pool().QueryRow(context.Background(),
+		`SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
+		t.Skip("connected as a superuser, which bypasses row-level security; " +
+			"point DATABASE_URL at the least-privilege application role to verify isolation")
+		return nil
+	}
+	return db
+}
+
+// connectTestDB opens the test database and verifies its schema is current. It
+// makes no claim about which role the caller is connected as.
+func connectTestDB(t *testing.T) *database.DB {
 	t.Helper()
 
 	if testing.Short() {
@@ -73,19 +101,6 @@ func getTestDB(t *testing.T) *database.DB {
 	//
 	// The application role cannot create schemas, so it verifies the schema is
 	// current instead of making it so.
-	// A superuser bypasses row-level security unconditionally, FORCE included.
-	// Running these checks as one reports a leak on every assertion, which says
-	// nothing about whether the policies are correct — only that the connection
-	// is exempt from them. Skip with a clear reason rather than emit four
-	// alarming failures that are really one configuration fact.
-	var isSuper bool
-	if err := db.Pool().QueryRow(ctx,
-		`SELECT rolsuper FROM pg_roles WHERE rolname = current_user`).Scan(&isSuper); err == nil && isSuper {
-		t.Skipf("connected as a superuser (%s), which bypasses row-level security; "+
-			"point DATABASE_URL at the least-privilege application role to verify isolation",
-			dbURL[:strings.Index(dbURL, ":")+1]+"***")
-	}
-
 	pending, err := db.PendingCount(ctx, migrations)
 	if err != nil {
 		t.Fatalf("cannot read migration state: %v", err)

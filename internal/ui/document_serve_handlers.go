@@ -417,4 +417,3 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 
 	return []byte(svg)
 }
-

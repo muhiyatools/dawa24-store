@@ -528,4 +528,3 @@ func seedPolicy(t *testing.T, db *database.DB, key, title, content string) int64
 
 	return policyID
 }
-

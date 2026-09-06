@@ -37,6 +37,24 @@ func vendorBuyingNav() NavSection {
 	}
 }
 
+// vendorDeliveryNav is إدارة الشحنات — the dispatch section.
+//
+// It is its own section rather than a link under الطلبات والمالية because of
+// who sees it. A مندوب holds vendor.delivery.view and nothing else, so this is
+// their entire sidebar; filing it under "Orders & Finance" would label a
+// courier's one screen with a heading about money they never touch.
+func vendorDeliveryNav() NavSection {
+	return NavSection{
+		Key: "delivery", NameAr: "إدارة الشحنات", NameEn: "Shipment Dispatch",
+		Items: []NavItem{
+			{Key: "delivery", Aliases: []string{"delivery_shipment"},
+				Href: "/vendor/delivery", Icon: "truck",
+				NameAr: "إدارة الشحنات", NameEn: "Shipment dispatch",
+				Perm: "vendor.delivery.view"},
+		},
+	}
+}
+
 func vendorNav() []NavSection {
 	return []NavSection{
 		{
@@ -139,6 +157,7 @@ func vendorNav() []NavSection {
 					Perm: "vendor.wallet.view"},
 			},
 		},
+		vendorDeliveryNav(),
 		vendorBuyingNav(),
 		{
 			Key: "tools", NameAr: "الأدوات والتحليلات", NameEn: "Tools & Analytics",

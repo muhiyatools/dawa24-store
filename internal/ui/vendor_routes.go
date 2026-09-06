@@ -26,7 +26,35 @@ func (h *UIHandler) registerVendorRoutes(r chi.Router) {
 	h.registerVendorIngestRoutes(r)
 	h.registerVendorPromoRoutes(r)
 	h.registerVendorCommerceRoutes(r)
+	h.registerVendorDeliveryRoutes(r)
 	h.registerVendorContentRoutes(r)
+}
+
+// إدارة الشحنات: the delivery representative's portal and the dispatcher's
+// board, at /vendor/delivery.
+//
+// Three gates, because three different people are being described. Reading the
+// board is vendor.delivery.view, which a مندوب holds and nothing else. Moving a
+// parcel forward and closing it is vendor.delivery.update — still the courier,
+// but a separate grant so a supervisor can be given sight of the round without
+// the ability to sign for it. Deciding whose round a parcel belongs to is
+// vendor.delivery.assign, which is a dispatcher's job, not a courier's.
+func (h *UIHandler) registerVendorDeliveryRoutes(r chi.Router) {
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.delivery.view"))
+		g.Get("/vendor/delivery", h.VendorDeliveryPortalPage)
+		g.Get("/vendor/delivery/{id}", h.VendorDeliveryShipmentPage)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.delivery.update"))
+		g.Post("/vendor/delivery/{id}/status", h.VendorDeliveryStatusSubmit)
+		g.Post("/vendor/delivery/{id}/verify", h.VendorDeliveryVerifySubmit)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.delivery.assign"))
+		g.Post("/vendor/delivery/{id}/assign", h.VendorDeliveryAssignSubmit)
+		g.Post("/vendor/delivery/{id}/unassign", h.VendorDeliveryUnassignSubmit)
+	})
 }
 
 func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {

@@ -614,4 +614,3 @@ func (h *UIHandler) CustomerOrderLineOfferDetails(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_ = pages.CustomerOrderOfferModal(details, lang).Render(ctx, w)
 }
-

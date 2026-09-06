@@ -27,6 +27,29 @@ type SystemRole struct {
 	Owner bool
 	// Permissions is the explicit grant list for a non-owner role.
 	Permissions []string
+	// TenantScopes restricts which company dashboards an organization role is
+	// seeded into. Empty means every tenant dashboard, which is the case for
+	// the six roles that describe a job both a supplier and a pharmacy have.
+	//
+	// It exists for the roles that describe a job only one of them has. A
+	// مندوب توصيل carries a supplier's parcels to a pharmacy; a pharmacy has
+	// no such employee, and seeding the role there would put a permanently
+	// empty role in every pharmacy's role editor.
+	TenantScopes []Scope
+}
+
+// SeededIn reports whether this organization role belongs in a company on the
+// given dashboard.
+func (r SystemRole) SeededIn(scope Scope) bool {
+	if len(r.TenantScopes) == 0 {
+		return true
+	}
+	for _, s := range r.TenantScopes {
+		if s == scope {
+			return true
+		}
+	}
+	return false
 }
 
 // PlatformRoles are the roles a user account may hold on the platform itself.
@@ -181,121 +204,18 @@ func OrganizationRoles() []SystemRole {
 			DescAr: "الشراء ومتابعة الطلبات والأصناف."},
 		{Key: "org_employee", NameAr: "موظف", NameEn: "Employee",
 			DescAr: "اطلاع فقط على لوحة التحكم والطلبات."},
+		// The delivery representative. Supplier-only: it is the person who
+		// carries a parcel from the supplier's warehouse to the pharmacy's
+		// counter, and a pharmacy employs nobody who does that.
+		//
+		// Their dashboard is one page — إدارة الشحنات — showing the parcels
+		// assigned to them, oldest assignment first, with the actions needed
+		// to close each one. They hold nothing else: not the order list the
+		// parcels came from, not the catalogue, not the wallet.
+		{Key: "org_courier", NameAr: "مندوب توصيل", NameEn: "Delivery Representative",
+			DescAr:       "بوابة إدارة الشحنات: الطرود المسندة إليه فقط، وتحديث حالتها وتأكيد تسليمها بالكود.",
+			TenantScopes: []Scope{ScopeVendor}},
 	}
-}
-
-// orgRoleGrants holds the non-owner starter grants per scope. A key absent
-// from the map for a scope means that role is seeded with nothing there.
-var orgRoleGrants = map[Scope]map[string][]string{
-	ScopeVendor: {
-		"org_manager": {
-			"vendor.dashboard.view", "vendor.organization.view",
-			"vendor.branch.view", "vendor.branch.create", "vendor.branch.update",
-			"vendor.team.view", "vendor.team.create", "vendor.team.update",
-			"vendor.coverage.view", "vendor.coverage.manage",
-			"vendor.pharmacy_coverage.view",
-			"vendor.product.view", "vendor.product.create", "vendor.product.update",
-			"vendor.ingest.view", "vendor.ingest.run",
-			"vendor.saving_product.view", "vendor.saving_product.manage",
-			"vendor.inventory.view", "vendor.inventory.adjust",
-			"vendor.warehouse.view", "vendor.warehouse.manage",
-			"vendor.offer.view", "vendor.offer.manage",
-			"vendor.offer_package.view", "vendor.offer_package.manage",
-			"vendor.ad.view", "vendor.ad.manage",
-			"vendor.storefront.view", "vendor.storefront.manage",
-			"vendor.order.view", "vendor.order.update", "vendor.order.negotiate",
-			"vendor.purchase_request.view", "vendor.purchase_request.respond",
-			"vendor.invoice.view", "vendor.activity.view",
-			"vendor.document.view", "vendor.policy.view",
-			"vendor.review.view", "vendor.review.reply",
-			"vendor.wallet.view", "vendor.wallet.manage",
-			"vendor.job.view", "vendor.job.manage", "vendor.session.view",
-			"vendor.decision_memory.view", "vendor.decision_memory.delete",
-			// Restocking from other distributors. The manager is the only
-			// starter role that may spend on it; the roles below see what was
-			// bought without being able to buy.
-			"vendor.buying.catalog.view",
-			"vendor.buying.purchase_request.view", "vendor.buying.purchase_request.create",
-			"vendor.buying.smart_order.view", "vendor.buying.smart_order.run",
-			"vendor.buying.cart.use",
-			"vendor.buying.order.view", "vendor.buying.order.create", "vendor.buying.order.update",
-			"vendor.buying.offer.view",
-			"vendor.buying.supplier.view", "vendor.buying.supplier.follow",
-			"vendor.buying.favorite.view", "vendor.buying.favorite.manage",
-		},
-		"org_accountant": {
-			"vendor.dashboard.view",
-			"vendor.invoice.view", "vendor.payment.view", "vendor.earnings.view",
-			"vendor.wallet.view", "vendor.wallet.manage",
-			"vendor.order.view", "vendor.subscription.view", "vendor.session.view",
-			"vendor.buying.order.view",
-		},
-		"org_warehouse": {
-			"vendor.dashboard.view",
-			"vendor.product.view", "vendor.product.update",
-			"vendor.ingest.view", "vendor.ingest.run",
-			"vendor.inventory.view", "vendor.inventory.adjust",
-			"vendor.warehouse.view", "vendor.warehouse.manage",
-			"vendor.order.view", "vendor.order.update", "vendor.session.view",
-			"vendor.buying.catalog.view", "vendor.buying.order.view",
-		},
-		"org_sales_rep": {
-			"vendor.dashboard.view",
-			"vendor.order.view", "vendor.order.update", "vendor.order.negotiate",
-			"vendor.purchase_request.view", "vendor.purchase_request.respond",
-			"vendor.offer.view", "vendor.offer.manage",
-			"vendor.product.view", "vendor.pharmacy_coverage.view",
-			"vendor.market_discounts.view", "vendor.compare.use",
-			"vendor.review.view", "vendor.review.reply", "vendor.session.view",
-		},
-		"org_pharmacist": {
-			"vendor.dashboard.view", "vendor.product.view",
-			"vendor.order.view", "vendor.document.view", "vendor.session.view",
-			"vendor.buying.catalog.view", "vendor.buying.order.view",
-		},
-		"org_employee": {"vendor.dashboard.view", "vendor.order.view", "vendor.session.view"},
-	},
-	ScopePharmacy: {
-		"org_manager": {
-			"pharmacy.dashboard.view", "pharmacy.organization.view",
-			"pharmacy.branch.view", "pharmacy.branch.create", "pharmacy.branch.update",
-			"pharmacy.team.view", "pharmacy.team.create", "pharmacy.team.update",
-			"pharmacy.purchase_request.view", "pharmacy.purchase_request.create",
-			"pharmacy.smart_order.view", "pharmacy.smart_order.run",
-			"pharmacy.order.view", "pharmacy.order.create", "pharmacy.order.update",
-			"pharmacy.cart.use", "pharmacy.favorite.view", "pharmacy.favorite.manage",
-			"pharmacy.offer.view", "pharmacy.saving_product.view", "pharmacy.saving_product.manage",
-			"pharmacy.decision_memory.view", "pharmacy.decision_memory.delete", "pharmacy.supplier.view", "pharmacy.supplier.follow",
-			"pharmacy.document.view",
-			"pharmacy.wallet.view", "pharmacy.wallet.manage",
-			"pharmacy.job.view", "pharmacy.job.manage", "pharmacy.session.view",
-		},
-		"org_accountant": {
-			"pharmacy.dashboard.view", "pharmacy.order.view",
-			"pharmacy.wallet.view", "pharmacy.wallet.manage",
-			"pharmacy.subscription.view", "pharmacy.session.view",
-		},
-		"org_warehouse": {
-			"pharmacy.dashboard.view", "pharmacy.order.view",
-			"pharmacy.saving_product.view", "pharmacy.saving_product.manage",
-			"pharmacy.smart_order.view", "pharmacy.session.view",
-		},
-		"org_sales_rep": {
-			"pharmacy.dashboard.view", "pharmacy.order.view",
-			"pharmacy.supplier.view", "pharmacy.offer.view", "pharmacy.session.view",
-		},
-		"org_pharmacist": {
-			"pharmacy.dashboard.view",
-			"pharmacy.purchase_request.view", "pharmacy.purchase_request.create",
-			"pharmacy.smart_order.view", "pharmacy.smart_order.run",
-			"pharmacy.order.view", "pharmacy.order.create", "pharmacy.order.update",
-			"pharmacy.cart.use", "pharmacy.offer.view", "pharmacy.supplier.view",
-			"pharmacy.saving_product.view", "pharmacy.favorite.view", "pharmacy.favorite.manage",
-			"pharmacy.wallet.view", "pharmacy.wallet.manage",
-			"pharmacy.session.view",
-		},
-		"org_employee": {"pharmacy.dashboard.view", "pharmacy.order.view", "pharmacy.session.view"},
-	},
 }
 
 // GrantsFor resolves a system role's permission keys within a scope, expanded
@@ -335,6 +255,21 @@ func OrganizationRole(key string) (SystemRole, bool) {
 		}
 	}
 	return SystemRole{}, false
+}
+
+// OrganizationRolesFor lists the starter roles a company on this dashboard is
+// seeded with. It is the one place the TenantScopes filter is applied, so the
+// seeder, the repair pass and the tests cannot disagree about which roles a
+// supplier has and a pharmacy does not.
+func OrganizationRolesFor(scope Scope) []SystemRole {
+	all := OrganizationRoles()
+	out := make([]SystemRole, 0, len(all))
+	for _, r := range all {
+		if r.SeededIn(scope) {
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 // SystemRoleKeys lists the organization starter role keys, sorted, for the

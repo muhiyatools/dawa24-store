@@ -389,4 +389,3 @@ func (r *Repository) GetOfferDetailsForOrderLine(ctx context.Context, orderID, l
 	}
 	return &details, nil
 }
-

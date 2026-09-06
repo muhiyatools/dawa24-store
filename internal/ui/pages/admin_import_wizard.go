@@ -484,4 +484,3 @@ func (v *ImportReviewView) SetRows(rows []*catalog.StagingRow, total int, counts
 	v.Page = v.Filter.Offset/limit + 1
 	v.Pages = max((total+limit-1)/limit, 1)
 }
-

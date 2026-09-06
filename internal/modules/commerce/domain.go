@@ -150,19 +150,28 @@ type OrderShipment struct {
 	DeliveryNotes        string       `json:"delivery_notes,omitempty"`
 	CollectedAmountMinor int64        `json:"collected_amount_minor"`
 	DeliveredByCourierAt *time.Time   `json:"delivered_by_courier_at,omitempty"`
-	Lines                []*OrderLine `json:"lines,omitempty"`
-	ShippedAt            *time.Time   `json:"shipped_at,omitempty"`
-	DeliveredAt          *time.Time   `json:"delivered_at,omitempty"`
-	CreatedAt            time.Time    `json:"created_at"`
-	UpdatedAt            time.Time    `json:"updated_at"`
+
+	// CourierUserID is the delivery representative (مندوب) carrying this
+	// parcel, and CourierAssignedAt is when they were handed it. The courier
+	// portal orders a queue by that timestamp ascending, so the parcel that
+	// has been waiting longest is the one at the top of the round.
+	CourierUserID     *int64     `json:"courier_user_id,omitempty"`
+	CourierAssignedAt *time.Time `json:"courier_assigned_at,omitempty"`
+	CourierAssignedBy *int64     `json:"courier_assigned_by,omitempty"`
+
+	Lines       []*OrderLine `json:"lines,omitempty"`
+	ShippedAt   *time.Time   `json:"shipped_at,omitempty"`
+	DeliveredAt *time.Time   `json:"delivered_at,omitempty"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 
 	// Enriched metadata for views
-	OrderNumber           string        `json:"order_number,omitempty"`
-	VendorName            i18n.Text     `json:"vendor_name,omitempty"`
-	CustomerOrgName       i18n.Text     `json:"customer_org_name,omitempty"`
-	CustomerBranchName    i18n.Text     `json:"customer_branch_name,omitempty"`
-	CustomerBranchAddress string        `json:"customer_branch_address,omitempty"`
-	CustomerBranchPhone   string        `json:"customer_branch_phone,omitempty"`
+	OrderNumber                 string        `json:"order_number,omitempty"`
+	VendorName                  i18n.Text     `json:"vendor_name,omitempty"`
+	CustomerOrgName             i18n.Text     `json:"customer_org_name,omitempty"`
+	CustomerBranchName          i18n.Text     `json:"customer_branch_name,omitempty"`
+	CustomerBranchAddress       string        `json:"customer_branch_address,omitempty"`
+	CustomerBranchPhone         string        `json:"customer_branch_phone,omitempty"`
 	CustomerManagerName         string        `json:"customer_manager_name,omitempty"`
 	CustomerBranchLatitude      *float64      `json:"customer_branch_latitude,omitempty"`
 	CustomerBranchLongitude     *float64      `json:"customer_branch_longitude,omitempty"`
@@ -170,6 +179,8 @@ type OrderShipment struct {
 	PaymentMethod               string        `json:"payment_method,omitempty"`
 	PaymentStatus               PaymentStatus `json:"payment_status,omitempty"`
 	Notes                       string        `json:"notes,omitempty"`
+	CourierName                 string        `json:"courier_name,omitempty"`
+	CourierPhone                string        `json:"courier_phone,omitempty"`
 }
 
 // BranchLocationURL returns the most accurate Google Maps navigation or directions link for the branch.
@@ -404,4 +415,3 @@ type OrderLineOfferDetails struct {
 	DiscountValue money.Amount         `json:"discount_value"`
 	Items         []OrderLineOfferItem `json:"items"`
 }
-

@@ -133,7 +133,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 84, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 84, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -159,7 +159,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 91, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 91, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -186,7 +186,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d فرع ومخزن", data.TotalBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 107, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 107, Col: 127}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -223,7 +223,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 135, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 135, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -236,7 +236,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ActiveBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 139, Col: 111}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 139, Col: 111}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PharmacyBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 143, Col: 113}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 143, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -262,7 +262,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.VendorWarehouses))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 147, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 147, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SearchQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 159, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 159, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -294,7 +294,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 167, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 167, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -317,7 +317,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 167, Col: 105}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 167, Col: 105}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -374,7 +374,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d فرع ومخزن", data.FilteredCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 194, Col: 125}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 194, Col: 125}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -411,7 +411,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 213, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 213, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
@@ -421,7 +421,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 215, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 215, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -456,7 +456,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgLegalName(b.OrganizationID, data.OrgNames))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 229, Col: 97}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 229, Col: 97}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -469,7 +469,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgTypeBadge(b.OrganizationID, data.OrgTypes))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 230, Col: 103}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 230, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -487,7 +487,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 232, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 232, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -505,7 +505,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var19 templ.SafeURL
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 240, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 240, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -526,7 +526,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 252, Col: 58}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 252, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 					if templ_7745c5c3_Err != nil {
@@ -539,7 +539,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(formatAdminBranchJSON(b))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 253, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 253, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 					if templ_7745c5c3_Err != nil {
@@ -565,7 +565,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var22 templ.SafeURL
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/branches/%d/delete", b.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 265, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 265, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -596,7 +596,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 279, Col: 104}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 279, Col: 104}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -615,7 +615,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var24 string
 						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 282, Col: 123}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 282, Col: 123}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
@@ -634,7 +634,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(b.OperatingHours)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 285, Col: 118}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 285, Col: 118}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -657,7 +657,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(b.WarehouseType)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 292, Col: 81}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 292, Col: 81}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -686,7 +686,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var27 templ.SafeURL
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(b.GoogleMapsURL))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 300, Col: 52}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 300, Col: 52}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -704,7 +704,7 @@ func AdminBranchesPage(data AdminBranchesPageData, lang, dir string) templ.Compo
 						var templ_7745c5c3_Var28 templ.SafeURL
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 304, Col: 114}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 304, Col: 114}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -813,7 +813,7 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 				var templ_7745c5c3_Var30 string
 				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 382, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 382, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 				if templ_7745c5c3_Err != nil {
@@ -826,7 +826,7 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(o.LegalName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 383, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 383, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 				if templ_7745c5c3_Err != nil {
@@ -839,7 +839,7 @@ func AdminBranchForm(data AdminBranchesPageData, lang string) templ.Component {
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(getOrgTypeBadge(o.ID, data.OrgTypes))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 383, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 383, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
@@ -953,7 +953,7 @@ func AdminBranchDetailPage(b *org.Branch, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 686, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 686, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
@@ -966,7 +966,7 @@ func AdminBranchDetailPage(b *org.Branch, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 688, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 688, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 			if templ_7745c5c3_Err != nil {
@@ -979,7 +979,7 @@ func AdminBranchDetailPage(b *org.Branch, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var38 string
 			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.OrganizationID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 688, Col: 126}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 688, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 			if templ_7745c5c3_Err != nil {
@@ -992,7 +992,7 @@ func AdminBranchDetailPage(b *org.Branch, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 697, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 697, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
@@ -1005,7 +1005,7 @@ func AdminBranchDetailPage(b *org.Branch, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(b.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 701, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 701, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {
@@ -1018,7 +1018,7 @@ func AdminBranchDetailPage(b *org.Branch, lang, dir string) templ.Component {
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(b.OperatingHours)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_branches.templ`, Line: 705, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `admin_branches.templ`, Line: 705, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {

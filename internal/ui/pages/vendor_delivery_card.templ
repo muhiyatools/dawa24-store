@@ -1,0 +1,173 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// One parcel as it appears on the dispatch board.
+//
+// The card answers the four questions a courier asks before opening anything:
+// where is it going, how long have I had it, how much do I collect, and what
+// do I do next. Everything else — the map, the item checklist, the PIN form —
+// is on the parcel's own screen, one tap away.
+
+// deliveryWaitingBadge turns an assignment date into the priority signal the
+// list is sorted by. Colour is the only thing that changes with age: a courier
+// scanning the top of their list should see the late one without reading a
+// date, and the exact timestamp is still printed beside it.
+func deliveryWaitingBadge(sh *commerce.OrderShipment) string {
+	switch {
+	case sh.CourierAssignedAt == nil:
+		return "badge badge-slate"
+	case sh.WaitingHours() >= commerce.CourierOverdueHours:
+		return "badge badge-rose"
+	case sh.WaitingHours() >= 8:
+		return "badge badge-amber"
+	}
+	return "badge badge-sky"
+}
+
+func deliveryWaitingLabel(sh *commerce.OrderShipment) string {
+	if sh.CourierAssignedAt == nil {
+		return "لم يُسند بعد"
+	}
+	h := sh.WaitingHours()
+	if h < 1 {
+		return "أُسند للتو"
+	}
+	if h < 24 {
+		return fmt.Sprintf("بعهدتك منذ %d ساعة", h)
+	}
+	return fmt.Sprintf("بعهدتك منذ %d يوم", h/24)
+}
+
+templ VendorDeliveryParcelCard(sh *commerce.OrderShipment, data VendorDeliveryData, lang string) {
+	<div class="glass-panel p-5">
+		<div class="flex-between items-start flex-wrap gap-4">
+			<div class="stack-sm min-w-0">
+				<div class="d-flex items-center gap-2 flex-wrap">
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d", sh.ID)) }
+						class="text-base font-black text-primary tabular-nums text-decoration-none"
+					>
+						طرد #{ sh.ShipmentNumber }
+					</a>
+					@DeliveryStatusBadge(sh.Status)
+					<span class={ deliveryWaitingBadge(sh), "text-xs font-black" }>
+						{ deliveryWaitingLabel(sh) }
+					</span>
+					if sh.OrderNumber != "" {
+						<span class="badge badge-secondary text-xs font-bold">
+							أمر التوريد #{ sh.OrderNumber }
+						</span>
+					}
+				</div>
+
+				<div class="d-flex items-center gap-2 text-xs text-secondary flex-wrap">
+					@components.IconBuilding("icon-2xs")
+					<strong class="text-primary font-bold">{ sh.CustomerOrgName.Get(i18n.Lang(lang)) }</strong>
+					if sh.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
+						<span>— { sh.CustomerBranchName.Get(i18n.Lang(lang)) }</span>
+					}
+				</div>
+
+				if sh.CustomerBranchAddress != "" {
+					<div class="text-xs text-muted leading-normal">{ sh.CustomerBranchAddress }</div>
+				}
+
+				<div class="d-flex items-center gap-3 text-xs text-muted flex-wrap">
+					<span class="d-flex items-center gap-1">
+						@components.IconPackage("icon-3xs")
+						<span class="tabular-nums">{ fmt.Sprintf("%d صنف · %d عبوة", len(sh.Lines), sh.TotalUnitsCount()) }</span>
+					</span>
+					if sh.CourierAssignedAt != nil {
+						<span class="d-flex items-center gap-1">
+							@components.IconClock("icon-3xs")
+							<span class="tabular-nums font-mono">
+								تاريخ الإسناد: { sh.CourierAssignedAt.Format("2006-01-02 03:04 PM") }
+							</span>
+						</span>
+					}
+					if sh.CourierName != "" && !sh.IsAssignedTo(data.ActorID) {
+						<span class="d-flex items-center gap-1">
+							@components.IconUser("icon-3xs")
+							<span>المندوب: { sh.CourierName }</span>
+						</span>
+					}
+				</div>
+			</div>
+
+			<div class="d-flex items-center gap-4 flex-wrap">
+				<div class="text-end">
+					<span class="text-xs text-muted d-block font-bold">
+						@DeliveryCollectLabel(sh)
+					</span>
+					<strong class="text-lg font-black text-brand tabular-nums">
+						@components.MoneyDisplay(components.MoneyDisplayProps{Amount: sh.CourierCollection().Amount})
+					</strong>
+				</div>
+
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d", sh.ID)) }
+					class="btn btn-primary btn-sm font-black text-xs gap-1.5"
+				>
+					@components.IconTruck("icon-2xs")
+					<span>فتح الطرد</span>
+				</a>
+			</div>
+		</div>
+
+		if data.CanAssign {
+			<div class="mt-4 pt-4 border-t">
+				@VendorDeliveryAssignForm(sh, data.Couriers, deliveryReturnKey(data.Queue))
+			</div>
+		}
+	</div>
+}
+
+// deliveryReturnKey names the board tab an assignment should come back to, so
+// a dispatcher working through the unassigned pool stays in the unassigned
+// pool rather than being bounced to the parcel they just handed over.
+func deliveryReturnKey(queue commerce.CourierQueue) string {
+	if queue == commerce.CourierQueueUnassigned {
+		return "unassigned"
+	}
+	return "board"
+}
+
+// DeliveryStatusBadge renders one shipment status in the vocabulary a courier
+// uses, rather than the raw enum.
+templ DeliveryStatusBadge(status commerce.OrderStatus) {
+	switch status {
+		case commerce.StatusPending:
+			<span class="badge badge-amber text-xs font-black">بانتظار التأكيد</span>
+		case commerce.StatusProcessing:
+			<span class="badge badge-amber text-xs font-black">قيد التجهيز</span>
+		case commerce.StatusConfirmed:
+			<span class="badge badge-sky text-xs font-black">جاهز للاستلام من المخزن</span>
+		case commerce.StatusOnHold:
+			<span class="badge badge-slate text-xs font-black">معلّق مؤقتاً</span>
+		case commerce.StatusShipped:
+			<span class="badge badge-indigo text-xs font-black">خرج من المخزن</span>
+		case commerce.StatusInTransit:
+			<span class="badge badge-indigo text-xs font-black">في الطريق</span>
+		case commerce.StatusOutForDelivery:
+			<span class="badge badge-indigo text-xs font-black">وصل إلى الصيدلية</span>
+		case commerce.StatusDelivered:
+			<span class="badge badge-emerald text-xs font-black">تم التسليم</span>
+		case commerce.StatusCompleted:
+			<span class="badge badge-emerald text-xs font-black">مكتمل</span>
+		case commerce.StatusReturned:
+			<span class="badge badge-rose text-xs font-black">مرتجع</span>
+		case commerce.StatusFailed:
+			<span class="badge badge-rose text-xs font-black">تعذّر التسليم</span>
+		case commerce.StatusCancelled:
+			<span class="badge badge-rose text-xs font-black">ملغاة</span>
+		default:
+			<span class="badge badge-slate text-xs font-black">{ string(status) }</span>
+	}
+}

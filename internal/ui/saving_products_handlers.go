@@ -74,11 +74,23 @@ func (h *UIHandler) handleSavingProductsPage(w http.ResponseWriter, r *http.Requ
 	noticeType := r.URL.Query().Get("notice_type")
 	noticeMsg := r.URL.Query().Get("notice")
 
+	totalCount := stats.FilteredCount
+	if totalCount == 0 && search == "" {
+		switch filter {
+		case "linked":
+			totalCount = stats.CountLinked
+		case "unlinked":
+			totalCount = stats.CountUnlinked
+		default:
+			totalCount = stats.CountAll
+		}
+	}
+
 	baseURL := fmt.Sprintf("/%s/saving-products", audience)
 	paginationProps := components.PaginationProps{
 		CurrentPage: page,
 		PageSize:    limit,
-		TotalCount:  stats.CountAll,
+		TotalCount:  totalCount,
 		BaseURL:     baseURL,
 		QueryValues: r.URL.Query(),
 	}

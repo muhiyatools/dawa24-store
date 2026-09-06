@@ -19,6 +19,12 @@ type VendorOrdersData struct {
 	ConfirmedCount int
 	ShippedCount   int
 	DeliveredCount int
+	// CanAssign and Couriers drive the delivery-assignment control on each
+	// shipment. أوامر التوريد is where a parcel is created, so it is also the
+	// natural place to decide whose round it goes on; the dispatch board at
+	// /vendor/delivery offers the same control over the same parcels.
+	CanAssign bool
+	Couriers  []DeliveryCourierOption
 }
 
 func filterCardBorder(current, target string) string {
@@ -155,7 +161,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 	} else {
 		<div class="d-flex flex-col gap-4">
 			for _, sh := range data.Shipments {
-				@VendorOrderShipmentCard(sh, lang)
+				@VendorOrderShipmentCard(sh, data, lang)
 			}
 
 			if data.TotalCount > 0 {

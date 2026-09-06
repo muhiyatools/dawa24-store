@@ -1,21 +1,17 @@
 package ui_test
 
+// courierMockCommerceRepo stands in for the commerce repository across the
+// delivery tests. It embeds commerce.Repository as a nil interface, so any
+// method these tests do not stub panics loudly rather than returning a
+// misleading zero value.
+
 import (
 	"context"
-	"io"
-	"log/slog"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"strings"
-	"testing"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
-	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
 type courierMockCommerceRepo struct {
@@ -168,12 +164,81 @@ func (m *courierMockCommerceRepo) GetVendorFinancialSummary(_ context.Context, _
 	return &commerce.VendorFinancialSummary{Period: period}, nil
 }
 
-func (m *courierMockCommerceRepo) GetShipmentForDeliveryByTracking(_ context.Context, tracking string) (*commerce.OrderShipment, error) {
-	if m.shipment != nil && (m.shipment.TrackingNumber == tracking || m.shipment.ShipmentNumber == tracking || m.shipment.PublicID == tracking) {
+// --- The dispatch board ---
+
+func (m *courierMockCommerceRepo) GetVendorShipment(_ context.Context, shipmentID, vendorOrgID int64) (*commerce.OrderShipment, error) {
+	if m.shipment != nil && m.shipment.ID == shipmentID && m.shipment.OrganizationID == vendorOrgID {
 		c := *m.shipment
 		return &c, nil
 	}
 	return nil, apperr.NotFound("shipment")
+}
+
+func (m *courierMockCommerceRepo) AssignShipmentCourier(_ context.Context, shipmentID, vendorOrgID int64, courierUserID *int64, assignedBy int64) error {
+	if m.shipment == nil || m.shipment.ID != shipmentID || m.shipment.OrganizationID != vendorOrgID {
+		return apperr.NotFound("shipment")
+	}
+	m.shipment.CourierUserID = courierUserID
+	if courierUserID == nil {
+		m.shipment.CourierAssignedAt = nil
+		m.shipment.CourierAssignedBy = nil
+		return nil
+	}
+	now := time.Now()
+	m.shipment.CourierAssignedAt = &now
+	m.shipment.CourierAssignedBy = &assignedBy
+	return nil
+}
+
+// ListCourierQueue reproduces the four predicates the SQL applies, so a test
+// that asks for the wrong queue gets the wrong answer here too.
+func (m *courierMockCommerceRepo) ListCourierQueue(_ context.Context, f commerce.CourierQueueFilter) ([]*commerce.OrderShipment, int, error) {
+	if m.shipment == nil || m.shipment.OrganizationID != f.VendorOrgID {
+		return nil, 0, nil
+	}
+	mine := m.shipment.IsAssignedTo(f.CourierUserID)
+	closed := m.shipment.IsClosed()
+	var match bool
+	switch f.Queue {
+	case commerce.CourierQueueMine:
+		match = mine && !closed
+	case commerce.CourierQueueCompleted:
+		match = mine && closed
+	case commerce.CourierQueueUnassigned:
+		match = m.shipment.CourierUserID == nil && !closed
+	case commerce.CourierQueueAll:
+		match = !closed
+	}
+	if !match {
+		return nil, 0, nil
+	}
+	c := *m.shipment
+	return []*commerce.OrderShipment{&c}, 1, nil
+}
+
+func (m *courierMockCommerceRepo) CourierQueueCounts(_ context.Context, _, courierUserID int64) (commerce.CourierQueueCounts, error) {
+	var c commerce.CourierQueueCounts
+	if m.shipment == nil {
+		return c, nil
+	}
+	if m.shipment.IsAssignedTo(courierUserID) {
+		if m.shipment.IsClosed() {
+			c.Completed = 1
+		} else {
+			c.Mine = 1
+		}
+	}
+	if !m.shipment.IsClosed() {
+		c.All = 1
+		if m.shipment.CourierUserID == nil {
+			c.Unassigned = 1
+		}
+	}
+	return c, nil
+}
+
+func (m *courierMockCommerceRepo) ListCourierWorkload(_ context.Context, _ int64) ([]*commerce.CourierWorkload, error) {
+	return nil, nil
 }
 
 func (m *courierMockCommerceRepo) VerifyAndCompleteDelivery(
@@ -197,171 +262,4 @@ func (m *courierMockCommerceRepo) VerifyAndCompleteDelivery(
 		return &c, nil
 	}
 	return nil, apperr.NotFound("shipment")
-}
-
-func TestCourierDeliveryHandlers(t *testing.T) {
-	log := slog.New(slog.NewTextHandler(io.Discard, nil))
-	mockShipment := &commerce.OrderShipment{
-		ID:                      101,
-		OrderID:                 505,
-		ShipmentNumber:          "SH-2026-001",
-		TrackingNumber:          "TRK-987654",
-		Status:                  commerce.StatusShipped,
-		DeliveryCode:            "654321",
-		TotalAmount:             money.FromMinor(125000),
-		CustomerOrgName:         i18n.New("صيدلية النور الحديثة", "Al-Noor Modern Pharmacy"),
-		CustomerBranchName:      i18n.New("فرع المعادي", "Maadi Branch"),
-		CustomerBranchAddress:   "شارع النصر، أمام مستشفى المعادي، القاهرة",
-		CustomerBranchPhone:     "01012345678",
-		CustomerBranchLatitude:  func(f float64) *float64 { return &f }(29.9602),
-		CustomerBranchLongitude: func(f float64) *float64 { return &f }(31.2825),
-		Lines: []*commerce.OrderLine{
-			{
-				ID:          1,
-				ProductName: i18n.New("بنادول إكسترا 24 قرص", "Panadol Extra 24 Tablets"),
-				Quantity:    10,
-				UnitPrice:   money.FromMinor(4500),
-				TotalPrice:  money.FromMinor(45000),
-			},
-			{
-				ID:          2,
-				ProductName: i18n.New("أوجمنتين 1 جم 14 قرص", "Augmentin 1g 14 Tablets"),
-				Quantity:    5,
-				UnitPrice:   money.FromMinor(8500),
-				TotalPrice:  money.FromMinor(42500),
-			},
-			{
-				ID:          3,
-				ProductName: i18n.New("كونجستال 20 قرص", "Congestal 20 Tablets"),
-				Quantity:    8,
-				UnitPrice:   money.FromMinor(2500),
-				TotalPrice:  money.FromMinor(20000),
-			},
-			{
-				ID:          4,
-				ProductName: i18n.New("كاتافلام 50 مجم 20 قرص", "Cataflam 50mg 20 Tablets"),
-				Quantity:    12,
-				UnitPrice:   money.FromMinor(3300),
-				TotalPrice:  money.FromMinor(39600),
-			},
-			{
-				ID:          5,
-				ProductName: i18n.New("أوميبرازول 20 مجم 14 كبسولة", "Omeprazole 20mg 14 Caps"),
-				Quantity:    6,
-				UnitPrice:   money.FromMinor(4000),
-				TotalPrice:  money.FromMinor(24000),
-			},
-			{
-				ID:          6,
-				ProductName: i18n.New("فيتامين سي 1000 مجم 10 أقراص فوارة", "Vitamin C 1000mg 10 Eff"),
-				Quantity:    15,
-				UnitPrice:   money.FromMinor(2000),
-				TotalPrice:  money.FromMinor(30000),
-			},
-		},
-	}
-
-	repo := &courierMockCommerceRepo{shipment: mockShipment}
-	commSvc := commerce.NewService(repo, log)
-
-	handler := ui.NewUIHandler(
-		nil, nil, nil, commSvc, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, log,
-	)
-
-	// 1. Test GET /delivery (empty state)
-	t.Run("GET /delivery - search form", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/delivery", nil)
-		rr := httptest.NewRecorder()
-		handler.CourierDeliveryPage(rr, req)
-
-		if rr.Code != http.StatusOK {
-			t.Fatalf("expected 200 OK, got %d", rr.Code)
-		}
-		body := rr.Body.String()
-		if !strings.Contains(body, "استعلام وتسليم شحنة") {
-			t.Errorf("missing title in courier delivery page")
-		}
-	})
-
-	// 2. Test GET /delivery?tracking=TRK-987654 (shipment loaded state)
-	t.Run("GET /delivery?tracking=TRK-987654 - details loaded", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/delivery?tracking=TRK-987654", nil)
-		rr := httptest.NewRecorder()
-		handler.CourierDeliveryPage(rr, req)
-
-		if rr.Code != http.StatusOK {
-			t.Fatalf("expected 200 OK, got %d", rr.Code)
-		}
-		body := rr.Body.String()
-		if !strings.Contains(body, "SH-2026-001") {
-			t.Errorf("missing shipment number in rendered page")
-		}
-		if !strings.Contains(body, "صيدلية النور الحديثة") {
-			t.Errorf("missing customer org name in rendered page")
-		}
-		if !strings.Contains(body, "بنادول إكسترا") {
-			t.Errorf("missing order item name in rendered page")
-		}
-		if !strings.Contains(body, "تأكيد تسليم الشحنة بالكود") {
-			t.Errorf("missing verification form in rendered page")
-		}
-		// Location & Map assertions
-		if !strings.Contains(body, "موقع GPS دقيق") {
-			t.Errorf("missing GPS exact location badge")
-		}
-		if !strings.Contains(body, "29.960200, 31.282500") {
-			t.Errorf("missing coordinates in rendered page")
-		}
-		if !strings.Contains(body, "https://www.google.com/maps/dir/?api=1&amp;destination=29.960200,31.282500") &&
-			!strings.Contains(body, "destination=29.960200,31.282500") {
-			t.Errorf("missing Google Maps GPS navigation link in rendered page")
-		}
-		if !strings.Contains(body, "courier-branch-map") {
-			t.Errorf("missing mini-map container in rendered page")
-		}
-		// Pagination & Total units assertions
-		if !strings.Contains(body, "إجمالي: 56 عبوة") {
-			t.Errorf("missing total units count (56 عبوة) in rendered page")
-		}
-		if !strings.Contains(body, "courier-pagination-bar") {
-			t.Errorf("missing courier pagination bar in rendered page for >5 items")
-		}
-	})
-
-	// 3. Test POST /delivery/verify - invalid PIN
-	t.Run("POST /delivery/verify - invalid delivery code", func(t *testing.T) {
-		form := url.Values{}
-		form.Set("tracking", "TRK-987654")
-		form.Set("delivery_code", "000000") // Wrong PIN
-		req := httptest.NewRequest(http.MethodPost, "/delivery/verify", strings.NewReader(form.Encode()))
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		rr := httptest.NewRecorder()
-		handler.CourierVerifyDeliverySubmit(rr, req)
-
-		body := rr.Body.String()
-		if !strings.Contains(body, "كود تأكيد الاستلام غير صحيح") {
-			t.Errorf("expected invalid delivery code error message in response")
-		}
-	})
-
-	// 4. Test POST /delivery/verify - valid PIN
-	t.Run("POST /delivery/verify - success", func(t *testing.T) {
-		form := url.Values{}
-		form.Set("tracking", "TRK-987654")
-		form.Set("delivery_code", "654321") // Correct PIN
-		form.Set("notes", "تم التسليم للصيدلي المسؤول بالفرع")
-		req := httptest.NewRequest(http.MethodPost, "/delivery/verify", strings.NewReader(form.Encode()))
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		rr := httptest.NewRecorder()
-		handler.CourierVerifyDeliverySubmit(rr, req)
-
-		body := rr.Body.String()
-		if !strings.Contains(body, "تم تسليم الشحنة وتوثيقها بنجاح") && !strings.Contains(body, "تم تأكيد الاستلام") {
-			t.Errorf("expected success delivery message in response")
-		}
-
-		if mockShipment.Status != commerce.StatusDelivered {
-			t.Errorf("expected shipment status to be delivered, got %s", mockShipment.Status)
-		}
-	})
 }

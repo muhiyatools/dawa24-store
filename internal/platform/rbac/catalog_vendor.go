@@ -14,6 +14,7 @@ const (
 	gVendorCatalog  = "vendor.catalog"
 	gVendorPromo    = "vendor.promo"
 	gVendorCommerce = "vendor.commerce"
+	gVendorDelivery = "vendor.delivery"
 	gVendorBuying   = "vendor.buying"
 	gVendorTools    = "vendor.tools"
 	gVendorContent  = "vendor.content"
@@ -27,6 +28,7 @@ func vendorGroups() []Group {
 		{Key: gVendorCatalog, NameAr: "الكتالوج والمخزون", NameEn: "Catalog & Inventory", Scopes: s, Order: 120},
 		{Key: gVendorPromo, NameAr: "العروض والتسويق", NameEn: "Offers & Marketing", Scopes: s, Order: 130},
 		{Key: gVendorCommerce, NameAr: "الطلبات والمالية", NameEn: "Orders & Finance", Scopes: s, Order: 140},
+		{Key: gVendorDelivery, NameAr: "إدارة الشحنات", NameEn: "Shipment Dispatch", Scopes: s, Order: 142},
 		{Key: gVendorBuying, NameAr: "شراء المنتجات", NameEn: "Purchasing", Scopes: s, Order: 145},
 		{Key: gVendorTools, NameAr: "الأدوات والتحليلات", NameEn: "Tools & Analytics", Scopes: s, Order: 150},
 		{Key: gVendorContent, NameAr: "المحتوى والسياسات", NameEn: "Content & Policies", Scopes: s, Order: 160},
@@ -50,6 +52,7 @@ func vendorPermissions() []Permission {
 	out = append(out, vendorCatalogPerms()...)
 	out = append(out, vendorPromoPerms()...)
 	out = append(out, vendorCommercePerms()...)
+	out = append(out, vendorDeliveryPerms()...)
 	out = append(out, vendorBuyingPerms()...)
 	out = append(out, vendorToolsPerms()...)
 	out = append(out, vendorContentPerms()...)
@@ -149,6 +152,34 @@ func vendorCommercePerms() []Permission {
 
 		vendorPage("vendor.wallet.view", g, "wallet", "المحفظة والرصيد", "Wallet"),
 		vendorAct("vendor.wallet.manage", g, "الإيداع والسحب ووسائل الدفع", "Deposit, withdraw and payment methods", "vendor.wallet.view"),
+	}
+}
+
+// vendorDeliveryPerms is إدارة الشحنات — the dispatch surface.
+//
+// It is the supplier's third audience, after the people who sell and the
+// people who buy: the مندوب who carries a parcel to a pharmacy. Their whole
+// dashboard is one page, so these keys are deliberately narrow — a courier
+// granted them can see the parcels assigned to them and close them, and
+// nothing else about the company.
+//
+// The split between .update and .assign is the split between doing the round
+// and planning it. A مندوب holds .update: they move their own parcels through
+// fulfilment and confirm handover with the pharmacy's PIN. A dispatcher or an
+// owner holds .assign: they decide whose round a parcel belongs to. Neither
+// implies the other, so a courier cannot reassign work to themselves and a
+// dispatcher who never leaves the office does not appear to be carrying
+// anything.
+func vendorDeliveryPerms() []Permission {
+	g := gVendorDelivery
+	return []Permission{
+		vendorPage("vendor.delivery.view", g, "delivery", "إدارة الشحنات", "Shipment dispatch"),
+		vendorAct("vendor.delivery.update", g,
+			"تحديث حالة الطرود المسندة وتأكيد التسليم", "Update assigned parcels and confirm handover",
+			"vendor.delivery.view"),
+		vendorAct("vendor.delivery.assign", g,
+			"إسناد الطرود إلى المندوبين", "Assign parcels to delivery representatives",
+			"vendor.delivery.view", "vendor.order.view"),
 	}
 }
 

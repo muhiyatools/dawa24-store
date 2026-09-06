@@ -2,8 +2,6 @@ package commerce
 
 import (
 	"context"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -156,45 +154,4 @@ func (s *Service) RateOrderWithCriteria(ctx context.Context, orderID, customerID
 		return 0, err
 	}
 	return avg, nil
-}
-
-// GetShipmentForDelivery retrieves a shipment by its tracking/courier reference for the courier portal.
-func (s *Service) GetShipmentForDelivery(ctx context.Context, tracking string) (*OrderShipment, error) {
-	cleanTracking := strings.TrimSpace(tracking)
-	if cleanTracking == "" {
-		return nil, apperr.Validation("delivery.tracking_required", i18n.TDefault("w4_mod.w4str_141_141"), map[string]string{"tracking": "required"})
-	}
-	return s.repo.GetShipmentForDeliveryByTracking(database.AsSystem(ctx), cleanTracking)
-}
-
-// VerifyAndCompleteDelivery validates the 6-digit delivery confirmation PIN and marks the shipment as delivered.
-func (s *Service) VerifyAndCompleteDelivery(ctx context.Context, tracking, deliveryCode, notes string, collectedAmountMinor int64) (*OrderShipment, error) {
-	cleanTracking := strings.TrimSpace(tracking)
-	cleanCode := strings.TrimSpace(deliveryCode)
-
-	if cleanTracking == "" {
-		return nil, apperr.Validation("delivery.tracking_required", i18n.TDefault("w4_mod.w4str_142_142"), map[string]string{"tracking": "required"})
-	}
-	if cleanCode == "" {
-		return nil, apperr.Validation("delivery.code_required", i18n.TDefault("w4_mod.6_143"), map[string]string{"delivery_code": "required"})
-	}
-
-	shipment, err := s.repo.GetShipmentForDeliveryByTracking(database.AsSystem(ctx), cleanTracking)
-	if err != nil {
-		return nil, err
-	}
-
-	completedShipment, err := s.repo.VerifyAndCompleteDelivery(database.AsSystem(ctx), shipment.ID, cleanCode, notes, collectedAmountMinor)
-	if err != nil {
-		return nil, err
-	}
-
-	s.log.InfoContext(ctx, "courier delivery completed successfully",
-		"shipment_id", shipment.ID,
-		"shipment_number", shipment.ShipmentNumber,
-		"order_id", shipment.OrderID,
-		"collected_amount_minor", collectedAmountMinor,
-	)
-
-	return completedShipment, nil
 }

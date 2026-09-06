@@ -277,8 +277,13 @@ templ VendorBranchesScript() {
 					}
 				},
 				onGovChange(govId, item) {
+					const prevGovId = this.form.governorate_id;
 					this.form.governorate_id = govId ? String(govId) : '';
 					if (!govId || this._settingEditMode) return;
+
+					// If a city is already selected or if governorate didn't change, do not re-pan to governorate center
+					if (this.form.city_id && prevGovId === String(govId)) return;
+
 					let lat = null, lon = null;
 					const coordsEl = document.getElementById('vendor-branch-govs-coords');
 					if (coordsEl) {
@@ -299,7 +304,8 @@ templ VendorBranchesScript() {
 							if (found) { lat = found[0]; lon = found[1]; }
 						}
 					}
-					if (lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
+					// Only pan to governorate if NO city is currently selected
+					if (!this.form.city_id && lat !== null && lon !== null && (lat !== 0 || lon !== 0)) {
 						this.form.latitude = lat;
 						this.form.longitude = lon;
 						const picker = document.getElementById('vendor-branch-map-picker');

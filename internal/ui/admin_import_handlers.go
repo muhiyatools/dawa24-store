@@ -416,4 +416,3 @@ func (h *UIHandler) refreshProductIndex(ctx context.Context) {
 		h.log.InfoContext(bg, "product index rebuilt after import", "rows", count)
 	}()
 }
-

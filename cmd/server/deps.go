@@ -150,6 +150,13 @@ func (d *dependencies) connect(ctx context.Context, cfg *config.Config, log *slo
 			if seeded > 0 {
 				log.Info("seeded starter roles for organizations", "organizations", seeded)
 			}
+			// A role declared after a company was seeded — مندوب توصيل is the
+			// first — reaches that company here and nowhere else.
+			if added, err := rbac.SeedMissingSystemRoles(ctx, d.db); err != nil {
+				log.Error("could not seed newly declared starter roles", "error", err)
+			} else if added > 0 {
+				log.Info("seeded newly declared starter roles", "organizations", added)
+			}
 			if repaired, err := rbac.RepairOutOfScopeGrants(ctx, d.db); err != nil {
 				log.Error("could not repair company role grants", "error", err)
 			} else if repaired > 0 {

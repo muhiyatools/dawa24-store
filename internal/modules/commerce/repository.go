@@ -44,8 +44,17 @@ type Repository interface {
 	// so two vendor staff acting at once cannot both advance the same shipment.
 	UpdateShipmentStatus(ctx context.Context, id int64, from, to OrderStatus, history OrderStatusHistory) error
 	SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error
-	GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*OrderShipment, error)
 	VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*OrderShipment, error)
+
+	// The dispatch board: which parcel is on which delivery representative's
+	// round. GetVendorShipment is the only enriched single-parcel read scoped
+	// to the supplier that owns it, and every courier action goes through it,
+	// so ownership is proved once rather than at each call site.
+	GetVendorShipment(ctx context.Context, shipmentID, vendorOrgID int64) (*OrderShipment, error)
+	AssignShipmentCourier(ctx context.Context, shipmentID, vendorOrgID int64, courierUserID *int64, assignedBy int64) error
+	ListCourierQueue(ctx context.Context, filter CourierQueueFilter) ([]*OrderShipment, int, error)
+	CourierQueueCounts(ctx context.Context, vendorOrgID, courierUserID int64) (CourierQueueCounts, error)
+	ListCourierWorkload(ctx context.Context, vendorOrgID int64) ([]*CourierWorkload, error)
 	ListOrderHistory(ctx context.Context, orderID int64) ([]*OrderStatusHistory, error)
 	RateOrder(ctx context.Context, orderID int64, customerID int64, rating float64, review string) error
 	GetOfferDetailsForOrderLine(ctx context.Context, orderID, lineID int64) (*OrderLineOfferDetails, error)

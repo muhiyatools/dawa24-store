@@ -250,12 +250,14 @@ window.syncCityDropdownsWithCoordinates = function (lat, lon) {
 
       // Sync comboboxes via window.dawaComboboxSet
       if (typeof window.dawaComboboxSet === 'function') {
-        if (closestGovId) {
+        if (closestGovId && typeof window.dawaComboboxValue === 'function' && window.dawaComboboxValue('governorate_id') !== closestGovId) {
           window.dawaComboboxSet('branch_governorate_id', closestGovId);
           window.dawaComboboxSet('governorate_id', closestGovId);
         }
-        window.dawaComboboxSet('branch_city_id', closestCityId);
-        window.dawaComboboxSet('city_id', closestCityId);
+        if (closestCityId && typeof window.dawaComboboxValue === 'function' && window.dawaComboboxValue('city_id') !== closestCityId) {
+          window.dawaComboboxSet('branch_city_id', closestCityId);
+          window.dawaComboboxSet('city_id', closestCityId);
+        }
       }
     } finally {
       setTimeout(function () { isMapSyncingCity = false; }, 250);
@@ -460,8 +462,8 @@ function initMapPickers() {
 
     // Manual Lat / Lon Input Change Handlers
     if (latInput && lonInput) {
-      const onManualInputChange = () => {
-        if (isInternalUpdating) return;
+      const onManualInputChange = (e) => {
+        if (isInternalUpdating || (e && !e.isTrusted)) return;
         const parsedLat = parseFloat(latInput.value);
         const parsedLon = parseFloat(lonInput.value);
         if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
@@ -570,31 +572,33 @@ if (document.readyState === 'loading') {
 
 /**
  * Programmatically set the location of a map picker and pan/zoom its Leaflet instance.
- * Used by branch managers and admin city modals on edit.
+ * Used by branch managers, combobox change handlers, and admin city modals.
  */
-window.dawaSetMapLocation = function(target, lat, lon, zoom) {
+function dawaSetMapLocation(target, lat, lon, zoom) {
   var el = typeof target === 'string' ? document.querySelector(target) : target;
   if (!el) return;
   var pLat = parseFloat(lat);
   var pLon = parseFloat(lon);
-  if (isNaN(pLat) || isNaN(pLon)) return;
+  if (isNaN(pLat) || isNaN(pLon) || (pLat === 0 && pLon === 0)) return;
 
-  var z = (zoom !== undefined && zoom !== null) ? zoom : 14;
+  var z = (typeof zoom === 'number' && zoom > 0) ? zoom : 14;
 
   function doUpdate(container) {
-    if (typeof container._updateCoords === 'function') {
-      container._updateCoords(pLat, pLon, z, false);
-      if (container._leaflet_map) {
-        requestAnimationFrame(function() { container._leaflet_map.invalidateSize(); });
+    var canvas = container.querySelector ? container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
+    var targetMap = (canvas && canvas._leaflet_map) || container._leaflet_map;
+    var updateFn = container._updateCoords || (canvas && canvas._updateCoords);
+
+    if (typeof updateFn === 'function') {
+      updateFn(pLat, pLon, z, false);
+      if (targetMap) {
+        requestAnimationFrame(function() { targetMap.invalidateSize(); });
       }
       return true;
     }
-    var canvas = container.querySelector ? container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
-    if (canvas && typeof canvas._updateCoords === 'function') {
-      canvas._updateCoords(pLat, pLon, z, false);
-      if (canvas._leaflet_map) {
-        requestAnimationFrame(function() { canvas._leaflet_map.invalidateSize(); });
-      }
+
+    if (targetMap) {
+      targetMap.setView([pLat, pLon], z, { animate: false });
+      requestAnimationFrame(function() { targetMap.invalidateSize(); });
       return true;
     }
     return false;
@@ -603,11 +607,45 @@ window.dawaSetMapLocation = function(target, lat, lon, zoom) {
   if (!doUpdate(el)) {
     el.dataset.defaultLat = pLat;
     el.dataset.defaultLon = pLon;
-    initMapPickers();
+    el._pendingCoords = { lat: pLat, lon: pLon, zoom: z };
+    var innerCanvas = el.querySelector ? el.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') : null;
+    if (innerCanvas) {
+      innerCanvas._pendingCoords = { lat: pLat, lon: pLon, zoom: z };
+    }
+    if (typeof initMapPickers === 'function') {
+      initMapPickers();
+    }
     setTimeout(function() { doUpdate(el); }, 100);
   }
-};
-window.setMapPickerLocation = window.dawaSetMapLocation;
+
+  // Explicitly synchronize inputs & badge without triggering synthetic change events that mimic manual user actions
+  var latInput = el.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"]');
+  var lonInput = el.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"]');
+  if (latInput && parseFloat(latInput.value) !== pLat) {
+    latInput.value = pLat.toFixed(6);
+    latInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  if (lonInput && parseFloat(lonInput.value) !== pLon) {
+    lonInput.value = pLon.toFixed(6);
+    lonInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  var badge = el.querySelector('[data-map-badge], [data-map-coords-badge]');
+  if (badge) badge.textContent = pLat.toFixed(4) + ', ' + pLon.toFixed(4);
+  var gmapsInput = el.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
+  if (gmapsInput) gmapsInput.value = 'https://www.google.com/maps?q=' + pLat + ',' + pLon;
+
+  window.dispatchEvent(new CustomEvent('dawa-coords-change', {
+    detail: {
+      lat: pLat,
+      lon: pLon,
+      targetId: el.id || '',
+      container: el,
+      userAction: false
+    }
+  }));
+}
+window.dawaSetMapLocation = dawaSetMapLocation;
+window.setMapPickerLocation = dawaSetMapLocation;
 
 /* --------------------------------------------------------------------------
    "موقعي الحالي" — one delegated handler for the eight buttons that ask for it.
@@ -775,63 +813,4 @@ window.findCityCoordsByName = function(name) {
   }
   return null;
 };
-
-// Global helper for programmatic map location updates from comboboxes and external pickers
-function dawaSetMapLocation(container, lat, lon, zoom) {
-  if (!container) return;
-  if (typeof container === 'string') {
-    container = document.querySelector(container);
-  }
-  if (!container) return;
-
-  const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
-  const targetZoom = (typeof zoom === 'number' && zoom > 0) ? zoom : 14;
-  const targetLat = parseFloat(lat);
-  const targetLon = parseFloat(lon);
-
-  if (isNaN(targetLat) || isNaN(targetLon) || (targetLat === 0 && targetLon === 0)) return;
-
-  const updateFn = container._updateCoords || (canvas && canvas._updateCoords);
-  if (typeof updateFn === 'function') {
-    updateFn(targetLat, targetLon, targetZoom, false);
-  } else if (canvas._leaflet_map || container._leaflet_map) {
-    const map = canvas._leaflet_map || container._leaflet_map;
-    map.setView([targetLat, targetLon], targetZoom);
-  } else {
-    // Save pending coords if map is still initializing
-    container._pendingCoords = { lat: targetLat, lon: targetLon, zoom: targetZoom };
-    if (canvas !== container) {
-      canvas._pendingCoords = { lat: targetLat, lon: targetLon, zoom: targetZoom };
-    }
-  }
-
-  // Also proactively synchronize form inputs and labels
-  const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"]');
-  const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"]');
-  if (latInput) {
-    latInput.value = targetLat.toFixed(6);
-    latInput.dispatchEvent(new Event('input', { bubbles: true }));
-    latInput.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  if (lonInput) {
-    lonInput.value = targetLon.toFixed(6);
-    lonInput.dispatchEvent(new Event('input', { bubbles: true }));
-    lonInput.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
-  if (badge) badge.textContent = `${targetLat.toFixed(4)}, ${targetLon.toFixed(4)}`;
-  const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
-  if (gmapsInput) gmapsInput.value = `https://www.google.com/maps?q=${targetLat},${targetLon}`;
-
-  window.dispatchEvent(new CustomEvent('dawa-coords-change', {
-    detail: {
-      lat: targetLat,
-      lon: targetLon,
-      targetId: container.id || '',
-      container: container,
-      userAction: false
-    }
-  }));
-}
-window.dawaSetMapLocation = dawaSetMapLocation;
 

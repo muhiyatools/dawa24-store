@@ -544,4 +544,3 @@ func (h *UIHandler) VendorWarehouseToggleSubmit(w http.ResponseWriter, r *http.R
 	}
 	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", msg)
 }
-

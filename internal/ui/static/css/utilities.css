@@ -323,7 +323,9 @@
    them come from tokens, which is what actually flips. */
 .bg-emerald-100 { background-color: var(--success-subtle); }
 .bg-emerald-500 { background-color: var(--success); }
+.bg-amber-100 { background-color: var(--warning-subtle); }
 .bg-indigo-50 { background-color: var(--accent-subtle); }
+.bg-indigo-100 { background-color: var(--accent-subtle); }
 .bg-purple-50 { background-color: var(--accent-subtle); }
 .bg-rose-100 { background-color: var(--danger-subtle); }
 .bg-rose-500 { background-color: var(--danger); }
@@ -344,6 +346,7 @@
 .text-emerald-900 { color: var(--success); }
 .text-emerald-950 { color: var(--success); }
 .text-indigo-600 { color: var(--accent); }
+.text-indigo-900 { color: var(--accent); }
 .text-purple-500 { color: var(--accent); }
 .text-purple-600 { color: var(--accent); }
 .text-rose-800 { color: var(--danger); }

@@ -564,4 +564,3 @@ func (h *UIHandler) renderImport(w http.ResponseWriter, r *http.Request, view pa
 		h.log.ErrorContext(r.Context(), "render vendor import page", "error", err)
 	}
 }
-

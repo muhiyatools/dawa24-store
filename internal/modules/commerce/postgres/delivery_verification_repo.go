@@ -26,7 +26,8 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		// 1. Lock shipment row for update and read payment method
 		query := `
 			SELECT s.id, s.order_id, s.organization_id, s.status, s.delivery_code, s.delivery_attempts,
-			       s.delivery_locked_until, s.total_amount, s.shipping_fee, COALESCE(ord.payment_method, 'cod')
+			       s.delivery_locked_until, s.total_amount, s.shipping_fee,
+			       COALESCE(ord.payment_method, 'cod'), COALESCE(ord.payment_status, 'unpaid')
 			FROM commerce.order_shipments s
 			JOIN commerce.orders ord ON ord.id = s.order_id
 			WHERE s.id = $1
@@ -39,12 +40,13 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		var totalAmount money.Amount
 		var shippingFee money.Amount
 		var paymentMethod string
+		var paymentStatus string
 		var orderID int64
 		var orgID int64
 
 		err := tx.QueryRow(txCtx, query, shipmentID).Scan(
 			&shipmentID, &orderID, &orgID, &currentStatus, &actualCode,
-			&attempts, &lockedUntil, &totalAmount, &shippingFee, &paymentMethod,
+			&attempts, &lockedUntil, &totalAmount, &shippingFee, &paymentMethod, &paymentStatus,
 		)
 		if err != nil {
 			if err == pgx.ErrNoRows {
@@ -95,16 +97,21 @@ func (r *Repository) VerifyAndCompleteDelivery(
 				map[string]string{"delivery_code": "invalid"})
 		}
 
-		// 5. Success: update shipment to delivered
-		// If paid with organization wallet, courier only collects the delivery fee (if any).
+		// 5. Success: update shipment to delivered.
+		//
+		// What was collected is computed from the domain rule the courier's
+		// screen renders, not from a second copy of it here. The two used to
+		// be written separately and could disagree — a wallet order with free
+		// shipping told the courier to collect nothing and recorded the
+		// delivery fee anyway.
 		if collectedAmountMinor <= 0 {
-			if paymentMethod == "wallet" {
-				collectedAmountMinor = shippingFee.Minor()
-			} else if paymentMethod == "cod" {
-				collectedAmountMinor = totalAmount.Minor()
-			} else {
-				collectedAmountMinor = 0
+			view := &commerce.OrderShipment{
+				PaymentMethod: paymentMethod,
+				PaymentStatus: commerce.PaymentStatus(paymentStatus),
+				ShippingFee:   shippingFee,
+				TotalAmount:   totalAmount,
 			}
+			collectedAmountMinor = view.CourierCollection().Amount.Minor()
 		}
 
 		updateQuery := `

@@ -97,23 +97,48 @@ func (r *Repository) ListSavingProductsEnriched(ctx context.Context, orgID int64
 			       COUNT(CASE WHEN product_id IS NOT NULL THEN 1 END),
 			       COUNT(CASE WHEN product_id IS NULL THEN 1 END),
 			       COALESCE(SUM(qty), 0),
-			       COALESCE(SUM(qty * price), 0)
+			       COALESCE(ROUND(SUM(qty * price), 2), 0)
 			FROM catalog.saving_products
 			WHERE organization_id = $1 AND deleted_at IS NULL;
 		`
-		var totalMinor int64
 		if err := tx.QueryRow(txCtx, statsQuery, orgID).Scan(
 			&stats.CountAll, &stats.CountLinked, &stats.CountUnlinked,
-			&stats.TotalQuantity, &totalMinor,
+			&stats.TotalQuantity, &stats.TotalValue,
 		); err != nil {
 			return err
 		}
-		stats.TotalValue = money.FromMinor(totalMinor)
 
-		// 2. Fetch filtered rows
+		// 2. Fetch filtered rows & filtered count
 		search = strings.TrimSpace(search)
 		if filter == "" {
 			filter = "all"
+		}
+
+		if search != "" {
+			countFilteredQuery := `
+				SELECT COUNT(*)
+				FROM catalog.saving_products sp
+				LEFT JOIN catalog.products p ON p.id = sp.product_id AND p.deleted_at IS NULL
+				WHERE sp.organization_id = $1 AND sp.deleted_at IS NULL
+				  AND (sp.name_product ILIKE '%' || $2 || '%' OR sp.sku ILIKE '%' || $2 || '%' OR p.name->>'ar' ILIKE '%' || $2 || '%' OR p.name->>'en' ILIKE '%' || $2 || '%')
+				  AND (
+				      $3 = 'all' OR
+				      ($3 = 'linked' AND sp.product_id IS NOT NULL) OR
+				      ($3 = 'unlinked' AND sp.product_id IS NULL)
+				  );
+			`
+			if err := tx.QueryRow(txCtx, countFilteredQuery, orgID, search, filter).Scan(&stats.FilteredCount); err != nil {
+				return err
+			}
+		} else {
+			switch filter {
+			case "linked":
+				stats.FilteredCount = stats.CountLinked
+			case "unlinked":
+				stats.FilteredCount = stats.CountUnlinked
+			default:
+				stats.FilteredCount = stats.CountAll
+			}
 		}
 
 		query := `

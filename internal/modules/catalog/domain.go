@@ -330,6 +330,7 @@ type SavingProductStats struct {
 	CountAll      int          `json:"count_all"`
 	CountLinked   int          `json:"count_linked"`
 	CountUnlinked int          `json:"count_unlinked"`
+	FilteredCount int          `json:"filtered_count"`
 	TotalQuantity float64      `json:"total_quantity"`
 	TotalValue    money.Amount `json:"total_value"`
 }

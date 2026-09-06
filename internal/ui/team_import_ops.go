@@ -974,5 +974,3 @@ func GenerateTeamSampleExcel(orgType string) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
-
-

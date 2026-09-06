@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -168,16 +169,6 @@ func (m *deliveryMockRepo) RejectNegotiation(_ context.Context, _ int64, _ strin
 	return nil
 }
 
-func (m *deliveryMockRepo) GetShipmentForDeliveryByTracking(_ context.Context, tracking string) (*commerce.OrderShipment, error) {
-	for _, s := range m.shipments {
-		if s.TrackingNumber == tracking || s.ShipmentNumber == tracking || s.PublicID == tracking {
-			c := *s
-			return &c, nil
-		}
-	}
-	return nil, nil
-}
-
 func (m *deliveryMockRepo) VerifyAndCompleteDelivery(
 	_ context.Context,
 	shipmentID int64,
@@ -204,6 +195,12 @@ func (m *deliveryMockRepo) VerifyAndCompleteDelivery(
 			s.DeliveredAt = &now
 			s.DeliveredByCourierAt = &now
 			s.DeliveryNotes = notes
+			// Zero means "work it out", exactly as the SQL implementation
+			// does: the amount recorded is the amount the courier's screen
+			// told them to collect, not a number a caller supplied.
+			if collectedAmountMinor <= 0 {
+				collectedAmountMinor = s.CourierCollection().Amount.Minor()
+			}
 			s.CollectedAmountMinor = collectedAmountMinor
 			s.DeliveryAttempts = 0
 			s.DeliveryLockedUntil = nil
@@ -231,45 +228,127 @@ func TestCourierDeliveryPINAndTrackingHelpers(t *testing.T) {
 	}
 }
 
+// TestCourierDeliveryLifecycle_Success walks the handover a delivery
+// representative performs: they open a parcel on their own round, enter the
+// pharmacy's code, and the parcel closes with the cash recorded.
+//
+// The lookup is by shipment id scoped to the supplier, not by waybill number.
+// The waybill path existed and was removed with the unlisted portal: knowing a
+// tracking number was enough to read a pharmacy's address and close its order,
+// and no test could express "the wrong person did this" because the code had
+// no notion of the right one.
 func TestCourierDeliveryLifecycle_Success(t *testing.T) {
+	const (
+		vendorOrgID int64 = 10
+		courierID   int64 = 55
+	)
+	courier := courierID
 	repo := &deliveryMockRepo{
 		shipments: map[string]*commerce.OrderShipment{
 			"TRK-123456": {
 				ID:             1,
+				OrganizationID: vendorOrgID,
 				ShipmentNumber: "SH-1",
 				TrackingNumber: "TRK-123456",
 				Status:         commerce.StatusShipped,
 				DeliveryCode:   "482915",
+				PaymentMethod:  "cod",
 				TotalAmount:    money.FromMinor(54000),
+				CourierUserID:  &courier,
 			},
 		},
 	}
 
 	svc := commerce.NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
-	ctx := database.WithTenant(context.Background(), 10)
+	ctx := database.WithTenant(context.Background(), vendorOrgID)
 
-	// 1. Courier looks up shipment by tracking number
-	sh, err := svc.GetShipmentForDelivery(ctx, "TRK-123456")
+	// 1. The representative opens the parcel on their own round.
+	sh, err := svc.GetCourierShipment(ctx, 1, vendorOrgID, courierID)
 	if err != nil || sh == nil {
-		t.Fatalf("GetShipmentForDelivery failed: %v", err)
+		t.Fatalf("GetCourierShipment failed: %v", err)
 	}
 	if sh.ShipmentNumber != "SH-1" {
 		t.Errorf("got shipment number %s, want SH-1", sh.ShipmentNumber)
 	}
 
-	// 2. Courier enters correct 6-digit delivery PIN
-	completed, err := svc.VerifyAndCompleteDelivery(ctx, "TRK-123456", "482915", "تم التحصيل كاش", 54000)
-	if err != nil || completed == nil {
-		t.Fatalf("VerifyAndCompleteDelivery failed: %v", err)
+	// 2. Somebody else on the same supplier cannot.
+	if _, err := svc.GetCourierShipment(ctx, 1, vendorOrgID, courierID+1); err == nil {
+		t.Error("a courier opened a parcel assigned to somebody else")
 	}
 
+	// 3. The pharmacy's code closes it.
+	completed, err := svc.CompleteCourierDelivery(ctx, 1, vendorOrgID, courierID, "482915", "تم التحصيل كاش")
+	if err != nil || completed == nil {
+		t.Fatalf("CompleteCourierDelivery failed: %v", err)
+	}
 	if completed.Status != commerce.StatusDelivered {
 		t.Errorf("status = %v, want delivered", completed.Status)
 	}
 	if completed.DeliveredByCourierAt == nil {
-		t.Errorf("expected DeliveredByCourierAt to be set")
+		t.Error("expected DeliveredByCourierAt to be set")
 	}
 	if completed.DeliveryNotes != "تم التحصيل كاش" {
-		t.Errorf("delivery notes = %q, want 'تم التحصيل كاش'", completed.DeliveryNotes)
+		t.Errorf("delivery notes = %q, want the note that was passed", completed.DeliveryNotes)
 	}
+	// Cash on delivery: the whole invoice, taken from the domain rule rather
+	// than from a number the caller supplied.
+	if completed.CollectedAmountMinor != 54000 {
+		t.Errorf("collected %d minor, want 54000", completed.CollectedAmountMinor)
+	}
+}
+
+// TestCourierDeliveryRefusesTheWrongCode.
+func TestCourierDeliveryRefusesTheWrongCode(t *testing.T) {
+	const vendorOrgID, courierID int64 = 10, 55
+	courier := courierID
+	repo := &deliveryMockRepo{
+		shipments: map[string]*commerce.OrderShipment{
+			"TRK-123456": {
+				ID: 1, OrganizationID: vendorOrgID, ShipmentNumber: "SH-1",
+				TrackingNumber: "TRK-123456", Status: commerce.StatusShipped,
+				DeliveryCode: "482915", TotalAmount: money.FromMinor(54000),
+				CourierUserID: &courier,
+			},
+		},
+	}
+	svc := commerce.NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ctx := database.WithTenant(context.Background(), vendorOrgID)
+
+	if _, err := svc.CompleteCourierDelivery(ctx, 1, vendorOrgID, courierID, "000000", ""); err == nil {
+		t.Fatal("a wrong code closed the parcel")
+	}
+	if _, err := svc.CompleteCourierDelivery(ctx, 1, vendorOrgID, courierID, "", ""); err == nil {
+		t.Fatal("an empty code closed the parcel")
+	}
+	if repo.shipments["TRK-123456"].Status == commerce.StatusDelivered {
+		t.Fatal("the parcel was closed despite the refusals")
+	}
+}
+
+// The dispatch board.
+
+func (m *deliveryMockRepo) GetVendorShipment(_ context.Context, shipmentID, vendorOrgID int64) (*commerce.OrderShipment, error) {
+	for _, s := range m.shipments {
+		if s.ID == shipmentID && s.OrganizationID == vendorOrgID {
+			c := *s
+			return &c, nil
+		}
+	}
+	return nil, apperr.NotFound("shipment")
+}
+
+func (m *deliveryMockRepo) AssignShipmentCourier(_ context.Context, _, _ int64, _ *int64, _ int64) error {
+	return nil
+}
+
+func (m *deliveryMockRepo) ListCourierQueue(_ context.Context, _ commerce.CourierQueueFilter) ([]*commerce.OrderShipment, int, error) {
+	return nil, 0, nil
+}
+
+func (m *deliveryMockRepo) CourierQueueCounts(_ context.Context, _, _ int64) (commerce.CourierQueueCounts, error) {
+	return commerce.CourierQueueCounts{}, nil
+}
+
+func (m *deliveryMockRepo) ListCourierWorkload(_ context.Context, _ int64) ([]*commerce.CourierWorkload, error) {
+	return nil, nil
 }

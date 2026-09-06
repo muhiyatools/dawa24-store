@@ -179,6 +179,9 @@ func (m *institutionalMockRepo) ListEmployees(_ context.Context, _ int64) ([]*or
 func (m *institutionalMockRepo) ListEmployeesWithTotal(_ context.Context, _ int64, _, _ int) ([]*org.EmployeeView, int, error) {
 	return nil, 0, nil
 }
+func (m *institutionalMockRepo) ListMembersHolding(_ context.Context, _ int64, _ string) ([]*org.EmployeeView, error) {
+	return nil, nil
+}
 func (m *institutionalMockRepo) RemoveMember(_ context.Context, _, _ int64) error { return nil }
 func (m *institutionalMockRepo) CreateRole(_ context.Context, _ *org.Role) error  { return nil }
 func (m *institutionalMockRepo) GetRole(_ context.Context, _, _ int64) (*org.Role, error) {

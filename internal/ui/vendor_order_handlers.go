@@ -60,6 +60,17 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 		ConfirmedCount: confirmedCount,
 		ShippedCount:   shippedCount,
 		DeliveredCount: deliveredCount,
+		CanAssign:      actor.Can("vendor.delivery.assign"),
+	}
+	// The assignment control on each shipment is rendered from the company's
+	// own delivery representatives, and only for a caller who may dispatch.
+	if data.CanAssign {
+		couriers, cErr := h.listDeliveryCouriers(ctx, actor.OrganizationID)
+		if cErr != nil {
+			h.renderError(w, r, cErr)
+			return
+		}
+		data.Couriers = couriers
 	}
 
 	h.renderPage(ctx, w, "render vendor orders page", pages.VendorOrders(data, lang, dir, h.isHTMX(r)))

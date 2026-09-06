@@ -1,0 +1,265 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// إدارة الشحنات — the dispatch board.
+//
+// One page, two readers. A مندوب opens it and sees the parcels they are
+// carrying, oldest assignment first, because that is the order they should be
+// delivered in. A dispatcher opens the same page and additionally sees what
+// nobody has picked up and what the whole team is holding.
+
+// DeliveryCourierOption is one of the supplier's delivery representatives, as
+// offered in the assignment control.
+type DeliveryCourierOption struct {
+	UserID       int64
+	Name         string
+	Phone        string
+	EmployeeCode string
+	BranchName   string
+}
+
+type VendorDeliveryData struct {
+	Queue      commerce.CourierQueue
+	Shipments  []*commerce.OrderShipment
+	Counts     commerce.CourierQueueCounts
+	Workload   []*commerce.CourierWorkload
+	Couriers   []DeliveryCourierOption
+	Search     string
+	Page       int
+	PerPage    int
+	TotalCount int
+	// CanAssign reveals the dispatch tabs and the assignment control.
+	CanAssign bool
+	// ActorID is the caller, so a parcel on somebody else's round can be
+	// labelled with whose it is.
+	ActorID    int64
+	NoticeType string
+	NoticeMsg  string
+}
+
+// deliveryQueueHref builds a tab link that keeps the current search term.
+func deliveryQueueHref(queue commerce.CourierQueue, search string) string {
+	v := url.Values{"queue": {string(queue)}}
+	if search != "" {
+		v.Set("q", search)
+	}
+	return "/vendor/delivery?" + v.Encode()
+}
+
+templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
+	@layouts.VendorShell("إدارة الشحنات ومندوبي التوصيل | دوا 24", "delivery", lang, dir) {
+		<div class="page-container">
+			if data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					<div class="alert alert-danger mb-4 d-flex items-center gap-3 p-4">
+						@components.IconAlert("icon-sm")
+						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
+					</div>
+				} else {
+					<div class="alert alert-success mb-4 d-flex items-center gap-3 p-4">
+						@components.IconCheckCircle("icon-sm")
+						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
+					</div>
+				}
+			}
+
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
+					<div class="stack-sm">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								@components.IconTruck("icon-sm")
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">إدارة الشحنات</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
+							if data.CanAssign {
+								إسناد الطرود إلى مندوبي التوصيل ومتابعة ما يحمله كل مندوب حتى توثيق التسليم بالكود.
+							} else {
+								الطرود المسندة إليك مرتبة حسب تاريخ الإسناد — الأقدم أولاً. افتح الطرد لعرض العنوان والمبلغ المطلوب تحصيله وتأكيد التسليم.
+							}
+						</p>
+					</div>
+
+					<form method="GET" action="/vendor/delivery" class="d-flex items-center gap-2 m-0">
+						<input type="hidden" name="queue" value={ string(data.Queue) }/>
+						<input
+							type="text"
+							name="q"
+							value={ data.Search }
+							placeholder="بحث برقم الشحنة أو البوليصة أو الصيدلية..."
+							class="form-input text-xs"
+						/>
+						<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5">
+							@components.IconSearch("icon-2xs")
+							<span>بحث</span>
+						</button>
+					</form>
+				</div>
+
+				<!-- Queue tabs -->
+				<div class="tabs-nav mt-4">
+					<a
+						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueMine, data.Search)) }
+						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueMine) }
+					>
+						طرودي الجارية ({ fmt.Sprintf("%d", data.Counts.Mine) })
+					</a>
+					<a
+						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueCompleted, data.Search)) }
+						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueCompleted) }
+					>
+						تم تسليمها ({ fmt.Sprintf("%d", data.Counts.Completed) })
+					</a>
+					if data.CanAssign {
+						<a
+							href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueUnassigned, data.Search)) }
+							class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueUnassigned) }
+						>
+							بانتظار الإسناد ({ fmt.Sprintf("%d", data.Counts.Unassigned) })
+						</a>
+						<a
+							href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueAll, data.Search)) }
+							class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueAll) }
+						>
+							كل الطرود الجارية ({ fmt.Sprintf("%d", data.Counts.All) })
+						</a>
+					}
+				</div>
+			</div>
+
+			<!-- Metrics -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">طرود بعهدتك الآن</div>
+					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.Counts.Mine) }</div>
+				</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-warning d-flex items-center gap-2">
+						<span class="status-dot warning"></span>
+						<span>متأخرة أكثر من 24 ساعة</span>
+					</div>
+					<div class="stat-card-value text-warning tabular-nums">{ fmt.Sprintf("%d", data.Counts.Overdue) }</div>
+				</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success d-flex items-center gap-2">
+						<span class="status-dot success"></span>
+						<span>سلّمتها بنجاح</span>
+					</div>
+					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.Counts.Completed) }</div>
+				</div>
+				if data.CanAssign {
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-accent d-flex items-center gap-2">
+							<span class="status-dot"></span>
+							<span>بانتظار الإسناد لمندوب</span>
+						</div>
+						<div class="stat-card-value text-accent tabular-nums">{ fmt.Sprintf("%d", data.Counts.Unassigned) }</div>
+					</div>
+				}
+			</div>
+
+			if data.CanAssign && len(data.Workload) > 0 {
+				@VendorDeliveryWorkload(data.Workload)
+			}
+
+			<!-- Parcels -->
+			if len(data.Shipments) == 0 {
+				<div class="glass-panel p-12 text-center empty-state-glass">
+					<div class="mb-3">@components.IconTruck("icon-sm")</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد طرود في هذا القسم</h3>
+					<p class="text-sm text-secondary m-0">
+						if data.Queue == commerce.CourierQueueMine {
+							لم يتم إسناد أي طرد إليك بعد. سيصلك إشعار فور إسناد المورد لأول طرد.
+						} else if data.Queue == commerce.CourierQueueUnassigned {
+							كل الطرود الجارية مسندة بالفعل إلى مندوبي التوصيل.
+						} else {
+							ستظهر هنا الطرود المطابقة لبحثك أو للقسم المحدد.
+						}
+					</p>
+				</div>
+			} else {
+				<div class="d-flex flex-col gap-4">
+					for _, sh := range data.Shipments {
+						@VendorDeliveryParcelCard(sh, data, lang)
+					}
+					if data.TotalCount > 0 {
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.Page,
+							PageSize:    data.PerPage,
+							TotalCount:  data.TotalCount,
+							BaseURL:     "/vendor/delivery",
+							QueryValues: url.Values{
+								"queue": {string(data.Queue)},
+								"q":     {data.Search},
+							},
+						})
+					}
+				</div>
+			}
+		</div>
+	}
+}
+
+// VendorDeliveryWorkload is the dispatcher's read of the team: who is carrying
+// how much, and whose oldest parcel has been waiting longest.
+templ VendorDeliveryWorkload(workload []*commerce.CourierWorkload) {
+	<div class="glass-panel p-5 mb-6">
+		<div class="d-flex items-center gap-2 mb-3">
+			@components.IconUsers("icon-xs")
+			<h2 class="text-sm font-black text-primary m-0">أحمال مندوبي التوصيل</h2>
+		</div>
+		<div class="table-container m-0">
+			<table class="data-table m-0">
+				<thead>
+					<tr>
+						<th>المندوب</th>
+						<th class="text-center tabular-nums">طرود جارية</th>
+						<th class="text-center tabular-nums">طرود مسلّمة</th>
+						<th class="text-center">أقدم طرد بعهدته</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, c := range workload {
+						<tr>
+							<td>
+								<strong class="text-primary text-sm font-bold">{ c.Name }</strong>
+								if c.Phone != "" {
+									<div class="text-xs text-muted tabular-nums">{ c.Phone }</div>
+								}
+							</td>
+							<td class="text-center">
+								if c.OpenCount > 0 {
+									<span class="badge badge-sky text-xs font-black tabular-nums">{ fmt.Sprintf("%d", c.OpenCount) }</span>
+								} else {
+									<span class="text-xs text-muted">—</span>
+								}
+							</td>
+							<td class="text-center tabular-nums text-xs font-bold text-secondary">
+								{ fmt.Sprintf("%d", c.DeliveredCount) }
+							</td>
+							<td class="text-center text-xs">
+								if c.OldestAssignedAt != nil {
+									<span class="tabular-nums font-mono text-secondary">
+										{ c.OldestAssignedAt.Format("2006-01-02 03:04 PM") }
+									</span>
+								} else {
+									<span class="text-muted">—</span>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}

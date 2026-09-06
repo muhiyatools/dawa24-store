@@ -99,9 +99,16 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/compare/search", h.CompareQuickSearch)
 		pub.Get("/api/v1/compare/search", h.CompareQuickSearch)
 
-		// Unlisted Courier Delivery Portal (Dedicated Delivery Representative Interface)
-		pub.Get("/delivery", h.CourierDeliveryPage)
-		pub.Post("/delivery/verify", h.CourierVerifyDeliverySubmit)
+		// The courier portal used to live here, unlisted and unauthenticated:
+		// anyone holding a waybill number could read a pharmacy's address and
+		// the cash due, and close the order. It is now إدارة الشحنات on the
+		// supplier's own dashboard, where the parcel is shown to the
+		// representative it was assigned to. The redirect keeps links a
+		// supplier already shared from dead-ending; a signed-out visitor is
+		// sent on to the login page by the vendor group's own gate.
+		pub.Get("/delivery", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/vendor/delivery", http.StatusMovedPermanently)
+		})
 		pub.Get("/compare", h.ComparePlansPage)
 		pub.Post("/compare/subscribe", h.CompareSubscribeSubmit)
 		pub.Get("/compare/tool", h.CompareToolPage)

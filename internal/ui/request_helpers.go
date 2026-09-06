@@ -136,6 +136,25 @@ func statusForError(err error) int {
 // Form posts here redirect after handling, which is correct — it stops a
 // refresh from resubmitting. But it also throws away everything the handler
 // learned, which is why a failed save was indistinguishable from a successful
+// noticeFrom reads the flash a redirect left in the query string.
+//
+// Two spellings are in circulation: redirectWithNotice writes notice/msg,
+// while several admin screens write notice_type/notice_msg. Reading both in
+// one place is why a page cannot pick the wrong pair and silently render no
+// banner after a save that did happen.
+func noticeFrom(r *http.Request) (kind, message string) {
+	q := r.URL.Query()
+	kind = strings.TrimSpace(q.Get("notice_type"))
+	if kind == "" {
+		kind = strings.TrimSpace(q.Get("notice"))
+	}
+	message = strings.TrimSpace(q.Get("notice_msg"))
+	if message == "" {
+		message = strings.TrimSpace(q.Get("msg"))
+	}
+	return kind, message
+}
+
 func (h *UIHandler) redirectWithNotice(w http.ResponseWriter, r *http.Request, path, kind, message string) {
 	u, err := url.Parse(path)
 	if err != nil {

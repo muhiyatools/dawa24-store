@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -353,9 +354,9 @@ func landingPathForSession(sess *identity.Session) string {
 	}
 	switch sess.OrgType {
 	case "vendor":
-		return "/vendor/dashboard"
+		return dashboardLanding(rbac.ScopeVendor, sess.Permissions, "/vendor/dashboard")
 	case "customer":
-		return "/customer/dashboard"
+		return dashboardLanding(rbac.ScopePharmacy, sess.Permissions, "/customer/dashboard")
 	}
 	return "/catalog"
 }

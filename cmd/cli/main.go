@@ -101,12 +101,16 @@ func run() error {
 		if err != nil {
 			return fmt.Errorf("seed company roles: %w", err)
 		}
+		added, err := rbac.SeedMissingSystemRoles(ctx, db)
+		if err != nil {
+			return fmt.Errorf("seed newly declared starter roles: %w", err)
+		}
 		repaired, err := rbac.RepairOutOfScopeGrants(ctx, db)
 		if err != nil {
 			return fmt.Errorf("repair company role grants: %w", err)
 		}
 		log.Info("migrations up to date", "total", len(migrations),
-			"companies_seeded", seeded, "companies_repaired", repaired)
+			"companies_seeded", seeded, "roles_added", added, "companies_repaired", repaired)
 		return nil
 
 	case "migrate-status":
