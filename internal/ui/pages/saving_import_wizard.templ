@@ -79,7 +79,7 @@ templ savingImportContent(view SavingImportView) {
 				if len(view.Sessions) > 0 {
 					@savingSessionsHistoryCard(view)
 				}
-			} else if view.Session.Status == SessionStateProcessing {
+			} else if view.Session.IsProcessing() {
 				@savingProcessingStage(view)
 			} else {
 				switch view.Session.Phase {
@@ -331,6 +331,19 @@ templ savingMappingStage(view SavingImportView) {
 						}
 					</select>
 				</div>
+
+    <div class="stack-sm">
+					<label class="form-label">عمود كود الصنف في دوا 24 (اختياري)</label>
+					<select name="col_product_id" class="form-select">
+						<option value="">-- غير محدد --</option>
+						for i, h := range sess.Headers {
+							<option value={ h } selected?={ i == sess.DetectedCols.ProductIDCol }>{ fmt.Sprintf("%d. %s", i+1, h) }</option>
+						}
+					</select>
+					<p class="wiz-sub mt-xs">
+						إذا كان الملف يحتوي على كود الصنف في دوا 24، يُستخدم لربط الصف مباشرة بعد التحقق منه في الكتالوج.
+					</p>
+				</div>
 			</div>
 
    <div class="stack-sm">
@@ -347,6 +360,11 @@ templ savingMappingStage(view SavingImportView) {
 			</div>
 
 			<div class="stack-xs text-sm">
+				// The marker says this screen drew the AI switch, so an unticked
+				// box is read as "no" rather than as "the client never said".
+				// Without it a buyer who leaves the switch off is billed for an
+				// AI pass anyway — see ParseUseAIFromWizard.
+				<input type="hidden" name="ai_choice" value="1"/>
 				@WizardToggles([]WizardToggle{
 					AIToggle("use_ai", false, view.AIAvailable, view.AIUnavailableReason),
 				}, GroupAI)

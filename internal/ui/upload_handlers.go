@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/media"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
 
 func init() {
@@ -86,13 +87,7 @@ func parseImportUpload(w http.ResponseWriter, r *http.Request) error {
 // with uploaded files, 166 of which ended up committed and were then deleted
 // and rewritten by every subsequent `go test ./...`.
 func GetUploadBaseDir() string {
-	if dir := os.Getenv("UPLOAD_DIR"); strings.TrimSpace(dir) != "" {
-		return strings.TrimSpace(dir)
-	}
-	if dataDir := os.Getenv("DATA_DIR"); strings.TrimSpace(dataDir) != "" {
-		return filepath.Join(strings.TrimSpace(dataDir), "uploads")
-	}
-	return UploadBaseDir
+	return storage.UploadBaseDir()
 }
 
 // RegisterUploadRoutes registers the public static file server for uploaded documents & media.

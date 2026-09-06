@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -291,9 +292,29 @@ func (s *Service) ListHighlightItems(ctx context.Context, sectionID int64) ([]*H
 	return s.repo.ListHighlightItems(ctx, sectionID)
 }
 
-// ExpirePromotions runs the automated expiry sweeps.
+// ExpirePromotionsWithMediaPurge expires promotions, sponsorship requests, and ads, and purges all associated media.
+func (s *Service) ExpirePromotionsWithMediaPurge(ctx context.Context, s3Client *storage.Client) (int64, int, error) {
+	mediaURLs, expiredCount, err := s.repo.ExpirePromotionsAndCollectMedia(ctx)
+	if err != nil {
+		return 0, 0, err
+	}
+	purged := 0
+	for _, u := range mediaURLs {
+		if err := storage.DeleteUploadedMedia(ctx, u, s3Client); err == nil {
+			purged++
+		}
+	}
+	if expiredCount > 0 || purged > 0 {
+		s.log.InfoContext(ctx, "expired promotions and purged media",
+			"expired_count", expiredCount, "purged_media_count", purged)
+	}
+	return expiredCount, purged, nil
+}
+
+// ExpirePromotions runs the automated expiry sweeps with local media purge.
 func (s *Service) ExpirePromotions(ctx context.Context) (int64, error) {
-	return s.repo.ExpirePromotions(ctx)
+	expiredCount, _, err := s.ExpirePromotionsWithMediaPurge(ctx, nil)
+	return expiredCount, err
 }
 
 // CreateSpecialOffer creates a special offer under tenant organization.

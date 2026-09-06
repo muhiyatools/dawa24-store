@@ -21,6 +21,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	comparePostgres "github.com/muhiya/dawa24-store/internal/modules/compare/postgres"
 	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/cache"
@@ -33,6 +35,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/progress"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 )
 
 func main() {
@@ -73,11 +76,16 @@ func run() error {
 	log.Info("worker database ready", "statement_timeout", workerDB.StatementTimeout)
 	defer db.Close()
 
+	var s3Store *storage.Client
+	if sc, err := storage.New(ctx, cfg.Storage); err == nil {
+		s3Store = sc
+	}
+
 	workers := river.NewWorkers()
 	river.AddWorker(workers, &heartbeatWorker{log: log})
 	river.AddWorker(workers, &orderNotificationWorker{db: db, log: log})
 	river.AddWorker(workers, &ingestBatchWorker{db: db, log: log})
-	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log})
+	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log, s3: s3Store})
 	river.AddWorker(workers, catalogJobs.NewProductReindexWorker(db, log))
 
 	// Smart ordering (specs/001-smart-ordering-system). Registered with AI Gateway
@@ -244,6 +252,40 @@ func run() error {
 				} else if count > 0 {
 					log.Info("daily compare files retention pass completed", "purged_files", count)
 				}
+			}
+		}
+	}()
+
+	// Periodic Promotions & Media Expiry Scheduler (Runs every 15 minutes)
+	go func() {
+		promoSvc := promo.NewService(promoPostgres.NewRepository(db), log)
+
+		sweep := func(trigger string) {
+			sysCtx := database.AsSystem(ctx)
+			if exp, purged, err := promoSvc.ExpirePromotionsWithMediaPurge(sysCtx, s3Store); err != nil {
+				log.Error("promotions and media expiry sweep failed", "trigger", trigger, "error", err)
+			} else if exp > 0 || purged > 0 {
+				log.Info("promotions and media expiry sweep completed",
+					"trigger", trigger, "expired_promotions", exp, "purged_media", purged)
+			}
+		}
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(15 * time.Second):
+			sweep("startup")
+		}
+
+		ticker := time.NewTicker(15 * time.Minute)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				sweep("periodic")
 			}
 		}
 	}()

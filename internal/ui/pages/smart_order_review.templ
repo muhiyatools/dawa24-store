@@ -61,7 +61,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					<ul class="text-xs mt-2 mb-0">
 						for _, s := range data.Stale {
 							<li>
-								<strong>{ s.RawName }</strong> — { s.Detail }
+								<strong>{ s.RawName }</strong> — { s.Detail.Get("ar") }
 							</li>
 						}
 					</ul>

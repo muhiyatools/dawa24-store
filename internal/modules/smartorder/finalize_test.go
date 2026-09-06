@@ -143,7 +143,7 @@ func TestStaleLineBlocksTheOrderAndIsNamed(t *testing.T) {
 	if stale[0].Reason != ReasonStock {
 		t.Fatalf("expected the stock reason, got %q", stale[0].Reason)
 	}
-	if stale[0].Detail == "" {
+	if stale[0].Detail.Get("ar") == "" {
 		t.Fatal("the buyer needs an explanation, not just a code")
 	}
 }
@@ -153,8 +153,14 @@ func TestEveryStaleReasonHasAnExplanation(t *testing.T) {
 		ReasonCoverage, ReasonStock, ReasonMinQty,
 		ReasonInstitutional, ReasonInactive, ReasonOwnOrg,
 	} {
-		if staleDetail(r) == "" {
-			t.Errorf("%q has no buyer-facing explanation", r)
+		// Arabic is the platform's primary language and the one this text is
+		// rendered in; English is checked too so the API answer is never a
+		// half-filled bilingual value.
+		if staleDetail(r).Get("ar") == "" {
+			t.Errorf("%q has no Arabic explanation for the buyer", r)
+		}
+		if staleDetail(r).Get("en") == "" {
+			t.Errorf("%q has no English explanation", r)
 		}
 	}
 }

@@ -91,6 +91,7 @@ type Repository interface {
 	AddHighlightItem(ctx context.Context, item *HighlightSectionItem) error
 	ListHighlightItems(ctx context.Context, sectionID int64) ([]*HighlightSectionItem, error)
 	ExpirePromotions(ctx context.Context) (int64, error)
+	ExpirePromotionsAndCollectMedia(ctx context.Context) ([]string, int64, error)
 
 	// Laravel-parity Special Offers & Location Covers
 	CreateSpecialOffer(ctx context.Context, o *SpecialOffer) error

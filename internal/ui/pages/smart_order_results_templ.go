@@ -968,7 +968,7 @@ func soBlockedPanel(data SmartOrderResultsData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = soBlockedRow(data, "institutional_blocked", "غير متاح مؤسسياً", blocked.InstitutionalBlocked,
-				"العرض مقيّد باتفاقية لا تشمل منشأتك.").Render(ctx, templ_7745c5c3_Buffer)
+				"العمل المؤسسي لفرع الاستلام غير متصل بالأعمال المؤسسية لفروع هذا المورد، وهو نفس الشرط الذي يطبَّق عند الشراء العادي ومن الكتالوج.").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

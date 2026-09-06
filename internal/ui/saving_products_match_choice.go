@@ -161,6 +161,24 @@ func ParseUseAI(r *http.Request) bool {
 	return v == "1" || v == "on" || v == "true"
 }
 
+// ParseUseAIFromWizard reads the AI switch off a form that actually drew it.
+//
+// An unticked checkbox posts nothing at all. ParseUseAI reads "nothing" as "the
+// client never mentioned it" and defaults the tier on, which is right for the
+// drag-and-drop path — that posts a file and little else — and wrong for a
+// screen that rendered the switch, because there the silence IS the buyer's
+// answer, and the answer is no. A form that leaves the AI toggle off and then
+// gets billed for an AI pass has been overruled by its own screen.
+//
+// The wizard posts a hidden ai_choice marker to say it drew the switch; without
+// it this behaves exactly as ParseUseAI, so no other caller changes.
+func ParseUseAIFromWizard(r *http.Request) bool {
+	if strings.TrimSpace(r.FormValue("ai_choice")) == "" {
+		return ParseUseAI(r)
+	}
+	return matchFlag(r, "use_ai")
+}
+
 // matchFlag reads a checkbox from either a urlencoded or a multipart body.
 // The import screens post both kinds, and PostFormValue does not see the
 // multipart one.

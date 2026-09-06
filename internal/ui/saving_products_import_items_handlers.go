@@ -39,7 +39,14 @@ func (h *UIHandler) handleSavingProductsImportItemUpdateSubmit(w http.ResponseWr
 				qtyPtr = &q
 			}
 		}
-		_ = globalSavingImportSessionStore.UpdateStagedItem(sessionID, actor.OrganizationID, itemIndex, name, pricePtr, qtyPtr, nil)
+		if err := globalSavingImportSessionStore.UpdateStagedItem(sessionID, actor.OrganizationID, itemIndex, name, pricePtr, qtyPtr, nil); err != nil {
+			// Silently redirecting on a failed edit is how a row that would not
+			// save looked exactly like a row that did.
+			h.redirectWithNotice(w, r,
+				fmt.Sprintf("/%s/saving-products/import/%s?%s", audience, sessionID, r.URL.RawQuery),
+				"error", h.safeMessage(err, langOf(r)))
+			return
+		}
 	}
 
 	redirectURI := fmt.Sprintf("/%s/saving-products/import/%s?%s", audience, sessionID, r.URL.RawQuery)
@@ -63,7 +70,12 @@ func (h *UIHandler) handleSavingProductsImportItemMatchSubmit(w http.ResponseWri
 		productID, _ := strconv.ParseInt(r.FormValue("product_id"), 10, 64)
 		masterName := strings.TrimSpace(r.FormValue("master_name"))
 		masterSKU := strings.TrimSpace(r.FormValue("master_sku"))
-		_ = globalSavingImportSessionStore.AssignStagedItemMatch(sessionID, actor.OrganizationID, itemIndex, productID, masterName, masterSKU)
+		if err := globalSavingImportSessionStore.AssignStagedItemMatch(sessionID, actor.OrganizationID, itemIndex, productID, masterName, masterSKU); err != nil {
+			h.redirectWithNotice(w, r,
+				fmt.Sprintf("/%s/saving-products/import/%s?%s", audience, sessionID, r.URL.RawQuery),
+				"error", h.safeMessage(err, langOf(r)))
+			return
+		}
 		if productID > 0 {
 			noticeMsg = fmt.Sprintf("تم ربط الصنف «%s» بالكتالوج المركزي.", masterName)
 		}
@@ -101,18 +113,25 @@ func (h *UIHandler) handleSavingProductsImportCommitSubmit(w http.ResponseWriter
 	}
 
 	sessionID := chi.URLParam(r, "id")
-	added, updated, err := globalSavingImportSessionStore.CommitSession(ctx, sessionID, actor.OrganizationID, actor.UserID, h.catSvc)
+
+	// commitSavingImportRun, not the store directly.
+	//
+	// Two things the store alone does not do: it cannot commit a run whose
+	// in-memory session expired or was lost to a restart — the staged rows are
+	// in platform.import_run_rows and only this path reads them — and it does
+	// not move the durable run to `committed`, so a committed import went on
+	// reporting itself as awaiting review in the history list. The JSON commit
+	// endpoint has always used this; the form post had drifted.
+	_, _, err := h.commitSavingImportRun(ctx, sessionID, actor.OrganizationID, actor.UserID, h.catSvc)
 	if err != nil {
 		h.redirectWithNotice(w, r, fmt.Sprintf("/%s/saving-products/import/%s", audience, sessionID), "error", i18n.T(langOf(r), "saving.import.save_failed_prefix")+h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	session, ok := globalSavingImportSessionStore.GetSession(sessionID, actor.OrganizationID)
-	if ok && session != nil {
-		session.Phase = SavingPhaseCompleted
-		session.InsertedCount = added
-		session.UpdatedCount = updated
-	}
+	// The phase and the counters are set inside CommitSession, under the store's
+	// lock. Writing them again from here raced every reader of the session —
+	// the progress endpoint and the history list both walk it from other
+	// goroutines.
 
 	http.Redirect(w, r, fmt.Sprintf("/%s/saving-products/import/%s", audience, sessionID), http.StatusSeeOther)
 }

@@ -131,18 +131,17 @@ func (h *UIHandler) handleSavingProductsImportUploadSubmit(w http.ResponseWriter
 		"", "", "", "", "",
 	)
 
-	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(dataRows))
-	session.Phase = SavingPhaseMapping
-	session.Headers = headers
-	session.SampleRows = sampleRows
-	session.RawDataRows = dataRows
-	session.DetectedCols = SavingDetectedCols{
-		NameCol:      nameCol,
-		SKUCol:       skuCol,
-		QtyCol:       qtyCol,
-		PriceCol:     priceCol,
-		ProductIDCol: productIDCol,
-	}
+	session := globalSavingImportSessionStore.NewMappingSession(
+		actor.OrganizationID, actor.UserID, fileHeader.Filename,
+		headers, sampleRows, dataRows,
+		SavingDetectedCols{
+			NameCol:      nameCol,
+			SKUCol:       skuCol,
+			QtyCol:       qtyCol,
+			PriceCol:     priceCol,
+			ProductIDCol: productIDCol,
+		},
+	)
 
 	http.Redirect(w, r, fmt.Sprintf("/%s/saving-products/import/%s", audience, session.ID), http.StatusSeeOther)
 }
@@ -240,30 +239,51 @@ func (h *UIHandler) handleSavingProductsImportMapSubmit(w http.ResponseWriter, r
 	colSKU := strings.TrimSpace(r.FormValue("col_sku"))
 	colQty := strings.TrimSpace(r.FormValue("col_qty"))
 	colPrice := strings.TrimSpace(r.FormValue("col_price"))
+	colProductID := strings.TrimSpace(r.FormValue("col_product_id"))
 	matchChoice := ParseMatchChoice(r)
-	useAI := ParseUseAI(r)
+	useAI := ParseUseAIFromWizard(r)
 
-	nCol, sCol, qCol, pCol := -1, -1, -1, -1
-	for idx, hName := range session.Headers {
-		if hName == colName {
-			nCol = idx
+	// The mapping screen names columns by their header text, so a file with two
+	// identically headed columns would bind the later one. headerColumn takes
+	// the first, which is the one the preview showed.
+	headerColumn := func(want string) int {
+		if want == "" {
+			return -1
 		}
-		if hName == colSKU {
-			sCol = idx
+		for idx, hName := range session.Headers {
+			if hName == want {
+				return idx
+			}
 		}
-		if hName == colQty {
-			qCol = idx
-		}
-		if hName == colPrice {
-			pCol = idx
-		}
+		return -1
+	}
+
+	nCol := headerColumn(colName)
+	sCol := headerColumn(colSKU)
+	qCol := headerColumn(colQty)
+	pCol := headerColumn(colPrice)
+
+	// The دوا 24 product-id column.
+	//
+	// It used to be hard-coded to -1 here while the drag-and-drop path honoured
+	// it, so the same file matched differently depending on which screen
+	// uploaded it — and the "دوا 24 كود الصنف فقط" strategy this form offers
+	// could never match a single row, because the column it reads was never
+	// passed. The screen now carries the select, and an unanswered one falls
+	// back to what the parser detected rather than to nothing.
+	pidCol := headerColumn(colProductID)
+	if colProductID == "" && pidCol < 0 {
+		pidCol = session.DetectedCols.ProductIDCol
+	}
+	if pidCol >= len(session.Headers) {
+		pidCol = -1
 	}
 
 	publicID, _, startErr := h.startSavingImportRun(
 		ctx, actor, session.Filename,
 		append([][]string{session.Headers}, session.RawDataRows...),
 		session.Headers, session.SampleRows,
-		nCol, sCol, qCol, pCol, -1,
+		nCol, sCol, qCol, pCol, pidCol,
 		matchChoice, useAI, langOf(r), audience,
 	)
 	if startErr != nil {

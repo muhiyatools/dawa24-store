@@ -3,6 +3,7 @@ package pages
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -857,7 +858,11 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 												}
 											</td>
 											<td class="text-center py-3">
-												if req.AdminStatus == "pending" {
+												if req.Status == "expired" || (!req.ExpiresAt.IsZero() && req.ExpiresAt.Before(time.Now())) {
+													<span class="badge badge-slate font-extrabold text-xs">منتهي الصلاحية</span>
+												} else if req.Status == "cancelled" {
+													<span class="badge badge-slate font-extrabold text-xs">ملغي</span>
+												} else if req.AdminStatus == "pending" {
 													<span class="badge badge-sky font-extrabold text-xs">قيد المراجعة</span>
 												} else if req.AdminStatus == "approved" {
 													<span class="badge badge-emerald font-extrabold text-xs">معتمد ومفعل</span>

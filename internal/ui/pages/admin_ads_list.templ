@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -130,7 +131,9 @@ templ AdminAdsListPage(lang, dir string, data AdminAdsListPageData) {
 														<span class="badge badge-amber font-extrabold text-xs animate-pulse">قيد المراجعة</span>
 													} else if ad.AdminStatus == "approved" {
 														<span class="badge badge-emerald font-extrabold text-xs">معتمد</span>
-														if ad.IsActive {
+														if !ad.ExpiresAt.IsZero() && ad.ExpiresAt.Before(time.Now()) {
+															<span class="badge badge-slate text-2xs font-bold">منتهي الصلاحية</span>
+														} else if ad.IsActive {
 															<span class="badge badge-emerald text-2xs font-bold">مباشر نشط</span>
 														} else {
 															<span class="badge badge-slate text-2xs font-bold">معطل</span>

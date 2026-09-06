@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/importjobs"
 	"github.com/muhiya/dawa24-store/internal/platform/importrun"
@@ -92,6 +91,26 @@ func (h *UIHandler) startSavingImportRun(
 		bgCtx := context.Background()
 		total := len(rows)
 
+		// A panic in here used to take the whole web process down with it: this
+		// goroutine is detached from the request, so nothing above it could
+		// recover. It also had no failure path at all — an error mid-run left
+		// the session on `processing` and its progress bar frozen, which is
+		// indistinguishable to the buyer from the run still working.
+		//
+		// Both are handled here: the run is marked failed, on the session and
+		// on the durable row, and the watching bar is told so it stops rather
+		// than drifting forever.
+		defer func() {
+			rec := recover()
+			if rec == nil {
+				return
+			}
+			h.log.Error("saving products import panicked",
+				"session_id", sessID, "run_id", runID, "org_id", orgID, "panic", rec)
+			h.failSavingImportRun(bgCtx, runID, sessID, total,
+				i18n.T(l, "customer.saving.import.processing_failed"))
+		}()
+
 		publishProgress := func(pct int, msg string, cur int) {
 			globalSavingImportSessionStore.UpdateProgress(sessID, pct, msg, cur)
 			if h.importRunRepo != nil && runID > 0 {
@@ -111,12 +130,38 @@ func (h *UIHandler) startSavingImportRun(
 			}
 		}
 
+		publishRowProgress := func(i int) {
+			if total <= 0 || i < 0 {
+				return
+			}
+			pct := 30 + int(float64(i+1)/float64(total)*65)
+			if pct > 98 {
+				pct = 98
+			}
+			publishProgress(pct, fmt.Sprintf(i18n.T(l, "customer.saving.import.progress_processed"), i+1, total), i+1)
+		}
+
 		phaseLoading := i18n.T(l, "customer.saving.import.progress_loading_catalog")
 		publishProgress(15, phaseLoading, 0)
 
 		var matchEngine *SavingProductMatchEngine
 		if h.catSvc != nil {
-			if catalogSources, err := h.catSvc.ListMatchProducts(bgCtx); err == nil && len(catalogSources) > 0 {
+			catalogSources, err := h.catSvc.ListMatchProducts(bgCtx)
+			switch {
+			case err != nil:
+				// Every row would come back unlinked, and the screen would
+				// blame the pharmacy's file for it. Fail the run instead: a
+				// stated failure is recoverable, a silent one is a support
+				// ticket that starts "nothing matched".
+				h.log.ErrorContext(bgCtx, "saving products import could not load the catalogue",
+					"session_id", sessID, "run_id", runID, "error", err)
+				h.failSavingImportRun(bgCtx, runID, sessID, total,
+					i18n.T(l, "customer.saving.import.catalog_unavailable"))
+				return
+			case len(catalogSources) == 0:
+				h.log.ErrorContext(bgCtx, "saving products import found an empty catalogue",
+					"session_id", sessID, "run_id", runID)
+			default:
 				matchEngine = NewSavingProductMatchEngine(catalogSources)
 			}
 		}
@@ -228,14 +273,13 @@ func (h *UIHandler) startSavingImportRun(
 			}
 
 			if i%100 == 0 || i == total-1 {
-				pct := 30 + int(float64(i+1)/float64(total)*65)
-				if pct > 98 {
-					pct = 98
-				}
-				pMsg := fmt.Sprintf(i18n.T(l, "customer.saving.import.progress_processed"), i+1, total)
-				publishProgress(pct, pMsg, i+1)
+				publishRowProgress(i)
 			}
 		}
+		// The loop above reports from inside the body, so a file whose last
+		// rows are blank or a totals line never reached its final report and
+		// the bar stopped short of the matching stage's end.
+		publishRowProgress(total - 1)
 
 		if n := h.enhanceSaving(bgCtx, aiOn, matchEngine, stagedItems); n > 0 {
 			matchedCount += n
@@ -282,58 +326,31 @@ func (h *UIHandler) startSavingImportRun(
 	return publicID, totalRows, nil
 }
 
-// commitSavingImportRun commits staged saving items, attempting the in-memory
-// session first and falling back to platform.import_run_rows if the session expired
-// or the process restarted.
-func (h *UIHandler) commitSavingImportRun(
-	ctx context.Context,
-	sessionID string,
-	orgID, userID int64,
-	catSvc *catalog.Service,
-) (added int, updated int, err error) {
-	// 1. Try in-memory session first.
-	added, updated, err = globalSavingImportSessionStore.CommitSession(ctx, sessionID, orgID, userID, catSvc)
-	if err == nil {
-		if h.importRunRepo != nil {
-			if run, rErr := h.importRunRepo.GetRunByPublicID(ctx, sessionID, orgID); rErr == nil && run != nil {
-				_ = h.importRunRepo.TransitionState(ctx, run.ID, importrun.StateCommitted)
-			}
-		}
-		return added, updated, nil
-	}
+// failSavingImportRun records a run that could not finish, everywhere the buyer
+// might be looking.
+//
+// Three places, because three of them answer the progress bar: the in-memory
+// session the wizard reads, the durable row that outlives a restart, and the
+// live stream a watching page is subscribed to. A run marked failed in only one
+// of them leaves the other two claiming it is still working.
+func (h *UIHandler) failSavingImportRun(ctx context.Context, runID int64, sessID string, total int, msg string) {
+	globalSavingImportSessionStore.FailSession(sessID, msg)
 
-	// 2. Transitional fallback to database rows if in-memory session was lost.
-	if h.importRunRepo != nil {
-		run, rErr := h.importRunRepo.GetRunByPublicID(ctx, sessionID, orgID)
-		if rErr == nil && run != nil {
-			rows, total, lErr := h.importRunRepo.ListRows(ctx, run.ID, true, 50000, 0)
-			if lErr == nil && total > 0 {
-				itemsToCommit := make([]*catalog.SavingProduct, 0, len(rows))
-				for _, r := range rows {
-					var item StagedSavingItem
-					if jErr := json.Unmarshal(r.Data, &item); jErr == nil && item.Included {
-						itemsToCommit = append(itemsToCommit, &catalog.SavingProduct{
-							OrganizationID: orgID,
-							UserID:         &userID,
-							ProductID:      item.ProductID,
-							NameProduct:    item.NameProduct,
-							SKU:            item.SKU,
-							Quantity:       item.Quantity,
-							Price:          item.Price,
-						})
-					}
-				}
-				if len(itemsToCommit) > 0 && catSvc != nil {
-					a, u, cErr := catSvc.BatchUpsertSavingProducts(ctx, orgID, &userID, itemsToCommit)
-					if cErr == nil {
-						_ = h.importRunRepo.TransitionState(ctx, run.ID, importrun.StateCommitted)
-						return a, u, nil
-					}
-					return 0, 0, cErr
-				}
-			}
+	if h.importRunRepo != nil && runID > 0 {
+		if err := h.importRunRepo.FailRun(ctx, runID, msg); err != nil {
+			h.log.WarnContext(ctx, "could not mark saving import run failed", "run_id", runID, "error", err)
 		}
 	}
 
-	return 0, 0, err
+	if h.progressHub != nil {
+		h.progressHub.Publish(progress.Snapshot{
+			ID:      sessID,
+			Message: msg,
+			Total:   total,
+			State:   "failed",
+			Done:    true,
+			Error:   msg,
+			At:      time.Now(),
+		})
+	}
 }

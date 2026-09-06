@@ -91,6 +91,9 @@ func (happyRepo) ListHighlightItems(ctx context.Context, sectionID int64) ([]*pr
 func (happyRepo) ExpirePromotions(ctx context.Context) (int64, error) {
 	return 0, nil
 }
+func (happyRepo) ExpirePromotionsAndCollectMedia(ctx context.Context) ([]string, int64, error) {
+	return nil, 0, nil
+}
 func (happyRepo) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	o.ID = 1
 	return nil

@@ -67,7 +67,8 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 				((v.status IN ('active', 'pending') OR COALESCE(st.qty, 0) > 0)
 				 AND p.status IN ('active', 'pending')
 				 AND v.deleted_at IS NULL AND p.deleted_at IS NULL) AS product_active,
-				COALESCE(p.institutional_work_ids, '{}'::bigint[]) AS institutional_work_ids
+				COALESCE(p.institutional_work_ids, '{}'::bigint[]) AS institutional_work_ids,
+				v.branch_id                             AS variant_branch_id
 			FROM catalog.product_variants v
 			JOIN catalog.products p      ON v.product_id = p.id
 			JOIN org.organizations o     ON v.organization_id = o.id
@@ -90,7 +91,7 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 				&o.ProductID, &o.VariantID, &o.VendorOrgID, &o.BranchID,
 				&o.PriceMinor, &o.DiscountBps, &o.Unit, &o.MinOrderQty,
 				&o.StockQty, &o.IsFollowed, &o.VendorActive, &o.ProductActive,
-				&o.InstitutionalWorkIDs,
+				&o.InstitutionalWorkIDs, &o.VariantBranchID,
 			); err != nil {
 				return err
 			}

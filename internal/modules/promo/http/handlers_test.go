@@ -213,6 +213,10 @@ func (r stubRepo) ExpirePromotions(context.Context) (int64, error) {
 	r.fail("ExpirePromotions")
 	return 0, nil
 }
+func (r stubRepo) ExpirePromotionsAndCollectMedia(context.Context) ([]string, int64, error) {
+	r.fail("ExpirePromotionsAndCollectMedia")
+	return nil, 0, nil
+}
 func (r stubRepo) CreateSpecialOffer(context.Context, *promo.SpecialOffer) error {
 	r.fail("CreateSpecialOffer")
 	return nil

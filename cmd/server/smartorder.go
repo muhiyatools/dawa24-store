@@ -35,6 +35,7 @@ func wireSmartOrder(
 	orgSvc *org.Service,
 	wfCoverage *workflow.CoverageService,
 	commSvc *commerce.Service,
+	availability commerce.AvailabilityProbe,
 	ai gateway.Client,
 	publisher *progress.Publisher,
 	log *slog.Logger,
@@ -57,7 +58,7 @@ func wireSmartOrder(
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(
 			repo,
 			placeSmartOrder(commSvc, orgSvc, wfCoverage, log),
-			&reverifier{wfCoverage: wfCoverage, orgSvc: orgSvc},
+			&reverifier{wfCoverage: wfCoverage, orgSvc: orgSvc, availability: availability},
 		))
 	}
 	return svc
@@ -171,6 +172,10 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 type reverifier struct {
 	wfCoverage *workflow.CoverageService
 	orgSvc     *org.Service
+	// availability is the very probe commerce.CheckAvailability uses. Asking it
+	// the Corporate Operations question here is what guarantees the answer at
+	// the last step cannot differ from the one checkout is about to give.
+	availability commerce.AvailabilityProbe
 }
 
 // Recheck runs the same checks the pipeline ran, against current data.
@@ -217,6 +222,26 @@ func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 		}
 	}
 
+	// Corporate Operations, re-read.
+	//
+	// This was hard-coded to true, on the reasoning that the pipeline had
+	// already decided it. It had — under a different rule from the one checkout
+	// applies — so an institutionally blocked line passed re-verification here
+	// and died inside Checkout instead, as a raw validation error about the
+	// whole order rather than a named stale line the buyer could act on. Asking
+	// the real rule here means the answer at the last step can only ever agree
+	// with the review screen, and a genuine change between the two shows up as
+	// "this product is no longer available to your organisation" against the
+	// line it belongs to.
+	visible := true
+	if rv.availability != nil && branchID > 0 {
+		connected, err := rv.availability.VendorInstitutionalConnection(ctx, c.VendorOrgID, branchID, c.VariantID)
+		if err != nil {
+			return false, "", err
+		}
+		visible = connected
+	}
+
 	// Product and vendor status are not re-read here: the candidate row was
 	// written when the offer was known good, and Checkout re-validates both
 	// before it creates anything. What this catches is the time-dependent pair —
@@ -225,7 +250,7 @@ func (rv *reverifier) Recheck(ctx context.Context, buyerOrgID, branchID int64,
 		BuyerOrgID:             buyerOrgID,
 		VendorOrgID:            c.VendorOrgID,
 		ProductActive:          true,
-		InstitutionallyVisible: true,
+		InstitutionallyVisible: visible,
 		Covered:                covered,
 		StockQty:               c.StockQty,
 		RequestedQty:           qty,

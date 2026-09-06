@@ -49,7 +49,7 @@ func registerSmartOrderWorker(
 	runner := pipeline.NewRunner(
 		repo,
 		coverageGate(coverage),
-		institutionalGate(orgSvc),
+		institutionalGate(orgSvc, log),
 		enhancer,
 		log,
 	)
@@ -67,29 +67,29 @@ func coverageGate(cs *workflow.CoverageService) pipeline.CoverageGate {
 	})
 }
 
-// institutionalGate adapts Corporate Operations in Simple mode — the same mode
-// ordinary catalogue browsing uses, so a buyer can never smart-order something
-// they could not have found by browsing.
-func institutionalGate(svc *org.Service) pipeline.InstitutionalGate {
-	return smartorder.InstitutionalFunc(func(ctx context.Context, buyerOrgID int64, workIDs []int64) (bool, error) {
-		if len(workIDs) == 0 {
-			return true, nil // unrestricted products are visible to everyone
-		}
-		assignments, err := svc.ListOrgEmployeeInstitutionalWorks(ctx, buyerOrgID)
+// institutionalGate adapts Corporate Operations — the platform's branch-to-branch
+// rule, which is the one commerce.CheckAvailability applies at checkout.
+//
+// The worker and the web process must decide this identically or the same file
+// produces different results depending on which one happened to pick it up, so
+// both call org.Service.BranchesInstitutionallyConnected and neither carries a
+// copy of the rule. See cmd/server/smartorder_runner.go for why it fails closed.
+func institutionalGate(svc *org.Service, log *slog.Logger) pipeline.InstitutionalGate {
+	if svc == nil {
+		return smartorder.AlwaysInstitutionallyVisible()
+	}
+	return smartorder.InstitutionalFunc(func(ctx context.Context, c smartorder.InstitutionalCheck) (bool, error) {
+		ok, err := svc.BranchesInstitutionallyConnected(database.AsSystem(ctx), org.InstitutionalConnection{
+			BuyerBranchID:  c.BuyerBranchID,
+			VendorOrgID:    c.VendorOrgID,
+			VendorBranchID: c.VendorBranchID,
+		})
 		if err != nil {
-			// Failing closed would hide the whole catalogue from a buyer because
-			// one lookup timed out. Failing open matches Simple mode's bias, and
-			// checkout re-validates before anything is actually bought.
-			return true, nil
+			log.WarnContext(ctx, "institutional connection lookup failed; treating the offer as restricted",
+				"buyer_branch_id", c.BuyerBranchID, "vendor_org_id", c.VendorOrgID, "error", err)
+			return false, nil
 		}
-		for _, want := range workIDs {
-			for _, a := range assignments {
-				if a.InstitutionalWorkID == want {
-					return true, nil
-				}
-			}
-		}
-		return false, nil
+		return ok, nil
 	})
 }
 

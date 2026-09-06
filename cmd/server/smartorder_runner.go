@@ -73,7 +73,7 @@ func inlineSmartOrderRunner(
 
 	runner := pipeline.NewRunner(repo,
 		serverCoverageGate(coverage),
-		serverInstitutionalGate(orgSvc),
+		serverInstitutionalGate(orgSvc, log),
 		enhancer, log)
 
 	return func(_ context.Context, runID, orgID int64) error {
@@ -172,26 +172,40 @@ func serverCoverageGate(cs *workflow.CoverageService) pipeline.CoverageGate {
 	})
 }
 
-// serverInstitutionalGate applies Corporate Operations in Simple mode.
-func serverInstitutionalGate(svc *org.Service) pipeline.InstitutionalGate {
-	return smartorder.InstitutionalFunc(func(ctx context.Context, buyerOrgID int64, workIDs []int64) (bool, error) {
-		if len(workIDs) == 0 {
-			return true, nil // unrestricted products are visible to everyone
-		}
-		assignments, err := svc.ListOrgEmployeeInstitutionalWorks(ctx, buyerOrgID)
+// serverInstitutionalGate applies Corporate Operations — the platform's rule,
+// the one checkout applies.
+//
+// It used to apply a different one: it intersected the PRODUCT's
+// institutional_work_ids with the buyer organisation's employee work
+// assignments. That is not the question commerce.CheckAvailability asks, so a
+// run's review screen showed lines as orderable that checkout then refused, and
+// the buyer found out at the last click — on the whole order at once, with no
+// line named and nothing to fix. The rule now comes from one implementation,
+// org.Service.BranchesInstitutionallyConnected, which is the same call the
+// availability probe behind CheckAvailability makes.
+//
+// It fails CLOSED, unlike the version before it. Letting an offer through on a
+// lookup error is not a kindness when checkout will refuse it anyway: it moves
+// the refusal from a named line on the review screen to a dead end at the end.
+func serverInstitutionalGate(svc *org.Service, log *slog.Logger) pipeline.InstitutionalGate {
+	if svc == nil {
+		return smartorder.AlwaysInstitutionallyVisible()
+	}
+	return smartorder.InstitutionalFunc(func(ctx context.Context, c smartorder.InstitutionalCheck) (bool, error) {
+		// AsSystem for the same reason the availability probe uses it: the
+		// buyer is reading another tenant's branches to answer "may I buy
+		// this", and RLS would otherwise return nothing and refuse everyone.
+		ok, err := svc.BranchesInstitutionallyConnected(database.AsSystem(ctx), org.InstitutionalConnection{
+			BuyerBranchID:  c.BuyerBranchID,
+			VendorOrgID:    c.VendorOrgID,
+			VendorBranchID: c.VendorBranchID,
+		})
 		if err != nil {
-			// Failing closed would hide the whole catalogue because one lookup
-			// timed out; checkout re-validates before anything is bought.
-			return true, nil
+			log.WarnContext(ctx, "institutional connection lookup failed; treating the offer as restricted",
+				"buyer_branch_id", c.BuyerBranchID, "vendor_org_id", c.VendorOrgID, "error", err)
+			return false, nil
 		}
-		for _, want := range workIDs {
-			for _, a := range assignments {
-				if a.InstitutionalWorkID == want {
-					return true, nil
-				}
-			}
-		}
-		return false, nil
+		return ok, nil
 	})
 }
 

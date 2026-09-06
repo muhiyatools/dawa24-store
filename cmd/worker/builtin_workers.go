@@ -9,8 +9,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/riverqueue/river"
 
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -158,36 +161,22 @@ func (w *ingestBatchWorker) Work(ctx context.Context, job *river.Job[queue.Inges
 	})
 }
 
-// expirePromotionsWorker marks expired promotional offers, sponsorships, and ads.
+// expirePromotionsWorker marks expired promotional offers, sponsorships, and ads, and purges all media.
 type expirePromotionsWorker struct {
 	river.WorkerDefaults[queue.ExpirePromotionsArgs]
 	db  *database.DB
 	log *slog.Logger
+	s3  *storage.Client
 }
 
 func (w *expirePromotionsWorker) Work(ctx context.Context, job *river.Job[queue.ExpirePromotionsArgs]) error {
-	return w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		// Expire promotional offers.
-		if _, err := tx.Exec(txCtx, `UPDATE promo.offers SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`); err != nil {
-			return err
-		}
-		// Expire legacy offer sponsorships.
-		if _, err := tx.Exec(txCtx, `UPDATE promo.offer_sponsorships SET status = 'expired' WHERE status = 'active' AND expires_at < now();`); err != nil {
-			return err
-		}
-		// Expire sponsorship purchases — credits no longer usable.
-		if _, err := tx.Exec(txCtx, `UPDATE promo.sponsorship_purchases SET status = 'expired', updated_at = now() WHERE status = 'active' AND expires_at < now();`); err != nil {
-			return err
-		}
-		// Expire sponsorship requests past their window.
-		if _, err := tx.Exec(txCtx, `UPDATE promo.sponsorship_requests SET status = 'expired', updated_at = now() WHERE status = 'active' AND expires_at < now();`); err != nil {
-			return err
-		}
-		// Deactivate expired ads (only approved ones that were active).
-		if _, err := tx.Exec(txCtx, `UPDATE promo.ads SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`); err != nil {
-			return err
-		}
-		w.log.InfoContext(ctx, "promotions expiry sweep completed", "job_id", job.ID)
-		return nil
-	})
+	repo := promoPostgres.NewRepository(w.db)
+	svc := promo.NewService(repo, w.log)
+	expiredCount, purgedCount, err := svc.ExpirePromotionsWithMediaPurge(database.AsSystem(ctx), w.s3)
+	if err != nil {
+		return err
+	}
+	w.log.InfoContext(ctx, "promotions expiry sweep completed",
+		"job_id", job.ID, "expired_count", expiredCount, "purged_media_count", purgedCount)
+	return nil
 }

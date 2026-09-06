@@ -99,6 +99,9 @@ func (m *mockPromoRepo) ListHighlightItems(ctx context.Context, sectionID int64)
 func (m *mockPromoRepo) ExpirePromotions(ctx context.Context) (int64, error) {
 	return 0, nil
 }
+func (m *mockPromoRepo) ExpirePromotionsAndCollectMedia(ctx context.Context) ([]string, int64, error) {
+	return nil, 0, nil
+}
 func (m *mockPromoRepo) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	o.ID = 101
 	m.spec = o

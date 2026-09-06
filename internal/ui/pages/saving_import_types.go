@@ -93,6 +93,26 @@ type SavingImportSession struct {
 	UseAI bool `json:"use_ai,omitempty"`
 }
 
+// IsProcessing reports whether a background run is actually matching this
+// session's rows right now.
+//
+// Status alone is not the answer. A session waiting for its columns to be
+// confirmed carries no running goroutine, and treating it as processing is what
+// made the wizard skip step 2 and then sit on a progress bar nothing was
+// feeding. Phase is the tie-breaker: a session on the mapping screen is waiting
+// for the buyer, never for the matcher.
+func (s *SavingImportSession) IsProcessing() bool {
+	if s == nil {
+		return false
+	}
+	return s.Status == SessionStateProcessing && s.Phase != SavingPhaseMapping
+}
+
+// AwaitingMapping reports whether the buyer still has to confirm the columns.
+func (s *SavingImportSession) AwaitingMapping() bool {
+	return s != nil && s.Phase == SavingPhaseMapping && !s.IsProcessing()
+}
+
 // SavingRowFilter contains query parameters for filtering and sorting review table rows.
 type SavingRowFilter struct {
 	Search      string
@@ -145,7 +165,7 @@ func (v SavingImportView) WizardStep() Step {
 	// is created, because the review screen is where it ends up — but it is not
 	// there yet, and rendering the review while the matching is still going is
 	// how the wizard came to show an empty table.
-	if v.Session != nil && v.Session.Status == SessionStateProcessing {
+	if v.Session.IsProcessing() {
 		return StepReview
 	}
 	switch phase {

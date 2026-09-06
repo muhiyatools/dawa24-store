@@ -30,6 +30,8 @@ import (
 	orgPostgres "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	platformadminPostgres "github.com/muhiya/dawa24-store/internal/modules/platform_admin/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
@@ -38,6 +40,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -103,6 +106,48 @@ func run() error {
 			time.Sleep(1500 * time.Millisecond)
 			if err := adminSvc.SyncRuntimeOverrides(context.Background()); err == nil {
 				break
+			}
+		}
+	}()
+
+	// Periodic Promotions & Media Expiry Sweeper (Runs every 30 minutes in server)
+	go func() {
+		var s3Store *storage.Client
+		if sc, err := storage.New(ctx, cfg.Storage); err == nil {
+			s3Store = sc
+		}
+
+		sweep := func(trigger string) {
+			db := deps.Handle()
+			if db == nil {
+				return
+			}
+			promoSvc := promo.NewService(promoPostgres.NewRepository(db), log)
+			sysCtx := database.AsSystem(ctx)
+			if exp, purged, err := promoSvc.ExpirePromotionsWithMediaPurge(sysCtx, s3Store); err != nil {
+				log.Error("server promotions and media expiry sweep failed", "trigger", trigger, "error", err)
+			} else if exp > 0 || purged > 0 {
+				log.Info("server promotions and media expiry sweep completed",
+					"trigger", trigger, "expired_promotions", exp, "purged_media", purged)
+			}
+		}
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(30 * time.Second):
+			sweep("startup")
+		}
+
+		ticker := time.NewTicker(30 * time.Minute)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				sweep("periodic")
 			}
 		}
 	}()

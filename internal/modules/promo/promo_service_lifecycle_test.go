@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -213,3 +215,55 @@ func TestPurchaseSponsorshipPackage_WalletDebit(t *testing.T) {
 		t.Errorf("purchase.CreditsRemaining = %d, want 10", purchase.CreditsRemaining)
 	}
 }
+
+func TestExpirePromotionsWithMediaPurge(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("UPLOAD_DIR", tempDir)
+
+	adsDir := filepath.Join(tempDir, "ads")
+	if err := os.MkdirAll(adsDir, 0755); err != nil {
+		t.Fatalf("failed to create ads dir: %v", err)
+	}
+
+	mainFile := filepath.Join(adsDir, "ad_exp_01.jpg")
+	thumbFile := filepath.Join(adsDir, "ad_exp_01_thumb.jpg")
+	cardFile := filepath.Join(adsDir, "ad_exp_01_card.jpg")
+	otherFile := filepath.Join(adsDir, "ad_keep_02.jpg")
+
+	for _, f := range []string{mainFile, thumbFile, cardFile, otherFile} {
+		if err := os.WriteFile(f, []byte("test image data"), 0644); err != nil {
+			t.Fatalf("failed to write test file %s: %v", f, err)
+		}
+	}
+
+	repo := newMockPromoRepo()
+	repo.ExpirePromotionsFunc = func(ctx context.Context) ([]string, int64, error) {
+		return []string{"/uploads/ads/ad_exp_01.jpg"}, 1, nil
+	}
+
+	svc := NewService(repo, slog.Default())
+	expCount, purgedCount, err := svc.ExpirePromotionsWithMediaPurge(context.Background(), nil)
+	if err != nil {
+		t.Fatalf("ExpirePromotionsWithMediaPurge failed: %v", err)
+	}
+
+	if expCount != 1 {
+		t.Errorf("expCount = %d, want 1", expCount)
+	}
+	if purgedCount != 1 {
+		t.Errorf("purgedCount = %d, want 1", purgedCount)
+	}
+
+	// Verify main file and derivative renditions are deleted
+	for _, f := range []string{mainFile, thumbFile, cardFile} {
+		if _, err := os.Stat(f); !os.IsNotExist(err) {
+			t.Errorf("expected file %s to be deleted, but it still exists", f)
+		}
+	}
+
+	// Verify other unrelated file is untouched
+	if _, err := os.Stat(otherFile); err != nil {
+		t.Errorf("expected unrelated file %s to be preserved, got error: %v", otherFile, err)
+	}
+}
+

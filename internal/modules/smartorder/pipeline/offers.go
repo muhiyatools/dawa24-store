@@ -25,13 +25,15 @@ type CoverageGate interface {
 	Serves(ctx context.Context, vendorOrgID int64, day time.Weekday, lat, lng float64) (bool, int, error)
 }
 
-// InstitutionalGate answers whether a buyer may see a restricted product.
+// InstitutionalGate answers whether this buyer's branch may buy this offer.
 //
-// Simple mode, matching what ordinary catalogue browsing does: a product with no
-// restriction is visible to everyone. Smart ordering must never show a buyer
-// something they could not have found by browsing.
+// It must be the SAME rule commerce.CheckAvailability applies, because that is
+// what runs at checkout: anything this gate lets through and checkout refuses
+// is a line the buyer is told about only at the last click, after reviewing an
+// order built on it. The composition roots wire it to
+// org.Service.BranchesInstitutionallyConnected for exactly that reason.
 type InstitutionalGate interface {
-	Visible(ctx context.Context, buyerOrgID int64, workIDs []int64) (bool, error)
+	Visible(ctx context.Context, c smartorder.InstitutionalCheck) (bool, error)
 }
 
 // BranchLocation is where the order is going.
@@ -98,8 +100,14 @@ func (s *Supplier) Resolve(ctx context.Context, lines []*smartorder.Line) (money
 	// Coverage and institutional verdicts are cached per vendor: a file with ten
 	// thousand lines typically touches a few dozen vendors, and asking the same
 	// question once per line would undo the batching everywhere else.
+	//
+	// The institutional key is (vendor, vendor branch) rather than the product,
+	// because the rule is a fact about those two branches and nothing else. It
+	// used to be keyed by product id, which asked the question once per product
+	// and cached a per-vendor answer under it — so the FIRST vendor's verdict
+	// was applied to every other vendor of the same product.
 	covCache := make(map[int64]coverageVerdict)
-	instCache := make(map[int64]bool)
+	instCache := make(map[instKey]bool)
 
 	// Pass one — evaluate every line in memory.
 	byLine := make(map[int64][]smartorder.Candidate, len(lines))
@@ -175,9 +183,17 @@ type coverageVerdict struct {
 	distance int
 }
 
+// instKey identifies one Corporate Operations question. Two offers from the
+// same supplier branch always get the same answer; two from different branches
+// of the same supplier may not, because the works are held per branch.
+type instKey struct {
+	vendorOrgID    int64
+	vendorBranchID int64
+}
+
 // buildCandidates turns raw offers into evaluated candidates for one line.
 func (s *Supplier) buildCandidates(ctx context.Context, l *smartorder.Line, offers []smartorder.Offer,
-	covCache map[int64]coverageVerdict, instCache map[int64]bool) ([]smartorder.Candidate, error) {
+	covCache map[int64]coverageVerdict, instCache map[instKey]bool) ([]smartorder.Candidate, error) {
 
 	out := make([]smartorder.Candidate, 0, len(offers))
 	weekday := s.now().Weekday()
@@ -205,13 +221,24 @@ func (s *Supplier) buildCandidates(ctx context.Context, l *smartorder.Line, offe
 		}
 		c.NetUnitPrice = net
 
-		visible, ok := instCache[o.ProductID]
+		ik := instKey{vendorOrgID: o.VendorOrgID}
+		if o.VariantBranchID != nil {
+			ik.vendorBranchID = *o.VariantBranchID
+		}
+		visible, ok := instCache[ik]
 		if !ok {
-			visible, err = s.institutional.Visible(ctx, s.cfg.OrganizationID, o.InstitutionalWorkIDs)
+			visible, err = s.institutional.Visible(ctx, smartorder.InstitutionalCheck{
+				BuyerOrgID:     s.cfg.OrganizationID,
+				BuyerBranchID:  s.branch.BranchID,
+				VendorOrgID:    o.VendorOrgID,
+				VendorBranchID: o.VariantBranchID,
+				VariantID:      o.VariantID,
+				ProductWorkIDs: o.InstitutionalWorkIDs,
+			})
 			if err != nil {
 				return nil, err
 			}
-			instCache[o.ProductID] = visible
+			instCache[ik] = visible
 		}
 
 		verdict, cached := covCache[o.VendorOrgID]

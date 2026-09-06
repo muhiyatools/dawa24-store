@@ -327,7 +327,7 @@ func buildUIHandler(
 	})
 
 	// Smart ordering (specs/001-smart-ordering-system).
-	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, ai, uiProgress, log)
+	wireSmartOrder(db, uiHandler, orgSvcUI, workflow.NewCoverageService(db), commSvcUI, uiAvailability, ai, uiProgress, log)
 
 	// Unified durable imports (Task 18).
 	wireImports(db, uiHandler, catSvcUI, progressHub, uiProgress, log)

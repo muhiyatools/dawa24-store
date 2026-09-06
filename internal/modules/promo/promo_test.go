@@ -15,6 +15,7 @@ type mockPromoRepo struct {
 	sections                      map[int64]*HighlightSection
 	nextID                        int64
 	CreateSponsorshipPurchaseFunc func(context.Context, *SponsorshipPurchase) error
+	ExpirePromotionsFunc          func(context.Context) ([]string, int64, error)
 }
 
 func newMockPromoRepo() *mockPromoRepo {
@@ -339,6 +340,13 @@ func (m *mockPromoRepo) ListHighlightItems(_ context.Context, _ int64) ([]*Highl
 
 func (m *mockPromoRepo) ExpirePromotions(_ context.Context) (int64, error) {
 	return 0, nil
+}
+
+func (m *mockPromoRepo) ExpirePromotionsAndCollectMedia(ctx context.Context) ([]string, int64, error) {
+	if m.ExpirePromotionsFunc != nil {
+		return m.ExpirePromotionsFunc(ctx)
+	}
+	return nil, 0, nil
 }
 
 func (m *mockPromoRepo) CreateSpecialOffer(_ context.Context, o *SpecialOffer) error {

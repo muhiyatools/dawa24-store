@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -54,11 +55,17 @@ type PlaceOrderLine struct {
 }
 
 // StaleLine is a line that changed between generation and finalisation.
+//
+// Detail is bilingual because it is read by a pharmacist on an Arabic,
+// right-to-left screen. It used to be an English sentence, rendered raw into
+// that screen, so the one moment the buyer most needed to understand — their
+// order refused at the last click — was the one moment the platform answered
+// them in the wrong language.
 type StaleLine struct {
-	LineID  int64
-	RawName string
-	Reason  IneligibleReason
-	Detail  string
+	LineID  int64            `json:"line_id"`
+	RawName string           `json:"raw_name"`
+	Reason  IneligibleReason `json:"reason,omitempty"`
+	Detail  i18n.Text        `json:"detail"`
 }
 
 // Reverifier re-checks a candidate against the world as it is now.
@@ -115,7 +122,8 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 		if !ok {
 			stale = append(stale, StaleLine{
 				LineID: l.ID, RawName: l.RawName,
-				Detail: "no supplier is selected for this line any more",
+				Detail: i18n.New("لم يعد هناك مورد مختار لهذا الصنف.",
+					"no supplier is selected for this line any more"),
 			})
 			continue
 		}
@@ -123,7 +131,8 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 		if err != nil {
 			stale = append(stale, StaleLine{
 				LineID: l.ID, RawName: l.RawName,
-				Detail: "the selected supplier's offer no longer exists",
+				Detail: i18n.New("لم يعد عرض المورد المختار موجوداً.",
+					"the selected supplier's offer no longer exists"),
 			})
 			continue
 		}
@@ -197,21 +206,28 @@ func (f *Finalizer) Finalize(ctx context.Context, run *Run) (orderID int64, stal
 }
 
 // staleDetail explains a re-verification failure in the buyer's terms.
-func staleDetail(reason IneligibleReason) string {
+func staleDetail(reason IneligibleReason) i18n.Text {
 	switch reason {
 	case ReasonCoverage:
-		return "this supplier's delivery window for your branch has closed since the order was generated"
+		return i18n.New("أُغلقت نافذة توصيل هذا المورد لفرعك منذ إنشاء الطلب.",
+			"this supplier's delivery window for your branch has closed since the order was generated")
 	case ReasonStock:
-		return "this supplier has sold out since the order was generated"
+		return i18n.New("نفدت كمية هذا المورد منذ إنشاء الطلب.",
+			"this supplier has sold out since the order was generated")
 	case ReasonMinQty:
-		return "the quantity is now below this supplier's minimum order"
+		return i18n.New("الكمية أصبحت أقل من الحد الأدنى للطلب لدى هذا المورد.",
+			"the quantity is now below this supplier's minimum order")
 	case ReasonInstitutional:
-		return "this product is no longer available to your organisation"
+		return i18n.New("العمل المؤسسي لفرع الاستلام لم يعد متصلاً بالأعمال المؤسسية لفروع هذا المورد.",
+			"the delivery branch's institutional work is no longer connected to this supplier's branches")
 	case ReasonInactive:
-		return "this supplier or product has been deactivated"
+		return i18n.New("تم إيقاف هذا المورد أو هذا الصنف.",
+			"this supplier or product has been deactivated")
 	case ReasonOwnOrg:
-		return "this offer now belongs to your own organisation"
+		return i18n.New("أصبح هذا العرض تابعاً لمنشأتك أنت.",
+			"this offer now belongs to your own organisation")
 	default:
-		return "this line is no longer available as generated"
+		return i18n.New("لم يعد هذا الصنف متاحاً بالشكل الذي أُنشئ به الطلب.",
+			"this line is no longer available as generated")
 	}
 }

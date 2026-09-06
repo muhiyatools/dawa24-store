@@ -21,12 +21,37 @@ func (f CoverageFunc) Serves(ctx context.Context, vendorOrgID int64, day time.We
 	return f(ctx, vendorOrgID, day, lat, lng)
 }
 
-// InstitutionalFunc adapts the org module's institutional gate in Simple mode.
-type InstitutionalFunc func(ctx context.Context, buyerOrgID int64, workIDs []int64) (bool, error)
+// InstitutionalCheck is everything the Corporate Operations rule needs about
+// one vendor's offer.
+//
+// It carries the branches rather than only the product's work ids because the
+// platform's rule is about branches: a pharmacy branch may buy from a supplier
+// branch when the works it holds are connected to a work that branch holds.
+// The gate used to be asked a narrower question — "does the buyer organisation
+// hold one of this PRODUCT's works?" — which is a different rule with a
+// different answer, and the disagreement only surfaced at checkout.
+type InstitutionalCheck struct {
+	// BuyerOrgID and BuyerBranchID are where the order is going.
+	BuyerOrgID    int64
+	BuyerBranchID int64
+	// VendorOrgID is the supplier, and VendorBranchID the branch its offer sits
+	// on. Nil means the offer names no branch, in which case every branch of
+	// the supplier counts — the same reading the catalogue applies.
+	VendorOrgID    int64
+	VendorBranchID *int64
+	VariantID      int64
+	// ProductWorkIDs is catalog.products.institutional_work_ids. It is carried
+	// for the Simple-mode fallback below, which is all a deployment without the
+	// org service can evaluate.
+	ProductWorkIDs []int64
+}
+
+// InstitutionalFunc adapts the org module's institutional gate.
+type InstitutionalFunc func(ctx context.Context, c InstitutionalCheck) (bool, error)
 
 // Visible satisfies the pipeline's InstitutionalGate.
-func (f InstitutionalFunc) Visible(ctx context.Context, buyerOrgID int64, workIDs []int64) (bool, error) {
-	return f(ctx, buyerOrgID, workIDs)
+func (f InstitutionalFunc) Visible(ctx context.Context, c InstitutionalCheck) (bool, error) {
+	return f(ctx, c)
 }
 
 // BranchLocationFunc adapts the org module's branch lookup.
@@ -45,31 +70,40 @@ func (f PlaceOrderFunc) PlaceOrder(ctx context.Context, req PlaceOrderRequest) (
 	return f(ctx, req)
 }
 
-// SimpleInstitutionalGate is the Simple-mode rule, which is the one ordinary
-// buyer catalogue browsing applies: a product with no restriction is visible to
-// everyone, and a restricted product is visible when the buyer holds one of its
-// works.
+// SimpleInstitutionalGate intersects a product's own restriction list with a
+// set of works the buyer holds.
 //
-// Implemented here rather than called across a module boundary because it is
-// three lines of set intersection, and the alternative — an interface call per
-// candidate — would undo the batching the pipeline depends on. The *authorised
-// works* still come from org; only the comparison lives here.
+// This is NOT the platform's purchase rule — that one is about branches and
+// lives in org.Service.BranchesInstitutionallyConnected, which every
+// composition root wires in. This is the degenerate gate for a deployment or a
+// test that has no org service to ask: a product with no restriction is visible
+// to everyone, and a restricted one is visible when the buyer holds one of its
+// works. Using it in production would reproduce the review-passes /
+// checkout-refuses split it was written before.
 func SimpleInstitutionalGate(authorizedWorkIDs []int64) InstitutionalFunc {
 	authorized := make(map[int64]bool, len(authorizedWorkIDs))
 	for _, id := range authorizedWorkIDs {
 		authorized[id] = true
 	}
-	return func(_ context.Context, _ int64, workIDs []int64) (bool, error) {
-		if len(workIDs) == 0 {
+	return func(_ context.Context, c InstitutionalCheck) (bool, error) {
+		if len(c.ProductWorkIDs) == 0 {
 			return true, nil // unrestricted
 		}
-		for _, id := range workIDs {
+		for _, id := range c.ProductWorkIDs {
 			if authorized[id] {
 				return true, nil
 			}
 		}
 		return false, nil
 	}
+}
+
+// AlwaysInstitutionallyVisible is the gate a deployment uses when it has
+// nothing to ask. It is deliberately greppable: it lets every offer through,
+// and any run using it is one where checkout is the only thing enforcing
+// Corporate Operations.
+func AlwaysInstitutionallyVisible() InstitutionalFunc {
+	return func(context.Context, InstitutionalCheck) (bool, error) { return true, nil }
 }
 
 // AlwaysCovered is the coverage gate used when the buyer's branch has no

@@ -249,6 +249,15 @@ type Offer struct {
 	// InstitutionalWorkIDs empty means unrestricted, which in Simple mode is
 	// visible to everyone.
 	InstitutionalWorkIDs []int64
+	// VariantBranchID is the branch the variant itself names, before any
+	// fallback. BranchID above is the resolved one — it falls back to the
+	// supplier's main branch so a candidate always has somewhere to ship from —
+	// and the two differ in exactly the case the Corporate Operations rule cares
+	// about: a variant naming no branch is satisfiable from ANY branch of the
+	// supplier, so every branch's institutional works count. Using the
+	// fallen-back id there would refuse a supplier whose main branch lacks the
+	// works while another branch has them.
+	VariantBranchID *int64
 }
 
 // CachedDecision is a reusable adjudication result.

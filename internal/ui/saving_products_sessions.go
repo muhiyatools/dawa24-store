@@ -57,10 +57,18 @@ func init() {
 
 // NewSession creates a new session in processing state.
 func (s *SavingImportSessionStore) NewSession(orgID, userID int64, filename string, totalRows int) *SavingImportSession {
+	return s.NewSessionWithID(uuid.NewString(), orgID, userID, filename, totalRows)
+}
+
+// NewSessionWithID creates a new session in processing state with a predetermined ID.
+//
+// "Processing" here means a background goroutine is already matching the rows —
+// this constructor is for the async run only. A session that is still waiting
+// for the buyer to confirm its columns must be created with NewMappingSession,
+// or the wizard skips straight past the mapping screen. See the comment there.
+func (s *SavingImportSessionStore) NewSessionWithID(id string, orgID, userID int64, filename string, totalRows int) *SavingImportSession {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	id := uuid.NewString()
 
 	session := &SavingImportSession{
 		Success:       true,
@@ -82,23 +90,52 @@ func (s *SavingImportSessionStore) NewSession(orgID, userID int64, filename stri
 	return session
 }
 
-// NewSessionWithID creates a new session in processing state with a predetermined ID.
-func (s *SavingImportSessionStore) NewSessionWithID(id string, orgID, userID int64, filename string, totalRows int) *SavingImportSession {
+// NewMappingSession creates a session that has been parsed and is waiting for
+// the buyer to confirm its columns.
+//
+// It exists because the upload handlers used to call NewSession — which marks a
+// session `processing`, for the async run — and then reassign Phase to mapping
+// afterwards. Two things went wrong with that, and together they are the whole
+// "stuck at 4%" report:
+//
+//  1. The wizard tests Status before it tests Phase, so a session left
+//     `processing` rendered the matching screen and the mapping screen was
+//     never reachable. Step 2 of the wizard was silently skipped.
+//  2. Nothing was matching. The goroutine that moves the bar is started by the
+//     mapping form, which the buyer never got to submit. So the bar polled a
+//     session frozen at Progress 5, and the client-side drift floors that to
+//     the 4% that was reported — forever.
+//
+// The fields are set under the same lock that publishes the session, rather
+// than mutated by the caller afterwards, because ListSessions and the progress
+// endpoint read them from other goroutines.
+func (s *SavingImportSessionStore) NewMappingSession(
+	orgID, userID int64,
+	filename string,
+	headers []string,
+	sampleRows, dataRows [][]string,
+	detected SavingDetectedCols,
+) *SavingImportSession {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	id := uuid.NewString()
 	session := &SavingImportSession{
 		Success:       true,
 		ID:            id,
 		OrgID:         orgID,
 		UserID:        userID,
 		Filename:      filename,
-		Status:        SessionStateProcessing,
-		Phase:         SavingPhaseReview,
-		Progress:      5,
-		ProgressPhase: i18n.TDefault("w4_ui.s_94_94"),
-		TotalRows:     totalRows,
-		Items:         make([]*StagedSavingItem, 0, totalRows),
+		Status:        SessionStateUploaded,
+		Phase:         SavingPhaseMapping,
+		Progress:      0,
+		ProgressPhase: "",
+		TotalRows:     len(dataRows),
+		Headers:       headers,
+		SampleRows:    sampleRows,
+		RawDataRows:   dataRows,
+		DetectedCols:  detected,
+		Items:         make([]*StagedSavingItem, 0, len(dataRows)),
 		CreatedAt:     time.Now(),
 		ExpiresAt:     time.Now().Add(4 * time.Hour),
 	}

@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -101,7 +102,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							var templ_7745c5c3_Var3 string
 							templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 70, Col: 39}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 71, Col: 39}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 							if templ_7745c5c3_Err != nil {
@@ -119,7 +120,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							var templ_7745c5c3_Var4 string
 							templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 74, Col: 37}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 75, Col: 37}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 							if templ_7745c5c3_Err != nil {
@@ -150,7 +151,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayTitle(lang))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 82, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 83, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -168,7 +169,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							var templ_7745c5c3_Var6 string
 							templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayText(lang))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 84, Col: 108}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 85, Col: 108}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 							if templ_7745c5c3_Err != nil {
@@ -191,7 +192,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							var templ_7745c5c3_Var7 string
 							templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", *ad.OrganizationID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 93, Col: 103}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 94, Col: 103}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 							if templ_7745c5c3_Err != nil {
@@ -214,7 +215,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(PlacementLabel(ad.Position))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 102, Col: 96}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 103, Col: 96}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -242,7 +243,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", ad.Impressions))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 113, Col: 47}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 114, Col: 47}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -255,7 +256,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", ad.Clicks))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 118, Col: 42}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 119, Col: 42}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -268,7 +269,7 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", ad.CTR))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 123, Col: 43}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 124, Col: 43}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -288,30 +289,35 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							if ad.IsActive {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-emerald text-2xs font-bold\">مباشر نشط</span> ")
+							if !ad.ExpiresAt.IsZero() && ad.ExpiresAt.Before(time.Now()) {
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-slate text-2xs font-bold\">منتهي الصلاحية</span> ")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+							} else if ad.IsActive {
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-emerald text-2xs font-bold\">مباشر نشط</span> ")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							} else {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-slate text-2xs font-bold\">معطل</span> ")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"badge badge-slate text-2xs font-bold\">معطل</span> ")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"badge badge-rose font-extrabold text-xs\">مرفوض</span> ")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-rose font-extrabold text-xs\">مرفوض</span> ")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
 						if ad.HasPendingEdit() {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-amber text-2xs font-black animate-pulse\">طلب تعديل معلق</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-amber text-2xs font-black animate-pulse\">طلب تعديل معلق</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></td><!-- Actions --><td class=\"col-actions py-3.5 pe-4\"><div class=\"d-flex items-center gap-1.5 flex-wrap\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div></td><!-- Actions --><td class=\"col-actions py-3.5 pe-4\"><div class=\"d-flex items-center gap-1.5 flex-wrap\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -320,20 +326,20 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							return templ_7745c5c3_Err
 						}
 						if ad.AdminStatus == "pending" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var12 templ.SafeURL
 							templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 153, Col: 101}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 156, Col: 101}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-xs font-bold gap-1 shadow-2xs\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-xs font-bold gap-1 shadow-2xs\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -341,20 +347,20 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>اعتماد</span></button></form><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>اعتماد</span></button></form><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var13 templ.SafeURL
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 159, Col: 100}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 162, Col: 100}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الإعلان؟')\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs\" onclick=\"return confirm('هل أنت متأكد من رفض هذا الإعلان؟')\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -362,30 +368,30 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span>رفض</span></button></form>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>رفض</span></button></form>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<!-- Direct Toggle Active / Inactive --> <form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- Direct Toggle Active / Inactive --> <form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var14 templ.SafeURL
 							templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/ads/%d/toggle", ad.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 167, Col: 100}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_ads_list.templ`, Line: 170, Col: 100}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"m-0\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"m-0\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							if ad.IsActive {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-amber-600 gap-1 shadow-2xs\" title=\"إيقاف ظهور الإعلان مؤقتاً\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-amber-600 gap-1 shadow-2xs\" title=\"إيقاف ظهور الإعلان مؤقتاً\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -393,12 +399,12 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>تعطيل</span></button>")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>تعطيل</span></button>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							} else {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-emerald-600 gap-1 shadow-2xs\" title=\"تفعيل ظهور الإعلان فوراً\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<button type=\"submit\" class=\"btn btn-secondary btn-xs font-bold text-emerald-600 gap-1 shadow-2xs\" title=\"تفعيل ظهور الإعلان فوراً\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -406,12 +412,12 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>تفعيل</span></button>")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>تفعيل</span></button>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</form>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</form>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -422,13 +428,13 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></td></tr>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></td></tr>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -443,12 +449,12 @@ func AdminAdsListPage(lang, dir string, data AdminAdsListPageData) templ.Compone
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

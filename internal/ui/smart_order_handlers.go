@@ -129,6 +129,10 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	branchID, _ := strconv.ParseInt(r.FormValue("branch_id"), 10, 64)
+	if msg := h.smartOrderBranchRefusal(ctx, actor.OrganizationID, branchID, lang); msg != "" {
+		h.smartOrderFail(w, r, msg)
+		return
+	}
 	tolerance, _ := strconv.ParseFloat(r.FormValue("tolerance_pct"), 64)
 	defaultQty, _ := strconv.Atoi(r.FormValue("default_quantity"))
 
@@ -379,6 +383,15 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 			return i18n.T(lang, "smartorder.err_missing_documents")
 		case strings.Contains(msg, "min_order_not_met"):
 			return i18n.T(lang, "smartorder.err_min_order_not_met")
+		// Before line_unavailable: checkout wraps a refusal as
+		// "checkout.line_unavailable.<reason>", so the generic case below would
+		// swallow the two Corporate Operations reasons and tell the buyer only
+		// that "an item is unavailable" — which is the least actionable form of
+		// the one message they can actually do something about.
+		case strings.Contains(msg, "branch_institutional_mismatch"):
+			return i18n.T(lang, "smartorder.blocked_institutional_hint")
+		case strings.Contains(msg, "branch_no_institutional_works"):
+			return i18n.T(lang, "smartorder.err_branch_no_institutional_works")
 		case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, i18n.TDefault("w4_ui.s_103_103")):
 			return i18n.T(lang, "smartorder.err_line_unavailable")
 		case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, i18n.TDefault("w4_ui.s_104_104")):
@@ -421,6 +434,10 @@ func translateSmartOrderError(err error, langOptional ...string) string {
 		return i18n.T(lang, "smartorder.err_missing_documents")
 	case strings.Contains(msg, "min_order_not_met"):
 		return i18n.T(lang, "smartorder.err_min_order_not_met")
+	case strings.Contains(msg, "branch_institutional_mismatch"):
+		return i18n.T(lang, "smartorder.blocked_institutional_hint")
+	case strings.Contains(msg, "branch_no_institutional_works"):
+		return i18n.T(lang, "smartorder.err_branch_no_institutional_works")
 	case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, i18n.TDefault("w4_ui.s_103_103")):
 		return i18n.T(lang, "smartorder.err_line_unavailable")
 	case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, i18n.TDefault("w4_ui.s_104_104")):
@@ -479,5 +496,3 @@ func (h *UIHandler) SmartOrderLegacyRedirect(w http.ResponseWriter, r *http.Requ
 
 	http.Redirect(w, r, "/customer/smart-order/"+run.PublicID+"/"+subpath, http.StatusSeeOther)
 }
-
-

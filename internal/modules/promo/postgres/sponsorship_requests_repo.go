@@ -2,18 +2,55 @@ package postgres
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
-// ExpireSponsorshipRequests marks requests past their expiry as expired.
+// ExpireSponsorshipRequests marks requests past their expiry as expired and purges any associated offer media.
 func (r *Repository) ExpireSponsorshipRequests(ctx context.Context) (int64, error) {
-	var n int64
+	var (
+		n         int64
+		mediaURLs []string
+	)
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// Collect offer IDs from expiring requests
+		rows, err := tx.Query(txCtx, `
+			SELECT item_id
+			FROM promo.sponsorship_requests
+			WHERE status = 'active' AND expires_at < now() AND item_type = 'offer';
+		`)
+		if err != nil {
+			return err
+		}
+		var offerIDs []int64
+		for rows.Next() {
+			var id int64
+			if err := rows.Scan(&id); err == nil && id > 0 {
+				offerIDs = append(offerIDs, id)
+			}
+		}
+		rows.Close()
+
+		if len(offerIDs) > 0 {
+			imgRows, err := tx.Query(txCtx, `SELECT image FROM promo.offers WHERE id = ANY($1) AND image <> '';`, offerIDs)
+			if err == nil {
+				for imgRows.Next() {
+					var img string
+					if err := imgRows.Scan(&img); err == nil && strings.TrimSpace(img) != "" {
+						mediaURLs = append(mediaURLs, strings.TrimSpace(img))
+					}
+				}
+				imgRows.Close()
+			}
+			_, _ = tx.Exec(txCtx, `UPDATE promo.offers SET image = '', is_active = false, updated_at = now() WHERE id = ANY($1);`, offerIDs)
+		}
+
 		tag, err := tx.Exec(txCtx, `
 			UPDATE promo.sponsorship_requests
 			SET status = 'expired', updated_at = now()
@@ -34,6 +71,11 @@ func (r *Repository) ExpireSponsorshipRequests(ctx context.Context) (int64, erro
 		}
 		return nil
 	})
+	if err == nil {
+		for _, u := range mediaURLs {
+			_ = storage.DeleteUploadedMedia(ctx, u, nil)
+		}
+	}
 	return n, err
 }
 

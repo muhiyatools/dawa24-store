@@ -164,18 +164,17 @@ func (h *UIHandler) AdminOrgImportSavingsUploadSubmit(w http.ResponseWriter, r *
 		"", "", "", "", "",
 	)
 
-	session := globalSavingImportSessionStore.NewSession(targetOrgID, actor.UserID, fileHeader.Filename, len(dataRows))
-	session.Phase = SavingPhaseMapping
-	session.Headers = headers
-	session.SampleRows = sampleRows
-	session.RawDataRows = dataRows
-	session.DetectedCols = SavingDetectedCols{
-		NameCol:      nameCol,
-		SKUCol:       skuCol,
-		QtyCol:       qtyCol,
-		PriceCol:     priceCol,
-		ProductIDCol: productIDCol,
-	}
+	session := globalSavingImportSessionStore.NewMappingSession(
+		targetOrgID, actor.UserID, fileHeader.Filename,
+		headers, sampleRows, dataRows,
+		SavingDetectedCols{
+			NameCol:      nameCol,
+			SKUCol:       skuCol,
+			QtyCol:       qtyCol,
+			PriceCol:     priceCol,
+			ProductIDCol: productIDCol,
+		},
+	)
 
 	h.log.InfoContext(ctx, "admin initiated saving products import session", "actor_id", actor.UserID, "target_org_id", targetOrgID, "session_id", session.ID)
 	http.Redirect(w, r, fmt.Sprintf("/admin/organizations/import/saving/%s", session.ID), http.StatusSeeOther)
