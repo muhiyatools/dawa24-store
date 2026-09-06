@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -210,6 +211,23 @@ func (m *mockCompareRepoE2E) RenameFile(ctx context.Context, id int64, name stri
 }
 func (m *mockCompareRepoE2E) ArchiveOldestFiles(ctx context.Context, userID int64, orgID *int64, keep int, reason string) ([]string, error) {
 	return nil, nil
+}
+func (m *mockCompareRepoE2E) ArchiveActiveFiles(ctx context.Context, userID int64, orgID *int64, reason string) ([]string, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var archived []string
+	for _, f := range m.files {
+		if f.Status != compare.FileArchived && !f.IsTempWarehouse && f.DeletedAt == nil {
+			if (orgID != nil && f.OrganizationID != nil && *f.OrganizationID == *orgID) || (f.OrganizationID == nil && f.UserID == userID) {
+				f.Status = compare.FileArchived
+				now := time.Now().UTC()
+				f.ArchivedAt = &now
+				f.ArchiveReason = reason
+				archived = append(archived, f.SupplierName)
+			}
+		}
+	}
+	return archived, nil
 }
 func (m *mockCompareRepoE2E) ArchiveFile(ctx context.Context, id int64, reason string) error {
 	return nil

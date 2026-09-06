@@ -29,6 +29,14 @@ func (s *Service) ArchiveFile(ctx context.Context, fileID int64, reason string) 
 	return s.repo.ArchiveFile(ctx, fileID, reason)
 }
 
+// ArchiveActiveFiles soft-archives all currently active compare files for a user/organization.
+func (s *Service) ArchiveActiveFiles(ctx context.Context, userID int64, orgID *int64, reason string) ([]string, error) {
+	if reason == "" {
+		reason = "تمت الأرشفة تلقائياً لاستبدالها بملفات مقارنة جديدة"
+	}
+	return s.repo.ArchiveActiveFiles(ctx, userID, orgID, reason)
+}
+
 // UnarchiveFile restores an archived file.
 func (s *Service) UnarchiveFile(ctx context.Context, fileID int64) error {
 	return s.repo.UnarchiveFile(ctx, fileID)

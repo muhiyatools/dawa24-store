@@ -115,6 +115,10 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		fileHeaders = fhs
 	} else if fhs, ok := r.MultipartForm.File["compare_file"]; ok && len(fhs) > 0 {
 		fileHeaders = fhs
+	} else if fhs, ok := r.MultipartForm.File["files"]; ok && len(fhs) > 0 {
+		fileHeaders = fhs
+	} else if fhs, ok := r.MultipartForm.File["file"]; ok && len(fhs) > 0 {
+		fileHeaders = fhs
 	}
 
 	if len(fileHeaders) == 0 {
@@ -135,42 +139,13 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// A batch larger than the plan allows takes what fits rather than refusing.
-	//
-	// It used to refuse the whole thing: a pharmacy that dragged twelve files in
-	// with room for eight got an error and eight empty slots, and had to work
-	// out for themselves which four to remove and drop the rest again. The files
-	// are already uploaded by the time anyone can count them, so throwing all
-	// twelve away to punish four is the one outcome that helps nobody.
-	//
-	// Now the first `remaining` files are accepted and the rest are named in a
-	// warning, in the same list every other rejected file appears in — so the
-	// result reads "these went in, these did not, and here is why" instead of
-	// "no".
-	var quotaSkipped []string
-	if maxAllowedFiles > 0 {
-		activeFiles, err := h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
-		if err == nil {
-			activeCount := 0
-			for _, f := range activeFiles {
-				if f.Status != compare.FileArchived && f.DeletedAt == nil && !f.IsTempWarehouse {
-					activeCount++
-				}
-			}
-			remaining := maxAllowedFiles - activeCount
-			if remaining <= 0 {
-				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_exceeded"), maxAllowedFiles))
-				return
-			}
-			if len(fileHeaders) > remaining {
-				for _, skipped := range fileHeaders[remaining:] {
-					quotaSkipped = append(quotaSkipped,
-						skipped.Filename+" ("+fmt.Sprintf(i18n.T(lang, "compare.upload.quota_skipped"), maxAllowedFiles)+")")
-				}
-				fileHeaders = fileHeaders[:remaining]
-			}
-		}
+	// If the incoming upload batch itself exceeds the allowed quota
+	if maxAllowedFiles > 0 && len(fileHeaders) > maxAllowedFiles {
+		h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_exceeded"), maxAllowedFiles))
+		return
 	}
+
+	var quotaSkipped []string
 
 	type fileItem struct {
 		index        int
@@ -251,15 +226,20 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		})
 	}
 
-	// 2. Reserve quota for the whole batch, once.
-	//
-	// The per-file upload path also makes room for itself, and used to be the
-	// only thing that did. With six workers running it at the same time, each
-	// read the same active-file count, each concluded the quota was full, and
-	// each archived "everything past the limit" — by then including the files
-	// its siblings had just created. A batch of eight arrived and two survived.
-	// Reserving here means the eviction decision is made once, against the real
-	// batch size, before any of the batch exists.
+	if len(validItems) == 0 {
+		errMsg := i18n.T(lang, "compare.upload.none_processed_prefix") + strings.Join(errorFiles, ", ")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", errMsg)
+		return
+	}
+
+	// 2. Automatically archive previous active compare files to replace them with this new bulk upload.
+	// This ensures a clean workspace for the new comparison set while safely keeping all
+	// historical spreadsheets, extracted rows, and column mappings in the database for Super Admin and audit review.
+	archivedNames, archiveErr := h.compareSvc.ArchiveActiveFiles(ctx, actor.UserID, orgPtr, "تمت الأرشفة تلقائياً لاستبدالها بملفات مقارنة جديدة")
+	if archiveErr != nil {
+		h.log.ErrorContext(ctx, "failed to archive active compare files before upload", "error", archiveErr)
+	}
+
 	batchArchived, roomErr := h.compareSvc.MakeRoomForFiles(ctx, actor.UserID, orgPtr, len(validItems))
 	if roomErr != nil {
 		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(roomErr, lang))
@@ -343,7 +323,11 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// counts files, not rows. Claiming "0 rows" for a batch still being parsed
 	// is worse than not mentioning rows at all.
 	msg := fmt.Sprintf(i18n.T(lang, "compare.upload.staging_summary"), processedCount)
+	if len(archivedNames) > 0 {
+		msg += fmt.Sprintf(" (تمت أرشفة %d كشوف سابقة تلقائياً)", len(archivedNames))
+	}
 	_ = totalRows
+	_ = allArchived
 	firstID := uploadedIDs[0]
 	queueStr := strings.Join(uploadedIDs, ",")
 	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))

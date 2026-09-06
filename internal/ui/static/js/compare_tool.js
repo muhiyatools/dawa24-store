@@ -118,16 +118,10 @@ function handleUploadSubmit(event) {
 	// authoritatively - this is here so the dialog can NAME the files that will
 	// not be taken before anything is sent, rather than reporting it afterwards.
 	if (dropZone) {
-		const currentCount = parseInt(dropZone.dataset.currentCount || '0', 10);
 		const maxLimit = parseInt(dropZone.dataset.maxLimit || '0', 10);
-		const room = maxLimit > 0 ? maxLimit - currentCount : selected.length;
-		if (maxLimit > 0 && room <= 0) {
-			alert('باقتك الحالية تسمح بحد أقصى ' + maxLimit + ' كشوف، وجميعها مستخدمة. احذف أو أرشف كشفاً قديماً، أو رقِّ الباقة، ثم أعد المحاولة.');
-			return false;
-		}
-		if (maxLimit > 0 && selected.length > room) {
-			skipped = selected.slice(room);
-			selected = selected.slice(0, room);
+		if (maxLimit > 0 && selected.length > maxLimit) {
+			skipped = selected.slice(maxLimit);
+			selected = selected.slice(0, maxLimit);
 		}
 	}
 

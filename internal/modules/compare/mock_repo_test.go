@@ -162,6 +162,22 @@ func (m *mockCompareRepo) ArchiveOldestFiles(ctx context.Context, userID int64, 
 	return archivedNames, nil
 }
 
+func (m *mockCompareRepo) ArchiveActiveFiles(ctx context.Context, userID int64, orgID *int64, reason string) ([]string, error) {
+	var archived []string
+	for _, f := range m.files {
+		if f.Status != compare.FileArchived && !f.IsTempWarehouse && f.DeletedAt == nil {
+			if (orgID != nil && f.OrganizationID != nil && *f.OrganizationID == *orgID) || (f.OrganizationID == nil && f.UserID == userID) {
+				f.Status = compare.FileArchived
+				now := time.Now().UTC()
+				f.ArchivedAt = &now
+				f.ArchiveReason = reason
+				archived = append(archived, f.SupplierName)
+			}
+		}
+	}
+	return archived, nil
+}
+
 func (m *mockCompareRepo) ArchiveFile(ctx context.Context, id int64, reason string) error {
 	if f, ok := m.files[id]; ok {
 		f.Status = compare.FileArchived

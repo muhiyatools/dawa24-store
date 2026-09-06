@@ -17,6 +17,7 @@ type AdminTempWarehouseItem struct {
 	RowCount         int
 	SizeBytes        int64
 	Status           string
+	ArchiveReason    string
 	CreatedBy        *int64
 	CreatedAt        time.Time
 	ArchivedAt       *time.Time
@@ -1046,9 +1047,19 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 											{ fmt.Sprintf("%d", idx+1) }
 										</td>
 										<td class="align-middle">
-											<div class="font-black text-primary text-sm leading-snug">
-												{ item.SupplierName }
+											<div class="d-flex items-center gap-2 flex-wrap">
+												<div class="font-black text-primary text-sm leading-snug">
+													{ item.SupplierName }
+												</div>
+												if item.Status == "archived" {
+													<span class="badge badge-rose font-black text-2xs px-2 py-0.5 rounded-md">مؤرشف</span>
+												}
 											</div>
+											if item.Status == "archived" && item.ArchiveReason != "" {
+												<div class="text-3xs text-secondary mt-0.5" title={ item.ArchiveReason }>
+													{ item.ArchiveReason }
+												</div>
+											}
 											if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
 												<div class="tabular-nums text-2xs text-muted font-mono mt-0.5 truncate max-w-xs" title={ item.OriginalFilename }>
 													{ item.OriginalFilename }

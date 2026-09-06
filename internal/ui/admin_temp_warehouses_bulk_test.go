@@ -59,6 +59,25 @@ func (m *mockBulkCompareRepo) GetFileByID(ctx context.Context, id int64) (*compa
 	return m.files[id], nil
 }
 
+func (m *mockBulkCompareRepo) ListFiles(ctx context.Context, userID int64, orgID *int64, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var list []*compare.CompareFile
+	for _, f := range m.files {
+		if status == nil {
+			if f.Status == compare.FileArchived {
+				continue
+			}
+		} else if f.Status != *status {
+			continue
+		}
+		if (orgID != nil && f.OrganizationID != nil && *f.OrganizationID == *orgID) || (f.OrganizationID == nil && f.UserID == userID) {
+			list = append(list, f)
+		}
+	}
+	return list, nil
+}
+
 func (m *mockBulkCompareRepo) ListAllFiles(ctx context.Context, query string, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -67,6 +86,24 @@ func (m *mockBulkCompareRepo) ListAllFiles(ctx context.Context, query string, st
 		out = append(out, f)
 	}
 	return out, nil
+}
+
+func (m *mockBulkCompareRepo) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	count := 0
+	for _, f := range m.files {
+		if f.Status != compare.FileArchived && f.DeletedAt == nil && !f.IsTempWarehouse {
+			if (orgID != nil && f.OrganizationID != nil && *f.OrganizationID == *orgID) || (f.OrganizationID == nil && f.UserID == userID) {
+				count++
+			}
+		}
+	}
+	return count, nil
+}
+
+func (m *mockBulkCompareRepo) GetActiveSubscription(ctx context.Context, userID int64, orgID *int64) (*compare.Subscription, error) {
+	return nil, nil
 }
 
 func (m *mockBulkCompareRepo) ListAdminTempWarehouses(ctx context.Context, filter compare.AdminTempWarehouseFilter) ([]*compare.AdminTempWarehouse, error) {
@@ -168,6 +205,24 @@ func (m *mockBulkCompareRepo) RenameFile(ctx context.Context, id int64, newName 
 		f.SupplierName = newName
 	}
 	return nil
+}
+
+func (m *mockBulkCompareRepo) ArchiveActiveFiles(ctx context.Context, userID int64, orgID *int64, reason string) ([]string, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var archived []string
+	for _, f := range m.files {
+		if f.Status != compare.FileArchived && !f.IsTempWarehouse && f.DeletedAt == nil {
+			if (orgID != nil && f.OrganizationID != nil && *f.OrganizationID == *orgID) || (f.OrganizationID == nil && f.UserID == userID) {
+				f.Status = compare.FileArchived
+				now := time.Now()
+				f.ArchivedAt = &now
+				f.ArchiveReason = reason
+				archived = append(archived, f.SupplierName)
+			}
+		}
+	}
+	return archived, nil
 }
 
 func (m *mockBulkCompareRepo) ArchiveFile(ctx context.Context, id int64, reason string) error {

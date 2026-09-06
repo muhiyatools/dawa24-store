@@ -103,7 +103,7 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 		}
 		f := row.CompareFile
 		source := "moderator"
-		if f.OrganizationID != nil {
+		if f.OrganizationID != nil || !f.IsTempWarehouse {
 			source = "vendor"
 		}
 		uid := f.UserID
@@ -114,6 +114,7 @@ func (h *UIHandler) buildTempWarehousesData(ctx context.Context, filter compare.
 			RowCount:         f.RowCount,
 			SizeBytes:        f.SizeBytes,
 			Status:           string(f.Status),
+			ArchiveReason:    f.ArchiveReason,
 			CreatedBy:        &uid,
 			CreatedAt:        f.CreatedAt,
 			ArchivedAt:       f.ArchivedAt,

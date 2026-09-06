@@ -136,13 +136,16 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var files []*compare.CompareFile
+	var activeFiles []*compare.CompareFile
+	var archivedFiles []*compare.CompareFile
 	var orgPtr *int64
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
 	if h.compareSvc != nil {
-		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		archivedStatus := compare.FileArchived
+		archivedFiles, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, &archivedStatus)
+		activeFiles, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 	}
 
 	maxAllowedFiles := 10
@@ -152,5 +155,5 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, files, maxAllowedFiles, noticeType, noticeMsg))
+	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, activeFiles, archivedFiles, maxAllowedFiles, noticeType, noticeMsg))
 }

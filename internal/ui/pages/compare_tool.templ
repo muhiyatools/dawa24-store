@@ -8,7 +8,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, noticeType, noticeMsg string) {
+templ CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFiles []*compare.CompareFile, maxAllowedFiles int, noticeType, noticeMsg string) {
 	@layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir) {
 		<!-- Notice / Toast Banner -->
 		if noticeMsg != "" {
@@ -195,6 +195,54 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 							</div>
 						}
 					</form>
+					if len(archivedFiles) > 0 {
+						<div class="mt-4 pt-3 border-t">
+							<details class="group">
+								<summary class="flex-between items-center cursor-pointer p-2 rounded-lg bg-surface-sunken hover:bg-surface-raised transition-colors list-none select-none">
+									<div class="d-flex items-center gap-2">
+										@components.IconFolder("icon-2xs text-muted")
+										<span class="text-xs font-bold text-secondary">الكشوف المؤرشفة</span>
+										<span class="badge badge-slate text-3xs font-bold">{ fmt.Sprintf("%d", len(archivedFiles)) }</span>
+									</div>
+									<span class="text-xs text-muted group-open:rotate-180 transition-transform">▼</span>
+								</summary>
+								<div class="d-flex flex-col gap-2 mt-2 max-h-48 overflow-y-auto pe-1">
+									for _, af := range archivedFiles {
+										<div class="bg-surface-sunken/60 border rounded-xl p-2.5 flex-between gap-2 text-2xs opacity-90 hover:opacity-100 transition-opacity">
+											<div class="min-w-0">
+												<div class="font-bold text-primary truncate">{ af.SupplierName }</div>
+												<div class="text-3xs text-muted mt-0.5 tabular-nums">
+													if af.RowCount > 0 {
+														{ fmt.Sprintf("%d صنف", af.RowCount) } • 
+													}
+													if af.ArchivedAt != nil {
+														{ af.ArchivedAt.Format("02/01/2006") }
+													} else {
+														{ af.CreatedAt.Format("02/01/2006") }
+													}
+												</div>
+											</div>
+											<div class="d-flex items-center gap-1 flex-shrink-0">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/unarchive", af.ID)) } class="m-0 inline">
+													<button type="submit" class="btn btn-secondary btn-xs text-emerald font-bold px-2 py-0.5" title="استرجاع وتفعيل للمقارنة">
+														استرجاع
+													</button>
+												</form>
+												<button
+													type="button"
+													class="btn btn-secondary btn-icon btn-xs text-danger"
+													title="حذف نهائي"
+													onclick={ templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", af.ID)} }
+												>
+													@components.IconTrash("icon-2xs")
+												</button>
+											</div>
+										</div>
+									}
+								</div>
+							</details>
+						</div>
+					}
 				</div>
 
 				<!-- Column 2: Upload Zone -->
@@ -207,11 +255,11 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						<span class="badge badge-slate text-2xs font-bold">استيراد مجمّع</span>
 					</div>
 
-					<!-- Quota Notice if limit reached -->
-					if maxAllowedFiles > 0 && len(files) >= maxAllowedFiles {
-						<div class="alert alert-warning p-2.5 d-flex items-start gap-2 rounded-xl text-2xs">
-							@components.IconAlert("icon-2xs text-amber-700")
-							<span class="font-bold">بلغت الحد الأقصى ({ fmt.Sprintf("%d / %d", len(files), maxAllowedFiles) }). يرجى حذف ملفات لإتاحة مساحة.</span>
+					<!-- Auto-replacement info notice -->
+					if len(files) > 0 {
+						<div class="alert alert-info p-2.5 d-flex items-center gap-2 rounded-xl text-2xs">
+							@components.IconInfo("icon-2xs text-sky-700")
+							<span class="font-bold">عند رفع كشوف جديدة، يتم استبدال الكشوف الحالية وأرشفتها تلقائياً مع الاحتفاظ بكافة بياناتها.</span>
 						</div>
 					}
 
