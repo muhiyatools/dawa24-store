@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -124,12 +126,92 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	filter := r.URL.Query().Get("filter")
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 {
+		limit = 25
+	}
+
+	filter := strings.TrimSpace(r.URL.Query().Get("filter"))
 	if filter == "" {
 		filter = "all"
 	}
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	qLower := strings.ToLower(q)
 
-	h.renderPage(ctx, w, "render compare results", pages.CompareResultsPage(lang, dir, result, filter))
+	totalFiltered := 0
+	var pagedResult *compare.ComparisonResultSet
+
+	if result != nil {
+		var filteredRows []*compare.ProductComparisonRow
+		for _, row := range result.Rows {
+			if row == nil {
+				continue
+			}
+			if filter == "multi-offer" && row.TotalSuppliers <= 1 {
+				continue
+			}
+			if filter == "single-offer" && row.TotalSuppliers != 1 {
+				continue
+			}
+			if qLower != "" {
+				haystack := strings.ToLower(row.ProductName + " " + row.SKU + " " + row.BestSupplier + " " + strings.Join(row.MissingSuppliers, " "))
+				if !strings.Contains(haystack, qLower) {
+					continue
+				}
+			}
+			filteredRows = append(filteredRows, row)
+		}
+		totalFiltered = len(filteredRows)
+
+		pagedRows := []*compare.ProductComparisonRow{}
+		start := (page - 1) * limit
+		if start < totalFiltered {
+			end := start + limit
+			if end > totalFiltered {
+				end = totalFiltered
+			}
+			pagedRows = filteredRows[start:end]
+		}
+
+		resCopy := *result
+		resCopy.Rows = pagedRows
+		pagedResult = &resCopy
+	}
+
+	queryValues := url.Values{}
+	if supParam != "" {
+		queryValues.Set("suppliers", supParam)
+	}
+	if filter != "" && filter != "all" {
+		queryValues.Set("filter", filter)
+	}
+	if q != "" {
+		queryValues.Set("q", q)
+	}
+
+	pagination := components.PaginationProps{
+		CurrentPage:     page,
+		PageSize:        limit,
+		TotalCount:      totalFiltered,
+		BaseURL:         "/compare/results",
+		QueryValues:     queryValues,
+		PageSizeOptions: []int{10, 25, 50, 100},
+	}
+
+	pageData := pages.CompareResultsPageData{
+		Result:             pagedResult,
+		ActiveFilter:       filter,
+		Query:              q,
+		SuppliersParam:     supParam,
+		Pagination:         pagination,
+		TotalFilteredCount: totalFiltered,
+	}
+
+	h.renderPage(ctx, w, "render compare results", pages.CompareResultsPage(lang, dir, pageData))
 }
 
 // CompareHeadToHeadPage handles head-to-head comparison between two suppliers.
@@ -201,7 +283,17 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		outcome = &o
 	}
 
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 {
+		limit = 25
+	}
+
 	var result *compare.HeadToHeadComparisonResult
+	totalCount := 0
 	if h.compareSvc != nil && sourceID > 0 && targetID > 0 {
 		res, err := h.compareSvc.RunSupplierVsSupplierDetailed(ctx, compare.HeadToHeadFilter{
 			SourceFileID: sourceID,
@@ -215,9 +307,55 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		})
 		if err != nil {
 			h.log.ErrorContext(ctx, "failed to run head-to-head comparison", "error", err)
-		} else {
+		} else if res != nil {
+			totalCount = len(res.Rows)
+			pagedRows := []*compare.HeadToHeadRow{}
+			start := (page - 1) * limit
+			if start < totalCount {
+				end := start + limit
+				if end > totalCount {
+					end = totalCount
+				}
+				pagedRows = res.Rows[start:end]
+			}
 			result = res
+			result.Rows = pagedRows
 		}
+	}
+
+	queryValues := url.Values{}
+	if sourceID > 0 {
+		queryValues.Set("source", strconv.FormatInt(sourceID, 10))
+	}
+	if targetID > 0 {
+		queryValues.Set("target", strconv.FormatInt(targetID, 10))
+	}
+	if q != "" {
+		queryValues.Set("q", q)
+	}
+	if minPStr != "" {
+		queryValues.Set("min_price", minPStr)
+	}
+	if maxPStr != "" {
+		queryValues.Set("max_price", maxPStr)
+	}
+	if minDStr != "" {
+		queryValues.Set("min_discount", minDStr)
+	}
+	if maxDStr != "" {
+		queryValues.Set("max_discount", maxDStr)
+	}
+	if tab != "" && tab != "all" {
+		queryValues.Set("tab", tab)
+	}
+
+	pagination := components.PaginationProps{
+		CurrentPage:     page,
+		PageSize:        limit,
+		TotalCount:      totalCount,
+		BaseURL:         "/compare/head-to-head",
+		QueryValues:     queryValues,
+		PageSizeOptions: []int{10, 25, 50, 100},
 	}
 
 	pageData := pages.HeadToHeadPageData{
@@ -232,6 +370,8 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		MaxDiscount:  maxDStr,
 		ActiveTab:    tab,
 		IsCustomer:   actor.IsCustomer(),
+		Pagination:   pagination,
+		TotalCount:   totalCount,
 	}
 
 	h.renderPage(ctx, w, "render head to head page", pages.CompareHeadToHeadPage(lang, dir, pageData))

@@ -2,12 +2,40 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+type CompareResultsPageData struct {
+	Result             *compare.ComparisonResultSet
+	ActiveFilter       string
+	Query              string
+	SuppliersParam     string
+	Pagination         components.PaginationProps
+	TotalFilteredCount int
+}
+
+func buildCompareResultsURL(suppliers, filter, q string) string {
+	vals := url.Values{}
+	if suppliers != "" {
+		vals.Set("suppliers", suppliers)
+	}
+	if filter != "" && filter != "all" {
+		vals.Set("filter", filter)
+	}
+	if q != "" {
+		vals.Set("q", q)
+	}
+	encoded := vals.Encode()
+	if encoded == "" {
+		return "/compare/results"
+	}
+	return "/compare/results?" + encoded
+}
 
 func formatRowsCount(res *compare.ComparisonResultSet) string {
 	if res == nil {
@@ -16,7 +44,7 @@ func formatRowsCount(res *compare.ComparisonResultSet) string {
 	return fmt.Sprintf("%d", len(res.Rows))
 }
 
-templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, activeFilter string) {
+templ CompareResultsPage(lang, dir string, data CompareResultsPageData) {
 	@layouts.VendorShell("نتائج تحليل ومقارنة الخصومات", "compare", lang, dir) {
 		<div class="page-container">
 			
@@ -76,15 +104,15 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<div class="stat-card-3d">
 					<div class="stat-card-label">إجمالي الأصناف المقارنة</div>
 					<div class="stat-card-value text-primary tabular-nums">
-						if result != nil {
-							{ fmt.Sprintf("%d", result.Summary.TotalProducts) }
+						if data.Result != nil {
+							{ fmt.Sprintf("%d", data.Result.Summary.TotalProducts) }
 						} else {
 							0
 						}
 					</div>
 					<span class="text-xs text-secondary mt-1 d-block">
-						if result != nil {
-							{ fmt.Sprintf("عبر %d موردين", result.Summary.TotalSuppliers) }
+						if data.Result != nil {
+							{ fmt.Sprintf("عبر %d موردين", data.Result.Summary.TotalSuppliers) }
 						}
 					</span>
 				</div>
@@ -93,8 +121,8 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<div class="stat-card-3d">
 					<div class="stat-card-label">متوسط الخصم في السوق</div>
 					<div class="stat-card-value text-success tabular-nums">
-						if result != nil {
-							{ fmt.Sprintf("%.1f%%", result.Summary.AverageDiscount) }
+						if data.Result != nil {
+							{ fmt.Sprintf("%.1f%%", data.Result.Summary.AverageDiscount) }
 						} else {
 							0%
 						}
@@ -106,8 +134,8 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<div class="stat-card-3d">
 					<div class="stat-card-label">الموردون المشمولون</div>
 					<div class="stat-card-value text-brand tabular-nums">
-						if result != nil {
-							{ fmt.Sprintf("%d", result.Summary.TotalSuppliers) }
+						if data.Result != nil {
+							{ fmt.Sprintf("%d", data.Result.Summary.TotalSuppliers) }
 						} else {
 							0
 						}
@@ -121,48 +149,52 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<div class="flex-between flex-wrap gap-3">
 					<!-- Quick Filter Tabs -->
 					<div class="d-flex items-center gap-2 flex-wrap">
-						<button
-							type="button"
-							class="tab-btn active"
-							data-filter="all"
-							onclick="applyTableFilter('all', this)"
+						<a
+							href={ templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "all", data.Query)) }
+							class={ "tab-btn font-bold", templ.KV("active", data.ActiveFilter == "all" || data.ActiveFilter == "") }
 						>
-							<span>الكل ({ formatRowsCount(result) })</span>
-						</button>
+							<span>الكل ({ fmt.Sprintf("%d", data.TotalFilteredCount) })</span>
+						</a>
 
-						<button
-							type="button"
-							class="tab-btn"
-							data-filter="multi-offer"
-							onclick="applyTableFilter('multi-offer', this)"
+						<a
+							href={ templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "multi-offer", data.Query)) }
+							class={ "tab-btn font-bold", templ.KV("active", data.ActiveFilter == "multi-offer") }
 						>
 							<span>متوفر لدى أكثر من مورد</span>
-						</button>
+						</a>
 
-						<button
-							type="button"
-							class="tab-btn"
-							data-filter="single-offer"
-							onclick="applyTableFilter('single-offer', this)"
+						<a
+							href={ templ.SafeURL(buildCompareResultsURL(data.SuppliersParam, "single-offer", data.Query)) }
+							class={ "tab-btn font-bold", templ.KV("active", data.ActiveFilter == "single-offer") }
 						>
 							<span>أصناف حصرية لمورد واحد</span>
-						</button>
+						</a>
 					</div>
 
-					<!-- Instant Search Filter -->
-					<div class="min-w-280">
+					<!-- Search Filter Form -->
+					<form method="GET" action="/compare/results" class="min-w-280 m-0 d-flex gap-2">
+						if data.SuppliersParam != "" {
+							<input type="hidden" name="suppliers" value={ data.SuppliersParam } />
+						}
+						if data.ActiveFilter != "" && data.ActiveFilter != "all" {
+							<input type="hidden" name="filter" value={ data.ActiveFilter } />
+						}
 						<input
 							type="text"
+							name="q"
+							value={ data.Query }
 							id="comparison-table-search"
 							placeholder="بحث باسم الصنف، الكود، أو المورد..."
 							class="form-input text-xs"
-							oninput="filterTableBySearch(this.value)"
 						/>
-					</div>
+						<button type="submit" class="btn btn-secondary btn-sm font-bold">
+							@components.IconSearch("icon-xs")
+						</button>
+					</form>
 				</div>
 
 				<!-- Comparison Table -->
-				if result == nil || len(result.Rows) == 0 {
+				if data.Result == nil || len(data.Result.Rows) == 0 {
 					<div class="empty-state-glass p-8 text-center">
 						<div class="empty-state-icon-wrapper mx-auto mb-3">
 							<span class="text-3xl">@components.IconBarChart("icon-sm")</span>
@@ -186,7 +218,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 								</tr>
 							</thead>
 							<tbody>
-								for _, row := range result.Rows {
+								for _, row := range data.Result.Rows {
 									<tr
 										class="comparison-row"
 										data-discount={ fmt.Sprintf("%.2f", row.BestDiscount) }
@@ -251,6 +283,11 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				}
 			</div>
 
+			if data.TotalFilteredCount > 0 {
+				<div class="glass-panel p-4 mt-4 bg-surface-sunken">
+					@components.B2BPagination(data.Pagination)
+				</div>
+			}
 		</div>
 
 		<!-- Script for filter tabs, search and CSV export -->

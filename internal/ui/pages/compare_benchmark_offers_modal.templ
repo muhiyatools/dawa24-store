@@ -79,8 +79,9 @@ templ BenchmarkOffersModal(data *compare.BenchmarkOffers) {
 						<thead>
 							<tr>
 								<th>الشركة الموردة</th>
-								<th class="text-center">السعر</th>
+								<th class="text-center">سعر الجمهور</th>
 								<th class="text-center">الخصم</th>
+								<th class="text-center">السعر بعد الخصم</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -98,13 +99,12 @@ templ BenchmarkOffersModal(data *compare.BenchmarkOffers) {
 											<div class="bmo-supplier-sub tabular-nums">{ o.SKU }</div>
 										}
 									</td>
-									<td class="text-center">
-										<div class="bmo-was tabular-nums">{ o.Price.String() }</div>
-										<div class="bmo-net tabular-nums">{ o.NetPrice.String() }</div>
-										<div class="bmo-cur">EGP</div>
+									<td class="text-center tabular-nums">
+										<span class="font-bold text-secondary text-sm">{ o.Price.String() }</span>
+										<small class="text-muted text-2xs ms-1">ج.م</small>
 									</td>
-									<td class="text-center">
-										<div class="bmo-disc tabular-nums">{ formatBenchPercent(o.Discount) }%</div>
+									<td class="text-center tabular-nums">
+										<div class="bmo-disc">{ formatBenchPercent(o.Discount) }%</div>
 										if o.GapFromYours.Minor() != 0 {
 											if o.Cheaper {
 												<div class="bmo-gap is-cheaper tabular-nums">{ o.GapFromYours.String() }</div>
@@ -112,6 +112,10 @@ templ BenchmarkOffersModal(data *compare.BenchmarkOffers) {
 												<div class="bmo-gap is-dearer tabular-nums">+{ o.GapFromYours.String() }</div>
 											}
 										}
+									</td>
+									<td class="text-center tabular-nums">
+										<div class="bmo-net">{ o.NetPrice.String() }</div>
+										<div class="bmo-cur">ج.م</div>
 									</td>
 								</tr>
 							}

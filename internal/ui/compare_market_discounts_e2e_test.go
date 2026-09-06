@@ -387,9 +387,9 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	if strings.Contains(body, "market-code") {
 		t.Error("the cards still render a product code")
 	}
-	// So is سعر بعد الخصم; the discount pill already says what to subtract.
-	if strings.Contains(body, "سعر بعد الخصم") {
-		t.Error("the cards still render سعر بعد الخصم")
+	// "السعر بعد الخصم" is explicitly rendered per user design specification.
+	if !strings.Contains(body, "السعر بعد الخصم") {
+		t.Error("the cards must render السعر بعد الخصم")
 	}
 	// And the upload date is present, which the grid card never showed.
 	if !strings.Contains(body, "market-list-date") {

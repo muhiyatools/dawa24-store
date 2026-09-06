@@ -22,6 +22,8 @@ type HeadToHeadPageData struct {
 	MaxDiscount  string
 	ActiveTab    string // "all", "your_better", "equal", "competitor_better"
 	IsCustomer   bool
+	Pagination   components.PaginationProps
+	TotalCount   int
 }
 
 func buildHeadToHeadURL(sourceID, targetID int64, q, minP, maxP, minD, maxD, tab string) string {
@@ -304,7 +306,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "all")) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "all" || data.ActiveTab == ""), templ.KV("btn-secondary", data.ActiveTab != "all" && data.ActiveTab != "") }
 					>
-						الكل ({ fmt.Sprintf("%d", len(data.Result.Rows)) })
+						الكل ({ fmt.Sprintf("%d", data.TotalCount) })
 					</a>
 
 					<a
@@ -441,6 +443,11 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 					</table>
 				</div>
 			</div>
+			if data.TotalCount > 0 {
+				<div class="glass-panel p-4 mt-4 bg-surface-sunken">
+					@components.B2BPagination(data.Pagination)
+				</div>
+			}
 		}
 	</div>
 

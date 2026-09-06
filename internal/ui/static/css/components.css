@@ -5623,29 +5623,29 @@ form.filter-bar { margin: 0; }
   white-space: nowrap;
 }
 .market-money-now {
-  font-size: 1.125rem;
-  font-weight: 900;
+  font-size: 0.8125rem;
+  font-weight: 700;
   line-height: 1.15;
   color: var(--brand-primary, #0d9488);
   white-space: nowrap;
 }
 .market-money-now small {
-  font-size: 0.75rem;
+  font-size: 0.625rem;
   font-weight: 600;
   color: var(--brand-primary, #0d9488);
   margin-inline-start: 0.15rem;
 }
 .market-money-now.is-empty {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
   opacity: 0.55;
 }
 .market-money-was {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.0625rem;
+  font-weight: 800;
   line-height: 1.15;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   white-space: nowrap;
 }
 .market-money-was small {
@@ -5660,7 +5660,7 @@ form.filter-bar { margin: 0; }
   color: var(--text-muted);
   opacity: 0.55;
 }
-.market-money-cell.is-lead { min-inline-size: 7.5rem; }
+.market-money-cell.is-lead { min-inline-size: 6.5rem; }
 
 .market-disc-pill {
   display: inline-flex;
@@ -7013,8 +7013,10 @@ form.filter-bar { margin: 0; }
 /* Table ------------------------------------------------------------------- */
 
 .bench-scroll { overflow-x: auto; border: none; border-radius: 0; box-shadow: none; }
-.bench-table { min-inline-size: 52rem; }
-.bench-table th, .bench-table td { vertical-align: top; padding-block: 0.625rem; }
+.bench-table { min-inline-size: 52rem; border-collapse: collapse; }
+.bench-table th, .bench-table td { vertical-align: middle; padding: 0.75rem 1rem; }
+.bench-table tbody tr { transition: background-color 0.15s ease; }
+.bench-table tbody tr:hover { background: var(--bg-surface-sunken); }
 
 .bench-name {
   font-size: 0.8125rem;
@@ -7028,7 +7030,7 @@ form.filter-bar { margin: 0; }
 .bench-verdict {
   font-size: 0.625rem;
   font-weight: 800;
-  padding: 0.0625rem 0.375rem;
+  padding: 0.125rem 0.5rem;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   white-space: nowrap;
@@ -7060,13 +7062,17 @@ form.filter-bar { margin: 0; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-inline-size: 2rem;
-  padding: 0.1875rem 0.5rem;
+  min-inline-size: 2.25rem;
+  padding: 0.25rem 0.625rem;
   border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 900;
   line-height: 1.2;
   border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.bench-count.is-link:hover {
+  transform: translateY(-1px) scale(1.05);
 }
 .bench-count.is-worse  { color: var(--danger);  background: var(--danger-subtle);  border-color: var(--danger-border); }
 .bench-count.is-equal  { color: var(--text-secondary); background: var(--bg-surface-sunken); border-color: var(--border-subtle); }
@@ -7202,29 +7208,25 @@ form.filter-bar { margin: 0; }
   text-align: start;
   white-space: nowrap;
 }
+.bmo-table thead th.text-center { text-align: center; }
+.bmo-table thead th.text-end { text-align: end; }
 .bmo-table tbody td {
   padding: 0.75rem 1.25rem;
   border-block-end: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
+.bmo-table tbody td.text-center { text-align: center; }
+.bmo-table tbody td.text-end { text-align: end; }
 .bmo-table tbody tr:last-child td { border-block-end: none; }
 .bmo-table tbody tr:hover { background: var(--bg-surface-sunken); }
 
 .bmo-supplier { font-size: 0.875rem; font-weight: 800; color: var(--text-primary); }
 .bmo-supplier-sub { font-size: 0.6875rem; color: var(--text-muted); margin-block-start: 0.125rem; }
 
-/* List price struck above, net price large below, currency under it — the
-   shape the reference uses, so the eye lands on what is actually paid. */
-.bmo-was {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-.bmo-net { font-size: 1.0625rem; font-weight: 900; color: var(--text-primary); line-height: 1.2; }
-.bmo-cur { font-size: 0.5625rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; }
+.bmo-net { font-size: 0.9375rem; font-weight: 900; color: var(--text-primary); line-height: 1.2; }
+.bmo-cur { font-size: 0.625rem; font-weight: 700; color: var(--text-muted); }
 
-.bmo-disc { font-size: 1.0625rem; font-weight: 900; color: var(--info); line-height: 1.2; }
+.bmo-disc { font-size: 0.9375rem; font-weight: 900; color: var(--info); line-height: 1.2; }
 .bmo-gap { font-size: 0.625rem; font-weight: 700; margin-block-start: 0.125rem; }
 .bmo-gap.is-cheaper { color: var(--danger); }
 .bmo-gap.is-dearer { color: var(--success); }
