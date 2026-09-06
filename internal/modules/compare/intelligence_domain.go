@@ -115,3 +115,18 @@ type MarketIntelligenceReport struct {
 	MarketGaps      []*MarketGapItem        `json:"market_gaps"`
 	Recommendations []string                `json:"recommendations"`
 }
+
+// ClassifyMarketComparison classifies a supplier row against market baseline into one of the 5 filter modes (Plan V5 §2.5.2).
+func ClassifyMarketComparison(supplierNet, marketNet money.Amount, supplierDiscount, marketDiscount float64, hasMarketOffer bool) MarketComparisonFilter {
+	if !hasMarketOffer {
+		return MarketFilterExclusives
+	}
+	if supplierNet.Minor() < marketNet.Minor() || supplierDiscount > marketDiscount {
+		return MarketFilterHigherDiscount
+	}
+	if supplierNet.Minor() > marketNet.Minor() || supplierDiscount < marketDiscount {
+		return MarketFilterLowerDiscount
+	}
+	return MarketFilterEqualToMarket
+}
+

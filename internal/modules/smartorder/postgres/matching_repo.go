@@ -341,3 +341,38 @@ func isDecisionMemoryEnabled(ctx context.Context, tx pgx.Tx) bool {
 		return true
 	}
 }
+
+func lowerAll(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, s := range in {
+		s = strings.ToLower(strings.TrimSpace(s))
+		if s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+func itoa(n int) string { return strconv.Itoa(n) }
+
+func atoi(s string) (int, bool) {
+	n, err := strconv.Atoi(s)
+	return n, err == nil
+}
+
+// SaveAlias records a confirmed name for a catalogue product.
+func (r *Repository) SaveAlias(ctx context.Context, productID int64, alias, source string, confidence float64) error {
+	alias = strings.ToLower(strings.TrimSpace(alias))
+	if alias == "" || productID <= 0 {
+		return nil
+	}
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `
+			INSERT INTO catalog.product_aliases (product_id, alias, source, confidence)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (alias, product_id) DO NOTHING;`,
+			productID, alias, source, confidence)
+		return err
+	})
+}
+
