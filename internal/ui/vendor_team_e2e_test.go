@@ -74,6 +74,12 @@ func (m *mockIdentityRepoTeamTest) GetUserByID(ctx context.Context, id int64) (*
 	return u, nil
 }
 
+func (m *mockIdentityRepoTeamTest) UpdateUser(ctx context.Context, u *identity.User) error {
+	m.users[strings.ToLower(u.Email)] = u
+	m.byID[u.ID] = u
+	return nil
+}
+
 type mockOrgRepoTeamTest struct {
 	org.Repository
 	members  map[int64]*org.Member
@@ -106,6 +112,19 @@ func (m *mockOrgRepoTeamTest) ListMembersByOrg(ctx context.Context, orgID int64)
 }
 
 func (m *mockOrgRepoTeamTest) AddMember(ctx context.Context, mem *org.Member) error {
+	for _, existing := range m.members {
+		if existing.OrganizationID == mem.OrganizationID && existing.UserID == mem.UserID {
+			existing.BranchID = mem.BranchID
+			existing.RoleID = mem.RoleID
+			existing.OrgRoleID = mem.OrgRoleID
+			existing.RoleKey = mem.RoleKey
+			existing.EmployeeCode = mem.EmployeeCode
+			existing.JobTitle = mem.JobTitle
+			existing.IsActive = mem.IsActive
+			mem.ID = existing.ID
+			return nil
+		}
+	}
 	m.nextMID++
 	mem.ID = m.nextMID
 	m.members[mem.ID] = mem
@@ -175,11 +194,60 @@ func (m *mockOrgRepoTeamTest) ListRoles(_ context.Context, orgID int64) ([]*org.
 		{ID: 1, OrganizationID: orgID, Key: "org_owner", Name: i18n.New("مالك المنشأة", "Owner"), IsSystem: true, IsOwner: true},
 		{ID: 2, OrganizationID: orgID, Key: "org_manager", Name: i18n.New("مدير", "Manager"), IsSystem: true},
 		{ID: 3, OrganizationID: orgID, Key: "org_warehouse", Name: i18n.New("أمين مخزن", "Warehouse"), IsSystem: true},
+		{ID: 4, OrganizationID: orgID, Key: "org_employee", Name: i18n.New("موظف مبيعات وتوريد", "Sales Rep"), IsSystem: true},
 	}, nil
+}
+
+func (m *mockOrgRepoTeamTest) AssignBranchManager(_ context.Context, orgID, branchID int64, managerUserID *int64) error {
+	return nil
 }
 
 func (m *mockOrgRepoTeamTest) CountRoleMembers(_ context.Context, _ int64) (map[int64]int, error) {
 	return map[int64]int{}, nil
+}
+
+func (m *mockOrgRepoTeamTest) AssignMemberRole(_ context.Context, orgID, memberID, roleID int64) error {
+	if mem, ok := m.members[memberID]; ok && mem.OrganizationID == orgID {
+		mem.RoleID = roleID
+		mem.OrgRoleID = &roleID
+		for _, r := range []*org.Role{
+			{ID: 1, Key: "org_owner"},
+			{ID: 2, Key: "org_manager"},
+			{ID: 3, Key: "org_warehouse"},
+			{ID: 4, Key: "org_employee"},
+		} {
+			if r.ID == roleID {
+				mem.RoleKey = r.Key
+				break
+			}
+		}
+	}
+	return nil
+}
+
+func (m *mockOrgRepoTeamTest) UpdateMember(_ context.Context, orgID, memberID int64, patch org.MemberPatch) error {
+	if mem, ok := m.members[memberID]; ok && mem.OrganizationID == orgID {
+		if patch.JobTitle != nil {
+			mem.JobTitle = *patch.JobTitle
+		}
+		if patch.EmployeeCode != nil {
+			mem.EmployeeCode = *patch.EmployeeCode
+		}
+		if patch.BranchID != nil {
+			mem.BranchID = patch.BranchID
+		}
+		if patch.RoleKey != nil {
+			mem.RoleKey = *patch.RoleKey
+		}
+		if patch.OrgRoleID != nil {
+			mem.OrgRoleID = patch.OrgRoleID
+			mem.RoleID = *patch.OrgRoleID
+		}
+		if patch.IsActive != nil {
+			mem.IsActive = *patch.IsActive
+		}
+	}
+	return nil
 }
 
 func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
@@ -215,17 +283,27 @@ func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
 		if !strings.Contains(body, "مستودع القاهرة الرئيسي") {
 			t.Errorf("expected branch option in select dropdown")
 		}
+		// Verify dynamic role options are rendered from the database
+		if !strings.Contains(body, `value="2"`) || !strings.Contains(body, "مدير") {
+			t.Errorf("expected dynamic role 'مدير' (ID: 2) to be in rendered page options")
+		}
+		if !strings.Contains(body, `value="3"`) || !strings.Contains(body, "أمين مخزن") {
+			t.Errorf("expected dynamic role 'أمين مخزن' (ID: 3) to be in rendered page options")
+		}
+		if !strings.Contains(body, `value="4"`) || !strings.Contains(body, "موظف مبيعات وتوريد") {
+			t.Errorf("expected dynamic role 'موظف مبيعات وتوريد' (ID: 4) to be in rendered page options")
+		}
 	})
 
-	// 2. POST /vendor/team/new adds new employee
-	t.Run("POST /vendor/team/new creates employee and links to org", func(t *testing.T) {
+	// 2. POST /vendor/team/new adds new employee with dynamic role_id
+	t.Run("POST /vendor/team/new creates employee and links to org with dynamic role_id", func(t *testing.T) {
 		form := url.Values{}
 		form.Set("name", "د. أحمد جمال")
 		form.Set("email", "ahmed@supplier.com")
 		form.Set("phone", "01099887766")
 		form.Set("job_title", "مسؤول مبيعات وتوريد")
 		form.Set("employee_code", "EMP-901")
-		form.Set("role_key", "org_employee")
+		form.Set("role_id", "3") // Dynamic role from DB: أمين مخزن (org_warehouse)
 		form.Set("password", "SecurePassword123!")
 		form.Set("branch_id", "1")
 
@@ -258,9 +336,57 @@ func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
 		if createdMember.BranchID == nil || *createdMember.BranchID != 1 {
 			t.Errorf("expected BranchID 1, got %v", createdMember.BranchID)
 		}
+		if createdMember.RoleID != 3 {
+			t.Errorf("expected RoleID 3, got %d", createdMember.RoleID)
+		}
+		if createdMember.OrgRoleID == nil || *createdMember.OrgRoleID != 3 {
+			t.Errorf("expected OrgRoleID 3, got %v", createdMember.OrgRoleID)
+		}
+		if createdMember.RoleKey != "org_warehouse" {
+			t.Errorf("expected RoleKey 'org_warehouse', got %s", createdMember.RoleKey)
+		}
 	})
 
-	// 3. POST /vendor/team/new with existing email links cleanly
+	// 3. POST /vendor/team/{id}/edit updates employee with new dynamic role_id
+	t.Run("POST /vendor/team/{id}/edit updates employee role to manager", func(t *testing.T) {
+		var memberID int64
+		for id := range orgRepo.members {
+			memberID = id
+			break
+		}
+
+		editForm := url.Values{}
+		editForm.Set("name", "د. أحمد جمال بعد الترقية")
+		editForm.Set("phone", "01099887766")
+		editForm.Set("job_title", "مدير العمليات")
+		editForm.Set("employee_code", "EMP-901")
+		editForm.Set("role_id", "2") // Promote to: مدير (org_manager)
+		editForm.Set("branch_id", "1")
+		editForm.Set("is_active", "true")
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/vendor/team/%d/edit", memberID), strings.NewReader(editForm.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req = req.WithContext(authctx.WithActor(req.Context(), vendorActor))
+		rec := httptest.NewRecorder()
+		r.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Fatalf("expected 303 redirect, got %d", rec.Code)
+		}
+
+		updated := orgRepo.members[memberID]
+		if updated.RoleID != 2 {
+			t.Errorf("expected updated RoleID 2, got %d", updated.RoleID)
+		}
+		if updated.OrgRoleID == nil || *updated.OrgRoleID != 2 {
+			t.Errorf("expected updated OrgRoleID 2, got %v", updated.OrgRoleID)
+		}
+		if updated.RoleKey != "org_manager" {
+			t.Errorf("expected updated RoleKey 'org_manager', got %s", updated.RoleKey)
+		}
+	})
+
+	// 4. POST /vendor/team/new with existing email links cleanly
 	t.Run("POST /vendor/team/new with existing email links existing user", func(t *testing.T) {
 		form := url.Values{}
 		form.Set("name", "د. أحمد جمال المحدث")
@@ -281,7 +407,7 @@ func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
 		}
 	})
 
-	// 4. POST /vendor/team/{id}/toggle toggles status
+	// 5. POST /vendor/team/{id}/toggle toggles status
 	t.Run("POST /vendor/team/{id}/toggle toggles status", func(t *testing.T) {
 		var memberID int64
 		for id := range orgRepo.members {
@@ -299,7 +425,7 @@ func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
 		}
 	})
 
-	// 5. POST /vendor/team/{id}/delete removes member
+	// 6. POST /vendor/team/{id}/delete removes member
 	t.Run("POST /vendor/team/{id}/delete removes member", func(t *testing.T) {
 		var memberIDs []int64
 		for id := range orgRepo.members {

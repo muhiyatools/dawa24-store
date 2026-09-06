@@ -182,16 +182,36 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 				"error", err, "organization_id", actor.OrganizationID)
 		}
 		roleIDByKey := map[string]int64{}
+		roleNameByID := map[int64]string{}
 		for _, role := range roles {
+			if role == nil {
+				continue
+			}
+			name := role.Name.Get(i18n.ParseLang(lang))
+			if name == "" {
+				name = role.Name.Get(i18n.AR)
+			}
+			if name == "" {
+				name = role.Name.Get(i18n.EN)
+			}
+			if name == "" {
+				name = role.Key
+			}
 			data.CompanyRoles = append(data.CompanyRoles, pages.TenantRoleOption{
-				ID:   role.ID,
-				Name: role.Name.Get(i18n.ParseLang(lang)),
+				ID:      role.ID,
+				Key:     role.Key,
+				Name:    name,
+				IsOwner: role.IsOwner,
 			})
 			roleIDByKey[role.Key] = role.ID
+			roleNameByID[role.ID] = name
 		}
 		for _, m := range memberViews {
 			if m.RoleID == 0 {
 				m.RoleID = roleIDByKey[m.RoleKey]
+			}
+			if dynName, ok := roleNameByID[m.RoleID]; ok && dynName != "" {
+				m.RoleName = dynName
 			}
 		}
 	}
@@ -217,7 +237,7 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 	email := strings.ToLower(strings.TrimSpace(r.PostFormValue("email")))
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
 	password := strings.TrimSpace(r.PostFormValue("password"))
-	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
+	roleID, roleKey := h.resolveTeamRole(ctx, actor.OrganizationID, r.PostFormValue("role_id"), r.PostFormValue("role_key"))
 	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
 	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
 
@@ -279,17 +299,33 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 		OrganizationID: actor.OrganizationID,
 		UserID:         targetUserID,
 		BranchID:       branchID,
+		RoleID:         roleID,
+		OrgRoleID:      nonZero(roleID),
 		RoleKey:        roleKey,
 		JobTitle:       jobTitle,
 		EmployeeCode:   employeeCode,
 		IsActive:       true,
 	}
 
-	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+	sysCtx := database.AsSystem(ctx)
+	if err := h.orgSvc.AddMemberDirect(sysCtx, member); err != nil {
 		h.log.ErrorContext(ctx, "failed to add org member", "error", err, "org_id", actor.OrganizationID, "user_id", targetUserID)
 		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.link_failed_prefix")+err.Error())
 		return
 	}
+
+	if roleID > 0 {
+		if err := h.orgSvc.AssignMemberRole(sysCtx, actor.OrganizationID, member.ID, roleID); err != nil {
+			h.log.WarnContext(ctx, "vendor employee new: assign role warning", "member_id", member.ID, "role_id", roleID, "error", err)
+		}
+	}
+
+	if roleKey == "org_manager" && branchID != nil {
+		_ = h.orgSvc.AssignBranchManager(sysCtx, actor.OrganizationID, *branchID, &targetUserID)
+	}
+
+	h.invalidatePermissions(targetUserID, actor.OrganizationID)
+	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
 
 	h.redirectWithNotice(w, r, "/vendor/team", "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.team.employee_added_success"), name))
 }
@@ -336,12 +372,18 @@ func (h *UIHandler) VendorTeamEditSubmit(w http.ResponseWriter, r *http.Request)
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
 	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
 	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
-	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
+	roleID, roleKey := h.resolveTeamRole(ctx, actor.OrganizationID, r.PostFormValue("role_id"), r.PostFormValue("role_key"))
 	if roleKey == "" {
 		roleKey = member.RoleKey
 	}
 	if roleKey == "" {
 		roleKey = "org_employee"
+	}
+	if roleID == 0 && member.OrgRoleID != nil {
+		roleID = *member.OrgRoleID
+	}
+	if roleID == 0 && member.RoleID > 0 {
+		roleID = member.RoleID
 	}
 	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on" || r.PostFormValue("is_active") == "1"
 
@@ -364,12 +406,13 @@ func (h *UIHandler) VendorTeamEditSubmit(w http.ResponseWriter, r *http.Request)
 
 	// 2. Membership fields (AddMember upserts on organization_id + user_id).
 	updated := &org.Member{
+		ID:             member.ID,
 		OrganizationID: actor.OrganizationID,
 		UserID:         member.UserID,
 		BranchID:       branchID,
 		RoleKey:        roleKey,
-		OrgRoleID:      member.OrgRoleID,
-		RoleID:         member.RoleID,
+		OrgRoleID:      nonZero(roleID),
+		RoleID:         roleID,
 		JobTitle:       jobTitle,
 		EmployeeCode:   employeeCode,
 		IsActive:       isActive,
@@ -380,9 +423,18 @@ func (h *UIHandler) VendorTeamEditSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if roleID > 0 {
+		if err := h.orgSvc.AssignMemberRole(sysCtx, actor.OrganizationID, memberID, roleID); err != nil {
+			h.log.WarnContext(ctx, "vendor employee edit: assign role warning", "member_id", memberID, "role_id", roleID, "error", err)
+		}
+	}
+
 	if roleKey == "org_manager" && branchID != nil {
 		_ = h.orgSvc.AssignBranchManager(sysCtx, actor.OrganizationID, *branchID, &member.UserID)
 	}
+
+	h.invalidatePermissions(member.UserID, actor.OrganizationID)
+	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
 
 	h.redirectWithNotice(w, r, "/vendor/team", "success", i18n.T(langOf(r), "vendor.team.employee_updated_success"))
 }

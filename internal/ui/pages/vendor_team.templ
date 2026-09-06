@@ -56,12 +56,13 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 			x-data="{
 				showAddModal: false,
 				showEditModal: false,
-				edit: { id: 0, name: '', phone: '', jobTitle: '', code: '', roleKey: '', branchId: '', isActive: true },
+				edit: { id: 0, name: '', phone: '', jobTitle: '', code: '', roleKey: '', roleId: '', branchId: '', isActive: true },
 				openEdit(m) {
 					this.edit = {
 						id: m.id, name: m.name || '', phone: m.phone || '',
 						jobTitle: m.jobTitle || '', code: m.code || '',
 						roleKey: m.roleKey || 'org_employee',
+						roleId: m.roleId ? String(m.roleId) : '',
 						branchId: m.branchId ? String(m.branchId) : '',
 						isActive: !!m.isActive
 					};
@@ -79,7 +80,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						(m.jobTitle && m.jobTitle.toLowerCase().includes(q)) || 
 						(m.code && m.code.toLowerCase().includes(q));
 					
-					const matchesRole = this.roleFilter === 'all' || m.roleKey === this.roleFilter;
+					const matchesRole = this.roleFilter === 'all' || 
+						String(m.roleId) === this.roleFilter || 
+						m.roleKey === this.roleFilter;
 					const matchesStatus = this.statusFilter === 'all' || 
 						(this.statusFilter === 'active' && m.isActive) || 
 						(this.statusFilter === 'inactive' && !m.isActive);
@@ -210,11 +213,9 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						<!-- Role Filter -->
 						<select x-model="roleFilter" class="form-input text-xs">
 							<option value="all">كل الأدوار</option>
-							<option value="org_owner">مالك المنشأة</option>
-							<option value="org_manager">مدير عمليات</option>
-							<option value="org_employee">موظف مبيعات وتوريد</option>
-							<option value="org_warehouse">أمين مخزن</option>
-							<option value="org_accountant">محاسب مالي</option>
+							for _, role := range data.CompanyRoles {
+								<option value={ fmt.Sprintf("%d", role.ID) }>{ role.Name }</option>
+							}
 						</select>
 
 						<!-- Status Filter -->
@@ -260,7 +261,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							<tbody>
 								for _, m := range data.Members {
 									<tr
-										x-show={ fmt.Sprintf("matchesFilter({ name: %q, email: %q, phone: %q, jobTitle: %q, code: %q, roleKey: %q, isActive: %t })", m.Name, m.Email, m.Phone, m.JobTitle, m.EmployeeCode, m.RoleKey, m.IsActive) }
+										x-show={ fmt.Sprintf("matchesFilter({ name: %q, email: %q, phone: %q, jobTitle: %q, code: %q, roleKey: %q, roleId: %d, isActive: %t })", m.Name, m.Email, m.Phone, m.JobTitle, m.EmployeeCode, m.RoleKey, m.RoleID, m.IsActive) }
 									>
 										<!-- Employee Info -->
 										<td>
@@ -357,7 +358,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 														type="button"
 														class="btn btn-secondary btn-sm font-bold text-xs gap-1"
 														title="تعديل بيانات الموظف"
-														@click={ fmt.Sprintf("openEdit({ id: %d, name: %q, phone: %q, jobTitle: %q, code: %q, roleKey: %q, branchId: %d, isActive: %t })", m.ID, m.Name, m.Phone, m.JobTitle, m.EmployeeCode, m.RoleKey, m.BranchID, m.IsActive) }
+														@click={ fmt.Sprintf("openEdit({ id: %d, name: %q, phone: %q, jobTitle: %q, code: %q, roleKey: %q, roleId: %d, branchId: %d, isActive: %t })", m.ID, m.Name, m.Phone, m.JobTitle, m.EmployeeCode, m.RoleKey, m.RoleID, m.BranchID, m.IsActive) }
 													>
 														@components.IconEdit("icon-xs")
 														<span>تعديل</span>
@@ -487,11 +488,10 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 								</label>
-								<select name="role_key" class="form-input text-xs w-full" required>
-									<option value="org_employee" selected>موظف مبيعات وتوريد (الأصناف والشحنات)</option>
-									<option value="org_manager">مدير عمليات (صلاحيات تشغيلية كاملة)</option>
-									<option value="org_warehouse">أمين مخزن (الأرصدة والمخازن)</option>
-									<option value="org_accountant">محاسب مالي (الفواتير والمدفوعات)</option>
+								<select name="role_id" class="form-input text-xs w-full" required>
+									for _, role := range data.CompanyRoles {
+										<option value={ fmt.Sprintf("%d", role.ID) } selected?={ !role.IsOwner && (role.Key == "org_employee" || role.Key == "employee") }>{ role.Name }</option>
+									}
 								</select>
 							</div>
 
@@ -587,13 +587,12 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">الدور الوظيفي والصلاحيات</label>
-								<select name="role_key" x-model="edit.roleKey" class="form-input text-xs w-full">
-									<option value="org_employee">موظف مبيعات وتوريد (الأصناف والشحنات)</option>
-									<option value="org_manager">مدير عمليات (صلاحيات تشغيلية كاملة)</option>
-									<option value="org_warehouse">أمين مخزن (الأرصدة والمخازن)</option>
-									<option value="org_accountant">محاسب مالي (الفواتير والمدفوعات)</option>
+								<select name="role_id" x-model="edit.roleId" class="form-input text-xs w-full">
+									for _, role := range data.CompanyRoles {
+										<option value={ fmt.Sprintf("%d", role.ID) }>{ role.Name }</option>
+									}
 								</select>
 							</div>
        <div class="stack-sm">

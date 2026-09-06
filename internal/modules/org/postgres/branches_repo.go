@@ -234,15 +234,16 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO org.members (
-				organization_id, user_id, branch_id, role_id, role_key,
+				organization_id, user_id, branch_id, role_id, org_role_id, role_key,
 				employee_code, job_title, base_salary, variable_salary, is_active
 			) VALUES (
-				$1, $2, $3, $4, COALESCE(NULLIF($5, ''), 'org_employee'),
-				NULLIF($6, ''), NULLIF($7, ''), $8, $9, $10
+				$1, $2, $3, $4, $5, COALESCE(NULLIF($6, ''), 'org_employee'),
+				NULLIF($7, ''), NULLIF($8, ''), $9, $10, $11
 			)
 			ON CONFLICT (organization_id, user_id) DO UPDATE
 			SET branch_id = EXCLUDED.branch_id,
 			    role_id = EXCLUDED.role_id,
+			    org_role_id = EXCLUDED.org_role_id,
 			    role_key = EXCLUDED.role_key,
 			    employee_code = COALESCE(NULLIF(EXCLUDED.employee_code, ''), org.members.employee_code),
 			    job_title = COALESCE(NULLIF(EXCLUDED.job_title, ''), org.members.job_title),
@@ -255,8 +256,14 @@ func (r *Repository) AddMember(ctx context.Context, m *org.Member) error {
 		if m.RoleID > 0 {
 			roleID = &m.RoleID
 		}
+		var orgRoleID *int64
+		if m.OrgRoleID != nil && *m.OrgRoleID > 0 {
+			orgRoleID = m.OrgRoleID
+		} else if roleID != nil {
+			orgRoleID = roleID
+		}
 		return tx.QueryRow(txCtx, query,
-			m.OrganizationID, m.UserID, m.BranchID, roleID, m.RoleKey,
+			m.OrganizationID, m.UserID, m.BranchID, roleID, orgRoleID, m.RoleKey,
 			m.EmployeeCode, m.JobTitle, m.BaseSalary, m.VariableSalary, m.IsActive,
 		).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	})
