@@ -331,23 +331,31 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 										<!-- 3. Requested Quantity (with in-place stepper form) -->
 										<td class="so-rev-col-qty text-center align-middle">
-											<form class="d-inline-flex items-center justify-center gap-1 m-0" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
+											<form class="so-qty-form" method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) }>
 												<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
 												<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
-												<div class="so-qty-stepper">
-													<button type="button" class="btn btn-secondary btn-icon btn-xs" onclick="stepReviewQty(this, -1)">−</button>
-													<input
-														type="number"
-														name="quantity"
-														value={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
-														min="1"
-														class="form-input so-qty-input font-bold text-center tabular-nums text-xs"
-													/>
-													<button type="button" class="btn btn-secondary btn-icon btn-xs" onclick="stepReviewQty(this, 1)">+</button>
+												<div class="so-qty-wrapper">
+													<div class="so-qty-stepper" dir="ltr">
+														<button type="button" class="so-qty-step-btn so-qty-minus" onclick="stepReviewQty(this, -1)" title="تقليل الكمية (−)" aria-label="تقليل الكمية">−</button>
+														<input
+															type="number"
+															name="quantity"
+															value={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
+															data-orig={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
+															min="1"
+															step="1"
+															class="so-qty-input"
+															oninput="onReviewQtyInput(this)"
+															onkeydown="if(event.key==='Enter'){this.form.submit();}"
+															title="الكمية المطلوبة"
+															aria-label="الكمية المطلوبة"
+														/>
+														<button type="button" class="so-qty-step-btn so-qty-plus" onclick="stepReviewQty(this, 1)" title="زيادة الكمية (+)" aria-label="زيادة الكمية">+</button>
+													</div>
+													<button type="submit" class="so-qty-save-btn" title="حفظ الكمية" aria-label="حفظ الكمية">
+														@components.IconCheck("icon-sm")
+													</button>
 												</div>
-												<button type="submit" class="btn btn-ghost btn-xs p-1 text-emerald" title="حفظ الكمية">
-													@components.IconCheck("icon-sm")
-												</button>
 											</form>
 										</td>
 
@@ -611,6 +619,23 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					val += delta;
 					if (val < 1) val = 1;
 					input.value = val;
+					onReviewQtyInput(input);
+				}
+			}
+
+			function onReviewQtyInput(input) {
+				const form = input.closest('form');
+				if (!form) return;
+				const saveBtn = form.querySelector('.so-qty-save-btn');
+				const orig = input.getAttribute('data-orig');
+				if (saveBtn) {
+					if (orig !== null && String(input.value).trim() !== String(orig).trim()) {
+						saveBtn.classList.add('is-dirty');
+						saveBtn.title = 'تأكيد وحفظ الكمية (' + input.value + ')';
+					} else {
+						saveBtn.classList.remove('is-dirty');
+						saveBtn.title = 'حفظ الكمية';
+					}
 				}
 			}
 		</script>
