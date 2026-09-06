@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -24,6 +25,12 @@ import (
 // SupplierProfilePage renders a supplier's public profile.
 func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	// /suppliers/{id} publishes supplier catalogue, net prices, batches, and order actions:
+	// it is authenticated-only matching /catalog.
+	if actor, ok := authctx.From(ctx); !ok || actor.UserID == 0 {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.RequestURI()), http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)

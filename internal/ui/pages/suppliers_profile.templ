@@ -16,7 +16,14 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			
 			<!-- Breadcrumbs -->
 			<nav>
-				<a href="/customer/dashboard">لوحة التحكم</a>
+				{{ actor := authctx.FromContext(ctx) }}
+				{{ dashboardURL := "/customer/dashboard" }}
+				{{ if actor.IsVendor() {
+					dashboardURL = "/vendor/dashboard"
+				} else if actor.IsStaff {
+					dashboardURL = "/admin/dashboard"
+				} }}
+				<a href={ templ.SafeURL(dashboardURL) }>لوحة التحكم</a>
 				<span>/</span>
 				<a href="/suppliers">دليل الموردين</a>
 				<span>/</span>

@@ -34,7 +34,16 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 	<div class="page-container py-6">
 		<!-- Navigation Breadcrumb -->
 		<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 font-bold">
-			<a href="/customer/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+			{{ actor := authctx.FromContext(ctx) }}
+			if actor.UserID == 0 {
+				<a href="/" class="text-secondary transition-colors">الرئيسية</a>
+			} else if actor.IsVendor() {
+				<a href="/vendor/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+			} else if actor.IsStaff {
+				<a href="/admin/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+			} else {
+				<a href="/customer/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+			}
 			<span>/</span>
 			<a href="/offers" class="text-secondary transition-colors">العروض والخصومات</a>
 			<span>/</span>

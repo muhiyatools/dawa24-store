@@ -149,7 +149,31 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"py-2\"><!-- Page Header Strip --><div class=\"glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs\"><div class=\"stack-2xs\"><nav class=\"text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold\"><a href=\"/customer/dashboard\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span class=\"text-muted\">/</span> <span class=\"text-primary font-black\">كتالوج التوريد الدوائي</span></nav><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">كتالوج عروض توريد الأدوية والمستلزمات الطبية</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة</p></div><div class=\"d-flex items-center gap-2.5 flex-wrap\"><a href=\"/customer/purchase-request\" class=\"btn btn-secondary btn-sm font-bold gap-2 shadow-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"py-2\"><!-- Page Header Strip --><div class=\"glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs\"><div class=\"stack-2xs\"><nav class=\"text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				actor := authctx.FromContext(ctx)
+				dashboardURL := "/customer/dashboard"
+				if actor.IsVendor() {
+					dashboardURL = "/vendor/dashboard"
+				} else if actor.IsStaff {
+					dashboardURL = "/admin/dashboard"
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var3 templ.SafeURL
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(dashboardURL))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 123, Col: 44}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"text-secondary transition-colors\">لوحة التحكم</a> <span class=\"text-muted\">/</span> <span class=\"text-primary font-black\">كتالوج التوريد الدوائي</span></nav><h1 class=\"text-2xl font-black text-primary m-0 tracking-tight\">كتالوج عروض توريد الأدوية والمستلزمات الطبية</h1><p class=\"text-xs text-secondary mt-1 mb-0 font-medium\">استعراض ومقارنة أسعار التوريد اللحظية من كبرى شركات التوزيع والمستودعات الدوائية المعتمدة</p></div><div class=\"d-flex items-center gap-2.5 flex-wrap\"><a href=\"/customer/purchase-request\" class=\"btn btn-secondary btn-sm font-bold gap-2 shadow-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -157,7 +181,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>طلب شراء ذكي</span></a> <a href=\"/cart\" class=\"btn btn-primary btn-sm font-extrabold gap-2 px-4 shadow-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>طلب شراء ذكي</span></a> <a href=\"/cart\" class=\"btn btn-primary btn-sm font-extrabold gap-2 px-4 shadow-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -165,93 +189,93 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>سلة المشتريات</span></a></div></div><!-- Promoted Catalog Top Header Banner (Position: catalog_top) -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>سلة المشتريات</span></a></div></div><!-- Promoted Catalog Top Header Banner (Position: catalog_top) -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if len(data.CatalogAds) > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"mb-5 d-flex flex-col gap-3\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"mb-5 d-flex flex-col gap-3\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					for _, ad := range data.CatalogAds {
 						if ad != nil {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var3 templ.SafeURL
-							templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/ads/click/%d", ad.ID)))
+							var templ_7745c5c3_Var4 templ.SafeURL
+							templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/ads/click/%d", ad.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 146, Col: 66}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 153, Col: 66}
 							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-get=\"")
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var4 string
-							templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/ads/impression/%d", ad.ID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 147, Col: 58}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" hx-get=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" hx-trigger=\"intersect once\" class=\"glass-panel p-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none hover:shadow-md hover:border-brand-400\"><div class=\"d-flex items-center gap-4\"><div class=\"w-28 h-20 md:w-36 md:h-24 rounded-2xl bg-black/40 p-1 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-700/60 overflow-hidden relative\">")
+							var templ_7745c5c3_Var5 string
+							templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/ads/impression/%d", ad.ID))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 154, Col: 58}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" hx-trigger=\"intersect once\" class=\"glass-panel p-4 rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap transition-all text-decoration-none hover:shadow-md hover:border-brand-400\"><div class=\"d-flex items-center gap-4\"><div class=\"w-28 h-20 md:w-36 md:h-24 rounded-2xl bg-black/40 p-1 d-flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-700/60 overflow-hidden relative\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							if (ad.MediaType == "video" || ad.IsVideo()) && ad.MediaURL != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<video src=\"")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var5 string
-								templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 154, Col: 36}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" autoplay muted loop playsinline class=\"w-full h-full object-cover rounded-xl\"></video>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							} else if ad.MediaURL != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<img src=\"")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<video src=\"")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								var templ_7745c5c3_Var6 string
 								templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 156, Col: 34}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 161, Col: 36}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" alt=\"")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" autoplay muted loop playsinline class=\"w-full h-full object-cover rounded-xl\"></video>")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+							} else if ad.MediaURL != "" {
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<img src=\"")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								var templ_7745c5c3_Var7 string
-								templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.DisplayTitle(lang))
+								templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.MediaURL)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 156, Col: 64}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 163, Col: 34}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"w-full h-full object-contain\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" alt=\"")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								var templ_7745c5c3_Var8 string
+								templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(ad.DisplayTitle(lang))
+								if templ_7745c5c3_Err != nil {
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 163, Col: 64}
+								}
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"w-full h-full object-contain\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -261,111 +285,111 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 									return templ_7745c5c3_Err
 								}
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><div class=\"stack-xs text-start\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"stack-xs text-start\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							if ad.SupplierName != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"text-2xs text-muted font-extrabold d-block\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"text-2xs text-muted font-extrabold d-block\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								var templ_7745c5c3_Var8 string
-								templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(ad.SupplierName)
+								var templ_7745c5c3_Var9 string
+								templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(ad.SupplierName)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 163, Col: 86}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 170, Col: 86}
 								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span>")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<h3 class=\"text-sm font-black text-primary m-0\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<h3 class=\"text-sm font-black text-primary m-0\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var9 string
-							templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayTitle(lang))
+							var templ_7745c5c3_Var10 string
+							templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayTitle(lang))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 165, Col: 82}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 172, Col: 82}
 							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</h3>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</h3>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							if ad.DisplayText(lang) != "" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<p class=\"text-xs text-secondary m-0 line-clamp-1\">")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								var templ_7745c5c3_Var10 string
-								templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayText(lang))
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 167, Col: 85}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p>")
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							if ad.PublicPrice != "" && ad.PublicPrice != "سعر رسمي معتمد" {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"d-flex items-center gap-2.5 mt-1\"><span class=\"text-2xs text-rose-500 line-through font-bold\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<p class=\"text-xs text-secondary m-0 line-clamp-1\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								var templ_7745c5c3_Var11 string
-								templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(ad.PublicPrice)
+								templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DisplayText(lang))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 171, Col: 89}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 174, Col: 85}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span> <span class=\"badge badge-emerald text-2xs font-black\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</p>")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+							}
+							if ad.PublicPrice != "" && ad.PublicPrice != "سعر رسمي معتمد" {
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"d-flex items-center gap-2.5 mt-1\"><span class=\"text-2xs text-rose-500 line-through font-bold\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								var templ_7745c5c3_Var12 string
-								templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DiscountPercent)
+								templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(ad.PublicPrice)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 172, Col: 87}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 178, Col: 89}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span> <span class=\"text-xs font-black text-brand tabular-nums\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span> <span class=\"badge badge-emerald text-2xs font-black\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								var templ_7745c5c3_Var13 string
-								templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ad.SupplyPrice)
+								templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ad.DiscountPercent)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 173, Col: 86}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 179, Col: 87}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div>")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span> <span class=\"text-xs font-black text-brand tabular-nums\">")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								var templ_7745c5c3_Var14 string
+								templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(ad.SupplyPrice)
+								if templ_7745c5c3_Err != nil {
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 180, Col: 86}
+								}
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span></div>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><div class=\"d-flex items-center gap-2 text-xs font-black text-brand\"><span>اطلب الصنف والتفاصيل</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div></div><div class=\"d-flex items-center gap-2 text-xs font-black text-brand\"><span>اطلب الصنف والتفاصيل</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -373,18 +397,18 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></a>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></a>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- Main 2-Column Grid Layout --><div class=\"catalog-main-layout\"><!-- Filter Sidebar (Positioned on Left in RTL) -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<!-- Main 2-Column Grid Layout --><div class=\"catalog-main-layout\"><!-- Filter Sidebar (Positioned on Left in RTL) -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -392,20 +416,20 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Main Results Area --><main class=\"catalog-main-content\"><!-- Search Toolbar, Sorting, Rows per Page, View Switcher --><div class=\"glass-panel p-4 mb-5 border rounded-2xl shadow-xs\"><div class=\"flex-between flex-wrap gap-3\"><!-- Live Search Input --><div class=\"flex-1 relative min-w-64\"><input type=\"search\" name=\"q\" value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- Main Results Area --><main class=\"catalog-main-content\"><!-- Search Toolbar, Sorting, Rows per Page, View Switcher --><div class=\"glass-panel p-4 mb-5 border rounded-2xl shadow-xs\"><div class=\"flex-between flex-wrap gap-3\"><!-- Live Search Input --><div class=\"flex-1 relative min-w-64\"><input type=\"search\" name=\"q\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var14 string
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 206, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 213, Col: 28}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" placeholder=\"ابحث بالاسم التجاري، المادة الفعالة، اسم الشركة، أو الباركود...\" class=\"form-input text-xs w-full\" hx-get=\"/catalog\" hx-trigger=\"keyup changed delay:350ms, search\" hx-target=\"#catalog-results\" hx-push-url=\"true\" autocomplete=\"off\"></div><!-- Controls: Sort, View Toggle. Rows-per-page lives in the pagination bar. --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Sort Selector --><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-secondary\"><label class=\"form-label\">الترتيب:</label> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" placeholder=\"ابحث بالاسم التجاري، المادة الفعالة، اسم الشركة، أو الباركود...\" class=\"form-input text-xs w-full\" hx-get=\"/catalog\" hx-trigger=\"keyup changed delay:350ms, search\" hx-target=\"#catalog-results\" hx-push-url=\"true\" autocomplete=\"off\"></div><!-- Controls: Sort, View Toggle. Rows-per-page lives in the pagination bar. --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Sort Selector --><div class=\"d-flex items-center gap-1.5 text-xs font-bold text-secondary\"><label class=\"form-label\">الترتيب:</label> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -413,81 +437,81 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<select name=\"sort\" class=\"form-select text-xs w-auto\" onchange=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<select name=\"sort\" class=\"form-select text-xs w-auto\" onchange=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var15 templ.ComponentScript = templ.ComponentScript{Call: "changeSort(this.value)"}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15.Call)
+				var templ_7745c5c3_Var16 templ.ComponentScript = templ.ComponentScript{Call: "changeSort(this.value)"}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16.Call)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"><option value=\"\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><option value=\"\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.Sort == "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " selected")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, ">الأقرب جغرافياً والأعلى توفراً (تلقائي)</option> <option value=\"price_asc\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if data.Sort == "price_asc" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ">سعر التوريد: الأقل أولاً</option> <option value=\"price_desc\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, ">الأقرب جغرافياً والأعلى توفراً (تلقائي)</option> <option value=\"price_asc\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if data.Sort == "price_desc" {
+				if data.Sort == "price_asc" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, ">سعر التوريد: الأعلى أولاً</option> <option value=\"discount_desc\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, ">سعر التوريد: الأقل أولاً</option> <option value=\"price_desc\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if data.Sort == "discount_desc" || data.Sort == "discount" {
+				if data.Sort == "price_desc" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, ">أعلى نسبة خصم %</option> <option value=\"newest\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, ">سعر التوريد: الأعلى أولاً</option> <option value=\"discount_desc\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if data.Sort == "newest" {
+				if data.Sort == "discount_desc" || data.Sort == "discount" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, ">الأحدث إضافة</option> <option value=\"name\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, ">أعلى نسبة خصم %</option> <option value=\"newest\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if data.Sort == "name" {
+				if data.Sort == "newest" {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, ">الاسم أبجدياً</option></select></div><!-- View Mode Toggle: Grid vs Table --><div class=\"d-flex gap-1 p-1 bg-surface-sunken rounded-lg border\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, ">الأحدث إضافة</option> <option value=\"name\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var16 = []any{"btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "grid" || data.ViewMode == ""), templ.KV("btn-ghost text-muted", data.ViewMode == "table")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)
+				if data.Sort == "name" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, " selected")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, ">الاسم أبجدياً</option></select></div><!-- View Mode Toggle: Grid vs Table --><div class=\"d-flex gap-1 p-1 bg-surface-sunken rounded-lg border\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var17 = []any{"btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "grid" || data.ViewMode == ""), templ.KV("btn-ghost text-muted", data.ViewMode == "table")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var17...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -495,29 +519,29 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<button type=\"button\" onclick=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<button type=\"button\" onclick=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var17 templ.ComponentScript = templ.ComponentScript{Call: "changeViewMode('grid')"}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17.Call)
+				var templ_7745c5c3_Var18 templ.ComponentScript = templ.ComponentScript{Call: "changeViewMode('grid')"}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18.Call)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" class=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var16).String())
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var17).String())
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" title=\"عرض البطاقات (Grid)\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\" title=\"عرض البطاقات (Grid)\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -525,12 +549,12 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</button> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var19 = []any{"btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "table"), templ.KV("btn-ghost text-muted", data.ViewMode != "table")}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var19...)
+				var templ_7745c5c3_Var20 = []any{"btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "table"), templ.KV("btn-ghost text-muted", data.ViewMode != "table")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var20...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -538,29 +562,29 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<button type=\"button\" onclick=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<button type=\"button\" onclick=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var20 templ.ComponentScript = templ.ComponentScript{Call: "changeViewMode('table')"}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20.Call)
+				var templ_7745c5c3_Var21 templ.ComponentScript = templ.ComponentScript{Call: "changeViewMode('table')"}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21.Call)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" class=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" class=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var21 string
-				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var19).String())
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var20).String())
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 1, Col: 0}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" title=\"عرض جدول التوريد السريع (Table)\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" title=\"عرض جدول التوريد السريع (Table)\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -568,152 +592,133 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</button></div></div></div><!-- Active Filter Chips Strip -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</button></div></div></div><!-- Active Filter Chips Strip -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.Query != "" || data.ActiveCategory != "" || data.ActiveBrand != "" || data.DosageForm != "" || data.InStock || data.HasDiscount || data.MinPrice != "" || data.MaxPrice != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"d-flex items-center gap-2 flex-wrap mt-3 pt-3 border-t text-xs font-semibold\"><span class=\"text-secondary font-bold\">فلاتر نشطة:</span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"d-flex items-center gap-2 flex-wrap mt-3 pt-3 border-t text-xs font-semibold\"><span class=\"text-secondary font-bold\">فلاتر نشطة:</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if data.Query != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span class=\"badge badge-primary gap-1\"><span>بحث: \"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span class=\"badge badge-primary gap-1\"><span>بحث: \"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var22 string
-						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Query)
+						var templ_7745c5c3_Var23 string
+						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.Query)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 266, Col: 38}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\"</span> <a href=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var23 templ.SafeURL
-						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 267, Col: 347}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 273, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" class=\"text-white ms-1 font-bold\">✕</a></span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\"</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					}
-					if data.ActiveCategory != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"badge badge-sky gap-1\"><span>القسم: ")
+						var templ_7745c5c3_Var24 templ.SafeURL
+						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var24 string
-						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveCategory)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 272, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 274, Col: 347}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" class=\"text-white ms-1 font-bold\">✕</a></span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var25 templ.SafeURL
-						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
+					}
+					if data.ActiveCategory != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span class=\"badge badge-sky gap-1\"><span>القسم: ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 273, Col: 337}
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var25 string
+						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveCategory)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 279, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"ms-1 font-bold\">✕</a></span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					}
-					if data.ActiveBrand != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span class=\"badge badge-sky gap-1\"><span>الشركة: ")
+						var templ_7745c5c3_Var26 templ.SafeURL
+						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var26 string
-						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveBrand)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 278, Col: 49}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 280, Col: 337}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</span> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\" class=\"ms-1 font-bold\">✕</a></span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var27 templ.SafeURL
-						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
+					}
+					if data.ActiveBrand != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-sky gap-1\"><span>الشركة: ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 279, Col: 343}
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var27 string
+						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveBrand)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 285, Col: 49}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "\" class=\"ms-1 font-bold\">✕</a></span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					}
-					if data.DosageForm != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"badge badge-slate gap-1\"><span>الشكل: ")
+						var templ_7745c5c3_Var28 templ.SafeURL
+						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var28 string
-						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(data.DosageForm)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 284, Col: 46}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 286, Col: 343}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "\" class=\"ms-1 font-bold\">✕</a></span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var29 templ.SafeURL
-						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
+					}
+					if data.DosageForm != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-slate gap-1\"><span>الشكل: ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 285, Col: 337}
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var29 string
+						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(data.DosageForm)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 291, Col: 46}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" class=\"ms-1 font-bold\">✕</a></span> ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					if data.InStock {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"badge badge-emerald gap-1\"><span>المتوفر بالمخزون</span> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var30 templ.SafeURL
-						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
+						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 291, Col: 343}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 292, Col: 337}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 						if templ_7745c5c3_Err != nil {
@@ -724,15 +729,15 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					if data.HasDiscount {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span class=\"badge badge-amber gap-1\"><span>عروض الخصم</span> <a href=\"")
+					if data.InStock {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span class=\"badge badge-emerald gap-1\"><span>المتوفر بالمخزون</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var31 templ.SafeURL
-						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
+						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 297, Col: 335}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 298, Col: 343}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 						if templ_7745c5c3_Err != nil {
@@ -743,12 +748,31 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<a href=\"/catalog\" class=\"text-xs text-rose ms-auto font-bold\">مسح جميع الفلاتر</a></div>")
+					if data.HasDiscount {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"badge badge-amber gap-1\"><span>عروض الخصم</span> <a href=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var32 templ.SafeURL
+						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_catalog.templ`, Line: 304, Col: 335}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" class=\"ms-1 font-bold\">✕</a></span> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<a href=\"/catalog\" class=\"text-xs text-rose ms-auto font-bold\">مسح جميع الفلاتر</a></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div><!-- Results Dynamic Container --><div id=\"catalog-results\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div><!-- Results Dynamic Container --><div id=\"catalog-results\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -756,7 +780,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</div></main></div></div><!-- Price Negotiation Modal --> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div></main></div></div><!-- Price Negotiation Modal --> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -764,7 +788,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, " <script>\n\t\t\t\tfunction changeSort(sortVal) {\n\t\t\t\t\tconst url = new URL(window.location.href);\n\t\t\t\t\turl.searchParams.set('sort', sortVal);\n\t\t\t\t\turl.searchParams.set('page', '1');\n\t\t\t\t\twindow.location.href = url.toString();\n\t\t\t\t}\n\n\t\t\t\tfunction changeViewMode(mode) {\n\t\t\t\t\tconst url = new URL(window.location.href);\n\t\t\t\t\turl.searchParams.set('view', mode);\n\t\t\t\t\twindow.location.href = url.toString();\n\t\t\t\t}\n\n\t\t\t\tfunction stepCatalogQty(btn, delta) {\n\t\t\t\t\tconst form = btn.closest('form');\n\t\t\t\t\tif (!form) return;\n\t\t\t\t\tconst input = form.querySelector('input[name=\"qty\"]');\n\t\t\t\t\tif (input) {\n\t\t\t\t\t\tlet val = parseInt(input.value, 10) || 1;\n\t\t\t\t\t\tval += delta;\n\t\t\t\t\t\tconst min = parseInt(input.getAttribute('min') || '1', 10);\n\t\t\t\t\t\tconst max = parseInt(input.getAttribute('max') || '9999', 10);\n\t\t\t\t\t\tif (val < min) val = min;\n\t\t\t\t\t\tif (val > max && max > 0) val = max;\n\t\t\t\t\t\tinput.value = val;\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction navigateToVariant(variantId, productId) {\n\t\t\t\t\tconst id = (variantId && variantId > 0) ? variantId : productId;\n\t\t\t\t\tif (id > 0) {\n\t\t\t\t\t\twindow.location.href = `/catalog/${id}`;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " <script>\n\t\t\t\tfunction changeSort(sortVal) {\n\t\t\t\t\tconst url = new URL(window.location.href);\n\t\t\t\t\turl.searchParams.set('sort', sortVal);\n\t\t\t\t\turl.searchParams.set('page', '1');\n\t\t\t\t\twindow.location.href = url.toString();\n\t\t\t\t}\n\n\t\t\t\tfunction changeViewMode(mode) {\n\t\t\t\t\tconst url = new URL(window.location.href);\n\t\t\t\t\turl.searchParams.set('view', mode);\n\t\t\t\t\twindow.location.href = url.toString();\n\t\t\t\t}\n\n\t\t\t\tfunction stepCatalogQty(btn, delta) {\n\t\t\t\t\tconst form = btn.closest('form');\n\t\t\t\t\tif (!form) return;\n\t\t\t\t\tconst input = form.querySelector('input[name=\"qty\"]');\n\t\t\t\t\tif (input) {\n\t\t\t\t\t\tlet val = parseInt(input.value, 10) || 1;\n\t\t\t\t\t\tval += delta;\n\t\t\t\t\t\tconst min = parseInt(input.getAttribute('min') || '1', 10);\n\t\t\t\t\t\tconst max = parseInt(input.getAttribute('max') || '9999', 10);\n\t\t\t\t\t\tif (val < min) val = min;\n\t\t\t\t\t\tif (val > max && max > 0) val = max;\n\t\t\t\t\t\tinput.value = val;\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tfunction navigateToVariant(variantId, productId) {\n\t\t\t\t\tconst id = (variantId && variantId > 0) ? variantId : productId;\n\t\t\t\t\tif (id > 0) {\n\t\t\t\t\t\twindow.location.href = `/catalog/${id}`;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

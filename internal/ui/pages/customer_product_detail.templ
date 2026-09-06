@@ -16,7 +16,14 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 			
 			<!-- Breadcrumb Navigation -->
 			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap font-bold" aria-label="مسار التنقل">
-				<a href="/customer/dashboard" class="text-secondary transition-colors">لوحة التحكم</a>
+				{{ actor := authctx.FromContext(ctx) }}
+				{{ dashboardURL := "/customer/dashboard" }}
+				{{ if actor.IsVendor() {
+					dashboardURL = "/vendor/dashboard"
+				} else if actor.IsStaff {
+					dashboardURL = "/admin/dashboard"
+				} }}
+				<a href={ templ.SafeURL(dashboardURL) } class="text-secondary transition-colors">لوحة التحكم</a>
 				<span>/</span>
 				<a href="/catalog" class="text-secondary transition-colors">كتالوج الأدوية</a>
 				<span>/</span>
