@@ -21,13 +21,17 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 				<!-- Sidebar -->
 				<aside class="sidebar" id="app-sidebar">
 					<div class="sidebar-header">
-						<div class="sidebar-brand">
-							<img class="sidebar-logo" src={ site.LogoURL } alt={ site.SiteName } />
+						<a href="/customer/dashboard" class="sidebar-brand text-decoration-none">
+							if site.LogoURL != "" {
+								<img class="sidebar-logo" src={ site.LogoURL } alt={ site.SiteName } onerror="this.style.display='none'" />
+							} else {
+								<img class="sidebar-logo" src="/static/img/logo.png" alt={ site.SiteName } onerror="this.style.display='none'" />
+							}
 							<div class="sidebar-brand-copy">
 								<span class="sidebar-brand-name">{ site.SiteName }</span>
 								<span class="sidebar-brand-subtitle">بوابة الصيدلية المعتمدة</span>
 							</div>
-						</div>
+						</a>
 					<button type="button" class="sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
 						@components.IconSidebarToggle("icon-xs")
 					</button>

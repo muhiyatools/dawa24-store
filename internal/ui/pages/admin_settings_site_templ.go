@@ -9,9 +9,18 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
+
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
+
+func socialValue(links map[string]string, key string) string {
+	if links == nil {
+		return ""
+	}
+	return links[key]
+}
 
 func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -39,98 +48,70 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			return templ_7745c5c3_Err
 		}
 		if siteSettings != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form action=\"/admin/settings/site\" method=\"POST\" class=\"d-flex flex-col gap-6 m-0\"><!-- Identity & Slogans --><div class=\"glass-panel p-6 mb-0\"><div class=\"pb-3 mb-4 border-b\"><h3 class=\"text-base font-black text-primary m-0\">الهوية البصرية والعناوين (Branding & Identity)</h3><p class=\"text-xs text-secondary m-0 mt-1\">تحديد اسم المنصة، الشعار، والوصف التسويقي المعروض في الصفحة الرئيسية</p></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اسم المنصة الرسمي *</label> <input type=\"text\" name=\"site_name\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<!-- 1. Platform Branding & Visual Identity (Logo & Favicon) --> <div class=\"glass-panel p-6 mb-0\" x-data=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SiteName)
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("{ logoPreview: %q, faviconPreview: %q }", siteSettings.LogoURL, siteSettings.FaviconURL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 24, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 23, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" required class=\"form-input text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">عنوان ومقر الشركة</label> <input type=\"text\" name=\"address\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><div class=\"pb-3 mb-4 border-b flex-between items-center flex-wrap gap-2\"><div><h3 class=\"text-base font-black text-primary m-0\">الهوية البصرية وشعار المنصة (Platform Branding & Logo)</h3><p class=\"text-xs text-secondary m-0 mt-1\">تخصيص شعار المنصة الرسمي وأيقونة المتصفح (Favicon) المعتمدة عبر القوائم الجانبية، الترويسة، والتذييل والفواتير.</p></div><span class=\"badge badge-sky text-2xs font-mono font-bold\">Branding Manager</span></div><form action=\"/admin/settings/branding\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6 m-0\"><!-- Logo Section --><div class=\"p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-4\"><div class=\"flex-between items-center\"><label class=\"form-label text-xs font-black text-primary m-0\">شعار المنصة الرئيسي (Platform Logo)</label> <span class=\"text-2xs text-muted\">يدعم SVG, PNG, WebP, JPG (يُفضل خلفية شفافة PNG أو SVG)</span></div><!-- Dual Preview: Light and Dark Modes --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2\" style=\"background-color: #ffffff; min-height: 120px;\"><span class=\"text-2xs font-bold text-slate-500 uppercase tracking-wider\">معاينة على خلفية فاتحة (Light Mode)</span><div class=\"flex-center w-100\" style=\"height: 64px;\"><template x-if=\"logoPreview\"><img :src=\"logoPreview\" alt=\"Logo Preview\" class=\"object-contain\" style=\"max-height: 56px; max-width: 220px;\" onerror=\"this.style.display='none'\"></template><template x-if=\"!logoPreview\"><div class=\"d-flex items-center gap-2 text-slate-400 text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconImage("icon-sm text-slate-400").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>لا يوجد شعار محدد</span></div></template></div></div><div class=\"p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2\" style=\"background-color: #0f172a; min-height: 120px;\"><span class=\"text-2xs font-bold text-slate-400 uppercase tracking-wider\">معاينة على خلفية داكنة (Dark Mode / Sidebar)</span><div class=\"flex-center w-100\" style=\"height: 64px;\"><template x-if=\"logoPreview\"><img :src=\"logoPreview\" alt=\"Logo Preview\" class=\"object-contain\" style=\"max-height: 56px; max-width: 220px;\" onerror=\"this.style.display='none'\"></template><template x-if=\"!logoPreview\"><div class=\"d-flex items-center gap-2 text-slate-500 text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconImage("icon-sm text-slate-500").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>لا يوجد شعار محدد</span></div></template></div></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رفع ملف شعار جديد من جهازك</label> <input type=\"file\" name=\"logo_file\" accept=\"image/png,image/jpeg,image/svg+xml,image/webp\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { logoPreview = URL.createObjectURL($event.target.files[0]); }\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">أو إدخال رابط مباشر للشعار (Logo URL)</label> <input type=\"text\" name=\"logo_url\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Address)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.LogoURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 28, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 94, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"form-input text-xs\"></div></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">الوصف الترويجي للمنصة (Site Description)</label> <textarea name=\"site_description\" rows=\"3\" class=\"form-input text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" placeholder=\"https://... أو /static/img/logo.png\" class=\"form-input text-xs font-mono\" dir=\"ltr\" @input=\"logoPreview = $event.target.value\"></div></div></div><!-- Favicon Section --><div class=\"p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-4\"><div class=\"flex-between items-center\"><label class=\"form-label text-xs font-black text-primary m-0\">أيقونة شريط المتصفح (Favicon)</label> <span class=\"text-2xs text-muted\">يدعم ICO, PNG, SVG (المقاس المقترح: 32×32 أو 48×48 بكسل)</span></div><div class=\"d-flex items-center gap-4 flex-wrap\"><div class=\"p-3 rounded-lg border bg-white flex-center\" style=\"width: 52px; height: 52px;\"><template x-if=\"faviconPreview\"><img :src=\"faviconPreview\" alt=\"Favicon\" class=\"object-contain\" style=\"width: 32px; height: 32px;\"></template><template x-if=\"!faviconPreview\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconGlobe("icon-sm text-slate-400").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</template></div><div class=\"form-grid-2 flex-1\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رفع ملف أيقونة Favicon</label> <input type=\"file\" name=\"favicon_file\" accept=\"image/x-icon,image/png,image/svg+xml\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { faviconPreview = URL.createObjectURL($event.target.files[0]); }\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">أو رابط Favicon مباشر</label> <input type=\"text\" name=\"favicon_url\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(siteSettings.SiteDescription)
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.FaviconURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 34, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 136, Col: 41}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</textarea></div></div><!-- Contact & Support Channels --><div class=\"glass-panel p-6 mb-0\"><div class=\"pb-3 mb-4 border-b\"><h3 class=\"text-base font-black text-primary m-0\">قنوات الاتصال والدعم الفني</h3></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">البريد الإلكتروني الرسمي للتواصل</label> <input type=\"email\" name=\"contact_email\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.ContactEmail)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 49, Col: 81}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">بريد الدعم الفني (Support Email)</label> <input type=\"email\" name=\"support_email\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SupportEmail)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 53, Col: 81}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم الهاتف المباشر</label> <input type=\"tel\" name=\"phone\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Phone)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 60, Col: 64}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم الواتساب للدعم اللحظي</label> <input type=\"tel\" name=\"whatsapp\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.WhatsApp)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 64, Col: 70}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" placeholder=\"/static/img/favicon.png\" class=\"form-input text-xs font-mono\" dir=\"ltr\" @input=\"faviconPreview = $event.target.value\"></div></div></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs gap-1.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -138,12 +119,223 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>حفظ إعدادات الهوية والتواصل</span></button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>حفظ وتحديث الشعار والهوية البصرية</span></button></div></form></div><!-- 2. Official Identity & Contact Channels --> <form action=\"/admin/settings/site\" method=\"POST\" class=\"d-flex flex-col gap-6 m-0\"><input type=\"hidden\" name=\"section\" value=\"contact\"><div class=\"glass-panel p-6 mb-0\"><div class=\"pb-3 mb-4 border-b\"><h3 class=\"text-base font-black text-primary m-0\">معلومات المنصة ومقر الشركة (Company Info & Contact)</h3><p class=\"text-xs text-secondary m-0 mt-1\">اسم المنصة الرسمي، الوصف الترويجي، وقنوات الاتصال والدعم الفني المباشر</p></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">اسم المنصة الرسمي *</label> <input type=\"text\" name=\"site_name\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SiteName)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 171, Col: 72}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" required class=\"form-input text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">عنوان ومقر الشركة</label> <input type=\"text\" name=\"address\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Address)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 175, Col: 69}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" class=\"form-input text-xs\"></div></div><div class=\"form-group mb-4\"><label class=\"form-label text-xs font-bold\">الوصف الترويجي للمنصة (Site Description)</label> <textarea name=\"site_description\" rows=\"3\" class=\"form-input text-xs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(siteSettings.SiteDescription)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 181, Col: 106}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</textarea></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">البريد الإلكتروني الرسمي للتواصل</label> <input type=\"email\" name=\"contact_email\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.ContactEmail)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 187, Col: 81}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">بريد الدعم الفني (Support Email)</label> <input type=\"email\" name=\"support_email\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SupportEmail)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 191, Col: 81}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم الهاتف المباشر</label> <input type=\"tel\" name=\"phone\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Phone)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 198, Col: 64}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رقم الواتساب للدعم اللحظي</label> <input type=\"tel\" name=\"whatsapp\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.WhatsApp)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 202, Col: 70}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\"></div></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs gap-1.5\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>حفظ معلومات الاتصال والمقر</span></button></div></form><!-- 3. Social Media Channels --> <form action=\"/admin/settings/site\" method=\"POST\" class=\"d-flex flex-col gap-6 m-0\"><input type=\"hidden\" name=\"section\" value=\"socials\"><div class=\"glass-panel p-6 mb-0\"><div class=\"pb-3 mb-4 border-b\"><h3 class=\"text-base font-black text-primary m-0\">حسابات التواصل الاجتماعي (Social Media Channels)</h3><p class=\"text-xs text-secondary m-0 mt-1\">تظهر هذه الروابط في تذييل الموقع والصفحات العامة</p></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط فيسبوك (Facebook)</label> <input type=\"url\" name=\"social_facebook\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "facebook"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 230, Col: 105}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://facebook.com/...\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط تويتر / إكس (X / Twitter)</label> <input type=\"url\" name=\"social_twitter\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "twitter"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 234, Col: 103}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://x.com/...\"></div></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط إنستجرام (Instagram)</label> <input type=\"url\" name=\"social_instagram\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "instagram"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 241, Col: 107}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://instagram.com/...\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رابط لينكد إن (LinkedIn)</label> <input type=\"url\" name=\"social_linkedin\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "linkedin"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 245, Col: 105}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://linkedin.com/company/...\"></div></div><div class=\"form-grid-2 mb-4\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">قناة يوتيوب (YouTube)</label> <input type=\"url\" name=\"social_youtube\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "youtube"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 252, Col: 103}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://youtube.com/@...\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">تيك توك (TikTok)</label> <input type=\"url\" name=\"social_tiktok\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "tiktok"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 256, Col: 101}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://tiktok.com/@...\"></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">سناب شات (Snapchat)</label> <input type=\"url\" name=\"social_snapchat\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "snapchat"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 263, Col: 105}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://snapchat.com/add/...\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">قناة تيليجرام (Telegram)</label> <input type=\"url\" name=\"social_telegram\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "telegram"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 267, Col: 105}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" class=\"form-input text-xs font-mono\" dir=\"ltr\" placeholder=\"https://t.me/...\"></div></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs gap-1.5\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>حفظ حسابات التواصل الاجتماعي</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

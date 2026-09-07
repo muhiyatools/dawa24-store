@@ -1,21 +1,168 @@
 package pages
 
 import (
+	"fmt"
+
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
+func socialValue(links map[string]string, key string) string {
+	if links == nil {
+		return ""
+	}
+	return links[key]
+}
+
 templ adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) {
 	<div x-show="activeTab === 'site'" x-cloak class="d-flex flex-col gap-6">
 		if siteSettings != nil {
+			<!-- 1. Platform Branding & Visual Identity (Logo & Favicon) -->
+			<div
+				class="glass-panel p-6 mb-0"
+				x-data={ fmt.Sprintf("{ logoPreview: %q, faviconPreview: %q }", siteSettings.LogoURL, siteSettings.FaviconURL) }
+			>
+				<div class="pb-3 mb-4 border-b flex-between items-center flex-wrap gap-2">
+					<div>
+						<h3 class="text-base font-black text-primary m-0">
+							الهوية البصرية وشعار المنصة (Platform Branding & Logo)
+						</h3>
+						<p class="text-xs text-secondary m-0 mt-1">
+							تخصيص شعار المنصة الرسمي وأيقونة المتصفح (Favicon) المعتمدة عبر القوائم الجانبية، الترويسة، والتذييل والفواتير.
+						</p>
+					</div>
+					<span class="badge badge-sky text-2xs font-mono font-bold">Branding Manager</span>
+				</div>
+
+				<form action="/admin/settings/branding" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-6 m-0">
+					<!-- Logo Section -->
+					<div class="p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-4">
+						<div class="flex-between items-center">
+							<label class="form-label text-xs font-black text-primary m-0">شعار المنصة الرئيسي (Platform Logo)</label>
+							<span class="text-2xs text-muted">يدعم SVG, PNG, WebP, JPG (يُفضل خلفية شفافة PNG أو SVG)</span>
+						</div>
+
+						<!-- Dual Preview: Light and Dark Modes -->
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2" style="background-color: #ffffff; min-height: 120px;">
+								<span class="text-2xs font-bold text-slate-500 uppercase tracking-wider">معاينة على خلفية فاتحة (Light Mode)</span>
+								<div class="flex-center w-100" style="height: 64px;">
+									<template x-if="logoPreview">
+										<img :src="logoPreview" alt="Logo Preview" class="object-contain" style="max-height: 56px; max-width: 220px;" onerror="this.style.display='none'"/>
+									</template>
+									<template x-if="!logoPreview">
+										<div class="d-flex items-center gap-2 text-slate-400 text-xs">
+											@components.IconImage("icon-sm text-slate-400")
+											<span>لا يوجد شعار محدد</span>
+										</div>
+									</template>
+								</div>
+							</div>
+
+							<div class="p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2" style="background-color: #0f172a; min-height: 120px;">
+								<span class="text-2xs font-bold text-slate-400 uppercase tracking-wider">معاينة على خلفية داكنة (Dark Mode / Sidebar)</span>
+								<div class="flex-center w-100" style="height: 64px;">
+									<template x-if="logoPreview">
+										<img :src="logoPreview" alt="Logo Preview" class="object-contain" style="max-height: 56px; max-width: 220px;" onerror="this.style.display='none'"/>
+									</template>
+									<template x-if="!logoPreview">
+										<div class="d-flex items-center gap-2 text-slate-500 text-xs">
+											@components.IconImage("icon-sm text-slate-500")
+											<span>لا يوجد شعار محدد</span>
+										</div>
+									</template>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-grid-2">
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold">رفع ملف شعار جديد من جهازك</label>
+								<input
+									type="file"
+									name="logo_file"
+									accept="image/png,image/jpeg,image/svg+xml,image/webp"
+									class="form-input text-xs"
+									@change="if ($event.target.files.length) { logoPreview = URL.createObjectURL($event.target.files[0]); }"
+								/>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold">أو إدخال رابط مباشر للشعار (Logo URL)</label>
+								<input
+									type="text"
+									name="logo_url"
+									value={ siteSettings.LogoURL }
+									placeholder="https://... أو /static/img/logo.png"
+									class="form-input text-xs font-mono"
+									dir="ltr"
+									@input="logoPreview = $event.target.value"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<!-- Favicon Section -->
+					<div class="p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-4">
+						<div class="flex-between items-center">
+							<label class="form-label text-xs font-black text-primary m-0">أيقونة شريط المتصفح (Favicon)</label>
+							<span class="text-2xs text-muted">يدعم ICO, PNG, SVG (المقاس المقترح: 32×32 أو 48×48 بكسل)</span>
+						</div>
+
+						<div class="d-flex items-center gap-4 flex-wrap">
+							<div class="p-3 rounded-lg border bg-white flex-center" style="width: 52px; height: 52px;">
+								<template x-if="faviconPreview">
+									<img :src="faviconPreview" alt="Favicon" class="object-contain" style="width: 32px; height: 32px;"/>
+								</template>
+								<template x-if="!faviconPreview">
+									@components.IconGlobe("icon-sm text-slate-400")
+								</template>
+							</div>
+							<div class="form-grid-2 flex-1">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">رفع ملف أيقونة Favicon</label>
+									<input
+										type="file"
+										name="favicon_file"
+										accept="image/x-icon,image/png,image/svg+xml"
+										class="form-input text-xs"
+										@change="if ($event.target.files.length) { faviconPreview = URL.createObjectURL($event.target.files[0]); }"
+									/>
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">أو رابط Favicon مباشر</label>
+									<input
+										type="text"
+										name="favicon_url"
+										value={ siteSettings.FaviconURL }
+										placeholder="/static/img/favicon.png"
+										class="form-input text-xs font-mono"
+										dir="ltr"
+										@input="faviconPreview = $event.target.value"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div>
+						<button type="submit" class="btn btn-primary font-bold text-xs gap-1.5">
+							@components.IconCheck("icon-xs")
+							<span>حفظ وتحديث الشعار والهوية البصرية</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- 2. Official Identity & Contact Channels -->
 			<form action="/admin/settings/site" method="POST" class="d-flex flex-col gap-6 m-0">
-				<!-- Identity & Slogans -->
+				<input type="hidden" name="section" value="contact"/>
+
 				<div class="glass-panel p-6 mb-0">
 					<div class="pb-3 mb-4 border-b">
 						<h3 class="text-base font-black text-primary m-0">
-							الهوية البصرية والعناوين (Branding & Identity)
+							معلومات المنصة ومقر الشركة (Company Info & Contact)
 						</h3>
-						<p class="text-xs text-secondary m-0 mt-1">تحديد اسم المنصة، الشعار، والوصف التسويقي المعروض في الصفحة الرئيسية</p>
+						<p class="text-xs text-secondary m-0 mt-1">اسم المنصة الرسمي، الوصف الترويجي، وقنوات الاتصال والدعم الفني المباشر</p>
 					</div>
 
 					<div class="form-grid-2 mb-4">
@@ -29,18 +176,9 @@ templ adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) {
 						</div>
 					</div>
 
-					<div class="form-group mb-0">
+					<div class="form-group mb-4">
 						<label class="form-label text-xs font-bold">الوصف الترويجي للمنصة (Site Description)</label>
 						<textarea name="site_description" rows="3" class="form-input text-xs">{ siteSettings.SiteDescription }</textarea>
-					</div>
-				</div>
-
-				<!-- Contact & Support Channels -->
-				<div class="glass-panel p-6 mb-0">
-					<div class="pb-3 mb-4 border-b">
-						<h3 class="text-base font-black text-primary m-0">
-							قنوات الاتصال والدعم الفني
-						</h3>
 					</div>
 
 					<div class="form-grid-2 mb-4">
@@ -67,9 +205,74 @@ templ adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) {
 				</div>
 
 				<div>
-					<button type="submit" class="btn btn-primary font-bold text-xs">
+					<button type="submit" class="btn btn-primary font-bold text-xs gap-1.5">
 						@components.IconCheck("icon-xs")
-						<span>حفظ إعدادات الهوية والتواصل</span>
+						<span>حفظ معلومات الاتصال والمقر</span>
+					</button>
+				</div>
+			</form>
+
+			<!-- 3. Social Media Channels -->
+			<form action="/admin/settings/site" method="POST" class="d-flex flex-col gap-6 m-0">
+				<input type="hidden" name="section" value="socials"/>
+
+				<div class="glass-panel p-6 mb-0">
+					<div class="pb-3 mb-4 border-b">
+						<h3 class="text-base font-black text-primary m-0">
+							حسابات التواصل الاجتماعي (Social Media Channels)
+						</h3>
+						<p class="text-xs text-secondary m-0 mt-1">تظهر هذه الروابط في تذييل الموقع والصفحات العامة</p>
+					</div>
+
+					<div class="form-grid-2 mb-4">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">رابط فيسبوك (Facebook)</label>
+							<input type="url" name="social_facebook" value={ socialValue(siteSettings.SocialLinks, "facebook") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://facebook.com/..."/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">رابط تويتر / إكس (X / Twitter)</label>
+							<input type="url" name="social_twitter" value={ socialValue(siteSettings.SocialLinks, "twitter") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://x.com/..."/>
+						</div>
+					</div>
+
+					<div class="form-grid-2 mb-4">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">رابط إنستجرام (Instagram)</label>
+							<input type="url" name="social_instagram" value={ socialValue(siteSettings.SocialLinks, "instagram") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://instagram.com/..."/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">رابط لينكد إن (LinkedIn)</label>
+							<input type="url" name="social_linkedin" value={ socialValue(siteSettings.SocialLinks, "linkedin") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://linkedin.com/company/..."/>
+						</div>
+					</div>
+
+					<div class="form-grid-2 mb-4">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">قناة يوتيوب (YouTube)</label>
+							<input type="url" name="social_youtube" value={ socialValue(siteSettings.SocialLinks, "youtube") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://youtube.com/@..."/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">تيك توك (TikTok)</label>
+							<input type="url" name="social_tiktok" value={ socialValue(siteSettings.SocialLinks, "tiktok") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://tiktok.com/@..."/>
+						</div>
+					</div>
+
+					<div class="form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">سناب شات (Snapchat)</label>
+							<input type="url" name="social_snapchat" value={ socialValue(siteSettings.SocialLinks, "snapchat") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://snapchat.com/add/..."/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">قناة تيليجرام (Telegram)</label>
+							<input type="url" name="social_telegram" value={ socialValue(siteSettings.SocialLinks, "telegram") } class="form-input text-xs font-mono" dir="ltr" placeholder="https://t.me/..."/>
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<button type="submit" class="btn btn-primary font-bold text-xs gap-1.5">
+						@components.IconCheck("icon-xs")
+						<span>حفظ حسابات التواصل الاجتماعي</span>
 					</button>
 				</div>
 			</form>

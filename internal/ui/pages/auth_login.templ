@@ -6,14 +6,19 @@ import (
 )
 
 templ LoginPage(lang, dir, errorMsg string) {
+	{{ site := layouts.GetSiteSettings(ctx) }}
 	@layouts.Base("تسجيل الدخول", lang, dir) {
 		<div class="auth-page-wrapper">
 			<div class="auth-card glass-panel" x-data="{ showPwd: false }">
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
+						if site.LogoURL != "" {
+							<img src={ site.LogoURL } alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						} else {
+							<img src="/static/img/logo.png" alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						}
 					</a>
-					<h1 class="auth-title">منصة دوا 24</h1>
+					<h1 class="auth-title">منصة { site.SiteName }</h1>
 					<p class="auth-subtitle">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p>
 				</div>
 
@@ -93,12 +98,17 @@ templ LoginPage(lang, dir, errorMsg string) {
 }
 
 templ ForgotPasswordPage(lang, dir string) {
+	{{ site := layouts.GetSiteSettings(ctx) }}
 	@layouts.Base("استعادة كلمة المرور", lang, dir) {
 		<div class="auth-page-wrapper">
 			<div class="auth-card glass-panel">
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
+						if site.LogoURL != "" {
+							<img src={ site.LogoURL } alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						} else {
+							<img src="/static/img/logo.png" alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						}
 					</a>
 					<h1 class="auth-title">استعادة كلمة المرور</h1>
 					<p class="auth-subtitle">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p>
@@ -132,12 +142,17 @@ templ ForgotPasswordPage(lang, dir string) {
 }
 
 templ ResetPasswordPage(lang, dir, token string) {
+	{{ site := layouts.GetSiteSettings(ctx) }}
 	@layouts.Base("تعيين كلمة المرور الجديدة", lang, dir) {
 		<div class="auth-page-wrapper">
 			<div class="auth-card glass-panel" x-data="{ showPwd: false }">
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
+						if site.LogoURL != "" {
+							<img src={ site.LogoURL } alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						} else {
+							<img src="/static/img/logo.png" alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						}
 					</a>
 					<h1 class="auth-title">تعيين كلمة المرور</h1>
 					<p class="auth-subtitle">أدخل كلمة المرور الجديدة لحسابك الصيدلي</p>

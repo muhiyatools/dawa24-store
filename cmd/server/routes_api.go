@@ -57,7 +57,7 @@ func mountModuleRoutesAPI(
 	attachRepo := attachmentsPostgres.NewRepository(db)
 	attachSvc := attachments.NewService(attachRepo, storageClient, log)
 
-	// Â§4.2 documents gate: an organization with missing mandatory documents
+	// §4.2 documents gate: an organization with missing mandatory documents
 	// cannot check out (customer) or publish offers (vendor). Composed here
 	// because modules must not import each other. Fail closed: if the
 	// documents service errors, trading is refused until it recovers.

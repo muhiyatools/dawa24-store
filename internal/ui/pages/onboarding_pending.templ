@@ -7,11 +7,16 @@ import (
 
 // OnboardingPending renders the 4-state account review and suspension holding screen.
 templ OnboardingPending(lang, dir, state string) {
+	{{ site := layouts.GetSiteSettings(ctx) }}
 	@layouts.Base("حالة الحساب | Account Status", lang, dir) {
 		<div class="status-page-wrapper">
 			<div class="status-card">
 				<a href="/">
-					<img src="/static/img/logo.png" alt="DAWA24" class="status-logo"/>
+					if site.LogoURL != "" {
+						<img src={ site.LogoURL } alt={ site.SiteName } class="status-logo" onerror="this.style.display='none'"/>
+					} else {
+						<img src="/static/img/logo.png" alt={ site.SiteName } class="status-logo" onerror="this.style.display='none'"/>
+					}
 				</a>
 
 				switch state {

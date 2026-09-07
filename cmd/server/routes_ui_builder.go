@@ -127,7 +127,7 @@ func buildUIHandler(
 
 	commSvcUI := commerce.NewService(commRepoUI, log)
 	commSvcUI.SetRequiredDocsChecker(docsGate)
-	// Â§1.2 availability gate: stock, supplier approval, branch ownership and
+	// §1.2 availability gate: stock, supplier approval, branch ownership and
 	// weekly coverage are checked in one place for every buying surface.
 	// Composed here because commerce must not import catalog/org/workflow.
 	uiAvailability := newAvailabilityProbe(

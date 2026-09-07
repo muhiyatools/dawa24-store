@@ -33,9 +33,14 @@ templ publicMobileNav(site *platformadmin.SiteSettings) {
 		x-transition:leave-end="translate-x-full"
 	>
 		<div class="nav-drawer-head">
-			<span class="nav-brand-text">
-				<span class="nav-brand-name">دوا 24</span>
-			</span>
+			<a href="/" class="nav-brand text-decoration-none d-flex items-center gap-2" @click="mobileNav = false">
+				if site.LogoURL != "" {
+					<img src={ site.LogoURL } alt={ site.SiteName } class="nav-brand-logo" style="max-height: 32px;" onerror="this.style.display='none'" />
+				}
+				<span class="nav-brand-text">
+					<span class="nav-brand-name">{ site.SiteName }</span>
+				</span>
+			</a>
 			<button
 				type="button"
 				@click="mobileNav = false"
@@ -173,10 +178,14 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 			<!-- Brand & Bio -->
 			<div class="stack-sm">
 				<div class="footer-brand">
-					<img src={ site.LogoURL } alt={ site.SiteName } class="footer-logo" />
+					if site.LogoURL != "" {
+						<img src={ site.LogoURL } alt={ site.SiteName } class="footer-logo" onerror="this.style.display='none'" />
+					} else {
+						<img src="/static/img/logo.png" alt={ site.SiteName } class="footer-logo" onerror="this.style.display='none'" />
+					}
 					<div class="stack-sm">
 						<div class="footer-brand-name">
-							دوا 24
+							{ site.SiteName }
 						</div>
 						<div class="footer-brand-subtitle">
 							منظومة الربط والتوريد الدوائي المباشر
@@ -265,7 +274,7 @@ templ publicFooter(site *platformadmin.SiteSettings) {
 
 		<div class="footer-bottom">
 			<div class="footer-copyright-group">
-				<p class="footer-copyright-text">جميع الحقوق محفوظة © 2026 لدى دوا 24.</p>
+				<p class="footer-copyright-text">جميع الحقوق محفوظة © 2026 لدى { site.SiteName }.</p>
 				<div class="footer-developer-credit">
 					<span>تم التطوير بواسطة</span>
 					<a href="https://muhiya.com" target="_blank" rel="noopener" class="developer-link">

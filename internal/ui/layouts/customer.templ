@@ -24,12 +24,15 @@ templ PublicShell(title string, lang string, dir string) {
 			<header class="nav-root nav-root--public" data-nav-scroll>
 				<div class="nav-inner">
 					<div class="nav-lead">
-						<a href="/" class="nav-brand" title="دوا 24 — الصفحة الرئيسية">
+						<a href="/" class="nav-brand" title={ site.SiteName }>
 							if site.LogoURL != "" {
-								<img src={ site.LogoURL } alt={ site.SiteName } class="nav-brand-logo"/>
+								<img src={ site.LogoURL } alt={ site.SiteName } class="nav-brand-logo" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';" />
+								<span class="nav-brand-text" style="display: none;">
+									<span class="nav-brand-name">{ site.SiteName }</span>
+								</span>
 							} else {
 								<span class="nav-brand-text">
-									<span class="nav-brand-name">دوا 24</span>
+									<span class="nav-brand-name">{ site.SiteName }</span>
 								</span>
 							}
 						</a>

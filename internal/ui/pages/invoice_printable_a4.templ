@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ InvoicePrintableA4(data billing.PrintableInvoiceData) {
+	{{ site := layouts.GetSiteSettings(ctx) }}
 	<div class="invoice-paper-a4" id="a4-invoice-container">
 		
 		<!-- Header Block -->
@@ -39,12 +41,21 @@ templ InvoicePrintableA4(data billing.PrintableInvoiceData) {
 
 			<!-- 2. Center Column: Official Dawa24 Platform Branding & Document Type -->
 			<div class="header-center">
-				<img
-					src="/static/img/logo.png"
-					alt="دوا 24"
-					class="dawa-brand-logo"
-					onerror="this.style.display='none'"
-				/>
+				if site.LogoURL != "" {
+					<img
+						src={ site.LogoURL }
+						alt={ site.SiteName }
+						class="dawa-brand-logo"
+						onerror="this.style.display='none'"
+					/>
+				} else {
+					<img
+						src="/static/img/logo.png"
+						alt={ site.SiteName }
+						class="dawa-brand-logo"
+						onerror="this.style.display='none'"
+					/>
+				}
 				<div class="stack-sm font-size-10 font-bold text-secondary mt-2px">
 					منصة الربط والتوزيع الدوائي المعتمدة
 				</div>

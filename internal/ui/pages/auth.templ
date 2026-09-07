@@ -17,6 +17,7 @@ import (
 // strings. Both are now the same searchable combobox over the same rows, and
 // the city list follows the governorate.
 templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City, governorates []*platformadmin.Governorate) {
+	{{ site := layouts.GetSiteSettings(ctx) }}
 	{{ govOptions := GovernorateOptions(governorates, lang) }}
 	{{ cityOptions := CityOptions(cities, lang) }}
 	@layouts.Base("إنشاء حساب جديد", lang, dir) {
@@ -25,10 +26,14 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				<!-- Brand Header -->
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
+						if site.LogoURL != "" {
+							<img src={ site.LogoURL } alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						} else {
+							<img src="/static/img/logo.png" alt={ site.SiteName } class="auth-logo-img" onerror="this.style.display='none'" />
+						}
 					</a>
 					<h1 class="auth-title">إنشاء حساب منشأة جديد</h1>
-					<p class="auth-subtitle">انضم لمنظومة التوريد الدوائي المعتمدة — دوا 24</p>
+					<p class="auth-subtitle">انضم لمنظومة التوريد الدوائي المعتمدة — { site.SiteName }</p>
 				</div>
 
 				<!-- 3-Step Onboarding Progress Indicator -->
