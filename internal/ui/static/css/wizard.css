@@ -335,6 +335,35 @@
 .wiz-map-label { font-size: var(--text-xs); font-weight: 700; color: var(--text-primary); }
 .wiz-map-hint { font-size: var(--text-xs); color: var(--text-muted); }
 
+/* The third element of a mapping row. The base form rule already reaches it
+   through input[type="number"], so it was not unstyled — but it carried a
+   class no rule defined, which is indistinguishable from a broken one when
+   you are reading the markup. These are the refinements it wanted: compact,
+   and figures that line up down the column. */
+.wiz-map-input {
+	inline-size: 100%;
+	padding: 0.45rem 0.65rem;
+	font-variant-numeric: tabular-nums;
+	border: 1px solid var(--border-card);
+	border-radius: var(--radius-md);
+	background: var(--bg-surface);
+	color: var(--text-primary);
+}
+
+.wiz-map-input:focus-visible {
+	outline: 2px solid var(--border-focus);
+	outline-offset: 1px;
+}
+
+/* A preview table inside a wizard step is a sample, not the data. It is
+   capped so the step's own actions stay reachable without scrolling past
+   several hundred rows. */
+.wiz-scroll {
+	max-block-size: 26rem;
+	overflow: auto;
+	overscroll-behavior: contain;
+}
+
 /* --------------------------------------------------------------------------
    9. Actions footer
    -------------------------------------------------------------------------- */

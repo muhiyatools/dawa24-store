@@ -436,7 +436,7 @@ func AdminOffers(data AdminOffersData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"table-container m-0 overflow-x-auto lg:overflow-x-visible\"><table class=\"data-table data-table-compact m-0 w-full text-xs\"><thead><tr><th class=\"w-[22%]\">العرض / باقة الأدوية</th><th class=\"w-[14%]\">الشركة الموردة</th><th class=\"w-[16%]\">الأصناف المشمولة</th><th class=\"w-[9%]\">سعر الجمهور</th><th class=\"w-[8%] text-center\">الخصم</th><th class=\"w-[8%] text-center\">الحد الأدنى</th><th class=\"w-[8%] text-center\">التغطية</th><th class=\"w-[10%] text-center\">الحالة</th><th class=\"w-[5%] col-actions text-center\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table data-table-compact m-0 w-full text-xs\"><thead><tr><th class=\"w-[22%]\">العرض / باقة الأدوية</th><th class=\"w-[14%]\">الشركة الموردة</th><th class=\"w-[16%]\">الأصناف المشمولة</th><th class=\"w-[9%]\">سعر الجمهور</th><th class=\"w-[8%] text-center\">الخصم</th><th class=\"w-[8%] text-center\">الحد الأدنى</th><th class=\"w-[8%] text-center\">التغطية</th><th class=\"w-[10%] text-center\">الحالة</th><th class=\"w-[5%] col-actions text-center\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

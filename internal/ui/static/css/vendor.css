@@ -33,20 +33,6 @@
   .branches-split { grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 1fr); }
 }
 
-.compare-workspace-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 1.25rem !important;
-  align-items: start !important;
-  width: 100% !important;
-  margin-bottom: 2rem !important;
-}
-
-@media (max-width: 1024px) {
-  .compare-workspace-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
 
 .compare-col-card {
   background: var(--bg-surface-raised, #ffffff);

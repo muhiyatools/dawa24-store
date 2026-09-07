@@ -130,7 +130,7 @@ func AdminStaffDashboard(actor authctx.Actor, lang, dir string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"stack-xs text-xs text-secondary\"><h3 class=\"text-sm font-black text-primary m-0\">إرشادات وضوابط العمل الأساسية</h3><ul class=\"list-disc pr-4 space-y-1 m-0 mt-2 leading-relaxed\"><li>يتم تسجيل وتوثيق كافة العمليات التي تجريها في سجلات التدقيق (Audit Logs) لضمان الشفافية ومتابعة الأداء.</li><li>ملفات الجداول والمستودعات تخضع تلقائياً للفحص الأمني الشامل لمنع أي روابط أو برمجيات خبيثة لحماية قاعدة بيانات المنظومة.</li><li>في حال حاجتك لرفع صلاحيات حسابك للوصول إلى أقسام إضافية، يرجى التواصل مع إدارة النظام (Super Admin).</li></ul></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"stack-xs text-xs text-secondary\"><h3 class=\"text-sm font-black text-primary m-0\">إرشادات وضوابط العمل الأساسية</h3><ul class=\"list-disc ps-4 space-y-1 m-0 mt-2 leading-relaxed\"><li>يتم تسجيل وتوثيق كافة العمليات التي تجريها في سجلات التدقيق (Audit Logs) لضمان الشفافية ومتابعة الأداء.</li><li>ملفات الجداول والمستودعات تخضع تلقائياً للفحص الأمني الشامل لمنع أي روابط أو برمجيات خبيثة لحماية قاعدة بيانات المنظومة.</li><li>في حال حاجتك لرفع صلاحيات حسابك للوصول إلى أقسام إضافية، يرجى التواصل مع إدارة النظام (Super Admin).</li></ul></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

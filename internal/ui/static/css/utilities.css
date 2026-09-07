@@ -672,4 +672,124 @@
 .border-success\/30 { border-color: var(--success-border); border-color: color-mix(in oklab, var(--success) 30%, transparent); }
 .border-warning\/30 { border-color: var(--warning-border); border-color: color-mix(in oklab, var(--warning) 30%, transparent); }
 .border-white\/30 { border-color: var(--bg-surface-raised); border-color: color-mix(in oklab, var(--bg-surface-raised) 30%, transparent); }
+
+
+/* ==========================================================================
+   Responsive and state variants that the markup already uses.
+
+   The templates are written in Tailwind-ish names but there is no Tailwind
+   here, so `md:grid-cols-2` was a string on an element and nothing else: the
+   panels that were supposed to become two columns on a desktop stayed one
+   column at every width, and nobody could see why by reading the markup.
+
+   Only the variants actually used are defined, at the four canonical
+   breakpoints, with Tailwind's min-width semantics (sm >= 640, md >= 768,
+   lg >= 1024). Adding a variant to a template means adding it here too — that
+   is the cost of the naming convention, and it is cheaper than a class that
+   silently does nothing.
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:w-32 { inline-size: 8rem; }
+  .md\:w-36 { inline-size: 9rem; }
+  .md\:h-24 { block-size: 6rem; }
+  .md\:h-28 { block-size: 7rem; }
+  /* The counterpart of .d-md-inline-flex: hidden from the tablet breakpoint
+     up. Used by the courier's fixed action bar, which is a phone affordance. */
+  .d-md-none { display: none; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ---- hover: variants ----------------------------------------------------
+   Each resolves through a token rather than the literal palette step in its
+   name, the same way the unprefixed colour utilities above do. */
+.hover\:underline:hover        { text-decoration: underline; }
+.hover\:opacity-85:hover       { opacity: 0.85; }
+.hover\:shadow-md:hover        { box-shadow: var(--shadow-md); }
+
+.hover\:text-primary:hover      { color: var(--primary); }
+.hover\:text-danger:hover       { color: var(--danger); }
+.hover\:text-accent:hover,
+.hover\:text-accent-hover:hover { color: var(--accent); }
+.hover\:text-slate-600:hover    { color: var(--text-secondary); }
+
+.hover\:border-primary:hover     { border-color: var(--primary-border); }
+.hover\:border-brand:hover,
+.hover\:border-brand-400:hover,
+.hover\:border-brand-500:hover   { border-color: var(--brand-border); }
+
+.hover\:bg-slate-100:hover  { background-color: var(--bg-surface-sunken); }
+.hover\:bg-rose-50:hover    { background-color: var(--danger-subtle); }
+.hover\:bg-rose-700:hover   { background-color: var(--danger-hover); color: var(--bg-surface-raised); }
+.hover\:bg-amber-600:hover,
+.hover\:bg-amber-700:hover  { background-color: var(--warning-hover); color: var(--bg-surface-raised); }
+
+/* ==========================================================================
+   Utilities the markup uses that no rule defined.
+
+   Every one of these was an attribute on a live element doing nothing. They
+   are grouped by what they were silently failing to do.
+   ========================================================================== */
+
+/* ---- borders. The commonest failure: `class="border border-amber"` drew a
+   border in the default colour, so a warning card looked like every other
+   card. border-amber alone is used on nineteen pages. ---- */
+.border-amber,
+.border-amber-300      { border-color: var(--warning-border); }
+.border-card           { border-color: var(--border-card); }
+.border-subtle         { border-color: var(--border-subtle); }
+.border-danger-subtle  { border-color: var(--danger-border); }
+
+/* ---- colour ---- */
+.text-indigo-400 { color: var(--accent); }
+.text-sky-500,
+.text-sky-950    { color: var(--info); }
+.bg-indigo-subtle { background-color: var(--accent-subtle); }
+.bg-rose-subtle   { background-color: var(--danger-subtle); }
+.bg-black-50      { background-color: var(--bg-overlay); }
+
+/* ---- size and spacing ---- */
+.h-7        { block-size: 1.75rem; }
+.w-7        { inline-size: 1.75rem; }
+.max-w-44   { max-inline-size: 11rem; }
+.mt-8       { margin-block-start: 2rem; }
+.pe-8       { padding-inline-end: 2rem; }
+.opacity-40 { opacity: 0.4; }
+
+/* A vertical rhythm between siblings, not a gap: it is used on lists and on
+   stacks whose parent is not a flex container. */
+.space-y-1 > * + * { margin-block-start: 0.25rem; }
+
+/* ---- position ---- */
+.bottom-4 { inset-block-end: 1rem; }
+.z-10     { z-index: var(--z-sticky); }
+.sticky-top {
+  position: sticky;
+  inset-block-start: var(--space-md);
+  align-self: start;
+}
+.translate-y-half { transform: translateY(-50%); }
+
+/* ---- shape and interaction ---- */
+.rounded-b-xl {
+  border-end-start-radius: var(--radius-xl);
+  border-end-end-radius: var(--radius-xl);
+}
+.cursor-default { cursor: default; }
+.list-disc      { list-style: disc; }
+
+/* A row or tile that answers the pointer. `hover-lift-subtle` is on table
+   rows, where a transform would break the cell grid, so it lifts by tone. */
+.hover-bg-surface:hover,
+.hover-lift-subtle:hover { background-color: var(--bg-surface-sunken); }
+
 }

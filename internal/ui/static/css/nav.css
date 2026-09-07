@@ -895,22 +895,27 @@
       color: var(--text-primary);
     }
 
+    /* The popover becomes a bottom sheet on a phone.
+       Thirteen of these declarations carried !important. The rules being
+       overridden are .nav-menu, .nav-menu--wide and .nav-menu--start three
+       hundred lines above in this same file, at the same specificity — so
+       source order already decided it, and the force was decoration. */
     .nav-menu,
     .nav-menu--wide,
     .nav-menu--start {
-      position: fixed !important;
-      inset-block: auto 0 !important;
-      inset-inline: 0 !important;
-      inline-size: 100vw !important;
-      width: 100vw !important;
-      max-inline-size: 100vw !important;
-      max-width: 100vw !important;
-      border-inline: none !important;
-      border-block-end: none !important;
-      border-radius: var(--radius-2xl, 1.25rem) var(--radius-2xl, 1.25rem) 0 0 !important;
+      position: fixed;
+      inset-block: auto 0;
+      inset-inline: 0;
+      inline-size: 100vw;
+      width: 100vw;
+      max-inline-size: 100vw;
+      max-width: 100vw;
+      border-inline: none;
+      border-block-end: none;
+      border-radius: var(--radius-2xl, 1.25rem) var(--radius-2xl, 1.25rem) 0 0;
       box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25), var(--shadow-2xl);
-      z-index: var(--z-modal, 500) !important;
-      margin: 0 !important;
+      z-index: var(--z-modal, 500);
+      margin: 0;
       padding-bottom: max(var(--space-md, 1rem), env(safe-area-inset-bottom, 1rem));
       background: var(--bg-surface-raised);
       box-sizing: border-box;

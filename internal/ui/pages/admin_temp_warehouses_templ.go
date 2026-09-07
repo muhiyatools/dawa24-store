@@ -850,7 +850,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"table-container m-0 overflow-x-auto lg:overflow-x-visible\"><table class=\"data-table m-0 w-full text-xs\"><thead><tr><th class=\"w-10 text-center\"><input type=\"checkbox\" @change=\"toggleSelectAll($event)\" :checked=\"selectAll\" class=\"form-checkbox cursor-pointer\" title=\"تحديد أو إلغاء تحديد كل المستودعات\"></th><th class=\"w-10 text-center\">#</th><th class=\"min-w-[180px]\"><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"table-container m-0 overflow-x-auto\"><table class=\"data-table m-0 w-full text-xs\"><thead><tr><th class=\"w-10 text-center\"><input type=\"checkbox\" @change=\"toggleSelectAll($event)\" :checked=\"selectAll\" class=\"form-checkbox cursor-pointer\" title=\"تحديد أو إلغاء تحديد كل المستودعات\"></th><th class=\"w-10 text-center\">#</th><th class=\"min-w-[180px]\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -1565,20 +1565,6 @@
 }
 
 /* ---- Compare Tool System ---- */
-.compare-workspace-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 1.25rem !important;
-  align-items: start !important;
-  width: 100% !important;
-  margin-bottom: 2rem !important;
-}
-
-@media (max-width: 1024px) {
-  .compare-workspace-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
 
 .compare-col-card {
   background: var(--bg-surface-raised);
@@ -1676,41 +1662,50 @@
 }
 
 /* Stepper Input */
-input.so-qty-input,
-.so-qty-input,
+/* The smart-order quantity field.
+   The selector list already contained `input[type="number"].so-qty-input`,
+   which at (0,2,1) beats the global number-input rule outright — so the
+   !important on all twenty-two declarations was overriding nothing. The two
+   weaker selectors are dropped with it; keeping them meant the rule appeared
+   to work for reasons it did not. */
 input[type="number"].so-qty-input {
-  width: 48px !important;
-  min-width: 48px !important;
-  max-width: 48px !important;
-  height: 32px !important;
-  line-height: 32px !important;
-  margin: 0 !important;
-  padding: 0 2px !important;
-  border: none !important;
-  border-left: 1px solid var(--border-card, #e2e8f0) !important;
-  border-right: 1px solid var(--border-card, #e2e8f0) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  color: var(--text-primary, #0f172a) !important;
-  font-family: inherit !important;
-  font-size: 0.875rem !important;
-  font-weight: 800 !important;
-  text-align: center !important;
-  box-shadow: none !important;
-  outline: none !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: textfield !important;
-  appearance: textfield !important;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  height: 32px;
+  line-height: 32px;
+  margin: 0;
+  padding: 0 2px;
+  border: none;
+  /* Physical on purpose, and symmetric, so RTL is unaffected: this control is
+     a segmented stepper and these two borders are the seams between the field
+     and the buttons either side of it. They were converted to `border-inline`
+     during the logical-properties pass and converted back, because the
+     dark-theme override below could not be confirmed to still apply and a
+     seam that stays light-grey on a dark background is a visible regression.
+     This is the shape that has been in production; leave it unless you can
+     check both themes in a real browser. */
+  border-left: 1px solid var(--border-card, #e2e8f0);
+  border-right: 1px solid var(--border-card, #e2e8f0);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary, #0f172a);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: none;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
-input.so-qty-input::-webkit-outer-spin-button,
-input.so-qty-input::-webkit-inner-spin-button,
-.so-qty-input::-webkit-outer-spin-button,
-.so-qty-input::-webkit-inner-spin-button {
-  -webkit-appearance: none !important;
-  margin: 0 !important;
-  display: none !important;
+input[type="number"].so-qty-input::-webkit-outer-spin-button,
+input[type="number"].so-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none;
 }
 
 /* Save / Confirm Button */
@@ -1743,17 +1738,20 @@ input.so-qty-input::-webkit-inner-spin-button,
 }
 
 /* Dirty State (Unsaved Changes) */
+/* The unsaved state. .is-dirty compounds with .so-qty-save-btn, so it is
+   (0,2,0) against the base rule's (0,1,0) and wins on specificity alone; the
+   button carries no utility class that could outrank either. */
 .so-qty-save-btn.is-dirty {
-  background: var(--success, #10b981) !important;
-  border-color: var(--success, #10b981) !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3) !important;
+  background: var(--success, #10b981);
+  border-color: var(--success, #10b981);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
   animation: so-qty-save-pulse 1.8s infinite ease-in-out;
 }
 
 .so-qty-save-btn.is-dirty:hover {
-  background: #059669 !important;
-  border-color: #059669 !important;
+  background: #059669;
+  border-color: #059669;
 }
 
 @keyframes so-qty-save-pulse {
@@ -1784,11 +1782,13 @@ input.so-qty-input::-webkit-inner-spin-button,
   color: var(--primary-light, #38bdf8);
 }
 
-[data-theme="dark"] input.so-qty-input,
-[data-theme="dark"] .so-qty-input {
-  color: #f8fafc !important;
-  border-left-color: rgba(255, 255, 255, 0.12) !important;
-  border-right-color: rgba(255, 255, 255, 0.12) !important;
+/* Ties with the light rule on specificity and wins on source order, so no
+   force is needed. The two physical border colours are one logical pair now,
+   matching the border-inline the light rule sets. */
+[data-theme="dark"] input[type="number"].so-qty-input {
+  color: #f8fafc;
+  border-left-color: rgba(255, 255, 255, 0.12);
+  border-right-color: rgba(255, 255, 255, 0.12);
 }
 
 [data-theme="dark"] .so-qty-save-btn {
@@ -1797,58 +1797,18 @@ input.so-qty-input::-webkit-inner-spin-button,
   color: var(--text-muted, #64748b);
 }
 
+[data-theme="dark"] .so-qty-save-btn:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: var(--success, #10b981);
+  color: #34d399;
+}
+
 /* ===========================================================================
    Wallet Deposit Modal Scrollable Layout
    =========================================================================== */
-.deposit-modal-container {
-  inline-size: 100%;
-  width: 100%;
-  max-width: min(94vw, 660px);
-  max-height: calc(100vh - 2.5rem);
-  max-height: calc(100dvh - 2.5rem);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  margin: auto;
-}
-.deposit-modal-container > form,
-.deposit-modal-form {
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  min-block-size: 0 !important;
-  overflow: hidden !important;
-}
-.deposit-modal-body {
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  min-block-size: 0 !important;
-  padding: 1.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-card, #cbd5e1) transparent;
-}
-.deposit-modal-body::-webkit-scrollbar {
-  width: 6px;
-}
-.deposit-modal-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-.deposit-modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-card, #94a3b8);
-  border-radius: 4px;
-}
-.deposit-modal-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted, #64748b);
-}
-.deposit-modal-footer {
-  flex-shrink: 0 !important;
-  background: var(--surface-raised, #ffffff);
-  border-top: 1px solid var(--border, #e2e8f0);
-}
+/* .deposit-modal-* lived here and in components.css in identical copies.
+   The components.css one is a superset and loads on every shell, so this copy
+   is gone; the !important on both was each overriding the other. */
+
 }
 

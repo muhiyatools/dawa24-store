@@ -93,8 +93,8 @@ templ CreditStatementPage(v CreditStatementView, lang, dir string) {
 
 templ creditStatMetric(label string, value int) {
 	<div class="stat-card-3d">
-		<span class="stat-card-3d-label">{ label }</span>
-		<strong class="stat-card-3d-value tabular-nums">{ fmt.Sprintf("%d", value) }</strong>
+		<span class="stat-card-label">{ label }</span>
+		<strong class="stat-card-value tabular-nums">{ fmt.Sprintf("%d", value) }</strong>
 	</div>
 }
 

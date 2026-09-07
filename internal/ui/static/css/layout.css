@@ -440,6 +440,10 @@ html:not([data-theme="dark"]) .logo-dark {
 }
 
 /* ---- Page Headers & Action Banners ---- */
+/* .page-header is the same thing under an older name, still on one page. It
+   is an alias rather than a rename in the template so that either spelling
+   lands somewhere real. */
+.page-header,
 .page-header-block {
   display: flex;
   align-items: flex-start;
