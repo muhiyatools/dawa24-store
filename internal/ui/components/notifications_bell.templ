@@ -37,15 +37,31 @@ templ NotificationsBell(lang string) {
 			hx-target="this"
 		></span>
 		<div
+			class="nav-scrim-mobile"
+			x-show="open"
+			x-cloak
+			x-transition.opacity.duration.200ms
+			@click="open = false"
+			aria-hidden="true"
+		></div>
+		<div
 			class="nav-menu nav-menu--wide"
 			id="notif-dropdown-content"
 			role="menu"
 			x-show="open"
 			x-cloak
-			x-transition.origin.top.duration.150ms
+			x-transition.duration.200ms
 		>
 			<div class="nav-menu-head">
 				<span class="nav-menu-eyebrow">{ i18n.T(lang, "notifications.title") }</span>
+				<button
+					type="button"
+					class="nav-menu-close-mobile"
+					@click="open = false"
+					aria-label="إغلاق نافذة الإشعارات"
+				>
+					@IconClose("icon-xs")
+				</button>
 			</div>
 			<div class="nav-notif-empty">
 				<div class="nav-notif-empty-mark">

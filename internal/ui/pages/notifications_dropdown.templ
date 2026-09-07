@@ -22,6 +22,14 @@ templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread i
 		if unread > 0 {
 			<span class="nav-notif-count">{ fmt.Sprintf("%d غير مقروء", unread) }</span>
 		}
+		<button
+			type="button"
+			class="nav-menu-close-mobile"
+			@click="open = false"
+			aria-label="إغلاق نافذة الإشعارات"
+		>
+			@components.IconClose("icon-xs")
+		</button>
 	</div>
 	if len(logs) == 0 {
 		<div class="nav-notif-empty">

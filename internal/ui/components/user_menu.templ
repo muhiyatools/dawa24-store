@@ -41,12 +41,20 @@ templ UserMenu(lang string, inDashboard ...bool) {
 				@IconChevronDown("icon-xs nav-trigger-chevron")
 			</button>
 			<div
+				class="nav-scrim-mobile"
+				x-show="open"
+				x-cloak
+				x-transition.opacity.duration.200ms
+				@click="open = false"
+				aria-hidden="true"
+			></div>
+			<div
 				id="user-menu-panel"
 				class="nav-menu"
 				role="menu"
 				x-show="open"
 				x-cloak
-				x-transition.origin.top.duration.150ms
+				x-transition.duration.200ms
 			>
 				<div class="nav-menu-head">
 					<span class="nav-menu-identity">
@@ -55,6 +63,14 @@ templ UserMenu(lang string, inDashboard ...bool) {
 							<span class="nav-menu-detail">{ actor.Email }</span>
 						}
 					</span>
+					<button
+						type="button"
+						class="nav-menu-close-mobile"
+						@click="open = false"
+						aria-label="إغلاق القائمة"
+					>
+						@IconClose("icon-xs")
+					</button>
 				</div>
 				<div class="nav-menu-body">
 					if isDash {

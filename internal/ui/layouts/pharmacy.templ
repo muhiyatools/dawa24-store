@@ -110,14 +110,30 @@ templ BuyingBranchSelector(ctx context.Context) {
 					@components.IconChevronDown("icon-2xs nav-trigger-chevron")
 				</button>
 				<div
+					class="nav-scrim-mobile"
+					x-show="open"
+					x-cloak
+					x-transition.opacity.duration.200ms
+					@click="open = false"
+					aria-hidden="true"
+				></div>
+				<div
 					class="nav-menu nav-menu--start"
 					role="menu"
 					x-show="open"
 					x-cloak
-					x-transition.origin.top.duration.150ms
+					x-transition.duration.200ms
 				>
 					<div class="nav-menu-head">
 						<span class="nav-menu-eyebrow">اختر فرع التوريد النشط</span>
+						<button
+							type="button"
+							class="nav-menu-close-mobile"
+							@click="open = false"
+							aria-label="إغلاق قائمة الفروع"
+						>
+							@components.IconClose("icon-xs")
+						</button>
 					</div>
 					<div class="nav-menu-body">
 						<div class="nav-menu-group">

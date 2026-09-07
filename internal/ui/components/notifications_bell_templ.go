@@ -76,20 +76,28 @@ func NotificationsBell(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button> <span class=\"nav-count-slot\" hx-get=\"/notifications/unread-badge\" hx-trigger=\"load, every 60s, notificationRead from:body\" hx-swap=\"innerHTML\" hx-target=\"this\"></span><div class=\"nav-menu nav-menu--wide\" id=\"notif-dropdown-content\" role=\"menu\" x-show=\"open\" x-cloak x-transition.origin.top.duration.150ms><div class=\"nav-menu-head\"><span class=\"nav-menu-eyebrow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button> <span class=\"nav-count-slot\" hx-get=\"/notifications/unread-badge\" hx-trigger=\"load, every 60s, notificationRead from:body\" hx-swap=\"innerHTML\" hx-target=\"this\"></span><div class=\"nav-scrim-mobile\" x-show=\"open\" x-cloak x-transition.opacity.duration.200ms @click=\"open = false\" aria-hidden=\"true\"></div><div class=\"nav-menu nav-menu--wide\" id=\"notif-dropdown-content\" role=\"menu\" x-show=\"open\" x-cloak x-transition.duration.200ms><div class=\"nav-menu-head\"><span class=\"nav-menu-eyebrow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "notifications.title"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 48, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 56, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div class=\"nav-notif-empty\"><div class=\"nav-notif-empty-mark\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span> <button type=\"button\" class=\"nav-menu-close-mobile\" @click=\"open = false\" aria-label=\"إغلاق نافذة الإشعارات\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button></div><div class=\"nav-notif-empty\"><div class=\"nav-notif-empty-mark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,20 +105,20 @@ func NotificationsBell(lang string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><p class=\"nav-notif-empty-text\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><p class=\"nav-notif-empty-text\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "notifications.empty"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 54, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/notifications_bell.templ`, Line: 70, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</p></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -238,23 +238,66 @@ dialog.modal::backdrop {
     padding: 0;
     align-items: flex-end;
   }
-  /* Every modal shell, not just .modal-box: .modal-dialog and .modal-card share
-     the size ladder above, so they have to share the phone treatment too or
-     they stay a centred 580px card wider than the screen. */
+  .modal-backdrop {
+    padding: 0 !important;
+    align-items: flex-end !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Every modal shell, not just .modal-box: .modal-dialog, .modal-card,
+     .modal-content, and modal-backdrop children share the mobile bottom sheet
+     presentation rather than remaining a centred card wider than the viewport. */
   .modal-box,
   .modal-dialog,
-  .modal-card {
-    max-width: 100vw;
-    width: 100%;
+  .modal-card,
+  .modal-content,
+  .modal-backdrop > .modal-content,
+  .modal-backdrop > .glass-panel,
+  .modal-backdrop > div:not(.modal-scrim) {
+    max-width: 100vw !important;
+    width: 100% !important;
     max-height: 92vh;
     max-height: 92dvh;
-    border-radius: var(--radius-2xl, 1rem) var(--radius-2xl, 1rem) 0 0;
-    margin: 0;
-    border-bottom: none;
+    border-radius: var(--radius-2xl, 1.25rem) var(--radius-2xl, 1.25rem) 0 0 !important;
+    margin: 0 !important;
+    border-bottom: none !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25), var(--shadow-2xl);
+  }
+  .modal-header {
+    padding: 1.25rem 1.25rem 0.875rem;
+    position: relative;
+  }
+  /* Visual grab handle indicating bottom sheet */
+  .modal-box .modal-header::after,
+  .modal-dialog .modal-header::after,
+  .modal-card .modal-header::after,
+  .modal-content .modal-header::after,
+  .modal-backdrop > .modal-content .modal-header::after,
+  .modal-backdrop > .glass-panel .modal-header::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.5rem;
+    inset-inline: 0;
+    inline-size: 2.75rem;
+    block-size: 4px;
+    margin-inline: auto;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--border-card, rgba(148, 163, 184, 0.45));
   }
   .modal-body {
     max-height: calc(92vh - 8rem);
     max-height: calc(92dvh - 8rem);
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .modal-footer {
+    padding: 0.875rem 1.25rem max(0.875rem, env(safe-area-inset-bottom, 0.875rem));
+  }
+  .modal-close {
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
   }
   /* Ad-hoc overlays built from utilities rather than the modal component —
      `class="fixed inset-0 ... items-center justify-center p-4"` with a panel
@@ -269,6 +312,33 @@ dialog.modal::backdrop {
   .fixed.inset-0 > * {
     max-height: none;
     margin-block: auto;
+  }
+  .card:has(table),
+  .card:has(.data-table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+  }
+  .modal-footer > *,
+  .modal-footer .btn {
+    inline-size: 100% !important;
+    width: 100% !important;
+    min-block-size: 2.75rem;
+    justify-content: center;
+  }
+  .modal-header {
+    padding: 1.25rem 1rem 0.75rem;
+  }
+  .modal-body {
+    padding: 0.875rem 1rem;
   }
 }
 
