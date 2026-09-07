@@ -181,7 +181,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = Base(title, lang, dir, "/static/css/public.css", "/static/css/marketing.css").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Base(title, lang, dir, "/static/css/customer.css", "/static/css/public.css", "/static/css/marketing.css").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

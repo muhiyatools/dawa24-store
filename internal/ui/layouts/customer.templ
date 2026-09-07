@@ -19,7 +19,7 @@ import (
 // are the same object.
 templ PublicShell(title string, lang string, dir string) {
 	{{ site := GetSiteSettings(ctx) }}
-	@Base(title, lang, dir, "/static/css/public.css", "/static/css/marketing.css") {
+	@Base(title, lang, dir, "/static/css/customer.css", "/static/css/public.css", "/static/css/marketing.css") {
 		<div x-data="{ mobileNav: false }" class="public-shell-root">
 			<header class="nav-root nav-root--public" data-nav-scroll>
 				<div class="nav-inner">

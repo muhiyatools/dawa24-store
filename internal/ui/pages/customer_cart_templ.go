@@ -704,7 +704,7 @@ func CustomerCartContent(cart *commerce.Cart, groups []CartGroup, lang string) t
 				return templ_7745c5c3_Err
 			}
 			if HasUncoveredItems(cart) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"alert alert-danger p-3 text-xs leading-relaxed\"><strong>تنبيه التغطية:</strong> يحتوي طلبك على أصناف خارج نطاق تغطية الفرع المحدد. يرجى حذفها أو اختيار فرع صيدلية آخر متاح في نطاق التوريد.</div><button type=\"button\" disabled class=\"btn btn-secondary w-full p-3 font-bold opacity-60 cursor-not-allowed\"><span>غير متاح للإتمام (أصناف خارج التغطية)</span></button> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"alert alert-danger p-3 text-xs leading-relaxed\"><strong>تنبيه التغطية:</strong> يحتوي طلبك على أصناف خارج نطاق تغطية الفرع المحدد. يرجى حذفها أو اختيار فرع آخر متاح في نطاق التوريد.</div><button type=\"button\" disabled class=\"btn btn-secondary w-full p-3 font-bold opacity-60 cursor-not-allowed\"><span>غير متاح للإتمام (أصناف خارج التغطية)</span></button> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

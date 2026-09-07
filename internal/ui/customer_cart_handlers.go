@@ -42,45 +42,7 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if cart != nil && len(cart.Items) > 0 {
-		branchID := h.buyingBranchID(ctx, &actor)
-		for _, it := range cart.Items {
-			it.IsCovered = true
-			if branchID <= 0 {
-				it.IsCovered = false
-				it.CoverageReason = i18n.T(langOf(r), "buying.select_branch_first")
-			} else if it.ProductVariantID > 0 && it.OrganizationID > 0 {
-				res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
-					VariantID:        it.ProductVariantID,
-					VendorOrgID:      it.OrganizationID,
-					CustomerOrgID:    actor.OrganizationID,
-					CustomerBranchID: branchID,
-					Quantity:         it.Quantity,
-					When:             time.Now(),
-				})
-				if err == nil {
-					if !res.Allowed {
-						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
-							it.IsCovered = false
-							if res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
-								it.CoverageReason = res.MessageAr
-							} else {
-								it.CoverageReason = i18n.T(langOf(r), "customer.cart.coverage_outside")
-							}
-						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
-							it.CoverageReason = i18n.T(langOf(r), "customer.cart.out_of_stock")
-						} else if res.Reason.IsQuota() {
-							// The line is refusable but the branch is fine, so
-							// the row stays and carries the supplier's reason.
-							// Without this the cart looks healthy and checkout
-							// fails with no warning.
-							it.CoverageReason = res.MessageAr
-						}
-					}
-				}
-			}
-		}
-	}
+	h.enrichCartItemsCoverage(ctx, &actor, cart, langOf(r))
 
 	h.renderPage(ctx, w, "render cart page",
 		pages.CustomerCart(cart, h.cartGroups(ctx, &actor, cart), lang, dir, h.isHTMX(r)))
@@ -260,6 +222,9 @@ func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request)
 
 	if h.isHTMX(r) {
 		cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
+		actor, _ := authctx.From(ctx)
+		h.enrichCartItemsCoverage(ctx, &actor, cart, langOf(r))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"cartUpdated":{"count":%d}}`, cartTotalItemCount(cart)))
 		lang, _ := h.localeAndDir(r)
 		h.renderPage(ctx, w, "render customer cart content",
 			pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
@@ -301,6 +266,9 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 		}
 		if h.isHTMX(r) {
 			cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
+			actor, _ := authctx.From(ctx)
+			h.enrichCartItemsCoverage(ctx, &actor, cart, langOf(r))
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"cartUpdated":{"count":%d}}`, cartTotalItemCount(cart)))
 			lang, _ := h.localeAndDir(r)
 			h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
 			return
@@ -339,6 +307,9 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 
 	if h.isHTMX(r) {
 		cart, _ := h.commSvc.GetCart(ctx, userID, buyerOrgID(ctx))
+		actor, _ := authctx.From(ctx)
+		h.enrichCartItemsCoverage(ctx, &actor, cart, langOf(r))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"cartUpdated":{"count":%d}}`, cartTotalItemCount(cart)))
 		lang, _ := h.localeAndDir(r)
 		h.renderPage(ctx, w, "render customer cart content",
 			pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang))
@@ -380,4 +351,56 @@ func (h *UIHandler) cartGroupsFor(ctx context.Context, cart *commerce.Cart) []pa
 		return pages.GroupCartBySupplier(cart)
 	}
 	return h.cartGroups(ctx, &actor, cart)
+}
+
+func cartTotalItemCount(cart *commerce.Cart) int {
+	if cart == nil {
+		return 0
+	}
+	count := 0
+	for _, ci := range cart.Items {
+		count += ci.Quantity
+	}
+	return count
+}
+
+func (h *UIHandler) enrichCartItemsCoverage(ctx context.Context, actor *authctx.Actor, cart *commerce.Cart, lang string) {
+	if cart == nil || len(cart.Items) == 0 {
+		return
+	}
+	branchID := h.buyingBranchID(ctx, actor)
+	for _, it := range cart.Items {
+		it.IsCovered = true
+		if branchID <= 0 {
+			it.IsCovered = false
+			it.CoverageReason = i18n.T(lang, "buying.select_branch_first")
+		} else if it.ProductVariantID > 0 && it.OrganizationID > 0 {
+			orgID := int64(0)
+			if actor != nil {
+				orgID = actor.OrganizationID
+			}
+			res, err := h.commSvc.CheckAvailability(ctx, commerce.AvailabilityRequest{
+				VariantID:        it.ProductVariantID,
+				VendorOrgID:      it.OrganizationID,
+				CustomerOrgID:    orgID,
+				CustomerBranchID: branchID,
+				Quantity:         it.Quantity,
+				When:             time.Now(),
+			})
+			if err == nil && !res.Allowed {
+				if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation || res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
+					it.IsCovered = false
+					if res.Reason == commerce.ReasonBranchNoInstitutionalWorks || res.Reason == commerce.ReasonBranchInstitutionalMismatch {
+						it.CoverageReason = res.MessageAr
+					} else {
+						it.CoverageReason = i18n.T(lang, "customer.cart.coverage_outside")
+					}
+				} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
+					it.CoverageReason = i18n.T(lang, "customer.cart.out_of_stock")
+				} else if res.Reason.IsQuota() {
+					it.CoverageReason = res.MessageAr
+				}
+			}
+		}
+	}
 }

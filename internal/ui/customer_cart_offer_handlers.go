@@ -234,8 +234,9 @@ func (h *UIHandler) assertCartLineAvailable(
 		if h.isHTMX(r) {
 			if back == "/cart" {
 				cart, _ := h.commSvc.GetCart(ctx, actor.UserID, buyerOrgID(ctx))
+				h.enrichCartItemsCoverage(ctx, &actor, cart, langOf(r))
 				lang, _ := h.localeAndDir(r)
-				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
+				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"},"cartUpdated":{"count":%d}}`, res.MessageAr, cartTotalItemCount(cart)))
 				w.Header().Set("Content-Type", "text/html; charset=utf-8")
 				_ = pages.CustomerCartContent(cart, h.cartGroupsFor(ctx, cart), lang).Render(ctx, w)
 				return false

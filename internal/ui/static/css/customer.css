@@ -1350,6 +1350,14 @@
   border-radius: var(--radius-md);
   padding: 2px;
   gap: 2px;
+  user-select: none;
+}
+
+.cart-stepper-control form {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .cart-stepper-btn {
@@ -1358,12 +1366,13 @@
   border: none;
   background: transparent;
   color: var(--text-primary);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: var(--radius-sm);
   transition: background var(--duration-fast) var(--ease-smooth);
+  padding: 0;
 }
 
 .cart-stepper-btn:hover:not(:disabled) {
@@ -1383,6 +1392,26 @@
   position: sticky;
   top: 85px;
   box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 1024px) {
+  .cart-summary-card {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .cart-item-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .cart-item-row > .d-flex.items-center.gap-4 {
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border-subtle);
+  }
 }
 
 /* ---- Order & Shipment Cards ---- */

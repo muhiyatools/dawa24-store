@@ -77,16 +77,21 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 										</div>
           <div class="stack-sm">
 											<h2 class="text-lg font-extrabold text-primary m-0">
-												1. اختيار فرع الصيدلية المستلم للطلبية
+												1. اختيار فرع استلام الطلبية
 											</h2>
 											<span class="text-xs text-muted">تسليم مباشر إلى مقر الفرع المرخص</span>
 										</div>
 									</div>
 
 									if buying, has := authctx.BuyingBranchFrom(ctx); !has || !buying.IsLocked {
-										<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold gap-1">
+										<a href={ templ.SafeURL(func() string {
+											if actor := authctx.FromContext(ctx); actor.IsVendor() {
+												return "/vendor/branches"
+											}
+											return "/customer/branches"
+										}()) } class="btn btn-secondary btn-sm font-bold gap-1">
 											@components.IconPlus("icon-xs")
-											<span>إدارة فروع الصيدلية</span>
+											<span>إدارة فروع الاستلام</span>
 										</a>
 									} else {
 										<span class="badge badge-amber text-xs font-bold gap-1">
@@ -100,11 +105,16 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 									if len(branches) == 0 {
 										<div class="empty-state-glass p-6 text-center border-dashed">
 											<div class="text-sm text-muted mb-4">
-												لا توجد فروع مسجلة للصيدلية حتى الآن. يرجى إضافة الفرع وعنوان الاستلام لتأكيد الشحنة.
+												لا توجد فروع مسجلة حتى الآن. يرجى إضافة الفرع وعنوان الاستلام لتأكيد الشحنة.
 											</div>
-											<a href="/customer/branches" class="btn btn-primary btn-sm font-extrabold gap-1">
+											<a href={ templ.SafeURL(func() string {
+												if actor := authctx.FromContext(ctx); actor.IsVendor() {
+													return "/vendor/branches"
+												}
+												return "/customer/branches"
+											}()) } class="btn btn-primary btn-sm font-extrabold gap-1">
 												@components.IconPlus("icon-xs")
-												<span>إضافة عنوان فرع الصيدلية الآن</span>
+												<span>إضافة عنوان الفرع الآن</span>
 											</a>
 										</div>
 									}
@@ -200,7 +210,12 @@ templ CustomerCheckout(cart *commerce.Cart, branches []*org.Branch, wallet *bill
 												if !hasFunds {
 													<div class="mt-2 text-2xs text-danger font-bold d-flex items-center gap-1">
 														<span>⚠️ الرصيد المتاح حالياً بالمحفظة لا يغطي إجمالي الأصناف.</span>
-														<a href="/customer/wallet" target="_blank" class="text-brand underline font-extrabold">شحن المحفظة المؤسسية ↗</a>
+														<a href={ templ.SafeURL(func() string {
+															if actor := authctx.FromContext(ctx); actor.IsVendor() {
+																return "/vendor/wallet"
+															}
+															return "/customer/wallet"
+														}()) } target="_blank" class="text-brand underline font-extrabold">شحن المحفظة المؤسسية ↗</a>
 													</div>
 												}
 											</div>

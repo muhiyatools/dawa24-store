@@ -7,7 +7,7 @@ import (
 
 templ AdminShell(title string, activeNav string, lang string, dir string) {
 	if site := GetSiteSettings(ctx); site != nil {
-		@Base(title, lang, dir, "/static/css/admin.css") {
+		@Base(title, lang, dir, "/static/css/customer.css", "/static/css/admin.css") {
 			<div class="app-shell">
 				<!-- Sidebar -->
 				<aside class="sidebar" id="app-sidebar">
