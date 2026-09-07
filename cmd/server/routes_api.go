@@ -91,7 +91,7 @@ func mountModuleRoutesAPI(
 	identityHandler.SetResolver(permissions)
 	identityHandler.RegisterRoutes(r)
 
-	// Authenticated API routes â€” Pre-approval / Onboarding allowlist
+	// Authenticated API routes — Pre-approval / Onboarding allowlist
 	// (Document upload and own organisation status queries needed to achieve approval)
 	r.Group(func(preApproval chi.Router) {
 		preApproval.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
@@ -106,7 +106,7 @@ func mountModuleRoutesAPI(
 		orgHttp.NewHandler(orgSvcAPI, log).RegisterPreApprovalRoutes(preApproval)
 	})
 
-	// Authenticated API routes â€” Approved organizations only
+	// Authenticated API routes — Approved organizations only
 	r.Group(func(approved chi.Router) {
 		approved.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		approved.Use(identityHttp.ResolveTenant(idSvc, log))

@@ -258,8 +258,8 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	}
 	if !connected {
 		return denied(ReasonBranchInstitutionalMismatch, variant.StockQty,
-			"العمل المؤسسي لفرع الصيدلية غير متصل بالأعمال المؤسسية المعتمدة لفروع هذا المورد وفقاً لإعدادات المنصة.",
-			"The customer branch's institutional work is not connected to the vendor's branch institutional works according to platform settings."), nil
+			"العمل المؤسسي لفرع المنشأة المستلمة غير متصل بالأعمال المؤسسية المعتمدة لفروع هذا المورد وفقاً لإعدادات المنصة.",
+			"The receiving branch's institutional work is not connected to the vendor's branch institutional works according to platform settings."), nil
 	}
 
 	// 6. The supplier must cover that branch's location on the relevant weekday.

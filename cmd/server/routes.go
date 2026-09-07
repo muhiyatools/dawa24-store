@@ -107,6 +107,7 @@ func mountModuleRoutes(
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireVendor(log))
 		uiRouter.Use(authctx.RequireApproved(log))
+		uiRouter.Use(uiHandler.BuyingBranchSelector)
 		uiHandler.RegisterVendorRoutes(uiRouter)
 	})
 	r.Group(func(uiRouter chi.Router) {

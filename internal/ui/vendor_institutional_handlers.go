@@ -32,6 +32,7 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 	filterDay := strings.TrimSpace(r.URL.Query().Get("day"))
 	filterBranch := strings.TrimSpace(r.URL.Query().Get("branch"))
 	filterCity := strings.TrimSpace(r.URL.Query().Get("city"))
+	filterType := strings.TrimSpace(r.URL.Query().Get("type"))
 
 	// 1. Fetch vendor's active weekly coverage windows
 	var coverages []*workflow.CoverageView
@@ -46,12 +47,11 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	// 2. Fetch all customer pharmacy organizations
-	var pharmacies []*org.Organization
+	// 2. Fetch all approved customer and vendor organizations (excluding self)
+	var organizations []*org.Organization
 	if h.orgSvc != nil {
-		typ := org.TypeCustomer
 		status := org.StatusApproved
-		pharmacies, _ = h.orgSvc.ListOrganizations(ctx, &typ, &status, 500, 0)
+		organizations, _ = h.orgSvc.ListOrganizations(ctx, nil, &status, 1000, 0)
 	}
 
 	// 3. Load cities map
@@ -83,8 +83,20 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 	seenBranches := make(map[string]bool)
 	coveredTodayCount := 0
 
-	for _, pharm := range pharmacies {
-		if pharm == nil {
+	for _, pharm := range organizations {
+		if pharm == nil || pharm.ID == actor.OrganizationID {
+			continue
+		}
+
+		isVendor := string(pharm.Type) == "vendor" || string(pharm.Type) == "supplier" || string(pharm.Type) == "distributor" || string(pharm.Type) == "company"
+		orgTypeStr := "customer"
+		if isVendor {
+			orgTypeStr = "vendor"
+		}
+		if filterType == "customer" && isVendor {
+			continue
+		}
+		if filterType == "vendor" && !isVendor {
 			continue
 		}
 
@@ -221,6 +233,8 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 				PharmacyID:         pharm.ID,
 				PharmacyName:       pharmName,
 				PharmacyTradeName:  tradeName,
+				OrgType:            orgTypeStr,
+				IsVendor:           isVendor,
 				BranchID:           pb.ID,
 				BranchName:         pbBranchName,
 				Address:            pb.Address,
@@ -287,15 +301,28 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 		coveredBranchesList = append(coveredBranchesList, b)
 	}
 
+	totalPharmacies := 0
+	totalVendors := 0
+	for _, it := range items {
+		if it.IsVendor {
+			totalVendors++
+		} else {
+			totalPharmacies++
+		}
+	}
+
 	data := pages.VendorPharmacyCoverageData{
 		Pharmacies:        items,
-		TotalPharmacies:   len(items),
+		TotalPharmacies:   totalPharmacies,
+		TotalVendors:      totalVendors,
+		TotalFacilities:   len(items),
 		CoveredTodayCount: coveredTodayCount,
 		CoveredCities:     coveredCitiesList,
 		CoveredBranches:   coveredBranchesList,
 		FilterDay:         filterDay,
 		FilterBranch:      filterBranch,
 		FilterCity:        filterCity,
+		FilterType:        filterType,
 		SearchQuery:       search,
 	}
 

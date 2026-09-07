@@ -584,7 +584,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" class=\"text-xs font-bold text-brand text-decoration-none d-inline-flex items-center gap-1\"><span>سجل الاستهلاك (AI Logs) ↗</span></a></div></div></div><!-- Auto-Renewal Information & Wallet Balance Status Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" class=\"text-xs font-bold text-brand text-decoration-none d-inline-flex items-center gap-1\"><span>سجل الاستهلاك (AI Logs)</span></a></div></div></div><!-- Auto-Renewal Information & Wallet Balance Status Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

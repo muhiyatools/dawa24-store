@@ -192,10 +192,6 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 								}
 							}
 						}
-						// If customer has selected receiving branch, hide unavailable/uncovered items
-						if customerBranchID > 0 && !canAddToCart {
-							continue
-						}
 					}
 
 					data.VariantMeta[v.ID] = pages.SupplierVariantMeta{

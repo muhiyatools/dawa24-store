@@ -79,6 +79,7 @@ func (h *Handler) Checkout(w http.ResponseWriter, r *http.Request) {
 	input.CustomerID = actor.UserID
 	if actor.OrganizationID > 0 {
 		input.CustomerOrgID = actor.OrganizationID
+		input.CustomerOrgType = actor.OrgType
 	}
 
 	order, err := h.service.Checkout(r.Context(), input)

@@ -266,6 +266,7 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
 		input.CustomerOrgID = actor.OrganizationID
+		input.CustomerOrgType = actor.OrgType
 	}
 	if offerID > 0 {
 		input.OfferID = offerID

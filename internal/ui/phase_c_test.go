@@ -66,7 +66,7 @@ func TestPhaseC_VendorPharmacyCoverage(t *testing.T) {
 	// GET /vendor/pharmacy-coverage renders
 	rec := doGET(t, r, "/vendor/pharmacy-coverage", vendorActor)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "الصيدليات المشمولة في نطاق التغطية الأسبوعية")
+	assert.Contains(t, rec.Body.String(), "المشمولة في نطاق التغطية الأسبوعية")
 }
 
 // TestPhaseC_AdminReferenceData verifies Task C.6: Admin countries, social media, highlight sections, API integrations.

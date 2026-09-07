@@ -54,7 +54,7 @@ function initImportProgress() {
       if (data.done) {
         stopped = true;
         // Reload rather than patch the DOM: the finished page is a different
-        // page â€” structure, counts, per-row table â€” and the server already
+        // page — structure, counts, per-row table — and the server already
         // knows how to render it.
         window.location.reload();
         return;

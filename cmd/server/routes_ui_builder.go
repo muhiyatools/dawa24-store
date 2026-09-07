@@ -187,7 +187,7 @@ func buildUIHandler(
 	ingSvcUI.SetMatchMemory(ingRepoUI)
 	// The same cache, in the shared vocabulary, for the two import paths that
 	// had none: the saving-list import and the administrator's master-catalogue
-	// import. Four tools, one table, one key â€” an answer bought by any of them
+	// import. Four tools, one table, one key — an answer bought by any of them
 	// is free to the other three.
 	sharedMatchMemory := newMatchMemory(ingRepoUI)
 	catSvcUI.SetMatchMemory(sharedMatchMemory)
@@ -275,12 +275,12 @@ func buildUIHandler(
 		// The administrator's import asks the same question as the other three,
 		// so it asks it through the same capability rather than through a third
 		// prompt of its own. The mapper still answers the two questions that are
-		// genuinely its own â€” which column is which, and what a category word
-		// means â€” and those are asked once per file, not once per row.
+		// genuinely its own — which column is which, and what a category word
+		// means — and those are asked once per file, not once per row.
 		catSvcUI.SetMatchAdjudicator(&catalogAdjudicateAdapter{caps: aiCapabilitiesSvc})
 		// The vendor import runs the smart order's enhancement stage: the same
 		// system prompt, the same shared catalogue window, the same guards, and
-		// the same decision cache in catalog.match_decisions â€” so an answer
+		// the same decision cache in catalog.match_decisions — so an answer
 		// bought by a pharmacy's order is free to the vendor whose price list
 		// asks the same question, and there is one prompt to tune rather than
 		// two that drift.
@@ -338,9 +338,9 @@ func buildUIHandler(
 	// Unified durable imports (Task 18).
 	wireImports(db, uiHandler, catSvcUI, progressHub, uiProgress, log)
 
-	// Audience-gated UI groups (Rebuild V2 Â§1.3). Every route is registered
+	// Audience-gated UI groups (Rebuild V2 §1.3). Every route is registered
 	// under exactly one group; a route living outside these groups means it is
-	// reachable by anyone regardless of account type â€” test/route_audience_test.go
+	// reachable by anyone regardless of account type — test/route_audience_test.go
 	// walks the app the same way admin_guard_test.go does and forbids that.
 	return uiHandler
 }

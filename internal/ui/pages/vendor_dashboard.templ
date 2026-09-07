@@ -124,10 +124,10 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 							<div class="mt-3 pt-2 border-t flex-between items-center">
 								<a href="/vendor/ai-logs" class="text-xs font-bold text-brand text-decoration-none">
-									<span>سجل الاستهلاك (AI Logs) â†—</span>
+									<span>سجل الاستهلاك (AI Logs)</span>
 								</a>
 								<a href="/vendor/subscription" class="text-xs font-bold text-muted text-decoration-none">
-									<span>الاشتراك â†—</span>
+									<span>الاشتراك</span>
 								</a>
 							</div>
 						</div>
@@ -142,7 +142,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-brand font-bold d-flex items-center justify-between">
 						<span>صافي مبيعات الشهر</span>
-						<a href="/vendor/earnings/order" class="badge badge-emerald text-xs text-decoration-none">تفاصيل â†—</a>
+						<a href="/vendor/earnings/order" class="badge badge-emerald text-xs text-decoration-none">تفاصيل</a>
 					</div>
 					<div class="stat-card-value text-brand tabular-nums mt-1">
 						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSales })
@@ -194,7 +194,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-primary font-bold d-flex items-center justify-between">
 						<span>المنتجات النشطة بالكتالوج</span>
-						<a href="/vendor/products" class="badge badge-slate text-xs text-decoration-none">الكتالوج â†—</a>
+						<a href="/vendor/products" class="badge badge-slate text-xs text-decoration-none">الكتالوج</a>
 					</div>
 					<div class="stat-card-value text-primary tabular-nums mt-1">
 						{ fmt.Sprintf("%d", data.ActiveProducts) } <span class="text-xs text-muted font-semibold">صنف دواء</span>
@@ -235,13 +235,13 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								}
 							</div>
 							<a href="/vendor/orders" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">
-								<span>عرض كافة الطلبيات â†—</span>
+								<span>عرض كافة الطلبيات</span>
 							</a>
 						</div>
 
 						if len(data.Shipments) == 0 {
 							<div class="text-xs text-muted text-center py-10">
-								<div class="text-2xl mb-2">ðŸŽ‰</div>
+								<div class="text-2xl mb-2">🎉</div>
 								<strong class="text-primary d-block mb-1">لا توجد شحنات معلّقة حالياً</strong>
 								<span>تمت معالجة وتنفيذ كافة أوامر التوريد الواردة من الصيدليات.</span>
 							</div>
@@ -407,7 +407,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								<div class="text-xs text-secondary font-bold">طلب تسعير جديد بانتظار موافقتك</div>
 								<div class="mt-4">
 									<a href="/vendor/orders" class="btn btn-primary btn-sm font-bold text-xs px-4 rounded-md">
-										<span>مراجعة طلبات التسعير والرد â†—</span>
+										<span>مراجعة طلبات التسعير والرد</span>
 									</a>
 								</div>
 							</div>
@@ -419,9 +419,9 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 		</div>
 	}
 
-	<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+	<!-- ========================================================================= -->
 	<!-- Detailed Shipment Preview & Execution Modals (With Official Workflow) -->
-	<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+	<!-- ========================================================================= -->
 	for _, s := range data.Shipments {
 		@components.Modal(components.ModalProps{ 
 			ID: fmt.Sprintf("preview-shipment-%d", s.ID), 
@@ -646,7 +646,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								الشحنة بحالة: { string(s.Status) }
 							</span>
 							<a href="/vendor/orders" class="btn btn-secondary btn-sm text-xs font-bold">
-								الانتقال لصفحة الطلبيات â†—
+								الانتقال لصفحة الطلبيات
 							</a>
 						</div>
 					}
@@ -655,7 +655,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<!-- Navigation Footer Link -->
 				<div class="mt-3 pt-2 border-t flex-between items-center">
 					<a href="/vendor/orders" class="text-xs font-bold text-secondary text-decoration-none">
-						الانتقال لصفحة كافة الطلبيات والشحنات المعتمدة â†—
+						الانتقال لصفحة كافة الطلبيات والشحنات المعتمدة
 					</a>
 					<form method="dialog" class="m-0">
 						<button type="button" class="btn btn-secondary btn-sm font-bold text-xs">إغلاق</button>

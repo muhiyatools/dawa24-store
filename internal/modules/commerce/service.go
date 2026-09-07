@@ -96,8 +96,9 @@ type CheckoutInput struct {
 	MinOrderAmount money.Amount `json:"min_order_amount,omitempty"`
 	// CustomerOrgID is the buyer's organization. The documents gate
 	// (Rebuild V2 §4.2) checks it; the API/UI layers fill it from the actor.
-	CustomerOrgID    int64  `json:"customer_org_id,omitempty"`
-	IsNegotiation    bool   `json:"is_negotiation"`
+	CustomerOrgID   int64  `json:"customer_org_id,omitempty"`
+	CustomerOrgType string `json:"customer_org_type,omitempty"`
+	IsNegotiation   bool   `json:"is_negotiation"`
 	NegotiationNotes string `json:"negotiation_notes,omitempty"`
 }
 
@@ -116,7 +117,11 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		return nil, apperr.Validation("checkout.empty_cart", "Cannot checkout an empty cart.", nil)
 	}
 	if s.reqDocs != nil && input.CustomerOrgID > 0 {
-		if err := s.reqDocs(ctx, input.CustomerOrgID, "customer"); err != nil {
+		orgType := input.CustomerOrgType
+		if orgType == "" {
+			orgType = "customer"
+		}
+		if err := s.reqDocs(ctx, input.CustomerOrgID, orgType); err != nil {
 			return nil, err
 		}
 	}

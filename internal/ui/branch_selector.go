@@ -143,7 +143,8 @@ func (h *UIHandler) loadCustomerBranchOptions(r *http.Request, actor authctx.Act
 		return nil
 	}
 
-	options := make([]authctx.BranchOption, 0, len(branches))
+	var mainBranch *org.Branch
+	var otherBranches []*org.Branch
 	for _, b := range branches {
 		if b == nil || b.OrganizationID != actor.OrganizationID || b.Status == "inactive" || b.Status == "suspended" {
 			continue
@@ -152,6 +153,18 @@ func (h *UIHandler) loadCustomerBranchOptions(r *http.Request, actor authctx.Act
 		if !actor.IsOwner && actor.BranchID != nil && *actor.BranchID > 0 && b.ID != *actor.BranchID {
 			continue
 		}
+		if b.IsMain && mainBranch == nil {
+			mainBranch = b
+		} else {
+			otherBranches = append(otherBranches, b)
+		}
+	}
+
+	options := make([]authctx.BranchOption, 0, len(branches))
+	if mainBranch != nil {
+		options = append(options, authctx.BranchOption{ID: mainBranch.ID, Name: branchName(mainBranch, lang)})
+	}
+	for _, b := range otherBranches {
 		options = append(options, authctx.BranchOption{ID: b.ID, Name: branchName(b, lang)})
 	}
 

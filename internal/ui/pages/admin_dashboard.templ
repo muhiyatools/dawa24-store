@@ -41,9 +41,9 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
 		<div class="admin-page-container">
 			
-			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-			     EXECUTIVE HEADER BANNER
-			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<!-- ========================================================================= -->
+			<!-- EXECUTIVE HEADER BANNER -->
+			<!-- ========================================================================= -->
 			<div class="admin-banner">
 				<div class="admin-banner-inner">
 					<div class="d-flex items-center gap-3">
@@ -88,9 +88,9 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				</div>
 			</div>
 
-			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-			     1. TOP 4 HIGH-IMPACT EXECUTIVE KPI TILES
-			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<!-- ========================================================================= -->
+			<!-- 1. TOP 4 HIGH-IMPACT EXECUTIVE KPI TILES -->
+			<!-- ========================================================================= -->
 			<div class="admin-kpi-grid">
 				
 				<!-- KPI 1: GMV, Revenue & Commission -->
@@ -130,7 +130,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div class="admin-kpi-footer">
 						<span>مكتملة: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
 						<span>نشطة: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
-						<a href="/admin/orders" class="text-accent font-bold no-underline">عرض الكل â†</a>
+						<a href="/admin/orders" class="text-accent font-bold no-underline">عرض الكل</a>
 					</div>
 				</div>
 
@@ -163,7 +163,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div class="d-flex gap-2 items-baseline flex-wrap my-1">
 						if stats.PendingApprovals > 0 {
 							<a href="/admin/approvals" class="badge badge-amber font-bold text-xs rounded-md no-underline">
-								â³ { fmt.Sprintf("%d تراخيص معلقة", stats.PendingApprovals) }
+								⏳ { fmt.Sprintf("%d تراخيص معلقة", stats.PendingApprovals) }
 							</a>
 						} else {
 							<span class="badge badge-emerald text-xs font-bold rounded-md">
@@ -179,15 +179,15 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					</div>
 					<div class="admin-kpi-footer">
 						<span>إجمالي المستخدمين: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
-						<a href="/admin/approvals" class="text-accent font-bold no-underline">مراجعة الكل â†</a>
+						<a href="/admin/approvals" class="text-accent font-bold no-underline">مراجعة الكل</a>
 					</div>
 				</div>
 
 			</div>
 
-			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-			     2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS)
-			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<!-- ========================================================================= -->
+			<!-- 2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS) -->
+			<!-- ========================================================================= -->
 			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
 				
 				<!-- Column 1: Live Orders & Catalog Activity -->
@@ -366,9 +366,9 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 			</div>
 
-			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-			     3. BOTTOM SECTION: PENDING APPROVALS & RECENT ORGANIZATIONS
-			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<!-- ========================================================================= -->
+			<!-- 3. BOTTOM SECTION: PENDING APPROVALS & RECENT ORGANIZATIONS -->
+			<!-- ========================================================================= -->
 			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
 				
 				<!-- Pending Approvals Queue -->
@@ -420,7 +420,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 													<span>سجل: { po.CommercialRegister }</span>
 												}
 												if po.PharmacistLicense != "" {
-													<span> â€¢ ترخيص: { po.PharmacistLicense }</span>
+													<span> • ترخيص: { po.PharmacistLicense }</span>
 												}
 											</div>
 										</div>
@@ -474,7 +474,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 												}
 											</div>
 											<div class="text-xs text-muted tabular-nums mt-0.5">
-												منشأة #{ fmt.Sprintf("%d", ro.ID) } â€¢ { ro.CreatedAt.Format("2006-01-02") }
+												منشأة #{ fmt.Sprintf("%d", ro.ID) } • { ro.CreatedAt.Format("2006-01-02") }
 											</div>
 										</div>
 									</div>
@@ -495,9 +495,9 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 			</div>
 
-			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-			     4. EXECUTIVE QUICK ACTION SHORTCUTS
-			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<!-- ========================================================================= -->
+			<!-- 4. EXECUTIVE QUICK ACTION SHORTCUTS -->
+			<!-- ========================================================================= -->
 			<div class="bg-surface-sunken border rounded-2xl p-4">
 				<div class="text-xs font-bold text-secondary mb-2">الوصول السريع للأقسام التنفيذية:</div>
 				<div class="d-flex gap-2 flex-wrap items-center">

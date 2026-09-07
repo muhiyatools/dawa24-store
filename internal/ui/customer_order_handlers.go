@@ -448,6 +448,7 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 	input := commerce.CheckoutInput{
 		CustomerID:       actor.UserID,
 		CustomerOrgID:    actor.OrganizationID,
+		CustomerOrgType:  actor.OrgType,
 		BranchID:         branchID,
 		PaymentMethod:    paymentMethod,
 		Notes:            notes,

@@ -224,7 +224,7 @@ func BuyingBranchSelector(ctx context.Context) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"nav-pop\" x-data=\"{ open: false }\" @click.outside=\"open = false\" @keydown.escape.window=\"open = false\"><button type=\"button\" class=\"nav-trigger\" @click=\"open = !open\" :aria-expanded=\"open ? 'true' : 'false'\" aria-haspopup=\"menu\" title=\"تغيير فرع الصيدلية لحساب التغطية وشحن الطلبية\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"nav-pop\" x-data=\"{ open: false }\" @click.outside=\"open = false\" @keydown.escape.window=\"open = false\"><button type=\"button\" class=\"nav-trigger\" @click=\"open = !open\" :aria-expanded=\"open ? 'true' : 'false'\" aria-haspopup=\"menu\" title=\"تغيير فرع التوريد لحساب التغطية وشحن الطلبية\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

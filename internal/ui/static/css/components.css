@@ -5,14 +5,14 @@
 
 @layer components {
 /* ==========================================================================
-   Dawa24 ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Component Layer
+   Dawa24 — Component Layer
 
    Everything here backs a templ component in internal/ui/components/.
 
    Those components were originally written in Tailwind utility classes
    (bg-gray-200, animate-pulse, rounded-lg, p-4). Tailwind is not loaded on
-   this project and never has been ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â there is no CDN link in the layout and no
-   build step in the repository ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â so all of them rendered with no styling
+   this project and never has been — there is no CDN link in the layout and no
+   build step in the repository — so all of them rendered with no styling
    whatsoever. That is why the modal, drawer, tabs, dropdown, toast and
    skeleton components were wired into zero pages: they looked broken, so
    nobody used them, and the component library sat unused next to pages that
@@ -24,7 +24,7 @@
    Everything is written logical-direction-first (inset-inline-start, not
    left) because the primary language is Arabic and the shell is RTL.
 /* ==========================================================================
-   DAWA 24 DESIGN SYSTEM ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â BUTTON SYSTEM (.btn)
+   DAWA 24 DESIGN SYSTEM — BUTTON SYSTEM (.btn)
    ========================================================================== */
 
 .btn {
@@ -1025,7 +1025,7 @@ dialog.modal[open] {
    drifted: every page invented its own spacing and colour, so fixing one page
    never generalised. These cover the patterns that repeated most, so markup can
    name an intent instead of restating a rule. Values come from the tokens in
-   app.css ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â never literals.
+   app.css — never literals.
    --------------------------------------------------------------------------- */
 
 /* Spacing resets and layout helpers */
@@ -1172,7 +1172,7 @@ dialog.modal[open] {
    Assistant thinking indicator
 
    Three dots, no card, no label. The previous version was a bordered box
-   reading "ÃƒËœÃ‚Â¬ÃƒËœÃ‚Â§ÃƒËœÃ‚Â±Ãƒâ„¢Ã…Â  ÃƒËœÃ‚ÂµÃƒâ„¢Ã…Â ÃƒËœÃ‚Â§ÃƒËœÃ‚ÂºÃƒËœÃ‚Â© ÃƒËœÃ‚Â§Ãƒâ„¢Ã¢â‚¬Å¾ÃƒËœÃ‚Â¥ÃƒËœÃ‚Â¬ÃƒËœÃ‚Â§ÃƒËœÃ‚Â¨ÃƒËœÃ‚Â©ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦", which occupied more space than most answers
+   reading "جاري صياغة الإجابة...", which occupied more space than most answers
    and read as a stuck state. Only attachment analysis still shows text, because
    it is slow enough that the user needs to know which file is being read.
    --------------------------------------------------------------------------- */
@@ -1756,7 +1756,7 @@ select.form-control:focus-visible {
 .data-table th.text-end { text-align: end; }
 
 /* ==========================================================================
-   DAWA 24 DESIGN SYSTEM ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â BADGE & PILL SYSTEM
+   DAWA 24 DESIGN SYSTEM - BADGE & PILL SYSTEM
    ========================================================================== */
 
 .badge {
@@ -1853,7 +1853,7 @@ select.form-control:focus-visible {
 }
 
 /* ==========================================================================
-   DAWA 24 DESIGN SYSTEM ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â FORM CONTROLS & TABS
+   DAWA 24 DESIGN SYSTEM - FORM CONTROLS & TABS
    ========================================================================== */
 
 .form-input,
@@ -2124,8 +2124,8 @@ input:focus {
 /* ==========================================================================
    VENDOR IMPORT REVIEW TABLE
    --------------------------------------------------------------------------
-   The review table carries ten columns of controls ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â two editable prices, a
-   quantity, a catalogue picker and two checkboxes ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â and it was laid out with
+   The review table carries ten columns of controls — two editable prices, a
+   quantity, a catalogue picker and two checkboxes — and it was laid out with
    per-column min-widths that added up to more than any laptop viewport. The
    panel around it clipped the overflow, so the last columns were simply not
    reachable: the vendor could see a discount they could not edit.
@@ -2380,7 +2380,7 @@ input:focus {
 }
 
 /* ==========================================================================
-   SMART ORDER ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â WHAT IS NOT BEING ORDERED
+   SMART ORDER — WHAT IS NOT BEING ORDERED
    --------------------------------------------------------------------------
    The results screen leads with the lines the pharmacist can actually order.
    Everything blocked lives in this panel, closed, grouped by reason: a line

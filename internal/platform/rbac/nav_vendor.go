@@ -83,7 +83,7 @@ func vendorNav() []NavSection {
 					NameAr: "التغطية الأسبوعية", NameEn: "Weekly coverage",
 					Perm: "vendor.coverage.view"},
 				{Key: "pharmacy_coverage", Href: "/vendor/pharmacy-coverage", Icon: "users",
-					NameAr: "تغطية الصيدليات", NameEn: "Pharmacy coverage",
+					NameAr: "تغطية الصيدليات والموردين", NameEn: "Facility coverage",
 					Perm: "vendor.pharmacy_coverage.view"},
 				{Key: "subscription", Href: "/vendor/subscription", Icon: "sparkles",
 					NameAr: "الاشتراك والعضوية", NameEn: "Subscription",

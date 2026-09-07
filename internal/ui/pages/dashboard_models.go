@@ -465,11 +465,13 @@ func FormatTxTypeLabel(t billing.TransactionType) string {
 	}
 }
 
-// CoveredPharmacyItem represents one pharmacy branch covered by the vendor's distribution network.
+// CoveredPharmacyItem represents one pharmacy or vendor branch covered by the vendor's distribution network.
 type CoveredPharmacyItem struct {
 	PharmacyID         int64
 	PharmacyName       string
 	PharmacyTradeName  string
+	OrgType            string
+	IsVendor           bool
 	BranchID           int64
 	BranchName         string
 	Address            string
@@ -491,11 +493,15 @@ type CoveredPharmacyItem struct {
 type VendorPharmacyCoverageData struct {
 	Pharmacies        []CoveredPharmacyItem
 	TotalPharmacies   int
+	TotalVendors      int
+	TotalFacilities   int
 	CoveredTodayCount int
 	CoveredCities     []string
 	CoveredBranches   []string
 	FilterDay         string
 	FilterBranch      string
 	FilterCity        string
+	FilterType        string
 	SearchQuery       string
 }
+

@@ -309,12 +309,12 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</strong></span></div></div></div><div class=\"mt-3 pt-2 border-t flex-between items-center\"><a href=\"/vendor/ai-logs\" class=\"text-xs font-bold text-brand text-decoration-none\"><span>سجل الاستهلاك (AI Logs) â†—</span></a> <a href=\"/vendor/subscription\" class=\"text-xs font-bold text-muted text-decoration-none\"><span>الاشتراك â†—</span></a></div></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</strong></span></div></div></div><div class=\"mt-3 pt-2 border-t flex-between items-center\"><a href=\"/vendor/ai-logs\" class=\"text-xs font-bold text-brand text-decoration-none\"><span>سجل الاستهلاك (AI Logs)</span></a> <a href=\"/vendor/subscription\" class=\"text-xs font-bold text-muted text-decoration-none\"><span>الاشتراك</span></a></div></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Master KPI 6-Stat Grid with Relevant Metrics --><div class=\"dashboard-stat-grid mb-0\"><!-- 1. Monthly Revenue --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand font-bold d-flex items-center justify-between\"><span>صافي مبيعات الشهر</span> <a href=\"/vendor/earnings/order\" class=\"badge badge-emerald text-xs text-decoration-none\">تفاصيل â†—</a></div><div class=\"stat-card-value text-brand tabular-nums mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Master KPI 6-Stat Grid with Relevant Metrics --><div class=\"dashboard-stat-grid mb-0\"><!-- 1. Monthly Revenue --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand font-bold d-flex items-center justify-between\"><span>صافي مبيعات الشهر</span> <a href=\"/vendor/earnings/order\" class=\"badge badge-emerald text-xs text-decoration-none\">تفاصيل</a></div><div class=\"stat-card-value text-brand tabular-nums mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -387,7 +387,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " ج.م</div></div><!-- 5. Active Catalog Products --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-primary font-bold d-flex items-center justify-between\"><span>المنتجات النشطة بالكتالوج</span> <a href=\"/vendor/products\" class=\"badge badge-slate text-xs text-decoration-none\">الكتالوج â†—</a></div><div class=\"stat-card-value text-primary tabular-nums mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " ج.م</div></div><!-- 5. Active Catalog Products --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-primary font-bold d-flex items-center justify-between\"><span>المنتجات النشطة بالكتالوج</span> <a href=\"/vendor/products\" class=\"badge badge-slate text-xs text-decoration-none\">الكتالوج</a></div><div class=\"stat-card-value text-primary tabular-nums mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -457,12 +457,12 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm font-bold text-xs rounded-md\"><span>عرض كافة الطلبيات â†—</span></a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm font-bold text-xs rounded-md\"><span>عرض كافة الطلبيات</span></a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Shipments) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"text-xs text-muted text-center py-10\"><div class=\"text-2xl mb-2\">ðŸŽ‰</div><strong class=\"text-primary d-block mb-1\">لا توجد شحنات معلّقة حالياً</strong> <span>تمت معالجة وتنفيذ كافة أوامر التوريد الواردة من الصيدليات.</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"text-xs text-muted text-center py-10\"><div class=\"text-2xl mb-2\">🎉</div><strong class=\"text-primary d-block mb-1\">لا توجد شحنات معلّقة حالياً</strong> <span>تمت معالجة وتنفيذ كافة أوامر التوريد الواردة من الصيدليات.</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -855,7 +855,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</div><div class=\"text-xs text-secondary font-bold\">طلب تسعير جديد بانتظار موافقتك</div><div class=\"mt-4\"><a href=\"/vendor/orders\" class=\"btn btn-primary btn-sm font-bold text-xs px-4 rounded-md\"><span>مراجعة طلبات التسعير والرد â†—</span></a></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</div><div class=\"text-xs text-secondary font-bold\">طلب تسعير جديد بانتظار موافقتك</div><div class=\"mt-4\"><a href=\"/vendor/orders\" class=\"btn btn-primary btn-sm font-bold text-xs px-4 rounded-md\"><span>مراجعة طلبات التسعير والرد</span></a></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -870,7 +870,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><!-- Detailed Shipment Preview & Execution Modals (With Official Workflow) --><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<!-- ========================================================================= --><!-- Detailed Shipment Preview & Execution Modals (With Official Workflow) --><!-- ========================================================================= -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1336,12 +1336,12 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</span> <a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm text-xs font-bold\">الانتقال لصفحة الطلبيات â†—</a></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</span> <a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm text-xs font-bold\">الانتقال لصفحة الطلبيات</a></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "</div><!-- Navigation Footer Link --><div class=\"mt-3 pt-2 border-t flex-between items-center\"><a href=\"/vendor/orders\" class=\"text-xs font-bold text-secondary text-decoration-none\">الانتقال لصفحة كافة الطلبيات والشحنات المعتمدة â†—</a><form method=\"dialog\" class=\"m-0\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\">إغلاق</button></form></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "</div><!-- Navigation Footer Link --><div class=\"mt-3 pt-2 border-t flex-between items-center\"><a href=\"/vendor/orders\" class=\"text-xs font-bold text-secondary text-decoration-none\">الانتقال لصفحة كافة الطلبيات والشحنات المعتمدة</a><form method=\"dialog\" class=\"m-0\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\">إغلاق</button></form></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

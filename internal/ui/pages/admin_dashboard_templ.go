@@ -78,7 +78,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"admin-page-container\"><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\n\t\t\t     EXECUTIVE HEADER BANNER\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"admin-banner\"><div class=\"admin-banner-inner\"><div class=\"d-flex items-center gap-3\"><div class=\"admin-banner-icon primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"admin-page-container\"><!-- ========================================================================= --><!-- EXECUTIVE HEADER BANNER --><!-- ========================================================================= --><div class=\"admin-banner\"><div class=\"admin-banner-inner\"><div class=\"d-flex items-center gap-3\"><div class=\"admin-banner-icon primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -117,7 +117,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>تحديث فوري</span></a></div></div></div><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\n\t\t\t     1. TOP 4 HIGH-IMPACT EXECUTIVE KPI TILES\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"admin-kpi-grid\"><!-- KPI 1: GMV, Revenue & Commission --><div class=\"admin-kpi-card\"><div class=\"admin-kpi-header\"><span class=\"admin-kpi-title\">حجم التداول والمبيعات (GMV)</span><div class=\"admin-kpi-icon bg-success-subtle text-success\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>تحديث فوري</span></a></div></div></div><!-- ========================================================================= --><!-- 1. TOP 4 HIGH-IMPACT EXECUTIVE KPI TILES --><!-- ========================================================================= --><div class=\"admin-kpi-grid\"><!-- KPI 1: GMV, Revenue & Commission --><div class=\"admin-kpi-card\"><div class=\"admin-kpi-header\"><span class=\"admin-kpi-title\">حجم التداول والمبيعات (GMV)</span><div class=\"admin-kpi-icon bg-success-subtle text-success\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -228,7 +228,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong></span> <a href=\"/admin/orders\" class=\"text-accent font-bold no-underline\">عرض الكل â†\u0090</a></div></div><!-- KPI 3: Organizations & Supply Network --><div class=\"admin-kpi-card\"><div class=\"admin-kpi-header\"><span class=\"admin-kpi-title\">شبكة الإمداد والمنشآت (Network)</span><div class=\"admin-kpi-icon text-purple\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong></span> <a href=\"/admin/orders\" class=\"text-accent font-bold no-underline\">عرض الكل</a></div></div><!-- KPI 3: Organizations & Supply Network --><div class=\"admin-kpi-card\"><div class=\"admin-kpi-header\"><span class=\"admin-kpi-title\">شبكة الإمداد والمنشآت (Network)</span><div class=\"admin-kpi-icon text-purple\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -301,14 +301,14 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 				return templ_7745c5c3_Err
 			}
 			if stats.PendingApprovals > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/admin/approvals\" class=\"badge badge-amber font-bold text-xs rounded-md no-underline\">â\u008f³ ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<a href=\"/admin/approvals\" class=\"badge badge-amber font-bold text-xs rounded-md no-underline\">⏳ ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d تراخيص معلقة", stats.PendingApprovals))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 166, Col: 82}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 166, Col: 79}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -356,7 +356,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</strong></span> <a href=\"/admin/approvals\" class=\"text-accent font-bold no-underline\">مراجعة الكل â†\u0090</a></div></div></div><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\n\t\t\t     2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS)\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"d-grid gap-4 items-start mb-4 grid-auto-fit-lg\"><!-- Column 1: Live Orders & Catalog Activity --><div class=\"admin-banner\"><div class=\"flex-between pb-3 border-b mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-bold text-primary m-0 d-flex items-center gap-1.5\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</strong></span> <a href=\"/admin/approvals\" class=\"text-accent font-bold no-underline\">مراجعة الكل</a></div></div></div><!-- ========================================================================= --><!-- 2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS) --><!-- ========================================================================= --><div class=\"d-grid gap-4 items-start mb-4 grid-auto-fit-lg\"><!-- Column 1: Live Orders & Catalog Activity --><div class=\"admin-banner\"><div class=\"flex-between pb-3 border-b mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-bold text-primary m-0 d-flex items-center gap-1.5\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -684,7 +684,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div></div></div></div><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\n\t\t\t     3. BOTTOM SECTION: PENDING APPROVALS & RECENT ORGANIZATIONS\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"d-grid gap-4 items-start mb-4 grid-auto-fit-lg\"><!-- Pending Approvals Queue --><div class=\"admin-banner\"><div class=\"flex-between pb-3 border-b mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-bold text-primary m-0 d-flex items-center gap-1.5\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div></div></div></div><!-- ========================================================================= --><!-- 3. BOTTOM SECTION: PENDING APPROVALS & RECENT ORGANIZATIONS --><!-- ========================================================================= --><div class=\"d-grid gap-4 items-start mb-4 grid-auto-fit-lg\"><!-- Pending Approvals Queue --><div class=\"admin-banner\"><div class=\"flex-between pb-3 border-b mb-3\"><div class=\"stack-sm\"><h3 class=\"text-base font-bold text-primary m-0 d-flex items-center gap-1.5\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -806,14 +806,14 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 						}
 					}
 					if po.PharmacistLicense != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<span>â€¢ ترخيص: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<span>• ترخيص: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var32 string
 						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(po.PharmacistLicense)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 423, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 423, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 						if templ_7745c5c3_Err != nil {
@@ -914,14 +914,14 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, " â€¢ ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, " • ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(ro.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 477, Col: 96}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 477, Col: 92}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
@@ -970,7 +970,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div></div><!-- â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090\n\t\t\t     4. EXECUTIVE QUICK ACTION SHORTCUTS\n\t\t\tâ•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090â•\u0090 --><div class=\"bg-surface-sunken border rounded-2xl p-4\"><div class=\"text-xs font-bold text-secondary mb-2\">الوصول السريع للأقسام التنفيذية:</div><div class=\"d-flex gap-2 flex-wrap items-center\"><a href=\"/admin/finance\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div></div><!-- ========================================================================= --><!-- 4. EXECUTIVE QUICK ACTION SHORTCUTS --><!-- ========================================================================= --><div class=\"bg-surface-sunken border rounded-2xl p-4\"><div class=\"text-xs font-bold text-secondary mb-2\">الوصول السريع للأقسام التنفيذية:</div><div class=\"d-flex gap-2 flex-wrap items-center\"><a href=\"/admin/finance\" class=\"btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
