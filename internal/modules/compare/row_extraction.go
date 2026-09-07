@@ -154,11 +154,6 @@ func extractNumber(s string) (float64, error) {
 	return strconv.ParseFloat(numStr.String(), 64)
 }
 
-// ListMarketDiscounts retrieves market-wide approved discounts with full search and filtering.
-func (s *Service) ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error) {
-	return s.repo.ListMarketDiscounts(ctx, filter)
-}
-
 // GetFileRowsPaginated retrieves paginated rows for a specific warehouse file.
 func (s *Service) GetFileRowsPaginated(ctx context.Context, fileID int64, page, limit int) ([]*CompareFileRow, int64, error) {
 	return s.repo.GetFileRowsPaginated(ctx, fileID, page, limit)

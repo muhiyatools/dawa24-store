@@ -36,6 +36,9 @@ type Service struct {
 	log       *slog.Logger
 	aiMatcher AIMatcher
 	storage   *storage.Client
+	// cache holds the market board's total and supplier list. Nil is a
+	// supported state: every read falls through to the database.
+	cache Cache
 }
 
 // NewService creates a new compare service.

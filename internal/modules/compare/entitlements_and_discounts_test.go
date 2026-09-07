@@ -12,6 +12,22 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
+// CountMarketDiscounts counts what ListMarketDiscounts would return.
+//
+// Deliberately implemented THROUGH the listing rather than beside it: in
+// production these are two statements built from one clause builder, and a mock
+// that counted by its own rules would let a divergence between them pass.
+func (m *mockCompareRepo) CountMarketDiscounts(ctx context.Context, filter compare.MarketDiscountsFilter) (int64, error) {
+	all := filter
+	all.Page = 1
+	all.Limit = 96
+	res, err := m.ListMarketDiscounts(ctx, all)
+	if err != nil {
+		return 0, err
+	}
+	return res.TotalCount, nil
+}
+
 func (m *mockCompareRepo) ListMarketDiscounts(ctx context.Context, filter compare.MarketDiscountsFilter) (*compare.MarketDiscountsResult, error) {
 	var allItems []*compare.MarketDiscountRow
 	cleanQ := strings.ToLower(strings.TrimSpace(filter.Query))

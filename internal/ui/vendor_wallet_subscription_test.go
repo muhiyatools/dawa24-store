@@ -63,6 +63,16 @@ func TestDepositModal_ResponsiveLayoutAndCopyButtons(t *testing.T) {
 	}
 
 	// Check fixed modal footer
+	if !strings.Contains(html, "deposit-modal-footer") {
+		t.Errorf("expected deposit-modal-footer class in rendered modal footer")
+	}
+
+	// Check bounded form class
+	if !strings.Contains(html, "deposit-modal-form") {
+		t.Errorf("expected deposit-modal-form class in rendered modal form")
+	}
+
+	// Check fixed modal footer submit button
 	if !strings.Contains(html, "تأكيد طلب الشحن") {
 		t.Errorf("expected submit button in deposit modal footer")
 	}

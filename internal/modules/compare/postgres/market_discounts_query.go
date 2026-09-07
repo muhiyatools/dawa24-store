@@ -7,24 +7,13 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 )
 
-// Building one page of خصومات السوق العامة.
+// marketFilterClauses turns the caller's filter into AND-clauses appended to
+// marketWarehouseFrom, plus their arguments.
 //
-// The source clause is a constant spliced in whole (marketWarehouseFrom), never
-// assembled from anything the caller sent. Filters can only ever append to it,
-// so is_temp_warehouse = TRUE cannot be relaxed by a request parameter — which
-// is the property that keeps a supplier's own Compare Tool upload off a board
-// every other supplier reads.
-func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string, args []any, page, limit int) {
-	limit = filter.Limit
-	if limit != 24 && limit != 48 && limit != 96 {
-		limit = 24
-	}
-	page = filter.Page
-	if page <= 0 {
-		page = 1
-	}
-	offset := (page - 1) * limit
-
+// Every clause is parameterised and every one of them can only narrow the
+// board: nothing here can reach is_temp_warehouse, which lives in the constant
+// FROM clause and is what keeps a supplier's private upload off a public board.
+func marketFilterClauses(filter compare.MarketDiscountsFilter) (extra string, args []any) {
 	argIdx := 1
 	var where []string
 
@@ -66,10 +55,46 @@ func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string
 		argIdx++
 	}
 
-	extra := ""
 	if len(where) > 0 {
 		extra = "\n\t\t  AND " + strings.Join(where, "\n\t\t  AND ")
 	}
+	return extra, args
+}
+
+// buildMarketDiscountsCountQuery counts the rows the listing would page
+// through, using the same clauses the listing does.
+func buildMarketDiscountsCountQuery(filter compare.MarketDiscountsFilter) (string, []any) {
+	extra, args := marketFilterClauses(filter)
+	return "SELECT COUNT(*)" + marketWarehouseFrom + extra + ";", args
+}
+
+// Building one page of خصومات السوق العامة.
+//
+// The source clause is a constant spliced in whole (marketWarehouseFrom), never
+// assembled from anything the caller sent. Filters can only ever append to it,
+// so is_temp_warehouse = TRUE cannot be relaxed by a request parameter — which
+// is the property that keeps a supplier's own Compare Tool upload off a board
+// every other supplier reads.
+//
+// The listing and the count are built from ONE clause builder
+// (marketFilterClauses) rather than from two copies of the same conditions.
+// They used to be a single statement carrying COUNT(*) OVER(), which kept them
+// in step by construction; splitting them is what made the page fast, and this
+// is what keeps the split honest. A count that filters differently from the
+// rows it counts is a pager that runs off the end of the results.
+func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string, args []any, page, limit int) {
+	limit = filter.Limit
+	if limit != 24 && limit != 48 && limit != 96 {
+		limit = 24
+	}
+	page = filter.Page
+	if page <= 0 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+
+	extra, args := marketFilterClauses(filter)
+	argIdx := len(args) + 1
 
 	// The date shown on a card is the upload date, so "newest" means the most
 	// recently uploaded warehouse rather than the row's own insert order.
@@ -100,8 +125,7 @@ func buildMarketDiscountsQuery(filter compare.MarketDiscountsFilter) (sql string
 			%s AS discount_percent,
 			%s AS price_after_discount,
 			r.matched_product_id,
-			f.created_at AS uploaded_at,
-			COUNT(*) OVER() AS total_count
+			f.created_at AS uploaded_at
 		%s%s
 		ORDER BY %s
 		LIMIT $%d OFFSET $%d;`,

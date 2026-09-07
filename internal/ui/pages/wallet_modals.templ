@@ -33,7 +33,7 @@ templ WalletModals(data WalletViewData) {
 				action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/wallet/deposit", "/customer/wallet/deposit")) }
 				method="POST"
 				enctype="multipart/form-data"
-				class="d-flex flex-col m-0"
+				class="deposit-modal-form d-flex flex-col m-0"
 			>
 				<input type="hidden" name="payment_method" :value="selectedPlatform ? selectedPlatform.id : 'bank_transfer'" />
 				<input type="hidden" name="sender_account" :value="senderAccount" />
@@ -251,7 +251,7 @@ templ WalletModals(data WalletViewData) {
 				</div>
 
 				<!-- Fixed Modal Footer -->
-				<div class="d-flex items-center justify-between p-3 px-4 border-t bg-surface-raised flex-shrink-0">
+				<div class="deposit-modal-footer d-flex items-center justify-between p-3 px-4 border-t bg-surface-raised flex-shrink-0">
 					<button type="button" class="btn btn-secondary btn-sm" @click="isDepositModalOpen = false">إلغاء</button>
 					<button type="submit" class="btn btn-primary btn-sm font-bold gap-1.5 px-4 shadow-sm">
 						@components.IconCheckCircle("icon-xs")

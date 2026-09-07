@@ -1797,9 +1797,58 @@ input.so-qty-input::-webkit-inner-spin-button,
   color: var(--text-muted, #64748b);
 }
 
-[data-theme="dark"] .so-qty-save-btn:hover {
-  background: rgba(16, 185, 129, 0.25);
-  border-color: var(--success, #10b981);
-  color: #34d399;
+/* ===========================================================================
+   Wallet Deposit Modal Scrollable Layout
+   =========================================================================== */
+.deposit-modal-container {
+  inline-size: 100%;
+  width: 100%;
+  max-width: min(94vw, 660px);
+  max-height: calc(100vh - 2.5rem);
+  max-height: calc(100dvh - 2.5rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: auto;
+}
+.deposit-modal-container > form,
+.deposit-modal-form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  min-block-size: 0 !important;
+  overflow: hidden !important;
+}
+.deposit-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  min-block-size: 0 !important;
+  padding: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-card, #cbd5e1) transparent;
+}
+.deposit-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.deposit-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.deposit-modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-card, #94a3b8);
+  border-radius: 4px;
+}
+.deposit-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted, #64748b);
+}
+.deposit-modal-footer {
+  flex-shrink: 0 !important;
+  background: var(--surface-raised, #ffffff);
+  border-top: 1px solid var(--border, #e2e8f0);
 }
 }
+

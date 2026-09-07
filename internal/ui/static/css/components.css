@@ -425,11 +425,15 @@ dialog.modal::backdrop {
 .modal-box > form,
 .modal-dialog > form,
 .modal-card > form,
-.modal-content > form {
+.modal-content > form,
+.modal-container > form,
+.deposit-modal-container > form,
+.deposit-modal-form {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-block-size: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -2916,6 +2920,10 @@ input:focus {
   width: 100%;
   max-inline-size: 36rem;
   max-width: min(94vw, 580px);
+  max-height: calc(100vh - 2.5rem);
+  max-height: calc(100dvh - 2.5rem);
+  display: flex;
+  flex-direction: column;
   margin: auto;
   background: var(--surface-raised, var(--bg-surface, #ffffff));
   border: 1px solid var(--border, #e2e8f0);
@@ -2929,25 +2937,51 @@ input:focus {
   inline-size: 100%;
   width: 100%;
   max-width: min(94vw, 660px);
-  max-height: min(90vh, 680px);
+  max-height: calc(100vh - 2.5rem);
+  max-height: calc(100dvh - 2.5rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   margin: auto;
 }
+.deposit-modal-container > form,
+.deposit-modal-form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  min-block-size: 0 !important;
+  overflow: hidden !important;
+}
 .deposit-modal-body {
-  overflow-y: auto;
-  flex: 1 1 auto;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  min-block-size: 0 !important;
   padding: 1.25rem;
   scrollbar-width: thin;
-  scrollbar-color: var(--border-card) transparent;
+  scrollbar-color: var(--border-card, #cbd5e1) transparent;
 }
 .deposit-modal-body::-webkit-scrollbar {
   width: 6px;
 }
+.deposit-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
 .deposit-modal-body::-webkit-scrollbar-thumb {
-  background: var(--border-card);
+  background: var(--border-card, #94a3b8);
   border-radius: 4px;
+}
+.deposit-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted, #64748b);
+}
+.deposit-modal-footer {
+  flex-shrink: 0 !important;
+  background: var(--surface-raised, #ffffff);
+  border-top: 1px solid var(--border, #e2e8f0);
 }
 .capsule-hdr-icon-btn, .capsule-chip-btn {
   display: inline-flex; align-items: center; justify-content: center;

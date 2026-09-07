@@ -81,13 +81,34 @@ const marketWarehouseNetSQL = `
 	END`
 
 // ListDistinctSuppliers names the temporary warehouses currently on the board.
+//
+// It reads compare.files — 202 rows — and asks each one whether it has a row
+// the board would show. It used to read the join, which meant scanning 98,370
+// file_rows to return 79 names, on every single page view of the board.
+// Measured on the production data, best of five with both queries warm:
+// 44.2 ms for the join, 0.97 ms for this. The two return the identical set —
+// 79 names either way, zero difference in either direction.
+//
+// The EXISTS carries the same two row conditions as marketWarehouseFrom, which
+// is what idx_compare_file_rows_market_price is partial on, so the probe is an
+// index lookup rather than a scan of the file's rows.
 func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error) {
 	var suppliers []string
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		sql := `
 			SELECT DISTINCT TRIM(` + marketWarehouseSupplierSQL + `) AS supplier_name
-			` + marketWarehouseFrom + `
+			FROM compare.files f
+			WHERE f.is_temp_warehouse = TRUE
+			  AND f.deleted_at IS NULL
+			  AND f.archived_at IS NULL
+			  AND f.status = 'ready'
 			  AND TRIM(COALESCE(` + marketWarehouseSupplierSQL + `, '')) <> ''
+			  AND EXISTS (
+			      SELECT 1 FROM compare.file_rows r
+			      WHERE r.file_id = f.id
+			        AND r.price > 0
+			        AND COALESCE(TRIM(r.raw_name), '') <> ''
+			  )
 			ORDER BY 1 ASC;`
 		rows, err := tx.Query(txCtx, sql)
 		if err != nil {
@@ -108,7 +129,35 @@ func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error
 	return suppliers, err
 }
 
+// CountMarketDiscounts counts the rows the board would page through.
+//
+// Separate from the listing on purpose. It used to be a COUNT(*) OVER() window
+// inside the listing statement, which forced every one of the 98,370 matching
+// rows through a window aggregate before the LIMIT 24 could discard all but
+// twenty-four of them — 15.9 MB spilled to disk at work_mem = 4 MB, and 146 ms
+// of database CPU for a page showing 24 cards. The listing alone, once
+// idx_compare_file_rows_market_sort can serve its ORDER BY, is 0.41 ms.
+//
+// The count is the expensive half now, and it is the half that can be cached:
+// it changes only when a moderator uploads or archives a temporary warehouse.
+// compare.Service does that; see marketCountTTL.
+func (r *Repository) CountMarketDiscounts(ctx context.Context, filter compare.MarketDiscountsFilter) (int64, error) {
+	sql, args := buildMarketDiscountsCountQuery(filter)
+	var total int64
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if err := tx.QueryRow(txCtx, sql, args...).Scan(&total); err != nil {
+			return fmt.Errorf("compare postgres: count market discounts: %w", err)
+		}
+		return nil
+	})
+	return total, err
+}
+
 // ListMarketDiscounts returns one page of temporary-warehouse rows.
+//
+// Rows only: the total and the supplier list are read by compare.Service, which
+// can cache them. This reads live, always — a price on this board is never
+// served from a cache.
 func (r *Repository) ListMarketDiscounts(
 	ctx context.Context, filter compare.MarketDiscountsFilter,
 ) (*compare.MarketDiscountsResult, error) {
@@ -130,18 +179,16 @@ func (r *Repository) ListMarketDiscounts(
 
 		for rows.Next() {
 			var (
-				item       compare.MarketDiscountRow
-				matchedID  *int64
-				totalCount int64
+				item      compare.MarketDiscountRow
+				matchedID *int64
 			)
 			if err := rows.Scan(
 				&item.ID, &item.FileID, &item.SupplierName, &item.ProductName,
 				&item.OriginalPrice, &item.DiscountPercent, &item.PriceAfterDiscount,
-				&matchedID, &item.UploadedAt, &totalCount,
+				&matchedID, &item.UploadedAt,
 			); err != nil {
 				return err
 			}
-			result.TotalCount = totalCount
 
 			item.MatchedProductID = matchedID
 			// Orderable only once the matching pipeline has bound this line to a
@@ -159,18 +206,5 @@ func (r *Repository) ListMarketDiscounts(
 	if err != nil {
 		return nil, err
 	}
-
-	if result.TotalCount > 0 {
-		result.TotalPages = int((result.TotalCount + int64(limit) - 1) / int64(limit))
-	}
-	result.HasPrev = page > 1
-	result.HasNext = page < result.TotalPages
-
-	suppliers, sErr := r.ListDistinctSuppliers(ctx)
-	if sErr != nil {
-		return nil, sErr
-	}
-	result.AvailableSuppliers = suppliers
-
 	return result, nil
 }

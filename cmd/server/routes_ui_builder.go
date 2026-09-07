@@ -242,6 +242,12 @@ func buildUIHandler(
 
 	compareRepoUI := comparePostgres.NewRepository(db)
 	compareSvcUI := compare.NewService(compareRepoUI, log)
+	// The public خصومات السوق board's total and supplier list. Without this the
+	// board still works and still uses its indexes — it just pays for the count
+	// on every page view instead of once a minute. See market_board_service.go.
+	if cacheHandle := deps.CacheHandle(); cacheHandle != nil {
+		compareSvcUI.SetCache(cacheHandle)
+	}
 	if ai != nil {
 		uiHandler.SetGatewayClient(ai)
 		// The settings screen resets this when an operator changes the Gateway

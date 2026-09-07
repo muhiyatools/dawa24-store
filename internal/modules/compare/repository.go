@@ -95,6 +95,9 @@ type Repository interface {
 
 	// Market Discounts (Public & Platform Wide)
 	ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error)
+	// CountMarketDiscounts is the pager's total, split from the listing so it
+	// can be cached. See market_board_service.go.
+	CountMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (int64, error)
 	ListDistinctSuppliers(ctx context.Context) ([]string, error)
 
 	// LoadMarketOffers reads the whole comparable market for aggregation.
