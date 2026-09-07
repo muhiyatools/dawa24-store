@@ -3,6 +3,7 @@ package layouts
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -135,10 +136,11 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 		<body>
 			{ children... }
 			@components.UniversalFilePreviewModal()
-			// The floating assistant is a permanent companion for all authenticated users
-			// across all platform dashboards and workflows.
+			// The floating assistant is rendered only when the authenticated user has permission to use it.
 			if actor := authctx.FromContext(ctx); actor.UserID > 0 {
-				@components.CapsuleAssistantTrigger()
+				if _, allowed := assistant.Allowed(actor); allowed {
+					@components.CapsuleAssistantTrigger()
+				}
 			}
 		</body>
 	</html>

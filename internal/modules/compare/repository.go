@@ -69,6 +69,8 @@ type Repository interface {
 	BulkArchiveFiles(ctx context.Context, ids []int64, ownerID *int64, reason string) (int64, error)
 	BulkUnarchiveFiles(ctx context.Context, ids []int64, ownerID *int64) (int64, error)
 	PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error)
+	AutoArchiveTempWarehouses(ctx context.Context, olderThanHours int) (int64, error)
+	PurgeArchivedTempWarehouses(ctx context.Context, olderThanDays int) (storageKeys []string, purgedFiles int64, purgedRows int64, err error)
 
 	// Compare File Rows
 	InsertFileRows(ctx context.Context, rows []*CompareFileRow) error

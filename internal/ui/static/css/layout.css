@@ -223,6 +223,23 @@ body.sidebar-mobile-open {
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.45)) drop-shadow(0 1px 6px rgba(255, 255, 255, 0.15));
 }
 
+/* Dual Logo Dark/Light Theme Switching (Zero-Latency) */
+html:not([data-theme="dark"]) .logo-dark {
+  display: none !important;
+}
+[data-theme="dark"] .logo-light:not(.logo-always) {
+  display: none !important;
+}
+[data-theme="dark"] .logo-dark {
+  display: inline-block;
+}
+[data-theme="dark"] .sidebar-logo.logo-dark,
+[data-theme="dark"] .nav-brand-logo.logo-dark,
+[data-theme="dark"] .footer-logo.logo-dark,
+[data-theme="dark"] .auth-logo-img.logo-dark {
+  display: block !important;
+}
+
 .sidebar-logo {
   height: 36px;
   max-height: 40px;

@@ -188,11 +188,22 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 									<tr>
 										<td class="py-3 ps-4">
 											<div class="d-flex items-center gap-2.5">
-												<div class="w-8 h-8 rounded-lg bg-surface-sunken text-primary border d-flex items-center justify-center font-black text-xs">
-													if len(userDisplayName(u)) > 0 {
-														{ string([]rune(userDisplayName(u))[0]) }
+												<div class="w-8 h-8 rounded-lg bg-surface-sunken text-primary border d-flex items-center justify-center font-black text-xs overflow-hidden flex-shrink-0">
+													if u.AvatarURL != "" {
+														<img src={ u.AvatarURL } alt={ userDisplayName(u) } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+														<span style="display: none;">
+															if len(userDisplayName(u)) > 0 {
+																{ string([]rune(userDisplayName(u))[0]) }
+															} else {
+																U
+															}
+														</span>
 													} else {
-														U
+														if len(userDisplayName(u)) > 0 {
+															{ string([]rune(userDisplayName(u))[0]) }
+														} else {
+															U
+														}
 													}
 												</div>
             <div class="stack-sm">

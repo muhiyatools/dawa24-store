@@ -37,6 +37,7 @@ func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
 			SiteName:        i18n.TDefault("w4_ui.24_28"),
 			SiteDescription: i18n.TDefault("w4_ui.s_99_99"),
 			LogoURL:         "/static/img/logo.png",
+			LogoDarkURL:     "",
 			FaviconURL:      "/static/img/favicon.png",
 			ContactEmail:    "info@dawa24.com",
 			SupportEmail:    "support@dawa24.com",
@@ -75,6 +76,7 @@ func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
 		SiteName:                  getString(v, "site_name", i18n.TDefault("w4_ui.24_28")),
 		SiteDescription:           getString(v, "site_description", i18n.TDefault("w4_mod.s_424_424")),
 		LogoURL:                   getString(v, "logo_url", "/static/img/logo.png"),
+		LogoDarkURL:               getString(v, "logo_dark_url", ""),
 		FaviconURL:                getString(v, "favicon_url", "/static/img/favicon.png"),
 		ContactEmail:              getString(v, "contact_email", "info@dawa24.com"),
 		SupportEmail:              getString(v, "support_email", "support@dawa24.com"),
@@ -97,6 +99,7 @@ func (s *Service) SaveSiteSettings(ctx context.Context, ss *SiteSettings) error 
 		"site_name":                    ss.SiteName,
 		"site_description":             ss.SiteDescription,
 		"logo_url":                     ss.LogoURL,
+		"logo_dark_url":                ss.LogoDarkURL,
 		"favicon_url":                  ss.FaviconURL,
 		"contact_email":                ss.ContactEmail,
 		"support_email":                ss.SupportEmail,
@@ -262,4 +265,61 @@ func (s *Service) ListAuditLogByOrgWithTotal(ctx context.Context, orgID int64, l
 // ListAuditLogWithFilter returns audit trail entries according to the given filter.
 func (s *Service) ListAuditLogWithFilter(ctx context.Context, filter AuditLogFilter) ([]*AuditEntry, int, error) {
 	return s.repo.ListAuditLogWithFilter(ctx, filter)
+}
+
+const SettingTempWarehouseLifecycle = "platform.temp_warehouse_lifecycle"
+
+// GetTempWarehouseLifecycleSettings retrieves the auto-archive and retention configuration for temporary warehouses.
+func (s *Service) GetTempWarehouseLifecycleSettings(ctx context.Context) (*TempWarehouseLifecycleSettings, error) {
+	setting, err := s.repo.GetSetting(ctx, SettingTempWarehouseLifecycle)
+	if err != nil || setting == nil || setting.Value == nil {
+		return &TempWarehouseLifecycleSettings{
+			AutoArchiveHours:   720, // 30 days default
+			AutoArchiveEnabled: true,
+			AutoDeleteDays:     30,  // 30 days retention after archiving
+			AutoDeleteEnabled:  true,
+		}, nil
+	}
+
+	v := setting.Value
+	hours := getInt(v, "auto_archive_hours", 720)
+	if hours <= 0 {
+		hours = 720
+	}
+	days := getInt(v, "auto_delete_days", 30)
+	if days <= 0 {
+		days = 30
+	}
+
+	return &TempWarehouseLifecycleSettings{
+		AutoArchiveHours:   hours,
+		AutoArchiveEnabled: getBool(v, "auto_archive_enabled", true),
+		AutoDeleteDays:     days,
+		AutoDeleteEnabled:  getBool(v, "auto_delete_enabled", true),
+	}, nil
+}
+
+// SaveTempWarehouseLifecycleSettings persists the auto-archive and retention configuration.
+func (s *Service) SaveTempWarehouseLifecycleSettings(ctx context.Context, cfg *TempWarehouseLifecycleSettings) error {
+	if cfg == nil {
+		return fmt.Errorf("settings cannot be nil")
+	}
+	if cfg.AutoArchiveHours <= 0 {
+		cfg.AutoArchiveHours = 720
+	}
+	if cfg.AutoDeleteDays <= 0 {
+		cfg.AutoDeleteDays = 30
+	}
+
+	return s.repo.SetSetting(ctx, &SystemSetting{
+		Key: SettingTempWarehouseLifecycle,
+		Value: map[string]any{
+			"auto_archive_hours":   cfg.AutoArchiveHours,
+			"auto_archive_enabled": cfg.AutoArchiveEnabled,
+			"auto_delete_days":     cfg.AutoDeleteDays,
+			"auto_delete_enabled":  cfg.AutoDeleteEnabled,
+		},
+		Description: "Automatic archiving and retention purging rules for temporary warehouses",
+		IsPublic:    false,
+	})
 }

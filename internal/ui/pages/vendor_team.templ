@@ -23,6 +23,7 @@ type TeamMemberView struct {
 	// company, so this is meaningless outside the organization that owns it.
 	RoleID int64
 	IsActive     bool
+	AvatarURL    string
 	CreatedAt    string
 }
 
@@ -266,8 +267,13 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 										<!-- Employee Info -->
 										<td>
 											<div class="d-flex items-center gap-3">
-												<div class="user-avatar-badge font-black text-xs">
-													{ getInitials(m.Name) }
+												<div class="user-avatar-badge font-black text-xs overflow-hidden">
+													if m.AvatarURL != "" {
+														<img src={ m.AvatarURL } alt={ m.Name } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+														<span style="display: none;">{ getInitials(m.Name) }</span>
+													} else {
+														<span>{ getInitials(m.Name) }</span>
+													}
 												</div>
             <div class="stack-sm">
 													<div class="font-extrabold text-primary text-sm">

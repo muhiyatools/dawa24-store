@@ -61,6 +61,10 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, avatarURL)
 	}
 
+	if h.resolver != nil {
+		h.resolver.Invalidate(actor.UserID, actor.OrganizationID)
+	}
+
 	h.redirectWithNotice(w, r, "/settings#profile", "success", i18n.T(lang, "settings.profile_updated_success"))
 }
 

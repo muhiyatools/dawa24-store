@@ -303,6 +303,47 @@ func (m *mockBulkCompareRepo) PurgeExpiredCompareFiles(ctx context.Context, defa
 	return 0, nil
 }
 
+func (m *mockBulkCompareRepo) AutoArchiveTempWarehouses(ctx context.Context, olderThanHours int) (int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var count int64
+	cutoff := time.Now().Add(-time.Duration(olderThanHours) * time.Hour)
+	for _, f := range m.files {
+		if f.DeletedAt == nil && f.Status == compare.FileReady && f.CreatedAt.Before(cutoff) {
+			f.Status = compare.FileArchived
+			now := time.Now()
+			f.ArchivedAt = &now
+			f.ArchiveReason = "Auto Archived"
+			count++
+		}
+	}
+	return count, nil
+}
+
+func (m *mockBulkCompareRepo) PurgeArchivedTempWarehouses(ctx context.Context, olderThanDays int) ([]string, int64, int64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var keys []string
+	var fileCount, rowCount int64
+	cutoff := time.Now().AddDate(0, 0, -olderThanDays)
+	for id, f := range m.files {
+		if f.DeletedAt == nil && f.Status == compare.FileArchived && f.ArchivedAt != nil && f.ArchivedAt.Before(cutoff) {
+			now := time.Now()
+			f.DeletedAt = &now
+			f.Status = "deleted"
+			fileCount++
+			if f.StorageKey != "" {
+				keys = append(keys, f.StorageKey)
+			}
+			if rows, ok := m.fileRows[id]; ok {
+				rowCount += int64(len(rows))
+				delete(m.fileRows, id)
+			}
+		}
+	}
+	return keys, fileCount, rowCount, nil
+}
+
 func TestAdminTempWarehouse_BulkUpload_65Files_HighSpeed(t *testing.T) {
 	mockRepo := newMockBulkCompareRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

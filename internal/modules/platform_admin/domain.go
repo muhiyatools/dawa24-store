@@ -19,6 +19,14 @@ type SystemSetting struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
+// TempWarehouseLifecycleSettings configures auto-archive and auto-purge retention for temporary warehouses.
+type TempWarehouseLifecycleSettings struct {
+	AutoArchiveHours   int  `json:"auto_archive_hours"`   // Hours from creation until file is auto-archived (default 720 = 30 days)
+	AutoArchiveEnabled bool `json:"auto_archive_enabled"` // Master toggle for auto-archiving
+	AutoDeleteDays     int  `json:"auto_delete_days"`     // Days from archiving until permanent deletion of file and rows (default 30 days)
+	AutoDeleteEnabled  bool `json:"auto_delete_enabled"`  // Master toggle for auto-deleting
+}
+
 // Country represents a supported operating country.
 type Country struct {
 	ID        int64     `json:"id"`
@@ -306,6 +314,7 @@ type SiteSettings struct {
 	SiteName                  string            `json:"site_name"`
 	SiteDescription           string            `json:"site_description"`
 	LogoURL                   string            `json:"logo_url"`
+	LogoDarkURL               string            `json:"logo_dark_url"`
 	FaviconURL                string            `json:"favicon_url"`
 	ContactEmail              string            `json:"contact_email"`
 	SupportEmail              string            `json:"support_email"`

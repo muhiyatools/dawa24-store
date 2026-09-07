@@ -19,6 +19,7 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 			       m.base_salary, m.variable_salary, m.is_active, m.created_at, m.updated_at,
 			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''), COALESCE(u.status, 'active'),
+			       COALESCE(u.avatar_url, ''),
 			       COALESCE(NULLIF(r.name->>'ar', ''), NULLIF(r.name->>'en', ''), NULLIF(ir.name->>'ar', ''), NULLIF(ir.name->>'en', ''), m.role_key),
 			       COALESCE(b.name->>'ar', b.name->>'en', ''),
 			       CASE WHEN b.manager_id = m.user_id THEN true ELSE false END AS is_manager
@@ -39,14 +40,14 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 		for rows.Next() {
 			var m org.Member
 			var roleID *int64
-			var userName, userEmail, userPhone, userStatus, roleName, branchName string
+			var userName, userEmail, userPhone, userStatus, userAvatar, roleName, branchName string
 			var isManager bool
 
 			if err := rows.Scan(
 				&m.ID, &m.OrganizationID, &m.UserID, &m.BranchID, &roleID, &m.RoleKey,
 				&m.OrgRoleID, &m.EmployeeCode, &m.JobTitle,
 				&m.BaseSalary, &m.VariableSalary, &m.IsActive, &m.CreatedAt, &m.UpdatedAt,
-				&userName, &userEmail, &userPhone, &userStatus,
+				&userName, &userEmail, &userPhone, &userStatus, &userAvatar,
 				&roleName, &branchName, &isManager,
 			); err != nil {
 				return err
@@ -61,6 +62,7 @@ func (r *Repository) ListEmployees(ctx context.Context, orgID int64) ([]*org.Emp
 				UserEmail:  userEmail,
 				UserPhone:  userPhone,
 				UserStatus: userStatus,
+				UserAvatar: userAvatar,
 				RoleName:   roleName,
 				BranchName: branchName,
 				IsManager:  isManager,
@@ -95,6 +97,7 @@ func (r *Repository) ListEmployeesWithTotal(ctx context.Context, orgID int64, li
 			       m.base_salary, m.variable_salary, m.is_active, m.created_at, m.updated_at,
 			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email),
 			       COALESCE(u.email, ''), COALESCE(u.phone, ''), COALESCE(u.status, 'active'),
+			       COALESCE(u.avatar_url, ''),
 			       COALESCE(NULLIF(r.name->>'ar', ''), NULLIF(r.name->>'en', ''), NULLIF(ir.name->>'ar', ''), NULLIF(ir.name->>'en', ''), m.role_key),
 			       COALESCE(b.name->>'ar', b.name->>'en', ''),
 			       CASE WHEN b.manager_id = m.user_id THEN true ELSE false END AS is_manager
@@ -116,14 +119,14 @@ func (r *Repository) ListEmployeesWithTotal(ctx context.Context, orgID int64, li
 		for rows.Next() {
 			var m org.Member
 			var roleID *int64
-			var userName, userEmail, userPhone, userStatus, roleName, branchName string
+			var userName, userEmail, userPhone, userStatus, userAvatar, roleName, branchName string
 			var isManager bool
 
 			if err := rows.Scan(
 				&m.ID, &m.OrganizationID, &m.UserID, &m.BranchID, &roleID, &m.RoleKey,
 				&m.OrgRoleID, &m.EmployeeCode, &m.JobTitle,
 				&m.BaseSalary, &m.VariableSalary, &m.IsActive, &m.CreatedAt, &m.UpdatedAt,
-				&userName, &userEmail, &userPhone, &userStatus,
+				&userName, &userEmail, &userPhone, &userStatus, &userAvatar,
 				&roleName, &branchName, &isManager,
 			); err != nil {
 				return err
@@ -138,6 +141,7 @@ func (r *Repository) ListEmployeesWithTotal(ctx context.Context, orgID int64, li
 				UserEmail:  userEmail,
 				UserPhone:  userPhone,
 				UserStatus: userStatus,
+				UserAvatar: userAvatar,
 				RoleName:   roleName,
 				BranchName: branchName,
 				IsManager:  isManager,

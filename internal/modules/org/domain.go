@@ -202,6 +202,7 @@ type EmployeeView struct {
 	UserEmail  string
 	UserPhone  string
 	UserStatus string
+	UserAvatar string
 	RoleName   string
 	BranchName string
 	IsManager  bool

@@ -279,7 +279,7 @@ func adminToolsPerms() []Permission {
 		// permission the corresponding screen requires, so this grant alone
 		// shows an employee nothing they could not already open.
 		adminAct("platform.assistant.use", g,
-			"استخدام المساعد الذكي كبسولة", "Use the Capsule AI assistant"),
+			"استخدام الذكاء الاصطناعي (المساعد كبسولة)", "Use the Capsule AI assistant"),
 
 		adminPage("platform.message.view", g, "messages", "رسائل واستفسارات التواصل", "Contact messages"),
 		adminAct("platform.message.update", g, "الرد على الرسائل وإغلاقها", "Reply to and close messages", "platform.message.view"),

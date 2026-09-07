@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -193,4 +195,82 @@ func (s *Service) InsertFileRows(ctx context.Context, rows []*CompareFileRow) er
 // PurgeExpiredFiles runs the retention cleanup pass for expired compare files.
 func (s *Service) PurgeExpiredFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
 	return s.repo.PurgeExpiredCompareFiles(ctx, defaultRetentionDays)
+}
+
+// AutoArchiveTempWarehouses moves active compare files/warehouses older than hours to archived status.
+func (s *Service) AutoArchiveTempWarehouses(ctx context.Context, olderThanHours int) (int64, error) {
+	return s.repo.AutoArchiveTempWarehouses(ctx, olderThanHours)
+}
+
+// PurgeArchivedTempWarehouses purges files and file rows older than days.
+func (s *Service) PurgeArchivedTempWarehouses(ctx context.Context, olderThanDays int) ([]string, int64, int64, error) {
+	return s.repo.PurgeArchivedTempWarehouses(ctx, olderThanDays)
+}
+
+// RunWarehouseLifecycle executes the automated auto-archiving and retention purging cycle.
+func (s *Service) RunWarehouseLifecycle(
+	ctx context.Context,
+	autoArchiveHours int,
+	autoArchiveEnabled bool,
+	autoDeleteDays int,
+	autoDeleteEnabled bool,
+	uploadBaseDir string,
+) (*TempWarehouseLifecycleResult, error) {
+	result := &TempWarehouseLifecycleResult{}
+
+	// 1. Auto-Archive expired active compare files / temp warehouses
+	if autoArchiveEnabled && autoArchiveHours > 0 {
+		archived, err := s.repo.AutoArchiveTempWarehouses(ctx, autoArchiveHours)
+		if err != nil {
+			s.log.ErrorContext(ctx, "warehouse lifecycle: auto-archive failed", "error", err, "hours", autoArchiveHours)
+			return result, fmt.Errorf("auto-archive: %w", err)
+		}
+		result.ArchivedFilesCount = archived
+		if archived > 0 {
+			s.log.InfoContext(ctx, "warehouse lifecycle: auto-archived files", "count", archived, "hours", autoArchiveHours)
+		}
+	}
+
+	// 2. Auto-Delete / Purge expired archived compare files / temp warehouses
+	if autoDeleteEnabled && autoDeleteDays > 0 {
+		storageKeys, filesCount, rowsCount, err := s.repo.PurgeArchivedTempWarehouses(ctx, autoDeleteDays)
+		if err != nil {
+			s.log.ErrorContext(ctx, "warehouse lifecycle: purge failed", "error", err, "days", autoDeleteDays)
+			return result, fmt.Errorf("purge: %w", err)
+		}
+		result.DeletedFilesCount = filesCount
+		result.PurgedRowsCount = rowsCount
+
+		// Delete physical files from disk / storage
+		var physicalDeleted int64
+		for _, key := range storageKeys {
+			if key == "" {
+				continue
+			}
+			if uploadBaseDir != "" {
+				candidates := []string{
+					filepath.Join(uploadBaseDir, "temp_warehouses", filepath.Base(key)),
+					filepath.Join(uploadBaseDir, "compare", filepath.Base(key)),
+					filepath.Join(uploadBaseDir, filepath.Base(key)),
+				}
+				for _, p := range candidates {
+					if err := os.Remove(p); err == nil {
+						physicalDeleted++
+						break
+					}
+				}
+			}
+			if s.storage != nil {
+				_ = s.storage.Delete(ctx, key)
+			}
+		}
+		result.PurgedStorageFiles = physicalDeleted
+
+		if filesCount > 0 || rowsCount > 0 {
+			s.log.InfoContext(ctx, "warehouse lifecycle: purged expired files and rows",
+				"files", filesCount, "rows", rowsCount, "physical_files", physicalDeleted, "retention_days", autoDeleteDays)
+		}
+	}
+
+	return result, nil
 }

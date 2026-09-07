@@ -70,10 +70,10 @@ func amount(s string) money.Amount {
 // localized picks the Arabic name from a bilingual JSONB column, falling back
 // to English and then to a placeholder, so a row with a missing translation
 // still reads as something rather than as an empty cell.
-const localizedName = `COALESCE(NULLIF(%s->>'ar',''), NULLIF(%s->>'en',''), '')`
+const localizedName = `COALESCE(NULLIF(%[1]s->>'ar',''), NULLIF(%[1]s->>'en',''), NULLIF(%[1]s#>>'{}',''), '')`
 
 func nameExpr(col string) string {
-	return fmt.Sprintf(localizedName, col, col)
+	return fmt.Sprintf(localizedName, col)
 }
 
 // dateFilter appends an inclusive period filter, returning the new argument

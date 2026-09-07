@@ -37,8 +37,8 @@ import (
 // answer, which is the failure nobody can see.
 const charsPerToken = 3
 
-// defaultContextWindow is used when the Gateway does not publish one.
-const defaultContextWindow = 32000
+// defaultContextWindow is used when the Gateway does not publish one (256k tokens for qwen3.7-flash).
+const defaultContextWindow = 262144
 
 // historyShare is the fraction of the context window history may occupy.
 //

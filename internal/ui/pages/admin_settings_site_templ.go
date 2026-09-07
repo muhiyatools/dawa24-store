@@ -48,20 +48,28 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			return templ_7745c5c3_Err
 		}
 		if siteSettings != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<!-- 1. Platform Branding & Visual Identity (Logo & Favicon) --> <div class=\"glass-panel p-6 mb-0\" x-data=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<!-- 1. Platform Branding & Visual Identity (Dual Logo & Favicon) --> <div class=\"glass-panel p-6 mb-0\" x-data=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("{ logoPreview: %q, faviconPreview: %q }", siteSettings.LogoURL, siteSettings.FaviconURL))
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("{ logoPreview: %q, logoDarkPreview: %q, faviconPreview: %q, removeDark: false }", siteSettings.LogoURL, siteSettings.LogoDarkURL, siteSettings.FaviconURL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 23, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 23, Col: 180}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><div class=\"pb-3 mb-4 border-b flex-between items-center flex-wrap gap-2\"><div><h3 class=\"text-base font-black text-primary m-0\">الهوية البصرية وشعار المنصة (Platform Branding & Logo)</h3><p class=\"text-xs text-secondary m-0 mt-1\">تخصيص شعار المنصة الرسمي وأيقونة المتصفح (Favicon) المعتمدة عبر القوائم الجانبية، الترويسة، والتذييل والفواتير.</p></div><span class=\"badge badge-sky text-2xs font-mono font-bold\">Branding Manager</span></div><form action=\"/admin/settings/branding\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6 m-0\"><!-- Logo Section --><div class=\"p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-4\"><div class=\"flex-between items-center\"><label class=\"form-label text-xs font-black text-primary m-0\">شعار المنصة الرئيسي (Platform Logo)</label> <span class=\"text-2xs text-muted\">يدعم SVG, PNG, WebP, JPG (يُفضل خلفية شفافة PNG أو SVG)</span></div><!-- Dual Preview: Light and Dark Modes --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2\" style=\"background-color: #ffffff; min-height: 120px;\"><span class=\"text-2xs font-bold text-slate-500 uppercase tracking-wider\">معاينة على خلفية فاتحة (Light Mode)</span><div class=\"flex-center w-100\" style=\"height: 64px;\"><template x-if=\"logoPreview\"><img :src=\"logoPreview\" alt=\"Logo Preview\" class=\"object-contain\" style=\"max-height: 56px; max-width: 220px;\" onerror=\"this.style.display='none'\"></template><template x-if=\"!logoPreview\"><div class=\"d-flex items-center gap-2 text-slate-400 text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><div class=\"pb-3 mb-4 border-b flex-between items-center flex-wrap gap-2\"><div><h3 class=\"text-base font-black text-primary m-0\">الهوية البصرية وشعار المنصة المزدوج (Dual Logo & Visual Identity)</h3><p class=\"text-xs text-secondary m-0 mt-1\">تخصيص شعار المنصة الرسمي للوضعين الفاتح والداكن ليتغير تلقائياً بناءً على مظهر العرض النشط، وتحديد أيقونة المتصفح (Favicon).</p></div><span class=\"badge badge-sky text-2xs font-mono font-bold\">Dual-Theme Ready</span></div><form action=\"/admin/settings/branding\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6 m-0\"><!-- Logos Grid: Light Mode and Dark Mode side-by-side --><div class=\"d-grid grid-cols-1 md:grid-cols-2 gap-5\"><!-- Light Mode Logo Card --><div class=\"p-5 bg-surface-sunken border rounded-2xl d-flex flex-col gap-4 shadow-2xs\"><div class=\"flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"p-1.5 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconSun("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span> <label class=\"form-label text-xs font-black text-primary m-0\">شعار الوضع الفاتح (Light Mode Logo)</label></div><span class=\"badge badge-amber text-2xs font-bold\">الافتراضي</span></div><!-- Preview Box --><div class=\"p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2\" style=\"background-color: #ffffff; min-height: 120px; border-color: #e2e8f0;\"><span class=\"text-2xs font-bold text-slate-500 uppercase tracking-wider\">معاينة الوضع الفاتح</span><div class=\"flex-center w-100\" style=\"height: 64px;\"><template x-if=\"logoPreview\"><img :src=\"logoPreview\" alt=\"Light Logo Preview\" class=\"object-contain\" style=\"max-height: 56px; max-width: 220px;\" onerror=\"this.style.display='none'\"></template><template x-if=\"!logoPreview\"><div class=\"d-flex items-center gap-2 text-slate-400 text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,28 +77,23 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>لا يوجد شعار محدد</span></div></template></div></div><div class=\"p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2\" style=\"background-color: #0f172a; min-height: 120px;\"><span class=\"text-2xs font-bold text-slate-400 uppercase tracking-wider\">معاينة على خلفية داكنة (Dark Mode / Sidebar)</span><div class=\"flex-center w-100\" style=\"height: 64px;\"><template x-if=\"logoPreview\"><img :src=\"logoPreview\" alt=\"Logo Preview\" class=\"object-contain\" style=\"max-height: 56px; max-width: 220px;\" onerror=\"this.style.display='none'\"></template><template x-if=\"!logoPreview\"><div class=\"d-flex items-center gap-2 text-slate-500 text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>لا يوجد شعار محدد</span></div></template></div></div><!-- File Upload Input (Upload Only) --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary\">رفع ملف شعار جديد للوضع الفاتح</label> <input type=\"file\" name=\"logo_file\" accept=\"image/png,image/jpeg,image/svg+xml,image/webp\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { logoPreview = URL.createObjectURL($event.target.files[0]); }\"><div class=\"text-2xs text-muted mt-1\">يدعم SVG, PNG, WebP, JPG (يُفضل خلفية شفافة).</div></div></div><!-- Dark Mode Logo Card --><div class=\"p-5 bg-surface-sunken border rounded-2xl d-flex flex-col gap-4 shadow-2xs\"><div class=\"flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconImage("icon-sm text-slate-500").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconMoon("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>لا يوجد شعار محدد</span></div></template></div></div></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رفع ملف شعار جديد من جهازك</label> <input type=\"file\" name=\"logo_file\" accept=\"image/png,image/jpeg,image/svg+xml,image/webp\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { logoPreview = URL.createObjectURL($event.target.files[0]); }\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">أو إدخال رابط مباشر للشعار (Logo URL)</label> <input type=\"text\" name=\"logo_url\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span> <label class=\"form-label text-xs font-black text-primary m-0\">شعار الوضع الداكن (Dark Mode Logo)</label></div><span class=\"badge badge-indigo text-2xs font-bold\">Dark Theme</span></div><!-- Preview Box --><div class=\"p-4 rounded-xl border d-flex flex-col items-center justify-center gap-2\" style=\"background-color: #0f172a; min-height: 120px; border-color: #334155;\"><span class=\"text-2xs font-bold text-slate-400 uppercase tracking-wider\">معاينة الوضع الداكن</span><div class=\"flex-center w-100\" style=\"height: 64px;\"><template x-if=\"!removeDark && logoDarkPreview\"><img :src=\"logoDarkPreview\" alt=\"Dark Logo Preview\" class=\"object-contain\" style=\"max-height: 56px; max-width: 220px;\" onerror=\"this.style.display='none'\"></template><template x-if=\"removeDark || !logoDarkPreview\"><div class=\"d-flex flex-col items-center gap-1\"><template x-if=\"logoPreview\"><img :src=\"logoPreview\" alt=\"Fallback Logo\" class=\"object-contain opacity-50\" style=\"max-height: 48px; max-width: 180px;\"></template><span class=\"text-2xs text-slate-400\" x-text=\"logoPreview ? 'يستخدم الشعار الفاتح تلقائياً' : 'لا يوجد شعار'\"></span></div></template></div></div><!-- File Upload Input (Upload Only) --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary\">رفع ملف شعار مخصص للوضع الداكن</label> <input type=\"file\" name=\"logo_dark_file\" accept=\"image/png,image/jpeg,image/svg+xml,image/webp\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { logoDarkPreview = URL.createObjectURL($event.target.files[0]); removeDark = false; }\"><div class=\"text-2xs text-muted mt-1\">يظهر تلقائياً عندما يتصفح المستخدم المنصة بالوضع الليلي.</div><template x-if=\"logoDarkPreview\"><label class=\"d-flex items-center gap-2 mt-2 cursor-pointer text-xs text-rose-500 font-bold select-none\"><input type=\"checkbox\" name=\"remove_dark_logo\" value=\"1\" x-model=\"removeDark\" class=\"form-check-input\"> <span>إزالة الشعار الداكن (الاعتماد على الشعار الفاتح فقط)</span></label></template></div></div></div><!-- Favicon Section (Upload Only) --><div class=\"p-5 bg-surface-sunken border rounded-2xl d-flex flex-col gap-4 shadow-2xs\"><div class=\"flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"p-1.5 rounded-lg bg-sky-500/10 text-sky-500 border border-sky-500/20\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.LogoURL)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 94, Col: 37}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+			templ_7745c5c3_Err = components.IconGlobe("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" placeholder=\"https://... أو /static/img/logo.png\" class=\"form-input text-xs font-mono\" dir=\"ltr\" @input=\"logoPreview = $event.target.value\"></div></div></div><!-- Favicon Section --><div class=\"p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-4\"><div class=\"flex-between items-center\"><label class=\"form-label text-xs font-black text-primary m-0\">أيقونة شريط المتصفح (Favicon)</label> <span class=\"text-2xs text-muted\">يدعم ICO, PNG, SVG (المقاس المقترح: 32×32 أو 48×48 بكسل)</span></div><div class=\"d-flex items-center gap-4 flex-wrap\"><div class=\"p-3 rounded-lg border bg-white flex-center\" style=\"width: 52px; height: 52px;\"><template x-if=\"faviconPreview\"><img :src=\"faviconPreview\" alt=\"Favicon\" class=\"object-contain\" style=\"width: 32px; height: 32px;\"></template><template x-if=\"!faviconPreview\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span> <label class=\"form-label text-xs font-black text-primary m-0\">أيقونة شريط المتصفح (Favicon)</label></div><span class=\"text-2xs text-muted\">يدعم ICO, PNG, SVG (المقاس المقترح: 32×32 بكسل)</span></div><div class=\"d-flex items-center gap-4 flex-wrap\"><div class=\"p-3 rounded-xl border bg-white flex-center shadow-2xs\" style=\"width: 56px; height: 56px; border-color: #e2e8f0;\"><template x-if=\"faviconPreview\"><img :src=\"faviconPreview\" alt=\"Favicon\" class=\"object-contain\" style=\"width: 32px; height: 32px;\"></template><template x-if=\"!faviconPreview\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,20 +101,7 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</template></div><div class=\"form-grid-2 flex-1\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">رفع ملف أيقونة Favicon</label> <input type=\"file\" name=\"favicon_file\" accept=\"image/x-icon,image/png,image/svg+xml\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { faviconPreview = URL.createObjectURL($event.target.files[0]); }\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold\">أو رابط Favicon مباشر</label> <input type=\"text\" name=\"favicon_url\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.FaviconURL)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 136, Col: 41}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" placeholder=\"/static/img/favicon.png\" class=\"form-input text-xs font-mono\" dir=\"ltr\" @input=\"faviconPreview = $event.target.value\"></div></div></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs gap-1.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</template></div><div class=\"flex-1 min-w-64\"><label class=\"form-label text-xs font-bold text-secondary\">رفع ملف أيقونة Favicon جديدة</label> <input type=\"file\" name=\"favicon_file\" accept=\"image/x-icon,image/png,image/svg+xml\" class=\"form-input text-xs\" @change=\"if ($event.target.files.length) { faviconPreview = URL.createObjectURL($event.target.files[0]); }\"></div></div></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs gap-1.5 px-5 py-2.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -123,12 +113,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SiteName)
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SiteName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 171, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 192, Col: 72}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -136,12 +126,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Address)
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 175, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 196, Col: 69}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,12 +139,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(siteSettings.SiteDescription)
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(siteSettings.SiteDescription)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 181, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 202, Col: 106}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -162,12 +152,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.ContactEmail)
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.ContactEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 187, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 208, Col: 81}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -175,12 +165,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SupportEmail)
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.SupportEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 191, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 212, Col: 81}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,12 +178,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Phone)
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 198, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 219, Col: 64}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -201,12 +191,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.WhatsApp)
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(siteSettings.WhatsApp)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 202, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 223, Col: 70}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -222,12 +212,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "facebook"))
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "facebook"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 230, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 251, Col: 105}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -235,12 +225,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "twitter"))
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "twitter"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 234, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 255, Col: 103}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -248,12 +238,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "instagram"))
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "instagram"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 241, Col: 107}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 262, Col: 107}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -261,12 +251,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "linkedin"))
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "linkedin"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 245, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 266, Col: 105}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -274,12 +264,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "youtube"))
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "youtube"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 252, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 273, Col: 103}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -287,12 +277,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "tiktok"))
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "tiktok"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 256, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 277, Col: 101}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -300,12 +290,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var18 string
-			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "snapchat"))
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "snapchat"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 263, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 284, Col: 105}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -313,12 +303,12 @@ func adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "telegram"))
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(socialValue(siteSettings.SocialLinks, "telegram"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 267, Col: 105}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_settings_site.templ`, Line: 288, Col: 105}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

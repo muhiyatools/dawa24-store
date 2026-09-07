@@ -69,12 +69,13 @@ func (r *Resolver) load(ctx context.Context, userID, orgID int64) (Grant, error)
 func loadPlatformSide(ctx context.Context, tx pgx.Tx, g *Grant) error {
 	var isStaff bool
 	err := tx.QueryRow(ctx, `
-		SELECT u.role, COALESCE(ro.is_staff, false)
+		SELECT u.role, COALESCE(ro.is_staff, false), COALESCE(u.avatar_url, ''),
+		       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), '')
 		  FROM identity.users u
 		  LEFT JOIN identity.roles ro
 		         ON ro.key = u.role AND ro.deleted_at IS NULL
 		 WHERE u.id = $1 AND u.deleted_at IS NULL AND u.status = 'active';
-	`, g.UserID).Scan(&g.PlatformRole, &isStaff)
+	`, g.UserID).Scan(&g.PlatformRole, &isStaff, &g.AvatarURL, &g.Name)
 	if err == pgx.ErrNoRows {
 		// A deleted or suspended account resolves to nothing. This is the
 		// second half of suspension: revoking the sessions closes open tabs,

@@ -35,6 +35,7 @@ type Actor struct {
 	IsStaff        bool
 	Email          string
 	Name           string
+	AvatarURL      string
 	// Scope names the dashboard this actor's permissions belong to. It decides
 	// which sidebar is rendered and which permissions a role editor may offer,
 	// and it is set by authentication from the resolved grant — never from the

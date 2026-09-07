@@ -136,6 +136,7 @@ func teamMemberRow(
 		RoleName:     roleName,
 		IsActive:     m.IsActive,
 		IsManager:    emp.IsManager,
+		AvatarURL:    emp.UserAvatar,
 		JoinedAt:     m.CreatedAt.Format("2006-01-02"),
 	}
 }

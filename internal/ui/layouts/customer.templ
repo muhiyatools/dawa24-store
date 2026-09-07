@@ -26,12 +26,17 @@ templ PublicShell(title string, lang string, dir string) {
 					<div class="nav-lead">
 						<a href="/" class="nav-brand" title={ site.SiteName }>
 							if site.LogoURL != "" {
-								<img src={ site.LogoURL } alt={ site.SiteName } class="nav-brand-logo" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';" />
-								<span class="nav-brand-text" style="display: none;">
+								<img src={ site.LogoURL } alt={ site.SiteName } class={ "nav-brand-logo logo-light", templ.KV("logo-always", site.LogoDarkURL == "") } onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';" />
+							}
+							if site.LogoDarkURL != "" {
+								<img src={ site.LogoDarkURL } alt={ site.SiteName } class="nav-brand-logo logo-dark" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';" />
+							}
+							if site.LogoURL == "" && site.LogoDarkURL == "" {
+								<span class="nav-brand-text">
 									<span class="nav-brand-name">{ site.SiteName }</span>
 								</span>
 							} else {
-								<span class="nav-brand-text">
+								<span class="nav-brand-text" style="display: none;">
 									<span class="nav-brand-name">{ site.SiteName }</span>
 								</span>
 							}

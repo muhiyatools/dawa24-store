@@ -83,6 +83,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					Name:         name,
 					Email:        emp.UserEmail,
 					Phone:        emp.UserPhone,
+					AvatarURL:    emp.UserAvatar,
 					JobTitle:     emp.Member.JobTitle,
 					EmployeeCode: emp.Member.EmployeeCode,
 					BranchID:     derefBranchID(emp.Member.BranchID),
@@ -101,6 +102,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 				name := i18n.T(lang, "role.employee")
 				email := ""
 				phone := ""
+				avatarURL := ""
 				if h.idSvc != nil {
 					if u, err := h.idSvc.GetUserByID(ctx, m.UserID); err == nil && u != nil {
 						name = u.Name.Get(i18n.AR)
@@ -112,6 +114,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 						}
 						email = u.Email
 						phone = u.Phone
+						avatarURL = u.AvatarURL
 					}
 				}
 				roleName := i18n.T(lang, "role.org_employee")
@@ -133,6 +136,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					Name:         name,
 					Email:        email,
 					Phone:        phone,
+					AvatarURL:    avatarURL,
 					JobTitle:     m.JobTitle,
 					EmployeeCode: m.EmployeeCode,
 					BranchID:     derefBranchID(m.BranchID),

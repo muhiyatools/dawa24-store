@@ -34,6 +34,10 @@ type Grant struct {
 	IsOrgOwner bool
 	// BranchID is non-nil when the member is bound to one branch.
 	BranchID *int64
+	// AvatarURL is identity.users.avatar_url.
+	AvatarURL string
+	// Name is the user's display name from identity.users.
+	Name string
 	// Permissions is the resolved holding.
 	Permissions Set
 	// Keys is the same holding as a sorted slice, for the session record.

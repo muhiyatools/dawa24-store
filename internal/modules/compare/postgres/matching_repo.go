@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 
@@ -163,4 +164,96 @@ func (r *Repository) PurgeExpiredCompareFiles(ctx context.Context, defaultRetent
 		return tx.QueryRow(txCtx, query, defaultRetentionDays).Scan(&purgedCount)
 	})
 	return purgedCount, err
+}
+
+// AutoArchiveTempWarehouses marks active compare files and temporary warehouses older than olderThanHours as 'archived'.
+func (r *Repository) AutoArchiveTempWarehouses(ctx context.Context, olderThanHours int) (int64, error) {
+	if olderThanHours <= 0 {
+		return 0, nil
+	}
+	var count int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE compare.files
+			SET status = 'archived',
+				archived_at = now(),
+				archive_reason = 'Auto Archived',
+				updated_at = now()
+			WHERE deleted_at IS NULL
+			  AND status = 'ready'
+			  AND created_at <= (now() - ($1::int || ' hours')::interval);
+		`
+		res, err := tx.Exec(txCtx, query, olderThanHours)
+		if err != nil {
+			return err
+		}
+		count = res.RowsAffected()
+		return nil
+	})
+	return count, err
+}
+
+// PurgeArchivedTempWarehouses permanently purges file rows, deletes storage keys, and marks archived files older than olderThanDays as deleted.
+// It also cleans up any orphaned compare.file_rows whose parent file is deleted.
+func (r *Repository) PurgeArchivedTempWarehouses(ctx context.Context, olderThanDays int) ([]string, int64, int64, error) {
+	if olderThanDays <= 0 {
+		return nil, 0, 0, nil
+	}
+	var keys []string
+	var fileCount, rowCount int64
+
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			WITH target_files AS (
+				SELECT id, storage_key
+				FROM compare.files
+				WHERE deleted_at IS NULL
+				  AND status = 'archived'
+				  AND archived_at <= (now() - ($1::int || ' days')::interval)
+				LIMIT 500
+			),
+			deleted_rows AS (
+				DELETE FROM compare.file_rows
+				WHERE file_id IN (SELECT id FROM target_files)
+				RETURNING file_id
+			),
+			updated_files AS (
+				UPDATE compare.files
+				SET deleted_at = now(),
+				    status = 'deleted',
+				    updated_at = now()
+				WHERE id IN (SELECT id FROM target_files)
+				RETURNING id
+			)
+			SELECT 
+				COALESCE(array_agg(storage_key) FILTER (WHERE storage_key IS NOT NULL AND storage_key <> ''), '{}'::text[]),
+				(SELECT count(*) FROM updated_files),
+				(SELECT count(*) FROM deleted_rows)
+			FROM target_files;
+		`
+		var pgKeys []string
+		if err := tx.QueryRow(txCtx, query, olderThanDays).Scan(&pgKeys, &fileCount, &rowCount); err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return err
+		}
+		keys = pgKeys
+
+		// Also clean up any lingering orphaned rows from previously deleted files
+		orphanQuery := `
+			WITH orphan_targets AS (
+				SELECT id FROM compare.files WHERE deleted_at IS NOT NULL LIMIT 200
+			),
+			del_orphans AS (
+				DELETE FROM compare.file_rows WHERE file_id IN (SELECT id FROM orphan_targets)
+				RETURNING file_id
+			)
+			SELECT count(*) FROM del_orphans;
+		`
+		var orphanRows int64
+		if err := tx.QueryRow(txCtx, orphanQuery).Scan(&orphanRows); err == nil {
+			rowCount += orphanRows
+		}
+
+		return nil
+	})
+	return keys, fileCount, rowCount, err
 }

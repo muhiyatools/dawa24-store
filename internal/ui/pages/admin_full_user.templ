@@ -77,7 +77,16 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 							<tbody>
 								for _, u := range users {
 									<tr>
-										<td><strong class="text-primary text-xs">{ u.Name.Get("ar") }</strong></td>
+										<td>
+											<div class="d-flex items-center gap-2">
+												if u.AvatarURL != "" {
+													<div class="w-7 h-7 rounded-lg border overflow-hidden flex-shrink-0 bg-surface-sunken">
+														<img src={ u.AvatarURL } alt={ u.Name.Get("ar") } class="w-full h-full object-cover" onerror="this.style.display='none'" />
+													</div>
+												}
+												<strong class="text-primary text-xs">{ u.Name.Get("ar") }</strong>
+											</div>
+										</td>
 										<td class="tabular-nums text-xs font-mono">{ u.Email }</td>
 										<td class="tabular-nums text-xs">{ u.Phone }</td>
 										<td><span class="badge badge-secondary text-xs font-bold">{ u.Role }</span></td>
@@ -143,9 +152,16 @@ templ AdminUserDetailPage(v AdminUserDetailView, lang, dir string) {
 		<div class="page-container max-w-2xl mx-auto">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center mb-4 pb-3 border-b">
-     <div class="stack-sm">
-						<h2 class="text-xl font-black text-primary m-0">{ u.Name.Get("ar") }</h2>
-						<p class="text-xs text-secondary m-0 mt-1">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
+					<div class="d-flex items-center gap-3">
+						if u.AvatarURL != "" {
+							<div class="w-12 h-12 rounded-xl border overflow-hidden flex-shrink-0 bg-surface-sunken shadow-2xs">
+								<img src={ u.AvatarURL } alt={ u.Name.Get("ar") } class="w-full h-full object-cover" onerror="this.style.display='none'" />
+							</div>
+						}
+						<div class="stack-sm">
+							<h2 class="text-xl font-black text-primary m-0">{ u.Name.Get("ar") }</h2>
+							<p class="text-xs text-secondary m-0 mt-1">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
+						</div>
 					</div>
 					<a href="/admin/users" class="btn btn-secondary btn-sm font-bold text-xs">العودة لدليل المستخدمين</a>
 				</div>

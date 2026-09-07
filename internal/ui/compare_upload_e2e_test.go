@@ -246,6 +246,12 @@ func (m *mockCompareRepoE2E) BulkUnarchiveFiles(ctx context.Context, ids []int64
 func (m *mockCompareRepoE2E) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
 	return 0, nil
 }
+func (m *mockCompareRepoE2E) AutoArchiveTempWarehouses(ctx context.Context, olderThanHours int) (int64, error) {
+	return 0, nil
+}
+func (m *mockCompareRepoE2E) PurgeArchivedTempWarehouses(ctx context.Context, olderThanDays int) ([]string, int64, int64, error) {
+	return nil, 0, 0, nil
+}
 func (m *mockCompareRepoE2E) InsertFileRows(ctx context.Context, rows []*compare.CompareFileRow) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

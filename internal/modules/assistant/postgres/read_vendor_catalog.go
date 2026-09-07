@@ -87,7 +87,7 @@ func (r *Repository) LowStock(
 	err = r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
 			SELECT `+nameExpr("p.name")+`, COALESCE(`+nameExpr("v.name")+`,''),
-			       COALESCE(`+nameExpr("w.name")+`,''), s.quantity, s.min_threshold
+			       COALESCE(w.name,''), s.quantity, s.min_threshold
 			  FROM inventory.stocks s
 			  JOIN catalog.products p ON p.id = s.product_id
 			  LEFT JOIN catalog.product_variants v ON v.id = s.product_variant_id
@@ -137,7 +137,7 @@ func (r *Repository) Offers(
 	err = r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
 			SELECT o.id, `+nameExpr("o.title")+`, o.discount_type,
-			       o.discount_value::text, o.min_order_value::text,
+			       o.discount_value::text, COALESCE(o.min_order_amount, 0)::text,
 			       o.starts_at, o.expires_at, o.is_active,
 			       o.views_count, o.clicks_count,
 			       (SELECT COUNT(*) FROM promo.offer_products op WHERE op.offer_id = o.id)

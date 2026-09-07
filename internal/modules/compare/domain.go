@@ -231,6 +231,14 @@ type CompareFile struct {
 	DeletedAt        *time.Time        `json:"deleted_at,omitempty"`
 }
 
+// TempWarehouseLifecycleResult holds counts of affected files and rows from a lifecycle pass.
+type TempWarehouseLifecycleResult struct {
+	ArchivedFilesCount int64 `json:"archived_files_count"`
+	DeletedFilesCount  int64 `json:"deleted_files_count"`
+	PurgedRowsCount    int64 `json:"purged_rows_count"`
+	PurgedStorageFiles int64 `json:"purged_storage_files"`
+}
+
 // AdminTempWarehouseFilter narrows the Super Admin / "my uploads" temporary
 // warehouse listing. A temporary warehouse is a compare.files row that is
 // either a moderator upload (is_temp_warehouse) or any vendor compare-tool

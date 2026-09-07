@@ -47,6 +47,7 @@ type TenantTeamMember struct {
 	RoleName     string
 	IsActive     bool
 	IsManager    bool
+	AvatarURL    string
 	JoinedAt     string
 }
 
@@ -178,7 +179,14 @@ templ teamTable(v TenantTeamView) {
 							<tr class="team-row" data-search={ m.SearchKey() } data-branch={ strconv.FormatInt(m.BranchID, 10) } data-member={ teamMemberJSON(m) }>
 								<td>
 									<div class="d-flex items-center gap-3">
-										<div class="user-avatar-badge">{ components.Initials(m.Name) }</div>
+										<div class="user-avatar-badge font-black text-xs overflow-hidden">
+											if m.AvatarURL != "" {
+												<img src={ m.AvatarURL } alt={ m.Name } class="w-full h-full object-cover" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';" />
+												<span style="display: none;">{ components.Initials(m.Name) }</span>
+											} else {
+												<span>{ components.Initials(m.Name) }</span>
+											}
+										</div>
 										<div class="d-flex flex-col gap-0.5">
 											<span class="font-bold text-sm text-primary">{ m.Name }</span>
 											<span class="text-2xs text-muted d-flex items-center gap-2 flex-wrap">

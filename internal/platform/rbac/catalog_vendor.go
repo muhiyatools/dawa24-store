@@ -261,7 +261,7 @@ func vendorAccountPerms() []Permission {
 		// permission the corresponding screen requires, so this grant alone
 		// shows an employee nothing they could not already open.
 		vendorAct("vendor.assistant.use", g,
-			"استخدام المساعد الذكي كبسولة", "Use the Capsule AI assistant"),
+			"استخدام الذكاء الاصطناعي (المساعد كبسولة)", "Use the Capsule AI assistant"),
 
 		vendorPage("vendor.session.view", g, "sessions", "الأجهزة والجلسات النشطة", "Active sessions"),
 		vendorAct("vendor.session.revoke", g, "إنهاء الجلسات", "Revoke sessions", "vendor.session.view"),

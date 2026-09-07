@@ -75,7 +75,7 @@ func (r *Repository) AdminListUsersWithTotal(ctx context.Context, filter identit
 
 		querySQL := `
 			SELECT id, public_id, email, name, role, status, language, timezone,
-			       phone, email_verified_at, phone_verified_at, created_at, updated_at
+			       phone, COALESCE(avatar_url, ''), email_verified_at, phone_verified_at, created_at, updated_at
 			FROM identity.users
 			WHERE ` + clause + `
 			ORDER BY created_at DESC, id DESC
@@ -93,7 +93,7 @@ func (r *Repository) AdminListUsersWithTotal(ctx context.Context, filter identit
 			var statusStr, langStr string
 			if err := rows.Scan(
 				&u.ID, &u.PublicID, &u.Email, &u.Name, &u.Role, &statusStr, &langStr,
-				&u.Timezone, &u.Phone, &u.EmailVerifiedAt, &u.PhoneVerifiedAt,
+				&u.Timezone, &u.Phone, &u.AvatarURL, &u.EmailVerifiedAt, &u.PhoneVerifiedAt,
 				&u.CreatedAt, &u.UpdatedAt,
 			); err != nil {
 				return err

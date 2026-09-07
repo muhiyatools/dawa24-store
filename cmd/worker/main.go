@@ -21,6 +21,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	comparePostgres "github.com/muhiya/dawa24-store/internal/modules/compare/postgres"
 	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	platformadminPostgres "github.com/muhiya/dawa24-store/internal/modules/platform_admin/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	promoPostgres "github.com/muhiya/dawa24-store/internal/modules/promo/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
@@ -224,23 +226,60 @@ func run() error {
 		}
 	})
 
-	// Daily Compare Files Retention Cleanup Scheduler (Runs once every 24 hours)
-	safe.Go(log, "worker-compare-retention", func() {
+	// Periodic Compare Files & Temporary Warehouse Lifecycle Scheduler (Runs every 1 hour)
+	safe.Go(log, "worker-warehouse-lifecycle", func() {
 		compareRepo := comparePostgres.NewRepository(db)
 		compareSvc := compare.NewService(compareRepo, log)
+		adminRepo := platformadminPostgres.NewRepository(db)
+		adminSvc := platformadmin.NewService(adminRepo, log)
+
+		runLifecyclePass := func(trigger string) {
+			sysCtx := database.AsSystem(ctx)
+			settings, err := adminSvc.GetTempWarehouseLifecycleSettings(sysCtx)
+			if err != nil {
+				log.Warn("could not load temp warehouse lifecycle settings, using defaults", "error", err)
+			}
+			autoArchiveHours := 720
+			autoArchiveEnabled := true
+			autoDeleteDays := 30
+			autoDeleteEnabled := true
+			if settings != nil {
+				autoArchiveHours = settings.AutoArchiveHours
+				autoArchiveEnabled = settings.AutoArchiveEnabled
+				autoDeleteDays = settings.AutoDeleteDays
+				autoDeleteEnabled = settings.AutoDeleteEnabled
+			}
+
+			res, err := compareSvc.RunWarehouseLifecycle(
+				sysCtx,
+				autoArchiveHours,
+				autoArchiveEnabled,
+				autoDeleteDays,
+				autoDeleteEnabled,
+				storage.UploadBaseDir(),
+			)
+			if err != nil {
+				log.Error("warehouse & compare files lifecycle pass failed", "trigger", trigger, "error", err)
+				return
+			}
+			if res != nil && (res.ArchivedFilesCount > 0 || res.DeletedFilesCount > 0 || res.PurgedRowsCount > 0) {
+				log.Info("warehouse & compare files lifecycle pass completed",
+					"trigger", trigger,
+					"archived_files", res.ArchivedFilesCount,
+					"deleted_files", res.DeletedFilesCount,
+					"purged_rows", res.PurgedRowsCount,
+				)
+			}
+		}
 
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(20 * time.Second):
-			if count, err := compareSvc.PurgeExpiredFiles(ctx, 30); err != nil {
-				log.Error("initial compare files retention pass failed", "error", err)
-			} else if count > 0 {
-				log.Info("initial compare files retention pass completed", "purged_files", count)
-			}
+			runLifecyclePass("initial")
 		}
 
-		ticker := time.NewTicker(24 * time.Hour)
+		ticker := time.NewTicker(1 * time.Hour)
 		defer ticker.Stop()
 
 		for {
@@ -248,11 +287,7 @@ func run() error {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				if count, err := compareSvc.PurgeExpiredFiles(ctx, 30); err != nil {
-					log.Error("daily compare files retention pass failed", "error", err)
-				} else if count > 0 {
-					log.Info("daily compare files retention pass completed", "purged_files", count)
-				}
+				runLifecyclePass("periodic")
 			}
 		}
 	})

@@ -214,8 +214,8 @@ func testLogger() *slog.Logger {
 // is a deliberate act with a reason, rather than a merge.
 func TestAssistantRoleDefaults(t *testing.T) {
 	cases := map[Role]string{
-		RolePrimary:    "gemma-4-31b-it",
-		RoleAttachment: "gemma-4-31b-it",
+		RolePrimary:    "qwen3.7-flash",
+		RoleAttachment: "qwen3.7-flash",
 		RoleTranscribe: "whisper-large-v3-turbo",
 	}
 	for role, want := range cases {
