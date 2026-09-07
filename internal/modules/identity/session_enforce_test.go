@@ -1,9 +1,13 @@
 package identity
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
+
+	"github.com/muhiya/dawa24-store/internal/platform/config"
 )
 
 // Signing in as an administrator hung until the server's write timeout fired
@@ -147,5 +151,125 @@ func TestClassifyFallsBackToLastActiveWhenCreatedAtIsMissing(t *testing.T) {
 	}
 	if live[0].userID != 7 {
 		t.Fatalf("userID = %d, want 7 — the org path needs it to clean the user set", live[0].userID)
+	}
+}
+
+func TestSingleActiveSessionPerUser_EvictsPreviousSession(t *testing.T) {
+	ctx := context.Background()
+	store := NewSessionStore(nil, config.Session{
+		CookieName: "dawa_sess",
+		TTL:        24 * time.Hour,
+	})
+
+	// User 101 logs in on Device 1
+	sess1 := &Session{
+		UserID: 101,
+		Token:  "token_device_1",
+		Role:   RolePharmacy,
+	}
+	if err := store.Create(ctx, sess1); err != nil {
+		t.Fatalf("Create sess1: %v", err)
+	}
+
+	// Device 1 is active
+	got1, err := store.Get(ctx, "token_device_1")
+	if err != nil || got1 == nil {
+		t.Fatalf("Get sess1 expected active, got err: %v", err)
+	}
+
+	// User 101 logs in on Device 2 (same account)
+	sess2 := &Session{
+		UserID: 101,
+		Token:  "token_device_2",
+		Role:   RolePharmacy,
+	}
+	if err := store.Create(ctx, sess2); err != nil {
+		t.Fatalf("Create sess2: %v", err)
+	}
+
+	// Device 2 must be active
+	got2, err := store.Get(ctx, "token_device_2")
+	if err != nil || got2 == nil {
+		t.Fatalf("Get sess2 expected active, got err: %v", err)
+	}
+
+	// Device 1 must be evicted with ErrSessionEvictedConcurrentLimit
+	_, err = store.Get(ctx, "token_device_1")
+	if err == nil {
+		t.Fatal("expected sess1 to be evicted, but Get succeeded")
+	}
+	if !errors.Is(err, ErrSessionEvictedConcurrentLimit) {
+		t.Fatalf("expected ErrSessionEvictedConcurrentLimit, got: %v", err)
+	}
+}
+
+func TestOrgUsersIndependentConcurrency(t *testing.T) {
+	ctx := context.Background()
+	store := NewSessionStore(nil, config.Session{
+		CookieName: "dawa_sess",
+		TTL:        24 * time.Hour,
+	})
+
+	maxSessions := 3
+	orgID := int64(200)
+
+	// User 101 in Org 200 logs in
+	sessUser1 := &Session{
+		UserID:           101,
+		ActiveOrgID:      orgID,
+		Token:            "token_user1_dev1",
+		Role:             RolePharmacy,
+		MaxLoginSessions: &maxSessions,
+	}
+	if err := store.Create(ctx, sessUser1); err != nil {
+		t.Fatalf("Create sessUser1: %v", err)
+	}
+
+	// User 102 in Org 200 logs in (distinct account in same org)
+	sessUser2 := &Session{
+		UserID:           102,
+		ActiveOrgID:      orgID,
+		Token:            "token_user2_dev1",
+		Role:             RolePharmacy,
+		MaxLoginSessions: &maxSessions,
+	}
+	if err := store.Create(ctx, sessUser2); err != nil {
+		t.Fatalf("Create sessUser2: %v", err)
+	}
+
+	// Both distinct staff members must remain active concurrently within org plan
+	if _, err := store.Get(ctx, "token_user1_dev1"); err != nil {
+		t.Fatalf("expected user 1 session active, got: %v", err)
+	}
+	if _, err := store.Get(ctx, "token_user2_dev1"); err != nil {
+		t.Fatalf("expected user 2 session active, got: %v", err)
+	}
+
+	// User 101 logs in from a 2nd device
+	sessUser1Dev2 := &Session{
+		UserID:           101,
+		ActiveOrgID:      orgID,
+		Token:            "token_user1_dev2",
+		Role:             RolePharmacy,
+		MaxLoginSessions: &maxSessions,
+	}
+	if err := store.Create(ctx, sessUser1Dev2); err != nil {
+		t.Fatalf("Create sessUser1Dev2: %v", err)
+	}
+
+	// User 101's old device must be evicted
+	_, err := store.Get(ctx, "token_user1_dev1")
+	if !errors.Is(err, ErrSessionEvictedConcurrentLimit) {
+		t.Fatalf("expected user 1 dev 1 to be evicted, got: %v", err)
+	}
+
+	// User 101's new device must be active
+	if _, err := store.Get(ctx, "token_user1_dev2"); err != nil {
+		t.Fatalf("expected user 1 dev 2 active, got: %v", err)
+	}
+
+	// User 102 must STILL be active (unaffected by User 101's device switch)
+	if _, err := store.Get(ctx, "token_user2_dev1"); err != nil {
+		t.Fatalf("expected user 2 session to still be active, got: %v", err)
 	}
 }

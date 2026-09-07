@@ -45,6 +45,14 @@ func (s *SessionStore) get(ctx context.Context, token string, touch bool) (*Sess
 		defer s.memMu.Unlock()
 		sess, ok := s.memSessions[token]
 		if !ok {
+			if reason, evOk := s.memEvicted[token]; evOk {
+				if reason == "concurrent_limit" {
+					return nil, ErrSessionEvictedConcurrentLimit
+				}
+				if reason == "idle_timeout" {
+					return nil, ErrSessionIdleTimeout
+				}
+			}
 			return nil, apperr.Unauthorized()
 		}
 
@@ -56,6 +64,10 @@ func (s *SessionStore) get(ctx context.Context, token string, touch bool) (*Sess
 		// Enforce Idle Timeout
 		if idleLimit > 0 && time.Since(lastActive) > idleLimit {
 			delete(s.memSessions, token)
+			if s.memEvicted == nil {
+				s.memEvicted = make(map[string]string)
+			}
+			s.memEvicted[token] = "idle_timeout"
 			if s.memUserSessions[sess.UserID] != nil {
 				delete(s.memUserSessions[sess.UserID], token)
 			}
@@ -143,6 +155,7 @@ func (s *SessionStore) Delete(ctx context.Context, token string) error {
 				delete(s.memOrgSessions[sess.ActiveOrgID], token)
 			}
 		}
+		delete(s.memEvicted, token)
 		return nil
 	}
 
@@ -169,6 +182,7 @@ func (s *SessionStore) DeleteAllForUser(ctx context.Context, userID int64) error
 		if set, ok := s.memUserSessions[userID]; ok {
 			for tok := range set {
 				delete(s.memSessions, tok)
+				delete(s.memEvicted, tok)
 			}
 			delete(s.memUserSessions, userID)
 		}

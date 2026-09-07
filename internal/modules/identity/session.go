@@ -89,6 +89,7 @@ type SessionStore struct {
 	memSessions     map[string]*Session
 	memUserSessions map[int64]map[string]bool
 	memOrgSessions  map[int64]map[string]bool
+	memEvicted      map[string]string
 }
 
 // NewSessionStore creates a session store wrapping Redis.
@@ -106,6 +107,7 @@ func NewSessionStore(c *cachepkg.Cache, cfg config.Session) *SessionStore {
 		memSessions:     make(map[string]*Session),
 		memUserSessions: make(map[int64]map[string]bool),
 		memOrgSessions:  make(map[int64]map[string]bool),
+		memEvicted:      make(map[string]string),
 	}
 }
 
@@ -186,7 +188,27 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 			s.memSessions = make(map[string]*Session)
 			s.memUserSessions = make(map[int64]map[string]bool)
 			s.memOrgSessions = make(map[int64]map[string]bool)
+			s.memEvicted = make(map[string]string)
 		}
+		if s.memEvicted == nil {
+			s.memEvicted = make(map[string]string)
+		}
+
+		// 1. Strict single active session per user account:
+		// Evict any prior session for this user account.
+		if existingTokens, ok := s.memUserSessions[sess.UserID]; ok {
+			for oldTok := range existingTokens {
+				if oldTok != sess.Token {
+					s.memEvicted[oldTok] = "concurrent_limit"
+					delete(s.memSessions, oldTok)
+					delete(existingTokens, oldTok)
+					if sess.ActiveOrgID > 0 && s.memOrgSessions[sess.ActiveOrgID] != nil {
+						delete(s.memOrgSessions[sess.ActiveOrgID], oldTok)
+					}
+				}
+			}
+		}
+
 		s.memSessions[sess.Token] = sess
 		if s.memUserSessions[sess.UserID] == nil {
 			s.memUserSessions[sess.UserID] = make(map[string]bool)
@@ -197,6 +219,43 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 				s.memOrgSessions[sess.ActiveOrgID] = make(map[string]bool)
 			}
 			s.memOrgSessions[sess.ActiveOrgID][sess.Token] = true
+
+			// 2. Organization plan concurrency limit:
+			if sess.MaxLoginSessions != nil && *sess.MaxLoginSessions > 0 {
+				orgTokens := s.memOrgSessions[sess.ActiveOrgID]
+				if len(orgTokens) > *sess.MaxLoginSessions {
+					var oldestTok string
+					var oldestTime time.Time
+					for tok := range orgTokens {
+						if tok == sess.Token {
+							continue
+						}
+						sObj, exists := s.memSessions[tok]
+						if !exists {
+							delete(orgTokens, tok)
+							continue
+						}
+						created := sObj.CreatedAt
+						if created.IsZero() {
+							created = sObj.LastActiveAt
+						}
+						if oldestTok == "" || created.Before(oldestTime) {
+							oldestTok = tok
+							oldestTime = created
+						}
+					}
+					if oldestTok != "" {
+						s.memEvicted[oldestTok] = "concurrent_limit"
+						if sObj, exists := s.memSessions[oldestTok]; exists {
+							if s.memUserSessions[sObj.UserID] != nil {
+								delete(s.memUserSessions[sObj.UserID], oldestTok)
+							}
+						}
+						delete(s.memSessions, oldestTok)
+						delete(orgTokens, oldestTok)
+					}
+				}
+			}
 		}
 		return nil
 	}
@@ -214,17 +273,19 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 	}
 
 	// Enforce the concurrent-sign-in limit:
-	// If the user belongs to an organization, enforce the limit across the entire organization!
-	// All staff members belonging to the organization share the organization subscription's concurrent session limit.
-	if sess.MaxLoginSessions != nil && *sess.MaxLoginSessions > 0 {
-		if sess.ActiveOrgID > 0 {
-			if err := s.enforceOrgLimit(ctx, sess.ActiveOrgID, *sess.MaxLoginSessions); err != nil {
-				return err
-			}
-		} else {
-			if err := s.enforceLimit(ctx, sess.UserID, *sess.MaxLoginSessions); err != nil {
-				return err
-			}
+	// 1. Strict single active session per user account:
+	// If someone is already logged in on this user account, logging in from another
+	// device/browser immediately evicts the older session and lets the new session in.
+	if err := s.enforceLimit(ctx, sess.UserID, 1); err != nil {
+		return err
+	}
+
+	// 2. Organization plan concurrency limit:
+	// If the user belongs to an organization, enforce the subscription plan's maximum
+	// concurrent session limit across distinct staff members in that organization.
+	if sess.ActiveOrgID > 0 && sess.MaxLoginSessions != nil && *sess.MaxLoginSessions > 0 {
+		if err := s.enforceOrgLimit(ctx, sess.ActiveOrgID, *sess.MaxLoginSessions); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -263,6 +324,7 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 type sessionSetEntry struct {
 	token   string
 	userID  int64
+	orgID   int64
 	created time.Time
 }
 
@@ -326,7 +388,7 @@ func classifySessions(tokens []string, blobs [][]byte) (live []sessionSetEntry, 
 		if created.IsZero() {
 			created = sess.LastActiveAt
 		}
-		live = append(live, sessionSetEntry{token: tok, userID: sess.UserID, created: created})
+		live = append(live, sessionSetEntry{token: tok, userID: sess.UserID, orgID: sess.ActiveOrgID, created: created})
 	}
 	return live, dead
 }
@@ -453,6 +515,9 @@ func (s *SessionStore) enforceLimit(ctx context.Context, userID int64, max int) 
 		e := evict[i]
 		pipe.Set(ctx, sessionEvictedKey(e.token), "concurrent_limit", 24*time.Hour)
 		pipe.SRem(ctx, userSessionsKey(userID), e.token)
+		if e.orgID > 0 {
+			pipe.SRem(ctx, orgSessionsKey(e.orgID), e.token)
+		}
 		pipe.Del(ctx, sessionKey(e.token))
 	})
 }
