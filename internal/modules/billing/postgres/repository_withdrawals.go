@@ -146,48 +146,53 @@ func (r *Repository) AdminListDetailedWithdrawals(
 	var total int
 
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		whereClauses := []string{"1=1"}
+		baseQuery := `
+			FROM billing.wallet_withdrawals w
+			LEFT JOIN identity.users u ON w.user_id = u.id
+			LEFT JOIN org.organizations o ON w.organization_id = o.id
+			LEFT JOIN identity.users rev ON w.reviewed_by = rev.id
+			WHERE 1=1
+		`
 		args := []any{}
 		argIdx := 1
 
 		if filter.UserID > 0 {
-			whereClauses = append(whereClauses, fmt.Sprintf("w.user_id = $%d", argIdx))
+			baseQuery += fmt.Sprintf(` AND w.user_id = $%d`, argIdx)
 			args = append(args, filter.UserID)
 			argIdx++
 		}
 		if filter.WalletID > 0 {
-			whereClauses = append(whereClauses, fmt.Sprintf("w.wallet_id = $%d", argIdx))
+			baseQuery += fmt.Sprintf(` AND w.wallet_id = $%d`, argIdx)
 			args = append(args, filter.WalletID)
 			argIdx++
 		}
-		if filter.Status != "" {
-			whereClauses = append(whereClauses, fmt.Sprintf("w.status = $%d", argIdx))
+		if filter.Status != "" && filter.Status != "all" {
+			baseQuery += fmt.Sprintf(` AND w.status = $%d`, argIdx)
 			args = append(args, filter.Status)
 			argIdx++
 		}
-		if filter.PayoutMethodType != "" {
-			whereClauses = append(whereClauses, fmt.Sprintf("w.payout_method_type = $%d", argIdx))
+		if filter.PayoutMethodType != "" && filter.PayoutMethodType != "all" {
+			baseQuery += fmt.Sprintf(` AND w.payout_method_type = $%d`, argIdx)
 			args = append(args, filter.PayoutMethodType)
 			argIdx++
 		}
 		if filter.Search != "" {
-			whereClauses = append(whereClauses, fmt.Sprintf(
-				"(u.name ILIKE $%d OR u.email ILIKE $%d OR o.name ILIKE $%d OR w.destination_details ILIKE $%d)",
-				argIdx, argIdx, argIdx, argIdx,
-			))
-			args = append(args, "%"+filter.Search+"%")
+			searchPattern := "%" + strings.ToLower(filter.Search) + "%"
+			baseQuery += fmt.Sprintf(` AND (
+				LOWER(w.destination_details) LIKE $%d OR
+				LOWER(COALESCE(u.name->>'ar', '')) LIKE $%d OR
+				LOWER(COALESCE(u.name->>'en', '')) LIKE $%d OR
+				LOWER(u.email) LIKE $%d OR
+				LOWER(COALESCE(u.phone, '')) LIKE $%d OR
+				LOWER(COALESCE(o.name->>'ar', '')) LIKE $%d OR
+				LOWER(COALESCE(o.name->>'en', '')) LIKE $%d OR
+				LOWER(COALESCE(w.user_notes, '')) LIKE $%d
+			)`, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx)
+			args = append(args, searchPattern)
 			argIdx++
 		}
 
-		whereSQL := strings.Join(whereClauses, " AND ")
-
-		countQuery := fmt.Sprintf(`
-			SELECT COUNT(*)
-			FROM billing.wallet_withdrawals w
-			JOIN identity.users u ON u.id = w.user_id
-			LEFT JOIN org.organizations o ON o.id = w.organization_id
-			WHERE %s;
-		`, whereSQL)
+		countQuery := `SELECT COUNT(*) ` + baseQuery
 		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
 			return fmt.Errorf("count withdrawals: %w", err)
 		}
@@ -197,26 +202,40 @@ func (r *Repository) AdminListDetailedWithdrawals(
 			limit = 20
 		}
 
-		dataQuery := fmt.Sprintf(`
-			SELECT w.id, w.public_id::text, w.wallet_id, w.user_id,
-			       COALESCE(u.name, '') AS user_name, COALESCE(u.email, '') AS user_email, COALESCE(u.phone, '') AS user_phone,
-			       w.organization_id, COALESCE(o.name, '') AS org_name, COALESCE(o.type, '') AS org_type,
-			       w.amount, w.currency, w.payout_method_type, w.destination_details, w.user_payment_method_id,
-			       COALESCE(w.user_notes, ''), w.status, COALESCE(w.rejection_reason, ''),
-			       w.reviewed_by, COALESCE(rev.name, '') AS reviewer_name, w.reviewed_at, w.transaction_id,
-			       w.created_at, w.updated_at
-			FROM billing.wallet_withdrawals w
-			JOIN identity.users u ON u.id = w.user_id
-			LEFT JOIN org.organizations o ON o.id = w.organization_id
-			LEFT JOIN identity.users rev ON rev.id = w.reviewed_by
-			WHERE %s
+		selectQuery := fmt.Sprintf(`
+			SELECT
+				w.id,
+				w.public_id::text,
+				w.wallet_id,
+				w.user_id,
+				COALESCE(u.name->>'ar', u.name->>'en', u.email, 'مستخدم') AS user_name,
+				COALESCE(u.email, '') AS user_email,
+				COALESCE(u.phone, '') AS user_phone,
+				w.organization_id,
+				COALESCE(o.name->>'ar', o.name->>'en', '') AS org_name,
+				COALESCE(o.type, '') AS org_type,
+				w.amount,
+				w.currency,
+				w.payout_method_type,
+				w.destination_details,
+				w.user_payment_method_id,
+				COALESCE(w.user_notes, '') AS user_notes,
+				w.status,
+				COALESCE(w.rejection_reason, '') AS rejection_reason,
+				w.reviewed_by,
+				COALESCE(rev.name->>'ar', rev.name->>'en', rev.email, '') AS reviewer_name,
+				w.reviewed_at,
+				w.transaction_id,
+				w.created_at,
+				w.updated_at
+			%s
 			ORDER BY w.created_at DESC
 			LIMIT $%d OFFSET $%d;
-		`, whereSQL, argIdx, argIdx+1)
+		`, baseQuery, argIdx, argIdx+1)
 
 		args = append(args, limit, filter.Offset)
 
-		rows, err := tx.Query(txCtx, dataQuery, args...)
+		rows, err := tx.Query(txCtx, selectQuery, args...)
 		if err != nil {
 			return err
 		}

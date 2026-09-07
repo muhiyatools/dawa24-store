@@ -251,6 +251,42 @@ func TestAdminFinanceRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusSeeOther,
 		},
+		{
+			name:   "Super admin GET /admin/finance?tab=withdrawals returns 200",
+			path:   "/admin/finance?tab=withdrawals",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "Super admin POST /admin/finance/withdrawals/1/approve returns redirect",
+			path:   "/admin/finance/withdrawals/1/approve",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/finance/withdrawals/1/reject returns redirect",
+			path:   "/admin/finance/withdrawals/1/reject",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:      1,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusSeeOther,
+		},
 	}
 
 	for _, tt := range tests {

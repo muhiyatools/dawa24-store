@@ -349,6 +349,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														if d.Status == billing.DepositPending {
 															<div class="table-actions">
 																<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟');">
+																	<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
 																	<button
 																		type="submit"
 																		class="btn btn-success btn-xs font-bold gap-1"
@@ -516,6 +517,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														if w.Status == billing.WithdrawalPending {
 															<div class="table-actions">
 																<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/withdrawals/%d/approve", w.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد طلب السحب وخصمه من الرصيد الآن؟');">
+																	<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
 																	<button
 																		type="submit"
 																		class="btn btn-success btn-xs font-bold gap-1"
@@ -1171,6 +1173,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				Size:  "sm",
 			}) {
 				<form :action="'/admin/finance/deposits/' + rejectDepositID + '/reject'" method="POST" class="d-flex flex-col gap-4 m-0 text-start">
+					<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
 					<div class="d-flex flex-col gap-3">
 						<div class="bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold">
 							أنت على وشك رفض طلب الإيداع المقدم من <strong x-text="rejectUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="rejectDepositAmount + ' ج.م'"></strong>. لن يتم شحن الرصيد.
@@ -1196,6 +1199,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 				Size:  "sm",
 			}) {
 				<form :action="'/admin/finance/withdrawals/' + rejectWithdrawalID + '/reject'" method="POST" class="d-flex flex-col gap-4 m-0 text-start">
+					<input type="hidden" name="_csrf" value="" x-init="if (typeof getCsrfToken === 'function') $el.value = getCsrfToken()"/>
 					<div class="d-flex flex-col gap-3">
 						<div class="bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold">
 							أنت على وشك رفض طلب السحب المقدم من <strong x-text="rejectWithdrawalUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="rejectWithdrawalAmount + ' ج.م'"></strong>. لن يتم خصم الرصيد.

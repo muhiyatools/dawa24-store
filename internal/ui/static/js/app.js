@@ -7,6 +7,12 @@ function getCookie(name) {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
+function getCsrfToken() {
+  return getCookie('dawa_csrf') || '';
+}
+window.getCsrfToken = getCsrfToken;
+window.getCookie = getCookie;
+
 // Universal Scroll Position Retention for Platform Actions and Form Submissions
 (function() {
   function saveScroll() {
