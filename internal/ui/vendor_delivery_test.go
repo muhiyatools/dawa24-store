@@ -163,6 +163,9 @@ func (m *courierMockCommerceRepo) AcceptNegotiation(_ context.Context, _, _ int6
 func (m *courierMockCommerceRepo) RejectNegotiation(_ context.Context, _ int64, _ string, _ int64) error {
 	return nil
 }
+func (m *courierMockCommerceRepo) ListVendorNegotiationOrdersWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 func (m *courierMockCommerceRepo) GetVendorFinancialSummary(_ context.Context, _ int64, period string) (*commerce.VendorFinancialSummary, error) {
 	return &commerce.VendorFinancialSummary{Period: period}, nil
 }

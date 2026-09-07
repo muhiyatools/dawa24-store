@@ -215,7 +215,7 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 									<label class="form-label font-bold text-primary text-sm">
 										قابل للتفاوض على السعر؟
 									</label>
-									<select name="is_negotiable" id="edit-form-negotiable" class="form-input" class="form-input w-full rounded-lg font-bold">
+									<select name="is_negotiable" id="edit-form-negotiable" class="form-input w-full-rounded font-bold">
 										<option value="false">لا (سعر توريد ثابت)</option>
 										<option value="true">نعم (يسمح بالتفاوض على السعر)</option>
 									</select>
@@ -373,19 +373,43 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 								</div>
 							</div>
 
-       <div class="stack-sm">
+							<div class="grid-2">
+								<div class="stack-sm">
+									<label class="form-label font-bold text-primary text-sm">
+										مخزن / فرع الشحن
+									</label>
+									<select name="branch_id" class="form-input w-full-rounded">
+										for _, b := range data.Branches {
+											<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+												{ b.Name }
+												if b.IsMain {
+													<span> (الفرع الرئيسي)</span>
+												}
+											</option>
+										}
+									</select>
+								</div>
+								<div class="stack-sm">
+									<label class="form-label font-bold text-primary text-sm">
+										الحد الأدنى للطلب (عبوة)
+									</label>
+									<input
+										type="number"
+										name="min_order_qty"
+										value="1"
+										min="1"
+										class="form-input w-full-rounded"
+									/>
+								</div>
+							</div>
+
+							<div class="stack-sm">
 								<label class="form-label font-bold text-primary text-sm">
-									مخزن / فرع الشحن
+									قابل للتفاوض على السعر؟
 								</label>
-								<select name="branch_id" class="form-input w-full-rounded">
-									for _, b := range data.Branches {
-										<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
-											{ b.Name }
-											if b.IsMain {
-												<span> (الفرع الرئيسي)</span>
-											}
-										</option>
-									}
+								<select name="is_negotiable" class="form-input w-full-rounded font-bold">
+									<option value="false">لا (سعر توريد ثابت ومحدد)</option>
+									<option value="true">نعم (يسمح للصيدليات بطلب تفاوض على السعر)</option>
 								</select>
 							</div>
 

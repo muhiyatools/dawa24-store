@@ -57,6 +57,24 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							} else {
 								<span class="badge badge-amber text-xs font-bold">دفع عند الاستلام</span>
 							}
+							if order.IsNegotiation {
+								if order.NegotiationStatus == "pending" {
+									<span class="badge badge-amber text-xs font-black gap-1">
+										@components.IconTag("icon-2xs")
+										<span>طلب تفاوض قيد مراجعة المورد</span>
+									</span>
+								} else if order.NegotiationStatus == "accepted" {
+									<span class="badge badge-emerald text-xs font-black gap-1">
+										@components.IconCheck("icon-2xs")
+										<span>تم قبول التفاوض واعتماد الطلب</span>
+									</span>
+								} else if order.NegotiationStatus == "rejected" {
+									<span class="badge badge-rose text-xs font-black gap-1">
+										@components.IconX("icon-2xs")
+										<span>تم رفض السعر المقترح</span>
+									</span>
+								}
+							}
 						</div>
 					</div>
 
@@ -88,6 +106,15 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<div class="order-detail-layout mb-6">
 				<!-- Right Column: Primary Details & Line Items -->
 				<div class="d-flex flex-col gap-6">
+					if order.IsNegotiation && order.NegotiationNotes != "" {
+						<div class="alert alert-warning p-4 rounded-xl d-flex items-center gap-3 mb-0">
+							@components.IconTag("icon-sm shrink-0")
+							<div class="stack-2xs">
+								<strong class="text-sm font-black">طلب تفاوض على السعر</strong>
+								<span class="text-xs">ملاحظات وشروط التفاوض المقدمة للمورد: { order.NegotiationNotes }</span>
+							</div>
+						</div>
+					}
 					if order.Status == commerce.StatusFailed {
 						<div class="alert alert-danger p-4 rounded-xl d-flex items-center gap-3 mb-0">
 							@components.IconAlert("icon-sm shrink-0")

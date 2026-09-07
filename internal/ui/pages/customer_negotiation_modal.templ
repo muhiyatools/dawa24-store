@@ -44,34 +44,57 @@ templ CustomerNegotiationModal() {
 	}
 
 	<script>
-		function triggerNegotiationModal(btn) {
-			openNegotiationModal({
-				variant_id: btn.getAttribute('data-variant-id'),
-				product_id: btn.getAttribute('data-product-id'),
-				vendor_org_id: btn.getAttribute('data-vendor-id'),
-				name: btn.getAttribute('data-product-name'),
-				current_price: btn.getAttribute('data-current-price'),
-				min_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)
-			});
-		}
-		function openNegotiationModal(data) {
+		function openNegotiationModal(target) {
+			let data = target || {};
+			if (target && (target instanceof Element || target.nodeType === 1)) {
+				data = {
+					variant_id: target.getAttribute('data-variant-id') || '',
+					product_id: target.getAttribute('data-product-id') || '',
+					vendor_org_id: target.getAttribute('data-vendor-id') || '',
+					name: target.getAttribute('data-product-name') || '',
+					current_price: target.getAttribute('data-current-price') || '',
+					min_qty: parseInt(target.getAttribute('data-min-qty') || '1', 10)
+				};
+			}
+
 			const vId = document.getElementById('neg-variant-id');
 			const oId = document.getElementById('neg-vendor-id');
 			const name = document.getElementById('neg-product-name');
 			const curPrice = document.getElementById('neg-current-price');
 			const qty = document.getElementById('neg-qty');
 			const propPrice = document.getElementById('neg-proposed-price');
+
 			if (vId) vId.value = data.variant_id || '';
 			if (oId) oId.value = data.vendor_org_id || '';
-			if (name) name.innerText = data.name || 'صنف دوائي';
-			if (curPrice) curPrice.innerText = data.current_price || '0.00';
-			if (qty) qty.value = data.min_qty || 1;
-			if (propPrice) propPrice.value = data.current_price || '';
+			if (name) name.textContent = data.name || 'صنف دوائي';
+			if (curPrice) curPrice.textContent = data.current_price || '0.00';
+			
+			const minQ = (data.min_qty && data.min_qty > 0) ? data.min_qty : 1;
+			if (qty) {
+				qty.value = minQ;
+				qty.min = String(minQ);
+			}
+			if (propPrice) {
+				propPrice.value = '';
+				propPrice.placeholder = data.current_price ? ('مثال: ' + data.current_price) : '0.00';
+			}
+
+			const form = document.getElementById('negotiation-form');
+			if (form) {
+				const textarea = form.querySelector('textarea[name="notes"]');
+				if (textarea) textarea.value = '';
+			}
+
 			const m = document.getElementById('negotiation-modal');
 			if (m && typeof m.showModal === 'function') {
 				m.showModal();
 			}
 		}
+
+		function triggerNegotiationModal(btn) {
+			openNegotiationModal(btn);
+		}
+
 		function closeNegotiationModal() {
 			const m = document.getElementById('negotiation-modal');
 			if (m && typeof m.close === 'function') {

@@ -182,6 +182,12 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 														<span>مورد معتمد</span>
 													</span>
 												}
+												if offers[0].IsNegotiable {
+													<span class="badge badge-amber text-2xs font-extrabold gap-1">
+														@components.IconTag("icon-2xs")
+														<span>قابل للتفاوض</span>
+													</span>
+												}
 											</div>
 											<div class="d-flex items-center gap-3 text-2xs text-muted">
 												if offers[0].BranchName != "" {
@@ -327,6 +333,22 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 													@components.IconPlus("icon-xs")
 													<span>أضف إلى سلة المشتريات</span>
 												</button>
+												if offers[0].IsNegotiable {
+													<button
+														type="button"
+														class="btn btn-secondary text-amber-700 font-black text-xs w-full py-2.5 gap-1.5 shadow-2xs border-amber-300"
+														data-variant-id={ fmt.Sprintf("%d", offers[0].VariantID) }
+														data-product-id={ fmt.Sprintf("%d", product.ID) }
+														data-vendor-id={ fmt.Sprintf("%d", offers[0].SupplierID) }
+														data-product-name={ productTitle(product) }
+														data-current-price={ offers[0].Price.String() }
+														data-min-qty={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
+														onclick="openNegotiationModal(this)"
+													>
+														@components.IconTag("icon-xs")
+														<span>طلب تفاوض على السعر</span>
+													</button>
+												}
 											</form>
 										} else {
 											<div class="d-flex flex-col justify-center items-center h-full text-center gap-2">
@@ -342,6 +364,22 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 														غير متاح للطلب المباشر
 													}
 												</button>
+												if offers[0].IsNegotiable {
+													<button
+														type="button"
+														class="btn btn-secondary text-amber-700 font-black text-xs w-full py-2.5 gap-1.5 shadow-2xs border-amber-300"
+														data-variant-id={ fmt.Sprintf("%d", offers[0].VariantID) }
+														data-product-id={ fmt.Sprintf("%d", product.ID) }
+														data-vendor-id={ fmt.Sprintf("%d", offers[0].SupplierID) }
+														data-product-name={ productTitle(product) }
+														data-current-price={ offers[0].Price.String() }
+														data-min-qty={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
+														onclick="openNegotiationModal(this)"
+													>
+														@components.IconTag("icon-xs")
+														<span>طلب تفاوض على السعر</span>
+													</button>
+												}
 											</div>
 										}
 									</div>
@@ -397,5 +435,6 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 				}
 			}
 		</script>
+		@CustomerNegotiationModal()
 	}
 }

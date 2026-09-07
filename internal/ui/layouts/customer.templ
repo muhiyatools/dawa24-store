@@ -26,13 +26,12 @@ templ PublicShell(title string, lang string, dir string) {
 					<div class="nav-lead">
 						<a href="/" class="nav-brand" title="دوا 24 — الصفحة الرئيسية">
 							if site.LogoURL != "" {
-								<span class="nav-brand-mark">
-									<img src={ site.LogoURL } alt={ site.SiteName }/>
+								<img src={ site.LogoURL } alt={ site.SiteName } class="nav-brand-logo"/>
+							} else {
+								<span class="nav-brand-text">
+									<span class="nav-brand-name">دوا 24</span>
 								</span>
 							}
-							<span class="nav-brand-text">
-								<span class="nav-brand-name">دوا 24</span>
-							</span>
 						</a>
 					</div>
 

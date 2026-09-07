@@ -86,6 +86,11 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 									تشغيلة: { v.Variant.BatchNumber }
 								</div>
 							}
+							if v.Variant.IsNegotiable {
+								<div class="mt-1">
+									<span class="badge badge-amber text-xs font-bold">قابل للتفاوض</span>
+								</div>
+							}
 						</td>
 
 						<!-- سعر الجمهور -->

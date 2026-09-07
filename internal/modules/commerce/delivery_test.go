@@ -168,6 +168,9 @@ func (m *deliveryMockRepo) AcceptNegotiation(_ context.Context, _, _ int64) erro
 func (m *deliveryMockRepo) RejectNegotiation(_ context.Context, _ int64, _ string, _ int64) error {
 	return nil
 }
+func (m *deliveryMockRepo) ListVendorNegotiationOrdersWithTotal(_ context.Context, _ int64, _ string, _, _ int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
+}
 
 func (m *deliveryMockRepo) VerifyAndCompleteDelivery(
 	_ context.Context,

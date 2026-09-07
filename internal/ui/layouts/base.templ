@@ -60,6 +60,7 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			</script>
 			// Asset leaves an uploaded favicon URL alone and hashes a bundled one.
 			<link rel="icon" type="image/png" href={ Asset(site.FaviconURL) }/>
+			<link rel="apple-touch-icon" href={ Asset("/static/img/logo-icon.png") }/>
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
 			// The font stylesheet is fetched without blocking the first paint.

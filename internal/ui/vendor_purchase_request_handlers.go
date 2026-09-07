@@ -45,7 +45,22 @@ func (h *UIHandler) VendorPurchaseRequestsPage(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	h.renderPage(ctx, w, "render vendor purchase requests page", pages.VendorPurchaseRequestsPage(lang, dir, requests, status, page, limit, total))
+	var negOrders []*commerce.Order
+	var negTotal int
+	if h.commSvc != nil {
+		orders, oTot, err := h.commSvc.ListVendorNegotiationOrdersWithTotal(ctx, actor.OrganizationID, status, limit, offset)
+		if err == nil {
+			negOrders = orders
+			negTotal = oTot
+		}
+	}
+
+	displayTotal := negTotal
+	if displayTotal == 0 && total > 0 {
+		displayTotal = total
+	}
+
+	h.renderPage(ctx, w, "render vendor purchase requests page", pages.VendorPurchaseRequestsPage(lang, dir, requests, negOrders, status, page, limit, displayTotal))
 }
 
 // VendorPurchaseRequestDetailPage renders one incoming purchase request with line items.

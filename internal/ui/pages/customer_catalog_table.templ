@@ -64,6 +64,11 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 													{ v.ScientificName }
 												</span>
 											}
+											if v.IsNegotiable {
+												<span class="badge badge-amber text-2xs font-bold py-0 px-1.5">
+													قابل للتفاوض
+												</span>
+											}
 										</div>
 										if v.IsSponsored {
 											<div class="mt-0.5">
@@ -197,7 +202,41 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 												<span>للسلة</span>
 											</button>
 										</form>
+										if v.IsNegotiable {
+											<button
+												type="button"
+												class="btn btn-secondary btn-xs font-bold text-amber-700 shadow-2xs gap-1 px-2 border-amber-300"
+												data-variant-id={ fmt.Sprintf("%d", v.VariantID) }
+												data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+												data-vendor-id={ fmt.Sprintf("%d", v.SupplierID) }
+												data-product-name={ v.ProductNameAr }
+												data-current-price={ v.Price.String() }
+												data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+												onclick="openNegotiationModal(this)"
+												title="طلب تفاوض على السعر"
+											>
+												@components.IconTag("icon-2xs")
+												<span>تفاوض</span>
+											</button>
+										}
 									} else {
+										if v.IsNegotiable {
+											<button
+												type="button"
+												class="btn btn-secondary btn-xs font-bold text-amber-700 shadow-2xs gap-1 px-2 border-amber-300"
+												data-variant-id={ fmt.Sprintf("%d", v.VariantID) }
+												data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+												data-vendor-id={ fmt.Sprintf("%d", v.SupplierID) }
+												data-product-name={ v.ProductNameAr }
+												data-current-price={ v.Price.String() }
+												data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
+												onclick="openNegotiationModal(this)"
+												title="طلب تفاوض على السعر"
+											>
+												@components.IconTag("icon-2xs")
+												<span>تفاوض</span>
+											</button>
+										}
 										<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", resolveTargetID(v.VariantID, v.ProductID))) } class="btn btn-secondary btn-xs font-bold shadow-2xs">
 											التفاصيل
 										</a>

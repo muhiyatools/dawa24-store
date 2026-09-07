@@ -79,6 +79,11 @@ templ SupplierProfileGrid(data SupplierProfileData, lang string) {
 								خارج التغطية
 							</span>
 						}
+						if v.IsNegotiable {
+							<span class="badge badge-amber text-2xs font-bold">
+								قابل للتفاوض
+							</span>
+						}
 					</div>
 
 					<!-- Pricing Row -->
@@ -163,6 +168,22 @@ templ SupplierProfileGrid(data SupplierProfileData, lang string) {
 								}
 							}
 						</div>
+					}
+					if v.IsNegotiable {
+						<button
+							type="button"
+							class="btn btn-secondary btn-xs w-full mt-2 font-bold justify-center text-amber-700 gap-1.5 shadow-2xs border-amber-300"
+							data-variant-id={ fmt.Sprintf("%d", v.ID) }
+							data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+							data-vendor-id={ fmt.Sprintf("%d", data.Org.ID) }
+							data-product-name={ v.Name.Get(i18n.Lang(lang)) }
+							data-current-price={ effPrice.String() }
+							data-min-qty={ fmt.Sprintf("%d", minOrderQty) }
+							onclick="openNegotiationModal(this)"
+						>
+							@components.IconTag("icon-2xs")
+							<span>طلب تفاوض على السعر</span>
+						</button>
 					}
 				</div>
 			</div>

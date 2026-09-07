@@ -197,6 +197,10 @@ func (r stubRepo) RejectNegotiation(ctx context.Context, orderID int64, reason s
 	r.fail("RejectNegotiation")
 	return nil
 }
+func (r stubRepo) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.Order, int, error) {
+	r.fail("ListVendorNegotiationOrdersWithTotal")
+	return nil, 0, nil
+}
 func (r stubRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
 	r.fail("GetVendorFinancialSummary")
 	return nil, nil
@@ -334,6 +338,9 @@ func (happyRepo) AcceptNegotiation(ctx context.Context, orderID int64, actorID i
 }
 func (happyRepo) RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error {
 	return nil
+}
+func (happyRepo) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*commerce.Order, int, error) {
+	return nil, 0, nil
 }
 func (happyRepo) UpdateCustomerPendingOrder(ctx context.Context, order *commerce.Order, lines []commerce.OrderLineEditItem, changedByUserID int64) (*commerce.Order, error) {
 	return order, nil

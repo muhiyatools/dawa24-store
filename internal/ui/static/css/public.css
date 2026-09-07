@@ -518,10 +518,16 @@
 }
 
 .footer-logo {
-  max-height: 40px;
-  height: 36px;
+  max-height: 44px;
+  height: 40px;
   width: auto;
+  max-width: 175px;
   object-fit: contain;
+  display: block;
+}
+
+[data-theme="dark"] .footer-logo {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.45)) drop-shadow(0 1px 6px rgba(255, 255, 255, 0.15));
 }
 
 .footer-brand-name {

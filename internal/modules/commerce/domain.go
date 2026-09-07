@@ -181,6 +181,9 @@ type OrderShipment struct {
 	Notes                       string        `json:"notes,omitempty"`
 	CourierName                 string        `json:"courier_name,omitempty"`
 	CourierPhone                string        `json:"courier_phone,omitempty"`
+	IsNegotiation               bool          `json:"is_negotiation,omitempty"`
+	NegotiationStatus           string        `json:"negotiation_status,omitempty"`
+	NegotiationNotes            string        `json:"negotiation_notes,omitempty"`
 }
 
 // BranchLocationURL returns the most accurate Google Maps navigation or directions link for the branch.

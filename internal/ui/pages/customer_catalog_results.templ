@@ -174,6 +174,12 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 									<span>خارج التغطية اليوم</span>
 								</span>
 							}
+							if v.IsNegotiable {
+								<span class="badge badge-amber gap-1 font-bold text-xs py-0.5 px-2">
+									@components.IconTag("icon-2xs")
+									<span>قابل للتفاوض</span>
+								</span>
+							}
 						</div>
 						if v.ExpiryDate != "" {
 							<div class="tabular-nums text-muted text-2xs font-mono font-medium">
@@ -261,10 +267,13 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 								if v.IsNegotiable {
 									<button
 										type="button"
-										class="btn btn-secondary btn-xs w-full mt-1.5 font-bold justify-center text-amber-700 gap-1.5 shadow-2xs"
+										class="btn btn-secondary btn-xs w-full mt-1.5 font-bold justify-center text-amber-700 gap-1.5 shadow-2xs border-amber-300"
 										data-variant-id={ fmt.Sprintf("%d", v.VariantID) }
 										data-product-id={ fmt.Sprintf("%d", v.ProductID) }
 										data-vendor-id={ fmt.Sprintf("%d", v.SupplierID) }
+										data-product-name={ v.ProductNameAr }
+										data-current-price={ v.Price.String() }
+										data-min-qty={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
 										onclick="openNegotiationModal(this)"
 									>
 										@components.IconTag("icon-2xs")

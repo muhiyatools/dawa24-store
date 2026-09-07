@@ -199,6 +199,24 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 							} else {
 								<span class="badge badge-amber text-xs font-bold">دفع عند الاستلام</span>
 							}
+							if o.IsNegotiation {
+								if o.NegotiationStatus == "pending" {
+									<span class="badge badge-amber text-xs font-bold gap-1">
+										@components.IconTag("icon-2xs")
+										<span>طلب تفاوض قيد المراجعة</span>
+									</span>
+								} else if o.NegotiationStatus == "accepted" {
+									<span class="badge badge-emerald text-xs font-bold gap-1">
+										@components.IconCheck("icon-2xs")
+										<span>تم قبول التفاوض</span>
+									</span>
+								} else if o.NegotiationStatus == "rejected" {
+									<span class="badge badge-rose text-xs font-bold gap-1">
+										@components.IconX("icon-2xs")
+										<span>تم رفض التفاوض</span>
+									</span>
+								}
+							}
 						</div>
 
 						<div class="order-card-meta">

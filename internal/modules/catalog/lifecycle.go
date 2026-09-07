@@ -64,6 +64,13 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 	existing.Image = input.Image
 	existing.Status = input.Status
 	existing.IsFeatured = input.IsFeatured
+	existing.IsNegotiable = input.IsNegotiable
+	existing.BatchNumber = input.BatchNumber
+	existing.ExpiryDate = input.ExpiryDate
+	existing.MinOrderQty = input.MinOrderQty
+	if input.BranchID != nil {
+		existing.BranchID = input.BranchID
+	}
 	existing.OrganizationID = orgID
 
 	if err := s.repo.UpdateVariant(ctx, existing); err != nil {

@@ -57,6 +57,13 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 					<span class="badge badge-slate text-xs font-black">{ string(sh.Status) }</span>
 				}
 
+				if sh.IsNegotiation {
+					<span class="badge badge-amber text-xs font-black gap-1">
+						@components.IconTag("icon-xs")
+						<span>طلب تفاوض معتمد</span>
+					</span>
+				}
+
 				<!-- Destination Chip -->
 				<span class="badge badge-slate text-xs font-bold gap-1 d-none d-md-inline-flex">
 					@components.IconBuilding("icon-xs")

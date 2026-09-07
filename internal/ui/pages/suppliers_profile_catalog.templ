@@ -138,6 +138,11 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 														{ v.Unit }
 													</span>
 												}
+												if v.IsNegotiable {
+													<span class="badge badge-amber text-2xs font-bold">
+														قابل للتفاوض
+													</span>
+												}
 											</div>
 										</div>
 									</div>
@@ -261,6 +266,23 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 												<span x-show="loading">⏳ جارٍ الإضافة...</span>
 												<span x-show="added" class="text-emerald font-bold">تمت الإضافة!</span>
 											</button>
+											if v.IsNegotiable {
+												<button
+													type="button"
+													class="btn btn-secondary btn-sm font-bold text-amber-700 shadow-2xs gap-1 border-amber-300"
+													data-variant-id={ fmt.Sprintf("%d", v.ID) }
+													data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+													data-vendor-id={ fmt.Sprintf("%d", data.Org.ID) }
+													data-product-name={ v.Name.Get(i18n.Lang(lang)) }
+													data-current-price={ effPrice.String() }
+													data-min-qty={ fmt.Sprintf("%d", minOrderQty) }
+													onclick="openNegotiationModal(this)"
+													title="تقديم طلب تفاوض على السعر"
+												>
+													@components.IconTag("icon-xs")
+													<span>تفاوض</span>
+												</button>
+											}
 											<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
 												@components.IconArrowLeft("icon-xs")
 											</a>
@@ -291,6 +313,23 @@ templ SupplierProfileCatalog(data SupplierProfileData, lang string) {
 														غير متاح للطلب
 													</span>
 												}
+											}
+											if v.IsNegotiable {
+												<button
+													type="button"
+													class="btn btn-secondary btn-sm font-bold text-amber-700 shadow-2xs gap-1 border-amber-300"
+													data-variant-id={ fmt.Sprintf("%d", v.ID) }
+													data-product-id={ fmt.Sprintf("%d", v.ProductID) }
+													data-vendor-id={ fmt.Sprintf("%d", data.Org.ID) }
+													data-product-name={ v.Name.Get(i18n.Lang(lang)) }
+													data-current-price={ effPrice.String() }
+													data-min-qty={ fmt.Sprintf("%d", minOrderQty) }
+													onclick="openNegotiationModal(this)"
+													title="تقديم طلب تفاوض على السعر"
+												>
+													@components.IconTag("icon-xs")
+													<span>تفاوض</span>
+												</button>
 											}
 											<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" title="تفاصيل الصنف">
 												@components.IconArrowLeft("icon-xs")

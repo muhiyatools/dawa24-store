@@ -174,8 +174,8 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</div>
 
 				<!-- 6. Branch / Warehouse Location -->
-    <div class="stack-sm">
-     <div class="stack-sm">
+				<div class="grid-2">
+					<div class="stack-sm">
 						<label class="form-label" for="var-branch">مخزن أو فرع الشحن المعتمد *</label>
 						<select id="var-branch" name="branch_id" class="form-select">
 							for _, b := range data.Branches {
@@ -191,9 +191,21 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							}
 						</select>
 					</div>
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<label class="form-label" for="var-sku">كود الصنف الخاص بالشركة (SKU / Barcode)</label>
 						<input type="text" id="var-sku" name="sku" class="form-input tabular-nums" placeholder="مثال: SKU-88492" />
+					</div>
+				</div>
+
+				<!-- 7. Price Negotiation Settings -->
+				<div class="grid-2">
+					<div class="stack-sm">
+						<label class="form-label font-bold text-primary" for="var-negotiable">قابل للتفاوض على السعر؟</label>
+						<select id="var-negotiable" name="is_negotiable" class="form-select font-bold">
+							<option value="false">لا (سعر توريد ثابت ومحدد)</option>
+							<option value="true">نعم (يسمح للصيدليات بتقديم طلب تفاوض على السعر)</option>
+						</select>
+						<span class="text-xs text-muted">تتيح للصيدليات إرسال طلبات شراء بأسعار مقترحة لمراجعتها واعتمادها قبل التوريد</span>
 					</div>
 				</div>
 

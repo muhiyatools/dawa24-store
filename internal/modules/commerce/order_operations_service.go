@@ -406,3 +406,11 @@ func (s *Service) GetOfferDetailsForOrderLine(ctx context.Context, orderID, line
 	}
 	return s.repo.GetOfferDetailsForOrderLine(ctx, orderID, lineID)
 }
+
+// ListVendorNegotiationOrdersWithTotal retrieves orders with price negotiation for a vendor organization.
+func (s *Service) ListVendorNegotiationOrdersWithTotal(ctx context.Context, vendorOrgID int64, status string, limit, offset int) ([]*Order, int, error) {
+	if vendorOrgID <= 0 {
+		return nil, 0, apperr.Validation("vendor.invalid_id", "Valid vendor organization ID is required.", nil)
+	}
+	return s.repo.ListVendorNegotiationOrdersWithTotal(ctx, vendorOrgID, status, limit, offset)
+}

@@ -133,10 +133,16 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 	}
 
 	orderID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	_ = r.ParseForm()
+	returnTo := r.FormValue("return_to")
+	if returnTo == "" || !strings.HasPrefix(returnTo, "/vendor/") {
+		returnTo = "/vendor/orders"
+	}
+
 	if h.commSvc != nil && orderID > 0 {
 		order, err := h.commSvc.GetOrder(ctx, orderID)
 		if err != nil || order == nil {
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
+			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
 			return
 		}
 		if !actor.IsStaff && !actor.Can("commerce.admin") {
@@ -148,14 +154,14 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 				}
 			}
 			if !isVendorOrder {
-				h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
+				h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
 				return
 			}
 		}
 
 		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
 			h.log.ErrorContext(ctx, "vendor accept negotiation failed", "error", err, "order_id", orderID)
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.accept_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.accept_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 
@@ -172,7 +178,7 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 		go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, true, "")
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.negotiation_accepted_success"))
+	h.redirectWithNotice(w, r, returnTo, "success", i18n.T(langOf(r), "vendor.orders.negotiation_accepted_success"))
 }
 
 // VendorNegotiationRejectSubmit rejects a customer's proposed negotiated price and cancels the order.
@@ -186,6 +192,10 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 
 	orderID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	_ = r.ParseForm()
+	returnTo := r.FormValue("return_to")
+	if returnTo == "" || !strings.HasPrefix(returnTo, "/vendor/") {
+		returnTo = "/vendor/orders"
+	}
 	reason := r.PostFormValue("reason")
 	if reason == "" {
 		reason = i18n.T(langOf(r), "vendor.orders.negotiation_default_reject_reason")
@@ -194,7 +204,7 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 	if h.commSvc != nil && orderID > 0 {
 		order, err := h.commSvc.GetOrder(ctx, orderID)
 		if err != nil || order == nil {
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
+			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
 			return
 		}
 		if !actor.IsStaff && !actor.Can("commerce.admin") {
@@ -206,14 +216,14 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 				}
 			}
 			if !isVendorOrder {
-				h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
+				h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
 				return
 			}
 		}
 
 		if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {
 			h.log.ErrorContext(ctx, "vendor reject negotiation failed", "error", err, "order_id", orderID)
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.reject_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, returnTo, "error", i18n.T(langOf(r), "vendor.orders.reject_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 
@@ -230,5 +240,5 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 		go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, false, reason)
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.negotiation_rejected_success"))
+	h.redirectWithNotice(w, r, returnTo, "success", i18n.T(langOf(r), "vendor.orders.negotiation_rejected_success"))
 }

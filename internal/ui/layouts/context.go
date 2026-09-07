@@ -28,7 +28,7 @@ func GetSiteSettings(ctx context.Context) *platformadmin.SiteSettings {
 		SiteName:        i18n.TDefault("w4_ui.24_28"),
 		SiteDescription: i18n.TDefault("w4_ui.s_99_99"),
 		LogoURL:         "/static/img/logo.png",
-		FaviconURL:      "/static/img/logo.png",
+		FaviconURL:      "/static/img/favicon.png",
 		ContactEmail:    "info@dawa24.com",
 		SupportEmail:    "support@dawa24.com",
 		Phone:           "01065397000",
