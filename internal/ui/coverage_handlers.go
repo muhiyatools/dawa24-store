@@ -3,6 +3,7 @@ package ui
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -83,6 +84,11 @@ func (h *UIHandler) VendorCoveragePage(w http.ResponseWriter, r *http.Request) {
 
 // VendorBranchCoveragePage redirects branch-specific coverage view to the main coverage console.
 func (h *UIHandler) VendorBranchCoveragePage(w http.ResponseWriter, r *http.Request) {
+	bID := chi.URLParam(r, "branchID")
+	if bID != "" {
+		http.Redirect(w, r, "/vendor/coverage?branch_id="+url.QueryEscape(bID), http.StatusSeeOther)
+		return
+	}
 	http.Redirect(w, r, "/vendor/coverage", http.StatusSeeOther)
 }
 

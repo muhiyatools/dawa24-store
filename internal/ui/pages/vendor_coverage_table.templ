@@ -13,29 +13,65 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 			<div class="stack-sm">
 				<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
 					<span>@components.IconFileText("icon-sm")</span>
-					<span>سجل نطاقات التغطية والتوزيع المسجلة ({ fmt.Sprintf("%d", len(data.Coverages)) })</span>
+					<span>سجل نطاقات التغطية والتوزيع المسجلة</span>
+					<span class="tabular-nums text-brand" x-text="'(' + totalFilteredCount + ')'">({ fmt.Sprintf("%d", len(data.Coverages)) })</span>
+					<span x-show="totalFilteredCount !== allCoverages.length" class="text-xs text-muted font-normal" x-text="'من أصل ' + allCoverages.length"></span>
 				</h2>
 				<p class="text-xs text-muted mt-1 m-0">
-					استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.
+					استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب الفرع واليوم والمحافظة والمدينة مع خيارات التصفية والتصفح.
 				</p>
 			</div>
 
 			<!-- Filter Controls & Actions -->
 			<div class="d-flex items-center gap-3 flex-wrap">
+				<!-- Filter Branch -->
+				if len(data.Branches) > 0 {
+					<div class="d-flex items-center gap-1.5 text-xs">
+						<label class="text-muted font-bold whitespace-nowrap">الفرع:</label>
+						<select x-model="filterBranch" @change="currentPage = 1; updateQueryParams()" class="form-control text-xs font-bold w-40">
+							<option value="all">كل الفروع</option>
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) }>
+									{ b.Name.Get("ar") }
+									if b.IsMain {
+										 (الرئيسي)
+									}
+								</option>
+							}
+						</select>
+					</div>
+				}
+
 				<!-- Filter Day -->
-				<select x-model="filterDay" class="form-control text-xs font-bold w-36">
-					<option value="all">كل الأيام</option>
-					<option value="6">السبت</option>
-					<option value="0">الأحد</option>
-					<option value="1">الاثنين</option>
-					<option value="2">الثلاثاء</option>
-					<option value="3">الأربعاء</option>
-					<option value="4">الخميس</option>
-					<option value="5">الجمعة</option>
-				</select>
+				<div class="d-flex items-center gap-1.5 text-xs">
+					<label class="text-muted font-bold whitespace-nowrap">اليوم:</label>
+					<select x-model="filterDay" @change="currentPage = 1; updateQueryParams()" class="form-control text-xs font-bold w-36">
+						<option value="all">كل الأيام</option>
+						<option value="6">السبت</option>
+						<option value="0">الأحد</option>
+						<option value="1">الاثنين</option>
+						<option value="2">الثلاثاء</option>
+						<option value="3">الأربعاء</option>
+						<option value="4">الخميس</option>
+						<option value="5">الجمعة</option>
+					</select>
+				</div>
 
 				<!-- Search query -->
-				<input type="text" x-model="searchQuery" placeholder="بحث بالمدينة أو المحافظة..." class="form-control text-xs w-48"/>
+				<div class="relative">
+					<input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="بحث بالمدينة أو المحافظة أو الفرع..." class="form-control text-xs w-48"/>
+				</div>
+
+				<!-- Reset Filters Button -->
+				<button
+					type="button"
+					x-show="filterBranch !== 'all' || filterDay !== 'all' || searchQuery !== ''"
+					@click="filterBranch = 'all'; filterDay = 'all'; searchQuery = ''; currentPage = 1; updateQueryParams()"
+					class="btn btn-xs btn-secondary font-bold"
+					title="إعادة ضبط الفلاتر"
+				>
+					إعادة ضبط
+				</button>
 
 				<!-- Delete All Button -->
 				if len(data.Coverages) > 0 {
@@ -74,120 +110,100 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 						</tr>
 					</thead>
 					<tbody>
-						for _, c := range data.Coverages {
-							<tr x-show={ fmt.Sprintf("(filterDay === 'all' || filterDay === '%d') && (!searchQuery || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", c.DayOfWeek, c.GovernorateNameAr, c.CityNameAr) }>
+						<!-- Filtered Empty State -->
+						<tr x-show="allCoverages.length > 0 && totalFilteredCount === 0">
+							<td colspan="8" class="text-center py-8 text-muted">
+								<div class="d-flex flex-col items-center gap-2">
+									<span class="text-2xl">@components.IconSearch("icon-md")</span>
+									<span class="font-bold text-sm">لا توجد نطاقات تغطية تطابق خيارات التصفية الحالية</span>
+									<span class="text-xs text-secondary">جرب اختيار فرع آخر أو يوم مختلف أو مسح كلمة البحث</span>
+									<button type="button" @click="filterBranch = 'all'; filterDay = 'all'; searchQuery = ''; currentPage = 1; updateQueryParams()" class="btn btn-xs btn-secondary mt-1 font-bold">
+										إعادة ضبط الفلاتر
+									</button>
+								</div>
+							</td>
+						</tr>
+
+						<!-- Paginated Rows via Alpine -->
+						<template x-for="c in paginatedCoverages" :key="c.id">
+							<tr>
 								<!-- Day Badge -->
 								<td>
-									<span class={ "badge " + dayBadgeClass(c.DayOfWeek) }>
-										{ dayNameArabic(c.DayOfWeek) }
-									</span>
+									<span :class="'badge ' + c.day_badge_class" x-text="c.day_name_ar"></span>
 								</td>
 
 								<!-- Governorate & City -->
 								<td>
 									<div class="font-extrabold text-sm text-primary">
-										if c.GovernorateNameAr != "" {
-											{ c.GovernorateNameAr }
-										} else if c.GovernorateName != "" {
-											{ c.GovernorateName }
-										} else {
-											مصر
-										}
-										if c.CityNameAr != "" || c.CityName != "" {
-											<span class="text-muted mx-1">›</span>
-											<span class="text-brand">
-												if c.CityNameAr != "" {
-													{ c.CityNameAr }
-												} else {
-													{ c.CityName }
-												}
+										<span x-text="c.governorate_name"></span>
+										<template x-if="c.city_name">
+											<span>
+												<span class="text-muted mx-1">›</span>
+												<span class="text-brand" x-text="c.city_name"></span>
 											</span>
-										}
+										</template>
 									</div>
-									if c.Address != "" && c.Address != c.CityNameAr {
-										<div class="text-xs text-muted mt-1">
-											{ c.Address }
-										</div>
-									}
+									<div x-show="c.address && c.address !== c.city_name" class="text-xs text-muted mt-1" x-text="c.address"></div>
 								</td>
 
 								<!-- GPS Coordinates & Map Link -->
 								<td class="font-mono text-xs">
-									if c.Latitude != nil && c.Longitude != nil {
+									<template x-if="c.latitude != null && c.longitude != null">
 										<div class="d-flex items-center gap-2">
-											<span>{ fmt.Sprintf("%.4f, %.4f", *c.Latitude, *c.Longitude) }</span>
-											<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *c.Latitude, *c.Longitude)) } target="_blank" title="معاينة على خرائط جوجل" class="text-decoration-none">
+											<span x-text="c.lat_lng_str"></span>
+											<a :href="c.map_url" target="_blank" title="معاينة على خرائط جوجل" class="text-decoration-none">
 												@components.IconGlobe("icon-sm")
 											</a>
 										</div>
-									} else {
+									</template>
+									<template x-if="c.latitude == null || c.longitude == null">
 										<span class="text-muted text-xs">إحداثيات مركز الفرع</span>
-									}
+									</template>
 								</td>
 
 								<!-- Radius Distance -->
 								<td>
-									<span class="badge badge-primary">
-										{ formatDistanceKM(c.DistanceMeters) }
-									</span>
+									<span class="badge badge-primary" x-text="c.distance_km"></span>
 								</td>
 
 								<!-- Coverage Time Window (Egyptian 12-hour) -->
 								<td>
-									if (c.CoverageFrom != nil && *c.CoverageFrom != "") || (c.CoverageTo != nil && *c.CoverageTo != "") {
-										<span class="badge badge-secondary font-bold">
-											{ FormatCoverageWindow(c.CoverageFrom, c.CoverageTo) }
-										</span>
-									} else {
-										<span class="text-muted text-xs">طوال اليوم</span>
-									}
+									<span class="badge badge-secondary font-bold" x-text="c.coverage_window"></span>
 								</td>
 
 								<!-- Branch -->
-								<td class="text-sm font-semibold text-primary">
-									{ c.BranchName }
-								</td>
+								<td class="text-sm font-semibold text-primary" x-text="c.branch_name"></td>
 
 								<!-- Status Toggle -->
 								<td>
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/toggle", c.ID)) } class="d-inline">
+									<form method="POST" :action="'/vendor/coverage/' + c.id + '/toggle'" class="d-inline">
 										<input type="hidden" name="gorilla.csrf.Token" value=""/>
-										<input type="hidden" name="id" value={ fmt.Sprintf("%d", c.ID) }/>
-										if c.IsActive {
+										<input type="hidden" name="id" :value="c.id"/>
+										<input type="hidden" name="return_branch" :value="filterBranch"/>
+										<template x-if="c.is_active">
 											<button type="submit" class="badge badge-emerald border-0 cursor-pointer font-bold" title="اضغط للتعطيل">
 												● نشط ومتاح
 											</button>
-										} else {
+										</template>
+										<template x-if="!c.is_active">
 											<button type="submit" class="badge badge-secondary border-0 cursor-pointer font-bold" title="اضغط للتفعيل">
 												○ معطل مؤقتاً
 											</button>
-										}
+										</template>
 									</form>
 								</td>
 
 								<!-- Actions -->
 								<td class="col-actions">
 									<div class="table-actions">
-										<button type="button" @click={ fmt.Sprintf("openEdit({ id: %d, branch_id: '%d', governorate_id: '%d', city_id: '%d', day_of_week: %d, distance_meters: %d, coverage_from: '%s', coverage_to: '%s', address: '%s', latitude: '%s', longitude: '%s', is_active: %t })",
-											c.ID,
-											c.BranchID,
-											func() int64 { if c.GovernorateID != nil { return *c.GovernorateID } else { return 0 } }(),
-											func() int64 { if c.CityID != nil { return *c.CityID } else { return 0 } }(),
-											c.DayOfWeek,
-											c.DistanceMeters,
-											func() string { if c.CoverageFrom != nil { return *c.CoverageFrom } else { return "" } }(),
-											func() string { if c.CoverageTo != nil { return *c.CoverageTo } else { return "" } }(),
-											c.Address,
-											func() string { if c.Latitude != nil { return fmt.Sprintf("%f", *c.Latitude) } else { return "" } }(),
-											func() string { if c.Longitude != nil { return fmt.Sprintf("%f", *c.Longitude) } else { return "" } }(),
-											c.IsActive,
-										) } class="btn btn-2xs btn-secondary" title="تعديل النطاق">
+										<button type="button" @click="openEdit(c)" class="btn btn-2xs btn-secondary" title="تعديل النطاق">
 											@components.IconEdit("icon-sm")
 										</button>
 
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');" class="d-inline">
+										<form method="POST" :action="'/vendor/coverage/' + c.id + '/delete'" onsubmit="return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');" class="d-inline">
 											<input type="hidden" name="gorilla.csrf.Token" value=""/>
-											<input type="hidden" name="id" value={ fmt.Sprintf("%d", c.ID) }/>
+											<input type="hidden" name="id" :value="c.id"/>
+											<input type="hidden" name="return_branch" :value="filterBranch"/>
 											<button type="submit" class="btn btn-2xs btn-danger" title="حذف النطاق">
 												@components.IconTrash("icon-sm")
 											</button>
@@ -195,9 +211,72 @@ templ VendorCoverageTable(data VendorCoverageData, lang string) {
 									</div>
 								</td>
 							</tr>
-						}
+						</template>
 					</tbody>
 				</table>
+			</div>
+
+			<!-- Pagination Bar -->
+			<div x-show="totalFilteredCount > 0" class="b2b-pagination p-3 px-4 bg-surface-sunken border-t flex-between items-center flex-wrap gap-3 mt-0 rounded-b-xl">
+				<div class="b2b-pagination-info text-xs text-secondary d-flex items-center gap-3">
+					<span>
+						عرض <strong class="tabular-nums" x-text="pageSize === -1 ? ('1 - ' + totalFilteredCount) : (startIndex + ' - ' + endIndex)"></strong> من أصل <strong class="tabular-nums" x-text="totalFilteredCount"></strong> نطاق
+						<span x-show="totalFilteredCount !== allCoverages.length" class="text-muted">
+							(مفلتر من إجمالي <span class="tabular-nums" x-text="allCoverages.length"></span>)
+						</span>
+					</span>
+					<label class="d-flex items-center gap-1.5 text-xs text-muted">
+						<span>لكل صفحة:</span>
+						<select
+							class="form-select form-select-xs py-1 px-2 text-xs font-bold"
+							x-model.number="pageSize"
+							@change="currentPage = 1"
+						>
+							<option :value="10">10 نطاقات</option>
+							<option :value="15">15 نطاق</option>
+							<option :value="25">25 نطاق</option>
+							<option :value="50">50 نطاق</option>
+							<option :value="100">100 نطاق</option>
+							<option :value="-1">عرض الكل</option>
+						</select>
+					</label>
+				</div>
+
+				<div class="b2b-pagination-controls d-flex items-center gap-1" x-show="totalPages > 1">
+					<button
+						type="button"
+						class="b2b-pagination-btn"
+						:disabled="currentPage <= 1"
+						@click="goToPage(1)"
+						title="الصفحة الأولى"
+					>«</button>
+					<button
+						type="button"
+						class="b2b-pagination-btn"
+						:disabled="currentPage <= 1"
+						@click="prevPage()"
+						title="السابق"
+					>‹</button>
+
+					<span class="text-xs px-2 font-bold tabular-nums">
+						صفحة <span x-text="currentPage"></span> من <span x-text="totalPages"></span>
+					</span>
+
+					<button
+						type="button"
+						class="b2b-pagination-btn"
+						:disabled="currentPage >= totalPages"
+						@click="nextPage()"
+						title="التالي"
+					>›</button>
+					<button
+						type="button"
+						class="b2b-pagination-btn"
+						:disabled="currentPage >= totalPages"
+						@click="goToPage(totalPages)"
+						title="الصفحة الأخيرة"
+					>»</button>
+				</div>
 			</div>
 		}
 	</div>

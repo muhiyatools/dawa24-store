@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -441,7 +442,11 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "vendor.coverage.updated_success"))
+	returnPath := "/vendor/coverage"
+	if retBranch := r.PostFormValue("branch_id"); retBranch != "" && retBranch != "all" {
+		returnPath = fmt.Sprintf("/vendor/coverage?branch_id=%s", url.QueryEscape(retBranch))
+	}
+	h.redirectWithNotice(w, r, returnPath, "success", i18n.T(lang, "vendor.coverage.updated_success"))
 }
 
 // VendorCoverageDeleteSubmit deletes a weekly coverage record.
@@ -481,7 +486,11 @@ func (h *UIHandler) VendorCoverageDeleteSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "vendor.coverage.deleted_success"))
+	delReturnPath := "/vendor/coverage"
+	if retBranch := r.PostFormValue("return_branch"); retBranch != "" && retBranch != "all" {
+		delReturnPath = fmt.Sprintf("/vendor/coverage?branch_id=%s", url.QueryEscape(retBranch))
+	}
+	h.redirectWithNotice(w, r, delReturnPath, "success", i18n.T(lang, "vendor.coverage.deleted_success"))
 }
 
 // VendorCoverageToggleSubmit toggles the active state of a weekly coverage record.
@@ -526,7 +535,11 @@ func (h *UIHandler) VendorCoverageToggleSubmit(w http.ResponseWriter, r *http.Re
 	if !newActive {
 		stateLabel = i18n.T(lang, "vendor.coverage.state_disabled")
 	}
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", fmt.Sprintf(i18n.T(lang, "vendor.coverage.toggle_success"), stateLabel))
+	togReturnPath := "/vendor/coverage"
+	if retBranch := r.PostFormValue("return_branch"); retBranch != "" && retBranch != "all" {
+		togReturnPath = fmt.Sprintf("/vendor/coverage?branch_id=%s", url.QueryEscape(retBranch))
+	}
+	h.redirectWithNotice(w, r, togReturnPath, "success", fmt.Sprintf(i18n.T(lang, "vendor.coverage.toggle_success"), stateLabel))
 }
 
 // VendorCoverageDeleteAllSubmit wipes all weekly coverages belonging to the authenticated vendor organization.

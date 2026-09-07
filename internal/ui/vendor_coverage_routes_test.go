@@ -230,4 +230,69 @@ func TestVendorCoverageRoutes(t *testing.T) {
 			t.Errorf("want 303 redirect, got %d", rec.Code)
 		}
 	})
+
+	// Branch filter redirect: Vendor GET /vendor/coverage/branch/{branchID}
+	t.Run("Vendor GET /vendor/coverage/branch/100 redirects with branch_id param", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/vendor/coverage/branch/100", nil)
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303 redirect, got %d", rec.Code)
+		}
+		loc := rec.Header().Get("Location")
+		if !strings.Contains(loc, "branch_id=100") {
+			t.Errorf("expected branch_id=100 in redirect location, got %s", loc)
+		}
+	})
+
+	// Toggle preserves return_branch
+	t.Run("Vendor POST /vendor/coverage/1/toggle preserves return_branch", func(t *testing.T) {
+		wfRepo.coverages[1] = &workflow.WeeklyCoverage{
+			ID:             1,
+			OrganizationID: 10,
+			BranchID:       100,
+			DayOfWeek:      1,
+			DistanceMeters: 25000,
+			IsActive:       true,
+		}
+		form := url.Values{
+			"return_branch": {"100"},
+		}
+		req := httptest.NewRequest("POST", "/vendor/coverage/1/toggle", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303 redirect, got %d", rec.Code)
+		}
+		loc := rec.Header().Get("Location")
+		if !strings.Contains(loc, "branch_id=100") {
+			t.Errorf("expected branch_id=100 in redirect, got %s", loc)
+		}
+	})
+
+	// Vendor GET /vendor/coverage renders branch filter, coverages dataset, and pagination
+	t.Run("Vendor GET /vendor/coverage renders branch filter and pagination", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/vendor/coverage", nil)
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Errorf("want 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, "id=\"coverages-dataset\"") {
+			t.Errorf("expected coverages-dataset in body")
+		}
+		if !strings.Contains(body, "filterBranch") {
+			t.Errorf("expected filterBranch Alpine model in body")
+		}
+		if !strings.Contains(body, "paginatedCoverages") {
+			t.Errorf("expected paginatedCoverages in body")
+		}
+		if !strings.Contains(body, "b2b-pagination") {
+			t.Errorf("expected b2b-pagination class in body")
+		}
+	})
 }
