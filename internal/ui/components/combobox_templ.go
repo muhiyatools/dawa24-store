@@ -119,7 +119,7 @@ func Combobox(props ComboboxProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" x-init=\"init()\" x-on:combobox-change.window=\"/* chained lists reset themselves */\" @keydown.escape.stop=\"close()\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" x-init=\"init()\" x-on:combobox-change.window=\"void 0\" @keydown.escape.stop=\"close()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

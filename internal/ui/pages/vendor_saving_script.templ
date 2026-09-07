@@ -3,17 +3,32 @@ package pages
 templ VendorSavingScript() {
 		<script>
 			function openCreateModal() {
-				document.getElementById('modal-title').textContent = 'إضافة منتج توفير جديد';
-				document.getElementById('saving-product-form').action = '/vendor/saving-products';
-				document.getElementById('form-saving-id').value = '';
-				document.getElementById('form-name-product').value = '';
-				document.getElementById('form-sku').value = '';
-				document.getElementById('form-qty').value = '';
-				document.getElementById('form-price').value = '';
+				const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
+				if (titleEl) titleEl.textContent = 'إضافة منتج توفير جديد';
+
+				const form = document.getElementById('saving-product-form');
+				if (form) form.action = '/vendor/saving-products';
+
+				const idInput = document.getElementById('form-saving-id');
+				if (idInput) idInput.value = '';
+				const nameInput = document.getElementById('form-name-product');
+				if (nameInput) nameInput.value = '';
+				const skuInput = document.getElementById('form-sku');
+				if (skuInput) skuInput.value = '';
+				const qtyInput = document.getElementById('form-qty');
+				if (qtyInput) qtyInput.value = '';
+				const priceInput = document.getElementById('form-price');
+				if (priceInput) priceInput.value = '';
+
 				clearSelectedProduct();
+
 				const el = document.getElementById('saving-product-modal');
-				if (el && typeof el.showModal === 'function') {
-					el.showModal();
+				if (el) {
+					if (typeof el.showModal === 'function') {
+						el.showModal();
+					} else {
+						el.setAttribute('open', '');
+					}
 				}
 			}
 
@@ -21,57 +36,94 @@ templ VendorSavingScript() {
 				const row = document.querySelector(`.saving-row[data-id="${id}"]`);
 				if (!row) return;
 
-				document.getElementById('modal-title').textContent = 'تعديل منتج التوفير وتعيين الربط';
-				document.getElementById('saving-product-form').action = `/vendor/saving-products/${id}/update`;
-				document.getElementById('form-saving-id').value = id;
-				document.getElementById('form-name-product').value = row.dataset.name || '';
-				document.getElementById('form-sku').value = row.dataset.sku || '';
-				document.getElementById('form-qty').value = row.dataset.qty || '';
-				document.getElementById('form-price').value = row.dataset.price || '';
+				const titleEl = document.getElementById('saving-product-modal-title') || document.getElementById('modal-title');
+				if (titleEl) {
+					titleEl.textContent = 'تعديل منتج التوفير وتعيين الربط بالكتالوج';
+				}
+
+				const form = document.getElementById('saving-product-form');
+				if (form) {
+					form.action = `/vendor/saving-products/${id}/update`;
+				}
+
+				const idInput = document.getElementById('form-saving-id');
+				if (idInput) idInput.value = id;
+				const nameInput = document.getElementById('form-name-product');
+				if (nameInput) nameInput.value = row.dataset.name || '';
+				const skuInput = document.getElementById('form-sku');
+				if (skuInput) skuInput.value = row.dataset.sku || '';
+				const qtyInput = document.getElementById('form-qty');
+				if (qtyInput) qtyInput.value = row.dataset.qty || '';
+				const priceInput = document.getElementById('form-price');
+				if (priceInput) priceInput.value = row.dataset.price || '';
 
 				const prodId = row.dataset.productId;
 				const prodName = row.dataset.productName;
-				if (prodId && prodId !== '') {
+				if (prodId && prodId !== '' && prodId !== '0') {
 					selectCatalogProduct(prodId, prodName);
 				} else {
 					clearSelectedProduct();
+					const searchInput = document.getElementById('product-search-input');
+					if (searchInput && row.dataset.name) {
+						searchInput.value = row.dataset.name;
+						searchCatalogProductsLive(row.dataset.name);
+					}
 				}
 
 				const el = document.getElementById('saving-product-modal');
-				if (el && typeof el.showModal === 'function') {
-					el.showModal();
+				if (el) {
+					if (typeof el.showModal === 'function') {
+						el.showModal();
+					} else {
+						el.setAttribute('open', '');
+					}
 				}
 			}
 
 			function closeCreateModal() {
 				const el = document.getElementById('saving-product-modal');
-				if (el && typeof el.close === 'function') {
-					el.close();
+				if (el) {
+					if (typeof el.close === 'function') {
+						el.close();
+					} else {
+						el.removeAttribute('open');
+					}
 				}
 			}
 
 			function selectCatalogProduct(id, name) {
-				document.getElementById('form-product-id').value = id;
-				document.getElementById('selected-product-label').textContent = `${name}`;
-				document.getElementById('selected-product-box').style.display = 'flex';
-				document.getElementById('search-product-container').style.display = 'none';
-				document.getElementById('product-search-dropdown').style.display = 'none';
-				document.getElementById('product-search-input').value = '';
+				const prodIdInput = document.getElementById('form-product-id');
+				if (prodIdInput) prodIdInput.value = id;
+				const label = document.getElementById('selected-product-label');
+				if (label) label.textContent = `${name}`;
+				const selectedBox = document.getElementById('selected-product-box');
+				if (selectedBox) selectedBox.classList.remove('d-none');
+				const searchContainer = document.getElementById('search-product-container');
+				if (searchContainer) searchContainer.classList.add('d-none');
+				const dropdown = document.getElementById('product-search-dropdown');
+				if (dropdown) dropdown.classList.add('d-none');
+				const searchInput = document.getElementById('product-search-input');
+				if (searchInput) searchInput.value = '';
 			}
 
 			function clearSelectedProduct() {
-				document.getElementById('form-product-id').value = '';
-				document.getElementById('selected-product-label').textContent = '';
-				document.getElementById('selected-product-box').style.display = 'none';
-				document.getElementById('search-product-container').style.display = 'block';
+				const prodIdInput = document.getElementById('form-product-id');
+				if (prodIdInput) prodIdInput.value = '';
+				const label = document.getElementById('selected-product-label');
+				if (label) label.textContent = '';
+				const selectedBox = document.getElementById('selected-product-box');
+				if (selectedBox) selectedBox.classList.add('d-none');
+				const searchContainer = document.getElementById('search-product-container');
+				if (searchContainer) searchContainer.classList.remove('d-none');
 			}
 
 			let searchDebounce = null;
 			function searchCatalogProductsLive(query) {
 				clearTimeout(searchDebounce);
 				const dropdown = document.getElementById('product-search-dropdown');
+				if (!dropdown) return;
 				if (!query || query.trim().length < 2) {
-					dropdown.style.display = 'none';
+					dropdown.classList.add('d-none');
 					return;
 				}
 
@@ -80,26 +132,25 @@ templ VendorSavingScript() {
 						.then(r => r.json())
 						.then(items => {
 							if (!items || items.length === 0) {
-								dropdown.innerHTML = '<div class="stack-sm" >لم يتم العثور على نتائج بالكتالوج</div>';
-								dropdown.style.display = 'block';
+								dropdown.innerHTML = '<div class="p-3 text-sm text-secondary text-center">لم يتم العثور على نتائج بالكتالوج العام</div>';
+								dropdown.classList.remove('d-none');
 								return;
 							}
 
 							let html = '';
 							items.forEach(it => {
-								const skuText = it.sku ? ('<span >(' + it.sku + ')</span>') : '';
+								const skuText = it.sku ? (' <code class="text-xs text-secondary">(' + it.sku + ')</code>') : '';
 								const safeName = (it.name || '').replace(/'/g, "\\'");
-								html += '<div class="stack-sm"  ' +
-									'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
+								html += '<div class="d-flex items-center justify-between p-2 rounded cursor-pointer hover-bg-surface border-b" ' +
 									'onclick="selectCatalogProduct(\'' + it.id + '\', \'' + safeName + '\')">' +
-									'<div class="stack-sm"><strong >' + it.name + '</strong>' + skuText + '</div>' +
-									'<span class="badge badge-emerald text-xs">اختيار</span></div>';
+									'<div class="stack-xs"><strong class="text-xs text-primary">' + it.name + '</strong>' + skuText + '</div>' +
+									'<span class="badge badge-emerald text-xs font-bold">اختيار</span></div>';
 							});
 							dropdown.innerHTML = html;
-							dropdown.style.display = 'block';
+							dropdown.classList.remove('d-none');
 						})
 						.catch(() => {
-							dropdown.style.display = 'none';
+							dropdown.classList.add('d-none');
 						});
 				}, 200);
 			}
@@ -665,23 +716,36 @@ templ VendorSavingScript() {
 			}
 
 			function openProvidersModal(productId, productName) {
-				document.getElementById('providers-modal-subtitle').textContent = 'الصنف: ' + productName;
-				document.getElementById('providers-modal-content').innerHTML = '<div class="stack-sm" >⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
+				const subtitleEl = document.getElementById('providers-modal-subtitle');
+				if (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;
+				const contentEl = document.getElementById('providers-modal-content');
+				if (contentEl) contentEl.innerHTML = '<div class="text-center text-muted p-6">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
 				
 				const el = document.getElementById('providers-modal');
-				if (el && typeof el.showModal === 'function') {
-					el.showModal();
+				if (el) {
+					if (typeof el.showModal === 'function') {
+						el.showModal();
+					} else {
+						el.setAttribute('open', '');
+					}
 				}
 
 				fetch('/vendor/saving-products/providers/' + productId)
 					.then(r => r.json())
 					.then(providers => {
 						if (!providers || providers.length === 0) {
-							document.getElementById('providers-modal-content').innerHTML = '<div class="stack-sm" >لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
+							if (contentEl) contentEl.innerHTML = '<div class="text-center p-6 text-secondary font-bold">لا توجد منظمات أو موردين آخرين مسجلين لهذا الصنف حالياً في الكتالوج.</div>';
 							return;
 						}
 
-						let html = '<table class="data-table" ><thead><tr ><th class="p-sm">المورد / المنظمة</th><th class="p-sm">العبوة / التنويعة</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th></tr></thead><tbody>';
+						let html = '<div class="table-container m-0"><table class="data-table"><thead><tr>' +
+							'<th class="text-start">المورد / المنظمة</th>' +
+							'<th class="text-start">العبوة / التنويعة</th>' +
+							'<th class="text-center">المخزون</th>' +
+							'<th class="text-center">سعر الجمهور</th>' +
+							'<th class="text-center">نسبة الخصم</th>' +
+							'<th class="text-center">السعر بعد الخصم</th>' +
+							'</tr></thead><tbody>';
 
 						providers.forEach(p => {
 							const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
@@ -692,27 +756,31 @@ templ VendorSavingScript() {
 							const netPrice = p.price_after_discount || p.price;
 
 							html += '<tr class="rule-bottom">' +
-								'<td class="p-sm"><strong class="text-primary">' + (p.org_name || 'مورد معتمد') + '</strong>' + branchText + '</td>' +
-								'<td class="p-sm"><div class="stack-xs text-sm">' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
-								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
-								'<td class="p-sm text-center tabular-nums">' + publicPrice + ' ج.م</td>' +
-								'<td class="p-sm text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
-								'<td class="p-sm text-center tabular-nums"><strong class="text-primary tabular-nums">' + netPrice + ' ج.م</strong></td>' +
+								'<td class="font-bold text-primary">' + (p.org_name || 'مورد معتمد') + branchText + '</td>' +
+								'<td><div class="stack-xs text-sm">' + (p.variant_name || 'العبوة القياسية') + '</div>' + skuText + '</td>' +
+								'<td class="text-center tabular-nums"><span class="badge ' + stockBadge + '">' + (p.stock_quantity || 0) + ' عبوة</span></td>' +
+								'<td class="text-center tabular-nums">' + (publicPrice ? publicPrice + ' ج.م' : '—') + '</td>' +
+								'<td class="text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
+								'<td class="text-center tabular-nums"><strong class="text-primary tabular-nums">' + (netPrice ? netPrice + ' ج.م' : '—') + '</strong></td>' +
 								'</tr>';
 						});
 
-						html += '</tbody></table>';
-						document.getElementById('providers-modal-content').innerHTML = html;
+						html += '</tbody></table></div>';
+						if (contentEl) contentEl.innerHTML = html;
 					})
 					.catch(() => {
-						document.getElementById('providers-modal-content').innerHTML = '<div class="stack-sm" >حدث خطأ أثناء تحميل عروض الموردين.</div>';
+						if (contentEl) contentEl.innerHTML = '<div class="text-danger text-center p-4">حدث خطأ أثناء تحميل عروض الموردين.</div>';
 					});
 			}
 
 			function closeProvidersModal() {
 				const el = document.getElementById('providers-modal');
-				if (el && typeof el.close === 'function') {
-					el.close();
+				if (el) {
+					if (typeof el.close === 'function') {
+						el.close();
+					} else {
+						el.removeAttribute('open');
+					}
 				}
 			}
 
@@ -730,5 +798,15 @@ templ VendorSavingScript() {
 					}
 				});
 			}
+
+			window.openCreateModal = openCreateModal;
+			window.openEditModalFromRow = openEditModalFromRow;
+			window.closeCreateModal = closeCreateModal;
+			window.selectCatalogProduct = selectCatalogProduct;
+			window.clearSelectedProduct = clearSelectedProduct;
+			window.searchCatalogProductsLive = searchCatalogProductsLive;
+			window.openProvidersModal = openProvidersModal;
+			window.closeProvidersModal = closeProvidersModal;
+			window.filterSavingProductsTable = filterSavingProductsTable;
 		</script>
 }

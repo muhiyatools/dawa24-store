@@ -64,7 +64,7 @@ templ Combobox(props ComboboxProps) {
 		class={ "combobox", props.Class }
 		x-data={ comboboxState(props) }
 		x-init="init()"
-		x-on:combobox-change.window="/* chained lists reset themselves */"
+		x-on:combobox-change.window="void 0"
 		@keydown.escape.stop="close()"
 	>
 		if props.Label != "" {

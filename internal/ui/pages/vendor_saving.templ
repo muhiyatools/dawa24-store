@@ -461,7 +461,8 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		<!-- MODAL 1: Create / Edit Saving Product Modal -->
 		@components.Modal(components.ModalProps{ID: "saving-product-modal", Title: "إضافة صنف توفير جديد", Size: "md"}) {
 			<form method="POST" id="saving-product-form" action="/vendor/saving-products" class="d-flex flex-col gap-4 m-0">
-					<input type="hidden" id="form-saving-id" name="id" value="" />
+				<input type="hidden" name="_csrf" value="" x-init="$el.value = getCsrfToken()" />
+				<input type="hidden" id="form-saving-id" name="id" value="" />
 					
 					<div class="stack-md">
 						

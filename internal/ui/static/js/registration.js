@@ -3,8 +3,61 @@
    Multi-step stepper, file upload preview, verification & password strength
    ========================================================================== */
 
-// 3-Step Registration Onboarding Controller & Password Strength Meter
-function initRegistrationStepper() {
+(function () {
+  'use strict';
+
+  function selectAccountType(type) {
+    if (!type) type = 'customer';
+    if (type === 'supplier') type = 'vendor';
+    if (type === 'seeker' || type === 'jobseeker') type = 'job_seeker';
+
+    const hiddenInput = document.getElementById('reg-account-type-input');
+    if (hiddenInput) {
+      hiddenInput.value = type;
+    }
+
+    const typeCards = document.querySelectorAll('[data-account-type]');
+    typeCards.forEach((c) => {
+      const cardType = c.getAttribute('data-account-type');
+      const isSelected = (cardType === type);
+      c.classList.toggle('active', isSelected);
+      c.classList.toggle('selected', isSelected);
+      c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      const radio = c.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = isSelected;
+      }
+    });
+
+    const badgeLabel = document.getElementById('reg-selected-badge');
+    if (badgeLabel) {
+      if (type === 'supplier' || type === 'vendor') {
+        badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومخزن أدوية';
+      } else if (type === 'job_seeker') {
+        badgeLabel.textContent = 'نوع الحساب: باحث عن عمل / كادر طبي وصيدلاني';
+      } else {
+        badgeLabel.textContent = 'نوع الحساب: صيدلية / منشأة طبية مرخصة';
+      }
+    }
+
+    document.querySelectorAll('[data-type-visibility]').forEach((el) => {
+      const allowed = el.getAttribute('data-type-visibility').split(/\s+/);
+      const isVisible = allowed.includes(type);
+      el.classList.toggle('d-none', !isVisible);
+    });
+
+    if (type !== 'job_seeker') {
+      setTimeout(() => {
+        document.querySelectorAll('[data-map-picker] .map-canvas, [data-map-picker], .leaflet-container').forEach((c) => {
+          if (c._leaflet_map) c._leaflet_map.invalidateSize();
+        });
+      }, 100);
+    }
+  }
+  window.dawaSelectAccountType = selectAccountType;
+
+  // 3-Step Registration Onboarding Controller & Password Strength Meter
+  function initRegistrationStepper() {
   const form = document.getElementById('registration-onboarding-form');
   const typeCards = document.querySelectorAll('[data-account-type]');
   const hiddenInput = document.getElementById('reg-account-type-input');
@@ -68,57 +121,6 @@ function initRegistrationStepper() {
       });
     }
   }
-
-  function updateTypeVisibility(type) {
-    if (badgeLabel) {
-      if (type === 'supplier' || type === 'vendor') {
-        badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومخزن أدوية';
-      } else if (type === 'job_seeker') {
-        badgeLabel.textContent = 'نوع الحساب: باحث عن عمل / كادر طبي وصيدلاني';
-      } else {
-        badgeLabel.textContent = 'نوع الحساب: صيدلية / منشأة طبية مرخصة';
-      }
-    }
-
-    document.querySelectorAll('[data-type-visibility]').forEach((el) => {
-      const allowed = el.getAttribute('data-type-visibility').split(/\s+/);
-      const isVisible = allowed.includes(type);
-      el.classList.toggle('d-none', !isVisible);
-    });
-
-    if (type !== 'job_seeker') {
-      setTimeout(() => {
-        document.querySelectorAll('[data-map-picker] .map-canvas, [data-map-picker], .leaflet-container').forEach((c) => {
-          if (c._leaflet_map) c._leaflet_map.invalidateSize();
-        });
-      }, 100);
-    }
-  }
-
-  function selectAccountType(type) {
-    if (!type) type = 'customer';
-    if (type === 'supplier') type = 'vendor';
-    if (type === 'seeker' || type === 'jobseeker') type = 'job_seeker';
-
-    if (hiddenInput) {
-      hiddenInput.value = type;
-    }
-
-    typeCards.forEach((c) => {
-      const cardType = c.getAttribute('data-account-type');
-      const isSelected = (cardType === type);
-      c.classList.toggle('active', isSelected);
-      c.classList.toggle('selected', isSelected);
-      c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-      const radio = c.querySelector('input[type="radio"]');
-      if (radio) {
-        radio.checked = isSelected;
-      }
-    });
-
-    updateTypeVisibility(type);
-  }
-  window.dawaSelectAccountType = selectAccountType;
 
   // Account Type Selection Cards
   typeCards.forEach((card) => {
@@ -652,6 +654,8 @@ function syncCityDropdownsWithCoordinates(lat, lon) {
   return closestCityId;
 }
 window.syncCityDropdownsWithCoordinates = syncCityDropdownsWithCoordinates;
+window.initRegistrationStepper = initRegistrationStepper;
+window.initRegistrationMapComboboxSync = initRegistrationMapComboboxSync;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
@@ -662,3 +666,4 @@ if (document.readyState === 'loading') {
   initRegistrationStepper();
   initRegistrationMapComboboxSync();
 }
+})();

@@ -658,18 +658,23 @@ function showToast(message, type = 'info') {
   closeBtn.type = 'button';
   closeBtn.className = 'toast-close';
   closeBtn.innerHTML = '&times;';
+  closeBtn.setAttribute('aria-label', 'Close');
   closeBtn.onclick = () => {
     toast.remove();
   };
   toast.appendChild(closeBtn);
 
-  container.appendChild(toast);
+  container.prepend(toast);
 
   setTimeout(() => {
-    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(-10px)';
-    setTimeout(() => toast.remove(), 300);
+    if (toast.parentNode) {
+      toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-10px)';
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 300);
+    }
   }, 4500);
 }
 
