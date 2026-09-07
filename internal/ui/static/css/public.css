@@ -316,8 +316,15 @@
 }
 
 
-/* Live Platform Metrics Strip */
-.landing-metric-strip,
+/* Live Platform Metrics Strip
+   .landing-metric-strip is the <section>; .metric-strip-inner is the card
+   inside it. They were joined by a stray comma into one selector list, so the
+   section was painted as a card too: a bordered box with 2.5rem of padding
+   wrapped around an identical bordered box. Separating them is what removes
+   the double frame and the doubled inset on a phone. */
+.landing-metric-strip {
+  margin-block: var(--space-xl);
+}
 
 .metric-strip-inner {
   background: var(--bg-surface-raised, #ffffff);
@@ -1619,4 +1626,144 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 /* Closes the @layer components block opened at the top of this file. It was
    never closed; browsers auto-close at EOF, so nothing appended here would
    have landed outside the layer as its author expected. */
+
+
+/* ==========================================================================
+   Landing sections that had markup but no stylesheet.
+
+   Nine class names on the home page matched no CSS rule at all, which on a
+   hand-rolled stylesheet means the element renders with the browser's default
+   and nothing else: no section rhythm, no card, no constraint. That is most of
+   why the landing page reads as broken on a phone — the sections below the
+   hero had no spacing of their own and the two sponsored strips were
+   unstyled anchors holding a fixed-width image beside text, which at 360px
+   leaves about 140px for a headline.
+
+   Everything here is mobile-first: one column, then two or three from the
+   canonical breakpoints upward.
+   ========================================================================== */
+
+.landing-guarantees-section,
+.landing-deals-ad-section,
+.landing-bottom-ad-section {
+  margin-block: var(--space-xl);
+  inline-size: 100%;
+}
+
+.guarantees-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-block-end: var(--space-lg);
+}
+
+/* ---- sponsored strips ---- */
+
+.deals-ad-card,
+.bottom-ad-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-card);
+  background: var(--bg-surface-raised);
+  box-shadow: var(--shadow-xs);
+  text-decoration: none;
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+
+.deals-ad-card:hover,
+.bottom-ad-card:hover {
+  border-color: var(--brand-border);
+  box-shadow: var(--shadow-md);
+}
+
+.deals-ad-title,
+.bottom-ad-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+}
+
+/* The media well. It was a fixed 8rem square beside the copy at every width;
+   on a phone it now spans the card and the copy sits under it, which is the
+   only arrangement that leaves a headline room to be read. */
+.deals-ad-card > div:first-child,
+.bottom-ad-card > div:first-child {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 640px) {
+  .deals-ad-card,
+  .bottom-ad-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+  }
+  .deals-ad-title,
+  .bottom-ad-title { font-size: var(--text-base); }
+}
+
+/* The fallback tile a sponsored slide shows when the supplier uploaded no
+   media. Without a rule it collapsed to nothing and the slide had a hole in
+   it where the product should be. */
+.hero-ad-product-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 8rem;
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-sunken);
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Landing page on a phone.
+
+   The hero, the strip and the guarantee grid were all written for a desktop
+   width and left to wrap. Wrapping is not a layout: two 50%-width buttons on a
+   360px screen are two 160px buttons with a headline squeezed above them.
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* One obvious action, full width, thumb-height. */
+  .hero-cta-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
+    margin-block-end: var(--space-xl);
+  }
+  .hero-cta-btn {
+    inline-size: 100%;
+    justify-content: center;
+    min-block-size: var(--touch-min);
+  }
+
+  .landing-hero-subhead { font-size: var(--text-sm); }
+
+  /* The strip's dividers are for a row. In a column they are three grey lines
+     across the middle of nothing. */
+  .metric-strip-divider { display: none; }
+  .metric-strip-inner { padding: var(--space-md); gap: var(--space-md); }
+  .metric-strip-item { gap: var(--space-sm); }
+
+  .guarantees-grid { grid-template-columns: minmax(0, 1fr); }
+  .guarantee-card { padding: var(--space-md); }
+
+  .landing-guarantees-section,
+  .landing-deals-ad-section,
+  .landing-bottom-ad-section {
+    margin-block: var(--space-lg);
+  }
+}
+
 }

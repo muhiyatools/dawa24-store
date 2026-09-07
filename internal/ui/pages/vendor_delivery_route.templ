@@ -1,0 +1,228 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// خط سير التوصيل — the round as a journey.
+//
+// The screen is built for a person on a motorbike holding a phone in one hand,
+// so it is ordered by what they need in the next sixty seconds: where am I
+// going now, how do I get there, who do I call, and only then the rest of the
+// day. On a phone the map and the next stop fill the first screen and the full
+// list is below them; on a desktop the map is a sticky column beside the list,
+// because a dispatcher reads the whole plan at once.
+
+templ VendorDeliveryRoutePage(data VendorDeliveryRouteData, lang, dir string) {
+	@layouts.VendorShell("خط سير التوصيل | دوا 24", "delivery", lang, dir) {
+		<div class="page-container route-page">
+			@deliveryNotice(data.NoticeType, data.NoticeMsg)
+
+			<div class="route-topline">
+				<div class="stack-2xs min-w-0">
+					<a href="/vendor/delivery" class="route-back text-decoration-none">
+						@components.IconArrowRight("icon-2xs")
+						<span>العودة إلى إدارة الشحنات</span>
+					</a>
+					<h1 class="text-xl font-black text-primary m-0">خط سير التوصيل</h1>
+					<p class="text-xs text-secondary m-0">
+						ترتيب ذكي لمحطات اليوم يبدأ من موقعك ويمر على كل صيدلية مرة واحدة بأقصر طريق ممكن.
+					</p>
+				</div>
+				<div class="route-topline-actions">
+					<button type="button" class="btn btn-secondary btn-sm font-bold text-xs gap-1.5" data-route-locate>
+						@components.IconLocation("icon-2xs")
+						<span>إعادة الحساب من موقعي</span>
+					</button>
+					if url := FullRouteMapsURL(data.Route); url != "" {
+						<a
+							href={ templ.SafeURL(url) }
+							target="_blank"
+							rel="noopener"
+							class="btn btn-primary btn-sm font-black text-xs gap-1.5"
+						>
+							@components.IconTruck("icon-2xs")
+							<span>تشغيل المسار كاملاً</span>
+						</a>
+					}
+				</div>
+			</div>
+
+			if data.Route.IsEmpty() {
+				<div class="glass-panel p-12 text-center empty-state-glass">
+					<div class="mb-3">@components.IconTruck("icon-sm")</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد طرود جارية بعهدتك</h3>
+					<p class="text-sm text-secondary m-0">
+						فور إسناد أول طرد إليك سيظهر هنا مسار التوصيل الكامل مرتباً على الخريطة.
+					</p>
+				</div>
+			} else {
+				@routeSummary(data)
+
+				<div class="route-split">
+					<div class="route-map-col">
+						<div class="route-map-shell glass-panel">
+							<div
+								id="courier-route-map"
+								class="route-map-canvas"
+								data-route-endpoint="/vendor/delivery/route.json"
+								data-origin-label={ routeOriginLabel(data) }
+								aria-label="خريطة مسار التوصيل"
+							></div>
+							<div class="route-map-toolbar">
+								<button type="button" class="route-map-btn" data-route-fit title="عرض المسار كاملاً">
+									@components.IconGrid("icon-2xs")
+								</button>
+								<button type="button" class="route-map-btn" data-route-follow title="تتبّع موقعي">
+									@components.IconLocation("icon-2xs")
+								</button>
+							</div>
+							<p class="route-map-note m-0">
+								المسافات تقديرية بالخط المستقيم وتُستخدم لترتيب المحطات؛ الاتجاهات الفعلية تفتح في تطبيق الخرائط.
+							</p>
+						</div>
+					</div>
+
+					<div class="route-list-col">
+						if next := data.Route.NextStop(); next != nil {
+							@routeNextStopCard(*next, lang)
+						}
+						@VendorDeliveryRouteStops(data, lang)
+						if len(data.Route.Unlocatable) > 0 {
+							@routeUnlocatable(data.Route.Unlocatable, lang)
+						}
+					</div>
+				</div>
+			}
+		</div>
+		@RouteMapScript()
+	}
+}
+
+// routeOriginLabel names the first pin. A live fix and a warehouse are
+// different claims and the map must not blur them: telling a courier they are
+// at the warehouse when the browser refused location is how a plan stops being
+// trusted.
+func routeOriginLabel(data VendorDeliveryRouteData) string {
+	if data.Route == nil || !data.Route.HasOrigin {
+		return ""
+	}
+	if data.Route.OriginIsLive {
+		return "موقعك الحالي"
+	}
+	if data.WarehouseName != "" {
+		return "المخزن — " + data.WarehouseName
+	}
+	return "مخزن الانطلاق"
+}
+
+// routeSummary is the day in four numbers.
+templ routeSummary(data VendorDeliveryRouteData) {
+	<div class="route-summary">
+		<div class="route-summary-item">
+			<span class="route-summary-label">محطات اليوم</span>
+			<span class="route-summary-value tabular-nums">{ fmt.Sprintf("%d", data.Route.StopCount()) }</span>
+		</div>
+		<div class="route-summary-item">
+			<span class="route-summary-label">طرود بعهدتك</span>
+			<span class="route-summary-value tabular-nums">{ fmt.Sprintf("%d", data.Route.ShipmentCount) }</span>
+		</div>
+		<div class="route-summary-item">
+			<span class="route-summary-label">مسافة تقديرية</span>
+			<span class="route-summary-value tabular-nums">{ fmt.Sprintf("%.1f كم", data.Route.TotalKm()) }</span>
+		</div>
+		<div class="route-summary-item">
+			<span class="route-summary-label">إجمالي التحصيل</span>
+			<span class="route-summary-value">
+				@components.MoneyDisplay(components.MoneyDisplayProps{Amount: data.Route.TotalCollect})
+			</span>
+		</div>
+		if data.Route.OverdueCount > 0 {
+			<div class="route-summary-item is-late">
+				<span class="route-summary-label">محطات متأخرة</span>
+				<span class="route-summary-value tabular-nums">{ fmt.Sprintf("%d", data.Route.OverdueCount) }</span>
+			</div>
+		}
+		if !data.Route.HasOrigin {
+			<div class="route-summary-item is-warning">
+				<span class="route-summary-label">نقطة البداية غير معروفة</span>
+				<span class="route-summary-hint">فعّل الموقع لترتيب المحطات</span>
+			</div>
+		}
+	</div>
+}
+
+// routeNextStopCard is the only thing on this page a moving courier reads.
+templ routeNextStopCard(stop commerce.RouteStop, lang string) {
+	<section class="route-next glass-panel">
+		<div class="route-next-head">
+			<span class="route-next-eyebrow">المحطة التالية</span>
+			if stop.IsOverdue() {
+				<span class="badge badge-rose text-2xs font-black">متأخرة</span>
+			}
+		</div>
+		<h2 class="route-next-name">{ routeStopTitle(stop, lang) }</h2>
+		if stop.Address != "" {
+			<p class="route-next-address m-0">{ stop.Address }</p>
+		}
+		<div class="route-next-facts">
+			<span class="route-fact tabular-nums">{ fmt.Sprintf("%.1f كم", km(stop.LegMeters)) }</span>
+			<span class="route-fact tabular-nums">{ fmt.Sprintf("%d طرد · %d عبوة", len(stop.Shipments), stop.Units) }</span>
+			<span class="route-fact route-fact-money">
+				<span>تحصيل</span>
+				@components.MoneyDisplay(components.MoneyDisplayProps{Amount: stop.Collect})
+			</span>
+		</div>
+		<div class="route-next-actions">
+			<a
+				href={ templ.SafeURL(StopMapsURL(stop)) }
+				target="_blank"
+				rel="noopener"
+				class="btn btn-primary flex-1 font-black text-xs gap-1.5 route-action"
+			>
+				@components.IconLocation("icon-2xs")
+				<span>الاتجاهات</span>
+			</a>
+			if stop.Phone != "" {
+				<a
+					href={ templ.SafeURL("tel:" + stop.Phone) }
+					class="btn btn-secondary flex-1 font-bold text-xs gap-1.5 route-action"
+				>
+					@components.IconPhone("icon-2xs")
+					<span>اتصال</span>
+				</a>
+			}
+			if ids := stop.ShipmentIDs(); len(ids) > 0 {
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d", ids[0])) }
+					class="btn btn-secondary flex-1 font-bold text-xs gap-1.5 route-action"
+				>
+					@components.IconPackage("icon-2xs")
+					<span>فتح الطرد</span>
+				</a>
+			}
+		</div>
+	</section>
+}
+
+// deliveryNotice is the flash banner, shared by every screen in this portal so
+// the three copies of it cannot drift apart.
+templ deliveryNotice(kind, msg string) {
+	if msg != "" {
+		if kind == "error" {
+			<div class="alert alert-danger d-flex items-center gap-3 p-4">
+				@components.IconAlert("icon-sm")
+				<span class="font-bold text-sm">{ msg }</span>
+			</div>
+		} else {
+			<div class="alert alert-success d-flex items-center gap-3 p-4">
+				@components.IconCheckCircle("icon-sm")
+				<span class="font-bold text-sm">{ msg }</span>
+			</div>
+		}
+	}
+}

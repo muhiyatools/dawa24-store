@@ -320,7 +320,7 @@ dialog.modal::backdrop {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .modal-footer {
     flex-direction: column-reverse;
     align-items: stretch;
@@ -504,8 +504,8 @@ dialog.modal[open] {
 
 .toast-container {
   position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
+  inset-block-start: 1.5rem;
+  inset-inline-end: 1.5rem;
   z-index: 99999;
   display: flex;
   flex-direction: column;
@@ -1719,7 +1719,7 @@ select.form-control:focus-visible {
   word-break: break-word;
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1280px) {
   .data-table th,
   .data-table td {
     padding: 0.85rem 1rem;
@@ -3069,6 +3069,48 @@ input:focus {
   background: var(--bg-surface-sunken, rgba(255, 255, 255, 0.06));
   color: var(--text-primary, #ffffff);
   border-color: var(--border-card, rgba(255, 255, 255, 0.1));
+}
+
+/* The sidebar's corner control, in the layer that owns .sidebar-toggle.
+   Both buttons are always in the markup and the stylesheet chooses between
+   them at the drawer breakpoint, because the viewport can change without a
+   navigation. The pair lives here rather than beside the drawer rules in
+   layout.css: the cascade order is reset, tokens, base, layout, components,
+   utilities, so a `display: none` written in the layout layer loses to the
+   `display: inline-flex` above it however specific it is. That is exactly what
+   happened the first time this was attempted — the desktop collapse button
+   kept appearing inside the phone drawer. */
+.sidebar-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  inline-size: var(--touch-min, 44px);
+  block-size: var(--touch-min, 44px);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 0.5rem);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.sidebar-close:hover {
+  background: var(--bg-surface-sunken);
+  color: var(--text-primary);
+  border-color: var(--border-card);
+}
+
+.sidebar-header-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2xs);
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-toggle { display: none; }
+  .sidebar-close { display: inline-flex; }
 }
 .badge-neutral {
   display: inline-flex; align-items: center; gap: var(--space-2xs);
@@ -5982,7 +6024,7 @@ form.filter-bar { margin: 0; }
 .md-range-dash { color: var(--text-muted); flex: 0 0 auto; }
 .md-range-apply { flex: 0 0 auto; }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .md-header { align-items: stretch; }
   .md-stats { inline-size: 100%; }
   .md-stat { flex: 1 1 0; min-inline-size: 0; }
@@ -6113,7 +6155,7 @@ form.filter-bar { margin: 0; }
 }
 @media (max-width: 1280px) { .market-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 1024px) { .market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px)  { .market-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px)  { .market-grid { grid-template-columns: 1fr; } }
 
 .market-card {
   display: flex;
@@ -6258,7 +6300,7 @@ form.filter-bar { margin: 0; }
   min-inline-size: 6rem;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .market-list-row {
     flex-wrap: wrap;
     gap: 0.875rem;
@@ -6273,7 +6315,7 @@ form.filter-bar { margin: 0; }
     flex: 0 0 auto;
   }
 }
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .market-list-row {
     flex-direction: column;
     align-items: stretch;
@@ -6450,7 +6492,7 @@ form.filter-bar { margin: 0; }
   align-items: stretch;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .suppliers-map-layout {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -7212,8 +7254,8 @@ form.filter-bar { margin: 0; }
 /* Circular Usage Meter & Floating Usage Badge */
 .capsule-usage-floating-pill {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  inset-block-start: -4px;
+  inset-inline-end: -4px;
   background: var(--brand, #0284c7);
   color: #ffffff;
   font-size: 0.65rem;
@@ -7275,7 +7317,7 @@ form.filter-bar { margin: 0; }
   margin-bottom: 2rem !important;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .compare-workspace-grid {
     grid-template-columns: 1fr !important;
   }
@@ -8495,29 +8537,31 @@ input.so-qty-input::-webkit-inner-spin-button,
 }
 
 @media (max-width: 768px) {
+  /* The action bar a courier reaches with a thumb. It is opaque rather than
+     blurred: a translucent bar over a scrolling page is unreadable in the
+     bright daylight these users work in, and it costs a compositor layer on
+     exactly the phones that can least afford one. */
   .courier-mobile-bottom-bar {
     display: block;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border-subtle, #e2e8f0);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    inset-block-end: 0;
+    inset-inline: 0;
+    /* Page chrome, like the top bar: above the content it sits over, below the
+       drawer and any dialog. The literal 1000 it carried was above the modal
+       scrim, so the bar stayed lit over an open drawer. */
+    z-index: var(--z-header);
+    background: var(--bg-surface-raised);
+    border-block-start: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-xl);
     padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
-  [data-theme="dark"] .courier-mobile-bottom-bar {
-    background: rgba(15, 23, 42, 0.95);
-    border-top-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-  }
-
+  /* A page with a fixed bar at its foot has to end above the bar, or its last
+     row is permanently underneath it. The !important this carried was
+     defeating nothing: .page-container's padding is a single class in the same
+     layer, and this rule is later. */
   .courier-page-mobile-padded {
-    padding-bottom: 5.5rem !important;
+    padding-block-end: 5.5rem;
   }
 
   .courier-card {
@@ -8531,5 +8575,558 @@ input.so-qty-input::-webkit-inner-spin-button,
     padding: 0.625rem 0.75rem;
   }
 }
+
+/* ==========================================================================
+   خط سير التوصيل — the courier's route screen (.route-*)
+
+   Mobile first, because the person reading it is standing beside a motorbike.
+   The phone layout is a single column in the order the courier needs it: map,
+   next stop, the rest of the day. From 1024px the map becomes a sticky column
+   beside the list, which is the dispatcher's read of the same plan.
+   ========================================================================== */
+
+  .route-page {
+    gap: var(--space-md);
+  }
+
+  .route-topline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .route-topline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .route-topline-actions > * {
+    flex: 1 1 10rem;
+    justify-content: center;
+    min-block-size: var(--touch-min);
+  }
+
+  .route-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .route-back:hover { color: var(--text-primary); }
+
+  @media (min-width: 768px) {
+    .route-topline {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+    .route-topline-actions > * { flex: 0 0 auto; }
+  }
+
+  /* ---- summary strip ---- */
+
+  .route-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xs);
+  }
+
+  .route-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-sm);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface-raised);
+    min-inline-size: 0;
+  }
+
+  .route-summary-item.is-late { border-color: var(--danger-border); }
+  .route-summary-item.is-warning { border-color: var(--warning-border); }
+
+  .route-summary-label {
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .route-summary-value {
+    font-size: var(--text-lg);
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: var(--leading-tight);
+  }
+
+  .route-summary-item.is-late .route-summary-value { color: var(--danger); }
+
+  .route-summary-hint {
+    font-size: var(--text-2xs);
+    color: var(--warning);
+    font-weight: 700;
+  }
+
+  @media (min-width: 768px) {
+    .route-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 1024px) {
+    .route-summary { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  }
+
+  /* ---- the two-column split ---- */
+
+  .route-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 1024px) {
+    .route-split { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+    .route-map-col {
+      position: sticky;
+      inset-block-start: var(--space-md);
+      align-self: start;
+    }
+  }
+
+  .route-map-shell {
+    position: relative;
+    padding: var(--space-2xs);
+    overflow: hidden;
+  }
+
+  .route-map-canvas {
+    inline-size: 100%;
+    block-size: 46vh;
+    min-block-size: 17rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface-sunken);
+    z-index: var(--z-base);
+  }
+
+  @media (min-width: 1024px) {
+    .route-map-canvas { block-size: 62vh; }
+  }
+
+  .route-map-toolbar {
+    position: absolute;
+    inset-block-start: var(--space-sm);
+    inset-inline-end: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    z-index: var(--z-sticky);
+  }
+
+  .route-map-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--touch-min);
+    block-size: var(--touch-min);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-card);
+    background: var(--bg-surface-raised);
+    color: var(--text-secondary);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: color var(--duration-fast) var(--ease-smooth),
+                border-color var(--duration-fast) var(--ease-smooth);
+  }
+
+  .route-map-btn:hover,
+  .route-map-btn.is-active {
+    color: var(--brand);
+    border-color: var(--brand-border);
+  }
+
+  .route-map-note {
+    padding: var(--space-xs) var(--space-sm) var(--space-2xs);
+    font-size: var(--text-2xs);
+    color: var(--text-muted);
+    line-height: var(--leading-normal);
+  }
+
+  /* ---- next stop ---- */
+
+  .route-next {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    border-color: var(--brand-border);
+  }
+
+  .route-next-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+  }
+
+  .route-next-eyebrow {
+    font-size: var(--text-2xs);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    color: var(--brand);
+  }
+
+  .route-next-name {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: var(--leading-tight);
+  }
+
+  .route-next-address {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    line-height: var(--leading-normal);
+  }
+
+  .route-next-facts,
+  .route-stop-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .route-fact {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: 0.2rem var(--space-xs);
+    border-radius: var(--radius-full);
+    background: var(--bg-surface-sunken);
+    font-size: var(--text-2xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .route-fact-money { color: var(--brand); }
+
+  .route-next-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .route-action {
+    min-block-size: var(--touch-min);
+    justify-content: center;
+  }
+
+  /* ---- stop list ---- */
+
+  .route-stops,
+  .route-unlocated {
+    padding: var(--space-md);
+  }
+
+  .route-stops-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    margin-block-end: var(--space-sm);
+  }
+
+  .route-origin-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding-block-end: var(--space-xs);
+    margin-block-end: var(--space-xs);
+    border-block-end: 1px dashed var(--border-subtle);
+  }
+
+  .route-stop-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .route-stop {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    overflow: hidden;
+  }
+
+  .route-stop.is-late { border-color: var(--danger-border); }
+
+  .route-stop-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    cursor: pointer;
+    list-style: none;
+    min-block-size: var(--touch-min);
+  }
+
+  .route-stop-summary::-webkit-details-marker { display: none; }
+
+  .route-seq {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: var(--radius-full);
+    background: var(--brand);
+    color: var(--bg-surface-raised);
+    font-size: var(--text-2xs);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .route-seq.is-late { background: var(--danger); }
+
+  .route-seq-origin {
+    background: var(--bg-surface-sunken);
+    color: var(--text-secondary);
+    border: 1px dashed var(--border-strong);
+  }
+
+  .route-stop-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    flex: 1 1 auto;
+  }
+
+  .route-stop-name {
+    font-size: var(--text-sm);
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: var(--leading-tight);
+  }
+
+  .route-stop-address {
+    font-size: var(--text-2xs);
+    color: var(--text-muted);
+    line-height: var(--leading-normal);
+  }
+
+  .route-stop-meta {
+    gap: var(--space-xs);
+    font-size: var(--text-2xs);
+    color: var(--text-secondary);
+    font-weight: 700;
+  }
+
+  .route-stop-money { color: var(--brand); }
+
+  .route-stop-chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform var(--duration-fast) var(--ease-smooth);
+  }
+
+  .route-stop-details[open] .route-stop-chevron { transform: rotate(180deg); }
+
+  .route-stop-expand {
+    padding: 0 var(--space-sm) var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .route-stop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+
+  .route-stop-actions > * { flex: 1 1 8rem; justify-content: center; }
+
+  .route-parcel-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  /* One parcel inside a stop. The <li> carries no box of its own; the link
+     inside it is the target, which keeps the tap area the full row. */
+  .route-parcel { display: flex; }
+  .route-parcel > .route-parcel-link { flex: 1 1 auto; }
+
+  /* The list column of the route split: the whole width on a phone, beside
+     the sticky map from 1024px. */
+  .route-list-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    min-inline-size: 0;
+  }
+
+  .route-parcel-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-sunken);
+    min-block-size: var(--touch-min);
+  }
+
+  .route-parcel-link:hover { background: var(--brand-subtle); }
+
+  .route-parcel-id {
+    font-size: var(--text-xs);
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .route-parcel-meta {
+    font-size: var(--text-2xs);
+    color: var(--text-muted);
+    flex: 1 1 auto;
+  }
+
+  /* ---- map pins (built by delivery-route.js) ---- */
+
+  .route-pin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.875rem;
+    block-size: 1.875rem;
+    border-radius: var(--radius-full);
+    font-size: var(--text-2xs);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--bg-surface-raised);
+    border: 2px solid var(--bg-surface-raised);
+    box-shadow: var(--shadow-md);
+  }
+
+  .route-pin-stop   { background: var(--brand); }
+  .route-pin-late   { background: var(--danger); }
+  .route-pin-origin { background: var(--text-secondary); }
+  .route-pin-me     { background: var(--success); }
+
+  /* ==========================================================================
+     إدارة الشحنات — the board card, made usable one-handed (.delivery-*)
+     ========================================================================== */
+
+  /* The board card itself: a column, so the quick-action row it gained sits
+     under the parcel rather than beside it. */
+  .delivery-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .delivery-card-money {
+    text-align: end;
+    min-inline-size: 0;
+  }
+
+  .delivery-card-top {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .delivery-card-side {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .delivery-card-open {
+    min-block-size: var(--touch-min);
+    justify-content: center;
+  }
+
+  .delivery-card-quick {
+    display: flex;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-sm);
+    padding-block-start: var(--space-sm);
+    border-block-start: 1px solid var(--border-subtle);
+  }
+
+  .delivery-quick-btn {
+    flex: 1 1 0;
+    justify-content: center;
+    min-block-size: var(--touch-min);
+  }
+
+  .delivery-search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    inline-size: 100%;
+  }
+
+  .delivery-search-input { flex: 1 1 auto; min-inline-size: 0; }
+
+  .delivery-route-banner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--brand-border);
+    border-radius: var(--radius-lg);
+    background: var(--brand-subtle);
+  }
+
+  .delivery-route-banner-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .delivery-route-banner > .btn { min-block-size: var(--touch-min); justify-content: center; }
+
+  @media (min-width: 768px) {
+    .delivery-card-top {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-lg);
+    }
+    .delivery-card-side {
+      flex-direction: column;
+      align-items: flex-end;
+      flex-wrap: nowrap;
+    }
+    .delivery-card-quick { justify-content: flex-start; }
+    .delivery-quick-btn { flex: 0 0 auto; }
+    .delivery-search { inline-size: auto; }
+    .delivery-search-input { inline-size: 18rem; flex: 0 0 auto; }
+    .delivery-route-banner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  /* A control the browser is working on: dimmed and inert, without moving. */
+  .is-busy { opacity: 0.6; pointer-events: none; }
+
 }
 

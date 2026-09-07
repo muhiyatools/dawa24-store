@@ -371,11 +371,42 @@ function initSidebarToggle() {
       return;
     }
 
+    // The drawer's own close button. It sits where the desktop collapse
+    // control does and replaces it below 1024px, so a phone gets "close" in
+    // the corner instead of a control that shrinks the drawer to an icon rail.
+    if (e.target.closest('[data-drawer-close]')) {
+      e.preventDefault();
+      setDrawerOpen(false);
+      return;
+    }
+
     // Backdrop Click Dismissal
     if (e.target === backdrop) {
       setDrawerOpen(false);
     }
   });
+
+  // The viewport can change without a navigation — a rotation, a split screen,
+  // a resized window — and the two sidebar modes must not be left mixed.
+  // Collapse belongs to the desktop column and is reapplied from storage when
+  // the column comes back; an open drawer is dismissed when there is no longer
+  // a drawer to be open.
+  let wasDesktop = window.innerWidth >= 1024;
+  window.addEventListener('resize', () => {
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop === wasDesktop) return;
+    wasDesktop = isDesktop;
+
+    if (isDesktop) {
+      setDrawerOpen(false);
+      const collapsed = localStorage.getItem('dawa24-sidebar-collapsed') === 'true';
+      sidebar.classList.toggle('collapsed', collapsed);
+      document.body.classList.toggle('sidebar-collapsed', collapsed);
+    } else {
+      sidebar.classList.remove('collapsed');
+      document.body.classList.remove('sidebar-collapsed');
+    }
+  }, { passive: true });
 
   // Escape to close mobile drawer & Focus Trap
   document.addEventListener('keydown', (e) => {

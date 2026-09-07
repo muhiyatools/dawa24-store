@@ -258,10 +258,10 @@ check-transition-all: ## Fail if transition: all appears in CSS
 .PHONY: check-breakpoints
 check-breakpoints: ## Fail if media queries use pixel values outside the 4 canonical tokens
 	@echo "==> checking responsive breakpoints in CSS"
-	@bad=$$(grep -rnE '@media\s*\([^{]+' internal/ui/static/css/*.css 2>/dev/null | grep -vE '(640px|768px|1024px|1280px|prefers-reduced-motion|prefers-color-scheme|print)' | wc -l | tr -d ' '); \
+	@bad=$$(grep -rnE '@media\s*\([^{]+' internal/ui/static/css/*.css 2>/dev/null | grep -vE '(640px|768px|1024px|1280px|prefers-reduced-motion|prefers-color-scheme|pointer|print)' | wc -l | tr -d ' '); \
 	if [ "$$bad" -ne 0 ]; then \
 	  echo "FAIL: $$bad non-standard media query breakpoints found:"; \
-	  grep -rnE '@media\s*\([^{]+' internal/ui/static/css/*.css 2>/dev/null | grep -vE '(640px|768px|1024px|1280px|prefers-reduced-motion|prefers-color-scheme|print)'; \
+	  grep -rnE '@media\s*\([^{]+' internal/ui/static/css/*.css 2>/dev/null | grep -vE '(640px|768px|1024px|1280px|prefers-reduced-motion|prefers-color-scheme|pointer|print)'; \
 	  echo "All breakpoints must snap to 640px, 768px, 1024px, or 1280px."; \
 	  exit 1; \
 	fi; \

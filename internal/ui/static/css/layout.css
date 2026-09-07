@@ -120,33 +120,69 @@
   margin: 0 auto;
 }
 
-/* Mobile Sidebar Overlay & Backdrop */
+/* ---- Mobile drawer ------------------------------------------------------
+   Below 1024px the sidebar is not a column, it is a drawer over the page. Four
+   things were wrong with it and each was visible:
+
+   - It was only translated off-canvas, never hidden. A fixed element sitting
+     one viewport-width outside the page still creates scrollable overflow, so
+     a sideways drag on a phone dragged the closed drawer into view — the
+     "sidebar appears from the side on its own" report. It is now `visibility:
+     hidden` while closed as well, and the document clips horizontal overflow.
+   - The desktop collapse toggle was still rendered inside it. Collapsing a
+     drawer to a 72-pixel rail over a dimmed page is not a state anyone wants,
+     and the button sat exactly where a close button belongs.
+   - `.collapsed` is remembered in localStorage, so a supplier who collapsed
+     the desktop sidebar got a label-less icon rail as their phone drawer. The
+     class is now applied by app.js only on a desktop viewport, and neutralised
+     here as well so a stale class cannot reintroduce it.
+   - `touch-action: none` on <body> intersects with its descendants, which
+     included the drawer: a nav taller than the phone could not be scrolled to
+     its last item. The lock now lives on the scrim, which is the thing that
+     must not scroll. */
 @media (max-width: 1024px) {
   .sidebar {
     position: fixed;
-    top: 0;
-    bottom: 0;
+    inset-block: 0;
     inset-inline-start: 0;
     width: 280px;
+    max-inline-size: 85vw;
     z-index: var(--z-modal, 9999);
-    transform: translateX(100%);
-    transition: transform var(--duration-normal, 0.25s) cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     box-shadow: var(--shadow-xl);
+    /* transform is physical by definition, so the off-canvas direction is
+       stated per writing mode rather than inherited: the drawer is anchored to
+       the inline start, which is the right in Arabic and the left in English,
+       and it hides toward the edge it is anchored to. */
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform var(--duration-normal, 0.25s) cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0s linear var(--duration-normal, 0.25s);
+    padding-block-end: env(safe-area-inset-bottom, 0px);
   }
   [dir="ltr"] .sidebar {
     transform: translateX(-100%);
   }
   .sidebar.mobile-open {
     transform: translateX(0);
+    visibility: visible;
+    transition-delay: 0s;
   }
-  /* A dashboard nav is taller than a phone. Scroll it inside the drawer rather
-     than letting the bottom items fall off the screen unreachable. */
-  .sidebar {
-    max-inline-size: 85vw;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
+
+  /* A drawer is never a rail. */
+  .sidebar.collapsed { width: 280px; max-inline-size: 85vw; }
+  .sidebar.collapsed .sidebar-brand-copy,
+  .sidebar.collapsed .sidebar-section-header,
+  .sidebar.collapsed .sidebar-link span,
+  .sidebar.collapsed .sidebar-brand-name,
+  .sidebar.collapsed .sidebar-brand-subtitle,
+  .sidebar.collapsed .sidebar-logo,
+  .sidebar.collapsed .brand-logo { display: revert; }
+  .sidebar.collapsed .sidebar-link { justify-content: flex-start; }
+
 }
 /* The scrim behind the mobile drawer.
    app.js creates this element and toggles .active on it. It had no base rule at
@@ -174,18 +210,27 @@
   pointer-events: auto;
 }
 
+/* The scrim swallows the gesture. Putting `touch-action: none` here rather
+   than on <body> is what lets the drawer itself still scroll: touch-action
+   intersects down the ancestor chain, and the drawer is a child of body. */
+.sidebar-backdrop.active { touch-action: none; }
+
 /* While the drawer is open the page behind it must not scroll. Without this the
    drawer floats over a page that still moves under the thumb, and closing it
-   leaves the reader somewhere they did not choose to be. */
-body.sidebar-mobile-open {
-  overflow: hidden;
-  touch-action: none;
+   leaves the reader somewhere they did not choose to be.
+   The lock is inside the drawer breakpoint, so a viewport that grows back to
+   desktop with a stale class cannot leave the page frozen. */
+@media (max-width: 1024px) {
+  body.sidebar-mobile-open { overflow: hidden; }
 }
 
-@media (min-width: 1025px) {
-  /* A drawer left open when the viewport grows back to desktop must not keep
-     the page locked. */
-  body.sidebar-mobile-open { overflow: visible; touch-action: auto; }
+/* An off-canvas drawer, a wide table and a long SKU all create horizontal
+   overflow that nothing asked for. `clip` refuses the sideways scroll without
+   creating a scroll container, so `position: sticky` inside the page — the
+   sidebar on desktop, sticky table headers — keeps working. */
+html,
+body {
+  overflow-x: clip;
 }
 
 .sidebar-header {
@@ -821,9 +866,17 @@ html:not([data-theme="dark"]) .logo-dark {
   /* A long unbroken code, SKU or URL is the usual culprit behind a page that
      scrolls sideways. */
   .page-container { overflow-wrap: anywhere; }
-  /* …except where breaking mid-token would be wrong. */
+  /* …except where breaking mid-token would be wrong. A batch number split
+     across two lines is a different batch number to anyone reading it aloud.
+     This rule was truncated mid-selector — selector list, comma, closing
+     brace — so the exception never applied and every code and figure on a
+     phone was breakable at any character. */
   .page-container code,
-  .page-container .tabular-nums,
+  .page-container .font-mono,
+  .page-container .tabular-nums {
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
 }
 
 /* --- Tap highlight -------------------------------------------------------
@@ -832,5 +885,41 @@ html:not([data-theme="dark"]) .logo-dark {
 @media (pointer: coarse) {
   a, button, .btn, [role="button"] {
     -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* --- Tables on a phone ---------------------------------------------------
+   A `width: 100%` table with automatic layout does not scroll when it is too
+   wide; it compresses. Every column shrinks to its minimum content width and
+   the cells wrap, so a seven-column order table at 360px comes out as rows of
+   one- and two-character lines several centimetres tall — legible to nobody
+   and impossible to compare across.
+
+   `width: max-content` lets the table be as wide as its content actually
+   needs, and `min-width: 100%` keeps a two-column table filling the card. The
+   container already scrolls; this is what gives it something to scroll. */
+@media (max-width: 768px) {
+  .table-container .data-table,
+  .table-container > table {
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
+  /* The scrollbar is the affordance. Hiding it — which several containers on
+     this platform did — leaves no sign at all that a table continues past the
+     edge, so it stays visible here and is given a colour that reads on both
+     themes. */
+  .table-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+}
+
+/* --- Safe areas ----------------------------------------------------------
+   A phone with a home indicator or a notch puts real hardware over the last
+   few millimetres of the viewport. Anything pinned to an edge has to sit
+   inside the inset or it is partly untappable. */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .courier-mobile-bottom-bar {
+    padding-block-end: max(var(--space-sm), env(safe-area-inset-bottom));
   }
 }

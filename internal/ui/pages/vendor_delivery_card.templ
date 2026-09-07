@@ -70,8 +70,8 @@ func deliveryWaitingLabel(sh *commerce.OrderShipment) string {
 }
 
 templ VendorDeliveryParcelCard(sh *commerce.OrderShipment, data VendorDeliveryData, lang string) {
-	<div class="glass-panel p-5">
-		<div class="flex-between items-start flex-wrap gap-4">
+	<div class="glass-panel p-5 delivery-card">
+		<div class="delivery-card-top">
 			<div class="stack-sm min-w-0">
 				<div class="d-flex items-center gap-2 flex-wrap">
 					<a
@@ -125,8 +125,8 @@ templ VendorDeliveryParcelCard(sh *commerce.OrderShipment, data VendorDeliveryDa
 				</div>
 			</div>
 
-			<div class="d-flex items-center gap-4 flex-wrap">
-				<div class="text-end">
+			<div class="delivery-card-side">
+				<div class="delivery-card-money">
 					<span class="text-xs text-muted d-block font-bold">
 						@DeliveryCollectLabel(sh)
 					</span>
@@ -137,13 +137,17 @@ templ VendorDeliveryParcelCard(sh *commerce.OrderShipment, data VendorDeliveryDa
 
 				<a
 					href={ templ.SafeURL(fmt.Sprintf("/vendor/delivery/%d", sh.ID)) }
-					class="btn btn-primary btn-sm font-black text-xs gap-1.5"
+					class="btn btn-primary btn-sm font-black text-xs gap-1.5 delivery-card-open"
 				>
 					@components.IconTruck("icon-2xs")
 					<span>فتح الطرد</span>
 				</a>
 			</div>
 		</div>
+
+		if !sh.IsClosed() {
+			@deliveryCardQuickActions(sh)
+		}
 
 		if data.CanAssign {
 			<div class="mt-4 pt-4 border-t">
@@ -193,5 +197,39 @@ templ DeliveryStatusBadge(status commerce.OrderStatus) {
 			<span class="badge badge-rose text-xs font-black">ملغاة</span>
 		default:
 			<span class="badge badge-slate text-xs font-black">{ string(status) }</span>
+	}
+}
+
+// deliveryCardQuickActions puts the two things a courier does from a list —
+// ring the door and start driving — on the card itself.
+//
+// They were one tap away on the parcel screen, which sounds close until you
+// are holding a phone in one hand at a junction. Nothing here changes state,
+// so there is no confirmation to get wrong; the actions that do change state
+// stay behind "فتح الطرد".
+templ deliveryCardQuickActions(sh *commerce.OrderShipment) {
+	if sh.CustomerBranchPhone != "" || sh.BranchLocationURL() != "" {
+		<div class="delivery-card-quick">
+			if loc := sh.BranchLocationURL(); loc != "" {
+				<a
+					href={ templ.SafeURL(loc) }
+					target="_blank"
+					rel="noopener"
+					class="btn btn-secondary btn-sm font-bold text-2xs gap-1.5 delivery-quick-btn"
+				>
+					@components.IconLocation("icon-3xs")
+					<span>الاتجاهات</span>
+				</a>
+			}
+			if sh.CustomerBranchPhone != "" {
+				<a
+					href={ templ.SafeURL("tel:" + sh.CustomerBranchPhone) }
+					class="btn btn-secondary btn-sm font-bold text-2xs gap-1.5 delivery-quick-btn"
+				>
+					@components.IconPhone("icon-3xs")
+					<span>اتصال بالصيدلية</span>
+				</a>
+			}
+		</div>
 	}
 }

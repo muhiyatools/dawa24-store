@@ -97,6 +97,21 @@ func (h *UIHandler) VendorDeliveryPortalPage(w http.ResponseWriter, r *http.Requ
 		NoticeMsg:  noticeMsg,
 	}
 
+	// The round, for the header banner. It is planned only when the caller is
+	// actually carrying something — a dispatcher who delivers nothing should
+	// not pay for a routing query on every page view — and a failure to plan
+	// it is not a failure of the board: the banner falls back to an invitation
+	// without numbers rather than taking the whole page down.
+	if counts.Mine > 0 {
+		if route, rErr := h.commSvc.PlanCourierRoute(ctx, actor.OrganizationID, actor.UserID,
+			h.warehouseOrigin(ctx, actor)); rErr == nil {
+			data.Route = route
+		} else {
+			h.log.WarnContext(ctx, "delivery board: route summary unavailable",
+				"error", rErr, "user_id", actor.UserID)
+		}
+	}
+
 	// The two dispatcher-only panels: who is carrying what, and who may be
 	// handed something. They are read only for the caller who can act on them.
 	if canAssign {

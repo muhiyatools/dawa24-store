@@ -862,9 +862,13 @@
       display: block;
       position: fixed;
       inset: 0;
+      /* A dim, not a blur. Blurring a full-screen scrim forces the compositor
+         to re-rasterise everything behind it on every frame of the sheet's
+         entrance, which on the mid-range Android this platform targets is the
+         difference between a sheet that slides and one that jumps. The scrim's
+         job is to say "the page behind is not the thing you are using", and an
+         opacity does that. */
       background: var(--bg-overlay, rgba(15, 23, 42, 0.55));
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
       z-index: calc(var(--z-modal, 500) - 1);
     }
 

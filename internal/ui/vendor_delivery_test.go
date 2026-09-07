@@ -17,6 +17,10 @@ import (
 type courierMockCommerceRepo struct {
 	commerce.Repository
 	shipment *commerce.OrderShipment
+	// round, when set, is the caller's whole open queue. The single-shipment
+	// field answers "is this parcel mine"; the route screen needs several
+	// parcels at different places, which is a different question.
+	round []*commerce.OrderShipment
 }
 
 func (m *courierMockCommerceRepo) GetOrCreateCart(_ context.Context, _ int64) (*commerce.Cart, error) {
@@ -199,6 +203,9 @@ func (m *courierMockCommerceRepo) AssignShipmentCourier(_ context.Context, shipm
 // ListCourierQueue reproduces the four predicates the SQL applies, so a test
 // that asks for the wrong queue gets the wrong answer here too.
 func (m *courierMockCommerceRepo) ListCourierQueue(_ context.Context, f commerce.CourierQueueFilter) ([]*commerce.OrderShipment, int, error) {
+	if len(m.round) > 0 && f.Queue == commerce.CourierQueueMine && f.CourierUserID == assignedCourierID {
+		return m.round, len(m.round), nil
+	}
 	if m.shipment == nil || m.shipment.OrganizationID != f.VendorOrgID {
 		return nil, 0, nil
 	}
@@ -226,6 +233,11 @@ func (m *courierMockCommerceRepo) ListCourierQueue(_ context.Context, f commerce
 
 func (m *courierMockCommerceRepo) CourierQueueCounts(_ context.Context, _, courierUserID int64) (commerce.CourierQueueCounts, error) {
 	var c commerce.CourierQueueCounts
+	if len(m.round) > 0 && courierUserID == assignedCourierID {
+		c.Mine = len(m.round)
+		c.All = len(m.round)
+		return c, nil
+	}
 	if m.shipment == nil {
 		return c, nil
 	}

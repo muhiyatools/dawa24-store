@@ -20,6 +20,21 @@
     height: 100%;
   }
 
+  /* Writing direction comes from <html dir>, which the document shell always
+     emits, and from nothing else.
+     `direction: rtl` used to be pinned here on <body>. An author declaration
+     beats the presentational hint that `dir="ltr"` sets, so every English page
+     on the platform rendered its body in RTL while its <html> element claimed
+     LTR: text aligned to the wrong edge, every logical property — padding-
+     inline, inset-inline, border-inline — resolved to the wrong side, and the
+     mobile drawer was anchored to the right while the rule that hides it slid
+     it to the left, which left it half on screen.
+     The fallback below is scoped to a document with no dir attribute at all,
+     so it cannot override one that is present. */
+  html:not([dir]) {
+    direction: rtl;
+  }
+
   body {
     font-family: var(--font-sans);
     font-size: var(--text-base);
@@ -27,7 +42,6 @@
     color: var(--text-primary);
     background-color: var(--bg-app);
     min-height: 100%;
-    direction: rtl;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

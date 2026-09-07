@@ -35,9 +35,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 								<span class="sidebar-brand-subtitle">بوابة الصيدلية المعتمدة</span>
 							</div>
 						</a>
-					<button type="button" class="sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
-						@components.IconSidebarToggle("icon-xs")
-					</button>
+					@SidebarHeaderControls()
 				</div>
 
 				@SidebarNav(rbac.ScopePharmacy, activeNav, lang)

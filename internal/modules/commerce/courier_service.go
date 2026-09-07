@@ -189,3 +189,39 @@ func (s *Service) CompleteCourierDelivery(
 		"order_id", shipment.OrderID, "courier_user_id", courierUserID)
 	return completed, nil
 }
+
+// routePlanLimit caps how many parcels one plan considers.
+//
+// The repository refuses a page larger than this, and it is far beyond a real
+// round: a courier carrying a hundred parcels has a dispatch problem, not a
+// routing one. Reading a bounded page rather than "everything" is what keeps
+// one courier's bad day from becoming a slow query for the whole supplier.
+const routePlanLimit = 100
+
+// PlanCourierRoute orders the caller's open round into a journey.
+//
+// origin is the courier's live position when the browser gave one and the
+// warehouse otherwise; an unset origin is not an error, it produces an
+// unordered plan the screen labels as such. The parcels are the same rows the
+// "طرودي الجارية" tab reads, so a courier cannot be routed to something their
+// board does not show them.
+func (s *Service) PlanCourierRoute(
+	ctx context.Context,
+	vendorOrgID, courierUserID int64,
+	origin GeoPoint,
+) (*CourierRoute, error) {
+	if vendorOrgID <= 0 || courierUserID <= 0 {
+		return nil, apperr.Validation("delivery.route_actor_required",
+			"A supplier and a delivery representative are both required to plan a route.", nil)
+	}
+	shipments, _, err := s.repo.ListCourierQueue(ctx, CourierQueueFilter{
+		VendorOrgID:   vendorOrgID,
+		CourierUserID: courierUserID,
+		Queue:         CourierQueueMine,
+		Limit:         routePlanLimit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return BuildCourierRoute(origin, shipments), nil
+}
