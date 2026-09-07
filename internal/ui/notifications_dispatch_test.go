@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -138,3 +140,131 @@ func TestNotificationsDispatch_Comprehensive(t *testing.T) {
 	// Confirm that in-app notification logs were created without errors
 	assert.Greater(t, len(nRepo.logs), 5)
 }
+
+type mockOrgRepoForNotifs struct {
+	org.Repository
+	members []*org.Member
+}
+
+func (m *mockOrgRepoForNotifs) ListMembersByOrg(_ context.Context, orgID int64) ([]*org.Member, error) {
+	var res []*org.Member
+	for _, mem := range m.members {
+		if mem.OrganizationID == orgID {
+			res = append(res, mem)
+		}
+	}
+	return res, nil
+}
+
+func TestCourierNotificationExclusionAndIsolation(t *testing.T) {
+	ctx := context.Background()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	nRepo := &mockNotifRepo{logs: make([]*notifications.NotificationLog, 0)}
+	notifSvc := notifications.NewService(nRepo, logger)
+
+	orgID := int64(200)
+	courierUser := int64(27)
+	managerUser := int64(28)
+
+	orgRepo := &mockOrgRepoForNotifs{
+		members: []*org.Member{
+			{
+				ID:             1,
+				OrganizationID: orgID,
+				UserID:         courierUser,
+				RoleKey:        "org_courier",
+				IsActive:       true,
+			},
+			{
+				ID:             2,
+				OrganizationID: orgID,
+				UserID:         managerUser,
+				RoleKey:        "org_manager",
+				IsActive:       true,
+			},
+		},
+	}
+	orgSvc := org.NewService(orgRepo, logger)
+
+	handler := &UIHandler{
+		notifSvc: notifSvc,
+		orgSvc:   orgSvc,
+		log:      logger,
+	}
+
+	// 1. Dispatch supply order notification to the organization (vendor.order.view)
+	handler.dispatchOrgNotification(ctx, orgID, "vendor.order.view", "طلب توريد جديد #ORD-9999", "تم استلام طلب توريد جديد بقيمة 50,000 ج.م")
+
+	// Courier must NOT have received any notification!
+	for _, l := range nRepo.logs {
+		assert.NotEqual(t, courierUser, l.UserID, "Courier must NEVER receive vendor supply order notifications!")
+	}
+	// Manager DID receive it
+	var managerLogs []*notifications.NotificationLog
+	for _, l := range nRepo.logs {
+		if l.UserID == managerUser {
+			managerLogs = append(managerLogs, l)
+		}
+	}
+	assert.NotEmpty(t, managerLogs, "Manager must receive vendor order notification")
+	assert.Equal(t, "vendor.order.view", managerLogs[0].RequiredPermission)
+
+	// 2. Dispatch parcel delivery notification to the organization (vendor.delivery.view)
+	nRepo.logs = nil
+	handler.dispatchOrgNotification(ctx, orgID, "vendor.delivery.view", "طرد جديد بانتظار التوصيل", "تم تفويض طرد جديد للتوصيل")
+
+	var courierLogs []*notifications.NotificationLog
+	for _, l := range nRepo.logs {
+		if l.UserID == courierUser {
+			courierLogs = append(courierLogs, l)
+		}
+	}
+	assert.NotEmpty(t, courierLogs, "Courier MUST receive parcel delivery notification")
+	assert.Equal(t, "vendor.delivery.view", courierLogs[0].RequiredPermission)
+
+	// 3. Test filterNotificationsForActor for Courier Actor
+	courierActor := authctx.Actor{
+		UserID:         courierUser,
+		OrganizationID: orgID,
+		OrgType:        "vendor",
+		Role:           "org_courier",
+		Permissions:    []string{"vendor.delivery.view"},
+	}
+
+	mixedLogs := []*notifications.NotificationLog{
+		{
+			ID:                 101,
+			UserID:             courierUser,
+			Title:              "طلب توريد جديد #2721",
+			Body:               "طلب توريد لصيدلية الشفاء بقيمة 20,000 ج.م",
+			RequiredPermission: "vendor.order.view",
+		},
+		{
+			ID:                 102,
+			UserID:             courierUser,
+			Title:              "طلب شحن رصيد معلق",
+			Body:               "طلب إيداع بمبلغ 15,000 ج.م في انتظار المراجعة",
+			RequiredPermission: "vendor.wallet.view",
+		},
+		{
+			ID:                 103,
+			UserID:             courierUser,
+			Title:              "طلب توريد قديم بدون تصريح مسجل",
+			Body:               "طلب توريد قديم",
+			RequiredPermission: "", // Unclassified old row
+		},
+		{
+			ID:                 104,
+			UserID:             courierUser,
+			Title:              "طرد جديد بانتظار التوصيل",
+			Body:               "تم تعيينك لتوصيل طرد صيدلية الدواء",
+			RequiredPermission: "vendor.delivery.view",
+		},
+	}
+
+	filtered := filterNotificationsForActor(courierActor, mixedLogs)
+	assert.Len(t, filtered, 1, "Only the parcel delivery notification should pass the courier filter")
+	assert.Equal(t, int64(104), filtered[0].ID)
+	assert.Equal(t, "vendor.delivery.view", filtered[0].RequiredPermission)
+}
+

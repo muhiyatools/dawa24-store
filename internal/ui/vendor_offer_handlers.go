@@ -273,7 +273,7 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	go h.dispatchInAppNotification(context.Background(), actor.UserID, &actor.OrganizationID,
+	go h.dispatchInAppNotification(context.Background(), actor.UserID, &actor.OrganizationID, "vendor.offer.view",
 		i18n.T(lang, "vendor.offer.created_notification_title"),
 		fmt.Sprintf(i18n.T(lang, "vendor.offer.created_notification_body"), in.TitleAr))
 

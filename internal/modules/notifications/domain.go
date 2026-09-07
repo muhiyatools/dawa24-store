@@ -45,20 +45,21 @@ type Template struct {
 
 // NotificationLog is a dispatched notification record.
 type NotificationLog struct {
-	ID             int64          `json:"id"`
-	PublicID       string         `json:"public_id"`
-	UserID         int64          `json:"user_id"`
-	OrganizationID *int64         `json:"organization_id,omitempty"`
-	Channel        Channel        `json:"channel"`
-	Recipient      string         `json:"recipient"`
-	Title          string         `json:"title"`
-	Body           string         `json:"body"`
-	Status         DeliveryStatus `json:"status"`
-	ErrorMessage   string         `json:"error_message,omitempty"`
-	IsRead         bool           `json:"is_read"`
-	ReadAt         *time.Time     `json:"read_at,omitempty"`
-	SentAt         *time.Time     `json:"sent_at,omitempty"`
-	CreatedAt      time.Time      `json:"created_at"`
+	ID                 int64          `json:"id"`
+	PublicID           string         `json:"public_id"`
+	UserID             int64          `json:"user_id"`
+	OrganizationID     *int64         `json:"organization_id,omitempty"`
+	Channel            Channel        `json:"channel"`
+	Recipient          string         `json:"recipient"`
+	Title              string         `json:"title"`
+	Body               string         `json:"body"`
+	RequiredPermission string         `json:"required_permission,omitempty"`
+	Status             DeliveryStatus `json:"status"`
+	ErrorMessage       string         `json:"error_message,omitempty"`
+	IsRead             bool           `json:"is_read"`
+	ReadAt             *time.Time     `json:"read_at,omitempty"`
+	SentAt             *time.Time     `json:"sent_at,omitempty"`
+	CreatedAt          time.Time      `json:"created_at"`
 }
 
 // InterpolateTemplate replaces {variable} tokens in text templates.

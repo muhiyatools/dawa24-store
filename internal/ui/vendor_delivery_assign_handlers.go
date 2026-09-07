@@ -148,7 +148,7 @@ func (h *UIHandler) notifyCourierAssigned(ctx context.Context, shipment *commerc
 	if pharmacy == "" {
 		pharmacy = shipment.CustomerOrgName.Get(i18n.EN)
 	}
-	go h.dispatchInAppNotification(context.WithoutCancel(ctx), courierUserID, nil,
+	go h.dispatchInAppNotification(context.WithoutCancel(ctx), courierUserID, nil, "vendor.delivery.view",
 		fmt.Sprintf(i18n.TDefault("vendor.delivery.courier_notif_title"), shipment.ShipmentNumber),
 		fmt.Sprintf(i18n.TDefault("vendor.delivery.courier_notif_body"), shipment.ShipmentNumber, pharmacy),
 	)
@@ -190,11 +190,11 @@ func (h *UIHandler) notifyDeliveryCompleted(ctx context.Context, shipment *comme
 	notifyCtx := context.WithoutCancel(ctx)
 	vendorOrg := orgID
 
-	go h.dispatchInAppNotification(notifyCtx, order.CustomerID, nil,
+	go h.dispatchInAppNotification(notifyCtx, order.CustomerID, nil, "pharmacy.order.view",
 		fmt.Sprintf(i18n.TDefault("courier.customer_notif_title"), shipment.ShipmentNumber),
 		fmt.Sprintf(i18n.TDefault("courier.customer_notif_body"), orderNum, vendorName),
 	)
-	go h.dispatchInAppNotification(notifyCtx, 0, &vendorOrg,
+	go h.dispatchOrgNotification(notifyCtx, vendorOrg, "vendor.delivery.view",
 		fmt.Sprintf(i18n.TDefault("courier.vendor_notif_title"), shipment.ShipmentNumber),
 		fmt.Sprintf(i18n.TDefault("courier.vendor_notif_body"), shipment.ShipmentNumber),
 	)

@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
@@ -40,15 +41,39 @@ func (r *Repository) MarkAllAsRead(ctx context.Context, userID int64) (int64, er
 func (r *Repository) ListUnread(ctx context.Context, userID int64, limit, offset int) ([]*notifications.NotificationLog, error) {
 	var list []*notifications.NotificationLog
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT id, public_id, user_id, organization_id, channel, recipient, title, body,
-			       status, error_message, is_read, read_at, sent_at, created_at
-			FROM notifications.logs
-			WHERE user_id = $1 AND is_read = false
-			ORDER BY created_at DESC, id DESC
-			LIMIT $2 OFFSET $3;
-		`
-		rows, err := tx.Query(txCtx, query, userID, limit, offset)
+		if limit <= 0 || limit > 100 {
+			limit = 20
+		}
+
+		actor, hasActor := authctx.From(ctx)
+		isPrivileged := hasActor && (actor.IsStaff || actor.IsOwner || actor.Can("*") || (actor.UserID != userID && actor.IsStaff))
+
+		var query string
+		var rows pgx.Rows
+		var err error
+
+		if hasActor && !isPrivileged && actor.UserID == userID {
+			query = `
+				SELECT id, public_id, user_id, organization_id, channel, recipient, title, body,
+				       required_permission, status, error_message, is_read, read_at, sent_at, created_at
+				FROM notifications.logs
+				WHERE user_id = $1 AND is_read = false
+				  AND (required_permission = '' OR required_permission = ANY($2))
+				ORDER BY created_at DESC, id DESC
+				LIMIT $3 OFFSET $4;
+			`
+			rows, err = tx.Query(txCtx, query, userID, actor.Permissions, limit, offset)
+		} else {
+			query = `
+				SELECT id, public_id, user_id, organization_id, channel, recipient, title, body,
+				       required_permission, status, error_message, is_read, read_at, sent_at, created_at
+				FROM notifications.logs
+				WHERE user_id = $1 AND is_read = false
+				ORDER BY created_at DESC, id DESC
+				LIMIT $2 OFFSET $3;
+			`
+			rows, err = tx.Query(txCtx, query, userID, limit, offset)
+		}
 		if err != nil {
 			return err
 		}
@@ -56,12 +81,19 @@ func (r *Repository) ListUnread(ctx context.Context, userID int64, limit, offset
 
 		for rows.Next() {
 			var n notifications.NotificationLog
+			var chStr, statusStr string
+			var errMsg *string
 			if err := rows.Scan(
-				&n.ID, &n.PublicID, &n.UserID, &n.OrganizationID, &n.Channel,
-				&n.Recipient, &n.Title, &n.Body, &n.Status, &n.ErrorMessage,
+				&n.ID, &n.PublicID, &n.UserID, &n.OrganizationID, &chStr,
+				&n.Recipient, &n.Title, &n.Body, &n.RequiredPermission, &statusStr, &errMsg,
 				&n.IsRead, &n.ReadAt, &n.SentAt, &n.CreatedAt,
 			); err != nil {
 				return err
+			}
+			n.Channel = notifications.Channel(chStr)
+			n.Status = notifications.DeliveryStatus(statusStr)
+			if errMsg != nil {
+				n.ErrorMessage = *errMsg
 			}
 			list = append(list, &n)
 		}
@@ -72,3 +104,4 @@ func (r *Repository) ListUnread(ctx context.Context, userID int64, limit, offset
 	}
 	return list, nil
 }
+

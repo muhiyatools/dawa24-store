@@ -224,7 +224,7 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 		notifLang := langOf(r)
 		for _, sh := range updatedOrder.Shipments {
 			if sh != nil && sh.OrganizationID > 0 {
-				go h.dispatchOrgNotification(context.Background(), sh.OrganizationID,
+				go h.dispatchOrgNotification(context.Background(), sh.OrganizationID, "vendor.order.view",
 					fmt.Sprintf(i18n.T(notifLang, "customer.order.edit_notification_title"), orderNum),
 					fmt.Sprintf(i18n.T(notifLang, "customer.order.edit_notification_body"), pharmacyName, orderNum, updatedOrder.TotalAmount.String()))
 			}

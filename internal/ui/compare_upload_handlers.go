@@ -145,9 +145,6 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// this upload already does.
 	fileHeaders, quotaSkipped := trimToPlanQuota(fileHeaders, maxAllowedFiles, lang)
 
-	// What this batch replaces, recorded before a single new file exists.
-	previousIDs := h.activeCompareFileIDs(ctx, actor.UserID, orgPtr)
-
 	type fileItem struct {
 		index        int
 		filename     string
@@ -233,14 +230,10 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// 2. The previous generation is NOT archived here. It is archived once this
-	// batch has been staged successfully, at the end of this handler, so that a
-	// batch of unreadable workbooks leaves the vendor's working set intact.
-	batchArchived, roomErr := h.compareSvc.MakeRoomForFiles(ctx, actor.UserID, orgPtr, len(validItems))
-	if roomErr != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(roomErr, lang))
-		return
-	}
+	// 2. Identify the exact oldest files to supersede only if incoming items exceed
+	// remaining space under the subscription limit. If space remains, no files
+	// will be archived. Actual archiving is deferred until this batch stages successfully.
+	previousIDs := h.supersededFileIDs(ctx, actor.UserID, orgPtr, len(validItems), maxAllowedFiles)
 
 	// 3. Process valid files with bounded parallel concurrency.
 	results := make([]fileResult, len(validItems))
@@ -296,7 +289,6 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// 4. Aggregate results
 	var processedCount int
 	var totalRows int
-	allArchived := batchArchived
 	var uploadedIDs []string
 	var stagedIDs []int64
 
@@ -310,7 +302,6 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		if res.file != nil {
 			processedCount++
 			totalRows += res.file.RowCount
-			allArchived = append(allArchived, res.archived...)
 			uploadedIDs = append(uploadedIDs, strconv.FormatInt(res.file.ID, 10))
 			stagedIDs = append(stagedIDs, res.file.ID)
 		}
@@ -336,7 +327,6 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		msg += fmt.Sprintf(i18n.T(lang, "compare.upload.replace_pending"), len(previousIDs))
 	}
 	_ = totalRows
-	_ = allArchived
 	firstID := uploadedIDs[0]
 	queueStr := strings.Join(uploadedIDs, ",")
 	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))

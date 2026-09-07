@@ -21,7 +21,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui"
 )
 
-func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
+// TestCompareTool_BulkUpload_WhenSpaceAvailable_NoFilesArchived verifies that when
+// the user holds 8 files on a 10-file plan and uploads 2 new files (8 + 2 = 10 <= 10),
+// all existing 8 files are kept intact without archiving any files.
+func TestCompareTool_BulkUpload_WhenSpaceAvailable_NoFilesArchived(t *testing.T) {
 	mockRepo := newMockBulkCompareRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	compareSvc := compare.NewService(mockRepo, logger)
@@ -47,52 +50,33 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 
 	ctx := context.Background()
 
-	// 1. Pre-seed 3 active compare files from an earlier session
-	file1 := &compare.CompareFile{
-		UserID:           userID,
-		OrganizationID:   &orgID,
-		SupplierName:     "المتحدة للتوزيع القديمة",
-		OriginalFilename: "united_old.xlsx",
-		Status:           compare.FileReady,
-		RowCount:         50,
-		CreatedAt:        time.Now().Add(-48 * time.Hour),
-		UpdatedAt:        time.Now().Add(-48 * time.Hour),
+	// 1. Pre-seed 8 active files (space available: 10 - 8 = 2)
+	seededFiles := make([]*compare.CompareFile, 8)
+	for i := 0; i < 8; i++ {
+		seededFiles[i] = &compare.CompareFile{
+			UserID:           userID,
+			OrganizationID:   &orgID,
+			SupplierName:     fmt.Sprintf("المورد رقم %d", i+1),
+			OriginalFilename: fmt.Sprintf("supplier_%d.xlsx", i+1),
+			Status:           compare.FileReady,
+			RowCount:         50,
+			CreatedAt:        time.Now().Add(time.Duration(-(80 - i*10)) * time.Hour),
+			UpdatedAt:        time.Now().Add(time.Duration(-(80 - i*10)) * time.Hour),
+		}
+		_ = mockRepo.CreateFile(ctx, seededFiles[i])
 	}
-	file2 := &compare.CompareFile{
-		UserID:           userID,
-		OrganizationID:   &orgID,
-		SupplierName:     "ابن سينا القديمة",
-		OriginalFilename: "ibnsina_old.xlsx",
-		Status:           compare.FileReady,
-		RowCount:         40,
-		CreatedAt:        time.Now().Add(-24 * time.Hour),
-		UpdatedAt:        time.Now().Add(-24 * time.Hour),
-	}
-	file3 := &compare.CompareFile{
-		UserID:           userID,
-		OrganizationID:   &orgID,
-		SupplierName:     "فارما أوفرسيز القديمة",
-		OriginalFilename: "overseas_old.xlsx",
-		Status:           compare.FileReady,
-		RowCount:         30,
-		CreatedAt:        time.Now().Add(-12 * time.Hour),
-		UpdatedAt:        time.Now().Add(-12 * time.Hour),
-	}
-	_ = mockRepo.CreateFile(ctx, file1)
-	_ = mockRepo.CreateFile(ctx, file2)
-	_ = mockRepo.CreateFile(ctx, file3)
 
 	activeBefore, _ := mockRepo.CountActiveFiles(ctx, userID, &orgID)
-	if activeBefore != 3 {
-		t.Fatalf("expected 3 active files before upload, got %d", activeBefore)
+	if activeBefore != 8 {
+		t.Fatalf("expected 8 active files before upload, got %d", activeBefore)
 	}
 
-	// 2. Perform bulk upload of 2 new supplier files
+	// 2. Upload 2 new supplier files (8 + 2 = 10 <= 10) -> fits without archiving
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	p1, _ := writer.CreateFormFile("compare_files", "united_new_prices.csv")
+	p1, _ := writer.CreateFormFile("compare_files", "new_supplier_1.csv")
 	_, _ = p1.Write([]byte("كود,اسم,سعر,خصم\n101,بنادول,50.0,15.0\n"))
-	p2, _ := writer.CreateFormFile("compare_files", "ibnsina_new_prices.csv")
+	p2, _ := writer.CreateFormFile("compare_files", "new_supplier_2.csv")
 	_, _ = p2.Write([]byte("كود,اسم,سعر,خصم\n102,كونجستال,35.0,20.0\n"))
 	_ = writer.Close()
 
@@ -111,37 +95,133 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 	if !strings.Contains(loc, "notice=success") {
 		t.Fatalf("expected success redirect, got %s", loc)
 	}
-	// Verify notice mentions auto-archiving previous files
+	// Verify notice does NOT mention auto-archiving because space was available
+	if strings.Contains(loc, url.QueryEscape("أرشفة")) {
+		t.Errorf("notice must NOT mention auto-archiving when space is available, got %s", loc)
+	}
+
+	// Allow background workers to settle
+	time.Sleep(1500 * time.Millisecond)
+
+	// Verify all 8 original files remain active
+	for i, f := range seededFiles {
+		cur, err := mockRepo.GetFileByID(ctx, f.ID)
+		if err != nil || cur.Status == compare.FileArchived {
+			t.Errorf("expected file %d (%s) to remain active, got status=%s", i+1, f.SupplierName, cur.Status)
+		}
+	}
+
+	activeAfter, _ := mockRepo.CountActiveFiles(ctx, userID, &orgID)
+	if activeAfter != 10 {
+		t.Fatalf("expected total 10 active files (8 old + 2 new), got %d", activeAfter)
+	}
+}
+
+// TestCompareTool_BulkUpload_WhenSpaceExceeded_ArchivesOnlyExactOldestOverflow verifies
+// that when a user holds 8 files on a 10-file plan and uploads 3 files (8 + 3 = 11 > 10,
+// only 2 spaces available), the system archives ONLY the single oldest file (overflow = 1),
+// leaving the other 7 files active.
+func TestCompareTool_BulkUpload_WhenSpaceExceeded_ArchivesOnlyExactOldestOverflow(t *testing.T) {
+	mockRepo := newMockBulkCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	compareSvc := compare.NewService(mockRepo, logger)
+
+	handler := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+	handler.SetCompareService(compareSvc)
+
+	r := chi.NewRouter()
+	handler.RegisterPublicRoutes(r)
+	handler.RegisterAdminRoutes(r)
+
+	userID := int64(99)
+	orgID := int64(199)
+	actor := authctx.Actor{
+		UserID:         userID,
+		OrganizationID: orgID,
+		OrgType:        "vendor",
+		Role:           "vendor",
+		Permissions:    []string{"compare.view", "compare.upload"},
+	}
+
+	ctx := context.Background()
+
+	// 1. Pre-seed 8 active files with file 0 being the oldest (-80h) and file 7 the newest (-10h)
+	seededFiles := make([]*compare.CompareFile, 8)
+	for i := 0; i < 8; i++ {
+		seededFiles[i] = &compare.CompareFile{
+			UserID:           userID,
+			OrganizationID:   &orgID,
+			SupplierName:     fmt.Sprintf("مورد قديم %d", i+1),
+			OriginalFilename: fmt.Sprintf("old_supplier_%d.xlsx", i+1),
+			Status:           compare.FileReady,
+			RowCount:         50,
+			CreatedAt:        time.Now().Add(time.Duration(-(80 - i*10)) * time.Hour),
+			UpdatedAt:        time.Now().Add(time.Duration(-(80 - i*10)) * time.Hour),
+		}
+		_ = mockRepo.CreateFile(ctx, seededFiles[i])
+	}
+
+	oldestFile := seededFiles[0] // مورد قديم 1 (-80h)
+
+	// 2. Upload 3 new files (8 + 3 = 11 > 10) -> exactly 1 oldest file must be archived
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	p1, _ := writer.CreateFormFile("compare_files", "batch_new_1.csv")
+	_, _ = p1.Write([]byte("كود,اسم,سعر,خصم\n101,بنادول,50.0,15.0\n"))
+	p2, _ := writer.CreateFormFile("compare_files", "batch_new_2.csv")
+	_, _ = p2.Write([]byte("كود,اسم,سعر,خصم\n102,كونجستال,35.0,20.0\n"))
+	p3, _ := writer.CreateFormFile("compare_files", "batch_new_3.csv")
+	_, _ = p3.Write([]byte("كود,اسم,سعر,خصم\n103,أوجمنتين,70.0,10.0\n"))
+	_ = writer.Close()
+
+	req := httptest.NewRequest(http.MethodPost, "/compare/upload", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req = req.WithContext(authctx.WithActor(req.Context(), actor))
+
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusSeeOther {
+		t.Fatalf("expected redirect 303 on upload, got %d. Body: %s", rec.Code, rec.Body.String())
+	}
+
+	loc := rec.Header().Get("Location")
+	if !strings.Contains(loc, "notice=success") {
+		t.Fatalf("expected success redirect, got %s", loc)
+	}
+	// Verify notice mentions archiving exactly 1 file
 	if !strings.Contains(loc, url.QueryEscape("أرشفة")) {
 		t.Errorf("expected redirect message to mention auto-archiving, got %s", loc)
 	}
 
-	// 3. The old files are archived once the NEW batch has been staged, not on
-	//    the way in: a batch of unreadable workbooks must leave the vendor's
-	//    working set alone. Staging is detached from the request, so wait for
-	//    the replacement the response promised.
-	waitForArchived(t, mockRepo, file1.ID, file2.ID, file3.ID)
+	// 3. Wait for the oldest file to be archived by the replacement supervisor
+	waitForArchived(t, mockRepo, oldestFile.ID)
 
-	f1, _ := mockRepo.GetFileByID(ctx, file1.ID)
-	f2, _ := mockRepo.GetFileByID(ctx, file2.ID)
-	f3, _ := mockRepo.GetFileByID(ctx, file3.ID)
-
-	if f1.Status != compare.FileArchived || f1.ArchivedAt == nil || f1.ArchiveReason == "" {
-		t.Errorf("expected file 1 to be archived with timestamp and reason, got status=%s, reason=%s", f1.Status, f1.ArchiveReason)
+	fOld, _ := mockRepo.GetFileByID(ctx, oldestFile.ID)
+	if fOld.Status != compare.FileArchived || fOld.ArchivedAt == nil || fOld.ArchiveReason == "" {
+		t.Errorf("expected oldest file 1 to be archived with timestamp and reason, got status=%s", fOld.Status)
 	}
-	if f2.Status != compare.FileArchived || f2.ArchivedAt == nil || f2.ArchiveReason == "" {
-		t.Errorf("expected file 2 to be archived with timestamp and reason, got status=%s, reason=%s", f2.Status, f2.ArchiveReason)
-	}
-	if f3.Status != compare.FileArchived || f3.ArchivedAt == nil || f3.ArchiveReason == "" {
-		t.Errorf("expected file 3 to be archived with timestamp and reason, got status=%s, reason=%s", f3.Status, f3.ArchiveReason)
+	if fOld.DeletedAt != nil {
+		t.Errorf("archived file must not be deleted from database")
 	}
 
-	// Verify old files were NOT deleted (DeletedAt must be nil)
-	if f1.DeletedAt != nil || f2.DeletedAt != nil || f3.DeletedAt != nil {
-		t.Errorf("archived files must not be deleted from database")
+	// Verify that the other 7 seeded files (seededFiles[1..7]) are NOT archived!
+	for i := 1; i < 8; i++ {
+		f, _ := mockRepo.GetFileByID(ctx, seededFiles[i].ID)
+		if f.Status == compare.FileArchived {
+			t.Errorf("file %d (%s) should NOT be archived; only the single oldest file should be archived", i+1, f.SupplierName)
+		}
 	}
 
-	// 4. Verify Super Admin can view these archived files normally
+	// Total active count must be 10 (7 old + 3 new)
+	activeAfter, _ := mockRepo.CountActiveFiles(ctx, userID, &orgID)
+	if activeAfter != 10 {
+		t.Fatalf("expected 10 active files after replacement, got %d", activeAfter)
+	}
+
+	// 4. Verify Super Admin can view the archived file in temporary warehouses with archive filter
 	adminActor := authctx.Actor{
 		UserID:      1,
 		Email:       "superadmin@dawa24.com",
@@ -151,7 +231,6 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 		Permissions: []string{"*"},
 	}
 
-	// Super Admin GET /admin/user/temparte-warehouses?status=archived
 	reqAdmin := httptest.NewRequest(http.MethodGet, "/admin/user/temparte-warehouses?status=archived", nil)
 	reqAdmin = reqAdmin.WithContext(authctx.WithActor(reqAdmin.Context(), adminActor))
 	recAdmin := httptest.NewRecorder()
@@ -161,14 +240,14 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 		t.Fatalf("expected Super Admin page to return 200 OK, got %d", recAdmin.Code)
 	}
 	bodyAdmin := recAdmin.Body.String()
-	if !strings.Contains(bodyAdmin, "المتحدة للتوزيع القديمة") {
-		t.Errorf("expected Super Admin to see archived file 'المتحدة للتوزيع القديمة'")
+	if !strings.Contains(bodyAdmin, oldestFile.SupplierName) {
+		t.Errorf("expected Super Admin to see archived file %q", oldestFile.SupplierName)
 	}
 	if !strings.Contains(bodyAdmin, "مؤرشف") {
 		t.Errorf("expected Super Admin page to show 'مؤرشف' badge")
 	}
 
-	// 5. Verify Compare Tool workspace GET /compare/tool only presents the 2 active files for comparison
+	// 5. Verify Compare Tool workspace GET /compare/tool only presents the active files
 	reqTool := httptest.NewRequest(http.MethodGet, "/compare/tool", nil)
 	reqTool = reqTool.WithContext(authctx.WithActor(reqTool.Context(), actor))
 	recTool := httptest.NewRecorder()
@@ -178,18 +257,11 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 		t.Fatalf("expected Compare Tool page to return 200 OK, got %d", recTool.Code)
 	}
 	bodyTool := recTool.Body.String()
-	if strings.Contains(bodyTool, "name=\"supplier_ids\" value=\""+fmt.Sprintf("%d", file1.ID)+"\"") {
-		t.Errorf("archived file 1 should NOT be in active comparison selection checkbox")
+	if strings.Contains(bodyTool, "name=\"supplier_ids\" value=\""+fmt.Sprintf("%d", oldestFile.ID)+"\"") {
+		t.Errorf("archived file should NOT be in active comparison selection checkbox")
 	}
-	// Archived lists have left the vendor's file centre entirely. They live on
-	// for the Super Admin, under the archive filter checked in step 4.
-	if strings.Contains(bodyTool, "الكشوف المؤرشفة") {
-		t.Errorf("archived lists must not be shown to the vendor in the file centre")
-	}
-	for _, name := range []string{file1.SupplierName, file2.SupplierName, file3.SupplierName} {
-		if strings.Contains(bodyTool, name) {
-			t.Errorf("archived list %q must not appear in the vendor file centre", name)
-		}
+	if strings.Contains(bodyTool, oldestFile.SupplierName) {
+		t.Errorf("archived list %q must not appear in the vendor file centre", oldestFile.SupplierName)
 	}
 }
 

@@ -13,12 +13,13 @@ import (
 
 // SendInput specifies parameters for dispatching a notification.
 type SendInput struct {
-	UserID         int64
-	OrganizationID *int64
-	Channel        Channel
-	Recipient      string
-	Title          string
-	Body           string
+	UserID             int64
+	OrganizationID     *int64
+	Channel            Channel
+	Recipient          string
+	Title              string
+	Body               string
+	RequiredPermission string
 }
 
 // Service manages multi-channel message dispatching and notification delivery auditing.
@@ -39,14 +40,15 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 func (s *Service) Send(ctx context.Context, input SendInput) (*NotificationLog, error) {
 	now := time.Now().UTC()
 	l := &NotificationLog{
-		UserID:         input.UserID,
-		OrganizationID: input.OrganizationID,
-		Channel:        input.Channel,
-		Recipient:      input.Recipient,
-		Title:          input.Title,
-		Body:           input.Body,
-		Status:         StatusSent,
-		SentAt:         &now,
+		UserID:             input.UserID,
+		OrganizationID:     input.OrganizationID,
+		Channel:            input.Channel,
+		Recipient:          input.Recipient,
+		Title:              input.Title,
+		Body:               input.Body,
+		RequiredPermission: input.RequiredPermission,
+		Status:             StatusSent,
+		SentAt:             &now,
 	}
 
 	if err := l.Validate(); err != nil {

@@ -13,26 +13,29 @@ import (
 )
 
 // dispatchInAppNotification sends a direct in-app notification to a single user.
-func (h *UIHandler) dispatchInAppNotification(ctx context.Context, userID int64, orgID *int64, title, body string) {
+func (h *UIHandler) dispatchInAppNotification(ctx context.Context, userID int64, orgID *int64, requiredPerm, title, body string) {
 	if h.notifSvc == nil || userID <= 0 {
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
 	_, err := h.notifSvc.Send(sysCtx, notifications.SendInput{
-		UserID:         userID,
-		OrganizationID: orgID,
-		Channel:        notifications.ChannelInApp,
-		Recipient:      fmt.Sprintf("user-%d", userID),
-		Title:          title,
-		Body:           body,
+		UserID:             userID,
+		OrganizationID:     orgID,
+		Channel:            notifications.ChannelInApp,
+		Recipient:          fmt.Sprintf("user-%d", userID),
+		Title:              title,
+		Body:               body,
+		RequiredPermission: requiredPerm,
 	})
 	if err != nil {
 		h.log.WarnContext(ctx, "failed to dispatch in-app notification", "user_id", userID, "error", err)
 	}
 }
 
-// dispatchOrgNotification sends an in-app notification to all active members of an organization.
-func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, title, body string) {
+// dispatchOrgNotification sends an in-app notification to authorized active members of an organization.
+// Members must hold requiredPerm or be org owner/platform staff.
+// Delivery couriers (org_courier) are explicitly excluded unless requiredPerm is vendor.delivery.view.
+func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, requiredPerm, title, body string) {
 	if h.notifSvc == nil || h.orgSvc == nil || orgID <= 0 {
 		return
 	}
@@ -47,7 +50,24 @@ func (h *UIHandler) dispatchOrgNotification(ctx context.Context, orgID int64, ti
 			continue
 		}
 		seen[m.UserID] = true
-		h.dispatchInAppNotification(ctx, m.UserID, &orgID, title, body)
+
+		// Delivery couriers must never receive vendor supply orders, quotes, or wallet alerts
+		if m.RoleKey == "org_courier" && requiredPerm != "vendor.delivery.view" {
+			continue
+		}
+
+		if requiredPerm != "" && h.resolver != nil {
+			grant, err := h.resolver.Resolve(sysCtx, m.UserID, orgID)
+			if err == nil {
+				if !grant.IsOrgOwner && !grant.IsPlatformOwner && !grant.IsStaff && !grant.Can(requiredPerm) {
+					continue
+				}
+			} else if m.RoleKey == "org_courier" {
+				continue
+			}
+		}
+
+		h.dispatchInAppNotification(ctx, m.UserID, &orgID, requiredPerm, title, body)
 	}
 }
 
@@ -65,9 +85,9 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 	// 1. Notify Customer / Pharmacy
 	custTitle := fmt.Sprintf(i18n.T("ar", "notif.order_received_title"), orderNum)
 	custBody := fmt.Sprintf(i18n.T("ar", "notif.order_received_body"), order.TotalAmount.String())
-	h.dispatchInAppNotification(ctx, order.CustomerID, nil, custTitle, custBody)
+	h.dispatchInAppNotification(ctx, order.CustomerID, nil, "pharmacy.order.view", custTitle, custBody)
 	if order.OrganizationID != nil && *order.OrganizationID > 0 {
-		h.dispatchOrgNotification(ctx, *order.OrganizationID, custTitle, custBody)
+		h.dispatchOrgNotification(ctx, *order.OrganizationID, "pharmacy.order.view", custTitle, custBody)
 	}
 
 	// 2. Notify each Vendor Organization
@@ -83,7 +103,7 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 		vendorTitle := fmt.Sprintf(i18n.T("ar", "notif.new_supply_order_title"), orderNum)
 		vendorBody := fmt.Sprintf(i18n.T("ar", "notif.new_supply_order_body"),
 			pharmacyName, itemCount, sh.Subtotal.String())
-		h.dispatchOrgNotification(ctx, sh.OrganizationID, vendorTitle, vendorBody)
+		h.dispatchOrgNotification(ctx, sh.OrganizationID, "vendor.order.view", vendorTitle, vendorBody)
 	}
 }
 
@@ -131,9 +151,9 @@ func (h *UIHandler) notifyOrderStatusChanged(
 		body = fmt.Sprintf(i18n.T("ar", "notif.order_status_update_body"), vendorName, string(toStatus))
 	}
 
-	h.dispatchInAppNotification(ctx, order.CustomerID, nil, title, body)
+	h.dispatchInAppNotification(ctx, order.CustomerID, nil, "pharmacy.order.view", title, body)
 	if order.OrganizationID != nil && *order.OrganizationID > 0 {
-		h.dispatchOrgNotification(ctx, *order.OrganizationID, title, body)
+		h.dispatchOrgNotification(ctx, *order.OrganizationID, "pharmacy.order.view", title, body)
 	}
 }
 
@@ -147,7 +167,7 @@ func (h *UIHandler) notifyPurchaseRequestCreated(ctx context.Context, vendorOrgI
 	}
 	title := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_created_title"), requestID)
 	body := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_created_body"), pharmacyName, itemCount)
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.purchase_request.view", title, body)
 }
 
 // notifyPurchaseRequestResponded dispatches notification to the pharmacy when a vendor responds with prices.
@@ -158,10 +178,10 @@ func (h *UIHandler) notifyPurchaseRequestResponded(ctx context.Context, customer
 	title := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_responded_title"), requestID)
 	body := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_responded_body"), vendorName)
 	if customerUserID > 0 {
-		h.dispatchInAppNotification(ctx, customerUserID, nil, title, body)
+		h.dispatchInAppNotification(ctx, customerUserID, nil, "pharmacy.purchase_request.view", title, body)
 	}
 	if customerOrgID > 0 {
-		h.dispatchOrgNotification(ctx, customerOrgID, title, body)
+		h.dispatchOrgNotification(ctx, customerOrgID, "pharmacy.purchase_request.view", title, body)
 	}
 }
 
@@ -175,9 +195,21 @@ func (h *UIHandler) notifyWalletDeposit(ctx context.Context, userID int64, orgID
 		title = i18n.T("ar", "notif.wallet_deposit_pending_title")
 		body = fmt.Sprintf(i18n.T("ar", "notif.wallet_deposit_pending_body"), amount.String())
 	}
-	h.dispatchInAppNotification(ctx, userID, &orgID, title, body)
+	perm := "vendor.wallet.view"
+	if orgID > 0 && h.orgSvc != nil {
+		if orgObj, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && orgObj != nil {
+			if orgObj.Type == "pharmacy" || orgObj.Type == "customer" {
+				perm = "pharmacy.wallet.view"
+			}
+		}
+	}
+	var orgPtr *int64
 	if orgID > 0 {
-		h.dispatchOrgNotification(ctx, orgID, title, body)
+		orgPtr = &orgID
+	}
+	h.dispatchInAppNotification(ctx, userID, orgPtr, perm, title, body)
+	if orgID > 0 {
+		h.dispatchOrgNotification(ctx, orgID, perm, title, body)
 	}
 }
 
@@ -188,9 +220,21 @@ func (h *UIHandler) notifyWalletDepositRejected(ctx context.Context, userID int6
 	if strings.TrimSpace(reason) != "" {
 		body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
 	}
-	h.dispatchInAppNotification(ctx, userID, &orgID, title, body)
+	perm := "vendor.wallet.view"
+	if orgID > 0 && h.orgSvc != nil {
+		if orgObj, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && orgObj != nil {
+			if orgObj.Type == "pharmacy" || orgObj.Type == "customer" {
+				perm = "pharmacy.wallet.view"
+			}
+		}
+	}
+	var orgPtr *int64
 	if orgID > 0 {
-		h.dispatchOrgNotification(ctx, orgID, title, body)
+		orgPtr = &orgID
+	}
+	h.dispatchInAppNotification(ctx, userID, orgPtr, perm, title, body)
+	if orgID > 0 {
+		h.dispatchOrgNotification(ctx, orgID, perm, title, body)
 	}
 }
 
@@ -198,9 +242,9 @@ func (h *UIHandler) notifyWalletDepositRejected(ctx context.Context, userID int6
 func (h *UIHandler) notifyAccountRegistered(ctx context.Context, userID int64, orgID *int64) {
 	title := i18n.T("ar", "notif.account_registered_title")
 	body := i18n.T("ar", "notif.account_registered_body")
-	h.dispatchInAppNotification(ctx, userID, orgID, title, body)
+	h.dispatchInAppNotification(ctx, userID, orgID, "", title, body)
 	if orgID != nil && *orgID > 0 {
-		h.dispatchOrgNotification(ctx, *orgID, title, body)
+		h.dispatchOrgNotification(ctx, *orgID, "", title, body)
 	}
 }
 
@@ -239,7 +283,7 @@ func (h *UIHandler) notifyAdminsNewRegistration(ctx context.Context, _ int64, or
 		if staffID <= 0 {
 			continue
 		}
-		h.dispatchInAppNotification(ctx, staffID, orgPtr, title, body)
+		h.dispatchInAppNotification(ctx, staffID, orgPtr, "", title, body)
 	}
 }
 
@@ -250,7 +294,7 @@ func (h *UIHandler) notifyOrgApproved(ctx context.Context, orgID int64) {
 	}
 	title := i18n.T("ar", "notif.org_approved_title")
 	body := i18n.T("ar", "notif.org_approved_body")
-	h.dispatchOrgNotification(ctx, orgID, title, body)
+	h.dispatchOrgNotification(ctx, orgID, "vendor.organization.view", title, body)
 }
 
 // notifyOrgRejected dispatches notification when admin rejects an organization.
@@ -263,7 +307,7 @@ func (h *UIHandler) notifyOrgRejected(ctx context.Context, orgID int64, reason s
 	if strings.TrimSpace(reason) != "" {
 		body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
 	}
-	h.dispatchOrgNotification(ctx, orgID, title, body)
+	h.dispatchOrgNotification(ctx, orgID, "vendor.organization.view", title, body)
 }
 
 // notifyDocumentVerified dispatches notification when a business license or document is verified/rejected.
@@ -285,7 +329,7 @@ func (h *UIHandler) notifyDocumentVerified(ctx context.Context, orgID int64, doc
 			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), notes)
 		}
 	}
-	h.dispatchOrgNotification(ctx, orgID, title, body)
+	h.dispatchOrgNotification(ctx, orgID, "vendor.document.view", title, body)
 }
 
 // notifySpecialOfferStatus dispatches notification to the vendor when their special offer is approved or rejected.
@@ -307,7 +351,7 @@ func (h *UIHandler) notifySpecialOfferStatus(ctx context.Context, vendorOrgID in
 			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
 		}
 	}
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.offer.view", title, body)
 }
 
 // notifySponsorshipStatus dispatches notification when a sponsorship package request is approved or rejected.
@@ -329,7 +373,7 @@ func (h *UIHandler) notifySponsorshipStatus(ctx context.Context, vendorOrgID int
 			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
 		}
 	}
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.offer_package.view", title, body)
 }
 
 // notifyAdStatus dispatches notification when an advertisement is approved or rejected.
@@ -351,7 +395,7 @@ func (h *UIHandler) notifyAdStatus(ctx context.Context, vendorOrgID int64, adTit
 			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
 		}
 	}
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.ad.view", title, body)
 }
 
 // notifyNegotiationOffer dispatches notification when a customer proposes a negotiated price.
@@ -364,7 +408,7 @@ func (h *UIHandler) notifyNegotiationOffer(ctx context.Context, vendorOrgID int6
 	}
 	title := i18n.T("ar", "notif.negotiation_offer_title")
 	body := fmt.Sprintf(i18n.T("ar", "notif.negotiation_offer_body"), customerOrgName, proposedAmount.String(), orderNum)
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.order.negotiate", title, body)
 }
 
 // notifyNegotiationDecision dispatches notification to the pharmacy when a vendor accepts or rejects price negotiation.
@@ -384,10 +428,10 @@ func (h *UIHandler) notifyNegotiationDecision(ctx context.Context, customerUserI
 		}
 	}
 	if customerUserID > 0 {
-		h.dispatchInAppNotification(ctx, customerUserID, nil, title, body)
+		h.dispatchInAppNotification(ctx, customerUserID, nil, "pharmacy.order.view", title, body)
 	}
 	if customerOrgID > 0 {
-		h.dispatchOrgNotification(ctx, customerOrgID, title, body)
+		h.dispatchOrgNotification(ctx, customerOrgID, "pharmacy.order.view", title, body)
 	}
 }
 
@@ -401,7 +445,7 @@ func (h *UIHandler) notifyQuoteRequest(ctx context.Context, vendorOrgID int64, c
 	}
 	title := i18n.T("ar", "notif.quote_req_title")
 	body := fmt.Sprintf(i18n.T("ar", "notif.quote_req_body"), customerName, productName, quantity)
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.purchase_request.view", title, body)
 }
 
 // notifyQuoteProvided dispatches notification to the customer when a vendor submits a price quote.
@@ -412,10 +456,10 @@ func (h *UIHandler) notifyQuoteProvided(ctx context.Context, customerUserID int6
 	title := i18n.T("ar", "notif.quote_provided_title")
 	body := fmt.Sprintf(i18n.T("ar", "notif.quote_provided_body"), vendorName, productName, quotePrice.String())
 	if customerUserID > 0 {
-		h.dispatchInAppNotification(ctx, customerUserID, nil, title, body)
+		h.dispatchInAppNotification(ctx, customerUserID, nil, "pharmacy.purchase_request.view", title, body)
 	}
 	if customerOrgID > 0 {
-		h.dispatchOrgNotification(ctx, customerOrgID, title, body)
+		h.dispatchOrgNotification(ctx, customerOrgID, "pharmacy.purchase_request.view", title, body)
 	}
 }
 
@@ -435,7 +479,7 @@ func (h *UIHandler) notifyQuoteDecision(ctx context.Context, vendorOrgID int64, 
 		title = i18n.T("ar", "notif.quote_rejected_title")
 		body = fmt.Sprintf(i18n.T("ar", "notif.quote_rejected_body"), productName, customerName)
 	}
-	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+	h.dispatchOrgNotification(ctx, vendorOrgID, "vendor.purchase_request.view", title, body)
 }
 
 // resolveOrgName retrieves the localized name of an organization.

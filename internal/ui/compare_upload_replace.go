@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"sort"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -39,12 +40,56 @@ func trimToPlanQuota(headers []*multipart.FileHeader, maxAllowed int, lang strin
 	return headers[:maxAllowed], skipped
 }
 
-// activeCompareFileIDs lists the compare files the vendor holds right now.
+// supersededFileIDs picks the fewest existing files that must be archived to
+// fit `incoming` new ones inside the plan's limit — oldest first.
 //
-// Taken before anything of the new batch is created, so the ids name the
-// generation being replaced and can never include a file from the batch that
-// replaces it. Returns nothing on a read error: a snapshot that could not be
-// taken must archive nothing rather than guess.
+// Free space is used before anything is archived. A vendor holding 8 files on a
+// 10-file plan who uploads 2 keeps all 8; the same vendor uploading 3 loses
+// exactly one — the oldest — and not the other seven. Replacing the whole
+// workspace on every upload is what this replaced: it archived eight files to
+// make room for two, and the vendor lost six lists they had not replaced.
+//
+// Returns nothing when the plan is unlimited (maxAllowed 0), when everything
+// fits, or when the snapshot could not be read: archiving on a guess is how a
+// vendor loses files they never replaced.
+func (h *UIHandler) supersededFileIDs(ctx context.Context, userID int64, orgID *int64, incoming, maxAllowed int) []int64 {
+	if h.compareSvc == nil || incoming <= 0 || maxAllowed <= 0 {
+		return nil
+	}
+	files, err := h.compareSvc.ListFiles(ctx, userID, orgID, nil)
+	if err != nil {
+		h.log.ErrorContext(ctx, "could not snapshot active compare files before upload", "error", err)
+		return nil
+	}
+
+	overflow := len(files) + incoming - maxAllowed
+	if overflow <= 0 {
+		return nil // there is room; nothing is superseded.
+	}
+	if overflow > len(files) {
+		overflow = len(files)
+	}
+
+	// Sort newest-first by CreatedAt so the oldest are guaranteed to be at the end.
+	sort.Slice(files, func(i, j int) bool {
+		if files[i] == nil || files[j] == nil {
+			return false
+		}
+		return files[i].CreatedAt.After(files[j].CreatedAt)
+	})
+
+	// ListFiles is newest-first, so the oldest — the ones a new upload should
+	// displace first — are at the end.
+	ids := make([]int64, 0, overflow)
+	for i := len(files) - 1; i >= 0 && len(ids) < overflow; i-- {
+		if files[i] != nil {
+			ids = append(ids, files[i].ID)
+		}
+	}
+	return ids
+}
+
+// activeCompareFileIDs lists the compare files the vendor holds right now.
 func (h *UIHandler) activeCompareFileIDs(ctx context.Context, userID int64, orgID *int64) []int64 {
 	if h.compareSvc == nil {
 		return nil
@@ -62,3 +107,4 @@ func (h *UIHandler) activeCompareFileIDs(ctx context.Context, userID int64, orgI
 	}
 	return ids
 }
+

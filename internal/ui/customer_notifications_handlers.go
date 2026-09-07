@@ -31,6 +31,9 @@ func (h *UIHandler) NotificationsPage(w http.ResponseWriter, r *http.Request) {
 		h.renderError(w, r, err)
 		return
 	}
+	if actor, ok := authctx.From(ctx); ok {
+		logs = filterNotificationsForActor(actor, logs)
+	}
 
 	unread, _ := h.notifSvc.GetUnreadCount(ctx, userID)
 
@@ -53,6 +56,9 @@ func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Re
 		if h.notifSvc != nil {
 			logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 8, 0)
 			unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
+		}
+		if actor, ok := authctx.From(ctx); ok {
+			logs = filterNotificationsForActor(actor, logs)
 		}
 		h.renderPage(ctx, w, "render notifications dropdown", pages.NotificationsDropdownPanel(logs, unread))
 		return
