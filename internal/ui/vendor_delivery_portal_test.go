@@ -324,3 +324,76 @@ func TestDispatcherSeesTheWholeBoardButDoesNotSign(t *testing.T) {
 		t.Error("the dispatcher is not told why the delivery actions are absent")
 	}
 }
+
+// TestCourierMarkDeliveryFailedShowsFailedClosedCard verifies that marking delivery
+// as failed flags the shipment as failed and renders the failure closed card,
+// never the success handover or success message.
+func TestCourierMarkDeliveryFailedShowsFailedClosedCard(t *testing.T) {
+	sh := deliveryTestShipment()
+	h := deliveryHandler(&courierMockCommerceRepo{shipment: sh})
+
+	params := map[string]string{"id": "101"}
+	rr := httptest.NewRecorder()
+	h.VendorDeliveryStatusSubmit(rr, deliveryRequest(t, http.MethodPost, "/vendor/delivery/101/status",
+		url.Values{"status": {string(commerce.StatusFailed)}, "notes": {"الصيدلية مغلقة وتم الاتصال بدون رد"}},
+		courierActor(assignedCourierID), params))
+
+	if sh.Status != commerce.StatusFailed {
+		t.Fatalf("status is %s, want failed", sh.Status)
+	}
+	if loc := rr.Header().Get("Location"); !strings.Contains(loc, "notice=success") {
+		t.Errorf("redirected to %q", loc)
+	}
+
+	// Now render the shipment detail page for the courier
+	rr = httptest.NewRecorder()
+	h.VendorDeliveryShipmentPage(rr, deliveryRequest(t, http.MethodGet, "/vendor/delivery/101", nil,
+		courierActor(assignedCourierID), params))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+
+	body := rr.Body.String()
+	if !strings.Contains(body, "تعذّر تسليم الطرد للصيدلية") {
+		t.Error("expected failed closed card with 'تعذّر تسليم الطرد للصيدلية', not found")
+	}
+	if !strings.Contains(body, "الصيدلية مغلقة وتم الاتصال بدون رد") {
+		t.Error("expected failure notes to be rendered on closed card")
+	}
+	if strings.Contains(body, "تم تسليم الطرد وتوثيقه بنجاح") {
+		t.Error("failure page incorrectly contains 'تم تسليم الطرد وتوثيقه بنجاح'")
+	}
+	if strings.Contains(body, "تأكيد تسليم الطرد بالكود") {
+		t.Error("failure page incorrectly contains handover PIN form")
+	}
+}
+
+// TestCourierBoardSeparatesCompletedAndFailedQueues verifies that the courier board
+// separates delivered parcels from failed parcels and displays accurate labels and badges.
+func TestCourierBoardSeparatesCompletedAndFailedQueues(t *testing.T) {
+	sh := deliveryTestShipment()
+	sh.Status = commerce.StatusFailed
+	h := deliveryHandler(&courierMockCommerceRepo{shipment: sh})
+
+	rr := httptest.NewRecorder()
+	h.VendorDeliveryPortalPage(rr, deliveryRequest(t, http.MethodGet, "/vendor/delivery?queue=failed", nil,
+		courierActor(assignedCourierID), nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("portal returned %d, want 200", rr.Code)
+	}
+
+	body := rr.Body.String()
+	if !strings.Contains(body, "تعذر تسليمها") {
+		t.Error("expected queue tab 'تعذر تسليمها' in courier delivery page")
+	}
+	if !strings.Contains(body, "SH-2026-001") {
+		t.Error("failed queue should show the failed shipment")
+	}
+	if !strings.Contains(body, "تعذر تسليمه") {
+		t.Error("failed shipment badge should say 'تعذر تسليمه'")
+	}
+	if strings.Contains(body, "بعهدتك منذ 1 يوم") {
+		t.Error("failed shipment should not say 'بعهدتك منذ 1 يوم'")
+	}
+}
+

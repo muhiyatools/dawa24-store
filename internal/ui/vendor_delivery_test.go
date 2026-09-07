@@ -85,9 +85,12 @@ func (m *courierMockCommerceRepo) GetShipmentByID(_ context.Context, id int64) (
 	}
 	return nil, apperr.NotFound("shipment")
 }
-func (m *courierMockCommerceRepo) UpdateShipmentStatus(_ context.Context, id int64, _, to commerce.OrderStatus, _ commerce.OrderStatusHistory) error {
+func (m *courierMockCommerceRepo) UpdateShipmentStatus(_ context.Context, id int64, _, to commerce.OrderStatus, history commerce.OrderStatusHistory) error {
 	if m.shipment != nil && m.shipment.ID == id {
 		m.shipment.Status = to
+		if history.Notes != "" {
+			m.shipment.DeliveryNotes = history.Notes
+		}
 		return nil
 	}
 	return nil
@@ -203,7 +206,9 @@ func (m *courierMockCommerceRepo) ListCourierQueue(_ context.Context, f commerce
 	case commerce.CourierQueueMine:
 		match = mine && !closed
 	case commerce.CourierQueueCompleted:
-		match = mine && closed
+		match = mine && closed && (m.shipment.Status == commerce.StatusDelivered || m.shipment.Status == commerce.StatusCompleted)
+	case commerce.CourierQueueFailed:
+		match = mine && closed && (m.shipment.Status == commerce.StatusFailed || m.shipment.Status == commerce.StatusReturned || m.shipment.Status == commerce.StatusCancelled)
 	case commerce.CourierQueueUnassigned:
 		match = m.shipment.CourierUserID == nil && !closed
 	case commerce.CourierQueueAll:
@@ -223,7 +228,11 @@ func (m *courierMockCommerceRepo) CourierQueueCounts(_ context.Context, _, couri
 	}
 	if m.shipment.IsAssignedTo(courierUserID) {
 		if m.shipment.IsClosed() {
-			c.Completed = 1
+			if m.shipment.Status == commerce.StatusFailed || m.shipment.Status == commerce.StatusReturned || m.shipment.Status == commerce.StatusCancelled {
+				c.Failed = 1
+			} else {
+				c.Completed = 1
+			}
 		} else {
 			c.Mine = 1
 		}

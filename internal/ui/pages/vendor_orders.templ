@@ -19,6 +19,7 @@ type VendorOrdersData struct {
 	ConfirmedCount int
 	ShippedCount   int
 	DeliveredCount int
+	FailedCount    int
 	// CanAssign and Couriers drive the delivery-assignment control on each
 	// shipment. أوامر التوريد is where a parcel is created, so it is also the
 	// natural place to decide whose round it goes on; the dispatch board at
@@ -59,7 +60,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 					</div>
 
 					<!-- Navigation Filter Tabs -->
-					<div class="tabs-nav mt-4">
+					<div class="tabs-nav mt-4 tabs-nav-mobile-scroll">
 						<a
 							href="/vendor/orders"
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "") }
@@ -89,6 +90,12 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 							class={ "tab-btn", templ.KV("active", data.FilterStatus == "delivered") }
 						>
 							تم التسليم ({ fmt.Sprintf("%d", data.DeliveredCount) })
+						</a>
+						<a
+							href="/vendor/orders?status=failed"
+							class={ "tab-btn", templ.KV("active", data.FilterStatus == "failed") }
+						>
+							تعذر التسليم / مرتجع ({ fmt.Sprintf("%d", data.FailedCount) })
 						</a>
 					</div>
 				</div>
@@ -139,6 +146,16 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 								<span>تم التسليم بنجاح</span>
 							</div>
 							<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.DeliveredCount) }</div>
+						</div>
+					</a>
+
+					<a href="/vendor/orders?status=failed" class="text-none">
+						<div class="stat-card-3d">
+							<div class="stat-card-label text-danger d-flex items-center gap-2">
+								<span class="status-dot danger"></span>
+								<span>تعذر التسليم / مرتجع</span>
+							</div>
+							<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprintf("%d", data.FailedCount) }</div>
 						</div>
 					</a>
 				</div>

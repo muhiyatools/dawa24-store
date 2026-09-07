@@ -21,6 +21,7 @@ type UnifiedSettingsData struct {
 	Sessions               []*identity.Session
 	SessionPlans           []*identity.SessionPlan
 	ActiveTab              string
+	CanRequestDeletion     bool
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
@@ -193,27 +194,29 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</form>
 
 				<!-- Danger Zone: Account Deletion Request -->
-				<div class="border-t border-danger/30 mt-10 pt-7">
-					<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
-      <div class="stack-sm">
-							<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
-								@components.IconTrash("icon-xs")
-								<span>{ i18n.T(lang, "settings.delete_account_title") }</span>
+				if data.CanRequestDeletion {
+					<div class="border-t border-danger/30 mt-10 pt-7">
+						<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
+							<div class="stack-sm">
+								<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
+									@components.IconTrash("icon-xs")
+									<span>{ i18n.T(lang, "settings.delete_account_title") }</span>
+								</div>
+								<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
+									{ i18n.T(lang, "settings.delete_account_desc") }
+								</p>
 							</div>
-							<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
-								{ i18n.T(lang, "settings.delete_account_desc") }
-							</p>
+							<button
+								type="button"
+								class="btn btn-danger font-bold px-6 py-2.5"
+								data-modal-open="delete-account-modal"
+							>
+								@components.IconTrash("icon-xs")
+								<span>{ i18n.T(lang, "settings.delete_account_btn") }</span>
+							</button>
 						</div>
-						<button
-							type="button"
-							class="btn btn-danger font-bold px-6 py-2.5"
-							data-modal-open="delete-account-modal"
-						>
-							@components.IconTrash("icon-xs")
-							<span>{ i18n.T(lang, "settings.delete_account_btn") }</span>
-						</button>
 					</div>
-				</div>
+				}
 			</div>
 
 			<!-- Tab 2: Preferences -->
@@ -254,17 +257,19 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			</div>
 
 			<!-- Dynamic Modal: Request Account Deletion Modal (Typed Confirmation) -->
-			@components.ConfirmModal(components.ConfirmModalProps{
-				ID:           "delete-account-modal",
-				Title:        i18n.T(lang, "settings.delete_account_title"),
-				Message:      i18n.T(lang, "settings.delete_account_msg"),
-				ConfirmURL:   "/settings/delete-request",
-				ConfirmVerb:  "post",
-				ConfirmText:  i18n.T(lang, "settings.delete_account_confirm"),
-				CancelText:   i18n.T(lang, "common.cancel"),
-				RequireMatch: i18n.T(lang, "settings.delete_type_match"),
-				Danger:       true,
-			})
+			if data.CanRequestDeletion {
+				@components.ConfirmModal(components.ConfirmModalProps{
+					ID:           "delete-account-modal",
+					Title:        i18n.T(lang, "settings.delete_account_title"),
+					Message:      i18n.T(lang, "settings.delete_account_msg"),
+					ConfirmURL:   "/settings/delete-request",
+					ConfirmVerb:  "post",
+					ConfirmText:  i18n.T(lang, "settings.delete_account_confirm"),
+					CancelText:   i18n.T(lang, "common.cancel"),
+					RequireMatch: i18n.T(lang, "settings.delete_type_match"),
+					Danger:       true,
+				})
+			}
 
 		</div>
 	}

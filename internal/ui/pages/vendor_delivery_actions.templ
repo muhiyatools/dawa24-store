@@ -40,7 +40,7 @@ templ VendorDeliveryActions(data VendorDeliveryDetailData, lang string) {
 // accepts from where the parcel actually is, so a courier is never shown a
 // button that would be refused.
 templ VendorDeliveryProgressCard(sh *commerce.OrderShipment) {
-	<div class="courier-card">
+	<div id="progress-status-section" class="courier-card">
 		<div class="d-flex items-center gap-2 mb-3 pb-2 border-b text-primary">
 			@components.IconTruck("icon-xs")
 			<h3 class="text-xs font-black m-0">تحديث حالة الطرد</h3>
@@ -136,7 +136,7 @@ templ DeliveryTransitionLabel(to commerce.OrderStatus) {
 // rendered only when there is cash to take, because a checkbox that always
 // appears is one people always tick.
 templ VendorDeliveryHandoverCard(sh *commerce.OrderShipment) {
-	<div class="courier-card border-brand">
+	<div id="handover-pin-section" class="courier-card border-brand">
 		<div class="text-center mb-4">
 			<div class="courier-hero-icon">
 				@components.IconShield("icon-sm")
@@ -224,6 +224,28 @@ templ VendorDeliveryClosedCard(sh *commerce.OrderShipment) {
 			if sh.DeliveryNotes != "" {
 				<div class="text-2xs text-secondary mt-2">ملاحظات: { sh.DeliveryNotes }</div>
 			}
+		} else if sh.Status == commerce.StatusFailed {
+			<div class="courier-hero-icon bg-rose-50 text-danger border-danger/20">
+				@components.IconAlert("icon-md")
+			</div>
+			<h3 class="text-base font-black text-danger m-0 mb-1">تعذّر تسليم الطرد للصيدلية</h3>
+			<p class="text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto">
+				تم تسجيل تعذر التسليم وإشعار المورد بالواقعة. يُرجى إعادة الطرد إلى مخزن المورد لاستلامه وإعادة توجيهه.
+			</p>
+			if sh.DeliveryNotes != "" {
+				<div class="p-3 bg-surface-sunken rounded-xl border mt-3 text-xs text-secondary text-start max-w-md mx-auto">
+					<strong class="text-primary d-block mb-1">ملاحظات وسبب التعذر المسجل:</strong>
+					{ sh.DeliveryNotes }
+				</div>
+			}
+		} else if sh.Status == commerce.StatusReturned {
+			<div class="courier-hero-icon bg-rose-50 text-danger border-danger/20">
+				@components.IconAlert("icon-md")
+			</div>
+			<h3 class="text-base font-black text-danger m-0 mb-1">تم إرجاع الطرد إلى المخزن</h3>
+			<p class="text-xs text-secondary m-0 font-medium leading-relaxed max-w-md mx-auto">
+				هذا الطرد مرتجع لمستودع المورد وتم إغلاق دورة تسليمه.
+			</p>
 		} else {
 			<div class="mb-2">@components.IconAlert("icon-md")</div>
 			<h3 class="text-base font-black text-primary m-0 mb-1">هذا الطرد مغلق</h3>

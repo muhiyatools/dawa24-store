@@ -94,6 +94,8 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	isEmployee := (actor.OrganizationID > 0 && !actor.IsOwner) || actor.Role == "employee" || actor.Role == "org_employee"
+
 	data := pages.UnifiedSettingsData{
 		User:                   user,
 		Wallet:                 wallet,
@@ -104,6 +106,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		Sessions:               sessions,
 		SessionPlans:           sessionPlans,
 		ActiveTab:              "profile",
+		CanRequestDeletion:     !isEmployee,
 	}
 
 	h.renderPage(ctx, w, "render unified settings page", pages.UnifiedSettingsPage(data, lang, dir))

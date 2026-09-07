@@ -8084,3 +8084,64 @@ input.so-qty-input::-webkit-inner-spin-button,
   color: #34d399;
 }
 
+/* ==========================================================================
+   Courier Ultra-Responsive Mobile Styles
+   ========================================================================== */
+.tabs-nav-mobile-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0.35rem;
+}
+
+.tabs-nav-mobile-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.courier-mobile-bottom-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .courier-mobile-bottom-bar {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-subtle, #e2e8f0);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  [data-theme="dark"] .courier-mobile-bottom-bar {
+    background: rgba(15, 23, 42, 0.95);
+    border-top-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .courier-page-mobile-padded {
+    padding-bottom: 5.5rem !important;
+  }
+
+  .courier-card {
+    padding: 1rem;
+    border-radius: 0.875rem;
+  }
+
+  .courier-pin-input {
+    font-size: 1.5rem;
+    letter-spacing: 0.25em;
+    padding: 0.625rem 0.75rem;
+  }
+}
+

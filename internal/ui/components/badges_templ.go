@@ -188,7 +188,7 @@ func statusLabelAr(status string) string {
 		"rejected":       "مرفوض",
 		"suspended":      "موقوف",
 		"cancelled":      "ملغى",
-		"failed":         "فشل",
+		"failed":         "تعذّر التسليم",
 		"expired":        "منتهي",
 		"completed":      "مكتمل",
 		"confirmed":      "مؤكد",

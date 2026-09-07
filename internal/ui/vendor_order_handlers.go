@@ -49,6 +49,7 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 	confirmedCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusConfirmed)})
 	shippedCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusShipped)})
 	deliveredCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusDelivered)})
+	failedCount, _ := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID, []string{string(commerce.StatusFailed), string(commerce.StatusReturned)})
 
 	data := pages.VendorOrdersData{
 		Shipments:      shipments,
@@ -60,6 +61,7 @@ func (h *UIHandler) VendorOrdersPage(w http.ResponseWriter, r *http.Request) {
 		ConfirmedCount: confirmedCount,
 		ShippedCount:   shippedCount,
 		DeliveredCount: deliveredCount,
+		FailedCount:    failedCount,
 		CanAssign:      actor.Can("vendor.delivery.assign"),
 	}
 	// The assignment control on each shipment is rendered from the company's

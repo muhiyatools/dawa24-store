@@ -45,8 +45,14 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 					<span class="badge badge-sky text-xs font-black">قيد التجهيز بالمخزن</span>
 				} else if sh.Status == commerce.StatusShipped {
 					<span class="badge badge-indigo text-xs font-black">قيد الشحن والتوصيل</span>
-				} else if sh.Status == commerce.StatusDelivered {
+				} else if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
 					<span class="badge badge-emerald text-xs font-black">تم التسليم بنجاح</span>
+				} else if sh.Status == commerce.StatusFailed {
+					<span class="badge badge-rose text-xs font-black">تعذّر التسليم</span>
+				} else if sh.Status == commerce.StatusReturned {
+					<span class="badge badge-rose text-xs font-black">مرتجع</span>
+				} else if sh.Status == commerce.StatusCancelled {
+					<span class="badge badge-rose text-xs font-black">ملغاة</span>
 				} else {
 					<span class="badge badge-slate text-xs font-black">{ string(sh.Status) }</span>
 				}
@@ -322,6 +328,21 @@ templ VendorOrderShipmentCard(sh *commerce.OrderShipment, data VendorOrdersData,
 								<span>تأكيد وإتمام التسليم للصيدلية</span>
 							</button>
 						</form>
+					} else if sh.Status == commerce.StatusFailed {
+						<span class="badge badge-rose text-xs font-black p-2 px-3 gap-2">
+							@components.IconAlert("icon-xs")
+							<span>تعذّر تسليم الشحنة</span>
+						</span>
+					} else if sh.Status == commerce.StatusReturned {
+						<span class="badge badge-rose text-xs font-black p-2 px-3 gap-2">
+							@components.IconAlert("icon-xs")
+							<span>شحنة مرتجعة للمخزن</span>
+						</span>
+					} else if sh.Status == commerce.StatusCancelled {
+						<span class="badge badge-rose text-xs font-black p-2 px-3 gap-2">
+							@components.IconX("icon-xs")
+							<span>تم إلغاء الشحنة</span>
+						</span>
 					} else {
 						<span class="badge badge-emerald text-xs font-black p-2 px-3 gap-2">
 							@components.IconCheckCircle("icon-xs")

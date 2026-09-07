@@ -88,6 +88,15 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<div class="order-detail-layout mb-6">
 				<!-- Right Column: Primary Details & Line Items -->
 				<div class="d-flex flex-col gap-6">
+					if order.Status == commerce.StatusFailed {
+						<div class="alert alert-danger p-4 rounded-xl d-flex items-center gap-3 mb-0">
+							@components.IconAlert("icon-sm shrink-0")
+							<div class="stack-2xs">
+								<strong class="text-sm font-black">تعذّر تسليم هذا الطلب</strong>
+								<span class="text-xs">لم يتمكن مندوب التوصيل من إتمام عملية التسليم بالصيدلية. يمكنك التواصل مع المورد للمساعدة أو إعادة التوريد.</span>
+							</div>
+						</div>
+					}
 					<!-- 1. Order Progress Timeline Card -->
 					<div class="glass-panel p-6 mb-0">
 						<div class="flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2">

@@ -122,6 +122,18 @@ func (r *Repository) UpdateShipmentStatus(
 			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'shipped', updated_at = now() WHERE id = $1 AND status NOT IN ('delivered', 'completed');`, history.OrderID)
 		} else if to == commerce.StatusConfirmed {
 			_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'confirmed', updated_at = now() WHERE id = $1 AND status = 'pending';`, history.OrderID)
+		} else if to == commerce.StatusFailed {
+			var nonFailedCount int
+			_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_shipments WHERE order_id = $1 AND status NOT IN ('failed', 'cancelled', 'returned');`, history.OrderID).Scan(&nonFailedCount)
+			if nonFailedCount == 0 {
+				_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'failed', updated_at = now() WHERE id = $1;`, history.OrderID)
+			}
+		} else if to == commerce.StatusCancelled {
+			var nonCancelledCount int
+			_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_shipments WHERE order_id = $1 AND status NOT IN ('failed', 'cancelled', 'returned');`, history.OrderID).Scan(&nonCancelledCount)
+			if nonCancelledCount == 0 {
+				_, _ = tx.Exec(txCtx, `UPDATE commerce.orders SET status = 'cancelled', updated_at = now() WHERE id = $1;`, history.OrderID)
+			}
 		}
 
 		return nil

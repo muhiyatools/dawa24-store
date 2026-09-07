@@ -42,7 +42,7 @@ func (r *Repository) ListShipmentsByVendorWithTotal(ctx context.Context, vendorO
 			SELECT count(*)
 			  FROM commerce.order_shipments s
 			 WHERE s.organization_id = $1
-			   AND ($2::text = '' OR s.status = $2);
+			   AND ($2::text = '' OR s.status = $2 OR ($2 = 'failed' AND s.status = 'returned'));
 		`
 		if err := tx.QueryRow(txCtx, countSQL, vendorOrgID, status).Scan(&total); err != nil {
 			return err
@@ -50,7 +50,7 @@ func (r *Repository) ListShipmentsByVendorWithTotal(ctx context.Context, vendorO
 
 		query := shipmentDetailSelect + `
 	WHERE s.organization_id = $1
-	  AND ($2::text = '' OR s.status = $2)
+	  AND ($2::text = '' OR s.status = $2 OR ($2 = 'failed' AND s.status = 'returned'))
 	ORDER BY s.created_at DESC, s.id DESC
 	LIMIT $3 OFFSET $4;`
 		rows, err := tx.Query(txCtx, query, vendorOrgID, status, limit, offset)

@@ -107,7 +107,7 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 				</div>
 
 				<!-- Queue tabs -->
-				<div class="tabs-nav mt-4">
+				<div class="tabs-nav mt-4 tabs-nav-mobile-scroll">
 					<a
 						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueMine, data.Search)) }
 						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueMine) }
@@ -118,7 +118,13 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueCompleted, data.Search)) }
 						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueCompleted) }
 					>
-						تم تسليمها ({ fmt.Sprintf("%d", data.Counts.Completed) })
+						تم تسليمها بنجاح ({ fmt.Sprintf("%d", data.Counts.Completed) })
+					</a>
+					<a
+						href={ templ.SafeURL(deliveryQueueHref(commerce.CourierQueueFailed, data.Search)) }
+						class={ "tab-btn", templ.KV("active", data.Queue == commerce.CourierQueueFailed) }
+					>
+						تعذر تسليمها ({ fmt.Sprintf("%d", data.Counts.Failed) })
 					</a>
 					if data.CanAssign {
 						<a
@@ -157,6 +163,13 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 					</div>
 					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.Counts.Completed) }</div>
 				</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-danger d-flex items-center gap-2">
+						<span class="status-dot danger"></span>
+						<span>تعذر تسليمها</span>
+					</div>
+					<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprintf("%d", data.Counts.Failed) }</div>
+				</div>
 				if data.CanAssign {
 					<div class="stat-card-3d">
 						<div class="stat-card-label text-accent d-flex items-center gap-2">
@@ -180,6 +193,10 @@ templ VendorDeliveryPage(data VendorDeliveryData, lang, dir string) {
 					<p class="text-sm text-secondary m-0">
 						if data.Queue == commerce.CourierQueueMine {
 							لم يتم إسناد أي طرد إليك بعد. سيصلك إشعار فور إسناد المورد لأول طرد.
+						} else if data.Queue == commerce.CourierQueueCompleted {
+							لا توجد طرود مسلّمة بنجاح في سجلك بعد.
+						} else if data.Queue == commerce.CourierQueueFailed {
+							لا توجد طرود متعذر تسليمها أو مرتجعة.
 						} else if data.Queue == commerce.CourierQueueUnassigned {
 							كل الطرود الجارية مسندة بالفعل إلى مندوبي التوصيل.
 						} else {

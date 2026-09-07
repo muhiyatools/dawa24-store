@@ -31,7 +31,10 @@ func courierQueueClause(f commerce.CourierQueueFilter) (string, []any) {
 	shared := []any{f.VendorOrgID, commerce.CourierOpenStatuses(), f.Search}
 	switch f.Queue {
 	case commerce.CourierQueueCompleted:
-		return `s.organization_id = $1 AND s.status <> ALL($2) AND s.courier_user_id = $4` + courierQueueSearch,
+		return `s.organization_id = $1 AND s.status IN ('delivered', 'completed') AND s.courier_user_id = $4` + courierQueueSearch,
+			append(shared, f.CourierUserID)
+	case commerce.CourierQueueFailed:
+		return `s.organization_id = $1 AND s.status IN ('failed', 'returned', 'cancelled') AND s.courier_user_id = $4` + courierQueueSearch,
 			append(shared, f.CourierUserID)
 	case commerce.CourierQueueUnassigned:
 		return `s.organization_id = $1 AND s.status = ANY($2) AND s.courier_user_id IS NULL` + courierQueueSearch,
@@ -57,6 +60,8 @@ func courierQueueOrder(q commerce.CourierQueue) string {
 	switch q {
 	case commerce.CourierQueueCompleted:
 		return `ORDER BY COALESCE(s.delivered_at, s.updated_at) DESC, s.id DESC`
+	case commerce.CourierQueueFailed:
+		return `ORDER BY s.updated_at DESC, s.id DESC`
 	case commerce.CourierQueueUnassigned:
 		return `ORDER BY s.created_at ASC, s.id ASC`
 	default:
@@ -144,7 +149,8 @@ func (r *Repository) CourierQueueCounts(ctx context.Context, vendorOrgID, courie
 		const query = `
 			SELECT
 			  count(*) FILTER (WHERE s.courier_user_id = $2 AND s.status = ANY($3)),
-			  count(*) FILTER (WHERE s.courier_user_id = $2 AND s.status <> ALL($3)),
+			  count(*) FILTER (WHERE s.courier_user_id = $2 AND s.status IN ('delivered', 'completed')),
+			  count(*) FILTER (WHERE s.courier_user_id = $2 AND s.status IN ('failed', 'returned', 'cancelled')),
 			  count(*) FILTER (WHERE s.courier_user_id IS NULL AND s.status = ANY($3)),
 			  count(*) FILTER (WHERE s.status = ANY($3)),
 			  count(*) FILTER (WHERE s.courier_user_id = $2 AND s.status = ANY($3)
@@ -153,7 +159,7 @@ func (r *Repository) CourierQueueCounts(ctx context.Context, vendorOrgID, courie
 			WHERE s.organization_id = $1;
 		`
 		return tx.QueryRow(txCtx, query, vendorOrgID, courierUserID, open, commerce.CourierOverdueHours).
-			Scan(&c.Mine, &c.Completed, &c.Unassigned, &c.All, &c.Overdue)
+			Scan(&c.Mine, &c.Completed, &c.Failed, &c.Unassigned, &c.All, &c.Overdue)
 	})
 	if err != nil {
 		return commerce.CourierQueueCounts{}, fmt.Errorf("commerce postgres: courier queue counts: %w", err)

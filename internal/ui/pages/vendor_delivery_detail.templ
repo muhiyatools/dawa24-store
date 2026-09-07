@@ -33,7 +33,7 @@ type VendorDeliveryDetailData struct {
 
 templ VendorDeliveryDetailPage(data VendorDeliveryDetailData, lang, dir string) {
 	@layouts.VendorShell("تفاصيل الطرد وتسليمه | دوا 24", "delivery", lang, dir) {
-		<div class="page-container">
+		<div class="page-container courier-page-mobile-padded">
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger mb-4 d-flex items-center gap-3 p-4">
@@ -122,6 +122,43 @@ templ VendorDeliveryDetailPage(data VendorDeliveryDetailData, lang, dir string) 
 
 				if data.Shipment.HasExactCoordinates() {
 					@CourierMiniMapScript()
+				}
+
+				if !data.Shipment.IsClosed() && data.CanUpdate {
+					<div class="courier-mobile-bottom-bar d-md-none">
+						<div class="d-flex items-center gap-2 w-full">
+							if data.Shipment.CustomerBranchPhone != "" {
+								<a
+									href={ templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone) }
+									class="btn btn-secondary flex-1 py-2.5 font-bold text-xs d-flex items-center justify-center gap-1.5"
+									title="اتصال بالصيدلي"
+								>
+									@components.IconPhone("icon-2xs")
+									<span>اتصال</span>
+								</a>
+							}
+							if locURL := data.Shipment.BranchLocationURL(); locURL != "" {
+								<a
+									href={ templ.SafeURL(locURL) }
+									target="_blank"
+									rel="noopener noreferrer"
+									class="btn btn-secondary flex-1 py-2.5 font-bold text-xs d-flex items-center justify-center gap-1.5"
+									title="خرائط Google"
+								>
+									@components.IconMapPin("icon-2xs")
+									<span>ملاحة GPS</span>
+								</a>
+							}
+							<button
+								type="button"
+								class="btn btn-primary flex-1 py-2.5 font-black text-xs d-flex items-center justify-center gap-1.5"
+								onclick="var pin = document.getElementById('handover-pin-section') || document.getElementById('progress-status-section'); if(pin){ pin.scrollIntoView({behavior: 'smooth'}); var input = pin.querySelector('.courier-pin-input'); if(input) input.focus(); }"
+							>
+								@components.IconShield("icon-2xs")
+								<span>إدخال الكود</span>
+							</button>
+						</div>
+					</div>
 				}
 			}
 		</div>

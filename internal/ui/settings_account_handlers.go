@@ -235,6 +235,12 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	isEmployee := (actor.OrganizationID > 0 && !actor.IsOwner) || actor.Role == "employee" || actor.Role == "org_employee"
+	if isEmployee {
+		h.redirectWithNotice(w, r, "/settings?tab=security", "error", "لا يمكن لحسابات الموظفين تقديم طلب لحذف الحساب. يرجى مراجعة إدارة المنشأة.")
+		return
+	}
+
 	_ = r.ParseForm()
 	reason := strings.TrimSpace(r.PostFormValue("reason"))
 

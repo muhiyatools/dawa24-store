@@ -84,6 +84,8 @@ const (
 	CourierQueueMine CourierQueue = "mine"
 	// CourierQueueCompleted is what the caller has already closed.
 	CourierQueueCompleted CourierQueue = "completed"
+	// CourierQueueFailed is what the caller attempted but failed or returned.
+	CourierQueueFailed CourierQueue = "failed"
 	// CourierQueueUnassigned is every open parcel nobody is carrying.
 	CourierQueueUnassigned CourierQueue = "unassigned"
 	// CourierQueueAll is every open parcel in the company, assigned or not.
@@ -97,6 +99,8 @@ func ParseCourierQueue(v string) CourierQueue {
 	switch CourierQueue(v) {
 	case CourierQueueCompleted:
 		return CourierQueueCompleted
+	case CourierQueueFailed:
+		return CourierQueueFailed
 	case CourierQueueUnassigned:
 		return CourierQueueUnassigned
 	case CourierQueueAll:
@@ -130,6 +134,7 @@ type CourierQueueFilter struct {
 type CourierQueueCounts struct {
 	Mine       int `json:"mine"`
 	Completed  int `json:"completed"`
+	Failed     int `json:"failed"`
 	Unassigned int `json:"unassigned"`
 	All        int `json:"all"`
 	// Overdue counts the caller's own open parcels assigned more than
