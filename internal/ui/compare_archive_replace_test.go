@@ -112,11 +112,16 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 		t.Fatalf("expected success redirect, got %s", loc)
 	}
 	// Verify notice mentions auto-archiving previous files
-	if !strings.Contains(loc, url.QueryEscape("تمت أرشفة")) && !strings.Contains(loc, "أرشفة") {
+	if !strings.Contains(loc, url.QueryEscape("أرشفة")) {
 		t.Errorf("expected redirect message to mention auto-archiving, got %s", loc)
 	}
 
-	// 3. Verify in repository that all 3 old files are archived, NOT deleted
+	// 3. The old files are archived once the NEW batch has been staged, not on
+	//    the way in: a batch of unreadable workbooks must leave the vendor's
+	//    working set alone. Staging is detached from the request, so wait for
+	//    the replacement the response promised.
+	waitForArchived(t, mockRepo, file1.ID, file2.ID, file3.ID)
+
 	f1, _ := mockRepo.GetFileByID(ctx, file1.ID)
 	f2, _ := mockRepo.GetFileByID(ctx, file2.ID)
 	f3, _ := mockRepo.GetFileByID(ctx, file3.ID)
@@ -176,8 +181,41 @@ func TestCompareTool_BulkUpload_AutoArchivesOldFilesAndReplaces(t *testing.T) {
 	if strings.Contains(bodyTool, "name=\"supplier_ids\" value=\""+fmt.Sprintf("%d", file1.ID)+"\"") {
 		t.Errorf("archived file 1 should NOT be in active comparison selection checkbox")
 	}
+	// Archived lists have left the vendor's file centre entirely. They live on
+	// for the Super Admin, under the archive filter checked in step 4.
 	if strings.Contains(bodyTool, "الكشوف المؤرشفة") {
-		// Archived section accordion should be present
-		t.Logf("verified archived files accordion is displayed in compare tool")
+		t.Errorf("archived lists must not be shown to the vendor in the file centre")
+	}
+	for _, name := range []string{file1.SupplierName, file2.SupplierName, file3.SupplierName} {
+		if strings.Contains(bodyTool, name) {
+			t.Errorf("archived list %q must not appear in the vendor file centre", name)
+		}
+	}
+}
+
+// waitForArchived blocks until every id is archived, or fails the test.
+//
+// The replacement runs in a goroutine that outlives the upload request, so the
+// assertion has to wait for it the way the vendor's screen does.
+func waitForArchived(t *testing.T, repo interface {
+	GetFileByID(ctx context.Context, id int64) (*compare.CompareFile, error)
+}, ids ...int64) {
+	t.Helper()
+	deadline := time.Now().Add(15 * time.Second)
+	for {
+		pending := 0
+		for _, id := range ids {
+			f, err := repo.GetFileByID(context.Background(), id)
+			if err != nil || f == nil || f.Status != compare.FileArchived {
+				pending++
+			}
+		}
+		if pending == 0 {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("%d superseded file(s) were never archived after the batch was staged", pending)
+		}
+		time.Sleep(200 * time.Millisecond)
 	}
 }

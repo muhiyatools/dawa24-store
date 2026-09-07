@@ -16,7 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFiles []*compare.CompareFile, maxAllowedFiles int, noticeType, noticeMsg string) templ.Component {
+func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, noticeType, noticeMsg string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -70,7 +70,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(noticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 19, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 19, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(noticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 26, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 26, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -132,7 +132,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملفات موردين", len(files)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 60, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 60, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("الملفات: %d / %d", len(files), maxAllowedFiles))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 62, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 62, Col: 76}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -165,7 +165,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / %d ملف", len(files), maxAllowedFiles))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 96, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 96, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملف", len(files)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 98, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 98, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", f.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 136, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 136, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -217,7 +217,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(f.SupplierName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 142, Col: 91}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 142, Col: 91}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -245,7 +245,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", f.RowCount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 153, Col: 105}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 153, Col: 105}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(f.OriginalFilename)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 159, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 159, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -281,7 +281,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(f.CreatedAt.Format("02/01/2006"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 159, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 159, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -372,139 +372,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</form>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(archivedFiles) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"mt-4 pt-3 border-t\"><details class=\"group\"><summary class=\"flex-between items-center cursor-pointer p-2 rounded-lg bg-surface-sunken hover:bg-surface-raised transition-colors list-none select-none\"><div class=\"d-flex items-center gap-2\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconFolder("icon-2xs text-muted").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span class=\"text-xs font-bold text-secondary\">الكشوف المؤرشفة</span> <span class=\"badge badge-slate text-3xs font-bold\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var17 string
-				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(archivedFiles)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 205, Col: 100}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></div><span class=\"text-xs text-muted group-open:rotate-180 transition-transform\">▼</span></summary><div class=\"d-flex flex-col gap-2 mt-2 max-h-48 overflow-y-auto pe-1\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, af := range archivedFiles {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"bg-surface-sunken/60 border rounded-xl p-2.5 flex-between gap-2 text-2xs opacity-90 hover:opacity-100 transition-opacity\"><div class=\"min-w-0\"><div class=\"font-bold text-primary truncate\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(af.SupplierName)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 213, Col: 74}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><div class=\"text-3xs text-muted mt-0.5 tabular-nums\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if af.RowCount > 0 {
-						var templ_7745c5c3_Var19 string
-						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", af.RowCount))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 216, Col: 53}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " •  ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					if af.ArchivedAt != nil {
-						var templ_7745c5c3_Var20 string
-						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(af.ArchivedAt.Format("02/01/2006"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 219, Col: 50}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						var templ_7745c5c3_Var21 string
-						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(af.CreatedAt.Format("02/01/2006"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 221, Col: 49}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div></div><div class=\"d-flex items-center gap-1 flex-shrink-0\"><form method=\"POST\" action=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var22 templ.SafeURL
-					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/compare/files/%d/unarchive", af.ID)))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 226, Col: 105}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" class=\"m-0 inline\"><button type=\"submit\" class=\"btn btn-secondary btn-xs text-emerald font-bold px-2 py-0.5\" title=\"استرجاع وتفعيل للمقارنة\">استرجاع</button></form>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", af.ID)})
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<button type=\"button\" class=\"btn btn-secondary btn-icon btn-xs text-danger\" title=\"حذف نهائي\" onclick=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var23 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", af.ID)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23.Call)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconTrash("icon-2xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</button></div></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></details></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><!-- Column 2: Upload Zone --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</form></div><!-- Column 2: Upload Zone --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -512,12 +380,12 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<h2 class=\"text-sm font-black text-primary m-0\">رفع كشوف الموردين</h2></div><span class=\"badge badge-slate text-2xs font-bold\">استيراد مجمّع</span></div><!-- Auto-replacement info notice -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<h2 class=\"text-sm font-black text-primary m-0\">رفع كشوف الموردين</h2></div><span class=\"badge badge-slate text-2xs font-bold\">استيراد مجمّع</span></div><!-- Auto-replacement info notice -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(files) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"alert alert-info p-2.5 d-flex items-center gap-2 rounded-xl text-2xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"alert alert-info p-2.5 d-flex items-center gap-2 rounded-xl text-2xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -525,38 +393,38 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span class=\"font-bold\">عند رفع كشوف جديدة، يتم استبدال الكشوف الحالية وأرشفتها تلقائياً مع الاحتفاظ بكافة بياناتها.</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span class=\"font-bold\">عند رفع كشوف جديدة، يتم استبدال الكشوف الحالية وأرشفتها تلقائياً مع الاحتفاظ بكافة بياناتها.</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<form method=\"POST\" action=\"/compare/upload\" id=\"compare-upload-form\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-3 m-0\" onsubmit=\"return handleUploadSubmit(event)\"><!-- Drag and drop box with Multi-File support --><div id=\"drop-zone-box\" class=\"empty-state-glass p-6 text-center cursor-pointer rounded-xl border hover:border-brand transition-colors\" onclick=\"triggerFileInput()\" data-current-count=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<form method=\"POST\" action=\"/compare/upload\" id=\"compare-upload-form\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-3 m-0\" onsubmit=\"return handleUploadSubmit(event)\"><!-- Drag and drop box with Multi-File support --><div id=\"drop-zone-box\" class=\"empty-state-glass p-6 text-center cursor-pointer rounded-xl border hover:border-brand transition-colors\" onclick=\"triggerFileInput()\" data-current-count=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var24 string
-			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", len(files)))
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", len(files)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 279, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 231, Col: 57}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\" data-max-limit=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var25 string
-			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", maxAllowedFiles))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 280, Col: 58}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" data-max-limit=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\"><div class=\"w-10 h-10 rounded-full bg-primary-subtle text-brand d-flex items-center justify-center mx-auto mb-2 border\">")
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", maxAllowedFiles))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `.`, Line: 232, Col: 58}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\"><div class=\"w-10 h-10 rounded-full bg-primary-subtle text-brand d-flex items-center justify-center mx-auto mb-2 border\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -564,7 +432,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><strong class=\"text-primary text-xs d-block mb-1 font-bold\">اسحب الكشوف هنا أو اضغط للاختيار</strong><p class=\"text-2xs text-muted m-0 leading-relaxed\">يدعم كشوف Excel (.xlsx, .xls) و CSV دفعة واحدة</p><div id=\"file-name-preview\" class=\"mt-2 text-2xs font-bold text-brand\"></div><input type=\"file\" id=\"file-upload-input\" name=\"compare_files\" multiple accept=\".xlsx,.xls,.csv\" class=\"d-none\" onchange=\"handleFileSelect(this)\"></div><!-- Template Download helper card --><div class=\"bg-surface-sunken border rounded-xl p-2.5 flex-between gap-2\"><span class=\"text-2xs text-muted font-medium\">تحميل كشف أسعار تجريبي</span> <a href=\"/compare/sample\" class=\"btn btn-secondary btn-xs text-brand font-black px-2.5\" download=\"dawa24_supplier_template.xlsx\">نموذج Excel</a></div><button type=\"submit\" id=\"upload-submit-btn\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2.5 shadow-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><strong class=\"text-primary text-xs d-block mb-1 font-bold\">اسحب الكشوف هنا أو اضغط للاختيار</strong><p class=\"text-2xs text-muted m-0 leading-relaxed\">يدعم كشوف Excel (.xlsx, .xls) و CSV دفعة واحدة</p><div id=\"file-name-preview\" class=\"mt-2 text-2xs font-bold text-brand\"></div><input type=\"file\" id=\"file-upload-input\" name=\"compare_files\" multiple accept=\".xlsx,.xls,.csv\" class=\"d-none\" onchange=\"handleFileSelect(this)\"></div><!-- Template Download helper card --><div class=\"bg-surface-sunken border rounded-xl p-2.5 flex-between gap-2\"><span class=\"text-2xs text-muted font-medium\">تحميل كشف أسعار تجريبي</span> <a href=\"/compare/sample\" class=\"btn btn-secondary btn-xs text-brand font-black px-2.5\" download=\"dawa24_supplier_template.xlsx\">نموذج Excel</a></div><button type=\"submit\" id=\"upload-submit-btn\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2.5 shadow-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -572,7 +440,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span id=\"upload-btn-text\">رفع ومعالجة الملفات فورياً</span></button></form><!-- Live upload and processing progress. Before this the\n\t\t\t\t\t     button simply greyed out and the page sat still for as\n\t\t\t\t\t     long as the batch took, which is indistinguishable from\n\t\t\t\t\t     a dead connection — so people reloaded and lost the\n\t\t\t\t\t     upload they were waiting for. -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span id=\"upload-btn-text\">رفع ومعالجة الملفات فورياً</span></button></form><!-- Live upload and processing progress. Before this the\n\t\t\t\t\t     button simply greyed out and the page sat still for as\n\t\t\t\t\t     long as the batch took, which is indistinguishable from\n\t\t\t\t\t     a dead connection — so people reloaded and lost the\n\t\t\t\t\t     upload they were waiting for. -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -584,7 +452,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><!-- Column 3: Instant Search Box --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div><!-- Column 3: Instant Search Box --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -592,7 +460,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<h2 class=\"text-sm font-black text-primary m-0\">البحث المباشر في الكشوف</h2></div><span class=\"badge badge-emerald text-2xs font-bold\">فوري</span></div><div class=\"position-relative\"><input type=\"text\" name=\"q\" id=\"instant-search-input\" placeholder=\"ابحث عن دواء أو مادة فعالة...\" class=\"form-input text-xs ps-8\" oninput=\"filterSearchLocal(this.value)\"><div class=\"position-absolute start-2.5 top-half translate-middle-y text-muted pointer-events-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<h2 class=\"text-sm font-black text-primary m-0\">البحث المباشر في الكشوف</h2></div><span class=\"badge badge-emerald text-2xs font-bold\">فوري</span></div><div class=\"position-relative\"><input type=\"text\" name=\"q\" id=\"instant-search-input\" placeholder=\"ابحث عن دواء أو مادة فعالة...\" class=\"form-input text-xs ps-8\" oninput=\"filterSearchLocal(this.value)\"><div class=\"position-absolute start-2.5 top-half translate-middle-y text-muted pointer-events-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -600,7 +468,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div></div><!-- Search Results Area --><div id=\"instant-search-results\" class=\"d-flex flex-col gap-2 max-h-[460px] overflow-y-auto\"><div class=\"bg-surface-sunken rounded-xl p-6 text-center text-muted text-2xs leading-relaxed font-medium\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الأسعار فورياً.</div></div></div></div><!-- Scripts for compare tool interactions --> <script src=\"/static/js/compare_tool.js\"></script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div><!-- Centered File Rename Modal --> <div id=\"rename-file-modal\" class=\"d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs\" onclick=\"closeRenameModal()\"><div class=\"glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border\" onclick=\"event.stopPropagation()\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-border\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div><!-- Search Results Area --><div id=\"instant-search-results\" class=\"d-flex flex-col gap-2 max-h-[460px] overflow-y-auto\"><div class=\"bg-surface-sunken rounded-xl p-6 text-center text-muted text-2xs leading-relaxed font-medium\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الأسعار فورياً.</div></div></div></div><!-- Scripts for compare tool interactions --> <script src=\"/static/js/compare_tool.js\"></script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div><!-- Centered File Rename Modal --> <div id=\"rename-file-modal\" class=\"d-none fixed inset-0 z-50 items-center justify-center p-4 bg-black/60 backdrop-blur-xs\" onclick=\"closeRenameModal()\"><div class=\"glass-panel w-full max-w-md p-6 rounded-2xl shadow-xl border border-border\" onclick=\"event.stopPropagation()\"><div class=\"flex-between items-center mb-4 pb-3 border-b border-border\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-brand-subtle text-brand flex-center font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -608,7 +476,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><h3 class=\"text-base font-black text-primary m-0\">تعديل اسم المورد / الملف</h3></div><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" title=\"إغلاق\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><h3 class=\"text-base font-black text-primary m-0\">تعديل اسم المورد / الملف</h3></div><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-icon btn-xs text-muted\" title=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -616,7 +484,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, archivedFil
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</button></div><form id=\"rename-file-form\" method=\"POST\" action=\"\"><div class=\"mb-4\"><label for=\"rename-supplier-input\" class=\"form-label text-xs font-bold mb-1.5 d-block\">اسم المورد أو المستودع الجديد:</label> <input type=\"text\" id=\"rename-supplier-input\" name=\"supplier_name\" class=\"form-input w-full text-sm font-bold\" placeholder=\"مثال: المتحدة للصيادلة، فارما أوفرسيز...\" required maxlength=\"120\"></div><div class=\"flex-end gap-2 pt-2 border-t border-border\"><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black\">حفظ التعديل</button></div></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</button></div><form id=\"rename-file-form\" method=\"POST\" action=\"\"><div class=\"mb-4\"><label for=\"rename-supplier-input\" class=\"form-label text-xs font-bold mb-1.5 d-block\">اسم المورد أو المستودع الجديد:</label> <input type=\"text\" id=\"rename-supplier-input\" name=\"supplier_name\" class=\"form-input w-full text-sm font-bold\" placeholder=\"مثال: المتحدة للصيادلة، فارما أوفرسيز...\" required maxlength=\"120\"></div><div class=\"flex-end gap-2 pt-2 border-t border-border\"><button type=\"button\" onclick=\"closeRenameModal()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black\">حفظ التعديل</button></div></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

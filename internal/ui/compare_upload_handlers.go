@@ -139,13 +139,14 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// If the incoming upload batch itself exceeds the allowed quota
-	if maxAllowedFiles > 0 && len(fileHeaders) > maxAllowedFiles {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_exceeded"), maxAllowedFiles))
-		return
-	}
+	// A batch bigger than the plan allows takes what fits and names the rest.
+	// It must not be refused outright: the previous lists are archived
+	// automatically, so telling the vendor to clear them by hand asks for work
+	// this upload already does.
+	fileHeaders, quotaSkipped := trimToPlanQuota(fileHeaders, maxAllowedFiles, lang)
 
-	var quotaSkipped []string
+	// What this batch replaces, recorded before a single new file exists.
+	previousIDs := h.activeCompareFileIDs(ctx, actor.UserID, orgPtr)
 
 	type fileItem struct {
 		index        int
@@ -232,14 +233,9 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// 2. Automatically archive previous active compare files to replace them with this new bulk upload.
-	// This ensures a clean workspace for the new comparison set while safely keeping all
-	// historical spreadsheets, extracted rows, and column mappings in the database for Super Admin and audit review.
-	archivedNames, archiveErr := h.compareSvc.ArchiveActiveFiles(ctx, actor.UserID, orgPtr, "تمت الأرشفة تلقائياً لاستبدالها بملفات مقارنة جديدة")
-	if archiveErr != nil {
-		h.log.ErrorContext(ctx, "failed to archive active compare files before upload", "error", archiveErr)
-	}
-
+	// 2. The previous generation is NOT archived here. It is archived once this
+	// batch has been staged successfully, at the end of this handler, so that a
+	// batch of unreadable workbooks leaves the vendor's working set intact.
 	batchArchived, roomErr := h.compareSvc.MakeRoomForFiles(ctx, actor.UserID, orgPtr, len(validItems))
 	if roomErr != nil {
 		h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(roomErr, lang))
@@ -302,6 +298,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	var totalRows int
 	allArchived := batchArchived
 	var uploadedIDs []string
+	var stagedIDs []int64
 
 	for _, res := range results {
 		if res.err != nil {
@@ -315,6 +312,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			totalRows += res.file.RowCount
 			allArchived = append(allArchived, res.archived...)
 			uploadedIDs = append(uploadedIDs, strconv.FormatInt(res.file.ID, 10))
+			stagedIDs = append(stagedIDs, res.file.ID)
 		}
 	}
 
@@ -328,8 +326,14 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	// counts files, not rows. Claiming "0 rows" for a batch still being parsed
 	// is worse than not mentioning rows at all.
 	msg := fmt.Sprintf(i18n.T(lang, "compare.upload.staging_summary"), processedCount)
-	if len(archivedNames) > 0 {
-		msg += fmt.Sprintf(" (تمت أرشفة %d كشوف سابقة تلقائياً)", len(archivedNames))
+
+	// 5. Retire the generation this batch replaces — but only once the batch is
+	// staged. The supervisor outlives this request and archives nothing if
+	// every new file fails to parse.
+	if len(previousIDs) > 0 {
+		h.compareSvc.ReplacePreviousFiles(ctx, previousIDs, stagedIDs,
+			i18n.T("ar", "compare.upload.replace_reason"))
+		msg += fmt.Sprintf(i18n.T(lang, "compare.upload.replace_pending"), len(previousIDs))
 	}
 	_ = totalRows
 	_ = allArchived

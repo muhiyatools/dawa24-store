@@ -136,15 +136,16 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Archived files are deliberately not read here. A bulk import replaces the
+	// vendor's previous lists, and what it replaced is no longer part of their
+	// workspace: it stays in the database, in full, for the Super Admin's
+	// temporary-warehouses screen, under its archive filter.
 	var activeFiles []*compare.CompareFile
-	var archivedFiles []*compare.CompareFile
 	var orgPtr *int64
 	if actor.OrganizationID > 0 {
 		orgPtr = &actor.OrganizationID
 	}
 	if h.compareSvc != nil {
-		archivedStatus := compare.FileArchived
-		archivedFiles, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, &archivedStatus)
 		activeFiles, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 	}
 
@@ -155,5 +156,5 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, activeFiles, archivedFiles, maxAllowedFiles, noticeType, noticeMsg))
+	h.renderPage(ctx, w, "render compare tool", pages.CompareToolPage(lang, dir, activeFiles, maxAllowedFiles, noticeType, noticeMsg))
 }

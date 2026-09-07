@@ -241,7 +241,10 @@ func TestCompareUpload_SubscriptionLimit_Enforcement(t *testing.T) {
 		Permissions:    []string{"pharmacy.compare.view"},
 	}
 
-	// 1. Upload 3 files in one batch (exceeds limit 2) -> Should be blocked
+	// 1. Upload 3 files in one batch (exceeds limit 2) -> the batch is trimmed
+	//    to what the plan allows and the surplus is named in a warning. It is
+	//    NOT refused: refusing told the vendor to archive their old lists by
+	//    hand, which is what the upload now does for them.
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	for i := 1; i <= 3; i++ {
@@ -258,11 +261,17 @@ func TestCompareUpload_SubscriptionLimit_Enforcement(t *testing.T) {
 	r.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusSeeOther {
-		t.Fatalf("expected redirect 303 for quota block, got %d", rec.Code)
+		t.Fatalf("expected redirect 303 after a trimmed batch, got %d", rec.Code)
 	}
 	loc := rec.Header().Get("Location")
-	if !strings.Contains(loc, "notice_type=error") && !strings.Contains(loc, "error") {
-		t.Errorf("expected error notice in redirect URL, got %s", loc)
+	if !strings.Contains(loc, "notice=success") {
+		t.Errorf("expected the two files that fit to be staged, got %s", loc)
+	}
+	if !strings.Contains(loc, "warning=") || !strings.Contains(loc, "supplier_3.csv") {
+		t.Errorf("expected the third file to be named as skipped, got %s", loc)
+	}
+	if staged, _ := mockRepo.CountActiveFiles(context.Background(), customerActor.UserID, &customerActor.OrganizationID); staged != 2 {
+		t.Errorf("expected exactly 2 files staged from the trimmed batch, got %d", staged)
 	}
 
 	// 2. Upload 1 file (within limit 2) -> Should succeed
