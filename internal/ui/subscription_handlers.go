@@ -48,6 +48,18 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 			subView.Status = i18n.T(lang, "sub.status_active")
 			if !sub.ExpiresAt.IsZero() {
 				subView.ExpiresAt = sub.ExpiresAt.Format("2006-01-02")
+				subView.RawExpiresAt = sub.ExpiresAt
+				now := time.Now()
+				diff := sub.ExpiresAt.Sub(now)
+				subView.HasDaysRemaining = true
+				if diff > 0 {
+					subView.DaysRemaining = int(diff.Hours() / 24)
+					if subView.DaysRemaining == 0 {
+						subView.DaysRemaining = 1
+					}
+				} else {
+					subView.DaysRemaining = 0
+				}
 			}
 			if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil {
 				subView.PlanName = plan.Name.Get(i18n.Lang(lang))
@@ -56,6 +68,14 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 				subView.MaxDevices = plan.MaxDevices
 				subView.AIPlanID = plan.AIPlanID
 				subView.IsDefaultPlan = plan.IsDefault
+				if sub.BillingCycle == "annual" {
+					subView.RenewalCost = plan.PriceYear
+				} else {
+					subView.RenewalCost = plan.PriceMonth
+				}
+				if plan.IsDefault {
+					subView.HasDaysRemaining = false
+				}
 			}
 		} else {
 			if defPlan, err := h.billSvc.GetDefaultPlan(sysCtx); err == nil && defPlan != nil {
@@ -65,6 +85,7 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 				subView.MaxDevices = defPlan.MaxDevices
 				subView.AIPlanID = defPlan.AIPlanID
 				subView.IsDefaultPlan = true
+				subView.HasDaysRemaining = false
 			}
 		}
 	}
@@ -196,7 +217,7 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 		// Always ensure wallet exists for seamless in-app upgrades
 		if actor.UserID > 0 {
 			if w, err := h.billSvc.GetWallet(sysCtx, actor.UserID, "EGP"); err == nil && w != nil {
-				walletBal = w.Balance
+				walletBal = w.Available()
 			}
 		}
 	}

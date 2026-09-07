@@ -2925,6 +2925,30 @@ input:focus {
   position: relative;
   text-align: start;
 }
+.deposit-modal-container {
+  inline-size: 100%;
+  width: 100%;
+  max-width: min(94vw, 660px);
+  max-height: min(90vh, 680px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: auto;
+}
+.deposit-modal-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-card) transparent;
+}
+.deposit-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.deposit-modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-card);
+  border-radius: 4px;
+}
 .capsule-hdr-icon-btn, .capsule-chip-btn {
   display: inline-flex; align-items: center; justify-content: center;
   min-inline-size: var(--touch-min); min-block-size: var(--touch-min);

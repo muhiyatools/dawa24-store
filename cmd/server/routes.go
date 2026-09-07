@@ -232,7 +232,7 @@ func mountAuthenticatedModules(
 		if err != nil {
 			return nil, err
 		}
-		if wallet.Balance.Minor() < amount.Minor() {
+		if wallet.Available().Minor() < amount.Minor() {
 			return nil, apperr.Conflict("wallet.insufficient_funds", i18n.TDefault("w4_cmd.w4str_264_264"))
 		}
 		tx, err := billSvcForPromo.Withdraw(ctx, uid, "EGP", amount, "sponsorship_package", nil, description)

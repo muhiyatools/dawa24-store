@@ -176,7 +176,13 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.subscription.view"))
 		g.Get("/customer/subscription", h.TenantSubscriptionPage)
+		g.Get("/customer/subscriptions", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
+		})
 		g.Get("/pharmacy/subscription", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
+		})
+		g.Get("/pharmacy/subscriptions", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
 		})
 	})

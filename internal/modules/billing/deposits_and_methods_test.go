@@ -322,3 +322,54 @@ func TestVendorPaymentStats_And_RecordInvoicePayment(t *testing.T) {
 		t.Fatalf("expected 1500.50, got %s", payment.Amount.String())
 	}
 }
+
+func TestSubscribeWithWallet_RespectsAvailableBalance(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockBillingRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := NewService(repo, logger)
+
+	userID := int64(10)
+	repo.plans["premium"] = &Plan{
+		ID:         10,
+		Slug:       "premium",
+		Name:       i18n.Text{"ar": "باقة بريميوم"},
+		PriceMonth: money.MustParse("300.00"),
+		PriceYear:  money.MustParse("3000.00"),
+	}
+
+	// 1. Initial Deposit: Total Balance = 500.00 EGP
+	_, err := svc.Deposit(ctx, userID, "EGP", money.MustParse("500.00"), "deposit", nil, "Top-up")
+	if err != nil {
+		t.Fatalf("Deposit failed: %v", err)
+	}
+
+	// 2. Add pending withdrawal of 400.00 EGP:
+	// Total Balance = 500.00 EGP, Pending = 400.00 EGP, Available = 100.00 EGP
+	wallet, _ := repo.GetOrCreateWallet(ctx, userID, "EGP")
+	wallet.PendingWithdrawal = money.MustParse("400.00")
+	wallet.AvailableBalance = money.MustParse("100.00")
+
+	// 3. Attempt to subscribe to plan (Cost 300.00 EGP).
+	// Total Balance (500) > Cost (300), BUT Available (100) < Cost (300) -> Must fail with insufficient funds!
+	_, err = svc.SubscribeWithWallet(ctx, userID, nil, "premium", "monthly", false)
+	if err == nil {
+		t.Fatalf("expected error when available balance is insufficient for subscription, got nil")
+	}
+	if apperr.KindOf(err) != apperr.KindConflict {
+		t.Fatalf("expected Conflict error (wallet.insufficient_funds), got: %v", err)
+	}
+
+	// 4. Reduce pending withdrawal so available balance becomes 300.00 EGP
+	wallet.PendingWithdrawal = money.MustParse("200.00")
+	wallet.AvailableBalance = money.MustParse("300.00")
+
+	// 5. Subscription now succeeds
+	sub, err := svc.SubscribeWithWallet(ctx, userID, nil, "premium", "monthly", false)
+	if err != nil {
+		t.Fatalf("expected subscription to succeed when available balance is sufficient, got: %v", err)
+	}
+	if sub == nil || sub.PlanID != 10 {
+		t.Fatalf("expected valid subscription, got: %v", sub)
+	}
+}

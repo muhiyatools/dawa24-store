@@ -6,18 +6,19 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 // PackagePurchaseConfirmationModal renders the checkout/confirmation dialog before deducting wallet credits.
-templ PackagePurchaseConfirmationModal() {
+templ PackagePurchaseConfirmationModal(walletBal money.Amount) {
 	<div
 		x-show="showPurchaseModal"
 		class="modal-backdrop"
 		x-cloak
 		@keydown.escape.window="showPurchaseModal = false"
 	>
-		<div class="modal-dialog modal-md" @click.away="showPurchaseModal = false">
+		<div class="modal-dialog modal-md text-start" @click.away="showPurchaseModal = false">
 			<div class="modal-header d-flex justify-between items-center pb-3 border-b border-slate-100">
 				<div class="d-flex items-center gap-2">
 					<div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center">
@@ -36,7 +37,7 @@ templ PackagePurchaseConfirmationModal() {
 			</div>
 
 			<div class="modal-body py-4">
-				<div class="bg-surface-sunken p-4 rounded-xl border border-slate-200/80 mb-4">
+				<div class="bg-surface-sunken p-4 rounded-xl border border-slate-200/80 mb-3">
 					<div class="flex-between items-center mb-2">
 						<h4 class="text-sm font-black text-primary m-0" x-text="selectedPkg.name"></h4>
 						<span class="badge badge-amber font-extrabold text-2xs" x-show="selectedPkg.tier > 0" x-text="'مستوى ' + selectedPkg.tier"></span>
@@ -50,17 +51,47 @@ templ PackagePurchaseConfirmationModal() {
 							<span>رصيد الرعايات المتاح:</span>
 							<strong class="text-brand tabular-nums font-black" x-text="selectedPkg.credits + ' رعاية ترويجية'"></strong>
 						</div>
-						<div class="d-flex items-center justify-between border-t border-slate-200/60 pt-2 mt-1">
-							<span class="font-bold text-primary">إجمالي المبلغ المستحق:</span>
-							<strong class="text-base font-black text-brand tabular-nums"><span x-text="selectedPkg.price"></span> ج.م</strong>
-						</div>
 					</div>
 				</div>
+
+				<!-- Wallet Balance & Summary Breakdown -->
+				<div class="p-4 rounded-xl bg-surface-sunken border border-slate-200/80 mb-3">
+					<div class="flex-between items-center text-xs text-secondary mb-2 font-medium">
+						<span>إجمالي المبلغ المستحق:</span>
+						<strong class="text-base font-black text-primary tabular-nums" x-text="selectedPkgPriceFormatted"></strong>
+					</div>
+					<div class="flex-between items-center text-xs text-secondary mb-2 font-medium">
+						<span>رصيدك المتاح في المحفظة:</span>
+						<strong class="text-sm font-bold text-brand tabular-nums">
+							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: walletBal })
+						</strong>
+					</div>
+					<div class="border-t border-slate-200/80 pt-2 mt-2 flex-between items-center text-xs font-medium">
+						<span>الرصيد المتبقي بعد الخصم:</span>
+						<strong
+							class="font-black tabular-nums"
+							:class="hasSufficientBalance ? 'text-success' : 'text-danger'"
+							x-text="hasSufficientBalance ? remainingBalanceFormatted : 'رصيد غير كافٍ'"
+						></strong>
+					</div>
+				</div>
+
+				<!-- Insufficient Balance Warning -->
+				<template x-if="!hasSufficientBalance && selectedPkgPriceMinor > 0">
+					<div class="alert alert-danger p-3.5 rounded-xl d-flex items-center gap-2.5 text-xs border border-rose-200 bg-rose-50/70 shadow-xs mb-3">
+						@components.IconAlert("icon-xs text-rose-600 flex-shrink-0")
+						<div class="flex-1 font-medium">
+							<strong class="text-rose-800 d-block font-bold">رصيد محفظتك المتاح غير كافٍ لإتمام الشراء.</strong>
+							<span class="text-rose-700 text-2xs">يرجى شحن المحفظة أولاً بالقيمة المطلوبة.</span>
+						</div>
+						<a href="/vendor/wallet" class="btn btn-secondary btn-xs font-bold shadow-2xs" target="_blank">شحن الآن ↗</a>
+					</div>
+				</template>
 
 				<div class="p-3 bg-amber-50/80 border border-amber-200/60 rounded-xl text-xs text-amber-900 d-flex items-start gap-2 mb-2">
 					@components.IconAlert("icon-xs text-amber-600 flex-shrink-0 mt-0.5")
 					<div>
-						سيتم خصم قيمة الباقة مباشرة من <strong>رصيد محفظة منشأتك</strong>، وإضافة رصيد الرعايات فوراً إلى حسابك.
+						سيتم خصم قيمة الباقة مباشرة من <strong>رصيد محفظتك المتاح</strong>، وإضافة رصيد الرعايات فوراً إلى حسابك.
 					</div>
 				</div>
 			</div>
@@ -74,7 +105,11 @@ templ PackagePurchaseConfirmationModal() {
 					إلغاء
 				</button>
 				<form :action="'/vendor/sponsorship-packages/' + selectedPkg.id + '/purchase'" method="POST" class="m-0">
-					<button type="submit" class="btn btn-primary btn-sm font-black gap-1.5 shadow-sm">
+					<button
+						type="submit"
+						class="btn btn-primary btn-sm font-black gap-1.5 shadow-sm"
+						:disabled="!hasSufficientBalance && selectedPkgPriceMinor > 0"
+					>
 						@components.IconCheck("icon-xs")
 						<span>تأكيد الشراء والخصم من المحفظة</span>
 					</button>
@@ -87,22 +122,52 @@ templ PackagePurchaseConfirmationModal() {
 // VendorOffersPackagesPageWithData renders vendor's available packages with purchase data.
 templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequestsData) {
 	@layouts.VendorShell("باقات العروض والاشتراكات", "offers_packages", lang, dir) {
-		<div class="page-container py-6" x-data="{ showPurchaseModal: false, selectedPkg: { id: 0, name: '', price: '', duration: 0, credits: 0, tier: 0 } }">
+		<div
+			class="page-container py-6"
+			x-data={ fmt.Sprintf(`{
+				showPurchaseModal: false,
+				walletBalanceMinor: %d,
+				selectedPkg: { id: 0, name: '', price: '', priceMinor: 0, duration: 0, credits: 0, tier: 0 },
+				get selectedPkgPriceMinor() {
+					return Number(this.selectedPkg.priceMinor) || 0;
+				},
+				get selectedPkgPriceFormatted() {
+					return (this.selectedPkgPriceMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';
+				},
+				get hasSufficientBalance() {
+					return this.walletBalanceMinor >= this.selectedPkgPriceMinor;
+				},
+				get remainingBalanceFormatted() {
+					const rem = (this.walletBalanceMinor - this.selectedPkgPriceMinor) / 100;
+					return rem.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';
+				}
+			}`, data.WalletBalance.Minor()) }
+		>
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 				<div class="flex-between items-center flex-wrap gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-2.5 mb-1.5">
 							<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
 								@components.IconBoxes("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">باقات العروض الترويجية المتاحة لمنشأتك</h1>
 								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث</p>
 							</div>
 						</div>
 					</div>
-					<div class="d-flex items-center gap-2.5">
+					<div class="d-flex items-center gap-3">
+						<div class="stat-card-3d p-3 px-4 border border-slate-200/80 rounded-xl bg-surface-sunken">
+							<div class="stat-card-label text-xs font-bold text-muted">رصيد محفظتك المتاح</div>
+							<div class="text-lg font-black text-primary tabular-nums mt-0.5">
+								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
+							</div>
+						</div>
+						<a href="/vendor/wallet" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+							@components.IconWallet("icon-xs")
+							<span>شحن المحفظة</span>
+						</a>
 						<a href="/vendor/sponsorship-requests" class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm">
 							@components.IconShield("icon-xs")
 							<span>طلبات ورصيد الرعاية</span>
@@ -117,10 +182,10 @@ templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequest
 					for _, pkg := range data.Packages {
 						if pkg != nil {
 							<div class="glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs transition-all d-flex flex-col justify-between">
-        <div class="stack-sm">
+								<div class="stack-sm">
 									<!-- Card Top Header -->
 									<div class="flex-between items-start mb-4">
-          <div class="stack-sm">
+										<div class="stack-sm">
 											<h3 class="text-lg font-black text-primary m-0 leading-tight">
 												{ pkg.Name.Get(i18n.AR) }
 											</h3>
@@ -165,7 +230,7 @@ templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequest
 								<button
 									type="button"
 									class="btn btn-primary btn-sm w-full font-black justify-center gap-1.5 shadow-sm"
-									@click={ fmt.Sprintf("showPurchaseModal = true; selectedPkg = { id: %d, name: %q, price: %q, duration: %d, credits: %d, tier: %d };", pkg.ID, pkg.Name.Get(i18n.AR), pkg.Price.String(), pkg.DurationDays, pkg.Credits, pkg.TierLevel) }
+									@click={ fmt.Sprintf("showPurchaseModal = true; selectedPkg = { id: %d, name: %q, price: %q, priceMinor: %d, duration: %d, credits: %d, tier: %d };", pkg.ID, pkg.Name.Get(i18n.AR), pkg.Price.String(), pkg.Price.Minor(), pkg.DurationDays, pkg.Credits, pkg.TierLevel) }
 								>
 									@components.IconCreditCard("icon-xs")
 									<span>شراء وتفعيل الباقة</span>
@@ -174,7 +239,7 @@ templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequest
 						}
 					}
 				</div>
-				@PackagePurchaseConfirmationModal()
+				@PackagePurchaseConfirmationModal(data.WalletBalance)
 			} else {
 				<div class="glass-panel p-8 text-center border border-slate-200/80 rounded-2xl shadow-xs">
 					<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
@@ -457,22 +522,52 @@ templ VendorOffersLocationsPage(lang, dir string) {
 // VendorSponsorshipRequestsPage renders the vendor's sponsorship management page.
 templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsData) {
 	@layouts.VendorShell("طلبات الرعاية والباقات", "sponsorship_requests", lang, dir) {
-		<div class="page-container py-6">
+		<div
+			class="page-container py-6"
+			x-data={ fmt.Sprintf(`{
+				showPurchaseModal: false,
+				walletBalanceMinor: %d,
+				selectedPkg: { id: 0, name: '', price: '', priceMinor: 0, duration: 0, credits: 0, tier: 0 },
+				get selectedPkgPriceMinor() {
+					return Number(this.selectedPkg.priceMinor) || 0;
+				},
+				get selectedPkgPriceFormatted() {
+					return (this.selectedPkgPriceMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';
+				},
+				get hasSufficientBalance() {
+					return this.walletBalanceMinor >= this.selectedPkgPriceMinor;
+				},
+				get remainingBalanceFormatted() {
+					const rem = (this.walletBalanceMinor - this.selectedPkgPriceMinor) / 100;
+					return rem.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';
+				}
+			}`, data.WalletBalance.Minor()) }
+		>
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 				<div class="flex-between items-center flex-wrap gap-4">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<div class="d-flex items-center gap-2.5 mb-1.5">
 							<div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs">
 								@components.IconShield("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div class="stack-sm">
 								<h1 class="text-2xl font-black text-primary m-0">طلبات الرعاية وباقات الترويج</h1>
 								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">اشترِ باقة رعاية للحصول على رصيد الرعايات، ثم قدّم طلبات رعاية لأصنافك أو عروضك لتثبيتها في صدارة الكتالوج</p>
 							</div>
 						</div>
 					</div>
-					<div class="d-flex items-center gap-2">
+					<div class="d-flex items-center gap-3">
+						<div class="stat-card-3d p-3 px-4 border border-slate-200/80 rounded-xl bg-surface-sunken">
+							<div class="stat-card-label text-xs font-bold text-muted">رصيد محفظتك المتاح</div>
+							<div class="text-lg font-black text-primary tabular-nums mt-0.5">
+								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
+							</div>
+						</div>
+						<a href="/vendor/wallet" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
+							@components.IconWallet("icon-xs")
+							<span>شحن المحفظة</span>
+						</a>
 						<a href="/vendor/offers-packages" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
 							@components.IconBoxes("icon-xs")
 							<span>استعراض الباقات</span>
@@ -517,7 +612,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 
 			<!-- Available Packages Quick Grid -->
 			if len(data.Packages) > 0 {
-				<div class="glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs" x-data="{ showPurchaseModal: false, selectedPkg: { id: 0, name: '', price: '', duration: 0, credits: 0, tier: 0 } }">
+				<div class="glass-panel p-5 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
 					<div class="d-flex items-center gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
 						@components.IconBoxes("icon-xs text-brand")
 						<h3 class="text-sm font-black text-primary m-0">الباقات المتاحة للشراء الفوري</h3>
@@ -526,9 +621,9 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 						for _, pkg := range data.Packages {
 							if pkg != nil {
 								<div class="bg-surface-sunken p-4 rounded-xl border border-slate-200/80 d-flex flex-col justify-between">
-         <div class="stack-sm">
+									<div class="stack-sm">
 										<div class="flex-between items-start mb-2">
-           <div class="stack-sm">
+											<div class="stack-sm">
 												<h4 class="font-black text-sm text-primary m-0">{ pkg.Name.Get(i18n.AR) }</h4>
 												if pkg.TierLevel > 0 {
 													<span class="badge badge-amber font-extrabold text-2xs mt-1">
@@ -548,7 +643,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 									<button
 										type="button"
 										class="btn btn-primary btn-xs w-full font-black justify-center shadow-2xs"
-										@click={ fmt.Sprintf("showPurchaseModal = true; selectedPkg = { id: %d, name: %q, price: %q, duration: %d, credits: %d, tier: %d };", pkg.ID, pkg.Name.Get(i18n.AR), pkg.Price.String(), pkg.DurationDays, pkg.Credits, pkg.TierLevel) }
+										@click={ fmt.Sprintf("showPurchaseModal = true; selectedPkg = { id: %d, name: %q, price: %q, priceMinor: %d, duration: %d, credits: %d, tier: %d };", pkg.ID, pkg.Name.Get(i18n.AR), pkg.Price.String(), pkg.Price.Minor(), pkg.DurationDays, pkg.Credits, pkg.TierLevel) }
 									>
 										شراء وتفعيل الباقة
 									</button>
@@ -556,8 +651,8 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 							}
 						}
 					</div>
-					@PackagePurchaseConfirmationModal()
 				</div>
+				@PackagePurchaseConfirmationModal(data.WalletBalance)
 			}
 
 			<!-- Submit New Request Form Panel with Multi-Select & Live Credit Calculations -->

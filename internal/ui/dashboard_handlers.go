@@ -132,7 +132,7 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
 			h.log.DebugContext(ctx, "vendor dashboard: get wallet optional", "error", err)
 		} else if wallet != nil {
-			data.WalletBalance = wallet.Balance
+			data.WalletBalance = wallet.Available()
 			data.HasWallet = true
 		}
 	}
@@ -270,7 +270,7 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
 			h.log.DebugContext(ctx, "pharmacy dashboard: get wallet optional", "error", err)
 		} else if wallet != nil {
-			data.WalletBalance = wallet.Balance
+			data.WalletBalance = wallet.Available()
 			data.HasWallet = true
 
 			if txs, err := h.billSvc.ListWalletTransactions(ctx, wallet.ID, 5, 0); err == nil {

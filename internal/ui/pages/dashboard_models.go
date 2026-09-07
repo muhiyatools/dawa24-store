@@ -35,6 +35,10 @@ type OrgSubscriptionView struct {
 	AIBudgetSpentUSD   float64
 	AIBudgetName       string
 	AIBudgetResetTime  string
+	RawExpiresAt       time.Time
+	DaysRemaining      int
+	HasDaysRemaining   bool
+	RenewalCost        money.Amount
 	// HasAIUsage reports whether the Gateway actually answered with this
 	// tenant's consumption.
 	//
@@ -61,6 +65,76 @@ type TenantSubscriptionPageData struct {
 	BillingCycle  string
 	NoticeType    string
 	NoticeMsg     string
+}
+
+func (d *TenantSubscriptionPageData) CurrentPlan() *billing.Plan {
+	if d == nil {
+		return nil
+	}
+	for _, p := range d.Plans {
+		if d.CurrentPlanID > 0 && p.ID == d.CurrentPlanID {
+			return p
+		}
+		if d.CurrentPlanID <= 0 && p.IsDefault {
+			return p
+		}
+	}
+	return nil
+}
+
+func (d *TenantSubscriptionPageData) NextRenewalAmount() money.Amount {
+	p := d.CurrentPlan()
+	if p == nil {
+		return money.Zero
+	}
+	if d.BillingCycle == "annual" {
+		return p.PriceYear
+	}
+	return p.PriceMonth
+}
+
+func (d *TenantSubscriptionPageData) HasSufficientForRenewal() bool {
+	if d == nil {
+		return false
+	}
+	cost := d.NextRenewalAmount()
+	if cost.IsZero() || cost.IsNegative() {
+		return true
+	}
+	return d.WalletBalance.Minor() >= cost.Minor()
+}
+
+func (d *TenantSubscriptionPageData) ShortfallAmount() money.Amount {
+	if d == nil {
+		return money.Zero
+	}
+	cost := d.NextRenewalAmount()
+	if d.WalletBalance.Minor() >= cost.Minor() {
+		return money.Zero
+	}
+	return money.FromMinor(cost.Minor() - d.WalletBalance.Minor())
+}
+
+func (v *OrgSubscriptionView) DaysRemainingText() string {
+	if v == nil || v.IsDefaultPlan || !v.HasDaysRemaining {
+		return "باقة دائمة بدون موعد انتهاء"
+	}
+	if v.DaysRemaining < 0 {
+		return "انتهت فترة الاشتراك"
+	}
+	if v.DaysRemaining == 0 {
+		return "اليوم موعد التجديد التلقائي"
+	}
+	if v.DaysRemaining == 1 {
+		return "متبقي يوم واحد على موعد التجديد"
+	}
+	if v.DaysRemaining == 2 {
+		return "متبقي يومان على موعد التجديد"
+	}
+	if v.DaysRemaining >= 3 && v.DaysRemaining <= 10 {
+		return fmt.Sprintf("متبقي %d أيام على موعد التجديد", v.DaysRemaining)
+	}
+	return fmt.Sprintf("متبقي %d يوماً على موعد التجديد", v.DaysRemaining)
 }
 
 // VendorDashboardData is the supplier dashboard view model.

@@ -246,7 +246,12 @@ func (r *Repository) RenewSubscription(ctx context.Context, subID int64, walletI
 				return err
 			}
 
-			if balance.Minor() < cost.Minor() {
+			var pendingWithdrawals money.Amount
+			queryPending := `SELECT COALESCE(SUM(amount), 0) FROM billing.wallet_withdrawals WHERE wallet_id = $1 AND status = 'pending';`
+			_ = tx.QueryRow(txCtx, queryPending, walletID).Scan(&pendingWithdrawals)
+
+			availMinor := balance.Minor() - pendingWithdrawals.Minor()
+			if availMinor < cost.Minor() {
 				return apperr.Conflict("wallet.insufficient_funds", i18n.TDefault("w4_mod.w4str_75_75"))
 			}
 

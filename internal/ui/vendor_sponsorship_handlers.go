@@ -59,7 +59,7 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 	if h.billSvc != nil {
 		sysCtx := database.AsSystem(ctx)
 		if w, err := h.billSvc.GetWallet(sysCtx, actor.UserID, "EGP"); err == nil && w != nil {
-			walletBal = w.Balance
+			walletBal = w.Available()
 		}
 	}
 
