@@ -13,6 +13,7 @@ templ SupplierProfileGrid(data SupplierProfileData, lang string) {
 		for _, v := range data.Variants {
 			{{
 				availStock := data.GetAvailableStock(v)
+				maxOrderQty := data.GetMaxOrderQty(v)
 				isCovered := data.IsVariantCovered(v)
 				canAdd := data.CanAddToCart(v)
 				minOrderQty := data.GetMinOrderQty(v)
@@ -124,7 +125,7 @@ templ SupplierProfileGrid(data SupplierProfileData, lang string) {
 								type="number"
 								name="quantity"
 								min={ fmt.Sprintf("%d", minOrderQty) }
-								max={ fmt.Sprintf("%d", availStock) }
+								max={ fmt.Sprintf("%d", maxOrderQty) }
 								value={ fmt.Sprintf("%d", minOrderQty) }
 								class="sp-stepper-input tabular-nums"
 								title={ fmt.Sprintf("الكمية المطلوبة (المتاح بالمخزن: %d)", availStock) }

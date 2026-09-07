@@ -49,16 +49,20 @@ type SupplierVariantCard struct {
 	DiscountPercent int          // 15 = 15%
 	AvailableStock  int
 	MinOrderQty     int
-	BatchNumber     string
-	ExpiryDate      string
-	IsCovered       bool
-	CoverageReason  string
-	CanAddToCart    bool
-	IsNegotiable    bool
-	IsSponsored     bool
-	SponsoredTier   int   // tier level from sponsorship package (5 Diamond, 4 Platinum, etc.)
-	TieBreaker      int64 // random tie breaker for equal tier sponsorships
-	IsFavorite      bool
+	// MaxOrderQty is what this buyer's branch may actually take: the stock,
+	// lowered to what is left of the supplier's per-branch quota. Zero means
+	// no availability check ran, and the quantity box falls back to the stock.
+	MaxOrderQty    int
+	BatchNumber    string
+	ExpiryDate     string
+	IsCovered      bool
+	CoverageReason string
+	CanAddToCart   bool
+	IsNegotiable   bool
+	IsSponsored    bool
+	SponsoredTier  int   // tier level from sponsorship package (5 Diamond, 4 Platinum, etc.)
+	TieBreaker     int64 // random tie breaker for equal tier sponsorships
+	IsFavorite     bool
 }
 type SupplierOffer struct {
 	OfferID          int64
@@ -74,6 +78,7 @@ type SupplierOffer struct {
 	DiscountBPS      int64        // effective percent in basis points (1500 = 15%)
 	AvailableStock   int
 	MinOrderQty      int
+	MaxOrderQty      int
 	BatchNumber      string
 	ExpiryDate       string
 	DeliveryEstimate string
@@ -192,4 +197,35 @@ func ActiveBranchName(buying authctx.BuyingBranch) string {
 		return buying.Branches[0].Name
 	}
 	return "الفرع المعتمد"
+}
+
+// OrderCeiling is the largest quantity a card's number box may offer.
+//
+// The stock when nothing has capped it, the quota remainder when something has.
+// Both cards carry the same rule, so it is written once: a box that offered a
+// number the server then refused would put the pharmacy in a loop with no way
+// out but guessing.
+func (c *SupplierVariantCard) OrderCeiling() int {
+	if c == nil {
+		return 1
+	}
+	return orderCeiling(c.MaxOrderQty, c.AvailableStock)
+}
+
+// OrderCeiling is the largest quantity this offer's number box may offer.
+func (o *SupplierOffer) OrderCeiling() int {
+	if o == nil {
+		return 1
+	}
+	return orderCeiling(o.MaxOrderQty, o.AvailableStock)
+}
+
+func orderCeiling(maxQty, stock int) int {
+	if maxQty > 0 {
+		return maxQty
+	}
+	if stock > 0 {
+		return stock
+	}
+	return 1
 }

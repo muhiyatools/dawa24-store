@@ -322,7 +322,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 															name="qty"
 															value={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
 															min={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
-															max={ fmt.Sprintf("%d", max(1, offers[0].AvailableStock)) }
+															max={ fmt.Sprintf("%d", offers[0].OrderCeiling()) }
 															class="cart-stepper-input flex-1 text-center font-black"
 														/>
 														<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>

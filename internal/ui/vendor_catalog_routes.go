@@ -43,6 +43,20 @@ func (h *UIHandler) registerVendorCatalogRoutes(r chi.Router) {
 		g.Post("/vendor/variants/{id}/delete", h.VendorVariantDeleteSubmit)
 	})
 
+	// حصص الفروع: the per-branch purchase quota. Viewing is separate from
+	// managing, so a warehouse keeper can see which branch has taken what
+	// without being able to hand out more.
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.quota.view"))
+		g.Get("/vendor/quotas", h.VendorQuotasPage)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.quota.manage"))
+		g.Post("/vendor/quotas/limit", h.VendorQuotaLimitSubmit)
+		g.Post("/vendor/quotas/release", h.VendorQuotaReleaseSubmit)
+		g.Post("/vendor/quotas/release/undo", h.VendorQuotaReleaseUndoSubmit)
+	})
+
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.inventory.view"))
 		g.Get("/vendor/inventory", h.VendorInventoryPage)

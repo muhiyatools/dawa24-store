@@ -170,6 +170,11 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		isCovered := false
 		canAddToCart := false
 		covReason := ""
+		// maxOrderQty is what this branch may actually take. It stays zero
+		// unless an availability check ran, and the card then falls back to the
+		// stock — the behaviour every signed-out or branchless visitor had
+		// before quotas existed.
+		maxOrderQty := 0
 
 		if isBuyer {
 			if h.commSvc != nil && customerBranchID > 0 {
@@ -182,6 +187,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 					When:             time.Now(),
 				})
 				if err == nil {
+					maxOrderQty = res.MaxQuantity
 					if res.Allowed {
 						isCovered = true
 						canAddToCart = (stockQty > 0)
@@ -231,6 +237,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			DiscountAmount:   discountAmt,
 			DiscountBPS:      discountBPS,
 			AvailableStock:   stockQty,
+			MaxOrderQty:      maxOrderQty,
 			MinOrderQty:      minQty,
 			BatchNumber:      v.BatchNumber,
 			ExpiryDate:       expiryStr,

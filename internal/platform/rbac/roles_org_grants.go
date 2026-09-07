@@ -18,6 +18,7 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.coverage.view", "vendor.coverage.manage",
 			"vendor.pharmacy_coverage.view",
 			"vendor.product.view", "vendor.product.create", "vendor.product.update",
+			"vendor.quota.view", "vendor.quota.manage",
 			"vendor.ingest.view", "vendor.ingest.run",
 			"vendor.saving_product.view", "vendor.saving_product.manage",
 			"vendor.inventory.view", "vendor.inventory.adjust",

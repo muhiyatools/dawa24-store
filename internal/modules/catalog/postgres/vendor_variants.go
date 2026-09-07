@@ -37,7 +37,7 @@ const vendorVariantColumns = `
 	v.id, v.public_id, v.organization_id, COALESCE(v.product_id, 0), v.name, v.sku,
 	v.barcode, v.price, v.cost_price, COALESCE(v.cost_discount_percentage, 0.00), v.discount, v.unit, v.image, v.status,
 	v.is_featured, v.is_negotiable, v.batch_number, v.expiry_date, v.min_order_qty,
-	v.branch_id, v.created_at, v.updated_at, st.qty`
+	v.quota_limit, v.branch_id, v.created_at, v.updated_at, st.qty`
 
 // ListVendorVariants returns one page of a vendor's variants with their stock.
 func (r *Repository) ListVendorVariants(
@@ -77,7 +77,7 @@ func (r *Repository) ListVendorVariants(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.CostDiscountPercentage, &v.Discount, &v.Unit, &v.Image,
 				&status, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate,
-				&v.MinOrderQty, &v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.StockQty,
+				&v.MinOrderQty, &v.QuotaLimit, &v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.StockQty,
 			); err != nil {
 				return fmt.Errorf("catalog postgres: scan vendor variant: %w", err)
 			}

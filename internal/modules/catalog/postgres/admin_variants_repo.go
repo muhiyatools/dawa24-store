@@ -55,7 +55,7 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 		dataQuery := fmt.Sprintf(`
 			SELECT v.id, v.public_id, v.organization_id, v.product_id, v.name, v.sku, v.barcode,
 			       v.price, v.cost_price, COALESCE(v.cost_discount_percentage, 0.00), v.discount, v.unit, v.image, v.status, v.is_featured, v.is_negotiable,
-			       v.batch_number, v.expiry_date, v.min_order_qty, v.branch_id,
+			       v.batch_number, v.expiry_date, v.min_order_qty, v.quota_limit, v.branch_id,
 			       COALESCE(SUM(s.quantity), 0) as stock_qty,
 			       v.created_at, v.updated_at, v.deleted_at
 			FROM catalog.product_variants v
@@ -79,7 +79,7 @@ func (r *Repository) ListAllVariants(ctx context.Context, params catalog.Variant
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.CostDiscountPercentage, &v.Discount, &v.Unit, &v.Image,
-				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty, &v.QuotaLimit,
 				&v.BranchID, &v.StockQty, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {
 				return err
@@ -108,12 +108,12 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 			SET name = $2, sku = $3, barcode = $4, price = $5, cost_price = $6, cost_discount_percentage = $7,
 			    discount = $8, unit = $9, image = $10, status = $11,
 			    is_featured = $12, is_negotiable = $13, batch_number = $14, expiry_date = $15,
-			    min_order_qty = $16,
-			    branch_id = COALESCE($17, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = catalog.product_variants.organization_id AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
+			    min_order_qty = $16, quota_limit = $17,
+			    branch_id = COALESCE($18, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = catalog.product_variants.organization_id AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
 			    updated_at = now()
 			WHERE id = $1
 			  AND deleted_at IS NULL
-			  AND ($18::bigint = 0 OR organization_id = $18);
+			  AND ($19::bigint = 0 OR organization_id = $19);
 		`
 		minQty := v.MinOrderQty
 		if minQty <= 0 {
@@ -122,7 +122,7 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 		res, err := tx.Exec(txCtx, query,
 			v.ID, v.Name, v.SKU, v.Barcode, v.Price, v.CostPrice, v.CostDiscountPercentage, v.Discount,
 			v.Unit, v.Image, string(v.Status), v.IsFeatured, v.IsNegotiable, v.BatchNumber,
-			v.ExpiryDate, minQty, v.BranchID, v.OrganizationID,
+			v.ExpiryDate, minQty, catalog.NormalizeQuotaLimit(v.QuotaLimit), v.BranchID, v.OrganizationID,
 		)
 		if err != nil {
 			// The partial unique index on (organization_id, sku) is the only

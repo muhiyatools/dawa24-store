@@ -257,7 +257,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 											name="qty"
 											value={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
 											min={ fmt.Sprintf("%d", max(1, v.MinOrderQty)) }
-											max={ fmt.Sprintf("%d", max(1, v.AvailableStock)) }
+											max={ fmt.Sprintf("%d", v.OrderCeiling()) }
 											class="cart-stepper-input"
 										/>
 										<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>

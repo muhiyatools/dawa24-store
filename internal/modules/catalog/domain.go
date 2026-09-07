@@ -118,6 +118,13 @@ type ProductVariant struct {
 	BatchNumber            string        `json:"batch_number,omitempty"`
 	ExpiryDate             *time.Time    `json:"expiry_date,omitempty"`
 	MinOrderQty            int           `json:"min_order_qty"`
+	// QuotaLimit caps how much ONE buying branch may ever take of this
+	// variant. nil means no quota. It is a total across orders, not a per-order
+	// maximum: a branch that has taken the whole quota cannot come back, and
+	// two branches of the same company each get the full allowance because the
+	// allocation is about where the stock lands. The consumption itself lives
+	// in commerce (summed from order lines); this is only the cap.
+	QuotaLimit             *int          `json:"quota_limit,omitempty"`
 	BranchID               *int64        `json:"branch_id,omitempty"`
 	// StockQty is NOT persisted on this table. catalog.product_variants has no
 	// stock column — stock lives in inventory.stocks against a warehouse. This

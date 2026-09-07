@@ -145,6 +145,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 					isCovered := true
 					canAddToCart := (availStock > 0)
 					covReason := ""
+					maxOrderQty := 0
 
 					if isBuyer {
 						if customerBranchID <= 0 {
@@ -161,6 +162,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 								When:             time.Now(),
 							})
 							if err == nil {
+								maxOrderQty = res.MaxQuantity
 								if res.Allowed {
 									isCovered = true
 									canAddToCart = (availStock > 0)
@@ -190,6 +192,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 
 					data.VariantMeta[v.ID] = pages.SupplierVariantMeta{
 						AvailableStock: availStock,
+						MaxOrderQty:    maxOrderQty,
 						MinOrderQty:    minQty,
 						IsCovered:      isCovered,
 						CoverageReason: covReason,

@@ -68,6 +68,7 @@ func (s *Service) UpdateVariant(ctx context.Context, id int64, input *ProductVar
 	existing.BatchNumber = input.BatchNumber
 	existing.ExpiryDate = input.ExpiryDate
 	existing.MinOrderQty = input.MinOrderQty
+	existing.QuotaLimit = NormalizeQuotaLimit(input.QuotaLimit)
 	if input.BranchID != nil {
 		existing.BranchID = input.BranchID
 	}

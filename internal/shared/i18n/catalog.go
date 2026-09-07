@@ -20,6 +20,7 @@ func loadCatalogDefaults(e *engine) {
 	loadErrorsAndValidationKeys(e)
 	loadWave3Keys(e)
 	loadWave4Keys(e)
+	loadQuotaKeys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

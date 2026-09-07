@@ -84,10 +84,17 @@ func checkDrift(ctx context.Context, conn *pgx.Conn, migrations []migration) ([]
 
 // migrationHash reproduces the runner's checksum.
 //
-// Line endings are normalised first so a file checked out on Windows and the
-// same file in a Linux container hash identically — otherwise every developer
-// on Windows would see phantom drift.
+// It mirrors internal/platform/database.loadMigrations exactly: strip a UTF-8
+// byte-order mark, normalise CRLF to LF, then SHA-256.
+//
+// Line endings are normalised so a file checked out on Windows and the same
+// file in a Linux container hash identically, and the BOM is stripped for the
+// same reason: several migrations were saved by an editor that writes one, and
+// hashing those three bytes made this tool report 184 and 187 as "edited after
+// being applied" against a database the real runner is perfectly happy with —
+// a false alarm that tells a developer to undo a file they never touched.
 func migrationHash(sql string) string {
+	sql = strings.TrimPrefix(sql, "\ufeff")
 	sum := sha256.Sum256([]byte(strings.ReplaceAll(sql, "\r\n", "\n")))
 	return hex.EncodeToString(sum[:])
 }

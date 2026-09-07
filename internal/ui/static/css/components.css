@@ -2887,7 +2887,7 @@ input:focus {
 /* Final recovery batch (Phase 7). The rest of the undefined-class list is
    Alpine state names -- activeTab, filterTab, policyFilter -- which appear
    inside :class bindings and are never CSS selectors. */
-.sidebar-brand { display: flex; align-items: center; gap: var(--space-sm); min-inline-size: 0; }
+.sidebar-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; min-inline-size: 0; max-width: calc(100% - 2.5rem); }
 .sidebar-toggle {
   display: inline-flex;
   align-items: center;

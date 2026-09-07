@@ -23,11 +23,12 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		// 1. Lock the order row and verify status is still pending
 		var currentStatus string
 		var oldSubtotal, oldDiscount, shippingFee, oldTax money.Amount
+		var orderBranchID *int64
 		err := tx.QueryRow(txCtx, `
-			SELECT status, subtotal, discount_amount, shipping_fee, tax_amount 
-			FROM commerce.orders 
+			SELECT status, subtotal, discount_amount, shipping_fee, tax_amount, branch_id
+			FROM commerce.orders
 			WHERE id = $1 FOR UPDATE;
-		`, order.ID).Scan(&currentStatus, &oldSubtotal, &oldDiscount, &shippingFee, &oldTax)
+		`, order.ID).Scan(&currentStatus, &oldSubtotal, &oldDiscount, &shippingFee, &oldTax, &orderBranchID)
 		if err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("order")
@@ -189,6 +190,27 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_lines WHERE order_id = $1;`, order.ID).Scan(&remainingCount)
 		if remainingCount == 0 {
 			return apperr.Validation("order.empty", i18n.TDefault("w4_mod.w4str_157_157"), nil)
+		}
+
+		// 3b. The per-branch quota, re-measured against the edited quantities.
+		//
+		// Editing is the one path that can raise a commitment without going
+		// near the cart, so it needs the rule as much as checkout does. The
+		// lines have already been written above, which is why the sum discounts
+		// this order (excludeOrderID) and compares the *new* demand against
+		// what every other order of this branch still holds: raising a line
+		// from 2 to 3 must be measured as 3 against the cap, not as 5. A
+		// refusal rolls the whole transaction back, edits included.
+		editBranchID := int64(0)
+		if orderBranchID != nil {
+			editBranchID = *orderBranchID
+		}
+		editedDemands, err := orderQuotaDemandsTx(txCtx, tx, order.ID)
+		if err != nil {
+			return err
+		}
+		if err := enforceOrderQuotas(txCtx, tx, editBranchID, editedDemands, order.ID); err != nil {
+			return err
 		}
 
 		// 4. Recalculate order totals from all active lines in DB

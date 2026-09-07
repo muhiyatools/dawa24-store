@@ -41,6 +41,13 @@ const (
 	ReasonBranchInstitutionalMismatch Reason = "branch_institutional_mismatch"
 	ReasonNotCovered                  Reason = "not_covered"
 	ReasonQuantityInvalid             Reason = "quantity_invalid"
+	// ReasonQuotaExhausted and ReasonQuotaExceeded are the per-branch purchase
+	// quota. They are separate reasons rather than one, because the two need
+	// different screens: "this branch has taken its whole allowance" ends the
+	// conversation, while "you asked for 8 and 3 remain" is a number the
+	// pharmacy can act on. MaxQuantity carries that remainder.
+	ReasonQuotaExhausted Reason = "quota_exhausted"
+	ReasonQuotaExceeded  Reason = "quota_exceeded"
 	// ReasonOwnOrganization refuses a company buying from itself. Smart
 	// Ordering has always called this ReasonOwnOrg and refused it first; this
 	// is the same invariant on the ordinary purchase path.
@@ -54,6 +61,11 @@ type VariantAvailability struct {
 	StockQty       int
 	MinOrderQty    int
 	Active         bool
+	// QuotaLimit is the supplier's per-branch cap on this variant, 0 meaning
+	// unlimited. It is the cap alone; what a branch has already taken against
+	// it is commerce's own arithmetic and is read here, not supplied by the
+	// probe.
+	QuotaLimit int
 }
 
 // VendorAvailability is the slice of a supplier organization that the rule needs.
@@ -277,7 +289,39 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 			"This supplier does not cover your branch's location on this day."), nil
 	}
 
-	return AvailabilityResult{Allowed: true, MaxQuantity: variant.StockQty, Reason: ReasonOK}, nil
+	// 7. The supplier's per-branch quota, if this variant carries one.
+	//
+	// Last, because it is the only check that costs a sum over the branch's
+	// order history and there is no point paying for it to refuse a line that
+	// is out of stock or out of coverage anyway. It is also the only check
+	// whose answer changes the ceiling on an *allowed* line, which is why the
+	// success below reports the smaller of stock and remaining allowance: a
+	// pharmacy offered "up to 40 in stock" when its branch may take 3 has been
+	// told the wrong number.
+	maxQty := variant.StockQty
+	if variant.QuotaLimit > 0 {
+		usage, err := s.BranchQuotaFor(ctx, req.VariantID, req.CustomerBranchID, variant.QuotaLimit)
+		if err != nil {
+			return AvailabilityResult{}, fmt.Errorf(
+				"availability: quota for variant %d branch %d: %w", req.VariantID, req.CustomerBranchID, err)
+		}
+		remaining := usage.Remaining()
+		if remaining <= 0 {
+			return denied(ReasonQuotaExhausted, 0,
+				i18n.T(i18n.AR, "quota.exhausted", variant.QuotaLimit),
+				i18n.T(i18n.EN, "quota.exhausted", variant.QuotaLimit)), nil
+		}
+		if req.Quantity > remaining {
+			return denied(ReasonQuotaExceeded, remaining,
+				i18n.T(i18n.AR, "quota.exceeded", remaining, variant.QuotaLimit),
+				i18n.T(i18n.EN, "quota.exceeded", remaining, variant.QuotaLimit)), nil
+		}
+		if remaining < maxQty {
+			maxQty = remaining
+		}
+	}
+
+	return AvailabilityResult{Allowed: true, MaxQuantity: maxQty, Reason: ReasonOK}, nil
 }
 
 // revalidateCheckoutLines re-runs the availability rule over every line being
@@ -296,16 +340,35 @@ func (s *Service) revalidateCheckoutLines(ctx context.Context, input CheckoutInp
 	if input.BranchID != nil {
 		branchID = *input.BranchID
 	}
+
+	// One basket can name the same variant twice — the plain listing and an
+	// offer both add it, and the cart keys on the cart item rather than on the
+	// variant. Checking each line on its own would then measure 3 and 3
+	// against a stock of 5 or a remaining quota of 4 and pass both. The whole
+	// order's demand for a variant is what has to fit, so it is summed first.
+	demand := make(map[int64]int, len(input.Items))
+	for _, item := range input.Items {
+		if item.ProductVariantID == nil || *item.ProductVariantID <= 0 {
+			continue
+		}
+		demand[*item.ProductVariantID] += item.Quantity
+	}
+
+	checked := make(map[int64]bool, len(demand))
 	for _, item := range input.Items {
 		if item.ProductVariantID == nil || *item.ProductVariantID <= 0 {
 			continue // a line with no variant carries no stock to check
 		}
+		if checked[*item.ProductVariantID] {
+			continue
+		}
+		checked[*item.ProductVariantID] = true
 		res, err := s.CheckAvailability(ctx, AvailabilityRequest{
 			VariantID:        *item.ProductVariantID,
 			VendorOrgID:      item.VendorOrgID,
 			CustomerOrgID:    input.CustomerOrgID,
 			CustomerBranchID: branchID,
-			Quantity:         item.Quantity,
+			Quantity:         demand[*item.ProductVariantID],
 			When:             time.Now(),
 		})
 		if err != nil {

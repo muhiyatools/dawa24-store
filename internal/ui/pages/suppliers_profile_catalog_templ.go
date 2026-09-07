@@ -151,6 +151,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 			}
 			for _, v := range data.Variants {
 				availStock := data.GetAvailableStock(v)
+				maxOrderQty := data.GetMaxOrderQty(v)
 				isCovered := data.IsVariantCovered(v)
 				canAdd := data.CanAddToCart(v)
 				minOrderQty := data.GetMinOrderQty(v)
@@ -167,7 +168,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(img)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 107, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 108, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -180,7 +181,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 107, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 108, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -198,7 +199,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(dosageFormIcon(data.GetDosageForm(v)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 109, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 110, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -216,7 +217,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 				var templ_7745c5c3_Var10 templ.SafeURL
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 114, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 115, Col: 76}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -230,7 +231,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 116, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 117, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -240,7 +241,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("تشغيلة رقم #%d", v.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 118, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 119, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -259,7 +260,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(sci)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 123, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 124, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -282,7 +283,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(form)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 128, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 129, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -301,7 +302,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(conc)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 133, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 134, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -320,7 +321,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(v.Unit)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 138, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 139, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -349,7 +350,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(v.BatchNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 155, Col: 119}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 156, Col: 119}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -368,7 +369,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(v.ExpiryDate.Format("2006-01"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 158, Col: 136}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 159, Col: 136}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -387,7 +388,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", v.MinOrderQty))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 161, Col: 101}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 162, Col: 101}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -410,7 +411,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(v.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 170, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 171, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -428,7 +429,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(p.PublicPrice().String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 174, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 175, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -457,7 +458,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", discPct))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 186, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 187, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -481,7 +482,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(effPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 197, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 198, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -495,7 +496,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(v.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 199, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 200, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -523,7 +524,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", availStock))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 211, Col: 55}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 212, Col: 55}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -547,7 +548,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.GetCoverageReason(v))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 219, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 220, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 					if templ_7745c5c3_Err != nil {
@@ -575,7 +576,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/suppliers/%d", data.Org.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 243, Col: 98}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 244, Col: 98}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 					if templ_7745c5c3_Err != nil {
@@ -588,7 +589,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 244, Col: 88}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 245, Col: 88}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 					if templ_7745c5c3_Err != nil {
@@ -601,7 +602,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 245, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 246, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 					if templ_7745c5c3_Err != nil {
@@ -614,7 +615,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Org.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 246, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 247, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 					if templ_7745c5c3_Err != nil {
@@ -627,7 +628,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Org.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 247, Col: 91}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 248, Col: 91}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 					if templ_7745c5c3_Err != nil {
@@ -640,7 +641,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(effPrice.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 248, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 249, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 					if templ_7745c5c3_Err != nil {
@@ -653,7 +654,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", minOrderQty))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 253, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 254, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 					if templ_7745c5c3_Err != nil {
@@ -664,9 +665,9 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var34 string
-					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", availStock))
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", maxOrderQty))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 254, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 255, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 					if templ_7745c5c3_Err != nil {
@@ -679,7 +680,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", minOrderQty))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 255, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 256, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 					if templ_7745c5c3_Err != nil {
@@ -692,7 +693,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("الكمية المطلوبة (الحد الأقصى المتاح بالمخزن: %d)", availStock))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 257, Col: 132}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 258, Col: 132}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
 					if templ_7745c5c3_Err != nil {
@@ -718,7 +719,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var37 string
 						templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 273, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 274, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 						if templ_7745c5c3_Err != nil {
@@ -731,7 +732,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var38 string
 						templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 274, Col: 61}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 275, Col: 61}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 						if templ_7745c5c3_Err != nil {
@@ -744,7 +745,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var39 string
 						templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Org.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 275, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 276, Col: 60}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 						if templ_7745c5c3_Err != nil {
@@ -757,7 +758,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var40 string
 						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.Name.Get(i18n.Lang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 276, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 277, Col: 60}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 						if templ_7745c5c3_Err != nil {
@@ -770,7 +771,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var41 string
 						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(effPrice.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 277, Col: 51}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 278, Col: 51}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
 						if templ_7745c5c3_Err != nil {
@@ -783,7 +784,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var42 string
 						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", minOrderQty))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 278, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 279, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 						if templ_7745c5c3_Err != nil {
@@ -809,7 +810,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var43 templ.SafeURL
 					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 286, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 287, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -841,7 +842,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 							var templ_7745c5c3_Var44 string
 							templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.GetCoverageReason(v))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 294, Col: 96}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 295, Col: 96}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 							if templ_7745c5c3_Err != nil {
@@ -854,7 +855,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 							var templ_7745c5c3_Var45 string
 							templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(data.GetCoverageReason(v))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 295, Col: 41}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 296, Col: 41}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 							if templ_7745c5c3_Err != nil {
@@ -884,7 +885,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 							var templ_7745c5c3_Var46 string
 							templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.GetCoverageReason(v))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 308, Col: 97}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 309, Col: 97}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
 							if templ_7745c5c3_Err != nil {
@@ -897,7 +898,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 							var templ_7745c5c3_Var47 string
 							templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(data.GetCoverageReason(v))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 309, Col: 41}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 310, Col: 41}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 							if templ_7745c5c3_Err != nil {
@@ -922,7 +923,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var48 string
 						templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 321, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 322, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
 						if templ_7745c5c3_Err != nil {
@@ -935,7 +936,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var49 string
 						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", v.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 322, Col: 61}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 323, Col: 61}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var49)
 						if templ_7745c5c3_Err != nil {
@@ -948,7 +949,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var50 string
 						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Org.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 323, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 324, Col: 60}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
 						if templ_7745c5c3_Err != nil {
@@ -961,7 +962,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var51 string
 						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(v.Name.Get(i18n.Lang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 324, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 325, Col: 60}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 						if templ_7745c5c3_Err != nil {
@@ -974,7 +975,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var52 string
 						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(effPrice.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 325, Col: 51}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 326, Col: 51}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
 						if templ_7745c5c3_Err != nil {
@@ -987,7 +988,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 						var templ_7745c5c3_Var53 string
 						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", minOrderQty))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 326, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 327, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
 						if templ_7745c5c3_Err != nil {
@@ -1013,7 +1014,7 @@ func SupplierProfileCatalog(data SupplierProfileData, lang string) templ.Compone
 					var templ_7745c5c3_Var54 templ.SafeURL
 					templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 334, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers_profile_catalog.templ`, Line: 335, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 					if templ_7745c5c3_Err != nil {

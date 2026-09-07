@@ -22,7 +22,7 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 		query := `
 			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
 			       price, cost_price, COALESCE(cost_discount_percentage, 0.00), discount, unit, image, status, is_featured, is_negotiable,
-			       batch_number, expiry_date, min_order_qty, branch_id,
+			       batch_number, expiry_date, min_order_qty, quota_limit, branch_id,
 			       created_at, updated_at, deleted_at
 			FROM catalog.product_variants
 			WHERE product_id = ANY($1) AND deleted_at IS NULL
@@ -40,7 +40,7 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.CostDiscountPercentage, &v.Discount, &v.Unit, &v.Image,
-				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty, &v.QuotaLimit,
 				&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {
 				return err
@@ -70,7 +70,7 @@ func (r *Repository) GetVariantsByIDs(ctx context.Context, ids []int64) (map[int
 		rows, err := tx.Query(txCtx, `
 			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
 			       price, cost_price, COALESCE(cost_discount_percentage, 0.00), discount, unit, image, status, is_featured, is_negotiable,
-			       batch_number, expiry_date, min_order_qty, branch_id,
+			       batch_number, expiry_date, min_order_qty, quota_limit, branch_id,
 			       created_at, updated_at, deleted_at
 			FROM catalog.product_variants
 			WHERE id = ANY($1) AND deleted_at IS NULL;`, ids)
@@ -85,7 +85,7 @@ func (r *Repository) GetVariantsByIDs(ctx context.Context, ids []int64) (map[int
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
 				&v.Barcode, &v.Price, &v.CostPrice, &v.CostDiscountPercentage, &v.Discount, &v.Unit, &v.Image,
-				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
+				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty, &v.QuotaLimit,
 				&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {
 				return err

@@ -119,6 +119,7 @@ func (h *UIHandler) buildCatalogVariantCards(
 					OriginalPrice:   off.OldPrice,
 					DiscountPercent: discPct,
 					AvailableStock:  off.AvailableStock,
+					MaxOrderQty:     off.MaxOrderQty,
 					MinOrderQty:     off.MinOrderQty,
 					ExpiryDate:      off.ExpiryDate,
 					IsCovered:       off.IsCovered,

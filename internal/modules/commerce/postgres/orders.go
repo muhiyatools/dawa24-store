@@ -56,6 +56,22 @@ func (r *Repository) CreateOrder(
 	lines []*commerce.OrderLine,
 ) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 0. The per-branch quota, before anything is written.
+		//
+		// commerce.CheckAvailability has already refused an over-quota line at
+		// the cart and again at checkout. Neither of those is atomic with this
+		// insert, so two baskets can pass the gate at the same instant and both
+		// arrive here for the last units. The rule is applied once more under a
+		// lock held for this transaction; it is the only place where "the
+		// branch may take this much" and "the lines are written" are one act.
+		var quotaBranchID int64
+		if order.BranchID != nil {
+			quotaBranchID = *order.BranchID
+		}
+		if err := enforceOrderQuotas(txCtx, tx, quotaBranchID, orderLineDemands(lines), 0); err != nil {
+			return err
+		}
+
 		// 1. Insert master order
 		queryOrder := `
 			INSERT INTO commerce.orders (

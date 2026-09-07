@@ -156,6 +156,24 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 								</div>
 							</div>
 
+							<div class="stack-sm">
+								<label class="form-label font-bold text-primary text-sm">
+									حصة كل فرع (الحد الأقصى لكل فرع مشترٍ)
+								</label>
+								<input
+									type="number"
+									id="edit-form-quota"
+									name="quota_limit"
+									min="1"
+									placeholder="اتركه فارغاً لإلغاء الحصة (بدون حد)"
+									class="form-input w-full-rounded tabular-nums"
+								/>
+								<p class="text-muted text-xs">
+									أقصى كمية يمكن لأي فرع مشترٍ شراؤها من هذا الصنف إجمالاً. كل فرع له حصته المستقلة،
+									وفرعان لنفس المنشأة لكل منهما نفس الحد. اتركه فارغاً لإلغاء الحصة نهائياً.
+								</p>
+							</div>
+
 							<div class="grid-2">
         <div class="stack-sm">
 									<label class="form-label font-bold text-primary text-sm">
@@ -405,6 +423,19 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 
 							<div class="stack-sm">
 								<label class="form-label font-bold text-primary text-sm">
+									حصة كل فرع (اختياري)
+								</label>
+								<input
+									type="number"
+									name="quota_limit"
+									min="1"
+									placeholder="بدون حد"
+									class="form-input w-full-rounded tabular-nums"
+								/>
+							</div>
+
+							<div class="stack-sm">
+								<label class="form-label font-bold text-primary text-sm">
 									قابل للتفاوض على السعر؟
 								</label>
 								<select name="is_negotiable" class="form-input w-full-rounded font-bold">
@@ -483,6 +514,7 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 						'edit-form-cost-discount': (v.cost_discount_percentage && v.cost_discount_percentage !== '0.00') ? v.cost_discount_percentage : '',
 						'edit-form-stock': v.stock_qty,
 						'edit-form-min-qty': v.min_order_qty || 1,
+						'edit-form-quota': v.quota_limit || '',
 						'edit-form-batch': v.batch_number,
 						'edit-form-expiry': v.expiry_date,
 						'edit-form-status': v.status || 'active',

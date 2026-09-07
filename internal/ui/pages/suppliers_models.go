@@ -51,6 +51,12 @@ type SupplierDirectoryData struct {
 type SupplierVariantMeta struct {
 	AvailableStock int
 	MinOrderQty    int
+	// MaxOrderQty is the most this buyer's branch may actually order right
+	// now: the stock, lowered to what is left of the supplier's per-branch
+	// quota. It is separate from AvailableStock because the two answer
+	// different questions — "how many are on the shelf" is what the badge
+	// shows, "how many may I take" is what the number box must not exceed.
+	MaxOrderQty    int
 	IsCovered      bool
 	CoverageReason string
 	CanAddToCart   bool
@@ -306,4 +312,21 @@ func dosageFormIcon(form string) string {
 	default:
 		return "📦"
 	}
+}
+
+// GetMaxOrderQty is the ceiling for a variant's quantity box.
+//
+// It falls back to the stock, so a surface that never ran an availability check
+// — a signed-out visitor browsing, a buyer with no receiving branch chosen —
+// behaves exactly as it did before quotas existed.
+func (d *SupplierProfileData) GetMaxOrderQty(v *catalog.ProductVariant) int {
+	if v == nil {
+		return 0
+	}
+	if d.VariantMeta != nil {
+		if m, ok := d.VariantMeta[v.ID]; ok && m.MaxOrderQty > 0 {
+			return m.MaxOrderQty
+		}
+	}
+	return d.GetAvailableStock(v)
 }

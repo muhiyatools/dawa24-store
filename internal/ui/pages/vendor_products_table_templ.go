@@ -678,6 +678,7 @@ func variantEditJSON(v *catalog.ProductVariant) string {
 		CostDiscount string `json:"cost_discount_percentage"`
 		Stock        int    `json:"stock_qty"`
 		MinOrderQty  int    `json:"min_order_qty"`
+		QuotaLimit   string `json:"quota_limit"`
 		Batch        string `json:"batch_number"`
 		Expiry       string `json:"expiry_date"`
 		BranchID     string `json:"branch_id"`
@@ -696,6 +697,7 @@ func variantEditJSON(v *catalog.ProductVariant) string {
 		CostDiscount: fmt.Sprintf("%.2f", v.CostDiscountPercentage),
 		Stock:        v.StockQty,
 		MinOrderQty:  v.MinOrderQty,
+		QuotaLimit:   formatQuotaLimit(v),
 		Batch:        v.BatchNumber,
 		Expiry:       formatExpiryDate(v.ExpiryDate),
 		BranchID:     branchIDStr(v.BranchID),
@@ -707,6 +709,19 @@ func variantEditJSON(v *catalog.ProductVariant) string {
 		return "{}"
 	}
 	return string(b)
+}
+
+// formatQuotaLimit renders the per-branch cap for the edit dialog.
+//
+// An empty string, not "0". The dialog's number box has to come up blank for an
+// unrestricted item, because a supplier who sees 0 there reads it as "nobody may
+// buy this" — and because leaving the box empty is how they remove the quota
+// again. The two must be the same value in both directions.
+func formatQuotaLimit(v *catalog.ProductVariant) string {
+	if v == nil || !v.HasQuota() {
+		return ""
+	}
+	return fmt.Sprintf("%d", *v.QuotaLimit)
 }
 
 var _ = templruntime.GeneratedTemplate

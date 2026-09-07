@@ -119,6 +119,19 @@ func applyVariantEdit(r *http.Request, v *catalog.ProductVariant, lang string) e
 		v.MinOrderQty = qty
 	}
 
+	// The per-branch quota. An empty box is a real choice — it is how the
+	// supplier removes the cap — so, unlike min_order_qty above, the empty case
+	// is handled rather than skipped. Everything else here follows the same
+	// rule as the rest of the form: a key the dialog did not send leaves the
+	// stored value alone.
+	if raw, ok := formField(r, "quota_limit"); ok {
+		limit, err := parseQuotaLimit(raw)
+		if err != nil {
+			return err
+		}
+		v.QuotaLimit = limit
+	}
+
 	if raw, ok := formField(r, "expiry_date"); ok {
 		if raw == "" {
 			v.ExpiryDate = nil
@@ -146,4 +159,37 @@ func applyVariantEdit(r *http.Request, v *catalog.ProductVariant, lang string) e
 	}
 
 	return nil
+}
+
+// parseQuotaLimit reads a per-branch quota out of a form field.
+//
+// Blank and zero both mean "no quota". They are folded together here rather
+// than at the four surfaces that offer the field, because a supplier clearing
+// the box and a supplier typing 0 mean the same thing and the column stores
+// only NULL or a positive number.
+func parseQuotaLimit(raw string) (*int, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil, nil
+	}
+	limit, err := strconv.Atoi(raw)
+	if err != nil {
+		return nil, fmt.Errorf("%s", i18n.TDefault("vendor.catalog.invalid_quota"))
+	}
+	if limit <= 0 {
+		return nil, nil
+	}
+	if limit > catalog.MaxQuotaLimit {
+		return nil, fmt.Errorf("%s", i18n.TDefault("vendor.catalog.quota_too_large"))
+	}
+	return &limit, nil
+}
+
+// quotaFailureRedirect picks where to send a supplier whose quota entry was
+// rejected while creating an item: back to the form they were on.
+func quotaFailureRedirect(r *http.Request) string {
+	if ref := strings.TrimSpace(r.Header.Get("Referer")); ref != "" {
+		return ref
+	}
+	return "/vendor/products"
 }

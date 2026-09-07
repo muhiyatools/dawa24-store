@@ -171,6 +171,11 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 						<label class="form-label" for="var-min-qty">الحد الأدنى لطلب الصيدلية (عبوة)</label>
 						<input type="number" min="1" id="var-min-qty" name="min_order_qty" value="1" class="form-input tabular-nums" required />
 					</div>
+     <div class="stack-sm">
+						<label class="form-label" for="var-quota">حصة كل فرع (اختياري)</label>
+						<input type="number" min="1" id="var-quota" name="quota_limit" class="form-input tabular-nums" placeholder="بدون حد" />
+						<p class="text-muted text-xs">أقصى كمية يشتريها أي فرع من هذا الصنف إجمالاً. اتركه فارغاً لعدم تحديد حصة.</p>
+					</div>
 				</div>
 
 				<!-- 6. Branch / Warehouse Location -->

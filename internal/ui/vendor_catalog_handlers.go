@@ -176,6 +176,15 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 		minQty = 1
 	}
 
+	// The supplier's per-branch quota. A blank box means no quota at all, which
+	// is what an item without one has always had, so a parse failure here is a
+	// message rather than a silent zero.
+	quotaLimit, quotaErr := parseQuotaLimit(r.PostFormValue("quota_limit"))
+	if quotaErr != nil {
+		h.redirectWithNotice(w, r, quotaFailureRedirect(r), "error", quotaErr.Error())
+		return
+	}
+
 	branchIDVal, _ := strconv.ParseInt(strings.TrimSpace(r.FormValue("branch_id")), 10, 64)
 	var branchID *int64
 	if branchIDVal > 0 {
@@ -230,6 +239,7 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 		Discount:               discount,
 		StockQty:               stockQty,
 		MinOrderQty:            minQty,
+		QuotaLimit:             quotaLimit,
 		BranchID:               branchID,
 		SKU:                    sku,
 		Barcode:                barcode,

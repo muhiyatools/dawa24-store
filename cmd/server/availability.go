@@ -71,6 +71,11 @@ func (p *availabilityProbe) Variant(ctx context.Context, variantID int64) (comme
 		StockQty:       qty,
 		MinOrderQty:    v.MinOrderQty,
 		Active:         v.Status == catalog.StatusActive,
+		// The supplier's per-branch cap. Only the number crosses; how much of
+		// it the buying branch has already taken is commerce's own arithmetic
+		// over its own orders, and asking catalog for it would put the
+		// consumption in two places.
+		QuotaLimit: v.QuotaLimitOrZero(),
 	}, nil
 }
 
