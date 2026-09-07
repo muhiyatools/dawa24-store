@@ -21,30 +21,27 @@ import (
 
 // courierQueueClause builds one tab's predicate together with its arguments.
 //
-// $1 is the supplier, $2 the open-status list and $3 the search term; every
-// queue uses all three. The courier id is $4, and only the two personal queues
-// supply it — Postgres infers a parameter's type from where it is referenced,
-// so binding one the predicate never mentions is not a wasted argument but a
-// "could not determine data type of parameter $4" at run time. The dispatch
-// queues are company-wide by definition and have no courier to filter on.
+// Postgres infers a parameter's type from where it is referenced, so binding
+// one the predicate never mentions causes "could not determine data type of
+// parameter $N" at run time. Each branch therefore returns only the arguments
+// it actually references, with numbering matching its args slice.
 func courierQueueClause(f commerce.CourierQueueFilter) (string, []any) {
-	shared := []any{f.VendorOrgID, commerce.CourierOpenStatuses(), f.Search}
 	switch f.Queue {
 	case commerce.CourierQueueCompleted:
-		return `s.organization_id = $1 AND s.status IN ('delivered', 'completed') AND s.courier_user_id = $4` + courierQueueSearch,
-			append(shared, f.CourierUserID)
+		return `s.organization_id = $1 AND s.status IN ('delivered', 'completed') AND s.courier_user_id = $2` + courierQueueSearch,
+			[]any{f.VendorOrgID, f.CourierUserID, f.Search}
 	case commerce.CourierQueueFailed:
-		return `s.organization_id = $1 AND s.status IN ('failed', 'returned', 'cancelled') AND s.courier_user_id = $4` + courierQueueSearch,
-			append(shared, f.CourierUserID)
+		return `s.organization_id = $1 AND s.status IN ('failed', 'returned', 'cancelled') AND s.courier_user_id = $2` + courierQueueSearch,
+			[]any{f.VendorOrgID, f.CourierUserID, f.Search}
 	case commerce.CourierQueueUnassigned:
 		return `s.organization_id = $1 AND s.status = ANY($2) AND s.courier_user_id IS NULL` + courierQueueSearch,
-			shared
+			[]any{f.VendorOrgID, commerce.CourierOpenStatuses(), f.Search}
 	case commerce.CourierQueueAll:
 		return `s.organization_id = $1 AND s.status = ANY($2)` + courierQueueSearch,
-			shared
+			[]any{f.VendorOrgID, commerce.CourierOpenStatuses(), f.Search}
 	default: // CourierQueueMine
 		return `s.organization_id = $1 AND s.status = ANY($2) AND s.courier_user_id = $4` + courierQueueSearch,
-			append(shared, f.CourierUserID)
+			[]any{f.VendorOrgID, commerce.CourierOpenStatuses(), f.Search, f.CourierUserID}
 	}
 }
 
@@ -72,7 +69,7 @@ func courierQueueOrder(q commerce.CourierQueue) string {
 // courierQueueSearch matches the four references a person actually has to hand
 // when they are looking for a parcel. An empty term matches everything rather
 // than nothing, so one query serves the searched and the unsearched board.
-const courierQueueSearch = ` AND ($3 = '' OR s.shipment_number ILIKE '%' || $3 || '%'
+const courierQueueSearch = ` AND ($3::text = '' OR s.shipment_number ILIKE '%' || $3 || '%'
 	         OR s.tracking_number ILIKE '%' || $3 || '%'
 	         OR ord.order_number ILIKE '%' || $3 || '%'
 	         OR COALESCE(cust_org.name->>'ar', '') ILIKE '%' || $3 || '%'
